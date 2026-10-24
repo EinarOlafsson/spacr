@@ -471,19 +471,15 @@ class _UnmixCalibration:
         """Return an independent JSON-safe copy of the captured calibration."""
         return json.loads(json.dumps(self.record))
 
-    def apply(self, image):
-        """Match only real acquired patches within a common valid rectangle."""
-        from scipy.signal import fftconvolve
+    def valid_region(self, shape):
+        """Validate target dimensions and return acquired support without decoding pixels."""
         from .qt.i18n import tr
 
-        array = np.asarray(image)
-        if (array.ndim != 3 or array.shape[-1] != len(self.channels)
-                or not all(array.shape) or np.iscomplexobj(array)
-                or array.size > 16 * 1024 ** 2):
+        if (len(shape) != 3 or shape[-1] != len(self.channels)
+                or any(size <= 0 for size in shape)
+                or int(shape[0]) * int(shape[1]) * int(shape[2]) > 16 * 1024 ** 2):
             raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
-        if not np.isfinite(array).all():
-            raise ValueError(tr("Calibrated unmixing requires finite source pixels."))
-        height, width = array.shape[:2]
+        height, width = shape[:2]
         top, left, bottom, right = 0, 0, height, width
         for shift, kernel in zip(self.shifts, self.matching_kernels):
             dy, dx = shift
@@ -492,6 +488,21 @@ class _UnmixCalibration:
             bottom, right = min(bottom, height + dy - ry), min(right, width + dx - rx)
         if bottom <= top or right <= left:
             raise ValueError(tr("The calibrated shifts and PSF support leave no common valid image region."))
+        return slice(top, bottom), slice(left, right)
+
+    def apply(self, image):
+        """Match only real acquired patches within a common valid rectangle."""
+        from scipy.signal import fftconvolve
+        from .qt.i18n import tr
+
+        array = np.asarray(image)
+        region = self.valid_region(array.shape)
+        if np.iscomplexobj(array):
+            raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
+        if not np.isfinite(array).all():
+            raise ValueError(tr("Calibrated unmixing requires finite source pixels."))
+        top, bottom = region[0].start, region[0].stop
+        left, right = region[1].start, region[1].stop
         matched = np.empty((bottom - top, right - left, len(self.channels)), dtype=np.float64)
         for index, (shift, kernel) in enumerate(zip(self.shifts, self.matching_kernels)):
             checkpoint()
@@ -500,7 +511,7 @@ class _UnmixCalibration:
             patch = array[top - dy - ry:bottom - dy + ry,
                           left - dx - rx:right - dx + rx, index]
             matched[..., index] = fftconvolve(patch, kernel, mode='valid')
-        return matched, (slice(top, bottom), slice(left, right))
+        return matched, region
 
 
 def _load_unmix_calibration(settings, channels):
@@ -703,7 +714,8 @@ def _unmix(image, matrix, background_percentile, *, clip_negative=True):
     return solved.reshape(array.shape).astype(np.float32)
 
 
-def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_calibrated=False):
+def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_calibrated=False,
+                     channel_positions=None, field_identities=None):
     """Estimate the run's unmixing plan from its single-stain control wells.
 
     :param settings: ``unmix``, ``unmix_controls`` and
@@ -712,7 +724,9 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     :param channels: channel indices to unmix; None means every channel of
         the fields, as Make Masks unmixes whole stacks.
     :param load: reads one field into a channel-last array; ``np.load``.
-    :param allow_calibrated: allow the ROI-aware 2D live-preview route only.
+    :param allow_calibrated: allow an explicit ROI-aware 2D processing route.
+    :param channel_positions: physical channel IDs mapped to packed positions.
+    :param field_identities: captured source identities keyed by packed filename.
     :returns: a :class:`_UnmixPlan`, or None when ``unmix`` is off.
     :raises ValueError: for missing or unreadable controls or settings.
     """
@@ -722,7 +736,7 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     if requested_calibration and (not allow_calibrated or not settings.get('unmix', False)):
         from .qt.i18n import tr
 
-        raise ValueError(tr("Calibrated spectral unmixing is supported only by the explicit 2D live preview; batch segmentation and Measure are not supported."))
+        raise ValueError(tr("Calibrated spectral unmixing requires an explicit 2D live preview or calibrated V2 batch route; this processing path, including Measure, is not supported."))
     if not settings.get('unmix', False):
         return None
     if channels is not None:
@@ -771,13 +785,28 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     names = sorted(path.name for path in source.glob('*.npy')
                    if not path.name.startswith('.')) if source.is_dir() else []
     stems = {dye: [] for dye in controls}
+    if field_identities is not None:
+        from .qt.i18n import tr
+
+        contexts = set()
+        for name in names:
+            identity = field_identities.get(name)
+            if not isinstance(identity, dict) or not identity.get('plate') or not identity.get('well'):
+                raise ValueError(tr("Calibrated batch inputs require explicit plate and well identities for every field."))
+            contexts.add((str(identity['plate']), identity.get('time', 0), identity.get('z', 0)))
+        if len(contexts) != 1:
+            raise ValueError(tr("Calibrated batch controls and targets must belong to one plate and one acquisition time and plane."))
     for name in names:
         try:
-            identity = parse_field_stem(name)
+            if field_identities is None:
+                identity = parse_field_stem(name)
+                well = (identity.rowID, identity.columnID)
+            else:
+                well = parse_well(field_identities[name]['well'], strict=True)
         except ValueError:
             continue
         for dye, wells in wanted.items():
-            if ((identity.rowID, identity.columnID) in wells
+            if (well in wells
                     and len(stems[dye]) < _UNMIX_MAX_FIELDS):
                 stems[dye].append(name)
     missing = sorted(dye for dye, found in stems.items() if not found)
@@ -804,7 +833,12 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
                 raise ValueError(tr("Spectral unmixing requires images with an explicit channel axis and at least three dimensions."))
             if channels is None:
                 channels = tuple(range(field.shape[-1]))
-            outside = [c for c in (*channels, dye) if not 0 <= c < field.shape[-1]]
+            positions = [channel_positions[c] if channel_positions is not None else c
+                         for c in channels]
+            outside = [c for c, position in zip(channels, positions)
+                       if not 0 <= position < field.shape[-1]]
+            if channel_positions is None and not 0 <= dye < field.shape[-1]:
+                outside.append(dye)
             if outside:
                 raise ValueError(
                     f'unmixing channel {outside[0]} is outside the '
@@ -823,7 +857,7 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
                     from .qt.i18n import tr
 
                     raise ValueError(tr("The selected spectral controls exceed the calibrated control-pixel budget; choose fewer or smaller control fields."))
-            selected_field = field[..., list(channels)]
+            selected_field = field[..., positions]
             if requested_calibration:
                 if calibration is None:
                     calibration = _load_unmix_calibration(settings, channels)
@@ -861,7 +895,7 @@ def _prepare_measure_unmixing(settings):
     if settings.get('unmix_calibration'):
         from .qt.i18n import tr
 
-        raise ValueError(tr("Calibrated spectral unmixing is supported only by the explicit 2D live preview; batch segmentation and Measure are not supported."))
+        raise ValueError(tr("Calibrated spectral unmixing requires an explicit 2D live preview or calibrated V2 batch route; this processing path, including Measure, is not supported."))
     settings.pop(_UNMIX_RECORD_KEY, None)
     if not settings.get('unmix', False):
         return None
@@ -1092,9 +1126,59 @@ def _configuration(plan, channels, pipeline_style, chain=None, unmix=None,
         record['enhancement'] = provenance(chain)['enhancement']
     if unmix is not None:
         record['unmixing'] = unmix.provenance()
+        if unmix.calibration is not None:
+            record['coordinate_system'] = 'calibrated_reference_canvas'
+            record['measurement_intensity_source'] = 'nonquantitative calibrated display; measurements unsupported'
+            record['physical_channel_order'] = list(unmix.channels)
+            record['stage'] = 'signed calibrated valid crop before a nonnegative model view; no illumination correction'
     if n2v is not None:
         record['n2v'] = n2v.provenance()
     return record
+
+
+def _initialize_calibrated_output(root, settings):
+    """Mark a fresh calibrated dataset as nonquantitative before any image write."""
+    from .qt.i18n import tr
+
+    root = Path(root)
+    if not settings.get('unmix') or not settings.get('unmix_calibration'):
+        raise ValueError(tr("Calibrated batch output requires spectral unmixing and an explicit calibration."))
+    if root.exists() and any(root.iterdir()):
+        raise ValueError(tr("Calibrated batch output must use a fresh empty destination; existing results are not resumed or replaced."))
+    _write_json(_record_path(root), {
+        'configuration': {
+            'version': 1, 'pipeline_style': 'v2',
+            'coordinate_system': 'calibrated_reference_canvas',
+            'measurement_intensity_source': 'nonquantitative calibrated display; measurements unsupported',
+        },
+        'complete': False, 'fields': [], 'archives': {},
+    })
+
+
+def _validate_calibrated_batch_settings(settings):
+    """Refuse processing that has no declared calibrated coordinate contract."""
+    from .qt.i18n import tr
+    from .utils import _validated_intensity_bounds
+
+    if (settings.get('illumination_correction') or _bool(settings.get('n2v_denoise', False))
+            or settings.get('timelapse')
+            or prepare_psf(settings) is not None or prepare_chain(settings, None) is not None):
+        raise ValueError(tr("Calibrated batch segmentation supports independent 2D fields without illumination, additional PSF, enhancement, denoising or timelapse processing."))
+    if settings.get('image_qc_mode') == 'exclude':
+        raise ValueError(tr("Calibrated batch segmentation does not support excluding image-QC fields; use report mode so every emitted field retains a declared coordinate frame."))
+    raw = settings.get('object_filters')
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw) if raw.strip() else None
+        except json.JSONDecodeError:
+            raise ValueError(tr("Calibrated batch segmentation supports size and border filters only; custom object filters are not supported.")) from None
+    if raw is not None and (not isinstance(raw, dict) or any(raw.values())):
+        raise ValueError(tr("Calibrated batch segmentation supports size and border filters only; custom object filters are not supported."))
+    bounds = _validated_intensity_bounds(settings.get('cell_min_intensity'),
+                                          settings.get('cell_max_intensity'))
+    perimeter = settings.get('cell_perimeter_fraction', settings.get('cell_perimiter_fraction', 0))
+    if any(bounds) or float(perimeter or 0) != 0:
+        raise ValueError(tr("Calibrated batch segmentation does not support intensity or perimeter-merge filters; use size and border filters only."))
 
 
 def validate_psf_resume(settings, root, channels, *, expected_fields):
@@ -1157,7 +1241,73 @@ class _SegmentationPSFSession:
         self.configuration = _configuration(plan, channels, pipeline_style,
                                             chain, unmix, n2v)
         self.fields = set()
+        self.calibrated_fields = {}
+        self.field_identities = {}
         self._write(False)
+
+    @property
+    def calibrated(self):
+        """Whether fields require explicit calibrated crop and canvas transport."""
+        return self.unmixing is not None and self.unmixing.calibration is not None
+
+    def validate_calibrated_shape(self, shape):
+        """Preflight source support before allocating calibrated pixels or a model."""
+        return self.unmixing.calibration.valid_region(shape)
+
+    def prepare_calibrated(self, field, field_id):
+        """Capture one signed valid crop and its full reference-canvas identity."""
+        from .qt.i18n import tr
+
+        if not self.calibrated:
+            raise ValueError(tr("No spectral calibration was supplied."))
+        identity = self.field_identities.get(str(field_id))
+        if not isinstance(identity, dict):
+            raise ValueError(tr("Calibrated batch inputs require explicit plate and well identities for every field."))
+        result = self.unmixing.apply_calibrated(field)
+        result.record.update(
+            mode='calibrated_batch_2d', coordinate_system='calibrated_reference_canvas',
+            field_id=str(field_id), physical_channel_order=list(self.unmixing.channels),
+            segmentation_view='nonnegative clipped view; not quantitative correction',
+            source_identity=dict(identity),
+        )
+        field_keys = (
+            'mode', 'coordinate_system', 'field_id', 'source_identity',
+            'valid_roi_yx', 'source_origin_px', 'source_shape',
+            'quantitative_output', 'negative_fraction_per_channel',
+            'segmentation_view',
+        )
+        row = {key: result.record[key] for key in field_keys}
+        row['configuration_sha256'] = hashlib.sha256(json.dumps(
+            self.configuration, sort_keys=True, allow_nan=False,
+        ).encode()).hexdigest()
+        self.calibrated_fields[str(field_id)] = row
+        self._write(False)
+        return result
+
+    def calibrated_display(self, field, result):
+        """Embed only the nonnegative display crop, leaving invalid support blank."""
+        canvas = np.zeros(np.shape(field), dtype=np.float32)
+        canvas[result.valid_slices] = np.maximum(result.image, 0)
+        return canvas
+
+    def restore_calibrated(self, mask, result, field_id):
+        """Remove whole boundary labels and restore exact IDs on the reference canvas."""
+        from .qt.i18n import tr
+
+        labels = np.asarray(mask)
+        if (labels.ndim != 2 or labels.shape != result.image.shape[:2]
+                or np.iscomplexobj(labels) or not np.isfinite(labels).all()
+                or np.any(labels < 0) or np.any(labels > np.iinfo(np.uint16).max)
+                or not np.equal(labels, np.floor(labels)).all()):
+            raise ValueError(tr("Calibrated batch labels must match the valid crop and contain exact integer IDs from 0 to 65535."))
+        boundary = np.unique(np.concatenate((labels[0], labels[-1], labels[:, 0], labels[:, -1])))
+        boundary = boundary[boundary != 0]
+        kept = np.where(np.isin(labels, boundary), 0, labels).astype(np.uint16)
+        canvas = np.zeros(tuple(result.record['source_shape'][:2]), dtype=np.uint16)
+        canvas[result.valid_slices] = kept
+        result.record['excluded_boundary_label_ids'] = [int(value) for value in boundary]
+        self.calibrated_fields[str(field_id)]['excluded_boundary_label_ids'] = result.record['excluded_boundary_label_ids']
+        return canvas
 
     @property
     def processes(self):
@@ -1185,9 +1335,21 @@ class _SegmentationPSFSession:
             return apply_chain(image, self.chain)
         return self.plan.apply(image) if self.plan else image
 
-    def mark_completed(self, field_id):
+    def mark_completed(self, field_id, *, output_path=None, signed_path=None):
         """Record a field only after its archive or combined stack is durable."""
+        if self.calibrated:
+            from .qt.i18n import tr
+
+            if output_path is None or signed_path is None or str(field_id) not in self.calibrated_fields:
+                raise ValueError(tr("Calibrated batch completion requires durable display, mask and signed-crop outputs."))
+            row = self.calibrated_fields[str(field_id)]
+            for key, path in (('display_mask', output_path), ('signed_crop', signed_path)):
+                path = Path(path)
+                relative = path.resolve().relative_to(self.root.resolve())
+                row[key] = {'path': str(relative), 'sha256': _digest(path)}
         self.fields.add(str(field_id))
+        if self.calibrated:
+            self._write(False)
 
     def finish(self, expected_fields):
         """Publish completion only for an exact set of committed field stems."""
@@ -1205,6 +1367,8 @@ class _SegmentationPSFSession:
                         sorted((self.root / 'masks').glob('*.npz'))}
         record = {'configuration': self.configuration, 'complete': complete,
                   'fields': sorted(self.fields), 'archives': archives}
+        if self.calibrated:
+            record['calibrated_fields'] = self.calibrated_fields
         descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix='.psf_')
         try:
             with os.fdopen(descriptor, 'w') as stream:
@@ -1218,7 +1382,8 @@ class _SegmentationPSFSession:
 
 
 def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
-                              stack_dir=None, load=None):
+                              stack_dir=None, load=None, source_channels=None,
+                              field_identities=None):
     """Capture a kernel and start provenance, including a prior run's off switch.
 
     :param settings: PSF configuration accepted by :func:`prepare_psf` and
@@ -1229,9 +1394,51 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
     :param stack_dir: folder of the raw field stacks the unmixing controls
         are read from; ``root/stack`` when None.
     :param load: reads one raw field channel-last; ``np.load`` when None.
+    :param source_channels: physical IDs in packed order for calibrated V2 fields.
+    :param field_identities: captured physical identities for packed V2 filenames.
     :returns: a new session, or None for an untracked run with the PSF, the
         chain, unmixing and Noise2Void all off.
     """
+    if settings.get('unmix_calibration'):
+        from .qt.i18n import tr
+
+        if (pipeline_style != 'v2' or source_channels is None or field_identities is None
+                or not settings.get('unmix')):
+            raise ValueError(tr("Calibrated batch segmentation requires organized 2D V2 fields with explicit physical channels and source identities."))
+        _validate_calibrated_batch_settings(settings)
+        raw_channels = tuple(source_channels)
+        try:
+            physical = tuple(int(value) for value in raw_channels)
+        except (TypeError, ValueError, OverflowError):
+            raise ValueError(tr("Calibrated batch inputs require distinct nonnegative integer physical channel IDs.")) from None
+        if (not physical or len(physical) > 16 or len(set(physical)) != len(physical)
+                or any(isinstance(value, (bool, np.bool_)) or value != channel or channel < 0
+                       for value, channel in zip(raw_channels, physical))):
+            raise ValueError(tr("Calibrated batch inputs require distinct nonnegative integer physical channel IDs."))
+        unmix = _prepare_unmixing(
+            settings, stack_dir if stack_dir is not None else Path(root) / 'merged',
+            channels=physical, load=load, allow_calibrated=True,
+            channel_positions={channel: index for index, channel in enumerate(physical)},
+            field_identities=field_identities,
+        )
+        session = _SegmentationPSFSession(None, root, channels, pipeline_style, unmix=unmix)
+        session.field_identities = dict(field_identities)
+        source_roots = {str(Path(identity['source_dataset']).resolve())
+                        for identity in field_identities.values()
+                        if identity.get('source_dataset')}
+        if len(source_roots) > 1:
+            raise ValueError(tr("Calibrated batch fields must identify one original source dataset."))
+        session.configuration['source_dataset'] = (next(iter(source_roots)) if source_roots else
+            str(Path(stack_dir if stack_dir is not None else Path(root) / 'merged').resolve().parent))
+        session.configuration['control_identities'] = {
+            stem: dict(field_identities[stem + '.npy'])
+            for stems in unmix.fields.values() for stem in stems
+        }
+        mapper = Path(root) / 'filename_map.csv'
+        if mapper.is_file():
+            session.configuration['filename_map_sha256'] = _digest(mapper)
+        session._write(False)
+        return session
     inferred = fill_psf_settings(settings, root)
     if inferred is not None:
         print('PSF calibration was not set; inferred values (source in brackets):')

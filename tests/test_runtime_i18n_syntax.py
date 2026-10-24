@@ -105,6 +105,35 @@ def test_volume_measurement_diagnostics_enter_runtime_catalog():
     } <= sources
 
 
+def test_calibrated_batch_and_measurement_refusals_enter_runtime_catalog():
+    import ast
+    import build_i18n_catalogs as builder
+
+    owners = {
+        "core": {"preprocess_generate_masks"},
+        "measure": {"_validate_measurement_coordinate_source"},
+        "pipeline_v2": {"_read_plane", "_calibrated_label_array",
+                        "stream_originals_to_stack", "stream_masks_from_stack", "run_v2"},
+        "psf_pipeline": {"_initialize_calibrated_output", "_validate_calibrated_batch_settings",
+                         "_prepare_segmentation_psf", "_SegmentationPSFSession"},
+    }
+    expected = set()
+    for module, names in owners.items():
+        tree = ast.parse((ROOT / "spacr" / (module + ".py")).read_text(encoding="utf-8"))
+        selected = [node for node in tree.body
+                    if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names]
+        assert {node.name for node in selected} == names
+        for owner in selected:
+            expected.update(node.args[0].value for node in ast.walk(owner)
+                            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                            and node.func.id == "tr" and node.args
+                            and isinstance(node.args[0], ast.Constant)
+                            and isinstance(node.args[0].value, str)
+                            and builder._looks_translatable(node.args[0].value))
+    assert expected
+    assert expected <= set(builder.extract_static_ui_sources())
+
+
 def test_make_masks_short_group_headings_enter_translation():
     import ast
     import build_i18n_catalogs as builder

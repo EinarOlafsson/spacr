@@ -235,7 +235,10 @@ def preprocess_generate_masks(settings):
         ``src``. When ``dry_run`` is set, returns instead the list of
         problems from :func:`spacr.validate.run_preflight`. When
         ``watch_folder`` is set, returns a dict naming the fields analysed,
-        failed and never completed when the watch ends.
+        failed and never completed when the watch ends. Calibrated V2
+        segmentation instead writes a separate dataset with nonquantitative
+        aligned display planes and reference-canvas masks; original raw
+        channels are unchanged and Measure refuses those calibrated outputs.
     :raises ValueError: if ``src`` is missing or of the wrong type, or no
         segmentation channel is defined.
 
@@ -293,6 +296,10 @@ def preprocess_generate_masks(settings):
         return _watch_folder_and_analyse(settings)
 
     if settings.get('pipeline_style', 'v1') == 'v2':
+        if settings.get('unmix_calibration') and settings.get('export_vvvv', False):
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Calibrated batch segmentation does not support VVVV export; its aligned display output is not quantitative data."))
         settings = set_default_settings_preprocess_generate_masks(settings)
         if settings.get('mask_parallel'):
             print('mask_parallel applies to the v1 mask pipeline; this v2 run segments on one device.')
@@ -336,11 +343,17 @@ def preprocess_generate_masks(settings):
                 object_type='cell',
                 illumination_settings=settings,
             )
-            report_disk_savings(src, result['stacks'])
-            _score_v2_masks(src, settings, object_type='cell')
+            output_root = result.get('output_root', src)
+            if 'output_root' in result:
+                from .qt.i18n import tr
+
+                print(tr("Calibrated segmentation saved nonquantitative display outputs to {path}; quantitative Measure is not supported.").format(path=output_root))
+            if 'output_root' not in result:
+                report_disk_savings(output_root, result['stacks'])
+            _score_v2_masks(output_root, settings, object_type='cell')
             if settings.get('export_vvvv', False):
                 from .io import _export_vvvv_merged
-                _export_vvvv_merged(src)
+                _export_vvvv_merged(output_root)
         return
     
     if settings.get('consolidate', False):

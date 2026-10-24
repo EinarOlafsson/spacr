@@ -68,6 +68,7 @@ import numpy as np
 from .logging_util import Timer, timed
 
 LOG = logging.getLogger("spacr.pipeline_v2")
+_CALIBRATED_BATCH_VALUES = 64 * 1024 ** 2
 
 
 
@@ -314,6 +315,8 @@ def stream_originals_to_stack(
     channels: Sequence[int] = (0, 1, 2, 3),
     channel_names: Optional[Sequence[str]] = None,
     dst: Optional[Path] = None,
+    *, metadata_root: Optional[Path] = None,
+    calibrated: bool = False,
 ) -> List[StackFile]:
     """Write one ``merged/stack_<field>.npy`` per field.
 
@@ -329,6 +332,9 @@ def stream_originals_to_stack(
     :param channel_names: human names for those channels (must match
         ``channels`` length). Default: ``["ch0", "ch1", …]``.
     :param dst: override the output folder; defaults to ``<src>/merged``.
+    :param metadata_root: mapping CSV destination, defaulting to the source folder.
+    :param calibrated: preserve numeric planes and refuse missing, duplicate,
+        non-2D or oversized channels for the separate calibrated route.
     :returns: list of :class:`StackFile`, one per field written.
     """
     src = Path(src)
@@ -346,6 +352,11 @@ def stream_originals_to_stack(
 
     for field_id, recs in by_field.items():
         by_ch = {r.channel: r for r in recs}
+        if calibrated:
+            from .qt.i18n import tr
+
+            if len(by_ch) != len(recs) or any(ch not in by_ch for ch in channels):
+                raise ValueError(tr("Calibrated segmentation requires every selected physical channel exactly once in each field."))
 
         ref_shape = None
         ref_dtype = np.uint16
@@ -353,7 +364,9 @@ def stream_originals_to_stack(
         for ch in channels:
             rec = by_ch.get(ch)
             if rec is not None:
-                plane = _read_plane(rec.original_path)
+                plane = (_read_plane(rec.original_path, calibrated=True,
+                                     max_pixels=(16 * 1024 ** 2) // len(channels))
+                         if calibrated else _read_plane(rec.original_path))
                 read_cache[ch] = plane
                 ref_shape = plane.shape
                 ref_dtype = plane.dtype
@@ -371,10 +384,18 @@ def stream_originals_to_stack(
                 continue
             plane = read_cache.get(ch)
             if plane is None:
-                plane = _read_plane(rec.original_path)
+                plane = (_read_plane(rec.original_path, calibrated=True,
+                                     max_pixels=(16 * 1024 ** 2) // len(channels))
+                         if calibrated else _read_plane(rec.original_path))
+            if calibrated and plane.shape != ref_shape:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Calibrated segmentation channels must share the same acquired YX shape."))
             planes.append(plane)
 
-        stack = np.stack(planes, axis=-1).astype(np.uint16)
+        stack = np.stack(planes, axis=-1)
+        if not calibrated:
+            stack = stack.astype(np.uint16)
         out_path = dst / f"stack_{field_id}.npy"
         np.save(out_path, stack)
         written.append(StackFile(
@@ -382,13 +403,21 @@ def stream_originals_to_stack(
             channels=list(channel_names),
         ))
 
-    (dst / "channel_order.json").write_text(json.dumps({
+    metadata = {
         "image_channels": list(channel_names),
         "mask_channels":  [],
         "shape_H_W_C":    "final shape is (H, W, C_image + C_mask)",
-    }, indent=2), encoding="utf-8")
+    }
+    if calibrated:
+        metadata.update(coordinate_system="calibrated_reference_canvas",
+                        quantitative=False, image_dtype="float32",
+                        mask_storage="uint16 label values stored exactly in float32",
+                        source_channels=[int(channel) for channel in channels],
+                        calibration_record="../psf/segmentation_application.json")
+    (dst / "channel_order.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-    mapper.save_csv(src / "filename_map.csv")
+    mapper.save_csv((Path(metadata_root) if metadata_root is not None else src)
+                    / "filename_map.csv")
     LOG.info("wrote %d field stacks under %s + filename_map.csv",
               len(written), dst)
     return written
@@ -433,16 +462,41 @@ def _record_cellpose_hash(model, model_name: str) -> None:
                     model_name, exc)
 
 
-def _read_plane(path: str) -> np.ndarray:
-    """Read a single 2-D image plane (H, W) as uint16."""
+def _read_plane(path: str, *, calibrated=False, max_pixels=None) -> np.ndarray:
+    """Read a source plane, preserving the calibrated route's acquired values.
+
+    :param path: source image path.
+    :param calibrated: require a genuine single-channel YX image without casting.
+    :param max_pixels: calibrated per-plane pixel limit checked before decoding.
+    :returns: the acquired numeric plane, or the legacy uint16 view.
+    """
     p = Path(path)
     suf = p.suffix.lower()
     if suf in (".tif", ".tiff"):
         import tifffile
+        if calibrated:
+            from .qt.i18n import tr
+
+            with tifffile.TiffFile(p) as image:
+                shape = image.series[0].shape
+                if len(image.series) != 1 or len(shape) != 2 or not all(shape):
+                    raise ValueError(tr("Calibrated batch segmentation requires acquired single-channel 2D images."))
+                if max_pixels is not None and int(np.prod(shape)) > max_pixels:
+                    raise ValueError(tr("Calibrated segmentation exceeds the supported source-pixel budget."))
         arr = tifffile.imread(str(p))
     else:
         from PIL import Image
-        arr = np.array(Image.open(str(p)))
+        with Image.open(str(p)) as image:
+            if calibrated:
+                from .qt.i18n import tr
+
+                if len(image.getbands()) != 1 or getattr(image, "n_frames", 1) != 1:
+                    raise ValueError(tr("Calibrated batch segmentation requires acquired single-channel 2D images."))
+                if max_pixels is not None and image.width * image.height > max_pixels:
+                    raise ValueError(tr("Calibrated segmentation exceeds the supported source-pixel budget."))
+            arr = np.array(image)
+    if calibrated:
+        return arr
     if arr.ndim == 3:
         arr = arr[..., 0]
     return arr.astype(np.uint16, copy=False)
@@ -517,6 +571,22 @@ def _backend_mask_settings(settings: Optional[Dict[str, Any]],
     return merged
 
 
+def _calibrated_label_array(mask):
+    """Validate label precision before the calibrated float32 output is assembled.
+
+    :param mask: predicted or postprocessed label array.
+    :returns: uint16 labels exactly representing the validated input values.
+    """
+    from .qt.i18n import tr
+
+    values = np.asarray(mask)
+    if (values.ndim != 2 or np.iscomplexobj(values) or not np.isfinite(values).all()
+            or np.any(values < 0) or np.any(values > np.iinfo(np.uint16).max)
+            or np.any(values != np.floor(values))):
+        raise ValueError(tr("Calibrated segmentation labels must be finite nonnegative integers representable exactly as uint16."))
+    return values.astype(np.uint16)
+
+
 @timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
@@ -545,12 +615,14 @@ def stream_masks_from_stack(
         assembled stack before it is handed to Cellpose — taken modulo the
         channel count and de-duplicated in order. It is NOT forwarded as
         Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a
-        single plane, not a grayscale pair. The first selected channel is
-        the object's own channel for absolute mean-intensity filtering.
+        single plane, not a grayscale pair. Calibrated sessions instead require
+        explicit in-range positions. The first selected channel is the object's
+        own channel for absolute mean-intensity filtering.
     :param diameter: expected object diameter in px (None → Cellpose
         auto).
     :param batch_fields: how many field stacks to load into memory at
-        once. Larger = faster but more RAM.
+        once. Larger = faster but more RAM. Calibrated batches refuse above
+        ``64 * 1024**2`` packed input or padded model-input values.
     :param mask_channel_name: human name to record for the appended
         mask channel (default ``"mask"``).
     :param keep_npz: the intermediate batch is compressed to an NPZ under
@@ -567,12 +639,48 @@ def stream_masks_from_stack(
     :param psf_session: optional captured PSF session. Unmixes each whole
         field first when unmixing is on, then processes selected intensities
         after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels
-        depend on PSF processing.
+        depend on PSF processing. A calibrated session instead supplies a
+        signed valid crop for a nonnegative segmentation view, restores labels
+        to the reference canvas and stores separate nonquantitative float32 display
+        channels in its separate output tree, with signed crops under ``signed/``.
+        These display channels are not Measure inputs; calibrated outputs cannot
+        be resumed and completion requires both durable display and signed files.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
     """
     if not stacks:
         return stacks
+    calibrated = bool(getattr(psf_session, "calibrated", False))
+    if calibrated:
+        from .qt.i18n import tr
+        from .psf_pipeline import _validate_calibrated_batch_settings
+
+        _validate_calibrated_batch_settings(postprocess_settings or {})
+        if object_type != "cell" or illumination_session is not None:
+            raise ValueError(tr("Calibrated V2 segmentation requires cell objects without illumination correction."))
+        expected_parent = (psf_session.root / "merged").resolve()
+        if (expected_parent != psf_session.root.resolve() / "merged"
+                or any(stack.path.resolve().parent != expected_parent for stack in stacks)):
+            raise ValueError(tr("Calibrated segmentation can write only inside its separate output merged directory."))
+        field_values = []
+        for stack in stacks:
+            field = np.load(stack.path, mmap_mode="r", allow_pickle=False)
+            if (field.ndim != 3 or not all(field.shape)
+                    or field.size > 16 * 1024 ** 2 or np.iscomplexobj(field)
+                    or not np.isfinite(field).all()):
+                raise ValueError(tr("Calibrated segmentation requires finite 2D channel-last fields within the supported source-pixel budget."))
+            if (not channels_for_cellpose
+                    or any(isinstance(channel, (bool, np.bool_))
+                           or not isinstance(channel, (int, np.integer))
+                           or not 0 <= channel < field.shape[-1]
+                           for channel in channels_for_cellpose)):
+                raise ValueError(tr("Calibrated V2 segmentation requires cell objects and explicit unique physical channels with valid model positions."))
+            psf_session.validate_calibrated_shape(field.shape)
+            field_values.append(field.size)
+            del field
+        for start in range(0, len(stacks), batch_fields):
+            if sum(field_values[start:start + batch_fields]) > _CALIBRATED_BATCH_VALUES:
+                raise ValueError(tr("Calibrated segmentation exceeds the supported aggregate batch-pixel budget; reduce the field batch size."))
 
     from .utils import _resolve_cellpose_pretrained, _validated_intensity_bounds
 
@@ -630,7 +738,8 @@ def stream_masks_from_stack(
             f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
             f"load", logger="spacr.pipeline_v2",
         ):
-            loaded = [_as_hwc(np.load(s.path)) for s in batch]
+            loaded = [(np.array(np.load(s.path, mmap_mode="r", allow_pickle=False), copy=True)
+                       if calibrated else _as_hwc(np.load(s.path))) for s in batch]
 
         npz_path = scratch / f"batch_{batch_start:04d}.npz"
         np.savez_compressed(
@@ -639,14 +748,20 @@ def stream_masks_from_stack(
         )
 
         selected_images: List[np.ndarray] = []
+        calibrated_results = []
         raw_intensity_per_field: List[np.ndarray] = []
         for sf, arr in zip(batch, loaded):
             indices = _cellpose_channel_indices(
                 channels_for_cellpose, arr.shape[-1])
             if filter_by_raw_intensity:
                 raw_intensity_per_field.append(arr[..., indices[0]])
-            source = (psf_session.unmix(arr) if psf_session is not None
-                      else arr)
+            if calibrated:
+                result = psf_session.prepare_calibrated(arr, sf.field_id)
+                calibrated_results.append(result)
+                source = np.maximum(result.image, 0)
+            else:
+                source = (psf_session.unmix(arr) if psf_session is not None
+                          else arr)
             selected = source[..., list(indices)]
             if illumination_session is not None:
                 from .measure_hooks import PreprocessingContext
@@ -657,7 +772,7 @@ def stream_masks_from_stack(
                 )
                 selected = illumination_session.correct(
                     sf.field_id, selected, context)
-            if psf_session is not None:
+            if psf_session is not None and not calibrated:
                 selected = psf_session.correct(selected)
             selected_images.append(selected)
 
@@ -670,6 +785,11 @@ def stream_masks_from_stack(
             ]
             max_height = max(image.shape[0] for image in selected_images)
             max_width = max(image.shape[1] for image in selected_images)
+            if (calibrated and len(selected_images) * max_height * max_width
+                    * selected_images[0].shape[-1] > _CALIBRATED_BATCH_VALUES):
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Calibrated segmentation exceeds the supported padded batch-pixel budget; reduce the field batch size."))
             selected_images = [
                 np.pad(
                     image,
@@ -741,8 +861,13 @@ def stream_masks_from_stack(
             if isinstance(masks, np.ndarray) and masks.ndim == 2:
                 masks = [masks]
             masks_per_field = [
-                np.asarray(mask).astype(np.uint16) for mask in masks
+                _calibrated_label_array(mask) if calibrated
+                else np.asarray(mask).astype(np.uint16) for mask in masks
             ]
+            if calibrated and len(masks_per_field) != len(batch):
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Calibrated segmentation must return one label image for every field."))
 
         if postprocess_settings is not None:
             from .object import merge_split_filter_masks
@@ -764,11 +889,25 @@ def stream_masks_from_stack(
                 batch_filenames=[stack.path.name for stack in batch],
             ))
 
-        for sf, arr, mask in zip(batch, loaded, masks_per_field):
-            mask = np.asarray(mask)[:arr.shape[0], :arr.shape[1]]
-            combined = np.concatenate(
-                [arr, mask[..., None]], axis=-1
-            ).astype(np.uint16)
+        for index, (sf, arr, mask) in enumerate(zip(batch, loaded, masks_per_field)):
+            if calibrated:
+                result = calibrated_results[index]
+                shape = result.image.shape[:2]
+                labels = _calibrated_label_array(mask)
+                if labels.shape != cellpose_images[index].shape[:2]:
+                    from .qt.i18n import tr
+
+                    raise ValueError(tr("Calibrated segmentation labels must match the image passed to the model."))
+                labels = labels[:shape[0], :shape[1]]
+                mask = psf_session.restore_calibrated(labels, result, sf.field_id)
+                mask = _calibrated_label_array(mask)
+                display = psf_session.calibrated_display(arr, result)
+                combined = np.concatenate([display, mask[..., None]], axis=-1).astype(np.float32)
+            else:
+                mask = np.asarray(mask)[:arr.shape[0], :arr.shape[1]]
+                combined = np.concatenate(
+                    [arr, mask[..., None]], axis=-1
+                ).astype(np.uint16)
             from .io import _save_array_atomic
             _save_array_atomic(str(sf.path), combined)
             sf.shape = combined.shape
@@ -776,7 +915,14 @@ def stream_masks_from_stack(
             if illumination_session is not None:
                 illumination_session.mark_completed(sf.field_id)
             if psf_session is not None:
-                psf_session.mark_completed(sf.field_id)
+                if calibrated:
+                    signed_path = psf_session.root / "signed" / sf.path.name
+                    signed_path.parent.mkdir(parents=True, exist_ok=True)
+                    _save_array_atomic(str(signed_path), calibrated_results[index].image)
+                    psf_session.mark_completed(sf.field_id, output_path=sf.path,
+                                               signed_path=signed_path)
+                else:
+                    psf_session.mark_completed(sf.field_id)
 
         if not keep_npz:
             try:
@@ -838,9 +984,11 @@ def run_v2(
         stream_masks_from_stack(stacks, model_name, channels_for_cellpose,
                                 diameter, batch_fields, keep_npz=keep_npz)
 
-    :param src: plate folder holding the originals, scanned
-        non-recursively. ``filename_map.csv`` lands here and output goes
-        to ``<src>/merged``; neither path is overridable from this wrapper.
+    :param src: plate folder holding the originals, scanned non-recursively.
+        Normally the mapping CSV lands here and output goes to ``<src>/merged``.
+        Calibrated runs use a fresh ``calibrated_segmentation`` output directory
+        instead, preserving source metadata and existing merged arrays. Occupied
+        names receive a numeric suffix; calibrated results are never resumed.
     :param channels: channel numbers as parsed from the filename
         (``C01`` gives 1), not C-axis positions. The default
         ``(0, 1, 2, 3)`` therefore misfits stock CellVoyager/Yokogawa
@@ -860,13 +1008,16 @@ def run_v2(
         the assembled stack, taken modulo the channel count (7 with C=4
         becomes 3) and de-duplicated in order. The default ``(0, 0)``
         collapses to one plane, and an empty sequence falls back to plane 0.
+        Calibrated runs require explicit in-range positions instead.
     :param diameter: forwarded to ``model.eval``; ``None`` leaves Cellpose
         to size objects itself. Unlike ``model_name`` it is still honoured
         on Cellpose 4, which rescales the image by ``30 / diameter``.
     :param batch_fields: fields loaded and segmented per batch, the
         memory-versus-speed dial. ``0`` raises ``ValueError``; a negative
         value segments nothing at all, yet ``channel_order.json`` is still
-        rewritten to claim a mask channel that no stack received.
+        rewritten to claim a mask channel that no stack received. Calibrated
+        batches are additionally bounded to ``64 * 1024**2`` packed input or padded
+        model-input values; lower this field count when a batch refuses.
     :param metadata_type: ``"cellvoyager"``, ``"yokogawa"``, ``"custom"``
         or ``"auto"``. Only ``"custom"`` is special-cased; every other
         unrecognised string quietly behaves as ``"auto"`` instead of
@@ -894,7 +1045,12 @@ def run_v2(
         ``*_channel`` role keys are rewritten on a copy (the caller's dict
         is left alone): all cleared to None, then ``object_type`` set to 0,
         plus ``nucleus_channel=1`` when ``object_type`` is ``"cell"`` and
-        two or more planes were selected.
+        two or more planes were selected. An explicit ``unmix_calibration`` with
+        ``unmix`` selects the organized 2D calibrated cell route: signed valid-ROI
+        crops are retained separately, segmentation uses a nonnegative view and
+        labels are restored to the original reference canvas with incomplete
+        boundary objects removed. Unsupported preprocessing, custom/intensity/
+        perimeter filters and quality exclusion refuse before inference.
     :param object_type: picks the weights during ``model_name``
         resolution, names the role given channel 0 in normalisation, and
         is passed to the mask post-processor. An unrecognised value does
@@ -907,22 +1063,72 @@ def run_v2(
         byte-level output contract.
     :returns: dict with ``mapper`` (:class:`FilenameMapper`), ``stacks``
         (list of :class:`StackFile`), and ``dst`` (Path to ``merged/``).
+        Calibrated output also names its separate ``output_root``; its float32
+        display intensities are aligned and nonquantitative, never Measure inputs.
+        Signed valid-ROI float32 diagnostics live under ``output_root/signed``;
+        its application record binds both artifacts and remains incomplete on error.
     :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
         holds no images, when ``metadata_type="custom"`` has no
         ``custom_regex``, or from ``batch_fields=0``.
     """
     src = Path(src)
+    calibrated = bool((postprocess_settings or {}).get("unmix_calibration"))
+    output_root = src
+    if calibrated:
+        from .qt.i18n import tr
+        from .psf_pipeline import (
+            _initialize_calibrated_output, _validate_calibrated_batch_settings)
+
+        _validate_calibrated_batch_settings(postprocess_settings)
+        if (illumination_settings or {}).get("illumination_correction"):
+            raise ValueError(tr("Calibrated V2 segmentation requires cell objects without illumination correction."))
+        if (object_type != "cell" or not channels or len(channels) > 16
+                or len(set(channels)) != len(channels)
+                or any(isinstance(ch, (bool, np.bool_)) or not isinstance(ch, (int, np.integer))
+                       or ch < 0 for ch in channels)
+                or any(int(ch) != ch or not 0 <= int(ch) < len(channels)
+                       for ch in channels_for_cellpose)):
+            raise ValueError(tr("Calibrated V2 segmentation requires cell objects and explicit unique physical channels with valid model positions."))
+        for index in range(10000):
+            candidate = src / ("calibrated_segmentation" if index == 0
+                               else f"calibrated_segmentation_{index:04d}")
+            try:
+                candidate.mkdir()
+                output_root = candidate
+                break
+            except FileExistsError:
+                continue
+        else:
+            raise ValueError(tr("No unused calibrated segmentation output directory is available."))
+        _initialize_calibrated_output(output_root, postprocess_settings)
     mapper = FilenameMapper.discover(src, metadata_type=metadata_type,
                                        custom_regex=custom_regex)
-    stacks = stream_originals_to_stack(
-        src, mapper, channels=channels, channel_names=channel_names,
-    )
+    if calibrated:
+        from .qt.i18n import tr
+
+        acquired_axes = {}
+        for record in mapper.records:
+            key = (record.plate, record.well, record.field)
+            acquired_axes.setdefault(key, set()).add((record.time, record.z))
+        if any(len(values) != 1 for values in acquired_axes.values()):
+            raise ValueError(tr("Calibrated batch segmentation does not support time series or Z stacks."))
+        stacks = stream_originals_to_stack(
+            src, mapper, channels=channels, channel_names=channel_names,
+            dst=output_root / "merged", metadata_root=output_root,
+            calibrated=True)
+    else:
+        stacks = stream_originals_to_stack(
+            src, mapper, channels=channels, channel_names=channel_names,
+        )
     from .image_quality import screen_fields
-    rejected_quality = set(screen_fields(src, postprocess_settings or {},
+    rejected_quality = set(screen_fields(output_root, postprocess_settings or {},
                                          [stack.path for stack in stacks], channels))
     stacks = [stack for stack in stacks if stack.path.name not in rejected_quality]
     if not stacks:
-        return {'mapper': mapper, 'stacks': [], 'dst': src / 'merged'}
+        result = {'mapper': mapper, 'stacks': [], 'dst': output_root / 'merged'}
+        if calibrated:
+            result['output_root'] = output_root
+        return result
     illumination_session = None
     if (stacks and illumination_settings and
             illumination_settings.get('illumination_correction', False)):
@@ -936,11 +1142,31 @@ def run_v2(
             pipeline_style='v2',
         )
     from .psf_pipeline import _prepare_segmentation_psf
-    psf_session = _prepare_segmentation_psf(
-        postprocess_settings or {}, src,
-        _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
-        pipeline_style="v2", stack_dir=stacks[0].path.parent,
-        load=lambda path: _as_hwc(np.load(path)))
+    if calibrated:
+        from functools import partial
+
+        field_identities = {}
+        for field_id, records in mapper.by_field().items():
+            record = records[0]
+            identity = {
+                "plate": record.plate, "well": record.well, "field": record.field,
+                "time": record.time, "z": record.z,
+                "source_dataset": str(src.resolve())}
+            field_identities[field_id] = identity
+            field_identities[f"stack_{field_id}.npy"] = identity
+        psf_session = _prepare_segmentation_psf(
+            postprocess_settings, output_root,
+            _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
+            pipeline_style="v2", stack_dir=stacks[0].path.parent,
+            load=partial(np.load, mmap_mode="r", allow_pickle=False),
+            source_channels=tuple(int(channel) for channel in channels),
+            field_identities=field_identities)
+    else:
+        psf_session = _prepare_segmentation_psf(
+            postprocess_settings or {}, src,
+            _cellpose_channel_indices(channels_for_cellpose, len(stacks[0].channels)),
+            pipeline_style="v2", stack_dir=stacks[0].path.parent,
+            load=lambda path: _as_hwc(np.load(path)))
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
@@ -955,5 +1181,8 @@ def run_v2(
         illumination_session=illumination_session,
         psf_session=psf_session,
     )
-    return {"mapper": mapper, "stacks": stacks,
-            "dst": src / "merged"}
+    result = {"mapper": mapper, "stacks": stacks,
+              "dst": output_root / "merged"}
+    if calibrated:
+        result["output_root"] = output_root
+    return result

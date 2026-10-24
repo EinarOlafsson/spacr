@@ -8,6 +8,7 @@ intensities move to the amounts put in.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 
 import numpy as np
@@ -412,3 +413,157 @@ def test_calibrated_controls_refuse_cumulative_budget_before_copying_the_next_fi
     assert all(file.read_bytes() == content for file, content in before.items())
     assert calibration_path.read_bytes() == calibration_bytes
     assert {file.relative_to(stack.parent) for file in stack.parent.rglob('*')} == before_paths
+
+
+@pytest.fixture
+def calibrated_batch_inputs(calibrated_plate, tmp_path):
+    """Use real control files packed in physical-channel order 3, 1 with well aliases."""
+    from shutil import copyfile
+
+    original_stack, settings, path, calibration, dyes, target, matrix, kernels, shifts, expected = calibrated_plate
+    stack = tmp_path / 'assembled-controls'
+    stack.mkdir()
+    identities = {}
+    for index, well in enumerate(('A01', 'B01', 'C01')):
+        filename = f'stack_{index:06d}.npy'
+        copyfile(original_stack / f'plate1_{well}_1.npy', stack / filename)
+        identity = {'plate': 'plate1', 'well': well, 'field': '1', 'time': '', 'z': ''}
+        identities[filename] = identity
+        identities[f'{index:06d}'] = identity
+    calibration['reference_channel'] = 3
+    for physical, channel in zip((3, 1), calibration['channels']):
+        channel['channel'] = physical
+    path.write_text(json.dumps(calibration), encoding='utf-8')
+    settings = dict(settings, unmix_controls='3:a1; 1:b1')
+    return dict(stack=stack, settings=settings, calibration_path=path, dyes=dyes,
+                target=target, matrix=matrix, kernels=kernels, shifts=shifts,
+                expected=expected, identities=identities, output=tmp_path / 'calibrated-output')
+
+
+def _calibrated_batch_session(inputs):
+    """Prepare the real V2 session using read-only native NPY control loading."""
+    from spacr.psf_pipeline import _initialize_calibrated_output
+
+    def load(path):
+        return np.load(path, mmap_mode='r', allow_pickle=False)
+
+    _initialize_calibrated_output(inputs['output'], inputs['settings'])
+    return _prepare_segmentation_psf(inputs['settings'], inputs['output'], [1],
+        pipeline_style='v2', stack_dir=inputs['stack'], load=load,
+        source_channels=(3, 1), field_identities=inputs['identities'])
+
+
+def test_calibrated_v2_session_keeps_physical_order_aliases_signed_crop_and_source(
+        calibrated_batch_inputs):
+    inputs = calibrated_batch_inputs
+    source_files = {file: file.read_bytes() for file in inputs['stack'].glob('*.npy')}
+    calibration_bytes = inputs['calibration_path'].read_bytes()
+    session = _calibrated_batch_session(inputs)
+    assert session.calibrated and session.processes
+    noise = np.zeros_like(inputs['dyes'])
+    noise[14:20, 15:22, 0] = .5
+    noise[14:20, 15:22, 1] = -.5
+    camera = _calibrated_test_camera(inputs['dyes'], inputs['matrix'],
+                                     inputs['kernels'], inputs['shifts'], noise)
+    assert camera.min() >= 0
+    original = camera.copy()
+    result = session.prepare_calibrated(camera, '000002')
+    assert result.valid_slices == (slice(2, 46), slice(1, 53))
+    assert result.source_origin_px == (2, 1)
+    assert result.image.shape == (44, 52, 2) and result.image.dtype == np.float32
+    common_noise = np.stack((_calibrated_test_blur(noise[..., 0], inputs['kernels'][1]),
+                             _calibrated_test_blur(noise[..., 1], inputs['kernels'][0])), axis=-1)
+    oracle = inputs['expected'] + common_noise @ np.linalg.inv(inputs['matrix']).T
+    np.testing.assert_allclose(result.image, oracle[2:46, 1:53], atol=2e-4, rtol=0)
+    assert result.image[..., 1].min() < -.5
+    signed = result.image.copy()
+    display = session.calibrated_display(camera, result)
+    assert display.shape == camera.shape and display.dtype == np.float32
+    expected_display = np.zeros(camera.shape, dtype=np.float32)
+    expected_display[2:46, 1:53] = np.maximum(oracle[2:46, 1:53], 0)
+    np.testing.assert_allclose(display, expected_display, atol=2e-4, rtol=0)
+    assert np.all(display >= 0)
+    assert not np.shares_memory(display, camera) and not np.shares_memory(display, result.image)
+    np.testing.assert_array_equal(result.image, signed)
+    np.testing.assert_array_equal(camera, original)
+    assert all(file.read_bytes() == before for file, before in source_files.items())
+    assert inputs['calibration_path'].read_bytes() == calibration_bytes
+    assert not (inputs['stack'].parent / 'psf').exists()
+    assert json.loads(json.dumps(result.record)) == result.record
+    assert result.record['source_identity'] == inputs['identities']['000002']
+    assert result.record['physical_channel_order'] == [3, 1]
+    record = json.loads((inputs['output'] / 'psf' / 'segmentation_application.json').read_text())
+    field = record['calibrated_fields']['000002']
+    assert field['source_identity'] == inputs['identities']['stack_000002.npy']
+    assert field['configuration_sha256'] == hashlib.sha256(json.dumps(
+        record['configuration'], sort_keys=True, allow_nan=False).encode()).hexdigest()
+    assert 'matrix' not in field and 'calibration' not in field
+    assert record['configuration']['unmixing']['calibration']['common_psf']
+    assert json.dumps(record).count('"common_psf":') == 1
+
+
+def test_calibrated_v2_restores_exact_uint16_boundary_and_interior_ids(calibrated_batch_inputs):
+    inputs = calibrated_batch_inputs
+    session = _calibrated_batch_session(inputs)
+    result = session.prepare_calibrated(inputs['target'], '000002')
+    labels = np.zeros(result.image.shape[:2], dtype=np.uint16)
+    labels[0:4, 3:8] = 7
+    labels[10:13, 12:15] = 7
+    labels[17:20, 21:24] = 65535
+    original = labels.copy()
+    restored = session.restore_calibrated(labels, result, '000002')
+    expected = np.zeros(inputs['target'].shape[:2], dtype=np.uint16)
+    expected[19:22, 22:25] = 65535
+    np.testing.assert_array_equal(restored, expected)
+    assert np.max(restored) == 65535 and 7 not in restored
+    np.testing.assert_array_equal(labels, original)
+    session._write(False)
+    record = json.loads((inputs['output'] / 'psf' / 'segmentation_application.json').read_text())
+    field = record['calibrated_fields']['000002']
+    assert field['excluded_boundary_label_ids'] == [7]
+    assert field['valid_roi_yx'] == [[2, 46], [1, 53]]
+    assert not record['complete'] and record['fields'] == []
+    assert field['source_identity'] == inputs['identities']['000002']
+    assert field['configuration_sha256'] == hashlib.sha256(json.dumps(
+        record['configuration'], sort_keys=True, allow_nan=False).encode()).hexdigest()
+    assert 'matrix' not in field and 'calibration' not in field
+    assert record['configuration']['unmixing']['calibration']['common_psf']
+    assert json.dumps(record).count('"common_psf":') == 1
+
+
+@pytest.mark.parametrize('bad', ['fraction', 'negative', 'overflow', 'float32-loss', 'shape'])
+def test_calibrated_v2_refuses_unrepresentable_or_wrong_roi_labels(calibrated_batch_inputs, bad):
+    inputs = calibrated_batch_inputs
+    session = _calibrated_batch_session(inputs)
+    result = session.prepare_calibrated(inputs['target'], '000002')
+    labels = np.zeros(result.image.shape[:2], dtype=np.float64)
+    labels[4:8, 4:8] = {'fraction': 1.5, 'negative': -1., 'overflow': 65536.,
+                         'float32-loss': float(2 ** 24 + 1), 'shape': 1.}[bad]
+    if bad == 'shape':
+        labels = np.pad(labels, ((1, 0), (0, 0)))
+    before = labels.copy()
+    with pytest.raises(ValueError):
+        session.restore_calibrated(labels, result, '000002')
+    np.testing.assert_array_equal(labels, before)
+    assert not (inputs['output'] / 'stack_000002.npy').exists()
+
+
+def test_calibrated_output_marker_precedes_images_and_refuses_prior_output(calibrated_batch_inputs):
+    from spacr.psf_pipeline import _initialize_calibrated_output
+
+    inputs = calibrated_batch_inputs
+    before = {file: file.read_bytes() for file in inputs['stack'].glob('*.npy')}
+    _initialize_calibrated_output(inputs['output'], inputs['settings'])
+    path = inputs['output'] / 'psf' / 'segmentation_application.json'
+    marker = json.loads(path.read_text())
+    assert marker['configuration']['version'] == 1
+    assert marker['configuration']['pipeline_style'] == 'v2'
+    assert marker['configuration']['coordinate_system'] == 'calibrated_reference_canvas'
+    assert marker['configuration']['measurement_intensity_source'] == 'nonquantitative calibrated display; measurements unsupported'
+    assert marker['complete'] is False and marker['fields'] == [] and marker['archives'] == {}
+    assert not tuple(inputs['output'].glob('*.npy'))
+    marker_bytes = path.read_bytes()
+    with pytest.raises(ValueError):
+        _initialize_calibrated_output(inputs['output'], inputs['settings'])
+    assert path.read_bytes() == marker_bytes
+    assert all(file.read_bytes() == content for file, content in before.items())
