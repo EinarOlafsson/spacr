@@ -2221,7 +2221,10 @@ class _ChromeButton(QToolButton):
 
     def _queue_icon_paint(self, _scale=None):
         """Coalesce GUI-slot and screen-density changes on this owned button."""
-        self._icon_timer.start(0)
+        from shiboken6 import isValid
+
+        if isValid(self._icon_timer):
+            self._icon_timer.start(0)
 
     def _refresh_icon(self):
         """Repaint only when the actual native slot or screen ratio changed."""

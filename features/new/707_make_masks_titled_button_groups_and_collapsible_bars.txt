@@ -12,6 +12,15 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Chrome lifetime scope: retain an actual button Python wrapper after its native
+parent is deferred-deleted, then change live GUI scale once alongside a live
+button. Require no listener exception and correct live repaint; this targets
+the focused cleanup log, not an asserted normal-app close/reopen reproduction.
+Causal66253 fails5.01s/RSS0.266GiB with that exact deleted-QTimer callback;
+the local queue method now ignores a native-deleted owned timer only.
+Focused51178 passes3.79s/RSS0.269GiB: no callback exception, live sibling
+still repaints exact native slot/DPR; no close/reopen reproduction is claimed.
+
 Status-height repair scope: native44719 exposes two real footer glyph clips
 inside fixed46px status bar; preserve29 ordinary-label passes. Real normal-font
 MainWindow regression covers GUI200/90, font grow/shrink, native resize and
