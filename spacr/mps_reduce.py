@@ -40,6 +40,11 @@ class MetalPCA:
         self.random_state = random_state
 
     def fit(self, data, y=None):
+        """Fit PCA on CPU float64 data and select the projection backend.
+
+        :param data: sample-by-feature matrix used to fit PCA.
+        :param y: ignored compatibility argument.
+        :returns: this fitted reducer."""
         from sklearn.decomposition import PCA
 
         self._reference = PCA(
@@ -68,6 +73,10 @@ class MetalPCA:
         return self
 
     def transform(self, data):
+        """Project samples using the fitted CPU or Metal backend.
+
+        :param data: sample-by-feature matrix with the fitted feature count.
+        :returns: NumPy array of projected samples, whitened when configured."""
         import torch
 
         if self.projection_backend_ == "cpu":
@@ -85,9 +94,18 @@ class MetalPCA:
         return out.cpu().numpy()
 
     def fit_transform(self, data, y=None):
+        """Fit PCA and project the same samples.
+
+        :param data: sample-by-feature matrix used for fitting and projection.
+        :param y: ignored compatibility argument.
+        :returns: NumPy array of projected samples, whitened when configured."""
         return self.fit(data, y).transform(data)
 
     def inverse_transform(self, data):
+        """Reconstruct feature values from fitted PCA coordinates.
+
+        :param data: sample-by-component matrix of projected coordinates.
+        :returns: NumPy array in the original feature space, undoing whitening when configured."""
         values = np.asarray(data)
         if self.whiten:
             values = values * np.sqrt(self.explained_variance_)
@@ -132,6 +150,11 @@ class MetalKMeans:
         return torch.cat(labels), torch.cat(distances)
 
     def fit(self, data, y=None):
+        """Fit cluster centers with chunked Metal assignment and updates.
+
+        :param data: nonempty finite sample-by-feature matrix.
+        :param y: ignored compatibility argument.
+        :returns: this fitted clusterer."""
         import torch
 
         array = np.asarray(data, dtype=np.float64)
@@ -183,6 +206,10 @@ class MetalKMeans:
         return self
 
     def predict(self, data):
+        """Assign samples to the nearest fitted cluster centers on Metal.
+
+        :param data: sample-by-feature matrix with the fitted feature count.
+        :returns: NumPy array of cluster indices."""
         import torch
 
         x = _matrix(_centered(data, self._offset))
@@ -191,9 +218,19 @@ class MetalKMeans:
         )
 
     def fit_predict(self, data, y=None):
+        """Fit cluster centers and return the training sample assignments.
+
+        :param data: nonempty finite sample-by-feature matrix.
+        :param y: ignored compatibility argument.
+        :returns: NumPy array of training sample cluster indices."""
         return self.fit(data, y).labels_
 
     def fit_transform(self, data, y=None):
+        """Fit cluster centers and compute distances to every center on Metal.
+
+        :param data: nonempty finite sample-by-feature matrix.
+        :param y: ignored compatibility argument.
+        :returns: sample-by-cluster NumPy array of Euclidean distances."""
         import torch
 
         self.fit(data, y)
