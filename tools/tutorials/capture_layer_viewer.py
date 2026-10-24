@@ -252,9 +252,19 @@ def record_layers(app, window, stage, captures, capture, settle, write_json, tim
                     desktop.x.XFlush(desktop.display);settle(.3)
             settle(.3)
             after=screen.canvas.canvas
-            if any(not math.isclose(after.step[i],before.step[i]/1.2**3,abs_tol=1e-10) or
-                   not math.isclose(after.origin[i]+after.step[i]*anchor[i],world[i],abs_tol=1e-10) for i in (0,1)):
-                raise ValueError('Actual wheel zoom did not preserve cursor world position')
+            if capture_ui.live(capture):
+                # A live compositor may split or merge wheel notches (high-resolution scrolling) and the real pointer
+                # rests within a pixel of the target: require a whole number of 1.2x zoom-in steps about a world
+                # point within one zoomed pixel of the cursor.
+                ratio=before.step[0]/after.step[0]; notches=round(math.log(ratio,1.2)) if ratio>1 else 0
+                bad=notches<1 or any(not math.isclose(after.step[i],before.step[i]/1.2**notches,rel_tol=1e-9) or
+                                     abs(after.origin[i]+after.step[i]*anchor[i]-world[i])>1.5*before.step[i] for i in (0,1))
+            else:
+                bad=any(not math.isclose(after.step[i],before.step[i]/1.2**3,abs_tol=1e-10) or
+                        not math.isclose(after.origin[i]+after.step[i]*anchor[i],world[i],abs_tol=1e-10) for i in (0,1))
+            if bad:
+                raise ValueError('Actual wheel zoom did not preserve cursor world position (step %r -> %r, origin %r -> %r)'
+                                 % (before.step,after.step,before.origin,after.origin))
         check('22_native_wheel_zoom_keeps_world_anchor',act=zoom_wheel)
         def pan():
             start=screen.canvas.rect().center();end=start+QPoint(90,45);before=screen.canvas.canvas

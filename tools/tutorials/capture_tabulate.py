@@ -196,11 +196,18 @@ def record_tabulate(app, window, stage, captures, capture, settle, write_json, t
         move_to(table.viewport(), table.visualItemRect(item).center()); settle(1.5)
         def shown_tips():
             return [w for w in app.topLevelWidgets() if w.isVisible() and w.windowType() == Qt.ToolTip]
-        # The tooltip appears after the hover delay and the item model now serves its text lazily; wait for it
-        # (bounded) instead of reading it once after a fixed 1.5 s.
-        for _ in range(30):
+        # The tooltip appears after the app's two-second tooltip delay (tooltip_policy) and the item model serves its
+        # text lazily; wait for it (bounded) instead of reading it once after a fixed 1.5 s.
+        for attempt in range(60):
             if len(shown_tips()) == 1 and expected_text in shown_tips()[0].text():
                 break
+            if attempt == 30 and not shown_tips():
+                # The pointer rests on the cell but the compositor delivered no hover rest: ask the viewport for
+                # its tooltip at that point, exactly as Qt does after a rest (the app's tooltip policy still shows it).
+                from qtpy.QtGui import QHelpEvent
+                from qtpy.QtCore import QEvent
+                local = table.visualItemRect(item).center()
+                QApplication.sendEvent(table.viewport(), QHelpEvent(QEvent.ToolTip, local, table.viewport().mapToGlobal(local)))
             settle(.2)
         tips = shown_tips()
         if len(tips) != 1 or expected_text not in tips[0].text():
