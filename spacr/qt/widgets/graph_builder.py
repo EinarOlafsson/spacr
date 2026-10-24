@@ -267,14 +267,30 @@ class ColumnWell(QWidget):
         """Rebuild one list item per offered column, hidden or not.
 
         Called only when the offered columns change, never per keystroke.
+        The existing rows are rewritten in place and surplus rows are kept
+        for reuse, never deleted: a table load settling while the list is
+        painted or read by accessibility once freed items still referenced
+        through their wrappers, the item-rebuild crash of lesson 58.
         """
-        self._list.clear()
-        for name in self._columns:
+        from .sortable_table import _spare_items, _wipe
+
+        spare = _spare_items(self._list)
+        self._list.clearSelection()
+        self._list.setCurrentItem(None)
+        while self._list.count() > len(self._columns):
+            last = self._list.count() - 1
+            _wipe(self._list, self._list.item(last))
+            spare.append(self._list.takeItem(last))
+        for row, name in enumerate(self._columns):
             kind = self._kinds.get(name, "")
-            item = QListWidgetItem(f"{name}   ·  {kind[:4]}")
+            item = self._list.item(row)
+            if item is None:
+                item = spare.pop() if spare else QListWidgetItem()
+                self._list.addItem(item)
+            item.setText(f"{name}   ·  {kind[:4]}")
             item.setData(Qt.UserRole, name)
             item.setToolTip(f"{name} — {kind}\nDrag onto a channel.")
-            self._list.addItem(item)
+            item.setHidden(False)
 
     def _refilter(self) -> None:
         """Show the columns matching the search box, reusing the items."""
