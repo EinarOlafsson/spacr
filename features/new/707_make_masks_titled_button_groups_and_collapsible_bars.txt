@@ -12,6 +12,44 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+New minimum-content scope: actual1200x640 Home at GUI200/font200 on1440x870/DPR2;
+require full styled text/native slots and actual icon bounds after one real
+scroll reveal. Deliberate elision retains its full tooltip, not a full-text claim.
+Harness13337 timed out because timing was disabled;49850 used the wrong body
+role for HeroSubtitle. Both are oracle failures, not product hangs/clipping.
+Corrected66185 reaches real Open Sans208px title/68px subtitle and inspects12/137
+targets before unrelated post-reveal layout drift;125 remain untested.
+Title372x52 needs581x284; subtitle372x52 needs350x918, outside inner-tab scrolls.
+Normal close/return0 and helper/thread cleanup pass; chrome DPR findings remain
+unclassified. Probe corrections use actual iconSize/native-parent scope and
+target/ancestor idle/stability, preserving the same50ms/20s and strict visibility.
+Local Hero repair must fit only those text slots reversibly, retaining selected
+fonts/styles on growth/context changes and the logo source/aspect/DPR.
+Causal16422 reproduces actual208/68px clipping. Private coalesced fitting keeps
+selected preferred hints (not minima), raw actual-pixel QSS and no-op guards.
+Focused70020 PASS4.73s/RSS0.313GiB covers fit, exact styles/font reset, quiescence
+and queued deletion. Native probe separately checks selected68 and actual fit.
+Native2180/tmwFiQ on5d504ea58 exits naturally1 in34.89s/RSS1.205GiB.
+Selected subtitle68/Open Sans and actual1200x640/work1440x870/DPR2 pass.
+Local intrinsic text fitting passes: title38px has104x52 text in581x52;
+subtitle9px has142x42 text in163x52. Both still have empty visible regions.
+Hero is1104x84/minhint531x320 inside a1200x248 body; Home's hint is2510x929.
+Only17/137 targets are inspected before post-reveal geometry drift;120 are
+untested. Preserve14 widget failures and the structural abort, not a full pass.
+Chrome source-DPR and intentionally long scrollable News observations require
+attribution; startup-cover state was not captured, so empty regions alone do
+not prove parent clipping. Normal close/return0 and empty helper/thread state
+pass. Full Home/header/parent access remains pending; logo drawing is unchanged.
+Next attribution is probe-only: record the actual startup-sequence flag,
+cover/onboarding geometry/masks and current stack before assertions, and wait
+for the real sequence to finish inside the same20s. The prior fitted title
+text maps wholly inside its84px hero band yet has an empty visible region;
+without cover state this does not establish the reason for occlusion. Do not
+disable startup effects, extend budgets or dismiss interactive overlays. Long
+News documents need actual scroll access, not simultaneous whole-document
+visibility; defer that classification without treating clipped controls as fit.
+No smaller physical display, physical input or tiny-font readability is certified.
+
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
 passes separate20s operations (Mask14.205s, wizard construction6.952s), embedded
 wizard/browser and three opaque surfaces, then proves an actual top-level floor
