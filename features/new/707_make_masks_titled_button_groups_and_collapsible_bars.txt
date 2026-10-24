@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next ordinary_labels cohort selects31 actual owned labels: recent placeholder1,
+totals8, system6, text-size2, current Home bands8, panel headers4 and status2.
+Require exact semantic counts/identities within the full manifest and original
+20s strict text/reveal contract. Only the explicit News header is included;
+its51 title/date/body labels remain separately unaccepted, not waived.
+
 Remaining tile scope is four disjoint batches: measure/annotate/map_barcodes;
 regression/foreign/run_compare; power/align; graph_builder/toxoplasma. Run each
 once, sequentially on one source pin under unchanged exact-key/role/manifest
