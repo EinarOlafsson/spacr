@@ -12,6 +12,14 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next tile_batch operation requests two or three real visible module keys through
+explicit JSON and checks each tile plus all its current-manifest descendants.
+Require exact requested/observed keys, module-role/full-caption ledger, full
+untested counts and unchanged20s native visibility/source-DPR rules. Prior Mask
+tile/icon/name acceptance does not exclude any untested description/stage rows.
+First requested keys are make_masks, umap and classify_merged; these are real
+registry tiles, not a claim about per-module Live/3D/AI controls.
+
 Tab-navigation scope: normal owned Home→last nonempty category→Home through
 actual QTest arrow/tab clicks, distinguishing strip scrolling from selection.
 Require full native tab captions (including mnemonic handling), category tile
