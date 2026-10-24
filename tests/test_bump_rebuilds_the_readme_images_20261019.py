@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -344,6 +345,8 @@ def test_preparation_news_producer_keeps_published_history_without_announcing_dr
     ("push", ["tools/build_release_notes.py", "--check"]),
 ])
 @pytest.mark.parametrize("result", [0, 3])
+@pytest.mark.skipif(sys.platform == "win32" or shutil.which("bash") is None,
+                    reason="the release workflow step runs under bash on its Linux runner")
 def test_news_preparation_refreshes_only_when_the_result_will_be_committed(
         tmp_path, event, expected, result):
     import os
