@@ -1723,7 +1723,7 @@
     {
       "lesson": "20_cellpose_masks",
       "master_sha256": "6d28c9cb05ca832bd2a4a2984466f9a323435237616dca99e1ac6d42d2db715d",
-      "visual_timing_sha256": "3a4310ddf878f945a635ad0ce4e5fbca59eb252313360840e5af509476057ccf",
+      "visual_timing_sha256": "f37e02a141701abf9392a8a85f5c88ee469fe0bd00b60ed1382b4c80e8d361c4",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",
