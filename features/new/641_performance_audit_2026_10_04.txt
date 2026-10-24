@@ -16,10 +16,21 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-Measure lifecycle scope: reuse the real prewarm constructor-breath/accepted
-close regression with the normal Measure factory and register call-through
-stacks plus exact before/after handle identities. Add an open-host control;
-no fake jobs, registry pruning, source repair or native retry before cause.
+Lifecycle follow-up: validate only the reviewed Measure open-host control;
+prepare exact native-workflow registration call-through stacks/IDs/key/kind/
+host-close/phase/time, primitive data only with exact descriptor restoration.
+No native job before review/pin, registry waiver/pruning or product change.
+
+2026-10-24 — MeasureOpen54744/EU7qWD PASS8.34s, process0/11.48s/0.423GiB:
+real normal Measure factory retains QC banner/chaining bar and its actual
+measure-chaining registration/resolver settlement; factory maps restored.
+This validates the open-host control, not the native late bare-Measure cause.
+
+2026-10-24 — MeasureClose83462/rgy8yA node PASS10.04s, process0/36.60s/
+0.568GiB on910df89a; real SettingsModel.processEvents/prewarm close accepted,
+registry before/after empty, no registrations/publication, one screen built.
+Native bare-Measure failure NOT reproduced; no creation stack/source fix.
+Compiler-thread shutdown warning retained; it finished before process exit0.
 
 2026-10-24 — CoreText scratch Rasb5S exits1/0.038GiB on63d090e8: parityFAIL.
 JXA.281177s/562paths/219unique; ctypes.312042s/2915paths/384unique, both succeed.
