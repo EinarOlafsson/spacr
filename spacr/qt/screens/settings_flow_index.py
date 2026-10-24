@@ -1370,6 +1370,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'unmix_background_percentile',
     'unmix_calibration',
     'unmix_controls',
+    'unmix_matrix_file',
     'unmix_per_plate',
     'unmix_pixel_size_um',
     'unmixing',

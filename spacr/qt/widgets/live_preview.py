@@ -1047,9 +1047,11 @@ def _check_preview_cancel(req: PreviewRequest) -> None:
 
 def _unmix_preview_field(req):
     """Unmix an organized intensity stack without modifying its source."""
-    from ...psf_pipeline import _validate_unmix_plate_scope
+    from ...psf_pipeline import (_validate_unmix_plate_scope,
+                               _validate_unmix_matrix_scope)
 
     _validate_unmix_plate_scope(req.preprocess_settings)
+    _validate_unmix_matrix_scope(req.preprocess_settings)
     if not req.preprocess_settings.get('unmix', False):
         if req.preprocess_settings.get('unmix_calibration'):
             from ...psf_pipeline import _prepare_unmixing
@@ -5303,9 +5305,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if hasattr(self, "_compartment_widgets"):
             merged.update(self._compartment_settings())
         pre = deepcopy(merged)
-        from ...psf_pipeline import _validate_unmix_plate_scope
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
 
         _validate_unmix_plate_scope(pre)
+        _validate_unmix_matrix_scope(pre)
         if pre.get('unmix_calibration'):
             pre = self._calibrated_filter_options(pre, obj_types)
         post = pre

@@ -977,6 +977,7 @@ def _set_unmix_defaults(settings):
     settings.setdefault('unmix', False)
     settings.setdefault('unmix_per_plate', False)
     settings.setdefault('unmix_controls', '')
+    settings.setdefault('unmix_matrix_file', '')
     settings.setdefault('unmix_background_percentile', 5.0)
     settings.setdefault('unmix_calibration', '')
     settings.setdefault('unmix_pixel_size_um', None)
@@ -3350,7 +3351,7 @@ expected_types = {
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
-    "unmix": bool, "unmix_per_plate": bool, "unmix_controls": str,
+    "unmix": bool, "unmix_per_plate": bool, "unmix_controls": str, "unmix_matrix_file": str,
     "unmix_background_percentile": (float, int),
     "unmix_calibration": str,
     "unmix_pixel_size_um": (list, tuple, type(None)),
@@ -4413,6 +4414,7 @@ tooltips = {
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
     'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
     'unmix_per_plate': "(bool) - Select same-plate controls by physical channel ID using a JSON plate-to-channel-to-well-list map in unmix_controls. Requires unmix and explicit calibration. Every selected physical channel needs same-plate controls; no global or cross-plate fallback. Only calibrated organized 2D cell-only V2 runs with one plate, time and Z per source are supported. Reuse a master map across separate plate folders. Mixed plates, previews, V1 and ordinary Measure refuse. No matrix-file loading or purity inference. Default False preserves global controls and packed-stack syntax.",
+    'unmix_matrix_file': "(str) - Version-1 spectral matrix JSON for calibrated organized 2D cell-only V2. Requires explicit physical channel order, unit diagonal, plate/time/Z, calibration hash and background policy. Acquisition gain/exposure compatibility is an unverified user assertion. Conflicts with control estimation and unmix_per_plate; unsupported routes refuse even if this alpha setting is hidden. The captured matrix is copied into the output for signed-record validation. No concentration or acquisition-transfer validation. Default blank preserves estimated controls.",
     'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank. When unmix_per_plate is True, instead supply a JSON plate-to-physical-channel-to-well-list mapping; every selected physical channel must have same-plate controls. The legacy positional syntax is refused in that mode.",
     'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
     'unmix_calibration': "(str) - Calibration JSON with measured channel PSFs, integer shifts, reference channel and pixel sampling. Organized 2D previews and cell-only V2 use a common broadened PSF and valid overlap. V2 preserves raw files and writes separate nonquantitative display planes, restored masks and signed crops; boundary-touching labels are excluded. Ordinary Measure/preview, V1, 3D, timelapse and extra processing refuse calibrated outputs/settings. No calibration is inferred. Default blank preserves legacy unmixing.",
@@ -5601,7 +5603,7 @@ categories = {
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
-    "Spectral Unmixing α": ["unmix", "unmix_per_plate", "unmix_controls",
+    "Spectral Unmixing α": ["unmix", "unmix_per_plate", "unmix_controls", "unmix_matrix_file",
                                   "unmix_background_percentile", "unmix_calibration",
                                   "unmix_pixel_size_um"],
 
@@ -7624,7 +7626,7 @@ ALPHA_FEATURES = {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
     },
     538: {
-        'settings': ('unmix', 'unmix_per_plate', 'unmix_controls', 'unmix_background_percentile',
+        'settings': ('unmix', 'unmix_per_plate', 'unmix_controls', 'unmix_matrix_file', 'unmix_background_percentile',
                      'unmix_calibration', 'unmix_pixel_size_um'),
     },
     557: {
