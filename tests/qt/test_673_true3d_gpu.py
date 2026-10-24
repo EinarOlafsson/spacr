@@ -200,6 +200,11 @@ def test_native_second_channel_visibility_restores_the_additive_frame(tmp_path):
     _run_native_volume_probe(tmp_path, scenario='channels')
 
 
+def test_native_volume_chooser_opens_a_unicode_and_spaces_channel_path(tmp_path):
+    """Use the real owned Qt chooser controls, not a replacement pathname return."""
+    _run_native_volume_probe(tmp_path, scenario='chooser')
+
+
 def _run_native_volume_probe(tmp_path, *, scenario):
     """Share only normal startup, owned data and current-frame verification."""
     import ast
@@ -213,15 +218,19 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     import textwrap
 
     assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-        'image_colour', 'image_renderings', 'mask_finishes', 'channels')
+        'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
-    if scenario == 'channels':
-        fixture = tmp_path / 'channels'
+    volume_name = 'café cells 空间.tif' if scenario == 'chooser' else 'cells.tif'
+    if scenario in ('channels', 'chooser'):
+        fixture = tmp_path / ('données 案件 espace' if scenario == 'chooser' else 'channels')
         fixture.mkdir()
         _two_channel(fixture)
-        required = ('cells.tif', 'masks/cells.tif')
+        if scenario == 'chooser':
+            (fixture / 'cells.tif').rename(fixture / volume_name)
+            (fixture / 'masks/cells.tif').rename(fixture / 'masks' / volume_name)
+        required = (volume_name, 'masks/'+volume_name)
     else:
         retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
             '/Users/olafsson/Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
@@ -257,11 +266,15 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         root = Path(os.environ['SPACR_RESTART_ROOT'])
         assert Path(__import__('spacr').__file__).resolve().parent.parent == root
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() == os.environ['SPACR_RESTART_HEAD']
-        assert timing.ENABLED and not layers.gpu_render_refusal()
+        assert timing.ENABLED
         phase = os.environ['SPACR_RESTART_PHASE']
         scenario = os.environ['SPACR_VOLUME_SCENARIO']
         assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-            'image_colour', 'image_renderings', 'mask_finishes', 'channels')
+            'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser')
+        if scenario != 'chooser':
+            assert not layers.gpu_render_refusal()
+        volume_name = os.environ['SPACR_RESTART_VOLUME_NAME']
+        channel_files = (volume_name, 'masks/'+volume_name)
         control_operations = ['initial', 'visibility_hidden', 'visibility_restored',
             'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
         if scenario == 'image_colour':
@@ -290,6 +303,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             report.update(scenario=scenario, pick_scope='not exercised', image_control_states=[], image_control_actions=[])
         elif scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             report.update(scenario=scenario, pick_scope='not exercised', mask_control_states=[], mask_control_actions=[])
+        elif scenario == 'chooser':
+            report.update(scenario=scenario, pick_scope='not exercised', chooser={})
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
         else:
@@ -554,10 +569,92 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             save()
             assert action['elapsed_after_action'] < 20
 
+        def open_with_real_chooser(screen):
+            from PySide6.QtCore import Qt
+            from PySide6.QtTest import QTest
+            from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit
+
+            source = folder / volume_name
+            record = report['chooser']
+            assert QApplication.testAttribute(Qt.AA_DontUseNativeDialogs)
+            timer = QTimer(screen)
+            timer.setInterval(50)
+            state['chooser_timer'] = timer
+
+            def drive():
+                try:
+                    assert time.perf_counter()-state['started'] < 30
+                    modal = QApplication.activeModalWidget()
+                    if modal is None:
+                        return
+                    record.update(modal_type=type(modal).__name__, parent_type=type(modal.parentWidget()).__name__,
+                        owned=modal.parentWidget() is screen, cpp=shiboken6.getCppPointer(modal),
+                        owner_cpp=shiboken6.getCppPointer(modal.parentWidget()), screen_cpp=shiboken6.getCppPointer(screen),
+                        app_qt_dialog_policy=QApplication.testAttribute(Qt.AA_DontUseNativeDialogs))
+                    save()
+                    assert isinstance(modal, QFileDialog) and modal.parentWidget() is screen
+                    state['chooser_dialog'] = modal
+                    assert modal.isVisible() and modal.windowHandle().isExposed()
+                    assert state['window']._stack.currentWidget() is screen and screen.isVisible()
+                    edit = modal.findChild(QLineEdit, 'fileNameEdit')
+                    box = modal.findChild(QDialogButtonBox)
+                    assert edit is not None and box is not None
+                    assert edit.isEnabled() and edit.isVisible() and not edit.visibleRegion().isEmpty()
+                    if not state.get('chooser_filename_set'):
+                        modal.finished.connect(lambda value: (record.update(finished_code=int(value)), save()))
+                        edit.setText(str(source))
+                        state['chooser_filename_set'] = True
+                        record.update(filename_control=edit.objectName(), filename_text=edit.text())
+                        save()
+                        return
+                    button = box.button(QDialogButtonBox.Open)
+                    assert button is not None
+                    if not button.isEnabled():
+                        return
+                    record.update(open_text=button.text(), open_enabled=button.isEnabled(),
+                        open_visible=button.isVisible(), open_region=button.visibleRegion().boundingRect().getRect(),
+                        selected_files=modal.selectedFiles())
+                    save()
+                    assert button.isVisible() and not button.visibleRegion().isEmpty()
+                    assert len(record['selected_files']) == 1 and os.path.samefile(record['selected_files'][0], source)
+                    timer.stop()
+                    record['open_clicked'] = True
+                    QTest.mouseClick(button, Qt.LeftButton)
+                except Exception:
+                    report['errors'].append(traceback.format_exc())
+                    save()
+                    timer.stop()
+                    modal = state.get('chooser_dialog')
+                    if modal is not None and shiboken6.isValid(modal) and QApplication.activeModalWidget() is modal:
+                        cancel = modal.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel)
+                        assert cancel is not None and cancel.isVisible() and cancel.isEnabled()
+                        QTest.mouseClick(cancel, Qt.LeftButton)
+
+            timer.timeout.connect(drive)
+            state['chooser_active'] = True
+            timer.start()
+            try:
+                opened = screen.open_volume()
+            finally:
+                state['chooser_active'] = False
+                timer.stop()
+            record.update(public_return_is_stage=opened is screen._mask_stage,
+                public_stage_cpp=shiboken6.getCppPointer(opened) if opened is not None else None,
+                returned_at_startup_seconds=time.perf_counter()-state['started'])
+            save()
+            assert opened is screen._mask_stage and record.get('open_clicked') and record.get('finished_code') == 1
+            assert os.path.samefile(opened.session.source_path, source)
+            assert os.path.samefile(screen._src_label.text(), source)
+            record.update(source_samefile=True, loaded_path=opened.session.source_path,
+                no_true3d=opened._panel is None and opened._gl is None)
+            assert record['no_true3d'] and QApplication.activeModalWidget() is None
+
         def tick():
             try:
                 elapsed = time.perf_counter()-state['started']
                 assert elapsed < (30 if state['operation'] in ('startup', 'initial') else 20), state['operation']
+                if scenario == 'chooser' and state.get('chooser_active'):
+                    return
                 window = state['window']
                 assert QApplication.activeModalWidget() is None, 'No consent/provider dialog may be dismissed'
                 if state['operation'] == 'startup' and state.get('module_requested', False):
@@ -595,16 +692,18 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         assert report['module_request']['returned'] == 'make_masks'
                         return
                     screen = state['screen']
-                    if scenario == 'channels':
-                        assert screen.open_volume(str(folder / 'cells.tif')) is screen._mask_stage
+                    if scenario == 'chooser':
+                        open_with_real_chooser(screen)
+                    elif scenario == 'channels':
+                        assert screen.open_volume(str(folder / volume_name)) is screen._mask_stage
                     else:
                         assert load_the_fibsem_test_data(screen, with_masks=True, folder=folder,
                             ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
                     stage = screen._mask_stage
                     session = stage.session
-                    if scenario == 'channels':
+                    if scenario in ('channels', 'chooser'):
                         import tifffile
-                        with tifffile.TiffFile(folder / 'cells.tif') as source:
+                        with tifffile.TiffFile(folder / volume_name) as source:
                             assert source.series[0].axes == 'CZYX' and source.series[0].shape == (2, 12, 24, 28)
                             assert source.series[0].dtype == np.dtype('uint16')
                         z, y, x = np.indices((12, 24, 28))
@@ -624,7 +723,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                             'data_pointer': int(plane.__array_interface__['data'][0]), 'strides': plane.strides}
                             for plane in session.channels]
                         state['channel_files'] = {name: hashlib.sha256((folder / name).read_bytes()).hexdigest()
-                            for name in ('cells.tif', 'masks/cells.tif')}
+                            for name in channel_files}
                         report['channel_fixture'] = {'source_axes': 'CZYX', 'source_shape': [2, 12, 24, 28],
                             'session_axes': session.axes, 'mask_ids': sorted(map(int, np.unique(session.mask))),
                             'mask_dtype': str(session.mask.dtype)}
@@ -633,6 +732,10 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
+                    if scenario == 'chooser':
+                        report['chooser'].update(channels=state['channel_arrays'], files=state['channel_files'])
+                        advance('initial')
+                        return
                     if scenario in ('image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
                             'image_colour', 'image_renderings', 'mask_finishes', 'channels'):
                         state['session_arrays'] = (id(session.image), id(session.mask))
@@ -651,6 +754,14 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     advance('initial')
                     return
                 stage = state['stage']
+                if scenario == 'chooser' and state['operation'] == 'initial':
+                    if not idle(stage):
+                        return
+                    assert stage._panel is None and stage._gl is None
+                    assert all(id(plane) == expected['identity'] and digest(plane) == expected['sha256']
+                        for plane, expected in zip(stage.session.channels, state['channel_arrays']))
+                    advance('current_idle')
+                    return
                 if state['operation'] in ('initial', 'opacity_changed', 'opacity_restored',
                         'visibility_hidden', 'visibility_restored', 'contrast_changed', 'contrast_restored',
                         'rendering_changed', 'rendering_restored', 'mask_opacity_changed', 'mask_opacity_restored',
@@ -956,6 +1067,18 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
+        if scenario == 'chooser':
+            chosen = report['chooser']
+            assert chosen['owned'] and chosen['owner_cpp'] == chosen['screen_cpp']
+            assert chosen['app_qt_dialog_policy'] and chosen['open_clicked'] and chosen['finished_code'] == 1
+            assert chosen['public_return_is_stage'] and chosen['source_samefile'] and chosen['no_true3d']
+            assert len(chosen['channels']) == 2 and len(chosen['files']) == 2
+            assert report['channel_fixture']['mask_ids'] == [0, 1, 2]
+            assert report['data_history_unchanged'] and context is None and renderer is None
+            assert report['remaining_jobs'] == report['owned_threads_alive'] == 0
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert 'pick' not in report and 'current_frame' not in report
+            raise SystemExit(0)
         if scenario == 'image_opacity':
             assert report['opacity_changed_seconds'] < 20 and report['opacity_restored_seconds'] < 20
             assert report['opacity_rgb_changed'] and report['opacity_frame_restored']
@@ -1038,6 +1161,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     env.update(QT_QPA_PLATFORM='cocoa', SPACR_ISOLATED_PROFILE='1', SPACR_HOME=str(tmp_path / 'profile'),
         SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_RESTART_ROOT=str(root), SPACR_RESTART_HEAD=head,
         SPACR_RESTART_FIXTURE=str(fixture), SPACR_NO_NETWORK='1', SPACR_TIMING='1',
+        SPACR_RESTART_VOLUME_NAME=volume_name,
         XDG_CONFIG_HOME=str(tmp_path / 'settings'), XDG_CACHE_HOME=str(tmp_path / 'cache'),
         MPLCONFIGDIR=str(tmp_path / 'cache' / 'matplotlib'), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
     env['SPACR_VOLUME_SCENARIO'] = scenario
@@ -1059,6 +1183,23 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert report['home_tour_hidden_and_seen_before_module']
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
+        if scenario == 'chooser':
+            chosen = report['chooser']
+            assert report['scenario'] == 'chooser' and report['data_history_unchanged']
+            assert chosen['owned'] and chosen['owner_cpp'] == chosen['screen_cpp']
+            assert chosen['app_qt_dialog_policy'] and chosen['open_clicked'] and chosen['finished_code'] == 1
+            assert chosen['open_enabled'] and chosen['open_visible'] and min(chosen['open_region'][2:]) > 0
+            assert chosen['public_return_is_stage'] and chosen['public_stage_cpp']
+            assert chosen['source_samefile'] and os.path.samefile(chosen['loaded_path'], fixture / volume_name)
+            assert chosen['no_true3d'] and 'current_frame' not in report and 'pick' not in report
+            assert len(chosen['channels']) == 2 and len(chosen['files']) == 2
+            assert report['channel_fixture'] == {'source_axes': 'CZYX', 'source_shape': [2, 12, 24, 28],
+                'session_axes': 'ZYX', 'mask_ids': [0, 1, 2], 'mask_dtype': 'uint16'}
+            assert report['remaining_jobs'] == report['owned_threads_alive'] == 0
+            assert not report['errors'] and not report['compiler_threads'] and not report['compiler_helper_present']
+            assert {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required} == checksums
+            reports.append(report)
+            continue
         assert report['saved']['backend'] == 'metal' and report['saved']['scale'] == 75
         assert report['current_frame']['backend'] == 'metal' and report['current_frame']['scale'] == 75
         assert report['current_frame']['fresh_request_exact']
