@@ -310,3 +310,5 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-23 — AnnData Export prerequisite wording is feature-focused in all14 catalogs. Normal84-route candidate and published checks passed with all media, narration, chapter visuals, player and idle policies unchanged; the exact verified immutable media receipt/readback is reused. Remaining thematic work and the historical Home stack relay remain open.
 
 2026-10-23 — A strict legacy script-refresh mode preserves accepted visual media, original scene clocks and exact published voice offerings while validating fresh reviewed narration. Its23new focused cases passed; existing default guard bodies remain unchanged. Tutorial19 staging, audio and publication remain pending.
+
+2026-10-23 — Tutorial19 scene9 removes only the hardware-specific training-time claim. Canonical prose, all13 reviewed deletions and matching authoring speech aliases are adopted;27 existing voice offerings remain unchanged. Audio, legacy-clock playback and publication are pending.

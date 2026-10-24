@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "nb",
   "title": "Tren en Cellpose-modell",
@@ -27,7 +37,7 @@
     "Angi N epochs og Batch size. Denne raske kjøringen bruker 10 epoker med batchstørrelse 1. Flere epoker gir modellen flere treningsoppdateringer, og større batcher bruker mer minne. Behold den viste læringsraten til å begynne med.",
     "La Normalize være på med 1. og 99. persentil som utgangspunkt. De angir intensitetsområdet for hver kanal. Scale range varierer bildestørrelsen under trening, og Min train masks hopper over bilder med færre merkede objekter.",
     "For å følge valideringstapet velger du en egen Validation image folder og tilhørende Validation mask folder. Bruk aldri treningsbilder der på nytt. La begge stå tomme når du, som i dette eksemplet, ikke har et eget merket sett.",
-    "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften. På denne GPU-en ble 10 epoker på seks bilder ferdige på under ett minutt.",
+    "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften.",
     "Når treningen er ferdig, oppgir konsollen banen til sjekkpunktet. Med standardplasseringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet legger arkitektur og antall epoker til modellnavnet. Behold det sammen med treningsinnstillingene.",
     "Åpne fanen Apply. Custom model peker nå på sjekkpunktet du trente. Sett Source til eksemplets mappe apply, der bildene kommer fra brønner som ikke ble brukt til trening. Sett Channels til 0 og Percentiles til 2 og 99. Slå av Fill in slik at celler som berører hverandre, holdes atskilt, og slå på Save og Verbose.",
     "Åpne Live preview, velg ett bilde og trykk på Run preview med samme kanal og persentiler. Bildet segmenteres med sjekkpunktet ditt, som her finner 78 celler. Juster innstillingene her før du kjører hele mappen.",

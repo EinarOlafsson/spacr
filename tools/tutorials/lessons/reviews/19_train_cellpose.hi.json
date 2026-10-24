@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "hi",
   "title": "Cellpose मॉडल को प्रशिक्षित करें",
@@ -27,7 +37,7 @@
     "N epochs और Batch size तय करें। यह जल्दी वाला रन एक के बैच आकार के साथ दस एपॉक इस्तेमाल करता है। ज़्यादा एपॉक मॉडल को ज़्यादा प्रशिक्षण अपडेट देते हैं, और बड़े बैच ज़्यादा मेमोरी लेते हैं। शुरुआत में दिखाई गई लर्निंग रेट रहने दें।",
     "शुरुआत के लिए पहले और निन्यानवेवें पर्सेंटाइल के साथ Normalize चालू रखें। ये हर चैनल के लिए इस्तेमाल होने वाली तीव्रता की सीमा तय करते हैं। Scale range प्रशिक्षण के दौरान इमेज का आकार बदलता है, और Min train masks कम लेबल वाली वस्तुओं वाली इमेज छोड़ देता है।",
     "वैलिडेशन लॉस देखने के लिए एक अलग Validation image folder और उसका Validation mask folder चुनें। वहाँ कभी प्रशिक्षण इमेज दोबारा इस्तेमाल न करें। अगर इस उदाहरण की तरह आपके पास अलग लेबल वाला सेट नहीं है, तो दोनों खाली छोड़ें।",
-    "फ़ोल्डर, मॉडल का नाम और आउटपुट स्थान जाँचें, फिर Run दबाएँ। Figures पैनल प्रशिक्षण इमेज को उनके मास्क के ऊपर दिखाता है, और कंसोल प्रगति दिखाता है। इस GPU पर छह इमेज पर दस एपॉक एक मिनट से कम में पूरे हुए।",
+    "फ़ोल्डर, मॉडल का नाम और आउटपुट स्थान जाँचें, फिर Run दबाएँ। Figures पैनल प्रशिक्षण इमेज को उनके मास्क के ऊपर दिखाता है, और कंसोल प्रगति दिखाता है।",
     "प्रशिक्षण पूरा होने पर कंसोल चेकपॉइंट का पथ बताता है। डिफ़ॉल्ट स्थान पर यह स्रोत फ़ोल्डर में models, cellpose model, models के अंदर होता है। फ़ाइल नाम आपके मॉडल नाम में आर्किटेक्चर और एपॉक की संख्या जोड़ता है। इसे अपनी प्रशिक्षण सेटिंग्स के साथ रखें।",
     "Apply टैब खोलें। Custom model अब आपके प्रशिक्षित चेकपॉइंट की ओर इशारा करता है। Source को उदाहरण के apply फ़ोल्डर पर रखें, जिसकी इमेज उन वेल से हैं जो प्रशिक्षण में इस्तेमाल नहीं हुए। Channels को शून्य और Percentiles को दो और निन्यानवे पर रखें। छूती हुई कोशिकाएँ अलग रहें, इसके लिए Fill in बंद करें, और Save और Verbose चालू करें।",
     "Live preview खोलें, एक इमेज चुनें और उसी चैनल और पर्सेंटाइल के साथ Run preview दबाएँ। यह आपके चेकपॉइंट से उस इमेज का सेगमेंटेशन करता है और यहाँ अठहत्तर कोशिकाएँ पाता है। पूरा फ़ोल्डर चलाने से पहले सेटिंग्स यहीं बदलें।",

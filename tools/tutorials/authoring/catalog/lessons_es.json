@@ -4004,7 +4004,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso. En esta GPU, diez épocas con seis imágenes terminaron en menos de un minuto.",
+          "narration": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4012,7 +4012,7 @@
             3410,
             1260
           ],
-          "speech_text": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso. En esta GPU, diez épocas con seis imágenes terminaron en menos de un minuto."
+          "speech_text": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso."
         },
         {
           "visual": "train_checkpoint",

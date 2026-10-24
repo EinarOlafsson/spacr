@@ -3676,7 +3676,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt. Auf dieser GPU waren 10 Epochen mit sechs Bildern in unter einer Minute fertig.",
+          "narration": "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt.",
           "hold_after": 0.7,
           "focus": [
             390,
