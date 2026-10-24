@@ -14,7 +14,7 @@ from copy import deepcopy
 import xml.etree.ElementTree as ET
 import numpy as np
 
-from PySide6.QtCore import QByteArray, QEvent, QRect, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QEvent, QObject, QRect, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget
@@ -454,6 +454,32 @@ class _ReservedColumn(QVBoxLayout):
         return row + max(0, self.spacing()) + caption
 
 
+class _FitWhenShown(QObject):
+    """Fits a diagram's rows when a hidden change left them unfitted.
+
+    Building an organism page sends several font, language and style
+    changes before it is shown; fitting at each re-measured every
+    description for a width the page did not keep. A watcher on ``Show``
+    rather than a ``showEvent`` override, so the diagram adds no API symbol.
+    """
+
+    def eventFilter(self, watched, event):
+        """On a show, fit the rows a hidden change left; never consume it.
+
+        :param watched: the diagram.
+        :param event: the event; only ``Show`` acts.
+        :returns: ``False`` always.
+        """
+        try:
+            if (event.type() == QEvent.Show
+                    and getattr(watched, "_fit_when_shown", False)):
+                watched._fit_when_shown = False
+                watched._fit_width()
+        except RuntimeError:
+            pass
+        return False
+
+
 class OrganismDiagram(QWidget):
     """A cell illustration and keyboard-accessible compartment selector.
 
@@ -466,6 +492,10 @@ class OrganismDiagram(QWidget):
     def __init__(self, app_key: str, path: Path, parent=None):
         """Build upright artwork, a multi-select legend and compartment descriptions."""
         super().__init__(parent)
+        from .. import gil_priority
+
+        self._show_watch = _FitWhenShown(self)
+        gil_priority._watch_object_events(self, self._show_watch, {QEvent.Show})
         self.labels = _compartment_labels(app_key)
         self.setObjectName("OrganismDiagram")
         layout = _ReservedColumn(self)
@@ -637,21 +667,6 @@ class OrganismDiagram(QWidget):
             else:
                 self._fit_when_shown = True
             self.updateGeometry()
-
-    def showEvent(self, event) -> None:
-        """Fit the rows a hidden font, language or style change left unfitted.
-
-        Building an organism page sends several such changes before it is
-        shown; fitting at each re-measured every description for a width
-        the page did not keep.
-
-        :param event: Qt show event forwarded to the parent widget.
-        :returns: None.
-        """
-        super().showEvent(event)
-        if getattr(self, "_fit_when_shown", False):
-            self._fit_when_shown = False
-            self._fit_width()
 
     def clear_components(self) -> None:
         """Clear all persistent selections and the transient compartment highlight."""
