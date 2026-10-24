@@ -27,11 +27,23 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
-Masks visibility scope: one native Metal75 baseline→eye off→eye on sequence
-through the unique LabelsLayer's real control, with each20s action clock before
-reveal. Require changed RGB/all-zero hidden pick buffer and exact frame/IDs
-restoration, unchanged siblings/pose/data/history/selection/preferences and
-normal cleanup. No pick_at, FPS, physical claim or earlier-control replay.
+2026-10-24 — MasksEye94547/GZ908U:1passed/1teardownERROR36.81s/1.491GiB.
+Native3states/current Metal75 frames/restore/cleanup0 again pass; parent guard
+still rejects profile beneath basetemp, no real settings touched. Early pytest
+configure may lack tmp_path_factory, so basetemp is not guaranteed registered;
+verify the existing guaranteed temporary-user root before any further run.
+
+2026-10-24 — MasksEye35657/AMp86J:1passed/1teardownERROR34.20s/1.458GiB.
+Native3states pass Metal75/current paint/serial7→9→11, hidden picks0 and exact
+restored RGB/IDs; native cleanup0. Parent profile was outside pytest basetemp,
+so strict QSettings guard rejected launcher isolation; no real files touched.
+Whole case not accepted; move only owned parent profile beneath basetemp.
+
+2026-10-24 — MasksEye67507/FjBt16 PASS34.87s/1.458GiB on0329113d:
+real eye3states/Metal75, IDs1..43→0→1..43, changed RGB/exact frame restoration;
+siblings/pose/metadata/data/history/selection/preferences unchanged, cleanup0.
+Parent guard clean after33316 proves actual+expected settings inside existing
+allowed roots; prior launcher failures retained. No whole673/FPS/pick claim.
 
 2026-10-24 — Gate41716/A9IBin PASS40.19s/1.277GiB ona1a85c633e:
 native1200×640/Metal75, exact counts0/64/512/64/512/512/512 through real
