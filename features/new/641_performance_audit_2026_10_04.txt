@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Home-only prewarm RED97071 (Queue consumed a Mask step), then
+10 affected GREEN27005/32.68s (process34.83s/0.580GiB): actual-page gate preserves
+order/generator and resumes on Home; input/opening/normal/half-built/close/animation pass.
+Both runs retained lock-file removal warnings; generator39493 exit0/85.39s byte-identical.
+No in-flight constructor cancellation, FPS/late-handle repair, or whole-641 completion claim.
+
 2026-10-24 — Sample86067/6TrUTA PASS41.81s/1.300GiB on38e476d6e3f:
 owned 3s/10ms tool exit0 naturally; wait4 CPU1.208s user/1.320s system; no abnormal cleanup.
 FIBSEM626×122/DPR2/Metal75,12moves/3.152s; freshframe/pick0/data/idle/registry0/cleanup PASS.

@@ -3029,6 +3029,8 @@ class _ScreenPrewarm(QObject):
             return "modal"
         if getattr(self._window, "_opening_a_screen", False):
             return "opening"
+        if self._window._stack.currentWidget() is not self._window._startup:
+            return "not Home"
         from .widgets.loading_screen import blow_away_running
 
         if blow_away_running():

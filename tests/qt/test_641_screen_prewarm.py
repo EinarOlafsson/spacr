@@ -306,6 +306,48 @@ def test_no_step_runs_while_a_screen_opens(window, qapp, monkeypatch):
     assert prewarm.busy_reason() == ""
 
 
+def test_prewarm_pauses_off_home_and_resumes_the_same_work(
+        window, qapp, monkeypatch):
+    """An idle module does not consume new or partially queued Home work."""
+    window._on_nav_selected("queue")
+    module = window._screens["queue"]
+    assert window._stack.currentWidget() is module
+    prewarm = _prewarm(window, ["mask", "measure"], monkeypatch)
+    calls = []
+    monkeypatch.setattr(window, "_run_one_prewarm_step",
+                        lambda p: calls.append((p._key, p._steps)))
+    _idle(prewarm, monkeypatch)
+    prewarm._slice()
+    assert calls == []
+    assert prewarm._order == ["mask", "measure"]
+    assert prewarm._steps is None
+    assert prewarm._timer.isActive()
+    assert not prewarm.finished
+
+    window._on_nav_selected("__home__")
+    assert window._stack.currentWidget() is window._startup
+    _idle(prewarm, monkeypatch)
+    prewarm._slice()
+    assert len(calls) == 1
+    key, steps = calls[0]
+    assert key == "mask" and steps is not None
+    assert prewarm._order == ["measure"]
+
+    window._on_nav_selected("queue")
+    _idle(prewarm, monkeypatch)
+    prewarm._slice()
+    assert calls == [(key, steps)]
+    assert prewarm._key == key and prewarm._steps is steps
+    assert prewarm._order == ["measure"]
+    assert prewarm._timer.isActive()
+    assert not prewarm.finished
+
+    window._on_nav_selected("__home__")
+    _idle(prewarm, monkeypatch)
+    prewarm._slice()
+    assert calls == [(key, steps), (key, steps)]
+
+
 def test_a_prewarmed_screen_opens_without_a_second_build(
         window, qapp, monkeypatch):
     prewarm = _prewarm(window, ["queue"], monkeypatch)
