@@ -3388,6 +3388,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.widgets.graph_builder",
     "spacr.qt.widgets.pca_view",
     "spacr.qt.widgets.pivot_builder",
+    "spacr.qt.widgets.qc_field_browser",
 )
 
 _QSS_REGISTRARS_LOADED = False
