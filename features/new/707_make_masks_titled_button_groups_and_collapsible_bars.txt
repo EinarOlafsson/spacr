@@ -12,6 +12,13 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News body-range scope: release0/v1.5.1.5 rendered lines[0,16) only, one shared
+20s content clock. Structural17-body identity/renderer/object checks precede
+actual line/run inner-to-outer reveal and frozen/idle/full-visible proofs.
+Keep139 whole targets unaccepted, with separate requested/checked/untested
+line accounting; oversized single-position lines are unaccepted, not alone
+a product-defect verdict. No activation or whole-body certification.
+
 Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
 17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;
 all title shaped lines/runs (long titles198px high) and209×55 dates visible.
