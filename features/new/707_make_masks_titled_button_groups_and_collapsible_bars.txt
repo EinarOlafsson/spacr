@@ -12,6 +12,66 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Dimension-word repair scope: native91273 proves stable3D48px allocation cannot
+contain selected52px word68px plus80px real horizontal padding. Live passes;
+AI remains untested. Add real normal-font Mask caller regression for fresh
+native word/padding floors and font growth/shrink before a local dimension-only
+repair; preserve selected fonts and settings access, not the old clipped24px cap.
+Portable35105 reproduces exact48x663/negative32px contents at52px font,
+required fresh148x103 floor, in10.91s/RSS0.556GiB. Dimension-only owned fitting
+uses full native word/insets, local font/style/parent layout notifications and
+actual min setters; shrinking/no-op and generic long-word policy are retained.
+Focused67017 fixes dimension/Live slots and retains two settings-access passes,
+but measures AI51px word in40px contents. Reuse the same private caller fitter
+for actual AI only; generic long-toggle elision and Live remain unchanged.
+Failed-node52946 passes11.75s/RSS0.558GiB: selected52px Live/3D/AI full slots,
+3D/Time floors148x103/204x103, exact font shrink/restore, settings width reach,
+callback quiescence and queued deletion pass. Two prior settings cases retained;
+strict normal-app native word result is recorded below.
+Native50317/He74Jy on74a85f2d6 fails34.92s/RSS1.302GiB before word checks:
+all12 frozen/actual widget signatures match, but RuntimeViewport's owned floor
+timer remains queued, making strict readiness None. Controls2.422s after
+startup8.879s/module1.322s; tours and empty registry/compiler cleanup pass.
+No new glyph failure or fix acceptance; the actual pending work is attributed.
+Queued-floor observer scope: after one reveal, require exact frozen raw widget
+geometry on every tick while owned work finishes within the original20s;
+accept text only once the same frozen state is strictly idle. No re-reveal,
+baseline replacement, grace or idle/glyph waiver is permitted.
+Native4450/j42ey6 on a460c0b4a passes31.35s/RSS1.235GiB: actual52px Live,
+3D and AI words fully fit101/68/51px text slots and remain off. Pending floor
+work drains with identical frozen fields, then strict idle/text checks pass.
+Startup9.462s/module2.209s/controls3.753s; both owned tours, normal close and
+empty registry/compiler cleanup pass. No provider/inference/on-state claim.
+
+Native Mask word-toggle scope: normal owned startup at GUI/font200 and native
+1200x640 inspects exact Live/3D/AI controls, not Home tiles. Set owned normal
+AI-default-off before prewarm; no on-state click/provider/model/inference.
+Separate20s startup/module/control stages retain full displayed-text/native
+slot/one-reveal bounds and normal cleanup; no 64110s or whole-Home claim.
+Native19131 stops before word checks on an unidentified post-open tour;
+source offers a Mask-owned walkthrough. Verify that exact live owner/key and
+normal Skip/seen lifecycle inside the same module20s before inspecting words.
+Record registry identities at close/return; the prior count1 is unclassified.
+Corrected51868 verifies Mask Skip/seen and empty registry, but stops before
+words on Live post-reveal geometry drift. Persist its exact before/after native
+signature and owned readiness flags before that unchanged assertion; no waits,
+budget increase or inferred glyph/product defect. Prior remainder is history.
+Native19131/EVUagm on7d2814613 fails34.49s/RSS1.206GiB: after owned Home
+Skip/startup9.511s and Mask1.572s, a visible tour aborts controls at0.717s;
+all three refs exist but zero words are certified. AI remains default-off.
+Normal close/run0 and compiler cleanup pass; post-run registry count1 with
+zero pre-close captured threads remains unclassified, not a text-layout bug.
+Native51868/pw1Why on3bb4bba21 fails35.74s/RSS1.203GiB: exact owned Mask
+Skip/hidden/seen pass (startup9.209s/module2.282s), then first Live post-reveal
+signature changes at controls3.092s. Zero words certified; changed field is not
+recorded, so no glyph defect is claimed. Registry before/after are empty and
+normal close/compiler cleanup pass; prior remainder remains historical.
+Native91273/zjUqpt on e2be6c60b fails38.44s/RSS1.200GiB: Live passes; 3D's
+48px widget has native contents width−32px against68x71 full text, a real clip.
+Both frozen/actual signatures match with owned flags idle; earlier drift is not
+explained. AI remains untested. Startup9.360s/module2.467s/controls4.885s;
+tours, normal close and empty registry/compiler cleanup pass. No retry yet.
+
 Chrome lifetime scope: retain an actual button Python wrapper after its native
 parent is deferred-deleted, then change live GUI scale once alongside a live
 button. Require no listener exception and correct live repaint; this targets

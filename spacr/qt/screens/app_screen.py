@@ -289,27 +289,70 @@ DIMENSION_TOGGLES = (
 #: modules that read a plate off disk and decide what its axes are.
 DIMENSION_TOGGLE_APPS = frozenset({"mask", "measure"})
 
-#: The widest these two may force the action row -- and so the window -- to be.
-#:
-#: A QHBoxLayout cannot go below the sum of its children's minimum widths, and
-#: the action row's minimum is the module screen's minimum, which the body
-#: splitter then has to satisfy out of whatever the window is. So every pixel
-#: a toggle demands here is a pixel taken off the settings column at any
-#: window narrower than about 1500. Measured on Mask Generation at 1200x720:
-#: 3D asks for 69 px and Time for 92 px unaided, which took the row from 899
-#: to 1076 and the settings column from 260 px to 83 px -- a 624 px settings
-#: card in an 83 px viewport, with the labels hanging out of the right of it.
-#: That is the failure :data:`spacr.qt.widgets.ai_toggle_label
-#: .ELIDE_ABOVE_PX` exists for, arriving from two short labels rather than
-#: one long one, and a secondary control must not be able to starve the
-#: primary.
-#:
-#: 24 px is a click target, not a word: the label still ASKS for its full
-#: width through ``sizeHint``, so a row with room to spare draws "3D" and
-#: "Time" in full and only a squeezed one clips them. The row comes out at
-#: 963 and the settings column at 196 px, which is where the setting labels
-#: fit inside their card again.
+#: Base logical click-target width for dimension switches, not a word-width
+#: cap. Their caller also reserves the full selected native word and insets.
 DIMENSION_TOGGLE_MIN_PX = 24
+
+
+class _ActionWordFit(QObject):
+    """Reserve complete selected short action words instead of the old cap.
+
+    Only dimension and AI callers acquire native word/inset floors; generic long-toggle
+    elision stays unchanged. Fresh measurements allow the floors to shrink.
+    """
+
+    def __init__(self, switch):
+        """Own the coalesced observer beneath its short-word switch.
+
+        :param switch: actual short-word toggle already added to its row.
+        """
+        super().__init__(switch)
+        self._switch = switch
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fit)
+        switch.installEventFilter(self)
+        parent = switch.parentWidget()
+        if parent is not None:
+            parent.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, watched, event):
+        """Queue local style/text-layout changes without consuming events.
+
+        :param watched: switch or its action-row parent.
+        :param event: native event being observed.
+        :returns: False; normal Qt delivery always continues.
+        """
+        if not self._busy and ((watched is self._switch and event.type() in
+                (QEvent.FontChange, QEvent.ApplicationFontChange, QEvent.StyleChange,
+                 QEvent.Polish, QEvent.Show, QEvent.LanguageChange))
+                or (watched is self._switch.parentWidget() and event.type() == QEvent.LayoutRequest)):
+            self._timer.start(0)
+        return False
+
+    def _fit(self):
+        """Apply changed native floors from full text and actual style insets."""
+        from ..gui_scale import _set_actual_dim, scale_int
+
+        switch = self._switch
+        size, contents = switch.property('size'), switch.contentsRect()
+        text = switch.style().itemTextRect(switch.fontMetrics(), contents,
+            int(switch.alignment() | Qt.TextSingleLine), switch.isEnabled(), switch.text())
+        width = max(scale_int(DIMENSION_TOGGLE_MIN_PX),
+            max(text.width(), switch.fontMetrics().horizontalAdvance(switch.text()))
+            + size.width()-contents.width())
+        height = text.height()+size.height()-contents.height()
+        actual = switch.property('minimumSize')
+        self._busy = True
+        try:
+            if actual.width() != width:
+                _set_actual_dim(switch, 'minw', width)
+            if actual.height() != height:
+                _set_actual_dim(switch, 'minh', height)
+        finally:
+            self._busy = False
 
 #: ``dimension -> the settings that ANNOUNCE it in a loaded settings file``.
 #:
@@ -6577,6 +6620,7 @@ class AppScreen(QWidget):
             switch.toggled.connect(partial(self._on_dimension_switch,
                                            dimension))
             row.addWidget(switch)
+            switch._action_word_fit = _ActionWordFit(switch)
             self._dimension_switches[dimension] = switch
         if self._dimension_switches:
             self.refresh_maturity_visibility()
@@ -8550,6 +8594,7 @@ class AppScreen(QWidget):
         self._ai_switch = AiToggleLabel()
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
+        self._ai_switch._action_word_fit = _ActionWordFit(self._ai_switch)
 
         self._apply_ai_default()
 
