@@ -8,6 +8,15 @@ two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
 Preserve the immutable N691 arrival bodies while binding only the documented
 Metal-era MitoNet device paragraph to its exact current source hash.
 
+CURRENT MASK TRACKING IMPORT CONTRACTS — 2026-10-24
+widgets_g3 owns two Main be67895 Coverage 4 stale Mask category/import
+expectations. Preserve the approved native timelapse processing setting,
+its typed imported value and collected run settings; keep motility excluded
+and accurately reported as ignored. Bind the exact two applied import keys,
+independently peer and run only the two owning CPU/offscreen cases. Test-only;
+The exact two pass (4.68s), with independent peer acceptance. Root publication
+remains pending; Work production/generated outputs remain untouched.
+
 CURRENT TIME PREVIEW AND MOUNT GUARD FIXTURES — 2026-10-24
 widgets_g3 owns the Main be67895 Coverage 10 retired fold-strip guard and
 four Track preview/figure fixture errors. Bind current Time installation,

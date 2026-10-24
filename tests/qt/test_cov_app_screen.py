@@ -370,7 +370,7 @@ class TestWidgetConstruction:
 class TestCategoryGrouping:
 
     def test_mask_hides_timelapse_and_motility_categories(self, qtbot):
-        """Tracking and the motility assay are separate modules now."""
+        """Mask keeps its tracking flag while the motility assay stays separate."""
         scr = _make_screen(qtbot, "mask")
         titles = _section_titles(scr)
         assert "INPUT & METADATA" in titles
@@ -378,10 +378,11 @@ class TestCategoryGrouping:
         for gone in ("TIMELAPSE", "MOTILITY (BETA)",
                      "MOTILITY ADVANCED (BETA)"):
             assert gone not in titles
-        # ... and the keys themselves are not silently parked in "Other".
         keys = set(scr._settings_model._widgets)
-        assert "timelapse" not in keys
+        assert "timelapse" in keys
+        assert scr._settings_model.collect()["timelapse"] is False
         assert "motility_analysis" not in keys
+        assert "motility_analysis" not in scr._settings_model.collect()
 
     def test_measure_still_shows_timelapse_category(self, qtbot):
         """Measure keeps its timelapse controls in the channel-mapping group."""
@@ -753,15 +754,10 @@ class TestImportSettings:
 
     def test_moved_settings_are_called_out_on_import(self, qtbot, monkeypatch,
                                                      tmp_path, no_modals):
-        """An old Mask CSV with these flags must say what became of them.
+        """Tracking lands in Mask even without optional mounted categories.
 
-        Both used to be reported as IGNORED and the reader sent to a
-        sidebar row for each. Tracking is a settings category on this very
-        form now, with a switch on the masthead for the gate that has no
-        control — so on a screen carrying that switch the flag lands and
-        the note has to say so, and on one that is not, it really is
-        ignored and the note has to say that instead. This screen is built
-        without a masthead strip, which is the second case.
+        The native processing flag and source are the two applicable keys.
+        Motility remains a Measure assay and must be reported as ignored.
         """
         path = _write_csv(tmp_path / "old.csv",
                           [("src", "/data/p3"), ("timelapse", "True"),
@@ -770,16 +766,23 @@ class TestImportSettings:
                             staticmethod(lambda *a, **k: (str(path), "")))
         scr = _make_screen(qtbot, "mask")
         from spacr.qt.screens.mask import fold_set
-        assert fold_set(scr) is None, "this case is the screen with no switch"
+        assert fold_set(scr) is None, "this case has no optional mounted categories"
+        before = scr._settings_model.collect()
+        assert before["timelapse"] is False
+        assert "timelapse" in scr._settings_model._widgets
+        assert "motility_analysis" not in scr._settings_model._widgets
 
         scr._on_import_settings()
         text = _console_text(scr._console)
 
-        # Only src was applicable; both gates are reported, and neither
-        # note sends the reader to a sidebar row that no longer exists.
-        assert "Loaded 1 settings" in text
-        assert "timelapse=True was ignored" in text
-        assert "carrying no Timelapse switch" in text
+        collected = scr._settings_model.collect()
+        assert collected["src"] == "/data/p3"
+        assert collected["timelapse"] is True
+        assert "motility_analysis" not in collected
+        assert scr.dimension_switch("t") is not None
+        assert "Loaded 2 settings" in text
+        assert "timelapse=True was ignored" not in text
+        assert "carrying no Timelapse switch" not in text
         assert "motility_analysis=True was ignored" in text
         assert "Measure" in text
         assert "sidebar" not in text
