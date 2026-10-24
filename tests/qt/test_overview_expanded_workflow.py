@@ -2124,8 +2124,27 @@ def tick():
    assert host._field_overview_workspace.stack.property('spacrTransparent') is True
    if sys.argv[1] == 'mask':
     assert (body.wells.rowCount(), body.wells.columnCount()) == (16, 24)
-    assert body.wells.viewport().height() >= 400
-    assert body.wells.rowHeight(0) >= 22
+    viewport = body.wells.viewport()
+    room = viewport.rect()
+    assert room.width() > 0 and room.height() > 0
+    assert body._plate_fit
+    assert all(body.wells.rowHeight(row) > 0 for row in range(16))
+    assert all(body.wells.columnWidth(column) > 0 for column in range(24))
+    assert sum(body.wells.rowHeight(row) for row in range(16)) <= room.height()
+    assert sum(body.wells.columnWidth(column) for column in range(24)) <= room.width()
+    first_cell = body.wells.visualRect(body.wells.model().index(0, 0))
+    last_cell = body.wells.visualRect(body.wells.model().index(15, 23))
+    assert first_cell.width() > 0 and first_cell.height() > 0
+    assert room.contains(first_cell) and room.contains(last_cell)
+    assert body.wells.horizontalScrollBar().maximum() == 0
+    assert body.wells.verticalScrollBar().maximum() == 0
+    viewports = body._allocation_viewports
+    assert viewports
+    budget = min(window.property('size').height(),
+     *(ancestor.property('size').height() for ancestor in viewports))
+    assert 0 < body.wells.property('size').height() <= budget
+    assert body.wells.property('maximumHeight') == budget
+    assert body.wells.property('minimumHeight') <= budget
    QTest.mouseClick(body.options_button, Qt.LeftButton)
    state['stage'] = 3
   elif state['stage'] == 3:

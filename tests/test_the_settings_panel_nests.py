@@ -38,15 +38,21 @@ from spacr.qt.screens.settings_model import (
 
 
 @pytest.fixture(scope="module")
-def mask_tree(qapp):
-    """The mask panel's sections. Mask is the module with the most of them."""
+def mask_model(qapp):
+    """Keep the full-slot Mask model alive for its section-tree checks."""
     from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
 
     return SettingsWidgets("mask", current={
         "number_of_organelles": PANEL_ORGANELLE_SLOTS,
         "nucleus_channel": 1,
         "pathogen_channel": 2,
-    }).build_sections()
+    })
+
+
+@pytest.fixture(scope="module")
+def mask_tree(mask_model):
+    """The mask panel's sections. Mask is the module with the most of them."""
+    return mask_model.build_sections()
 
 
 @pytest.fixture(scope="module")
@@ -90,7 +96,7 @@ def test_a_section_is_still_the_pair_it_always_was(mask_tree):
     assert dict(mask_tree)
 
 
-def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
+def test_a_flat_reader_sees_every_row_exactly_once(mask_tree, mask_model):
     """A panel that cannot draw a tree must still draw every control.
 
     The outer `rows` therefore holds the WHOLE subtree, not just the rows the
@@ -102,15 +108,7 @@ def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
     flat = [widget for _title, rows in mask_tree for _label, widget in rows]
     assert len(flat) == len({id(w) for w in flat}), "a row rendered twice"
 
-    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
-
-    model = SettingsWidgets("mask", current={
-        "number_of_organelles": PANEL_ORGANELLE_SLOTS,
-        "nucleus_channel": 1,
-        "pathogen_channel": 2,
-    })
-    model.build_sections()
-    assert len(flat) == len(model._widgets)
+    assert len(flat) == len(mask_model._widgets)
 
 
 def test_a_category_with_no_parent_is_still_one_flat_section(mask_tree):
