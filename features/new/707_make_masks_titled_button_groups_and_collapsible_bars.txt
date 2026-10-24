@@ -23,7 +23,7 @@ Try removing only the early fixed height so native Qt follows polished hints.
 Removing that snapshot passes focused10088: two cases35.13s/RSS0.452GiB,
 natural71/35px bars at GUI200/90 with font200; full native glyph containment,
 font/width grow-shrink and idle checks pass without imposed min/max records.
-Combined14 native status plus affected Home-access acceptance remains pending.
+Combined14 native status and affected Home-access result is recorded below.
 Caught GUI-scale listener RuntimeError remains observed/unattributed during
 focused cross-window scale cleanup: gui_scale.py1124 callback→app.py2224
 _queue_icon_paint→_icon_timer.start(0), "QTimer already deleted"; not repaired.
@@ -32,6 +32,11 @@ Next status_home_access cohort combines two actual MainWindow status refs with
 the affected12 Home-access targets, retaining exact identities/full ledger and
 one20s strict content budget. Revalidate header/tile/aside/hint access as taller
 status takes body room; retain29 ordinary passes without broad-label replay.
+Native24680/tyHCTL on4a9e24673 passes37.47s/RSS1.224GiB: all14 of139 pass,
+125 untested. Natural71px status exposes full66/60px text; Hero/first Mask
+icon/name/five aside captions/hint fit the reduced276px body viewport, with
+source/DPR2 and hidden-H0 intact. Content11.975s/tour9.801s, errors[] and normal
+close/worker cleanup pass; retain29 ordinary passes, not full Home acceptance.
 
 Next ordinary_labels cohort selects31 actual owned labels: recent placeholder1,
 totals8, system6, text-size2, current Home bands8, panel headers4 and status2.
