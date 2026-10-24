@@ -138,7 +138,14 @@ def setting_label(
     language: str,
     app_key: str = "",
 ) -> Optional[str]:
-    """Return a label translation only while its English source still matches."""
+    """Return a label translation only while its English source still matches.
+
+    A language without a catalogue answers ``None`` before the canonical
+    English module is read, so an English session never loads it.
+    """
+    module = _module(language)
+    if module is None:
+        return None
     canonical = getattr(_english(), "SETTING_LABELS", {})
     lookup = f"{app_key}.{key}" if app_key else str(key)
     if canonical.get(lookup) != str(source):
@@ -180,18 +187,12 @@ def setting_label(
             and expected == str(source)
         ):
             return None
-        module = _module(language)
-        if module is None:
-            return None
         localized = _localized_value(
             module, "SETTING_LABELS", primary, str(primary_source)
         )
         if localized is None:
             return None
         return re.sub(r"(?<!\d)1(?!\d)", str(number), localized, count=1)
-    module = _module(language)
-    if module is None:
-        return None
     return _localized_value(
         module, "SETTING_LABELS", lookup, canonical[lookup]
     )
@@ -208,7 +209,11 @@ def setting_tooltip(
     App-specific records take precedence when the same setting key has a
     different meaning in one module. A shared record remains the fallback for
     callers that provide an app key but use the canonical global description.
+    A language without a catalogue answers ``None`` before English is read.
     """
+    module = _module(language)
+    if module is None:
+        return None
     canonical = getattr(_english(), "SETTING_TOOLTIPS", {})
     lookup = f"{app_key}.{key}" if app_key else str(key)
     if canonical.get(lookup) != str(source):
@@ -249,18 +254,12 @@ def setting_tooltip(
             and expected == str(source)
         ):
             return None
-        module = _module(language)
-        if module is None:
-            return None
         localized = _localized_value(
             module, "SETTING_TOOLTIPS", primary, str(primary_source)
         )
         if localized is None:
             return None
         return localized.replace("organelle_", f"{role}_")
-    module = _module(language)
-    if module is None:
-        return None
     return _localized_value(
         module, "SETTING_TOOLTIPS", lookup, canonical[lookup]
     )
@@ -268,11 +267,11 @@ def setting_tooltip(
 
 def category_help(source: str, language: str) -> Optional[str]:
     """Return an exact translation for a written settings-category blurb."""
-    text = str(source)
-    if text not in getattr(_english(), "CATEGORY_SOURCES", frozenset()):
-        return None
     module = _module(language)
     if module is None:
+        return None
+    text = str(source)
+    if text not in getattr(_english(), "CATEGORY_SOURCES", frozenset()):
         return None
     return _localized_value(module, "CATEGORY_HELP", text, text)
 
@@ -283,11 +282,11 @@ def module_summary(
     language: str,
 ) -> Optional[str]:
     """Return a module summary while its canonical description still matches."""
-    canonical = getattr(_english(), "MODULE_SUMMARIES", {})
-    if canonical.get(str(key)) != str(source):
-        return None
     module = _module(language)
     if module is None:
+        return None
+    canonical = getattr(_english(), "MODULE_SUMMARIES", {})
+    if canonical.get(str(key)) != str(source):
         return None
     return _localized_value(
         module, "MODULE_SUMMARIES", str(key), canonical[str(key)]
