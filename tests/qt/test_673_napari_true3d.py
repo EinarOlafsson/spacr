@@ -435,13 +435,16 @@ def test_prepaint_suppresses_only_image_requeue_not_image_delivery(prepaint, pre
     from types import SimpleNamespace
 
     stage, figure, widget, _ax, calls = prepaint
-    artist = SimpleNamespace(set_data=lambda _rgb: calls.append('pixels'))
+    visible = []
+    artist = SimpleNamespace(set_data=lambda _rgb: calls.append('pixels'),
+                             set_visible=visible.append)
     figure.images = [artist]
     stage._render_artist = artist
     stage._render_state = SimpleNamespace(rgb=np.zeros((2, 2, 3), np.uint8), rect=(0, 2, 0, 2))
     stage._volume_prepainting = preparing
     mm._VolumeStage._show_render(stage)
     assert calls == (['pixels'] if preparing else ['pixels', 'idle'])
+    assert visible == [True]
 
 
 def test_axes_and_grid_are_off_by_default_and_toggle(view, qtbot):
