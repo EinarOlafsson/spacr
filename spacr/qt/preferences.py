@@ -6351,20 +6351,39 @@ def _apply_alpha_widgets(root) -> int:
     the ones this hid; a label its owner keeps hidden until a run starts is
     left for its owner to show.
 
+    The tree is walked once and the two switches are read once: asking for
+    each registered name walked a large screen about 170 times and read the
+    preference store as often, about 0.17 s of building Make Masks on an
+    Intel Mac. Names are still handled in sorted order, each name's matches
+    in tree order with ``root`` last, as one walk per name gave them.
+
     :param root: a widget whose children are walked, itself included.
     :returns: how many widgets or actions changed.
     """
     from PySide6.QtCore import QObject
 
-    from ..settings import _alpha_names
+    from ..settings import _alpha_names, _alpha_species_names
 
+    names = frozenset(_alpha_names("widgets"))
+    species = frozenset(str(n) for n in _alpha_species_names("widgets"))
+    switches = {}
+    grouped = {}
+    for thing in root.findChildren(QObject):
+        try:
+            name = thing.objectName()
+        except RuntimeError:
+            continue
+        if name in names:
+            grouped.setdefault(name, []).append(thing)
+    if root.objectName() in names:
+        grouped.setdefault(root.objectName(), []).append(root)
     changed = 0
-    for name in sorted(_alpha_names("widgets")):
-        shown = _alpha_switch_for("widgets", name)
-        found = list(root.findChildren(QObject, name))
-        if root.objectName() == name:
-            found.append(root)
-        for thing in found:
+    for name in sorted(grouped):
+        kind = "species" if str(name) in species else "features"
+        if kind not in switches:
+            switches[kind] = _alpha_switch_for("widgets", name)
+        shown = switches[kind]
+        for thing in grouped[name]:
             try:
                 hidden = (thing.isHidden() if hasattr(thing, "isHidden")
                           else not thing.isVisible())
