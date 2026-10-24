@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Image colour scope: native Metal75 gray→green→gray via the actual Image-only
+combo, with20s action clocks before real reveal. Only Image colormap/UIcolour
+may change; require changed RGB, unchanged picked IDs in every state and exact
+baseline restoration, fixed siblings/pose/data/history/selection/preferences
+and strict cleanup. No Masks seed/control mutation, pick_at or FPS claim.
+
 2026-10-24 — MasksEye94547/GZ908U:1passed/1teardownERROR36.81s/1.491GiB.
 Native3states/current Metal75 frames/restore/cleanup0 again pass; parent guard
 still rejects profile beneath basetemp, no real settings touched. Early pytest
