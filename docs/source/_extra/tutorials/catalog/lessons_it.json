@@ -4009,7 +4009,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento. Su questa GPU, dieci epoche su sei immagini sono terminate in meno di un minuto.",
+          "narration": "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4017,7 +4017,7 @@
             3410,
             1260
           ],
-          "speech_text": "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento. Su questa GPU, dieci epoche su sei immagini sono terminate in meno di un minuto."
+          "speech_text": "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento."
         },
         {
           "visual": "train_checkpoint",

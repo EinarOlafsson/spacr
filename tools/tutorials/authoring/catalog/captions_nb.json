@@ -3676,7 +3676,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften. På denne GPU-en ble 10 epoker på seks bilder ferdige på under ett minutt.",
+          "narration": "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften.",
           "hold_after": 0.7,
           "focus": [
             390,

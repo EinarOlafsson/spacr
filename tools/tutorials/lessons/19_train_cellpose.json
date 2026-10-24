@@ -96,7 +96,7 @@
     },
     {
       "visual": "train_run_console",
-      "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress. On this GPU, ten epochs on six images finished in under a minute.",
+      "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress.",
       "hold_after": 0.7,
       "focus": [
         390,
