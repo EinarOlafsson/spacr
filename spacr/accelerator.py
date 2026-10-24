@@ -880,6 +880,8 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
     found = resolve() if found is None else found
     gpu = found.is_gpu
     display_gpu = _opengl_likely()
+    # Apple Silicon keeps PCA/KMeans on the CPU; see gpu_reduce.backend_for.
+    metal_reducers = gpu and found.kind == 'mps' and not _apple_gpu(found)
     rows = [
         ("Segmentation (Cellpose)", gpu,
          "on the GPU — minutes per image on a CPU" if gpu
@@ -890,12 +892,26 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", display_gpu,
          "GPU shader" if display_gpu else "CPU renderer"),
-        ("UMAP / t-SNE / clustering", gpu and found.kind in ('cuda', 'mps'),
+        ("UMAP / t-SNE / clustering", gpu and found.kind == 'cuda' or metal_reducers,
          "on the GPU via cuML" if gpu and found.is_cuda
-         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if gpu and found.kind == 'mps'
+         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if metal_reducers
          else "CPU — cuML is built for CUDA only"),
     ]
     return tuple(rows)
+
+
+def _apple_gpu(found: Accelerator) -> bool:
+    """Whether a Metal accelerator is Apple Silicon's own GPU.
+
+    Read from the resolved name ("Apple M2"), not from the host, so an
+    Accelerator describing an Intel Mac's Radeon means that on any machine.
+    "Metal GPU" is :func:`_metal_gpu_name`'s fallback when system_profiler
+    would not answer; only then does the host decide.
+    """
+    if found.kind != "mps":
+        return False
+    name = found.name or ""
+    return name.startswith("Apple ") or (name == "Metal GPU" and _apple_silicon())
 
 
 def _opengl_likely() -> bool:
