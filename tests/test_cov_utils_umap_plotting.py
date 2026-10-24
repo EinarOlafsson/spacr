@@ -896,3 +896,23 @@ def test_plot_grid_string_cluster_labels_index_colors_positionally(capsys):
     assert "Lable: beta index: 1" in out
     assert {t.get_text() for t in fig.texts} == {"Cluster alpha", "Cluster beta"}
     assert fig.get_size_inches().tolist() == [4.0, 2.0]
+
+
+def test_requested_metal_tsne_runs_the_real_cpu_reducer_and_reports_it(monkeypatch, capsys):
+    from sklearn.manifold import TSNE
+    from spacr import accelerator
+    from spacr.utils import reduction_and_clustering
+
+    monkeypatch.setenv('SPACR_USE_RAPIDS', '0')
+    monkeypatch.setattr(accelerator, 'resolve', lambda: accelerator.Accelerator(
+        kind='mps', device='mps', label='Declared Metal', detected=True, usable=True))
+    data = _numeric_blob(n=20)
+    before = data.copy()
+    embedding, labels, reducer = reduction_and_clustering(
+        data, 3, .1, 'euclidean', .5, 2, 'dbscan', reduction_method='tsne',
+        prefer_gpu=True, n_jobs=1, reducer_options={'max_iter': 250})
+    assert isinstance(reducer, TSNE) and reducer._spacr_backend == 'cpu'
+    assert embedding.shape == (20, 2) and np.isfinite(embedding).all()
+    assert labels.shape == (20,)
+    np.testing.assert_array_equal(data, before)
+    assert 'tsne uses the CPU on Metal; PCA and KMeans can use the GPU.' in capsys.readouterr().out

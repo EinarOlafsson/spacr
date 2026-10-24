@@ -29,6 +29,8 @@ MAX_PROGRAM_HEADER_TABLE_BYTES = 1024 * 256
 GDB_TIMEOUT_SECONDS = 90
 CORE_EXTRACT_TIMEOUT_SECONDS = 60
 CORE_DISK_RESERVE_BYTES = 512 * 1024 * 1024
+QT_WIDGETS_SHA256 = "0cb5f5ab05e519487b0900a4592351a54420fe703a29bb929e06220a2fc2b616"
+QT_WIDGETS_BYTES = 8155496
 
 _ORDINARY_FAULT_SCRIPT = r"""
 import gdb
@@ -37,6 +39,61 @@ import re
 from pathlib import Path
 
 _SHIBOKEN_612_SHA256 = "2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e"
+
+def stylesheet_entry_at_fault(frame):
+    '''Report numeric header facts only after exact future-binary qualification.'''
+    try:
+        context = globals().get("_stylesheet_context", {})
+        if not context or frame.architecture().name() != "i386:x86-64":
+            gdb.write("stylesheet_entry_diagnostic=unsupported_binary_or_architecture\n")
+            return
+        library, bias = context["library"], context["bias"]
+        if (frame.pc() != bias + 0x276667 or gdb.solib_name(frame.pc()) != library
+                or frame.older() is None or frame.older().pc() != bias + 0x276c40):
+            gdb.write("stylesheet_entry_diagnostic=unsupported_fault_or_caller\n")
+            return
+        memory = gdb.selected_inferior().read_memory
+        instructions = [(0x276657, b"\x49\x8b\x2e"),
+                        (0x276663, b"\x48\x8b\x45\x08"),
+                        (0x276667, b"\xf6\x40\x30\x01"),
+                        (0x27667e, b"\xe8\x3d\x37\xf6\xff"),
+                        (0x276c3b, b"\xe8\x30\xf8\xff\xff")]
+        if any(bytes(memory(bias + offset, len(expected))) != expected
+               for offset, expected in instructions):
+            gdb.write("stylesheet_entry_diagnostic=unsupported_instructions\n")
+            return
+        entry = int(frame.read_register("rbp"))
+        iterator = int(frame.read_register("r14"))
+        if min(entry, iterator) < 4096 or entry % 8 or iterator % 8:
+            gdb.write("stylesheet_entry_diagnostic=unsupported_addresses\n")
+            return
+        header = bytes(memory(entry, 16))
+        value = bytes(memory(iterator, 8))
+        if len(header) != 16 or len(value) != 8:
+            gdb.write("stylesheet_entry_diagnostic=unreadable_header\n")
+            return
+        vtable = int.from_bytes(header[:8], "little")
+        private = int.from_bytes(header[8:], "little")
+        current = int.from_bytes(value, "little")
+        native_type = "unknown"
+        if (any(start <= vtable < end for start, end in context["readonly"])
+                and gdb.solib_name(vtable) == library):
+            symbol = gdb.execute("info symbol " + hex(vtable), to_string=True).strip()
+            match = re.fullmatch(r"vtable for (Q[A-Za-z0-9_:]{0,95}) \+ 16 "
+                                 r"in section \.[A-Za-z0-9_.]+ of " + re.escape(library), symbol)
+            if match:
+                native_type = match.group(1)
+        output = ("stylesheet_entry_diagnostic=qualified_future_binary"
+                  " entry=" + hex(entry) + " vtable=" + hex(vtable) +
+                  " private=" + hex(private) + " iterator=" + hex(iterator) +
+                  " iterator_entry=" + hex(current) +
+                  " entry_matches_iterator=" + str(current == entry) +
+                  " private_matches_fault_register=" +
+                  str(private == int(frame.read_register("rax"))) +
+                  " native_vtable=" + native_type + "\n")
+        gdb.write(output[:2048])
+    except Exception:
+        gdb.write("stylesheet_entry_diagnostic=unsupported_or_unreadable\n")
 
 def wrapper_type_at_fault(frame):
     '''Read only the class of an exact-version Shiboken faulting wrapper.'''
@@ -91,8 +148,9 @@ def diagnostic(command):
 
 diagnostic("set print elements 32")
 diagnostic("set print max-depth 4")
+diagnostic("set print frame-arguments none")
 diagnostic("p $_siginfo")
-diagnostic("bt full 24")
+diagnostic("bt 24")
 try:
     newest = gdb.newest_frame()
     frame = newest
@@ -115,6 +173,7 @@ try:
         diagnostic("info registers")
         diagnostic("x/16i $pc")
         wrapper_type_at_fault(original)
+        stylesheet_entry_at_fault(original)
     if newest is not None:
         newest.select()
 except Exception as error:
@@ -296,7 +355,8 @@ def _extract_systemd_core(directory: Path, scratch: Path, pid: int | None,
 
 
 def _core_process_ids(path: Path, executable: Path,
-                      diagnostics: list[str] | None = None) -> set[int]:
+                      diagnostics: list[str] | None = None,
+                      qt_mappings: list[tuple] | None = None) -> set[int]:
     """Read the unique Linux x86 process leader, never an LWP, for this executable."""
     observed: dict[str, object] = {}
 
@@ -344,6 +404,7 @@ def _core_process_ids(path: Path, executable: Path,
                 return result("truncated_program_headers")
             process_ids = set()
             found_executable = False
+            mappings = []
             remaining = 4 * 1024 * 1024
             for index in range(count):
                 entry = entries[index * stride: (index + 1) * stride]
@@ -381,6 +442,15 @@ def _core_process_ids(path: Path, executable: Path,
                             return result("malformed_nt_file")
                         names = payload[start:].split(b"\0")
                         found_executable |= os.fsencode(executable) in names[:maps]
+                        if qt_mappings is not None:
+                            page_size = struct.unpack_from(order + word, payload,
+                                                           8 if wide else 4)[0]
+                            for mapping_index, name in enumerate(names[:maps]):
+                                if name.endswith(b"/libQt6Widgets.so.6"):
+                                    mapping = struct.unpack_from(
+                                        order + word * 3, payload,
+                                        (2 + 3 * mapping_index) * (8 if wide else 4))
+                                    mappings.append((os.fsdecode(name), *mapping, page_size))
             observed.update(process_pid_count=len(process_ids),
                             process_pids=sorted(process_ids)[:8],
                             executable_path_present=found_executable)
@@ -390,9 +460,104 @@ def _core_process_ids(path: Path, executable: Path,
                 return result("conflicting_process_pids")
             if not found_executable:
                 return result("absent_executable_path")
+            if qt_mappings is not None:
+                qt_mappings.extend(mappings)
             return result("accepted", process_ids)
     except (OSError, ValueError, struct.error, OverflowError):
         return result("unreadable_or_invalid_elf")
+
+
+def _x86_64_load_segments(path: Path, elf_type: int) -> list[tuple]:
+    """Read only bounded little-endian x86-64 ELF program headers."""
+    with path.open("rb") as source:
+        header = source.read(64)
+        if (len(header) != 64 or header[:6] != b"\x7fELF\x02\x01"
+                or struct.unpack_from("<HH", header, 16) != (elf_type, 62)):
+            raise ValueError("unsupported ELF")
+        offset = struct.unpack_from("<Q", header, 32)[0]
+        stride, count = struct.unpack_from("<HH", header, 54)
+        if not 56 <= stride <= 256 or stride * count > MAX_PROGRAM_HEADER_TABLE_BYTES:
+            raise ValueError("unsupported program headers")
+        size = source.seek(0, os.SEEK_END)
+        if offset > size or stride * count > size - offset:
+            raise ValueError("truncated program headers")
+        source.seek(offset)
+        table = source.read(stride * count)
+        segments = []
+        for index in range(count):
+            kind, flags, file_offset, address, _, filesz, memsz, _ = struct.unpack_from(
+                "<IIQQQQQQ", table, index * stride)
+            if kind == 1:
+                if filesz > memsz or file_offset > size or filesz > size - file_offset:
+                    raise ValueError("invalid load segment")
+                segments.append((file_offset, address, filesz, memsz, flags))
+        return segments
+
+
+def _stylesheet_context(core: Path, executable: Path) -> dict:
+    """Qualify a future exact Qt binary using independent core and ELF mappings."""
+    try:
+        mappings = []
+        if (not _core_process_ids(core, executable, qt_mappings=mappings)
+                or not 0 < len(mappings) <= 32):
+            return {}
+        paths = {row[0] for row in mappings}
+        if len(paths) != 1:
+            return {}
+        library = Path(paths.pop())
+        before = library.stat()
+        if (not library.is_absolute() or not library.is_file()
+                or before.st_size != QT_WIDGETS_BYTES or _sha256(library) != QT_WIDGETS_SHA256):
+            return {}
+        loads = _x86_64_load_segments(library, 3)
+        core_loads = _x86_64_load_segments(core, 4)
+        regions = sorted((address, address + memsz) for _, address, _, memsz, _ in core_loads
+                         if memsz)
+        if any(first[1] > second[0] for first, second in zip(regions, regions[1:])):
+            return {}
+        biases = set()
+        for _, start, end, pages, page_size in mappings:
+            if (not 0 < page_size <= 65536 or page_size & (page_size - 1)
+                    or start >= end or start % page_size or end % page_size
+                    or not any(address <= start and end <= address + memsz
+                               for _, address, _, memsz, _ in core_loads)):
+                return {}
+            offset = pages * page_size
+            candidates = set()
+            for file_offset, address, filesz, memsz, _ in loads:
+                first = file_offset // page_size * page_size
+                last = (file_offset + filesz + page_size - 1) // page_size * page_size
+                if (file_offset % page_size == address % page_size
+                        and first <= offset < last):
+                    relative = address // page_size * page_size + offset - first
+                    limit = (address + memsz + page_size - 1) // page_size * page_size
+                    if relative + end - start <= limit:
+                        candidates.add(start - relative)
+            if len(candidates) != 1:
+                return {}
+            biases.update(candidates)
+        if len(biases) != 1:
+            return {}
+        bias = biases.pop()
+        after = library.stat()
+        if ((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
+                != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)):
+            return {}
+        if not any(address <= 0x276667 < address + filesz and flags & 1
+                   for _, address, filesz, _, flags in loads):
+            return {}
+        readonly = []
+        for _, start, end, _, _ in mappings:
+            for _, address, _, memsz, flags in core_loads:
+                begin, limit = max(start, address), min(end, address + memsz)
+                if begin < limit and flags & 4 and not flags & 2:
+                    readonly.append((begin, limit))
+        if len(readonly) > 32:
+            return {}
+        return {"library": str(library), "bias": bias, "sha256": QT_WIDGETS_SHA256,
+                "readonly": readonly}
+    except (OSError, ValueError, struct.error, OverflowError):
+        return {}
 
 
 def _ordinary_sessions(evidence: Path, workspace: Path, source_sha: str,
@@ -599,7 +764,9 @@ def main(argv: list[str] | None = None) -> int:
                     "-ex", "info proc",
                 ]
                 if options.ordinary:
-                    command.extend(["-ex", "python exec(" + repr(_ORDINARY_FAULT_SCRIPT) + ")"])
+                    context = _stylesheet_context(core, executable)
+                    script = "_stylesheet_context = " + repr(context) + "\n" + _ORDINARY_FAULT_SCRIPT
+                    command.extend(["-ex", "python exec(" + repr(script) + ")"])
                 command.extend([
                     "-ex", "info threads",
                     "-ex", "thread apply all bt 24",

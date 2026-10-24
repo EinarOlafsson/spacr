@@ -103,8 +103,14 @@ def test_loader_adapter_does_not_double_wrap_an_existing_context():
     assert result['multiprocessing_context'] is context
 
 
-def test_real_torch_loader_adapter_keeps_values_and_order():
+@pytest.mark.parametrize('platform', ['linux', 'darwin'])
+def test_real_torch_loader_adapter_keeps_values_and_order(monkeypatch, platform):
+    from torch.utils.data import DataLoader
+    from spacr.torch_loader import ArrayDataLoader
+
+    monkeypatch.setattr(resource_log.sys, 'platform', platform)
     loader = resource_log._parallel_data_loader([3, 4], batch_size=1, num_workers=0)
+    assert type(loader) is (ArrayDataLoader if platform == 'darwin' else DataLoader)
     assert [batch.item() for batch in loader] == [3, 4]
     assert loader.num_workers == 0
 

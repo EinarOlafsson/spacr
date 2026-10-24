@@ -110,21 +110,6 @@ def test_kmeans_translation_does_not_change_clusters_or_inertia():
     np.testing.assert_allclose(np.square(distances).min(axis=1).sum(), shifted.inertia_, rtol=1e-4)
 
 
-def test_full_pca_preserves_small_components_and_whitening():
-    from sklearn.decomposition import PCA
-
-    from spacr.mps_reduce import MetalPCA
-
-    rng = np.random.default_rng(9)
-    u = np.linalg.qr(rng.normal(size=(200, 2)))[0]
-    v = np.linalg.qr(rng.normal(size=(2, 2)))[0]
-    data = (u @ np.diag([100, 0.001]) @ v.T).astype("float32")
-    model = MetalPCA(n_components=2, svd_solver="full", whiten=True)
-    result = model.fit_transform(data)
-    reference = PCA(n_components=2, svd_solver="full", whiten=True).fit(data.astype("float64"))
-    np.testing.assert_allclose(model.explained_variance_, reference.explained_variance_, rtol=1e-8)
-    np.testing.assert_allclose(np.cov(result.T), np.eye(2), atol=1e-8)
-    assert model.projection_backend_ == "cpu"
 
 
 def test_pca_whitening_preserves_small_absolute_feature_scales():

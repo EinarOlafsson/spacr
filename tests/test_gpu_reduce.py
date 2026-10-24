@@ -152,3 +152,63 @@ def test_the_conda_forge_recipe_does_not_list_cuml():
     if not recipe.is_file():
         pytest.skip("no conda-forge recipe in this checkout")
     assert "cuml" not in recipe.read_text(encoding="utf-8")
+
+
+@pytest.fixture
+def metadata_only_metal(monkeypatch):
+    """Advertise a Metal runtime to the factory without allocating device data."""
+    from spacr import accelerator, gpu_reduce
+
+    monkeypatch.setenv(ENV_FLAG, '1')
+    monkeypatch.setattr(gpu_reduce, 'rapids_available', lambda: False)
+    found = accelerator.Accelerator(kind='mps', device='mps', label='Metadata-only Metal')
+    monkeypatch.setattr(accelerator, 'resolve', lambda: found)
+    return found
+
+
+@pytest.mark.parametrize('method,options', [
+    ('pca', {'n_components': 2, 'whiten': True}),
+    ('kmeans', {'n_clusters': 2, 'max_iter': 3, 'n_init': 1, 'random_state': 7}),
+])
+def test_metal_factory_constructs_real_estimators_without_running_device_operations(
+        metadata_only_metal, method, options):
+    """Backend provenance and supported options belong to the constructed estimator."""
+    from spacr.mps_reduce import MetalKMeans, MetalPCA
+
+    estimator, backend = make_reducer(method, prefer_gpu=True, **options)
+    assert backend == 'mps'
+    assert isinstance(estimator, MetalPCA if method == 'pca' else MetalKMeans)
+    for name, value in options.items():
+        assert getattr(estimator, name) == value
+
+
+@pytest.mark.parametrize('method,options,expected', [
+    ('pca', {'n_components': 2, 'svd_solver': 'randomized'}, 'PCA'),
+    ('kmeans', {'n_clusters': 2, 'algorithm': 'elkan'}, 'KMeans'),
+])
+def test_metal_unsupported_options_keep_the_real_cpu_estimator_and_provenance(
+        metadata_only_metal, method, options, expected):
+    """Valid CPU options must survive a refused Metal constructor unchanged."""
+    estimator, backend = make_reducer(method, prefer_gpu=True, **options)
+    assert backend == 'cpu'
+    assert type(estimator).__name__ == expected
+    assert type(estimator).__module__.startswith('sklearn.')
+    for name, value in options.items():
+        assert estimator.get_params()[name] == value
+
+
+def test_disabled_or_unusable_metal_keeps_pca_on_cpu(metadata_only_metal, monkeypatch):
+    """An opt-out or an unusable advertised runtime must not construct Metal PCA."""
+    from spacr import accelerator
+
+    monkeypatch.setenv(ENV_FLAG, '0')
+    estimator, backend = make_reducer('pca', prefer_gpu=True, n_components=2)
+    assert backend == 'cpu' and type(estimator).__name__ == 'PCA'
+    assert estimator.n_components == 2
+    monkeypatch.setenv(ENV_FLAG, '1')
+    found = accelerator.Accelerator(kind='mps', device='cpu', label='Unavailable Metal',
+                                    detected=True, usable=False)
+    monkeypatch.setattr(accelerator, 'resolve', lambda: found)
+    estimator, backend = make_reducer('pca', prefer_gpu=True, n_components=2)
+    assert backend == 'cpu' and type(estimator).__name__ == 'PCA'
+    assert estimator.n_components == 2
