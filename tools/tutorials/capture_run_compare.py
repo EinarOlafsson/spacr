@@ -66,7 +66,7 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
     while {r.run_id for r in screen.runs()}!={r for _,r in SOURCES} and time.monotonic()<until:
         settle(.2)
     if {r.run_id for r in screen.runs()}!={r for _,r in SOURCES}:
-        raise ValueError('The two actual historical run IDs were not loaded (found %r, busy=%s)'%(sorted(r.run_id for r in screen.runs()),screen.is_busy()))
+        raise ValueError('The two actual historical run IDs were not loaded (found %r, error=%r, verdict=%r)'%(sorted(r.run_id for r in screen.runs()),getattr(screen,'last_error',''),getattr(getattr(screen,'_verdict',None),'text',lambda:'')()))
     with capture_ui.clip(capture,'04_two_actual_runs_no_setting_change'):
         capture_ui.point_at(capture,screen._project_edit,screen._a_combo,screen._b_combo)
     def choose(combo,run):
