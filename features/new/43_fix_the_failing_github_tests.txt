@@ -6,6 +6,10 @@ loader values and reduction with declared backend seams; no native MPS claim,
 scientific fits, runtime changes or ratchet increases. Root reviews before
 the focused cohort and owns publication; native attribution remains deferred.
 The eight CPU controls pass (6.55s); runtime and metadata guard remain unchanged.
+CURRENT SHARED TORCH ASSIGNMENT ARITHMETIC — 2026-10-24
+widgets_g5 owns one additional CPU-only control of the existing MetalKMeans._assign helper: 1025 real tensor rows cross its 1024-row chunk boundary, with explicit equal-distance ties checked against independent NumPy squared distances and first-index labels. G3 reviews the mathematics and root must accept the actual draft before one owning run. Preserve every production byte, native control and coverage ceiling; no PCA/Lloyd refactoring, fake device identities or native/90% closure claims. Root publishes.
+2026-10-24: The one real CPU assignment case passes (7.62s) after independent mathematical and root draft review, preserving exact squared-distance/tie/chunk/input invariants. Native qualification and coverage-floor acceptance remain separate.
+
 CURRENT CPU-REACHABLE METAL COVERAGE CONTRACTS — 2026-10-24
 widgets_g5 owns the bounded four-module CPU plan and integration; G1 owns real ArrayDataLoader worker transport, G3 owns real CPU float64 PCA fallback, and widgets_g5 owns GPU factory routing and real Cellpose CPU-context/profiler controls. Preserve native-only tests and every coverage ceiling; use real CPU operations and metadata/API-boundary doubles only, never mock tensor device identities or claim native Metal acceptance. Review each actual draft before the smallest affected cohort under the memory cap; no production or generated-output edits. Root publishes.
 2026-10-24: Sixteen distinct CPU controls pass with independent review: factory/Cellpose 11 (6.12s), real worker transport 2 (7.75s), and CPU float64 PCA 3 (2.62s). Existing native controls and ceilings remain; actual MPS arithmetic, tensor-return augmentation, device-memory moves and macOS interpreter exit require separately authorized native validation. No native or 90% coverage closure is claimed.
