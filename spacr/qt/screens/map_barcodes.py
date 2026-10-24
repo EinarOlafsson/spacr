@@ -473,6 +473,11 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     stretch. Pages opened for folded modules can be closed without destroying
     their underlying screens.
 
+    The strip takes the body's visibility explicitly. Made as a new child of
+    a screen that is already on show, it would otherwise wait for the show
+    Qt queues when a layout adopts a widget, and that queued show did not
+    arrive on Windows: the overview wizard opened inside a hidden strip.
+
     :param screen: the host module's screen.
     :param title: caption for the host page. If omitted, use
         ``screen._fold_page_title`` and then the registered application name.
@@ -493,6 +498,7 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     name = (title or str(getattr(screen, "_fold_page_title", "") or "")
             or folded_module_title(getattr(screen, "app_key", "") or ""))
     _ensure_pages_qss(screen)
+    body_shown = not body.isHidden()
     pages = QTabWidget(screen)
     pages.setObjectName(PAGES_NAME)
     pages.setDocumentMode(True)
@@ -508,6 +514,7 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     pages.tabCloseRequested.connect(
         partial(_close_fold_page, pages))
     layout.insertWidget(index, pages, stretch)
+    pages.setVisible(body_shown)
     screen._fold_pages = pages
     return pages
 
