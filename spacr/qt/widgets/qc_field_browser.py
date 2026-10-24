@@ -2242,6 +2242,38 @@ def _overview_advanced_planes(field, planes, model, sample_reader, reference_rea
     return tuple(result)
 
 
+_ROWID_ALIASES = frozenset(("rowid", "oid", "_rowid_"))
+
+
+def _fov_without_rowid(connection):
+    """Rebuild the ``fov`` table without a rowid, keeping its columns and rows.
+
+    Recent SQLite releases (3.54 among them) refuse to add a column named ``rowid``, ``oid`` or
+    ``_rowid_`` (in any case) to a table that has a rowid, and image metadata
+    often carries such a key (``rowID`` on many plate exports). ``fov`` is
+    keyed by ``field_uid``, so it needs no rowid; a table written before it
+    was created without one is rebuilt in place, inside the caller's
+    transaction.
+
+    :param connection: open connection holding the write transaction.
+    """
+    created = connection.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'fov'").fetchone()
+    if created is None or "WITHOUT ROWID" in str(created[0]).upper():
+        return
+    columns = [(row[1], row[2]) for row in connection.execute('PRAGMA table_info(fov)')]
+    others = ", ".join(f'"{name}" {kind}'.rstrip() for name, kind in columns if name != "field_uid")
+    connection.execute('DROP TABLE IF EXISTS fov_without_rowid')
+    connection.execute('CREATE TABLE fov_without_rowid (field_uid TEXT PRIMARY KEY'
+                       + (", " + others if others else "") + ') WITHOUT ROWID')
+    names = ", ".join(f'"{name}"' for name, _kind in columns)
+    connection.execute(f'INSERT INTO fov_without_rowid ({names}) SELECT {names} FROM fov '
+                       'WHERE field_uid IS NOT NULL')
+    connection.execute('DROP TABLE fov')
+    connection.execute('ALTER TABLE fov_without_rowid RENAME TO fov')
+    connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
+
+
 def _overview_measurements_export(fields, source, channels, workers=1,
                                   cancelled=None, annotations=None, progress=None, *,
                                   time_index=None, z_mode="plane", z_index=None, field_options=None):
@@ -2376,7 +2408,8 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                 try:
                     with transaction(connection, attempts=8, busy_timeout=30):
                         check_cancelled()
-                        connection.execute('CREATE TABLE IF NOT EXISTS fov (field_uid TEXT PRIMARY KEY)')
+                        connection.execute('CREATE TABLE IF NOT EXISTS fov '
+                                           '(field_uid TEXT PRIMARY KEY) WITHOUT ROWID')
                         existing = {row[1] for row in connection.execute('PRAGMA table_info(fov)')}
                         if "field_uid" not in existing:
                             connection.execute('ALTER TABLE fov ADD COLUMN field_uid TEXT')
@@ -2389,6 +2422,8 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                                 if key not in existing:
                                     kind = ("INTEGER" if isinstance(value, int) else
                                             "REAL" if isinstance(value, float) else "TEXT")
+                                    if key.lower() in _ROWID_ALIASES:
+                                        _fov_without_rowid(connection)
                                     connection.execute(f'ALTER TABLE fov ADD COLUMN "{key}" {kind}')
                                     existing.add(key)
                             connection.execute('DELETE FROM fov WHERE field_uid = ?', (row["field_uid"],))
