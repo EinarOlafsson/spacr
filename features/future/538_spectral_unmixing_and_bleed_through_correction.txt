@@ -28,6 +28,24 @@ target correction, restored masks, provenance/resume and unsafe downstream
 refusal using CPU fakes; no model download or biological efficacy claim.
 The calibrated V2 cell-only route writes a separate calibrated_segmentation dataset: aligned nonquantitative float32 display planes and restored full-canvas masks, blank outside valid support, plus signed crop outputs and durable coordinate metadata. Original raw channels/files remain unchanged. Measure, its preview, checked crops and cached export must refuse that dataset independently of current unmix switches; V1, 3D, additional processing and unsupported exports remain refused. Default routes and the separate known-amount scientific gate remain unchanged.
 
+CALIBRATED CELL MEASUREMENT FOLLOW-UP (2026-10-24)
+Home owns an explicit measure_calibrated_cells API in the existing Measure
+module, with G1 implementing signed statistics, G5 binding producer records
+and input transport, and G4 independently reviewing mathematics and source.
+Require an explicit versioned cell-mask role and hash-bound complete signed
+crop/matching-mask records; refuse older ambiguous records. Preserve original
+data and the ordinary Measure/preview refusals. Export separate CSV/JSON to a
+new atomic destination without overwrite or raw measurement database mixing.
+Report signed float64 first-order camera-linear statistics at the recorded
+common PSF, geometric full-reference coordinates, physical channel identities,
+area and positive anisotropic pixel spacing. Preserve negative values; never
+use display planes, uint16 casts, clipping, weighted centroids, relative or
+texture statistics, crops, reprocessing or concentration claims in this slice.
+Validate known signed/zero-sum cells, ROI offsets and channel order, source
+immutability, wrong role/hash/shape/origin/spacing refusals and cancellation
+before publication. Existing defaults and the separate real known-amount
+double-stain scientific acceptance gate remain unchanged and open.
+
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
     measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
