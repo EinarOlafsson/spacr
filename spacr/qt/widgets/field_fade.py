@@ -427,11 +427,44 @@ def repaint_fields(app=None) -> int:
     if app is None:
         return 0
     count = 0
-    for widget in app.allWidgets():
+    for widget in _visible_fields(app):
         if fades(widget):
             widget.update()
             count += 1
     return count
+
+
+def _visible_fields(app):
+    """Every field in a window on screen, without wrapping every widget.
+
+    Walking ``allWidgets()`` wrapped every widget of every kept screen in
+    Python to find a few hundred fields; it was a GUI-thread stall of each
+    Preferences warm slice (lessons 70 and 85). A hidden field is painted
+    when it is shown, so only the windows on screen are searched, and Qt
+    filters each search by field type.
+
+    :param app: the application.
+    :returns: the visible fields, a window at a time.
+    """
+    seen = set()
+    for window in app.topLevelWidgets():
+        try:
+            if not window.isVisible():
+                continue
+            candidates = [window] if isinstance(window, FIELD_TYPES) else []
+            for kind in FIELD_TYPES:
+                candidates.extend(window.findChildren(kind))
+        except RuntimeError:
+            continue
+        for widget in candidates:
+            if id(widget) in seen:
+                continue
+            seen.add(id(widget))
+            try:
+                if widget.isVisible():
+                    yield widget
+            except RuntimeError:
+                continue
 
 
 

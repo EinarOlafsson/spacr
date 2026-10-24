@@ -4123,16 +4123,20 @@ def _sheet_one_window(window) -> bool:
     """Put the live window sheet on ``window`` if it has not got it yet.
 
     A window whose C++ object is gone, or that is being torn down, is left
-    alone; the ``setStyleSheet`` itself goes through the stylesheet guard in
+    alone, and so is a hidden Qt popup such as a combo box's list, which is
+    sheeted at its ``Show``; the ``setStyleSheet`` itself goes through the
+    stylesheet guard in
     :mod:`spacr.qt.gui_scale`, which waits for the event loop when this is
     reached from inside a polish, a style change or a paint.
     """
-    from .gui_scale import _is_alive, _is_torn_down
+    from .gui_scale import _inside_a_hidden_popup, _is_alive, _is_torn_down
 
     app = QApplication.instance()
     if app is None:
         return False
     if not _is_alive(window) or _is_torn_down(window):
+        return False
+    if _inside_a_hidden_popup(window):
         return False
     sheet = getattr(app, _WINDOW_SHEET_ATTRIBUTE, None)
     if sheet is None:

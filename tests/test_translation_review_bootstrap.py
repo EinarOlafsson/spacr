@@ -379,3 +379,23 @@ else:
                             capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
     assert not (tmp_path / "cold" / "git").exists()
+
+
+@pytest.mark.parametrize("call", ["run", "Popen"])
+def test_a_missing_git_is_named_with_what_to_do(monkeypatch, tmp_path, call):
+    """On Windows without Git on PATH both git calls raised a bare WinError 2."""
+    def absent(*_args, **_kwargs):
+        raise FileNotFoundError(2, "The system cannot find the file specified")
+
+    monkeypatch.setattr(bootstrap.subprocess, call, absent)
+    with pytest.raises(bootstrap.ReviewInputsError) as raised:
+        if call == "run":
+            bootstrap._git(tmp_path, "status")
+        else:
+            monkeypatch.setattr(bootstrap, "_repository",
+                                lambda pin, cache, offline: tmp_path)
+            bootstrap._restore(tmp_path, {"revision": "0" * 40}, set(), set(),
+                               tmp_path, True)
+    message = str(raised.value)
+    assert "git was not found on PATH" in message
+    assert "https://git-scm.com/downloads" in message
