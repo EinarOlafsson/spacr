@@ -17,6 +17,11 @@ actual QTest arrow/tab clicks, distinguishing strip scrolling from selection.
 Require full native tab captions (including mnemonic handling), category tile
 icon/name real access, exact page restoration, separate dynamic-state ledger
 and the original20s content budget; no setCurrentIndex or physical-input claim.
+Native77071/M3mVgj on14275c855 passes32.99s/RSS1.062GiB: three arrows each
+direction preserve selection; actual tab clicks Home→Organism→same Home pass
+full caption fields. Dynamic Toxoplasma icon/name/source/DPR2 and hidden-H0
+access pass separately from2/139 baseline targets (137 untested). Content6.300s/
+tour10.154s, errors[] and normal close/cleanup pass; physical gates remain open.
 
 Next tab_arrows cohort selects exactly the two real HomeTabs overflow buttons,
 including disabled controls, from the actual tab bar. Preserve full manifest,
