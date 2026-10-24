@@ -3831,8 +3831,6 @@ def _consume_native_crash(path):
                         session = json.loads(match.group(1))
                     except (ValueError, TypeError):
                         pass
-            if not isinstance(session, Mapping):
-                session = {"known": False}
             summary["native_session"] = _validated_summary({"native_session": session})["native_session"]
             observed = raw[fatal.end():].split("\n\n", 1)[-1]
             frames = re.findall(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)', observed)

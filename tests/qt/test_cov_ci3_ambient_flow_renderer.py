@@ -138,6 +138,7 @@ class _Context:
 
     def __init__(self, options, fail_program=False):
         self.options = options
+        self.version_code = options["require"]
         self.fail_program = fail_program
         self.made, self.released, self.writes, self.renders = [], [], [], []
         self.bindings = {}

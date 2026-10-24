@@ -1,4 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT HOME LOGO DPR FIXTURE — 2026-10-24
+widgets_g4 binds the two Night8fe masthead DPR failures to the current
+allocation-driven Home logo. Preserve native DPR, exact source-pixel and
+72px ordinary-display checks; establish actual visible layout before reading
+the render. Both original cases pass (19.94s); root reviews and publishes.
+2026-10-24: Native Home show/layout restores the fixture’s pixel measurement;
+all original DPR/72px/144px assertions remain, with no production change.
+
 CURRENT BACKEND CAPTION FIXTURE SOURCE INVENTORY — 2026-10-24
 The retained CI owner applies the same mandatory pipeline_v2 fake-source
 repair to the backend-caption owner fixture, preserving all 78 existing
@@ -35,6 +43,15 @@ contracts. Preserve production behavior, native controls and all coverage limits
 use bounded CPU-only lifecycle and real Qt controls, then root review/publication.
 Three controls pass (4.25s); corrected missing-screen fixture passes alone (0.87s).
 Production/generated files are unchanged; root owns final publication.
+CURRENT REPORTING COVERAGE CONTRACTS — 2026-10-24
+widgets_g2 owns Main aggregate120781472369 gaps in crashreport, AI providers,
+ConsolePanel and AIChatPanel; root reviews and publishes. Bind exact missing
+statements/arcs to current source, reuse accepted Night controls first, then
+exercise only remaining real policy, lifetime and error-delivery boundaries.
+Keep all existing ceilings, consent/privacy/provider choices, batching and
+original output behavior. CPU-only fake transports; no live AI or issue posts.
+Remove only the proven redundant native-session non-Mapping guard; retain the
+JSON-object parser, sanitizer, consent, acknowledgement and history checks.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4848,3 +4865,8 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 
 2026-10-24 — Seed the backend-caption fake tree with the same mandatory pipeline_v2.py source. Current Night producer, test and affected runtime-source preimages match; all 78 original caption/refusal/scope assertions pass (78 tests, 1.80s). No product/generated changes or Main inference; root review/publication pending.
 2026-10-24 — Release lane owns only the actual Night min1 Cellpose test contracts: make the two calibrated-preview CPU doubles declare the recorded eval signature and validate the real channel axis, and bind the CPU fallback diagnostic control to the current delegated accelerator boundary. Preserve all segmentation/pixel assertions, zero-offender ratchets and runtime behavior; no GPU, training, weights or downloads. Root accepted the exact fixture diff; all six affected contracts/preview controls pass (46.53s) under CPU/offscreen with an 8GiB cap. Failed-source/current-Night owning preimages match; no runtime change, model load or ratchet relaxation.
+
+2026-10-24 — Release lane owns only Night C0's stale Darwin context-options assertion after the approved Mac Radeon OpenGL4.1 adapter. Pin explicit platform/version expectations while preserving Linux EGL4.3, Windows4.3 and all fallback/ownership controls; no renderer, driver, source or Main change, and run only the failed Darwin case. Root accepted the exact source-bound fixture diff; the sole Darwin node passes (3.15s), without creating a graphics context or running GPU work. Other platform expectations and all fallback/ownership assertions remain unchanged.
+
+2026-10-24 — Release lane owns only six actual Night C2 ambient-engine failures caused by the recording GL context omitting the current version_code protocol. Supply the requested context version in that CPU-only double; preserve every frame/material/pixel/resource-ownership assertion and runtime/platform behavior, then run only the six reported cases without a graphics driver. Root accepted the exact protocol-field repair; all six reported engine controls pass (2.94s) on the CPU-only recording context. Frame/material/pixel and release/ownership assertions are unchanged; no driver or GPU qualification is claimed.
+2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.
