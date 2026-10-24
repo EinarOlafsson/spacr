@@ -4009,7 +4009,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto.",
+          "narration": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4017,7 +4017,7 @@
             3410,
             1260
           ],
-          "speech_text": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto."
+          "speech_text": "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso."
         },
         {
           "visual": "train_checkpoint",
