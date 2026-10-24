@@ -16,11 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-CoreText call scope: one fresh font-only _figure_font_manager invocation with
-no font_manager/Qt preload, observing only its existing osascript check_output
-call-through wall/threadCPU/timeout/result/path count. Keep original results,
-exceptions, HOME and exact subprocess function; own all caches/standard guard.
-No extra font enumeration, product change or persistent-cache/speed claim.
+2026-10-24 — CoreText13962/4we67n diagnostic0/0.061GiB/zero missed on2a4a8e6:
+one successful osascript call.526220s wall/.003866callerCPU, timeout3/562paths.
+Actual helper2.351935s wall/1.399459CPU inclusive; no additive or speed claim.
+Exact subprocess restore/HOME preserved/noQt/owned paths; no cache validation
+or optimization claim. Home5s/Mask10s/30FPS remain OPEN.
 
 2026-10-24 — Callback99187/nm73Bn diagnostic0/0.573GiB/zero missed on34229b6:
 before Home8.964s BOTH new fitters have0calls/0cost/no straddles. After Home,
