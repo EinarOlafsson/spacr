@@ -14,6 +14,14 @@ Main/Night render delivery; preserve image delivery and prepaint requeue
 assertions while adding only the real artist visibility protocol.
 Use CPU/offscreen focused validation; renderer production and Work2 stay untouched.
 
+CURRENT AI NOTICE BATCH FIXTURE — 2026-10-23
+widgets_g3 owns the two Main69 AI notice failures and three modes sharing
+their helper. Reuse the accepted real ReportSession with affirmative saved
+choices, exposed owners and actual post-batch worker waits; advance the real
+quiet clock instead of waiting on unrelated jobs or a fixed delay. Preserve
+all reply/relay-summary and no-AI-mode assertions. Fake transport only,
+independent peer and five CPU/offscreen checks; root publishes.
+
 CURRENT MANUAL AI SUBPROCESS STRESS FIXTURE — 2026-10-23
 widgets_g3 owns the exact Main69 stress error-flow failure. Advance the real
 manual error batcher's quiet clock with its existing isolated fixture before
@@ -4709,3 +4717,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Align the actual AI/report fixtures with consented anonymous batching and explicit GitHub preview/Send, preserving local raw diagnostics and scrubbed outgoing payloads, modes, retries, quotas, saved answers and real occurrence deduplication. Unreadable policy now revokes the mirrored permission and fails closed; broken cache reads permit uncached handling; failed summary construction remains local without a false queued claim. The 57 necessary controls pass (53 retained from 74.85s and four corrected wire/ordering/privacy checks in 9.16s); independent source/test peers accepted. Normal scoped extraction preserves all 142 API entries and caption identities; consumer references are zero; generated outputs are unchanged. Post-run temporary chaining-lock cleanup warnings remain a qualification; both processes terminated normally, and root owns publication/hosted CI.
 
 2026-10-24 — Add the real artist visibility protocol to the True 3D prepaint stand-in, retaining exact image-delivery and redraw suppression assertions. Both states pass (2 tests, 3.42s); G1 independently accepted the test-only correction. Production and generated outputs are unchanged; root publication remains pending.
+
+2026-10-23 — The AI notice fixture now uses the real consented ReportSession, native visible owner and post-batch worker completion instead of a retired provider hook and unrelated job/fixed-delay waits. Both original reply/relay-summary checks and all three no-AI-mode checks pass (5 tests, 15.64s); independent peer accepted. Production/generated outputs are unchanged; the process exited 0 with the known finite ambient-compiler diagnostic retained as a qualification. Root owns publication and hosted CI.
