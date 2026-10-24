@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native25138/ORpMMJ onfc36398a05 PASS50.59s/RSS1.324GiB: lines[16,28)
+accepted12/12 via21/21 visible segments; startup8.527s/content19.990752s.
+Source/layout/doc696×21480/origin0/358-line witnesses EXACTLY match Qqn93W;
+combined[0,28) accepted28/358,330remaining (run-local346). Normal cleanup pass;
+17 whole bodies/139 whole-manifest targets uncertified; no timing-margin claim.
+
 News range selection scope: validate and forward exact release index0..16,
 start>=0 and maxcount1..16; require start within actual rendered lines and
 stop at min(start+maxcount,total). Keep structural tag/source pairing, strict
