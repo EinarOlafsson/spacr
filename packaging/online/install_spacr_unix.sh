@@ -548,8 +548,8 @@ install_linux_system_dependencies() {
     spacr_say installing_linux_deps
     if command -v apt-get >/dev/null 2>&1; then
         [[ "$arm_build" == "0" ]] || build_deps=(build-essential libx11-dev)
-        "${elevate[@]}" apt-get update
-        "${elevate[@]}" apt-get install --no-install-recommends -y \
+        ${elevate[@]+"${elevate[@]}"} apt-get update
+        ${elevate[@]+"${elevate[@]}"} apt-get install --no-install-recommends -y \
             libegl1 libgl1 libxkbcommon0 libdbus-1-3 libpulse0 \
             libx11-xcb1 libxcb-cursor0 libxcb-icccm4 libxcb-image0 \
             libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
@@ -559,20 +559,20 @@ install_linux_system_dependencies() {
             ${build_deps[@]+"${build_deps[@]}"}
     elif command -v dnf >/dev/null 2>&1; then
         [[ "$arm_build" == "0" ]] || build_deps=(gcc-c++ libX11-devel)
-        "${elevate[@]}" dnf install -y \
+        ${elevate[@]+"${elevate[@]}"} dnf install -y \
             mesa-libGL mesa-libEGL libxkbcommon libxkbcommon-x11 \
             libxcb xcb-util-cursor xcb-util-image xcb-util-keysyms \
             xcb-util-renderutil dbus-libs pulseaudio-libs nss ffmpeg \
             ${build_deps[@]+"${build_deps[@]}"}
     elif command -v zypper >/dev/null 2>&1; then
         [[ "$arm_build" == "0" ]] || build_deps=(gcc-c++ libX11-devel)
-        "${elevate[@]}" zypper --non-interactive install \
+        ${elevate[@]+"${elevate[@]}"} zypper --non-interactive install \
             Mesa-libGL1 Mesa-libEGL1 libxkbcommon0 libxkbcommon-x11-0 \
             libxcb1 libpulse0 libnss3 ffmpeg \
             ${build_deps[@]+"${build_deps[@]}"}
     elif command -v pacman >/dev/null 2>&1; then
         [[ "$arm_build" == "0" ]] || build_deps=(base-devel libx11)
-        "${elevate[@]}" pacman -S --needed --noconfirm \
+        ${elevate[@]+"${elevate[@]}"} pacman -S --needed --noconfirm \
             libglvnd libxkbcommon-x11 libxcb xcb-util-cursor \
             xcb-util-image xcb-util-keysyms xcb-util-renderutil \
             dbus libpulse nss ffmpeg \
