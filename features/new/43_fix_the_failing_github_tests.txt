@@ -1,4 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT HOME BODY SCROLL ACCESSIBLE NAME — 2026-10-24
+widgets_g4 owns the Night8fe unnamed Home scroll-area CI regression. Give
+the real keyboard-focusable Home body its existing localized Home name;
+preserve focus policy, scrolling and every tab-stop assertion. Coordinate
+the constructor-only hunk with the separate Home lifetime owner; root publishes.
+2026-10-24: With the accepted viewport-lifetime fix, the original owning
+tab-stop case passes (2.20s); normal Home API/runtime/consumer delta is zero.
+
 CURRENT HOME LOGO DPR FIXTURE — 2026-10-24
 widgets_g4 binds the two Night8fe masthead DPR failures to the current
 allocation-driven Home logo. Preserve native DPR, exact source-pixel and

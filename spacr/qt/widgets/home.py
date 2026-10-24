@@ -2413,7 +2413,9 @@ class HomePage(QWidget):
         col.addWidget(split, 1)
         self._read_the_journal()
 
+        from ..i18n import tr
         self._body_scroll = QScrollArea()
+        self._body_scroll.setAccessibleName(tr("Home"))
         self._body_scroll.setFrameShape(QScrollArea.NoFrame)
         self._body_scroll.setWidgetResizable(True)
         self._body_scroll.setWidget(body)
