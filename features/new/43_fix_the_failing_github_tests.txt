@@ -1,4 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT RENDER POOL AND SETUP OPENING CONTRACTS — 2026-10-24
+The retained dependency worker owns Main be67895 aggregate render-buffer growth,
+failed-allocation cleanup and grouped setup missing-screen/backdrop-free opening
+contracts. Preserve production behavior, native controls and all coverage limits;
+use bounded CPU-only lifecycle and real Qt controls, then root review/publication.
+Three controls pass (4.25s); corrected missing-screen fixture passes alone (0.87s).
+Production/generated files are unchanged; root owns final publication.
+
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
 Use the real Mask Time switch to reveal its mounted tracking category;

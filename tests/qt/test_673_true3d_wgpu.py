@@ -914,3 +914,34 @@ def test_wgpu_and_opengl_frames_agree():
             gl.close()
     finally:
         gpu.close()
+
+
+def test_wgpu_uniform_growth_and_failed_reallocation_release_owned_buffers(monkeypatch):
+    renderer, device, _, _, _, _ = _dispatch_pool_fixture(monkeypatch)
+    compute = device.create_command_encoder()
+    try:
+        renderer._dispatch(compute, 'clear', np.arange(4, dtype=np.float32), (), (1, 1))
+        first = renderer._dispatch_slots[0]['uniform']
+        renderer._dispatch_index = 0
+        larger = np.arange(8, dtype=np.float32)
+        renderer._dispatch(compute, 'clear', larger, (), (1, 1))
+        replacement = renderer._dispatch_slots[0]['uniform']
+        assert first.destroyed and not replacement.destroyed
+        assert replacement is not first and replacement.size == larger.nbytes
+        assert bytes(replacement.data) == larger.tobytes()
+        assert compute.group.entries[0]['resource']['buffer'] is replacement
+
+        def unavailable(**kwargs):
+            raise RuntimeError('allocation unavailable')
+
+        monkeypatch.setattr(device, 'create_buffer', unavailable)
+        renderer._dispatch_index = 0
+        with pytest.raises(RuntimeError, match='allocation unavailable'):
+            renderer._dispatch(compute, 'clear', np.arange(16, dtype=np.float32), (), (1, 1))
+        assert replacement.destroyed
+        assert renderer._dispatch_slots[0]['uniform'] is None
+    finally:
+        renderer.close()
+    assert renderer._dispatch_slots == []
+    assert all(buffer.destroyed for buffer in device.buffers)
+    assert device.destroyed
