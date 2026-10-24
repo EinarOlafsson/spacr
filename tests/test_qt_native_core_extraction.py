@@ -338,9 +338,9 @@ def _identity(tmp_path):
     }
 
 
-@pytest.mark.parametrize('defect', ['none', 'finished', 'source', 'root', 'executable',
+@pytest.mark.parametrize('defect', ['none', 'finished', 'finished_success', 'source', 'root', 'executable',
                                    'hash', 'boot', 'pid', 'start', 'malformed', 'symlink'])
-def test_only_current_unfinished_owned_sessions_are_eligible(tmp_path, defect):
+def test_only_current_owned_sessions_are_eligible_regardless_of_pytest_finish(tmp_path, defect):
     import json
 
     executable, evidence, record = _identity(tmp_path)
@@ -353,8 +353,9 @@ def test_only_current_unfinished_owned_sessions_are_eligible(tmp_path, defect):
     elif defect == 'start':
         record['process_start_ticks'] = '0'
     text = json.dumps(record) + '\n'
-    if defect == 'finished':
-        text += json.dumps({'event': 'session_finish', 'exitstatus': 1}) + '\n'
+    if defect in {'finished', 'finished_success'}:
+        text += json.dumps({'event': 'session_finish',
+                            'exitstatus': 0 if defect == 'finished_success' else 1}) + '\n'
     elif defect == 'malformed':
         text = 'partial invalid json'
     journal = evidence / 'process-3456-123.jsonl'
@@ -363,8 +364,17 @@ def test_only_current_unfinished_owned_sessions_are_eligible(tmp_path, defect):
         target = tmp_path / 'external.jsonl'
         journal.rename(target)
         journal.symlink_to(target)
-    sessions = collector._ordinary_sessions(evidence, tmp_path, 'source', 'source', executable, [])
-    assert bool(sessions) is (defect == 'none')
+    lines = []
+    sessions = collector._ordinary_sessions(evidence, tmp_path, 'source', 'source', executable, lines)
+    eligible = defect in {'none', 'finished', 'finished_success'}
+    finished = defect in {'finished', 'finished_success'}
+    assert bool(sessions) is eligible
+    assert f'eligible_owned_processes={int(eligible)}' in lines
+    assert f'pytest_finished_owned_processes={int(finished)}' in lines
+    assert f'unfinished_owned_processes={int(eligible and not finished)}' in lines
+    if eligible:
+        assert sessions == [{**record, 'pytest_session_finished': finished}]
+        assert 'pytest_session_finished' not in record
     assert not collector._ordinary_sessions(evidence, tmp_path, 'other', 'source', executable, [])
 
 
@@ -380,6 +390,41 @@ def test_ordinary_raw_core_requires_elf_owner_even_when_filename_matches(tmp_pat
     selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, [])
     assert selected == (core if defect == 'none' else None)
     assert temporary is None
+
+
+@pytest.mark.parametrize('exitstatus', [0, 1])
+@pytest.mark.parametrize('defect', ['none', 'pid', 'executable', 'stale'])
+def test_a_pytest_finished_journal_still_requires_an_owned_recent_core(
+        tmp_path, monkeypatch, exitstatus, defect):
+    import json
+
+    executable, evidence, record = _identity(tmp_path)
+    journal = evidence / 'process-3456-123.jsonl'
+    journal.write_text(json.dumps(record) + '\n' + json.dumps({
+        'event': 'session_finish', 'exitstatus': exitstatus,
+    }) + '\n', encoding='utf-8')
+    lines = []
+    sessions = collector._ordinary_sessions(
+        evidence, tmp_path, 'source', 'source', executable, lines)
+    assert sessions == [{**record, 'pytest_session_finished': True}]
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(
+        7890 if defect == 'pid' else 3456,
+        tmp_path / 'foreign-python' if defect == 'executable' else executable))
+    timestamp = record['time_ns'] + (-1 if defect == 'stale' else 1)
+    os.utime(core, ns=(timestamp, timestamp))
+    monkeypatch.setattr(collector, '_candidate_files',
+                        lambda *args: iter([(core, core.stat().st_size)]))
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    selected, temporary = collector._ordinary_core(
+        tmp_path, evidence, sessions, executable, lines)
+    assert selected == (core if defect == 'none' else None)
+    assert temporary is None and core.exists()
+    if defect == 'none':
+        matched = next(line for line in lines if line.startswith('matched_process='))
+        assert json.loads(matched.split('=', 1)[1]) == sessions[0]
+    else:
+        assert not any(line.startswith('matched_process=') for line in lines)
 
 
 @pytest.mark.parametrize('second_finished', [False, True])

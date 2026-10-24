@@ -397,7 +397,7 @@ def _core_process_ids(path: Path, executable: Path,
 
 def _ordinary_sessions(evidence: Path, workspace: Path, source_sha: str,
                        expected_sha: str, executable: Path, lines: list[str]) -> list[dict]:
-    """Accept only unfinished, current-source process journals from this runner."""
+    """Accept current-source owned journals; pytest finish is not process exit."""
     sessions = []
     counts = {}
     if source_sha != expected_sha or not expected_sha:
@@ -424,14 +424,20 @@ def _ordinary_sessions(evidence: Path, workspace: Path, source_sha: str,
                 continue
             pid = int(first["pid"])
             counts[pid] = counts.get(pid, 0) + 1
-            if not any(row.get("event") == "session_finish" for row in records):
-                sessions.append(first)
+            sessions.append({
+                **first,
+                "pytest_session_finished": any(
+                    row.get("event") == "session_finish" for row in records),
+            })
         except (OSError, ValueError, KeyError, TypeError, AttributeError):
             continue
     ambiguous = {pid for pid, count in counts.items() if count > 1}
     sessions = [row for row in sessions if int(row["pid"]) not in ambiguous]
     lines.append(f"ambiguous_process_pids_refused={sorted(ambiguous)}")
-    lines.append(f"unfinished_owned_processes={len(sessions)}")
+    finished = sum(row["pytest_session_finished"] for row in sessions)
+    lines.append(f"eligible_owned_processes={len(sessions)}")
+    lines.append(f"pytest_finished_owned_processes={finished}")
+    lines.append(f"unfinished_owned_processes={len(sessions) - finished}")
     return sorted(sessions, key=lambda row: int(row["time_ns"]), reverse=True)
 
 
@@ -563,7 +569,8 @@ def main(argv: list[str] | None = None) -> int:
             core, extracted = _ordinary_core(workspace, evidence, sessions, executable, lines)
             if core is not None:
                 cores.append((core, core.stat().st_size))
-        lines.append("ordinary mode samples no RSS or Qt objects; unfinished does not prove SIGSEGV")
+        lines.append("ordinary mode uses identity-only journals; pytest finish is not process exit; "
+                     "neither journal state proves SIGSEGV")
     elif not cores and source_sha == expected_sha and shutil.which("gdb"):
         extracted = _extract_systemd_core(
             Path("/var/lib/systemd/coredump"), evidence.parent, pid, started_ns, lines)
