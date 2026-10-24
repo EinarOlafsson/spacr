@@ -185,6 +185,16 @@ def test_native_image_colour_restores_the_frame_without_changing_label_ids(tmp_p
     _run_native_volume_probe(tmp_path, scenario='image_colour')
 
 
+def test_native_remaining_image_renderings_each_restore_mip(tmp_path):
+    """Check the three other offered Image renderings without replaying attenuation."""
+    _run_native_volume_probe(tmp_path, scenario='image_renderings')
+
+
+def test_native_remaining_masks_finishes_each_restore_matte(tmp_path):
+    """Check the two other offered Masks finishes without replaying satin."""
+    _run_native_volume_probe(tmp_path, scenario='mask_finishes')
+
+
 def _run_native_volume_probe(tmp_path, *, scenario):
     """Share only normal startup, owned data and current-frame verification."""
     import ast
@@ -197,7 +207,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     import sys
     import textwrap
 
-    assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility', 'image_colour')
+    assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
+        'image_colour', 'image_renderings', 'mask_finishes')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
@@ -238,15 +249,21 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert timing.ENABLED and not layers.gpu_render_refusal()
         phase = os.environ['SPACR_RESTART_PHASE']
         scenario = os.environ['SPACR_VOLUME_SCENARIO']
-        assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility', 'image_colour')
+        assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
+            'image_colour', 'image_renderings', 'mask_finishes')
         control_operations = ['initial', 'visibility_hidden', 'visibility_restored',
             'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
         if scenario == 'image_colour':
             control_operations = ['initial', 'colour_changed', 'colour_restored']
+        elif scenario == 'image_renderings':
+            control_operations = ['initial', 'translucent_changed', 'translucent_restored',
+                'average_changed', 'average_restored', 'minip_changed', 'minip_restored']
         mask_operations = ['initial', 'mask_opacity_changed', 'mask_opacity_restored',
             'mask_rendering_changed', 'mask_rendering_restored', 'mask_finish_changed', 'mask_finish_restored']
         if scenario == 'mask_visibility':
             mask_operations = ['initial', 'mask_visibility_hidden', 'mask_visibility_restored']
+        elif scenario == 'mask_finishes':
+            mask_operations = ['initial', 'glossy_changed', 'glossy_restored', 'metallic_changed', 'metallic_restored']
         folder = Path(os.environ['SPACR_RESTART_FIXTURE'])
         output = Path(os.environ['SPACR_RESTART_OUTPUT'])
         report = {'phase': phase, 'errors': [], 'initial_saved': preferences.get_volume_view(),
@@ -256,9 +273,9 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                   'pick_scope': 'inside-frame background only; positive selection not exercised'}
         if scenario == 'image_opacity':
             report.update(scenario=scenario, pick_scope='not exercised', opacity_states=[])
-        elif scenario in ('image_controls', 'image_colour'):
+        elif scenario in ('image_controls', 'image_colour', 'image_renderings'):
             report.update(scenario=scenario, pick_scope='not exercised', image_control_states=[], image_control_actions=[])
-        elif scenario in ('mask_controls', 'mask_visibility'):
+        elif scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             report.update(scenario=scenario, pick_scope='not exercised', mask_control_states=[], mask_control_actions=[])
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
@@ -478,6 +495,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 target.setValue(state['contrast_target'] if operation == 'contrast_changed' else state['contrast_original'])
             else:
                 value = 'attenuated_mip' if operation == 'rendering_changed' else 'mip'
+                if scenario == 'image_renderings' and operation.endswith('_changed'):
+                    value = operation.rsplit('_', 1)[0]
                 index = target.findData(value)
                 assert index >= 0 and target.currentIndex() != index
                 target.setCurrentIndex(index)
@@ -504,6 +523,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             else:
                 value = ('translucent' if changed else 'surface') if operation.startswith('mask_rendering_') else (
                     'satin' if changed else 'matte')
+                if scenario == 'mask_finishes' and changed:
+                    value = operation.rsplit('_', 1)[0]
                 index = target.findData(value)
                 assert index >= 0 and target.currentIndex() != index
                 target.setCurrentIndex(index)
@@ -560,7 +581,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
-                    if scenario in ('image_opacity', 'image_controls', 'mask_controls', 'mask_visibility', 'image_colour'):
+                    if scenario in ('image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
+                            'image_colour', 'image_renderings', 'mask_finishes'):
                         state['session_arrays'] = (id(session.image), id(session.mask))
                     assert 'metal' in mm.volume_render_backends()
                     report['before_true3d_saved'] = preferences.get_volume_view()
@@ -581,7 +603,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         'visibility_hidden', 'visibility_restored', 'contrast_changed', 'contrast_restored',
                         'rendering_changed', 'rendering_restored', 'mask_opacity_changed', 'mask_opacity_restored',
                         'mask_rendering_changed', 'mask_rendering_restored', 'mask_finish_changed', 'mask_finish_restored',
-                        'mask_visibility_hidden', 'mask_visibility_restored', 'colour_changed', 'colour_restored'):
+                        'mask_visibility_hidden', 'mask_visibility_restored', 'colour_changed', 'colour_restored',
+                        *control_operations, *mask_operations):
                     if not idle(stage) or stage._render_state is None:
                         return
                     if scenario == 'image_opacity' and 'opacity_slider' not in state:
@@ -632,7 +655,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         'positive_original_ids': sorted(map(int, np.unique(picked[picked > 0]))),
                         'fresh_request_exact': True, 'paint': matching[-1]}
                     assert set(report['current_frame']['positive_original_ids']) <= set(range(1, 44))
-                    if scenario in ('mask_controls', 'mask_visibility'):
+                    if scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
                         assert request.quality == 'preview'
                         row = image_state(stage, context, request)
                         row['effective_finish'] = stage._finish
@@ -657,9 +680,11 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                             assert row['selected'] == baseline['selected'] and row['selected_ui'] == baseline['selected_ui']
                             assert row['frame']['serial'] > report['mask_control_states'][-2]['frame']['serial']
                             finish = 'satin' if state['operation'] == 'mask_finish_changed' else 'matte'
+                            if scenario == 'mask_finishes' and state['operation'].endswith('_changed'):
+                                finish = state['operation'].rsplit('_', 1)[0]
                             assert stage._finish == finish
                             expected_prefs = dict(baseline['preferences'])
-                            if state['operation'].startswith('mask_finish_'):
+                            if state['operation'].startswith('mask_finish_') or scenario == 'mask_finishes':
                                 expected_prefs['finish'] = finish
                             assert row['preferences'] == expected_prefs
                             expected = []
@@ -674,6 +699,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                                         copied['rendering'] = copied['ui']['rendering'] = 'translucent'
                                     elif state['operation'] == 'mask_finish_changed':
                                         copied['finish'] = copied['ui']['finish'] = 'satin'
+                                    elif scenario == 'mask_finishes' and state['operation'].endswith('_changed'):
+                                        copied['finish'] = copied['ui']['finish'] = finish
                                 expected.append(copied)
                             assert row['layers'] == expected
                             if state['operation'].endswith('_restored'):
@@ -688,7 +715,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         else:
                             act_on_mask_control(stage, mask_operations[index+1])
                         return
-                    if scenario in ('image_controls', 'image_colour'):
+                    if scenario in ('image_controls', 'image_colour', 'image_renderings'):
                         assert request.quality == 'preview'
                         row = image_state(stage, context, request)
                         report['image_control_states'].append(row)
@@ -729,6 +756,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                                         copied['rendering'] = copied['ui']['rendering'] = 'attenuated_mip'
                                     elif state['operation'] == 'colour_changed':
                                         copied['colormap'] = copied['ui']['colour'] = 'green'
+                                    elif scenario == 'image_renderings' and state['operation'].endswith('_changed'):
+                                        copied['rendering'] = copied['ui']['rendering'] = state['operation'].rsplit('_', 1)[0]
                                 expected.append(copied)
                             assert row['layers'] == expected
                             if scenario == 'image_colour':
@@ -871,7 +900,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
             assert all(row['data_history_unchanged'] for row in report['opacity_states'])
             assert 'pick' not in report
-        elif scenario in ('image_controls', 'image_colour'):
+        elif scenario in ('image_controls', 'image_colour', 'image_renderings'):
             assert report['image_controls_restored'] and 'pick' not in report
             assert [row['operation'] for row in report['image_control_states']] == control_operations
             assert [row['operation'] for row in report['image_control_actions']] == control_operations[1:]
@@ -891,12 +920,14 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert all(row['enabled'] and row['visible'] and row['visible_region'][2] > 0
                 and row['visible_region'][3] > 0 and row['elapsed_after_action'] < 20
                 for row in report['image_control_actions'])
-        if scenario in ('mask_controls', 'mask_visibility'):
+        if scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             assert report['scenario'] == scenario and report['mask_controls_restored'] and 'pick' not in report
             operations = ['initial', 'mask_opacity_changed', 'mask_opacity_restored',
                 'mask_rendering_changed', 'mask_rendering_restored', 'mask_finish_changed', 'mask_finish_restored']
             if scenario == 'mask_visibility':
                 operations = ['initial', 'mask_visibility_hidden', 'mask_visibility_restored']
+            elif scenario == 'mask_finishes':
+                operations = ['initial', 'glossy_changed', 'glossy_restored', 'metallic_changed', 'metallic_restored']
             assert [row['operation'] for row in report['mask_control_states']] == operations
             assert [row['operation'] for row in report['mask_control_actions']] == operations[1:]
             baseline = report['mask_control_states'][0]
@@ -905,9 +936,11 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
                 assert row['pose'] == baseline['pose'] and row['context'] == baseline['context']
                 finish = 'satin' if row['operation'] == 'mask_finish_changed' else 'matte'
+                if scenario == 'mask_finishes' and row['operation'].endswith('_changed'):
+                    finish = row['operation'].rsplit('_', 1)[0]
                 assert row['effective_finish'] == finish
                 expected_prefs = dict(baseline['preferences'])
-                if row['operation'].startswith('mask_finish_'):
+                if row['operation'].startswith('mask_finish_') or (scenario == 'mask_finishes' and i):
                     expected_prefs['finish'] = finish
                 assert row['preferences'] == expected_prefs
                 if scenario == 'mask_visibility':
@@ -967,12 +1000,14 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert report['opacity_rgb_changed'] and report['opacity_frame_restored'] and 'pick' not in report
             assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
             assert all(row['data_history_unchanged'] for row in report['opacity_states'])
-        elif scenario in ('mask_controls', 'mask_visibility'):
+        elif scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             assert report['scenario'] == scenario and report['mask_controls_restored'] and 'pick' not in report
             operations = ['initial', 'mask_opacity_changed', 'mask_opacity_restored',
                 'mask_rendering_changed', 'mask_rendering_restored', 'mask_finish_changed', 'mask_finish_restored']
             if scenario == 'mask_visibility':
                 operations = ['initial', 'mask_visibility_hidden', 'mask_visibility_restored']
+            elif scenario == 'mask_finishes':
+                operations = ['initial', 'glossy_changed', 'glossy_restored', 'metallic_changed', 'metallic_restored']
             assert [row['operation'] for row in report['mask_control_states']] == operations
             assert [row['operation'] for row in report['mask_control_actions']] == operations[1:]
             baseline = report['mask_control_states'][0]
@@ -981,9 +1016,11 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
                 assert row['pose'] == baseline['pose'] and row['context'] == baseline['context']
                 finish = 'satin' if row['operation'] == 'mask_finish_changed' else 'matte'
+                if scenario == 'mask_finishes' and row['operation'].endswith('_changed'):
+                    finish = row['operation'].rsplit('_', 1)[0]
                 assert row['effective_finish'] == finish
                 expected_prefs = dict(baseline['preferences'])
-                if row['operation'].startswith('mask_finish_'):
+                if row['operation'].startswith('mask_finish_') or (scenario == 'mask_finishes' and i):
                     expected_prefs['finish'] = finish
                 assert row['preferences'] == expected_prefs
                 if scenario == 'mask_visibility':
@@ -1006,6 +1043,9 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
             if scenario == 'image_colour':
                 operations = ['initial', 'colour_changed', 'colour_restored']
+            elif scenario == 'image_renderings':
+                operations = ['initial', 'translucent_changed', 'translucent_restored',
+                    'average_changed', 'average_restored', 'minip_changed', 'minip_restored']
             assert [row['operation'] for row in report['image_control_states']] == operations
             assert [row['operation'] for row in report['image_control_actions']] == operations[1:]
             baseline = report['image_control_states'][0]
