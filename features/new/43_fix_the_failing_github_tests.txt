@@ -6,6 +6,12 @@ waiting on the actual fake-provider subprocess stream. Preserve the original
 reply-content assertion, timeout and real worker shutdown; no production or
 consent-policy change and no live AI/report request. G2 peers, root publishes.
 
+CURRENT CLI LOGGING ROLE IDEMPOTENCE — 2026-10-24
+The retained CI owner reconciles the CLI control with the approved automatic
+error dispatcher: exactly one stdout handler and one error handler after
+each setup, with one INFO line emitted once and logger/stream state restored.
+Preserve both runtime roles; validate only the owning case, root publishes.
+
 CURRENT NATIVE SESSION REFUSAL FIXTURE — 2026-10-24
 The retained CI owner uses owned temporary paths for malicious session fields,
 preserving arbitrary-key and path-value privacy refusal while satisfying the
@@ -4784,3 +4790,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Native-session privacy-negative fixtures now use owned temporary absolute paths instead of hard-coded home paths. Arbitrary-key and invalid-version rejection assertions remain unchanged; the owning refusal case and existing home-path hygiene gate pass (2 tests, 14.84s). No product/generated changes; root review/publication pending.
 
 2026-10-23 — Embedded overview fixtures now require exact excluded-row gray RGB with positive native alpha and drain only their owned timers/workers before closing, including failure/deadline paths. Both current Main variants PASS in 43.01s with independent review; original 20-second Qt and 30-second subprocess limits and embedding/data assertions remain. The old timeout was not reproduced: current baseline exposed an opacity premise and unsafe failure cleanup. Production/generated outputs unchanged; root integration/publication pending.
+
+2026-10-24 — The CLI idempotence control now verifies the approved distinct sinks: exactly one stdout stream and one automatic error dispatcher after each setup, with one INFO record printed once. Logger and stream state are restored; the owning case passes (1 test, 0.91s). No product/generated changes; root review/publication pending.
