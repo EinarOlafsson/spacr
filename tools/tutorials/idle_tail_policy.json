@@ -1110,7 +1110,7 @@
     {
       "lesson": "78_spacr_screens",
       "master_sha256": "eb9b61246caf544168caf85b5d554e4373417a3086afcd42da64ae750e4c92f8",
-      "visual_timing_sha256": "1ed168619d3ab24785f374b7e1e71ffd7923e01dfa4c17db549375f628de01c4",
+      "visual_timing_sha256": "67bf0f64a3055c27251f75c6e5d6e0ce034911e2ae258e2a7bbff29cca963c48",
       "scenes": [
         {
           "visual": "home",
