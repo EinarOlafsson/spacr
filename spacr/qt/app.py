@@ -5369,6 +5369,12 @@ class MainWindow(QMainWindow):
         if not get_refresh_news():
             LOG.debug("News refresh is switched off in Preferences")
             return
+        from spacr.crashreport import NO_NETWORK_ENV
+
+        flag = os.environ.get(NO_NETWORK_ENV, "").strip().lower()
+        if flag and flag not in ("0", "false", "no", "off"):
+            LOG.debug("News refresh is switched off by %s", NO_NETWORK_ENV)
+            return
         worker = getattr(self, "_news_worker", None)
         try:
             if worker is not None and worker.isRunning():

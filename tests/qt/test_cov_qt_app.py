@@ -1955,6 +1955,7 @@ def test_a_news_fetch_that_outlasts_the_close_is_detached_not_destroyed(
         release.wait(10)
         return []
 
+    monkeypatch.delenv("SPACR_NO_NETWORK", raising=False)
     monkeypatch.setattr(updater, "fetch_release_notes", _unanswered_fetch)
     monkeypatch.setattr(MainWindow, "_UPDATE_WORKER_WAIT_MS", 50)
     win._refresh_news()
