@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next bounded native hint_bar cohort selects only the exact visible Home strip.
+Check initial default, real MainWindow mask hint and public release using the
+same strict glyph/reveal/readiness rules within one original20s content budget.
+Only default counts toward manifest coverage; held/released rows are separate,
+with full untested counts and no Apps-content usability inference.
+
 Default hint scope: at GUI200/90/100%, font200, initial and released prompt
 must fit actual600px styled contents and restore full original on growth,
 retaining the full accessible prompt, empty key/no hold and no module revival.

@@ -93,7 +93,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar"), cohort
     root = Path(app_mod.__file__).resolve().parents[2]
     source = ast.parse((root / "tests/qt/test_the_macos_application_menu.py").read_text())
     bootstrap = next(node.value.args[0] for node in source.body
@@ -118,7 +118,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar'), cohort
         preferences.set_gui_scale(2.)
         preferences.set_font_scale(2.)
         report = {'errors': [], 'checks': [], 'programmatic_not_physical': True, 'cohort': cohort}
@@ -284,7 +284,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 'owned_overlays': [geometry(w, controls=True) for w in overlays],
                 'active_modal': geometry(modal, controls=True)}
 
-        def check(widget):
+        def check(widget, destination=None):
             """Check the current native text or icon after one scroll reveal."""
             window = state['window']
             row = {'class': type(widget).__name__, 'name': widget.objectName(),
@@ -301,7 +301,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 if ancestor is window:
                     break
                 ancestor = ancestor.parentWidget()
-            report['checks'].append(row)
+            (report['checks'] if destination is None else destination).append(row)
             def visible(rect):
                 return (QRegion(rect).subtracted(widget.visibleRegion()).isEmpty()
                         and window.rect().contains(rect.translated(widget.mapTo(window, QPoint()))))
@@ -486,16 +486,21 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     report['target_manifest'] = [{'index': index, 'class': type(w).__name__,
                         'name': w.objectName(), 'actual_text': w.text(),
                         'native_cpp_pointer': shiboken6.getCppPointer(w),
-                        'aside_control': isinstance(w, QAbstractButton) and aside.isAncestorOf(w)}
+                        'aside_control': isinstance(w, QAbstractButton) and aside.isAncestorOf(w),
+                        'hint_bar': w is window._startup._hint_bar}
                         for index, w in enumerate(all_widgets)]
                     state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
                     report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
-                        if cohort == 'all' or entry['aside_control']]
+                        if cohort == 'all' or entry['aside_control' if cohort == 'aside_controls' else 'hint_bar']]
                     state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
                     assert state['widgets'], ('No actual targets in selected cohort', cohort)
                     state['index'] = 0
                     report['target_count'] = len(all_widgets)
                     report['selected_target_count'] = len(state['widgets'])
+                    if cohort == 'hint_bar':
+                        assert state['widgets'] == [window._startup._hint_bar]
+                        state['hint_phase'] = 'initial_default'
+                        report['hint_states'] = []
                     persist()
                 if state['index'] == len(state['widgets']):
                     assert report['checks']
@@ -532,10 +537,41 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 persist()
                 assert state['after_reveal'] is not None and current == state['after_reveal'], 'Layout changed after the single reveal'
                 try:
-                    check(widget)
+                    if cohort == 'hint_bar':
+                        hint_row = {'state': state['hint_phase'], 'checks': [],
+                            'native_cpp_pointer': shiboken6.getCppPointer(widget),
+                            'module_key': widget.module_key, 'holding': widget.is_holding(),
+                            'html': widget.text(), 'accessible_name': widget.accessibleName(),
+                            'accessible_description': widget.accessibleDescription(),
+                            'held_summary': widget._held_summary, 'held_links': widget._held_links,
+                            'timer_remaining': widget._timer.remainingTime() if widget._timer is not None else None}
+                        report['hint_states'].append(hint_row)
+                        persist()
+                        if state['hint_phase'] == 'held_mask':
+                            assert widget.module_key == 'mask' and widget.is_holding(), hint_row
+                        else:
+                            from spacr.qt.i18n import tr
+                            assert widget.module_key == '' and not widget.is_holding(), hint_row
+                            assert widget.accessibleName() == tr(widget._default), hint_row
+                        check(widget, None if state['hint_phase'] == 'initial_default' else hint_row['checks'])
+                        if state['hint_phase'] == 'initial_default':
+                            hint_row['checks'].append(report['checks'][-1])
+                    else:
+                        check(widget)
                 except AssertionError:
                     report['errors'].append(traceback.format_exc())
                     persist()
+                if cohort == 'hint_bar' and state['hint_phase'] != 'released_default':
+                    if state['hint_phase'] == 'initial_default':
+                        window._show_module_hint('mask')
+                        state['hint_phase'] = 'held_mask'
+                    else:
+                        widget.release()
+                        state['hint_phase'] = 'released_default'
+                    state['revealed'] = False
+                    state['previous'] = None
+                    persist()
+                    return
                 state['index'] += 1
                 state['revealed'] = False
                 if state['index'] < len(state['widgets']):
@@ -620,6 +656,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
         assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
+        if cohort == 'hint_bar':
+            assert [row['state'] for row in report['hint_states']] == ['initial_default', 'held_mask', 'released_default'], report
+            assert all(len(row['checks']) == 1 for row in report['hint_states']), report
+            assert all(list(row['native_cpp_pointer']) == list(report['target_manifest'][report['selected_indices'][0]]['native_cpp_pointer'])
+                       for row in report['hint_states']), report
+            assert [(row['module_key'], row['holding']) for row in report['hint_states']] == [('', False), ('mask', True), ('', False)], report
         if cohort == 'all':
             assert report['full_inspection_complete'] and report['full_untested_count'] == 0, report
         assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20, report
@@ -649,9 +691,16 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert not report["errors"] and report["normal_close_accepted"]
     assert report["cohort"] == cohort and report["selected_inspection_complete"]
     expected_indices = [entry["index"] for entry in report["target_manifest"]
-                        if cohort == "all" or entry["aside_control"]]
+                        if cohort == "all" or entry["aside_control" if cohort == "aside_controls" else "hint_bar"]]
     assert expected_indices and report["selected_indices"] == expected_indices
     assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
+    if cohort == "hint_bar":
+        assert len(expected_indices) == 1
+        assert [row["state"] for row in report["hint_states"]] == ["initial_default", "held_mask", "released_default"]
+        assert all(len(row["checks"]) == 1 for row in report["hint_states"])
+        assert all(row["native_cpp_pointer"] == report["target_manifest"][expected_indices[0]]["native_cpp_pointer"]
+                   for row in report["hint_states"])
+        assert [(row["module_key"], row["holding"]) for row in report["hint_states"]] == [("", False), ("mask", True), ("", False)]
     if cohort == "all":
         assert report["full_inspection_complete"] and report["full_untested_count"] == 0
 
