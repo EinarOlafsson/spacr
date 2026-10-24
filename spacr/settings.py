@@ -4280,8 +4280,15 @@ _clone_organelle_registry(expected_types)
 #: name, 2026-09-30; lettered ``remove_background_organelleb`` before).
 SLOT_BACKGROUND_SWITCHES = tuple(
     _background_switch_key(role) for role in ORGANELLE_SLOT_ROLES[1:])
-for _key in SLOT_BACKGROUND_SWITCHES:
-    expected_types.setdefault(_key, bool)
+
+
+def _type_every_slot_background_switch():
+    """Type each later slot's background switch as a boolean."""
+    for key in SLOT_BACKGROUND_SWITCHES:
+        expected_types.setdefault(key, bool)
+
+
+_type_every_slot_background_switch()
 #: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
 #: whole comparison in C, which is the entire point of hoisting this: the
 #: comprehension below used to build `f'{role}_'` inside an `any()` over every
@@ -5515,13 +5522,20 @@ tooltips = {
 }
 
 _clone_organelle_registry(tooltips, tooltip=True)
-for _role in ORGANELLE_SLOT_ROLES[1:]:
-    tooltips.setdefault(
-        _background_switch_key(_role),
-        tooltips['remove_background_organelle']
-        .replace('organelle_', f'{_role}_')
-        .replace('the organelle channel',
-                 f'the organelle {organelle_number(_role)} channel'))
+
+
+def _describe_every_slot_background_switch():
+    """Give each later slot's background switch its numbered tooltip."""
+    for role in ORGANELLE_SLOT_ROLES[1:]:
+        tooltips.setdefault(
+            _background_switch_key(role),
+            tooltips['remove_background_organelle']
+            .replace('organelle_', f'{role}_')
+            .replace('the organelle channel',
+                     f'the organelle {organelle_number(role)} channel'))
+
+
+_describe_every_slot_background_switch()
 
 
 def _name_the_family_in_every_estimator_tooltip():
@@ -6052,20 +6066,25 @@ def _regroup_advanced(table):
     return {k: v for k, v in out.items() if v or k in family_headings}
 
 
-_organelle_basic_slots = [key for key in organelle_basic_settings
-                          if key.startswith('organelle_')]
-_organelle_advanced_slots = [key for key in organelle_advanced_settings
-                             if key.startswith('organelle_')]
-for _role in ORGANELLE_SLOT_ROLES[1:]:
-    categories['Organelle'].extend(
-        _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
-    categories['Organelle advanced'].extend(
-        _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
-    categories['Organelle advanced'].append(_background_switch_key(_role))
-    for _suffix in ('channel', 'mask_dim', 'chann_dim'):
-        _key = f'{_role}_{_suffix}'
-        categories['General'].append(_key)
-del _organelle_basic_slots, _organelle_advanced_slots
+
+
+def _categorise_every_later_organelle_slot():
+    """Add each later slot's basic, advanced and channel settings to its categories."""
+    basic_slots = [key for key in organelle_basic_settings
+                   if key.startswith('organelle_')]
+    advanced_slots = [key for key in organelle_advanced_settings
+                      if key.startswith('organelle_')]
+    for role in ORGANELLE_SLOT_ROLES[1:]:
+        categories['Organelle'].extend(
+            _organelle_slot_key(key, role) for key in basic_slots)
+        categories['Organelle advanced'].extend(
+            _organelle_slot_key(key, role) for key in advanced_slots)
+        categories['Organelle advanced'].append(_background_switch_key(role))
+        for _suffix in ('channel', 'mask_dim', 'chann_dim'):
+            categories['General'].append(f'{role}_{_suffix}')
+
+
+_categorise_every_later_organelle_slot()
 _regrouped_categories = _regroup_advanced(categories)
 categories.clear()
 categories.update(_regrouped_categories)
