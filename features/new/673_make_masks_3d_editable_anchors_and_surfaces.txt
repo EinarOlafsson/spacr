@@ -33,6 +33,11 @@ before any backend/scale mutation. Require genuine fresh paint and inside-frame
 background-only pick; positive selection is not exercised (known positive IDs
 remain in the fresh buffer). Keep30s initial/20s current idle/normal cleanup;
 no75%-scale FPS, positive-picking, cold-anchor or whole-item claim.
+Native96453/MFMIsX on9d1b5b661d fails42.70s/RSS1.386GiB: A rejects a tour
+key precondition before frame checks; rejected actual identity was unrecorded,
+B unrun. Source shows Home tour is deferred beyond startup-ready: wait real
+Skip/hidden/seen before module entry (B may already be seen), logging identities.
+Normal close/run0/jobs/compiler pass; separate deleted-switch callback remains.
 
 Failure-only visibility repair: invalidate the failed GPU frame/picks and hide
 its owned image; restore visibility only for an accepted fresh frame. The new

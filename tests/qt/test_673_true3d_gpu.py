@@ -196,7 +196,7 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         from spacr.qt import preferences, timing
         from spacr.qt.app import MainWindow
         from spacr.qt.bridge import registry, thread_has_stopped
-        from spacr.qt.first_run import _TourOverlay
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
         from spacr.qt.make_masks_demo import load_the_fibsem_test_data
         from spacr.qt.screens import make_masks as mm
 
@@ -210,6 +210,7 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         report = {'phase': phase, 'errors': [], 'initial_saved': preferences.get_volume_view(),
                   'source_head': os.environ['SPACR_RESTART_HEAD'], 'runtime': sys.executable,
                   'settings_file': preferences._settings().fileName(),
+                  'home_tour_seen_before_run': was_tour_shown(),
                   'pick_scope': 'inside-frame background only; positive selection not exercised'}
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
@@ -249,12 +250,31 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
             if window._startup_sequence_running():
                 return False
             tours = [tour for tour in window.findChildren(_TourOverlay) if tour.isVisible()]
+            observation = {'operation': state['operation'], 'home_seen': was_tour_shown(),
+                'stack_is_home': window._stack.currentWidget() is window._startup,
+                'stack_class': type(window._stack.currentWidget()).__name__,
+                'tours': [{'pointer': shiboken6.getCppPointer(tour),
+                    'key': getattr(tour, '_walkthrough_app_key', None),
+                    'owned_by_window': tour.parentWidget() is window,
+                    'in_module_owner_list': tour in getattr(window, '_module_walkthroughs', ()),
+                    'skip_enabled': tour._skip_btn.isEnabled(), 'skip_visible': tour._skip_btn.isVisible(),
+                    'skip_visible_region': tour._skip_btn.visibleRegion().boundingRect().getRect()}
+                    for tour in tours]}
+            if observation != report.get('tour_observation'):
+                report['tour_observation'] = observation
+                report.setdefault('tour_history', []).append(observation)
+                save()
+            if state['operation'] == 'startup' and not tours and not was_tour_shown():
+                return False
             if tours:
                 assert len(tours) == 1
                 tour = tours[0]
                 assert tour.parentWidget() is window and tour._skip_btn.isVisible() and tour._skip_btn.isEnabled()
+                assert not tour._skip_btn.visibleRegion().isEmpty()
                 if state['operation'] == 'startup':
                     assert getattr(tour, '_walkthrough_app_key', None) is None
+                    assert window._stack.currentWidget() is window._startup
+                    assert not was_tour_shown()
                 else:
                     assert getattr(tour, '_walkthrough_app_key', None) == 'make_masks'
                     assert window._module_walkthroughs == [tour]
@@ -262,6 +282,9 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                 report.setdefault('owned_tour_skips', []).append(tour._skip_btn.text())
                 tour._skip_btn.click()
                 return False
+            if state['operation'] == 'startup':
+                assert was_tour_shown()
+                report['home_tour_hidden_and_seen_before_module'] = True
             return True
 
         def install_paint_observer(stage):
@@ -446,9 +469,13 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                                    capture_output=True, text=True, timeout=180)
         (tmp_path / ('restart-'+phase+'-stdout.txt')).write_text(completed.stdout+completed.stderr)
         assert completed.returncode == 0, completed.stdout+completed.stderr
+        for marker in ('Error calling Python override', 'Traceback (most recent call last):',
+                       'spaCR wrote a crash report'):
+            assert marker not in completed.stdout+completed.stderr, completed.stdout+completed.stderr
         report = json.loads(output.read_text())
         assert report['phase'] == phase and report['normal_return'] == 0 and report['normal_close_accepted']
         assert report['native']['platform'] == 'cocoa' and report['native']['dpr'] == 2. and report['native']['exposed']
+        assert report['home_tour_hidden_and_seen_before_module']
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
         assert report['saved']['backend'] == 'metal' and report['saved']['scale'] == 75
