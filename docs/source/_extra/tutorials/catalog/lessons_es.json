@@ -15914,14 +15914,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home y le mostrará los recortes de objetos que Measure guardó o transmite. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación.",
+          "narration": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home para ver los recortes de objetos asociados con su proyecto medido. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home y le mostrará los recortes de objetos que Measure guardó o transmite. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación."
+          "speech_text": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home para ver los recortes de objetos asociados con su proyecto medido. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación."
         },
         {
           "visual": "module_classify_merged",

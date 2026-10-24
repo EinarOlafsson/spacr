@@ -15914,14 +15914,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home : il vous montre les recadrages d’objets que Measure a enregistrés ou qu’il fournit à la demande. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite.",
+          "narration": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home pour afficher les recadrages d’objets associés à votre projet de mesures. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home : il vous montre les recadrages d’objets que Measure a enregistrés ou qu’il fournit à la demande. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite."
+          "speech_text": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home pour afficher les recadrages d’objets associés à votre projet de mesures. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite."
         },
         {
           "visual": "module_classify_merged",
