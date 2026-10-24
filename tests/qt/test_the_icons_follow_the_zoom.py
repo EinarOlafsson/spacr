@@ -434,6 +434,55 @@ def test_chrome_actual_slot_and_glyph_proportion_follow_gui_scale(qtbot, qapp, m
             gui_scale.set_gui_scale_live(previous)
 
 
+def test_chrome_scale_listener_ignores_native_deleted_button(qtbot, qapp, caplog):
+    import logging
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QSize
+    from spacr.qt import app, gui_scale
+
+    previous = gui_scale.current_scale()
+    dead_parent, live_parent = QWidget(), QWidget()
+    painted = []
+
+    def painter(size=18, colour=None):
+        painted.append(size)
+        return app.MainWindow._close_icon(size=size, colour=colour)
+
+    try:
+        gui_scale.install_scaling_layer()
+        gui_scale.set_gui_scale_live(.9)
+        dead = app._ChromeButton(dead_parent, app.MainWindow._close_icon,
+                                 app.CHROME_HOVER['CloseWindow'])
+        live = app._ChromeButton(live_parent, painter, app.CHROME_HOVER['CloseWindow'])
+        qtbot.addWidget(live_parent)
+        dead_parent.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(dead_parent) and not shiboken6.isValid(dead)
+        assert shiboken6.isValid(live)
+        before = len(painted)
+        caplog.clear()
+        with caplog.at_level(logging.DEBUG, logger='spacr.qt.gui_scale'):
+            gui_scale.set_gui_scale_live(2.)
+            qtbot.waitUntil(lambda: len(painted) > before and not live._icon_timer.isActive())
+        failures = [record for record in caplog.records
+                    if record.name == 'spacr.qt.gui_scale' and record.exc_info]
+        assert not failures, [(r.getMessage(), repr(r.exc_info[1])) for r in failures]
+        expected = gui_scale.scale_int(round(app.CHROME_ICON_PX * prefs.get_font_scale()), 2.)
+        assert live.property('iconSize') == QSize(expected, expected)
+        ratio = app.device_ratio(live)
+        assert painted[-1] == max(1, round(expected * ratio))
+        pixmap = live.icon().pixmap(QSize(expected, expected), ratio)
+        assert not pixmap.isNull() and pixmap.devicePixelRatio() == ratio
+        assert pixmap.deviceIndependentSize().toSize() == QSize(expected, expected)
+    finally:
+        try:
+            gui_scale.set_gui_scale_live(previous)
+        finally:
+            if shiboken6.isValid(dead_parent):
+                dead_parent.close()
+            live_parent.close()
+
+
 def test_the_window_chrome_is_repainted_rather_than_stretched(qt_theme_applied):
     """The three marks in the corner of the window follow the scale too.
 
