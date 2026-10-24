@@ -1792,6 +1792,32 @@ class _NewsTitleFit(QObject):
             self._busy = False
 
 
+class _NewsFirstPaint(QObject):
+    """Queues a News panel's remaining releases after its first paint.
+
+    An event filter rather than a ``paintEvent`` override, so the panel adds
+    no API symbol and stops calling into Python on its paints once nothing
+    is left to append.
+    """
+
+    def eventFilter(self, watched, event):
+        """On a paint, queue the releases not drawn yet; never consume it.
+
+        :param watched: the News panel.
+        :param event: any of its events; only ``Paint`` acts.
+        :returns: ``False`` always.
+        """
+        try:
+            if event.type() == QEvent.Paint:
+                if getattr(watched, "_pending_releases", None):
+                    watched._queue_the_rest(0)
+                else:
+                    watched.removeEventFilter(self)
+        except RuntimeError:
+            pass
+        return False
+
+
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
@@ -1909,6 +1935,8 @@ class NewsPanel(Panel):
             f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
         self._fill(self.FIRST_RELEASES)
+        self._first_paint = _NewsFirstPaint(self)
+        self.installEventFilter(self._first_paint)
 
         self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
                                  self.NOTES_H_MAX,
@@ -1975,14 +2003,6 @@ class NewsPanel(Panel):
         fitter = getattr(self, '_news_title_fit', None)
         if fitter is not None:
             fitter._timer.start(0)
-
-    def paintEvent(self, event):                                 # noqa: N802
-        """After the first paint, queue the releases not drawn yet.
-
-        :param event: the Qt paint event.
-        """
-        super().paintEvent(event)
-        self._queue_the_rest(0)
 
     def _queue_the_rest(self, delay_ms: int) -> None:
         """Start, or bring forward, the append of the releases not drawn yet.

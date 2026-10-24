@@ -239,21 +239,63 @@ def _open_torch_libraries() -> bool:
         return False
 
 
-def _hub_rebuild_objects(hub) -> None:
-    """Index ``hub``'s object watchers' kinds and their geometry watches."""
+def _hub_geometry_kinds() -> frozenset:
+    """The event types that make a watch a geometry watch."""
     from PySide6.QtCore import QEvent
 
-    geometry_kinds = {QEvent.Type.Move, QEvent.Type.Resize,
-                      QEvent.Type.Show, QEvent.Type.Hide}
-    kinds = set()
+    return frozenset({QEvent.Type.Move, QEvent.Type.Resize,
+                      QEvent.Type.Show, QEvent.Type.Hide})
+
+
+def _hub_rebuild_objects(hub) -> None:
+    """Index ``hub``'s object watchers' kinds and their geometry watches.
+
+    The whole index, from every chain. Adding or dropping one watch goes
+    through :func:`_hub_reindex_object` instead, which touches one object's
+    chain: rebuilding from every chain on each change made a screen that
+    registers a few hundred watches pay for the square of that, about
+    0.28 s of building Make Masks on an Intel Mac.
+    """
+    geometry_kinds = _hub_geometry_kinds()
+    counts = {}
     geometry = {}
     for key, chain in hub._objects.items():
         for entry in chain:
-            kinds.update(entry[1])
+            for kind in entry[1]:
+                counts[kind] = counts.get(kind, 0) + 1
             if entry[1] & geometry_kinds and (len(entry) < 5 or entry[4]):
                 geometry[key] = entry[3]
-    hub._object_kinds = frozenset(kinds)
+    hub._kind_counts = counts
+    hub._object_kinds = frozenset(counts)
     hub._geometry_watched = geometry
+
+
+def _hub_reindex_object(hub, key, old_chain) -> None:
+    """Update the index for one object whose chain changed from ``old_chain``.
+
+    :param hub: the event hub.
+    :param key: the object's pointer key in ``hub._objects``.
+    :param old_chain: that object's chain before the change, or ``None``.
+    """
+    counts = getattr(hub, "_kind_counts", None)
+    if counts is None:
+        _hub_rebuild_objects(hub)
+        return
+    for entry in old_chain or ():
+        for kind in entry[1]:
+            left = counts.get(kind, 0) - 1
+            if left > 0:
+                counts[kind] = left
+            else:
+                counts.pop(kind, None)
+    geometry_kinds = _hub_geometry_kinds()
+    hub._geometry_watched.pop(key, None)
+    for entry in hub._objects.get(key, ()):
+        for kind in entry[1]:
+            counts[kind] = counts.get(kind, 0) + 1
+        if entry[1] & geometry_kinds and (len(entry) < 5 or entry[4]):
+            hub._geometry_watched[key] = entry[3]
+    hub._object_kinds = frozenset(counts)
 
 
 def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
@@ -261,7 +303,8 @@ def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
     from shiboken6 import getCppPointer
 
     key = getCppPointer(watched)[0]
-    chain = [entry for entry in hub._objects.get(key, [])
+    old_chain = hub._objects.get(key)
+    chain = [entry for entry in old_chain or []
              if entry[0]() is not watcher]
     if key not in hub._objects:
         watched.destroyed.connect(
@@ -269,7 +312,7 @@ def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
     chain.insert(0, [weakref.ref(watcher), frozenset(kinds), True,
                      weakref.ref(watched), bool(replay)])
     hub._objects[key] = chain
-    _hub_rebuild_objects(hub)
+    _hub_reindex_object(hub, key, old_chain)
 
 
 def _hub_discard_object(hub, watched, watcher) -> bool:
@@ -295,7 +338,7 @@ def _hub_discard_object(hub, watched, watcher) -> bool:
         hub._objects[key] = kept
     else:
         hub._objects.pop(key, None)
-    _hub_rebuild_objects(hub)
+    _hub_reindex_object(hub, key, chain)
     return found
 
 
@@ -305,7 +348,7 @@ def _hub_drop_object(hub, key) -> None:
     for entry in chain or ():
         entry[2] = False
     if chain is not None:
-        _hub_rebuild_objects(hub)
+        _hub_reindex_object(hub, key, chain)
 
 
 def _hub_object_watchers(hub, watched) -> tuple:

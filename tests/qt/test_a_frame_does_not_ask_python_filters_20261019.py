@@ -196,3 +196,43 @@ def test_short_action_words_observe_style_and_row_layout_without_paint_entry(qtb
         assert QEvent.Paint not in delivered and QEvent.UpdateRequest not in delivered
     finally:
         sys.setprofile(previous_profile)
+
+
+def test_the_incremental_index_matches_a_full_rebuild(shown):
+    """Watching and unwatching one object reindexes only that object.
+
+    Rebuilding the whole index on every change cost about 0.28 s of building
+    Make Masks; the incremental update must still give the full answer.
+    """
+    import random
+
+    from PySide6.QtWidgets import QWidget
+
+    window, _child = shown
+    widgets = [QWidget(window) for _ in range(12)]
+    recorders = [_Recorder() for _ in range(4)]
+    kinds = (QEvent.Enter, QEvent.Leave, QEvent.Resize, QEvent.Show,
+             QEvent.MouseButtonPress, QEvent.Move)
+    hub = None
+    rng = random.Random(20261024)
+    for step in range(300):
+        widget, recorder = rng.choice(widgets), rng.choice(recorders)
+        if rng.random() < 0.6:
+            gil_priority._watch_object_events(
+                widget, recorder, rng.sample(kinds, rng.randint(1, 3)),
+                replay=rng.random() < 0.5)
+        else:
+            gil_priority._stop_watching_object_events(widget, recorder)
+        if step % 50 == 49 and widgets:
+            from shiboken6 import delete
+            delete(widgets.pop(rng.randrange(len(widgets))))
+        hub = hub or gil_priority._application_event_hub(
+            QApplication.instance(), create=False)
+        incremental = (hub._object_kinds, dict(hub._geometry_watched),
+                       dict(hub._kind_counts))
+        gil_priority._hub_rebuild_objects(hub)
+        assert incremental == (hub._object_kinds, hub._geometry_watched,
+                               hub._kind_counts), step
+    for widget in widgets:
+        for recorder in recorders:
+            gil_priority._stop_watching_object_events(widget, recorder)

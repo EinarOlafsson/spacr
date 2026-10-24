@@ -1846,7 +1846,7 @@ class _GraphicsBackend:
             return self._refuse('Dynamic animation holds the GPU for analysis')
         if self._point_graphics is None and not _flow_graphics_preflight():
             self._graphics_failed = True
-            return self._refuse('no hardware OpenGL 4.3 context (probe failed)')
+            return self._refuse(_graphics_probe_refusal())
         now = time.monotonic()
         if now >= self._graphics_idle_until:
             self._graphics_idle = (not _dynamic_animation_on()
@@ -6043,6 +6043,20 @@ def _mac_radeon_graphics():
         return "radeon" in _metal_gpu_name().lower()
     except Exception:
         return False
+
+
+def _graphics_probe_refusal() -> str:
+    """Why the graphics probe left this host on the CPU, in its own terms.
+
+    macOS is probed at OpenGL 4.1 and only on Radeon devices, so the
+    OpenGL 4.3 wording elsewhere described a probe a Mac never ran.
+    """
+    if sys.platform == "darwin":
+        if not _mac_radeon_graphics():
+            return ("no qualified GPU: the macOS OpenGL 4.1 path is "
+                    "qualified on Radeon devices only")
+        return "no hardware OpenGL 4.1 context (probe failed)"
+    return "no hardware OpenGL 4.3 context (probe failed)"
 
 
 def _flow_graphics_preflight():

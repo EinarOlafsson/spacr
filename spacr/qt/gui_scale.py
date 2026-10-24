@@ -1155,6 +1155,54 @@ def _defer_sheet(obj, text: str, raw_set) -> None:
     _post_sheet_flush()
 
 
+def _widgets_a_restyle_walks(obj) -> list:
+    """Every widget Qt will visit while it restyles ``obj``.
+
+    ``QApplication::setStyle`` (which an application sheet goes through)
+    walks a COPY of ``allWidgets()``, and
+    ``QWidget::setStyleSheet`` walks copies of each child list. Each step
+    sends a ``StyleChange`` into Python, and a
+    handler that lets go of a parentless widget -- or allocates enough for
+    the cyclic collector to free one -- deletes a widget the copy still
+    lists; Qt then reads it and the process dies in ``QApplication::setStyle``
+    (reproduced; the hosted Qt shard 0 core of 2026-10-24 and
+    ``tests/qt/test_stylesheets_reach_only_live_widgets_between_events_n709``).
+
+    :param obj: a widget, or the application.
+    :returns: the widgets, as wrappers, so none can be freed meanwhile.
+    """
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    try:
+        if isinstance(obj, QApplication) or obj is None:
+            app = QApplication.instance()
+            return list(app.allWidgets()) if app is not None else []
+        return [obj] + list(obj.findChildren(QWidget))
+    except (RuntimeError, TypeError):
+        return []
+
+
+def _restyle_holding_every_widget(obj, call, *args):
+    """Run ``call(*args)``, a Qt restyle, with nothing it walks freeable.
+
+    The widgets it will visit are held by Python references and automatic
+    cyclic collection is paused for its length, so no Python handler it
+    reaches can delete one; they are let go afterwards, outside Qt's walk.
+
+    :param obj: the widget, or the application, being restyled.
+    :param call: the Qt setter below the guard.
+    :returns: what ``call`` returns.
+    """
+    from .gc_policy import _automatic_collection_paused
+
+    held = _widgets_a_restyle_walks(obj)
+    try:
+        with _automatic_collection_paused():
+            return call(*args)
+    finally:
+        del held
+
+
 def _apply_now(obj, text: str, raw_set) -> None:
     """Hand ``text`` to Qt, counting the call as a guarded application.
 
@@ -1164,7 +1212,7 @@ def _apply_now(obj, text: str, raw_set) -> None:
     """
     _SHEET_GUARD["depth"] += 1
     try:
-        raw_set(obj, text)
+        _restyle_holding_every_widget(obj, raw_set, obj, text)
     finally:
         _SHEET_GUARD["depth"] -= 1
 
@@ -1263,41 +1311,66 @@ def _note_sheet_lifecycle(watched, kind) -> None:
         _mark_torn_down(watched)
 
 
+def _sheet_guard_watcher_init(watcher, parent=None) -> None:
+    """Start the guard's watcher; cross-thread flushes reach the GUI thread.
+
+    :param watcher: the watcher.
+    :param parent: its Qt parent, normally none.
+    """
+    from PySide6.QtCore import QObject, Qt
+
+    QObject.__init__(watcher, parent)
+    watcher.flush_requested.connect(watcher._flush, Qt.ConnectionType.QueuedConnection)
+
+
+def _sheet_guard_watcher_flush(watcher) -> None:
+    """Apply the waiting sheets on the GUI thread.
+
+    :param watcher: the watcher.
+    """
+    _flush_pending_sheets()
+
+
+def _sheet_guard_watcher_event_filter(watcher, watched, event):
+    """Note a deletion the hub delivers; never consume the event.
+
+    :param watcher: the watcher.
+    :param watched: the object the event is for.
+    :param event: the event.
+    :returns: ``False`` always.
+    """
+    try:
+        _note_sheet_lifecycle(watched, event.type())
+    except (AttributeError, RuntimeError, TypeError):
+        pass
+    return False
+
+
 def _sheet_guard_watcher_class():
-    """The guard's application watcher, defined on first use.
+    """The guard's application watcher class, built on first use.
 
     It hears ``DeferredDelete`` through the application event hub, so an
     object about to be deleted is never restyled, and it carries a sheet
-    asked for on another thread across to the GUI thread.
+    asked for on another thread across to the GUI thread. Built with
+    ``type`` from the module-level functions above so that importing this
+    module stays free of Qt.
+
+    :returns: the class.
     """
+    cached = _SHEET_GUARD.get("watcher_class")
+    if cached is not None:
+        return cached
     from PySide6.QtCore import QObject, Signal
 
-    class _SheetGuardWatcher(QObject):
-        """Marks objects whose deletion is being delivered."""
-
-        flush_requested = Signal()
-
-        def __init__(self, parent=None) -> None:
-            """Route cross-thread flush requests to the GUI thread."""
-            super().__init__(parent)
-            from PySide6.QtCore import Qt
-
-            self.flush_requested.connect(self._flush,
-                                         Qt.ConnectionType.QueuedConnection)
-
-        def _flush(self) -> None:
-            """Apply the waiting sheets on the GUI thread."""
-            _flush_pending_sheets()
-
-        def eventFilter(self, watched, event):
-            """Note a deletion; never consume the event."""
-            try:
-                _note_sheet_lifecycle(watched, event.type())
-            except (AttributeError, RuntimeError, TypeError):
-                pass
-            return False
-
-    return _SheetGuardWatcher
+    cached = type("_SheetGuardWatcher", (QObject,), {
+        "__doc__": "Marks objects whose deletion is being delivered.",
+        "flush_requested": Signal(),
+        "__init__": _sheet_guard_watcher_init,
+        "_flush": _sheet_guard_watcher_flush,
+        "eventFilter": _sheet_guard_watcher_event_filter,
+    })
+    _SHEET_GUARD["watcher_class"] = cached
+    return cached
 
 
 def _watch_for_teardown() -> bool:
@@ -1321,6 +1394,66 @@ def _watch_for_teardown() -> bool:
                                      {QEvent.Type.DeferredDelete})
 
 
+def _guarded_widget_set_style_sheet(widget, text):
+    """``QWidget.setStyleSheet`` once the guard is on: apply when Qt can.
+
+    :param widget: the widget.
+    :param text: the sheet text; ``None`` is the empty sheet.
+    """
+    _set_sheet_guarded(widget, "" if text is None else str(text),
+                       _ORIGINAL["guard_raw_widget_set"])
+
+
+def _guarded_widget_style_sheet(widget):
+    """``QWidget.styleSheet`` once the guard is on.
+
+    :param widget: the widget.
+    :returns: the sheet last asked for, applied or still waiting.
+    """
+    waiting = _pending_sheet_for(widget)
+    if waiting is None:
+        return _ORIGINAL["guard_raw_widget_get"](widget)
+    return waiting
+
+
+def _guarded_app_set_style_sheet(app, text):
+    """``QApplication.setStyleSheet`` once the guard is on.
+
+    :param app: the application.
+    :param text: the sheet text; ``None`` is the empty sheet.
+    """
+    _set_sheet_guarded(app, "" if text is None else str(text),
+                       _ORIGINAL["guard_raw_app_set"])
+
+
+def _guarded_app_style_sheet(app):
+    """``QApplication.styleSheet`` once the guard is on.
+
+    :param app: the application.
+    :returns: the application sheet last asked for.
+    """
+    waiting = _pending_sheet_for(app)
+    if waiting is None:
+        return _ORIGINAL["guard_raw_app_get"](app)
+    return waiting
+
+
+def _held_app_set_style(*args):
+    """``QApplication.setStyle`` with every widget it walks held alive.
+
+    ``QApplication.setStyle`` walks a copy of ``allWidgets()`` and calls
+    into Python for each widget, exactly as an application sheet does; see
+    :func:`_widgets_a_restyle_walks`. ``setPalette`` and ``setFont`` are not
+    wrapped: Qt posts their per-widget change events instead of sending
+    them from inside a walk.
+
+    :param args: as for ``QApplication.setStyle``.
+    :returns: what Qt returns.
+    """
+    return _restyle_holding_every_widget(None, _ORIGINAL["guard_raw_app_style"],
+                                         *args)
+
+
 def _install_sheet_guard() -> bool:
     """Route every ``setStyleSheet`` in the process through the guard.
 
@@ -1336,41 +1469,18 @@ def _install_sheet_guard() -> bool:
     _watch_for_teardown()
     if _SHEET_GUARD["installed"]:
         return False
-    raw_widget_set = QWidget.setStyleSheet
-    raw_widget_get = QWidget.styleSheet
-    raw_app_set = QApplication.setStyleSheet
-    raw_app_get = QApplication.styleSheet
-    _ORIGINAL[(QWidget, "raw_setStyleSheet")] = raw_widget_set
-    _ORIGINAL[(QApplication, "raw_setStyleSheet")] = raw_app_set
-
-    def setStyleSheet(self, text):
-        """Apply the sheet when Qt can take it; see the guard."""
-        _set_sheet_guarded(self, "" if text is None else str(text),
-                           raw_widget_set)
-
-    def styleSheet(self):
-        """The sheet last asked for, applied or still waiting."""
-        waiting = _pending_sheet_for(self)
-        return raw_widget_get(self) if waiting is None else waiting
-
-    def app_setStyleSheet(self, text):
-        """Apply the application sheet when Qt can take it."""
-        _set_sheet_guarded(self, "" if text is None else str(text),
-                           raw_app_set)
-
-    def app_styleSheet(self):
-        """The application sheet last asked for."""
-        waiting = _pending_sheet_for(self)
-        return raw_app_get(self) if waiting is None else waiting
-
-    setStyleSheet.__name__ = "setStyleSheet"
-    styleSheet.__name__ = "styleSheet"
-    app_setStyleSheet.__name__ = "setStyleSheet"
-    app_styleSheet.__name__ = "styleSheet"
-    QWidget.setStyleSheet = setStyleSheet
-    QWidget.styleSheet = styleSheet
-    QApplication.setStyleSheet = app_setStyleSheet
-    QApplication.styleSheet = app_styleSheet
+    _ORIGINAL["guard_raw_widget_set"] = QWidget.setStyleSheet
+    _ORIGINAL["guard_raw_widget_get"] = QWidget.styleSheet
+    _ORIGINAL["guard_raw_app_set"] = QApplication.setStyleSheet
+    _ORIGINAL["guard_raw_app_get"] = QApplication.styleSheet
+    _ORIGINAL["guard_raw_app_style"] = QApplication.setStyle
+    _ORIGINAL[(QWidget, "raw_setStyleSheet")] = QWidget.setStyleSheet
+    _ORIGINAL[(QApplication, "raw_setStyleSheet")] = QApplication.setStyleSheet
+    QWidget.setStyleSheet = _guarded_widget_set_style_sheet
+    QWidget.styleSheet = _guarded_widget_style_sheet
+    QApplication.setStyleSheet = _guarded_app_set_style_sheet
+    QApplication.styleSheet = _guarded_app_style_sheet
+    QApplication.setStyle = staticmethod(_held_app_set_style)
     _SHEET_GUARD["installed"] = True
     return True
 

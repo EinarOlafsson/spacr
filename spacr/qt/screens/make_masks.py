@@ -10571,13 +10571,18 @@ def _volume_view_settings():
 
     :returns: ``(backend, scale, finish)``; ``scale`` is None until one was
         chosen, so each backend starts at its own default.
+
+    The machine's adapters are asked about only for a saved backend that
+    depends on them. Auto and CPU are always offered, and enumerating
+    adapters imports wgpu and queries Metal: about 0.3 s of building Make
+    Masks on the GUI thread on an Intel Mac, for the default choice.
     """
     from ...layers import VOLUME_FINISHES
     from ..preferences import get_volume_view
 
     saved = get_volume_view()
     backend = saved.get('backend') if saved.get('backend') in VOLUME_BACKENDS else 'auto'
-    if backend not in volume_render_backends():
+    if backend not in ('auto', 'cpu') and backend not in volume_render_backends():
         backend = 'auto'
     try:
         scale = int(saved['scale']) if saved.get('scale') is not None else None

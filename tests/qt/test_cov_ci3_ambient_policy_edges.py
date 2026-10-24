@@ -418,7 +418,7 @@ def test_probe_constructor_and_draw_failures_say_what_failed(monkeypatch, refusa
     probed = _engine("aurora")
     probed._graphics_backend = "gpu"
     assert _on_producer(lambda: probed._graphics_renderer(320, 200)) is None
-    assert probed._graphics_refusal == "no hardware OpenGL 4.3 context (probe failed)"
+    assert probed._graphics_refusal == ambient._graphics_probe_refusal()
     assert probed._graphics_failed
     monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
 
@@ -452,3 +452,14 @@ def test_aurora_now_follows_its_measured_rows_not_the_4k_fallback(qapp):
     assert aurora._graphics_unmeasured(1920, 1080) is False
     assert aurora._graphics_automatic(1920, 1080) is True
     assert ambient._measured_graphics_win("aurora", 1920 * 1080, 1.0) is True
+
+
+def test_the_probe_refusal_names_the_platform_path(monkeypatch):
+    """A Mac is told about its own 4.1/Radeon path, not an OpenGL 4.3 probe."""
+    monkeypatch.setattr(ambient.sys, "platform", "linux")
+    assert ambient._graphics_probe_refusal() == "no hardware OpenGL 4.3 context (probe failed)"
+    monkeypatch.setattr(ambient.sys, "platform", "darwin")
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: False)
+    assert "Radeon devices only" in ambient._graphics_probe_refusal()
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
+    assert ambient._graphics_probe_refusal() == "no hardware OpenGL 4.1 context (probe failed)"

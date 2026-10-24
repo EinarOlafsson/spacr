@@ -14,7 +14,7 @@ from copy import deepcopy
 import xml.etree.ElementTree as ET
 import numpy as np
 
-from PySide6.QtCore import QByteArray, QEvent, QRect, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QEvent, QObject, QRect, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget
@@ -454,6 +454,32 @@ class _ReservedColumn(QVBoxLayout):
         return row + max(0, self.spacing()) + caption
 
 
+class _FitWhenShown(QObject):
+    """Fits a diagram's rows when a hidden change left them unfitted.
+
+    Building an organism page sends several font, language and style
+    changes before it is shown; fitting at each re-measured every
+    description for a width the page did not keep. A watcher on ``Show``
+    rather than a ``showEvent`` override, so the diagram adds no API symbol.
+    """
+
+    def eventFilter(self, watched, event):
+        """On a show, fit the rows a hidden change left; never consume it.
+
+        :param watched: the diagram.
+        :param event: the event; only ``Show`` acts.
+        :returns: ``False`` always.
+        """
+        try:
+            if (event.type() == QEvent.Show
+                    and getattr(watched, "_fit_when_shown", False)):
+                watched._fit_when_shown = False
+                watched._fit_width()
+        except RuntimeError:
+            pass
+        return False
+
+
 class OrganismDiagram(QWidget):
     """A cell illustration and keyboard-accessible compartment selector.
 
@@ -466,6 +492,10 @@ class OrganismDiagram(QWidget):
     def __init__(self, app_key: str, path: Path, parent=None):
         """Build upright artwork, a multi-select legend and compartment descriptions."""
         super().__init__(parent)
+        from .. import gil_priority
+
+        self._show_watch = _FitWhenShown(self)
+        gil_priority._watch_object_events(self, self._show_watch, {QEvent.Show})
         self.labels = _compartment_labels(app_key)
         self.setObjectName("OrganismDiagram")
         layout = _ReservedColumn(self)
@@ -545,14 +575,19 @@ class OrganismDiagram(QWidget):
         """The model row's and the caption's heights at ``width``.
 
         The caption reserves the longest description any compartment can
-        show, so hovering never changes the height.
+        show, so hovering never changes the height. Answers are kept per
+        width: while a screen is shown its splitter settles through a few
+        widths more than once, and keeping only the last one re-measured
+        every description about 30 times, about 0.75 s of one open on an
+        Intel Mac.
 
         :param width: the diagram's width in pixels.
         :returns: ``(model row height, caption height)``.
         """
-        cached = getattr(self, "_reserved_cache", None)
-        if cached is not None and cached[0] == width:
-            return cached[1]
+        cached = getattr(self, "_reserved_cache", None) or {}
+        key = (width, scaled_px(10), self.caption.font().key())
+        if key in cached:
+            return cached[key]
         artwork_width = max(1, (width - scaled_px(10)) * 0.55)
         row = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
         self.caption.ensurePolished()
@@ -579,7 +614,10 @@ class OrganismDiagram(QWidget):
         finally:
             probe.deleteLater()
         answer = (row, max(heights) + scaled_px(6))
-        self._reserved_cache = (width, answer)
+        if len(cached) >= 16:
+            cached.clear()
+        cached[key] = answer
+        self._reserved_cache = cached
         return answer
 
     def _fit_width(self) -> None:
@@ -624,7 +662,10 @@ class OrganismDiagram(QWidget):
                             QEvent.StyleChange):
             self._layout_width = None
             self._reserved_cache = None
-            self._fit_width()
+            if self.isVisible():
+                self._fit_width()
+            else:
+                self._fit_when_shown = True
             self.updateGeometry()
 
     def clear_components(self) -> None:

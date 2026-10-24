@@ -11,11 +11,66 @@ and ``app.py`` for the main window and QApplication bootstrap.
 """
 from __future__ import annotations
 
+import atexit
 import os
 import re
 import sys
 
 __all__ = ["run"]
+
+
+def _keep_weakly_held_qt_wrappers_to_the_end() -> None:
+    """Keep every weakly referenced Qt wrapper alive through finalization.
+
+    Shiboken frees a wrapper without clearing the weak references to it when
+    the wrapper goes during interpreter finalization: it checks
+    ``Py_IsInitialized()``, which is already false while modules are being
+    cleared. A ``WeakSet``, a list of ``weakref.ref`` or a watcher table
+    that outlives the wrapper then reads freed memory when it is torn down.
+    That was the rare SIGSEGV after the event loop had returned, and it
+    happens on every exit under ``PYTHONMALLOC=debug`` (gdb:
+    ``weakref_dealloc`` inside ``SbkDeallocQAppWrapper``, and inside
+    ``spacr.qt.job_runner._LIVE_RUNNERS``). Hundreds of wrappers are weakly
+    held at exit, so the holders cannot each be emptied by hand, and the
+    interpreter refuses to clear the weak references of a live object.
+
+    So the wrappers that are weakly held when the exit hooks run are given
+    one reference that is never released: they are not deallocated during
+    finalization, and every weak reference to them is torn down while they
+    still exist. Their Qt objects are destroyed as before; only the Python
+    wrappers' memory is left for the process exit to return. The
+    application object itself is left out, so its teardown is unchanged.
+
+    Registered with :mod:`atexit` when :mod:`spacr.qt` is first imported,
+    before any of its modules registers an exit hook, so this runs after
+    all of them.
+    """
+    try:
+        import ctypes
+        import gc
+        import weakref
+
+        from PySide6.QtCore import QCoreApplication
+        from shiboken6 import Shiboken
+    except ImportError:
+        return
+    wrapper = Shiboken.Object
+    kinds = {}
+    kept = []
+    gc.unfreeze()
+    for candidate in gc.get_objects():
+        kind = type(candidate)
+        held = kinds.get(kind)
+        if held is None:
+            held = kinds[kind] = (issubclass(kind, wrapper) and not
+                                  issubclass(kind, QCoreApplication))
+        if held and weakref.getweakrefcount(candidate):
+            kept.append(candidate)
+    if kept:
+        ctypes.pythonapi.Py_IncRef(ctypes.py_object(kept))
+
+
+atexit.register(_keep_weakly_held_qt_wrappers_to_the_end)
 
 _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 
