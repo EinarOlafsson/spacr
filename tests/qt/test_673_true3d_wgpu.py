@@ -945,3 +945,24 @@ def test_wgpu_uniform_growth_and_failed_reallocation_release_owned_buffers(monke
     assert renderer._dispatch_slots == []
     assert all(buffer.destroyed for buffer in device.buffers)
     assert device.destroyed
+
+
+@pytest.mark.parametrize("saved, asks", [
+    ({}, False), ({"backend": "auto"}, False), ({"backend": "cpu"}, False),
+    ({"backend": "metal"}, True), ({"backend": "vulkan"}, True)])
+def test_building_the_view_asks_for_adapters_only_for_a_saved_gpu_backend(
+        monkeypatch, saved, asks):
+    """Auto and CPU are always offered, so their screens never enumerate.
+
+    Enumerating imports wgpu and queries Metal on a Mac: about 0.3 s of
+    building Make Masks on the GUI thread, for the default choice.
+    """
+    from spacr.qt import preferences
+
+    asked = []
+    monkeypatch.setattr(preferences, "get_volume_view", lambda: dict(saved))
+    monkeypatch.setattr(mm, "volume_render_backends",
+                        lambda: asked.append(1) or ("auto", "cpu"))
+    backend, _scale, _finish = mm._volume_view_settings()
+    assert bool(asked) == asks
+    assert backend == (saved.get("backend") if saved.get("backend") in ("auto", "cpu") else "auto")
