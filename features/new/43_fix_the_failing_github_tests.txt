@@ -4,6 +4,15 @@ The retained CI owner repairs four Night8fe metadata-caption failures by
 seeding the catalog producer’s mandatory pipeline_v2 source in its isolated
 fake tree. Preserve every exact-owner, scope-exclusion and ten-caption
 assertion; run only the owning four tests, root reviews and publishes.
+CURRENT USER-CHOSEN DENSITY ACROSS THEME CHANGES — 2026-10-24
+widgets_g4 owns Night 8fe Coverage 11's density/theme regression. Bind the
+current preference and style contract, preserve a user's explicit density
+and verify the one owning CPU/offscreen case without changing expected values
+blindly or touching leased Home/AppScreen work. Root reviews and publishes.
+The published fresh-profile default is 10%; retain the 50% user choice across
+both animation changes and its saved value. Product defaults remain unchanged.
+The sole current-Qt owning case passes (3.53s); independent peer/root review
+precedes publication. No production or generated changes.
 
 CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
 Home owns concise missing docs for measurement-export check_cancelled/record_result
@@ -4822,3 +4831,4 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Seed the metadata-caption fake tree with the catalog producer’s mandatory pipeline_v2.py source. The four original exact-owner, scope-exclusion and ten-current-caption assertions remain unchanged and pass (4 tests, 1.56s). No product/generated changes or Main inference; root review/publication pending.
 2026-10-24 — The Cellpose fake-training GPU premise now uses the current shared accelerator resolver, retaining every native batch/training/settings assertion and checking exact device/precision forwarding. The sole affected case PASS in 7.97s with independent root source peer acceptance; no GPU execution, training, downloads or production/generated changes. Root publication pending.
 2026-10-24 — Release lane owns the actual Night C11 Home observer construction failure: initialize event-filter readiness before native parenting/reentrant viewport setup, preserve normal fitting after construction, and verify only the smallest real Qt control. Preserve the already-published Mac deleted-toggle repair and its owning teardown proof; no duplicate fix or Main inference. Root accepted the exact source/test diff; one Qt6.11.2 CPU/offscreen native-event construction control reproduces the missing attribute before the fix and passes afterward (1.52s), retaining real title fitting and resize. This demonstrates explicit construction reentry, not the exact hosted event trigger; module prose/signatures/strings are unchanged.
+2026-10-24 — Bind the density/theme fixture to the published 10% fresh-profile default, explicitly requiring no saved density and retaining every 50% user-selection/theme/save assertion. The sole owning Qt/offscreen case PASS (3.53s); no production or generated changes. Root owns review and publication.
