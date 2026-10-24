@@ -16,10 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-Lifecycle follow-up: validate only the reviewed Measure open-host control;
-prepare exact native-workflow registration call-through stacks/IDs/key/kind/
-host-close/phase/time, primitive data only with exact descriptor restoration.
-No native job before review/pin, registry waiver/pruning or product change.
+2026-10-24 — RegistryTrace5305/OGjh8P PASS34.13s/1.228GiB onf18ee0a3:
+6 registrations: Home journal/Mask chain/4 usage; no Measure/post-close row.
+10 draws/core10, CPU191.666ms≤outer396.006ms;10motions/3.228s,626×122/DPR2/Metal75.
+Freshframe/IDs/pick0/idle/data/hooks/descriptors/resources/run0/registry0 PASS.
+Earlier late-Measure failure unresolved; no product repair/FPS/repetition claim.
 
 2026-10-24 — MeasureOpen54744/EU7qWD PASS8.34s, process0/11.48s/0.423GiB:
 real normal Measure factory retains QC banner/chaining bar and its actual
