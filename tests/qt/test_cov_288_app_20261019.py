@@ -98,16 +98,27 @@ class _Screen:
         return self._rect
 
 
-def test_an_empty_work_area_or_a_maximised_window_is_left_where_it_is():
+def test_an_empty_work_area_or_a_maximised_window_is_left_where_it_is(qtbot):
+    from spacr.qt.gui_scale import _set_actual_dim
+
     empty = _Window(screen=_Screen(QRect()))
     assert app_mod._fit_to_the_work_area(empty) is False
     assert empty.minimum is None
 
-    maximised = _Window(maximised=True)
+    maximised = QWidget()
+    qtbot.addWidget(maximised)
+    _set_actual_dim(maximised, "minw", 2000)
+    _set_actual_dim(maximised, "minh", 2000)
+    maximised.setWindowState(Qt.WindowMaximized)
+    assert maximised.isMaximized()
+    original = maximised.property("geometry")
     assert app_mod._fit_to_the_work_area(
         maximised, screen=_Screen(QRect(0, 0, 1280, 680))) is False
-    assert maximised.minimum.width() <= 1280
-    assert maximised.minimum.height() <= 680
+    minimum = maximised.property("minimumSize")
+    assert minimum.width() <= 1280
+    assert minimum.height() <= 680
+    assert maximised.property("geometry") == original
+    assert maximised.isMaximized()
 
 
 def test_a_window_whose_screen_cannot_be_asked_is_not_moved():
