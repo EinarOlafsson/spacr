@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                                QLineEdit, QMainWindow, QPushButton,
                                QScrollArea, QVBoxLayout, QWidget)
 
-from spacr.qt import preferences, theme
+from spacr.qt import gui_scale, preferences, theme
 from spacr.qt.widgets import glass
 
 pytestmark = pytest.mark.qt
@@ -148,6 +148,7 @@ def _glass_seconds(owner, rows: int) -> float:
     dialog = _dialog(owner, rows)
     started = time.perf_counter()
     dialog.ensurePolished()
+    gui_scale._flush_pending_sheets()
     elapsed = time.perf_counter() - started
     assert dialog.property(glass.GLASSED)
     dialog.deleteLater()
@@ -204,6 +205,7 @@ def _warm_preferences(owner, ahead: bool = True):
     dialog._pages_leave_at_the_polish = ahead
     started = time.perf_counter()
     QApplication.processEvents()
+    gui_scale._flush_pending_sheets()
     return dialog, time.perf_counter() - started
 
 

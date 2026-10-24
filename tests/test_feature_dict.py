@@ -717,3 +717,25 @@ def test_module_source_declares_no_heavy_imports():
     for banned in ("import torch", "import cellpose", "import skimage",
                    "from skimage", "import cv2", "import numpy"):
         assert banned not in source, f"feature_dict.py contains '{banned}'"
+
+
+def test_importing_the_dictionary_compiles_no_object_alternation():
+    """The 8,000-character alternations compile on first use, not at import.
+
+    The Help menu imports this module while Home is built; compiling those
+    patterns there cost about 0.1 s of every startup. Checked in a fresh
+    interpreter, so no earlier test has used the patterns yet.
+    """
+    import subprocess
+    import sys
+
+    probe = (
+        "import spacr.feature_dict as f\n"
+        "lazy = [f._DOUBLE_PREFIX_BLUR_RE, f._ORG_SUMMARY_CH_RE]"
+        " + [p for p, _ in f._PARAMETERIZED if isinstance(p, f._LazyPattern)]\n"
+        "assert len(lazy) == 7, len(lazy)\n"
+        "assert all(p._compiled is None for p in lazy)\n"
+        "assert f._DOUBLE_PREFIX_BLUR_RE.match('cell_channel_2_blur')\n"
+        "assert f._DOUBLE_PREFIX_BLUR_RE._compiled is not None\n"
+    )
+    subprocess.run([sys.executable, "-c", probe], check=True, timeout=120)

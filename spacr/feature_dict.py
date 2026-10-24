@@ -2566,16 +2566,52 @@ def concept_of(word: str) -> str | None:
 
 
 
+class _LazyPattern:
+    """A regular expression compiled the first time it is used.
+
+    The patterns that spell out every object type or organelle role carry an
+    alternation of about 8,000 characters. Compiling them at import took
+    about 0.1 s of every Home startup, because the Help menu's Feature
+    Dictionary action imports this module while the window is built, long
+    before any column is described.
+    """
+
+    __slots__ = ("pattern", "_compiled")
+
+    def __init__(self, pattern: str):
+        """Keep the source; compile nothing yet.
+
+        :param pattern: the regular expression source.
+        """
+        self.pattern = pattern
+        self._compiled = None
+
+    def _get(self) -> re.Pattern[str]:
+        """The compiled pattern, compiling it once."""
+        compiled = self._compiled
+        if compiled is None:
+            compiled = self._compiled = re.compile(self.pattern)
+        return compiled
+
+    def match(self, text: str):
+        """``re.Pattern.match`` on the compiled pattern."""
+        return self._get().match(text)
+
+    def __getattr__(self, name):
+        """Every other ``re.Pattern`` attribute, from the compiled pattern."""
+        return getattr(self._get(), name)
+
+
 _CHANNEL_RE = re.compile(r"^channel_(\d+)_")
 _OBJECT_ALTERNATION = "|".join(re.escape(role) for role in _OBJECT_TYPE_MATCH)
 _ORGANELLE_ALTERNATION = "|".join(
     re.escape(role) for role in sorted(ORGANELLE_ROLES, key=len, reverse=True))
-_DOUBLE_PREFIX_BLUR_RE = re.compile(
+_DOUBLE_PREFIX_BLUR_RE = _LazyPattern(
     rf"^(?P<obj>{_OBJECT_ALTERNATION})_channel_(?P<ch>\d+)_blur$"
 )
 _PLAIN_BLUR_RE = re.compile(r"^blur$")
 _RAD_DIST_RE = re.compile(r"^rad_dist_channel_(?P<c>\d+)_bin_(?P<b>\d+)$")
-_ORG_SUMMARY_CH_RE = re.compile(
+_ORG_SUMMARY_CH_RE = _LazyPattern(
     rf"^organelle_summary_(?P<org>{_ORGANELLE_ALTERNATION})_channel_"
     r"(?P<c>\d+)_(?P<stat>mean|std)"
     r"_intensity_per_(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
@@ -2591,7 +2627,7 @@ _ORG_SUMMARY_LEGACY_CH_RE = re.compile(
 _DEDUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)_(?P<idx>\d+)$")
 _DUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)__dup(?P<idx>\d+)$")
 
-_PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
+_PARAMETERIZED: tuple[tuple[re.Pattern[str] | _LazyPattern, str], ...] = (
     (re.compile(r"^zernike_(?P<i>\d+)$"), "zernike_<i>"),
     (re.compile(r"^percentile_(?P<p>\d+)$"), "percentile_<p>"),
     (re.compile(r"^homogeneity_distance_(?P<d>\d+)$"), "homogeneity_distance_<d>"),
@@ -2602,22 +2638,22 @@ _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"^M1_correlation_(?P<t>\d+)$"), "M1_correlation_<t>"),
     (re.compile(r"^M2_correlation_(?P<t>\d+)$"), "M2_correlation_<t>"),
     (re.compile(r"^neighbors_within_(?P<r>\d+)$"), "neighbors_within_<r>"),
-    (re.compile(
+    (_LazyPattern(
         rf"^centre_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
      "centre_to_<other>_surface"),
-    (re.compile(
+    (_LazyPattern(
         rf"^surface_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
      "surface_to_<other>_surface"),
-    (re.compile(
+    (_LazyPattern(
         rf"^centre_to_nearest_(?P<other>{_OBJECT_ALTERNATION})_centre$"),
      "centre_to_nearest_<other>_centre"),
-    (re.compile(rf"^(?P<other>{_OBJECT_ALTERNATION})_overlap_fraction$"),
+    (_LazyPattern(rf"^(?P<other>{_OBJECT_ALTERNATION})_overlap_fraction$"),
      "<other>_overlap_fraction"),
     (re.compile(r"^maxima_to_own_boundary_(?P<summary>min|mean)$"),
      "maxima_to_own_boundary_<summary>"),
     (re.compile(r"^maxima_to_centre_(?P<summary>min|mean)$"),
      "maxima_to_centre_<summary>"),
-    (re.compile(
+    (_LazyPattern(
         rf"^maxima_to_(?P<other>{_OBJECT_ALTERNATION})_surface_"
         r"(?P<summary>min|mean)$"),
      "maxima_to_<other>_surface_<summary>"),
