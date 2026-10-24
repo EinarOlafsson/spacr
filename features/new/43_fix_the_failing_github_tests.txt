@@ -11,6 +11,14 @@ include the QC workspace block, while late-open scoped refresh remains intact.
 Preserve current Main/Night widget behavior and source positions; validate
 the exact failed contract with independent peer and root publication.
 
+CURRENT HOSTED-AI CONSOLE BATCH FIXTURES — 2026-10-23
+widgets_g3 owns the three Main69 AI700 console-entry failures. Observe the
+actual post-batch dispatch worker, advance the real batcher's quiet clock and
+establish affirmative saved consent plus visible GUI delivery. Preserve all
+settings-problem privacy, report-body and saved-answer assertions; fake only
+relay transport, retire owned timers/workers, and run the exact three cases.
+No production policy change or live AI/report request; root publishes.
+
 CURRENT HEADLESS WGPU BUFFER PROTOCOL — 2026-10-23
 widgets_g4 owns the five Main minimum2 recording-renderer failures. Complete
 the fake queue's buffer-write protocol for reused uniform buffers and isolate
@@ -4747,3 +4755,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
 
 2026-10-23 — Deferred-settings fixtures now search a positively indexed/applicable detached editor while checking that run-suppressed controls remain hidden. The parity scanner records nested heading containers separately from their child controls; full lazy/eager values and row tuples remain exactly equal. Both source-bound controls PASS in 11.93s with independent review; production and generated outputs are unchanged. The process exited normally after reported grain-compiler/widget-tree finalization; root integration/publication pending.
+
+2026-10-23 — Align the three hosted-AI console-entry controls with real post-batch worker delivery, affirmative saved consent and visible native owners. Reuse the real batcher's quiet clock and owned timer cleanup; all original settings-problem privacy, report-body and repeated-answer assertions pass (3 tests, 12.36s). Production and generated outputs are unchanged; the process exited 0 with the finite ambient-compiler diagnostic retained as a qualification. Independent peer accepted; root owns publication and hosted qualification.

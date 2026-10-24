@@ -18,6 +18,9 @@ pytest.importorskip("PySide6")
 from spacr import crashreport as cr  # noqa: E402
 from spacr.qt.ai import providers  # noqa: E402
 from tests.test_700_anonymous_error_reports import FakeRelay  # noqa: E402
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import (  # noqa: E402
+    manual_error_batches,
+)
 
 REFUSAL = ("At least one registered *_channel (for example cell_channel or "
            "organelle_channel) must be set; no masks can be generated.")
@@ -28,10 +31,13 @@ MISSING = "/nonexistent-700/plate1"
 
 
 @pytest.fixture
-def relay(monkeypatch, qtbot):
+def relay(monkeypatch, qtbot, manual_error_batches):
     """Allow the network for this test and install a fake relay."""
     monkeypatch.delenv(cr.NO_NETWORK_ENV, raising=False)
+    monkeypatch.setattr(cr, "_ERROR_DISPATCH_SEEN", {})
+    monkeypatch.setattr(cr, "_ERROR_OCCURRENCE_POLICIES", {})
     fake = FakeRelay()
+    fake.finish_quiet_window = manual_error_batches
     fake.release_events = []
     fake.report_sessions = []
     monkeypatch.setattr(cr, "_open_url", fake)
@@ -72,6 +78,7 @@ def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False, tier="best"):
     from spacr.qt.bridge import _say_what_is_wrong_with_the_settings
     from spacr.qt.screens.app_screen import AppScreen
     from tests.qt.test_700_anonymous_reports_qt import _ReportSession
+    from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
 
     cr.set_error_report_mode("all")
     relay.routes["/diagnose"] = [(200, {"advice": ADVICE, "model": "big",
@@ -83,6 +90,22 @@ def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False, tier="best"):
     qtbot.addWidget(screen)
     session = _ReportSession(screen, qtbot, monkeypatch)
     relay.report_sessions.append(session)
+    _sync_automatic_failure_policy()
+    policy, explain, send = cr._automatic_error_policy(cr.KIND_USER_ERROR)
+    assert policy["provider"] == providers.HOSTED_PROVIDER_NAME
+    assert explain and send
+    qtbot.waitExposed(screen)
+    assert screen._console.isVisible() and screen.window().isVisible()
+    dispatch = cr._dispatch_error_now
+
+    def submit(*args, **kwargs):
+        """Observe the real worker created after the quiet batch is delivered."""
+        worker = dispatch(*args, **kwargs)
+        if worker is not None:
+            session.workers.append(worker)
+        return worker
+
+    monkeypatch.setattr(cr, "_dispatch_error_now", submit)
     jobs = []
     if hold_ai:
         release = threading.Event()
@@ -103,6 +126,7 @@ def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False, tier="best"):
     screen._watch_for_refusals()
     _say_what_is_wrong_with_the_settings("mask", pipeline)(_mask_settings())
     screen._on_finished(True)
+    relay.finish_quiet_window()
     if hold_ai:
         qtbot.waitUntil(lambda: bool(_ai_blocks(screen)), timeout=5000)
     else:
