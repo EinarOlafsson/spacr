@@ -4139,18 +4139,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "HomeからMake Masksを開き、そのCellpose Workbenchを開きます。既存のモデルで画像をセグメンテーションするにはApplyを選びます。確認済みの画像とマスクのペアから新しい重みを学習させたいときはTrainを使います。",
-          "hold_after": 0.7,
-          "speech_text": "ホームからMake Masksを開き、そのセルポーズ Workbenchを開きます。既存のモデルで画像をセグメンテーションするにはApplyを選びます。確認済みの画像とマスクのペアから新しい重みを学習させたいときはTrainを使います。",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "ホームからMake Masksを開き、そのセルポーズ Workbenchを開きます。既存のモデルで画像をセグメンテーションするにはApplyを選びます。確認済みの画像とマスクのペアから新しい重みを学習させたいときはTrainを使います。"
         },
         {
           "visual": "04_setting_src",
-          "narration": "リンク先の例を展開し、Sourceをそのimagesフォルダーに設定します。単一チャネルの細胞画像が三枚あり、それぞれ五百十二ピクセル四方です。記録された設定ファイルを参考にする場合は、そのソースのパスを展開したフォルダーに置き換えます。",
+          "narration": "リンク先の例を展開し、Sourceをそのimagesフォルダーに設定します。単一チャネルの細胞画像が三枚あり、それぞれ五百十二ピクセル四方です。付属の設定リファレンスを使う場合は、そのソースのパスを展開したフォルダーに置き換えます。",
           "hold_after": 0.7,
-          "speech_text": "リンク先の例を展開し、Sourceをそのimagesフォルダーに設定します。単一チャネルの細胞画像が三枚あり、それぞれ五百十二ピクセル四方です。記録された設定ファイルを参考にする場合は、そのソースのパスを展開したフォルダーに置き換えます。"
+          "speech_text": "リンク先の例を展開し、Sourceをそのimagesフォルダーに設定します。単一チャネルの細胞画像が三枚あり、それぞれ五百十二ピクセル四方です。付属の設定リファレンスを使う場合は、そのソースのパスを展開したフォルダーに置き換えます。"
         },
         {
           "visual": "05_setting_model_name",
@@ -4233,12 +4233,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Minimum cell areaをゼロに戻して、フィルターなしのプレビューに戻します。入力画像、モデルの識別情報、設定、保存されたマスクは一緒に保管します。修正にはMake Masksを、確認済みのマスクから物体の特徴量を抽出するにはMeasureを使います。",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Minimum cell areaをゼロに戻して、フィルターなしのプレビューに戻します。入力画像、モデルの識別情報、設定、保存されたマスクは一緒に保管します。修正にはMake Masksを、確認済みのマスクから物体の特徴量を抽出するにはMeasureを使います。"
         }
       ],
       "narration_voices": {

@@ -1,10 +1,10 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "english_sha256": "ab0837359e26a864539d5b7388c6b9f5ab14f9d120bd72335ab2baa2ec1c5c99",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); scene2 phrase proposal; scenes5–8 copied unchanged from current published catalogs",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,13 +20,13 @@
   "prerequisite": "把链接中的Apply Cellpose示例解压到一个新文件夹。其中包含三张单通道细胞图像和一份设置参考。选择其中的images文件夹作为Source。本演示使用标准的cpsam模型；如果使用自定义模型，请选择与您的图像兼容的权重和设置。",
   "scenes": [
     "从Home打开Make Masks，再打开其中的Cellpose Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。",
-    "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果把记录的设置文件作为参考，请把其中的源路径替换为您解压的文件夹。",
+    "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果使用随附的设置参考，请把其中的源路径替换为您解压的文件夹。",
     "选择cpsam，本例中Custom model保持为空。把Channels设为零，归一化百分位设为二和九十九，Diameter设为三十，Flow threshold设为零点四，Cell probability设为零。在检查过您自己实验中几个有代表性的视野之后，再调整这些设置。",
     "开启Save和Verbose，批大小选择一，然后在Apply中点击Run。在控制台中跟踪每张图像的处理过程。进入测量步骤之前，请检查失败的情况。",
-    "打开Source中的masks子文件夹。每张图像都有一个同名的掩膜TIFF文件。把图与原始图像对照检查，注意漏检的对象和粘连的细胞。流场面板显示模型用于分割的方向。",
-    "开启Live preview，用图像选择器选择一张图像。打开Live settings，检查通道和归一化控件。如有需要，可以折叠Console和System，为预览留出更多空间。",
-    "把预览与批处理保存的掩膜进行比较。在本例中，预览和Apply使用不同的处理路径，因此边界和数量可能不同。判断批处理输出是否适合测量时，请检查保存的TIFF文件。",
-    "用鼠标滚轮在两个预览画布上放大同一区域。检查相互接触的对象和模糊的边界，然后缩小查看整个视野。",
+    "Source中的masks子文件夹包含每张图像对应的同名掩膜TIFF文件。把图与原始图像对照检查，注意漏检的对象和粘连的细胞。流场面板显示模型用于分割的方向。",
+    "折叠其他结果卡片，为预览留出更多空间。开启Live preview，用图像选择器选择一张图像。浏览到随附的示例图像。",
+    "在Live settings中检查通道和归一化，然后运行预览。预览和Apply对这些图像的处理方式不同，因此边界和数量可能不同。判断批处理输出是否适合测量时，请检查保存的TIFF文件。",
+    "用鼠标滚轮在两个预览画布上放大同一区域。在放大的视图中检查相互接触的对象和模糊的边界。",
     "打开Live settings，调高Minimum cell area，从预览中去除小对象。阈值以像素为单位；请根据对象大小选择。关闭对话框查看过滤后的结果。",
     "把过滤后的轮廓与原始图像进行比较。更改这个实时过滤器会更新预览，但不会重写Apply已经保存的掩膜。需要新的保存输出时，请用预期的设置重新运行批处理。",
     "把Minimum cell area改回零，恢复未过滤的预览。把输入图像、模型标识、设置和保存的掩膜放在一起。需要修正时使用Make Masks，或使用Measure从审核过的掩膜中提取对象特征。"
