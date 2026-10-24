@@ -16,7 +16,7 @@
     "Filter candidates and read their effects and guide agreement.",
     "Export the selected rows as CSV, Markdown or HTML."
   ],
-  "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+  "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. If the Regression Hits shortcut does not reveal the panel, run python hit_list_companion.py and Browse to the extracted results folder. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
   "scenes": [
     {
       "visual": "01b_hit_list_route_failure",
@@ -28,7 +28,7 @@
     },
     {
       "visual": "01c_explicit_companion_not_native_route",
-      "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+      "narration": "To use the fallback, extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
       "hold_after": 0.7
     },
     {

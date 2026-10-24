@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "Filtrar candidatos y leer sus efectos y la concordancia entre guías.",
     "Exportar las filas seleccionadas como CSV, Markdown o HTML."
   ],
-  "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. El acceso directo Hits actual de Regression no muestra el panel; ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
+  "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. Si el acceso directo Hits de Regression no muestra el panel, ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
   "scenes": [
     "Desde Home, abre Regression y elige Hits. Si el panel sigue oculto, usa el script complementario incluido en esta lección para abrir Hit List.",
-    "Extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
+    "Para usar la alternativa, extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
     "El ejemplo carga trescientos veinticinco genes. Ensancha las columnas para leer el efecto, P, q y la concordancia entre guías. Los efectos son efectos marginales estandarizados. Para el número de pozos de soporte, lee wells_with_gene en results_gene.csv; el recuento de observaciones cero exportado indica que el soporte no está disponible.",
     "Pon Max q en cero coma cero cinco. Este ejemplo no tiene genes que lo cumplan, así que la tabla queda vacía. Devuelve Max q a uno para ver todos los candidatos.",
     "Pon Minimum guides en dos. Quedan ciento diecisiete genes con al menos dos filas de guías probadas. Este filtro conserva los valores q originales.",

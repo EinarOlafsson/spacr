@@ -9943,7 +9943,7 @@
         "Filtrer les candidats et lire leurs effets et la concordance des guides.",
         "Exporter les lignes sélectionnées en CSV, Markdown ou HTML."
       ],
-      "prerequisite": "Extrayez Hit_List_real_results_companion.zip et activez votre environnement spaCR. Le raccourci Hits actuel de Regression n’affiche pas le panneau ; lancez python hit_list_companion.py puis utilisez Browse vers le dossier de résultats extrait. Le compagnon n’est pas relié à Investigate. Utilisez wells_with_gene de results_gene.csv pour le nombre de puits de soutien : le n_obs=0 exporté n’est pas le soutien réel. L’exemple ne contient aucun gène satisfaisant q <= 0.05.",
+      "prerequisite": "Extrayez Hit_List_real_results_companion.zip et activez votre environnement spaCR. Si le raccourci Hits de Regression n’affiche pas le panneau, lancez python hit_list_companion.py puis utilisez Browse vers le dossier de résultats extrait. Le compagnon n’est pas relié à Investigate. Utilisez wells_with_gene de results_gene.csv pour le nombre de puits de soutien : le n_obs=0 exporté n’est pas le soutien réel. L’exemple ne contient aucun gène satisfaisant q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9956,9 +9956,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extrayez l’exemple associé et activez votre environnement spaCR. Lancez python hit_list_companion.py. Dans la fenêtre du compagnon, cliquez sur Browse et sélectionnez le dossier de résultats extrait.",
+          "narration": "Pour utiliser la solution de repli, extrayez l’exemple associé et activez votre environnement spaCR. Lancez python hit_list_companion.py. Dans la fenêtre du compagnon, cliquez sur Browse et sélectionnez le dossier de résultats extrait.",
           "hold_after": 0.7,
-          "speech_text": "Extrayez l’exemple associé et activez votre environnement spakeur. Lancez python hit_list_companion.py. Dans la fenêtre du compagnon, cliquez sur Browse et sélectionnez le dossier de résultats extrait."
+          "speech_text": "Pour utiliser la solution de repli, extrayez l’exemple associé et activez votre environnement spakeur. Lancez python hit_list_companion.py. Dans la fenêtre du compagnon, cliquez sur Browse et sélectionnez le dossier de résultats extrait."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
