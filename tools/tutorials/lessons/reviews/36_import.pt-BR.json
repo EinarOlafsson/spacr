@@ -1,6 +1,6 @@
 {
   "lesson": "36_import",
-  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
+  "english_sha256": "3bcbc0dd69bd85d2772d11d33a07327af13124a57cd9be31d51d86e9abd8269a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
