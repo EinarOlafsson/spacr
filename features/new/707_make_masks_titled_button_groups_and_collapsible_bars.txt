@@ -12,6 +12,21 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Chrome icon scope: current font200 paints a36px source while GUI200 uses a
+native72px icon slot; returned36px pixels cannot retain the same relative
+glyph size. Add an actual-slot GUI90→200→90/font200 regression with exact
+logical extent, alpha proportion and mocked DPR1/2 seams before a private
+rendering repair. Preserve hover/state behavior and public painter APIs;
+native DPR metadata alone is not a clipping verdict or physical acceptance.
+RED47826 proves the GUI200 extent failure;28584 independently proves the
+mocked DPR2 deficit (its DPR1 pointer-enter setup issue was corrected).
+The private renderer now paints actual native slot times device ratio,
+tags that density and coalesces GUI/screen changes without idle repainting.
+New raster/alpha/roundtrip/quiescence cases76437 pass2/3.88s/RSS0.262GiB;
+existing hover/zoom controls retain2 passes from76705. Their initial new-case
+pending-timer readiness failure was harness-only, not a pixel-fit waiver.
+This is mocked-DPR unit coverage; full native Home content remains pending.
+
 New minimum-content scope: actual1200x640 Home at GUI200/font200 on1440x870/DPR2;
 require full styled text/native slots and actual icon bounds after one real
 scroll reveal. Deliberate elision retains its full tooltip, not a full-text claim.
@@ -48,6 +63,34 @@ without cover state this does not establish the reason for occlusion. Do not
 disable startup effects, extend budgets or dismiss interactive overlays. Long
 News documents need actual scroll access, not simultaneous whole-document
 visibility; defer that classification without treating clipped controls as fit.
+Native53797/NYn00Y on65a08b8af fails naturally1 in31.52s/RSS1.199GiB:
+the real startup cover clears at elapsed7.286s, then an actual1200x640 tour
+overlay appears at8.923s with enabled Skip/Next. The probe reports it without
+dismissing it. Only one of137 targets is checked before this interaction gate;
+its entire Minimise control is visible but QIcon returnsDPR1 from a36x36 source
+for the actual72x72 icon request. This is not established glyph clipping.
+Earlier empty Home regions must account for real startup cover/tour state;
+no new parent-visibility pass/failure is certified. Normal close/return0 and
+empty helper/thread state pass. Keep full minimum-content acceptance pending.
+The next probe has explicit authorization to click only this owned window's
+real tour Skip button, recording enabled/visible state and subsequent hidden/
+seen state. Do not call finish directly, seed its setting or dismiss any
+consent/privacy/provider dialog. Startup/tour is one bounded20s operation;
+the original20s content operation begins only after the tour is hidden and
+actual target/ancestor layout is idle/stable. The normal cover, child180s and
+aggregate300s guards remain unchanged; no product change is assumed.
+Native71664/pYhCIf on69b16f2a0 exits naturally1 in32.53s/RSS1.211GiB.
+Normal cover and the actual enabled/fully visible164x95 Skip click complete
+in9.6398s; tour is hidden and owned seen state becomes true. Minimise now
+passes actual72px slot/DPR2 and whole75x75 visibility. Content stops after
+3.2796s on post-reveal signature drift before the second target;136/137 remain
+untested and no widget clipping error is reported. Normal close/return0 and
+helper/thread cleanup pass. Expected/actual signatures were not persisted;
+attribute the changing field before any product fix or assertion change.
+The next observer-only capture persists both expected/actual raw signatures
+and Python-wrapper/native-C++ identities before that same strict comparison.
+Retain the existing identity assertion, waits and budgets so the data, not an
+assumption, distinguishes wrapper churn from actual geometry or font changes.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c

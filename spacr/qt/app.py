@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 
-from .hidpi import scaled_for
+from .hidpi import device_ratio, follow_device_ratio, scaled_for
 from .i18n import tr
 from . import iconset
 from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
@@ -2195,12 +2195,31 @@ class _ChromeButton(QToolButton):
         :param colour: what the mark turns on hover and on press.
         """
         super().__init__(parent)
+        from PySide6.QtCore import QTimer
+        from .gui_scale import add_listener
+
         self._paint_icon = painter
         self._hover_colour = colour
         self._lit = False
+        self._icon_timer = QTimer(self)
+        self._icon_timer.setSingleShot(True)
+        self._icon_timer.timeout.connect(self._refresh_icon)
         self.setAutoRaise(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._show(False)
+        add_listener(self._queue_icon_paint)
+        follow_device_ratio(self, self._queue_icon_paint)
+
+    def _queue_icon_paint(self, _scale=None):
+        """Coalesce GUI-slot and screen-density changes on this owned button."""
+        self._icon_timer.start(0)
+
+    def _refresh_icon(self):
+        """Repaint only when the actual native slot or screen ratio changed."""
+        size = self.property('iconSize')
+        signature = (size.width(), size.height(), device_ratio(self), self._lit)
+        if signature != self._paint_signature:
+            self._show(self._lit)
 
     def _show(self, lit: bool, scale=None) -> None:
         """Repaint the mark, lit or resting, at the interface scale.
@@ -2217,16 +2236,21 @@ class _ChromeButton(QToolButton):
         :param lit: whether the pointer is on the button or it is held down.
         :param scale: the interface scale; the stored preference when None.
         """
-        from .preferences import (_scaled_side, _set_scaled_icon_size,
-                                  get_font_scale)
+        from .preferences import _set_scaled_icon_size, get_font_scale
 
         self._lit = bool(lit)
         if scale is None:
             scale = get_font_scale()
-        side = _scaled_side(CHROME_ICON_PX, scale)
-        self.setIcon(self._paint_icon(size=side, colour=self._hover_colour)
-                     if lit else self._paint_icon(size=side))
         _set_scaled_icon_size(self, CHROME_ICON_PX, scale=scale)
+        size = self.property('iconSize')
+        ratio = device_ratio(self)
+        physical = max(1, round(max(size.width(), size.height()) * ratio))
+        icon = (self._paint_icon(size=physical, colour=self._hover_colour)
+                if lit else self._paint_icon(size=physical))
+        pixmap = icon.pixmap(QSize(physical, physical))
+        pixmap.setDevicePixelRatio(ratio)
+        self.setIcon(QIcon(pixmap))
+        self._paint_signature = (size.width(), size.height(), ratio, self._lit)
 
     def _apply_icon_scale(self, scale=None) -> None:
         """Repaint the mark for a new interface scale, keeping its state.

@@ -109,6 +109,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         from spacr.qt.app import MainWindow
         from spacr.qt.widgets.home import AppTile, _AppTileIcon, _find_logo_pixmap
         from spacr.qt.widgets.eliding import ElidingLabel
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        import shiboken6
 
         assert timing.ENABLED, 'Readiness requires explicit SPACR_TIMING=1'
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
@@ -127,10 +129,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             """Use the real owned MainWindow close route even on failure."""
             if 'timer' in state:
                 state['timer'].stop()
+            report['operation_at_close'] = state['phase']
+            report[state['phase'] + '_seconds_at_close'] = time.perf_counter()-state['started']
             report['normal_close_accepted'] = state['window'].close()
             persist()
 
-        def signature(window, target):
+        def signature(window, target, identities=None):
             """Observe only the target subtree and its actual layout ancestors."""
             snapshot = []
             widgets = [target, *target.findChildren(QWidget)]
@@ -158,6 +162,10 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 snapshot.append((id(w), w.property('size').toTuple(), w.pos().toTuple(),
                     w.property('minimumSize').toTuple(), w.property('maximumSize').toTuple(),
                     layout.geometry().getRect() if layout else None, w.font().toString()))
+                if identities is not None:
+                    identities.append({'class': type(w).__name__, 'name': w.objectName(),
+                        'python_wrapper_id': id(w), 'native_cpp_pointer': shiboken6.getCppPointer(w),
+                        'raw_signature': snapshot[-1]})
             return snapshot
 
         def native_menu_child(widget):
@@ -311,24 +319,65 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             persist()
 
         def tick():
-            """Keep inspection inside its original single twenty-second budget."""
+            """Bound startup/tour and the separate content operation independently."""
             try:
-                assert time.perf_counter()-state['started'] < 20, 'Home inspection exceeded20s'
+                assert time.perf_counter()-state['started'] < 20, (state['phase'], 'exceeded20s')
                 window = state['window']
                 handle = window.windowHandle()
                 assert handle.size() == QSize(1200, 640), handle.size()
                 observed_startup = startup_snapshot(window)
                 if observed_startup != state.get('last_startup'):
                     report.setdefault('startup_history', []).append(
-                        {'elapsed': time.perf_counter()-state['started'], **observed_startup})
+                        {'operation': state['phase'], 'elapsed': time.perf_counter()-state['started'],
+                         'since_home_ready': time.perf_counter()-state['home_ready_at'], **observed_startup})
                     state['last_startup'] = observed_startup
                     persist()
                 if observed_startup['sequence_running']:
                     return
-                blockers = [entry for entry in observed_startup['owned_overlays']
-                            if entry and entry.get('visible') and
-                                ('TourOverlay' in entry.get('class', '') or observed_startup['active_modal'] == entry)]
-                assert not blockers, ('Normal startup has an interactive owned overlay; no automatic dismissal', blockers)
+                assert observed_startup['active_modal'] is None, ('No consent/privacy/provider dialog dismissal is authorized', observed_startup)
+                tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                if state['phase'] == 'startup_tour':
+                    if not state.get('tour_clicked'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1 and tours[0].parentWidget() is window
+                        tour = tours[0]
+                        skip = tour._skip_btn
+                        report['tour_interaction'] = {
+                            'operation': 'real_owned_skip_button_click', 'programmatic_not_physical': True,
+                            'tour': observed_startup['owned_overlays'], 'skip_text': skip.text(),
+                            'skip_visible': skip.isVisible(), 'skip_enabled': skip.isEnabled(),
+                            'skip_rect_in_window': skip.rect().translated(skip.mapTo(window, QPoint())).getRect(),
+                            'skip_visible_region': skip.visibleRegion().boundingRect().getRect(),
+                            'seen_before': was_tour_shown(), 'clicked': False}
+                        persist()
+                        assert skip.isVisible() and skip.isEnabled() and not skip.visibleRegion().isEmpty()
+                        assert skip.window() is window
+                        state['tour'] = tour
+                        skip.click()
+                        state['tour_clicked'] = True
+                        report['tour_interaction']['clicked'] = True
+                        persist()
+                        return
+                    tour = state['tour']
+                    hidden = not shiboken6.isValid(tour) or not tour.isVisible()
+                    report['tour_interaction'].update(hidden_after_click=hidden, seen_after=was_tour_shown())
+                    persist()
+                    if not hidden:
+                        return
+                    assert not tours and was_tour_shown(), report['tour_interaction']
+                    current = signature(window, state['font_witness'])
+                    if current is None or state.get('startup_layout_previous') != current:
+                        state['startup_layout_previous'] = current
+                        return
+                    report['startup_tour_seconds'] = time.perf_counter()-state['started']
+                    assert report['startup_tour_seconds'] < 20
+                    state['phase'] = 'content'
+                    state['started'] = time.perf_counter()
+                    report['content_started_since_home_ready'] = state['started']-state['home_ready_at']
+                    persist()
+                    return
+                assert not tours, ('Unexpected tour during content inspection', observed_startup)
                 if not state.get('font_witness_checked'):
                     witness = state['font_witness']
                     fitter = witness.parentWidget()._text_fit
@@ -362,7 +411,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     close()
                     return
                 widget = state['widgets'][state['index']]
-                current = signature(window, widget)
+                actual_identities = []
+                current = signature(window, widget, actual_identities)
                 if current is None:
                     state['previous'] = None
                     return
@@ -376,8 +426,17 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             parent.ensureWidgetVisible(widget, 0, 0)
                         parent = parent.parentWidget()
                     state['revealed'] = True
-                    state['after_reveal'] = signature(window, widget)
+                    expected_identities = []
+                    state['after_reveal'] = signature(window, widget, expected_identities)
+                    state['after_reveal_identities'] = expected_identities
                     return
+                report.setdefault('post_reveal_signatures', []).append({
+                    'target_class': type(widget).__name__, 'target_name': widget.objectName(),
+                    'expected_raw': state['after_reveal'], 'actual_raw': current,
+                    'expected_identities': state['after_reveal_identities'],
+                    'actual_identities': actual_identities,
+                    'raw_identity_unchanged': current == state['after_reveal']})
+                persist()
                 assert state['after_reveal'] is not None and current == state['after_reveal'], 'Layout changed after the single reveal'
                 try:
                     check(widget)
@@ -402,7 +461,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             assert len(windows) == 1
             window = windows[0]
             handle = window.windowHandle()
-            state.update(window=window, started=time.perf_counter())
+            started = time.perf_counter()
+            state.update(window=window, started=started, home_ready_at=started, phase='startup_tour')
             report['initial_startup_observation'] = startup_snapshot(window)
             witness = window._startup.findChild(QLabel, 'HeroSubtitle')
             expected_subtitle = gui_scale.scale_int(theme.font_px('subtitle', 2.), 2.)
@@ -464,6 +524,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                       compiler_helper_present=ambient._PRIME_PROCESS is not None)
         persist()
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20, report
         assert not report['compiler_threads'] and not report['compiler_helper_present'], report
     ''')
     settings = (tmp_path / "settings").resolve()
