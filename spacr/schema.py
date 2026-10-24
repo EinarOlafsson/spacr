@@ -1907,11 +1907,15 @@ CROP_TABLES: Tuple[str, ...] = ('png_list',)
 FIELD_PROVENANCE_TABLES: Tuple[str, ...] = ('intensity_rescale',)
 IMAGE_MEASUREMENT_TABLES: Tuple[str, ...] = ('fov',)
 
+IMAGE_ANNOTATION_TABLES: Tuple[str, ...] = ('image_annotations',)
+IMAGE_ANNOTATION_KEY_COLUMNS: Tuple[str, ...] = ('plateID', 'wellID', 'fieldID', 'file')
+
 #: Everything written into ``measurements/measurements.db`` that carries a
 #: field identity.
 MEASUREMENT_TABLES: Tuple[str, ...] = (
     OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES
-    + FIELD_PROVENANCE_TABLES + IMAGE_MEASUREMENT_TABLES)
+    + FIELD_PROVENANCE_TABLES + IMAGE_MEASUREMENT_TABLES
+    + IMAGE_ANNOTATION_TABLES)
 
 #: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
 #: the per-file object tallies, and the two append-only run journals.
@@ -1933,7 +1937,8 @@ MEASUREMENT_TABLES: Tuple[str, ...] = (
 #:   that same file happily and can name the stage that failed. The one case
 #:   where the diagnosis mattered most was the one case it refused to make.
 BOOKKEEPING_TABLES: Tuple[str, ...] = (
-    'settings', 'object_counts', 'settings_history', 'run_status')
+    'settings', 'object_counts', 'settings_history', 'run_status',
+    'image_annotations_history', 'image_annotations_meta')
 
 #: Key columns for the bookkeeping tables, which do not carry a field
 #: identity. Both journals are append-only, so their keys are what makes one
@@ -1943,6 +1948,8 @@ BOOKKEEPING_KEY_COLUMNS = {
     'object_counts': ('file_name',),
     'settings_history': ('run_id', 'stage', 'setting_key'),
     'run_status': ('run_id', 'name'),
+    'image_annotations_history': ('seq',),
+    'image_annotations_meta': ('key',),
 }
 
 #: Every table spaCR creates in a measurements database. A table not in here
@@ -2421,6 +2428,8 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
         return BOOKKEEPING_KEY_COLUMNS[table]
     if table in IMAGE_MEASUREMENT_TABLES:
         return ('field_uid',)
+    if table in IMAGE_ANNOTATION_TABLES:
+        return IMAGE_ANNOTATION_KEY_COLUMNS
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
     if table in FIELD_PROVENANCE_TABLES:
         return base

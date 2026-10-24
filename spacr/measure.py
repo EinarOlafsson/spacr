@@ -13400,3 +13400,465 @@ def measure_calibrated_cells(src, *, dst, channels=None, cancelled=None):
     finally:
         if staging is not None:
             shutil.rmtree(staging)
+
+
+_IMAGE_ANNOTATION_TABLE = 'image_annotations'
+_IMAGE_ANNOTATION_HISTORY = 'image_annotations_history'
+_IMAGE_ANNOTATION_META = 'image_annotations_meta'
+_IMAGE_ANNOTATION_VERSION = 1
+_IMAGE_ANNOTATION_KEYS = ('plateID', 'wellID', 'fieldID', 'file')
+_IMAGE_ANNOTATION_BASE = (
+    ('plateID', 'TEXT NOT NULL'), ('wellID', 'TEXT NOT NULL'),
+    ('fieldID', 'TEXT NOT NULL'), ('file', 'TEXT NOT NULL'),
+    ('rowID', 'TEXT'), ('columnID', 'TEXT'), ('field_label', 'TEXT'),
+    ('chanID', 'TEXT'), ('timeID', 'TEXT'), ('sliceID', 'TEXT'),
+    ('prc', 'TEXT'), ('prcf', 'TEXT'), ('annotation_updated_at', 'TEXT'))
+_IMAGE_ANNOTATION_SUGGESTIONS = ('condition', 'cell_type', 'pathogen_type',
+                                 'genotype', 'drug', 'replicate')
+_IMAGE_ANNOTATION_NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]{0,63}$')
+
+
+def _image_annotation_database(source):
+    """Return the Measure database path that holds the image-level tables.
+
+    :param source: the image source folder, or a path to ``measurements.db``.
+    :returns: ``<source>/measurements/measurements.db`` as a ``Path``.
+    """
+    from pathlib import Path
+    path = Path(source).expanduser()
+    if path.suffix == '.db':
+        return path
+    return path / 'measurements' / 'measurements.db'
+
+
+def _image_annotation_reserved():
+    """Lower-case names an annotation column may not take.
+
+    Identity columns and every spelling spaCR's column vocabulary would
+    rename (``well``, ``channel``, ``time``...) are reserved, so a database
+    migration can never rename or merge a user's annotation.
+    """
+    from .schema import LEGACY_COLUMN_NAMES, METADATA_KEYS
+    names = {name.lower() for name, _ in _IMAGE_ANNOTATION_BASE}
+    names |= {name.lower() for name in LEGACY_COLUMN_NAMES}
+    names |= {name.lower() for name in METADATA_KEYS}
+    return names
+
+
+def _image_annotation_column_name(name):
+    """Validate one user-defined annotation column name.
+
+    :param name: proposed column name such as ``cell_type``.
+    :returns: the stripped name.
+    :raises ValueError: for an empty, unsafe or reserved name.
+    """
+    text = str(name or '').strip()
+    if not _IMAGE_ANNOTATION_NAME.match(text) or text.lower().startswith('sqlite_'):
+        raise ValueError(f'Annotation names use letters, digits and underscores and start with a letter: {text!r}')
+    if text.lower() in _image_annotation_reserved():
+        raise ValueError(f'{text!r} identifies an image and cannot be an annotation')
+    return text
+
+
+def _image_annotation_schema(connection):
+    """Create or migrate the image annotation tables inside one transaction.
+
+    Version 1 is the first versioned layout. An unversioned table gets its
+    legacy identity spellings (``plate``, ``well``, ``field``, ``row``,
+    ``column``, ``channel``, ``time_id``...) renamed to spaCR's canonical
+    names when the canonical column is absent, gains the missing identity
+    columns and keeps every value. A newer layout is refused before any change.
+
+    :param connection: an open connection inside a write transaction.
+    :returns: the annotation column names in table order.
+    :raises ValueError: for a newer layout or a table without its key columns.
+    """
+    from .schema import canonical_column_name
+    connection.execute(f'CREATE TABLE IF NOT EXISTS {_IMAGE_ANNOTATION_META} '
+                       '(key TEXT PRIMARY KEY, value TEXT)')
+    stored = connection.execute(f'SELECT value FROM {_IMAGE_ANNOTATION_META} '
+                                "WHERE key = 'schema_version'").fetchone()
+    version = int(stored[0]) if stored else 0
+    if version > _IMAGE_ANNOTATION_VERSION:
+        raise ValueError(f'The image annotation table uses layout {version}; '
+                         f'this spaCR reads up to {_IMAGE_ANNOTATION_VERSION}')
+    present = [row[1] for row in connection.execute(f'PRAGMA table_info({_IMAGE_ANNOTATION_TABLE})')]
+    if present and version < 1:
+        canonical = {name for name, _ in _IMAGE_ANNOTATION_BASE}
+        for name in list(present):
+            target = 'field_label' if name.lower() in ('field', 'field_name') else canonical_column_name(name)
+            if name.lower() in ('field', 'field_name') and 'fieldID' not in present:
+                target = 'fieldID'
+            if target != name and target in canonical and target not in present:
+                connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} '
+                                   f'RENAME COLUMN "{name}" TO "{target}"')
+                present[present.index(name)] = target
+    columns = ', '.join(f'"{name}" {kind}' for name, kind in _IMAGE_ANNOTATION_BASE)
+    keys = ', '.join(f'"{name}"' for name in _IMAGE_ANNOTATION_KEYS)
+    if not present:
+        connection.execute(f'CREATE TABLE {_IMAGE_ANNOTATION_TABLE} '
+                           f'({columns}, PRIMARY KEY ({keys}))')
+        present = [name for name, _ in _IMAGE_ANNOTATION_BASE]
+    missing_keys = [name for name in _IMAGE_ANNOTATION_KEYS if name not in present]
+    if missing_keys:
+        raise ValueError(f'The image annotation table lacks its key columns: {missing_keys}')
+    for name, kind in _IMAGE_ANNOTATION_BASE:
+        if name not in present:
+            connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} '
+                               f'ADD COLUMN "{name}" {kind.replace(" NOT NULL", "")}')
+            present.append(name)
+    connection.execute(f'CREATE UNIQUE INDEX IF NOT EXISTS {_IMAGE_ANNOTATION_TABLE}_key '
+                       f'ON {_IMAGE_ANNOTATION_TABLE} ({keys})')
+    connection.execute(f'CREATE TABLE IF NOT EXISTS {_IMAGE_ANNOTATION_HISTORY} ('
+                       'seq INTEGER PRIMARY KEY AUTOINCREMENT, operation INTEGER NOT NULL, '
+                       'at TEXT, plateID TEXT, wellID TEXT, fieldID TEXT, file TEXT, '
+                       'annotation TEXT, old_value TEXT, new_value TEXT, '
+                       'row_existed INTEGER, undone INTEGER DEFAULT 0)')
+    connection.execute(f'INSERT OR REPLACE INTO {_IMAGE_ANNOTATION_META} VALUES '
+                       f"('schema_version', '{_IMAGE_ANNOTATION_VERSION}')")
+    reserved = _image_annotation_reserved()
+    return [name for name in present if name.lower() not in reserved]
+
+
+def _image_annotation_connection(db_path):
+    """Open the measurements database for annotation writes, creating its folder."""
+    from pathlib import Path
+    from .database_concurrency import connect
+    path = Path(db_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return connect(path, timeout=30)
+
+
+def _image_annotation_images(fields, wells=None, source=None):
+    """Expand overview fields into one annotation row identity per image file.
+
+    :param fields: ``_OverviewField`` objects or mappings with ``plate``,
+        ``well``, ``field`` and either ``files`` (pairs of channel key and
+        path) or a single ``file``; ``row``, ``column``, ``field_id``,
+        ``time_id`` and ``z_id`` are used when present.
+    :param wells: optional ``(plate, well)`` pairs; other wells are skipped.
+    :param source: optional source folder; files under it are stored relative
+        to it so a moved project keeps its annotations.
+    :returns: list of identity dicts in table column names, one per file.
+    """
+    from pathlib import Path
+    from .schema import row_id, column_id, field_id, time_id, compose_prc, compose_prcf
+    chosen = None if wells is None else {(str(p), str(w)) for p, w in wells}
+    root = Path(source).expanduser().resolve() if source else None
+    images, seen = [], set()
+    for item in fields:
+        value = item if isinstance(item, dict) else item.__dict__
+        plate, well = str(value['plate']), str(value['well'])
+        if chosen is not None and (plate, well) not in chosen:
+            continue
+        if value.get('unresolved'):
+            continue
+        files = value.get('files') or ((value.get('channel', ''), value['file']),)
+        row, column = value.get('row'), value.get('column')
+        physical = str(value.get('field_id') or value['field'])
+        moment = str(value.get('time_id', '') or '')
+        for channel, path in files:
+            text = str(path)
+            if root is not None:
+                try:
+                    text = Path(path).expanduser().resolve().relative_to(root).as_posix()
+                except ValueError:
+                    text = str(Path(path).expanduser().resolve())
+            identity = dict(plateID=plate, wellID=well, fieldID=field_id(physical), file=text,
+                            field_label=str(value['field']), chanID=str(channel),
+                            timeID=time_id(moment) if moment else '',
+                            sliceID=str(value.get('z_id', '') or ''))
+            key = tuple(identity[name] for name in _IMAGE_ANNOTATION_KEYS)
+            if key in seen:
+                continue
+            seen.add(key)
+            if row not in (None, '') and column not in (None, ''):
+                identity.update(rowID=row_id(row), columnID=column_id(column),
+                                prc=compose_prc(plate, row, column),
+                                prcf=compose_prcf(plate, row, column, physical, moment or None))
+            images.append(identity)
+    return images
+
+
+def _image_annotation_columns(db_path):
+    """List the user-defined annotation columns in creation order.
+
+    :param db_path: the measurements database; a missing file has none.
+    :returns: list of column names.
+    """
+    from pathlib import Path
+    if not Path(db_path).is_file():
+        return []
+    connection = _image_annotation_connection(db_path)
+    try:
+        present = [row[1] for row in connection.execute(
+            f'PRAGMA table_info({_IMAGE_ANNOTATION_TABLE})')]
+    finally:
+        connection.close()
+    reserved = _image_annotation_reserved()
+    return [name for name in present if name.lower() not in reserved]
+
+
+def _add_image_annotation_column(db_path, name):
+    """Add an empty annotation column, keeping existing rows and columns.
+
+    :param db_path: the measurements database, created when missing.
+    :param name: the new column name; an existing name in any case is reused.
+    :returns: all annotation column names after the change.
+    """
+    from .database_concurrency import transaction
+    name = _image_annotation_column_name(name)
+    connection = _image_annotation_connection(db_path)
+    try:
+        with transaction(connection, attempts=8, busy_timeout=30):
+            columns = _image_annotation_schema(connection)
+            if name.lower() not in {value.lower() for value in columns}:
+                connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} ADD COLUMN "{name}" TEXT')
+                columns.append(name)
+    finally:
+        connection.close()
+    return columns
+
+
+def _set_image_annotations(db_path, images, column, value, *, source=None, wells=None):
+    """Set one annotation for a set of images as one undoable operation.
+
+    :param db_path: the measurements database, created when missing.
+    :param images: overview fields or identity mappings, as accepted by
+        :func:`_image_annotation_images`; every file of a field is annotated.
+    :param column: annotation column, added when new.
+    :param value: the value; ``None`` or ``''`` clears it.
+    :param source: optional source folder for relative file identities.
+    :param wells: optional ``(plate, well)`` pairs restricting ``images``.
+    :returns: ``dict(operation, column, count)``; ``operation`` is ``None``
+        when nothing changed.
+    """
+    from datetime import datetime, timezone
+    from .database_concurrency import transaction
+    column = _image_annotation_column_name(column)
+    value = None if value is None or str(value).strip() == '' else str(value).strip()
+    rows = _image_annotation_images(images, wells=wells, source=source)
+    connection = _image_annotation_connection(db_path)
+    now = datetime.now(timezone.utc).isoformat()
+    changed = 0
+    operation = None
+    try:
+        with transaction(connection, attempts=8, busy_timeout=30):
+            columns = _image_annotation_schema(connection)
+            match = {name.lower(): name for name in columns}
+            if column.lower() in match:
+                column = match[column.lower()]
+            else:
+                connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} ADD COLUMN "{column}" TEXT')
+            last = connection.execute(f'SELECT MAX(operation) FROM {_IMAGE_ANNOTATION_HISTORY}').fetchone()[0]
+            operation = int(last or 0) + 1
+            where = ' AND '.join(f'"{key}" = ?' for key in _IMAGE_ANNOTATION_KEYS)
+            for identity in rows:
+                key = tuple(identity[name] for name in _IMAGE_ANNOTATION_KEYS)
+                found = connection.execute(f'SELECT "{column}" FROM {_IMAGE_ANNOTATION_TABLE} '
+                                           f'WHERE {where}', key).fetchone()
+                if (found is not None and found[0] == value) or (found is None and value is None):
+                    continue
+                if found is None:
+                    names = list(identity) + [column, 'annotation_updated_at']
+                    connection.execute(
+                        f'INSERT INTO {_IMAGE_ANNOTATION_TABLE} ('
+                        + ', '.join(f'"{name}"' for name in names) + ') VALUES ('
+                        + ', '.join('?' for _ in names) + ')',
+                        tuple(identity.values()) + (value, now))
+                else:
+                    connection.execute(f'UPDATE {_IMAGE_ANNOTATION_TABLE} SET "{column}" = ?, '
+                                       f'annotation_updated_at = ? WHERE {where}', (value, now) + key)
+                connection.execute(
+                    f'INSERT INTO {_IMAGE_ANNOTATION_HISTORY} (operation, at, plateID, wellID, '
+                    'fieldID, file, annotation, old_value, new_value, row_existed) '
+                    'VALUES (?,?,?,?,?,?,?,?,?,?)',
+                    (operation, now) + key + (column, None if found is None else found[0],
+                                              value, int(found is not None)))
+                changed += 1
+    finally:
+        connection.close()
+    return dict(operation=operation if changed else None, column=column, count=changed)
+
+
+def _undo_image_annotations(db_path):
+    """Revert the most recent annotation operation that is not yet undone.
+
+    Rows the operation created are removed; changed rows get their earlier
+    value back. Columns added by the operation stay, empty.
+
+    :param db_path: the measurements database.
+    :returns: ``dict(operation, column, count)``, or ``None`` with nothing to undo.
+    """
+    from pathlib import Path
+    from .database_concurrency import transaction
+    if not Path(db_path).is_file():
+        return None
+    connection = _image_annotation_connection(db_path)
+    try:
+        with transaction(connection, attempts=8, busy_timeout=30):
+            _image_annotation_schema(connection)
+            last = connection.execute(f'SELECT MAX(operation) FROM {_IMAGE_ANNOTATION_HISTORY} '
+                                      'WHERE undone = 0').fetchone()[0]
+            if last is None:
+                return None
+            entries = connection.execute(
+                f'SELECT plateID, wellID, fieldID, file, annotation, old_value, row_existed '
+                f'FROM {_IMAGE_ANNOTATION_HISTORY} WHERE operation = ? ORDER BY seq DESC',
+                (last,)).fetchall()
+            where = ' AND '.join(f'"{key}" = ?' for key in _IMAGE_ANNOTATION_KEYS)
+            for plate, well, field, file, column, old, existed in entries:
+                key = (plate, well, field, file)
+                if existed:
+                    connection.execute(f'UPDATE {_IMAGE_ANNOTATION_TABLE} SET "{column}" = ? '
+                                       f'WHERE {where}', (old,) + key)
+                else:
+                    connection.execute(f'DELETE FROM {_IMAGE_ANNOTATION_TABLE} WHERE {where}', key)
+            connection.execute(f'UPDATE {_IMAGE_ANNOTATION_HISTORY} SET undone = 1 '
+                               'WHERE operation = ?', (last,))
+    finally:
+        connection.close()
+    return dict(operation=int(last), column=entries[0][4] if entries else None,
+                count=len(entries))
+
+
+def _read_image_annotations(db_path, columns=None):
+    """Read the image annotation table as a frame, one row per image.
+
+    The read is read-only and never migrates the database.
+
+    :param db_path: the measurements database; a missing file or table
+        returns an empty frame with the identity columns.
+    :param columns: optional annotation columns to keep.
+    :returns: ``pandas.DataFrame``.
+    """
+    from pathlib import Path
+    from . import tabular
+    base = [name for name, _ in _IMAGE_ANNOTATION_BASE]
+    if not Path(db_path).is_file() or _IMAGE_ANNOTATION_TABLE not in tabular.database_tables(db_path):
+        return pd.DataFrame(columns=base + list(columns or ()))
+    frame = tabular.read_table(db_path, table=_IMAGE_ANNOTATION_TABLE, canonicalise=False,
+                               report=None, repair_plate_ids=False, migrate=False,
+                               read_only=True)
+    if columns is not None:
+        keep = [name for name in base if name in frame.columns]
+        keep += [name for name in columns if name in frame.columns]
+        frame = frame[keep]
+    return frame
+
+
+def _well_image_annotations(db_path, columns=None):
+    """Summarise image annotations per well for the plate display.
+
+    :param db_path: the measurements database.
+    :param columns: optional annotation columns to summarise.
+    :returns: ``{(plate, well): {column: value}}`` holding values every
+        annotated image of the well agrees on; columns whose images disagree
+        are listed under the key ``'_mixed'``.
+    """
+    frame = _read_image_annotations(db_path, columns)
+    names = [name for name in frame.columns if name.lower() not in _image_annotation_reserved()]
+    result = {}
+    for (plate, well), block in frame.groupby(['plateID', 'wellID'], sort=True):
+        values, mixed = {}, []
+        for name in names:
+            distinct = block[name].dropna().unique()
+            if len(distinct) == 1:
+                values[name] = str(distinct[0])
+            elif len(distinct) > 1:
+                mixed.append(name)
+        if mixed:
+            values['_mixed'] = mixed
+        if values:
+            result[(str(plate), str(well))] = values
+    return result
+
+
+def _import_overview_annotations_json(db_path, json_path, fields, *, source=None):
+    """Migrate legacy well metadata from ``results/overview_annotations.json``.
+
+    Each saved well value is written to every image of that well, as one
+    undoable operation per key. Wells absent from ``fields`` are refused.
+
+    :param db_path: the measurements database.
+    :param json_path: the legacy JSON file.
+    :param fields: indexed overview fields of the source.
+    :param source: optional source folder for relative file identities.
+    :returns: number of image values written.
+    """
+    from pathlib import Path
+    records = json.loads(Path(json_path).read_text(encoding='utf-8')).get('wells', ())
+    known = set()
+    for field in fields:
+        value = field if isinstance(field, dict) else field.__dict__
+        known.add((str(value['plate']), str(value['well'])))
+    addresses = [(str(record['plate']), str(record['well'])) for record in records]
+    outside = [address for address in addresses if address not in known]
+    if outside:
+        raise ValueError(f'Saved annotations name wells outside this source: {outside}')
+    written = 0
+    for address, record in zip(addresses, records):
+        for key, value in sorted(dict(record.get('metadata') or {}).items()):
+            written += _set_image_annotations(db_path, fields, key, value, source=source,
+                                              wells=[address])['count']
+    return written
+
+
+def _image_measurement_frame(db_path, *, annotations=True, status_ok=True):
+    """Join overview ``fov`` measurements with the image annotations.
+
+    Annotations are read per image file and folded to one value per field
+    (plate, well, field, time and slice); files of one field that disagree
+    leave the value missing and are listed in
+    ``frame.attrs['annotation_conflicts']``. Reads never migrate the database.
+
+    :param db_path: the measurements database.
+    :param annotations: add the annotation columns.
+    :param status_ok: drop rows whose measurement failed.
+    :returns: ``pandas.DataFrame`` with one row per measured field.
+    """
+    from pathlib import Path
+    from . import tabular
+    if not Path(db_path).is_file() or 'fov' not in tabular.database_tables(db_path):
+        return pd.DataFrame()
+    frame = tabular.read_table(db_path, table='fov', canonicalise=False, report=None,
+                               repair_plate_ids=False, migrate=False, read_only=True)
+    if status_ok and 'status' in frame.columns:
+        frame = frame[frame['status'] == 'ok'].reset_index(drop=True)
+    frame.attrs['annotation_conflicts'] = []
+    frame.attrs['annotation_columns'] = []
+    if not annotations or frame.empty:
+        return frame
+    table = _read_image_annotations(db_path)
+    names = [name for name in table.columns if name.lower() not in _image_annotation_reserved()]
+    if table.empty or not names:
+        return frame
+    keys = ['plateID', 'wellID', 'fieldID', 'timeID', 'sliceID']
+    table[keys] = table[keys].fillna('').astype(str)
+    folded, conflicts = [], []
+    for key, block in table.groupby(keys, sort=False):
+        row = dict(zip(keys, key))
+        for name in names:
+            distinct = block[name].dropna().unique()
+            row[name] = distinct[0] if len(distinct) == 1 else None
+            if len(distinct) > 1:
+                conflicts.append(tuple(key[:3]) + (name,))
+        folded.append(row)
+    folded = pd.DataFrame(folded)
+    well = 'wellID' if 'wellID' in frame.columns else 'well'
+    joined = frame.drop(columns=[name for name in names if name in frame.columns])
+    from .schema import time_id
+    empty = pd.Series([''] * len(joined), index=joined.index)
+    moments = joined['time_id'] if 'time_id' in joined.columns else empty
+    left = pd.DataFrame({'plateID': joined['plateID'] if 'plateID' in joined.columns else joined['plate'],
+                         'wellID': joined[well], 'fieldID': joined['fieldID'],
+                         'timeID': [time_id(str(value)) if str(value) not in ('', 'None', 'nan') else ''
+                                    for value in moments.fillna('')],
+                         'sliceID': joined['z_id'] if 'z_id' in joined.columns else empty})
+    left = left.fillna('').astype(str)
+    matched = left.merge(folded, on=keys, how='left')
+    for name in names:
+        joined[name] = matched[name].to_numpy()
+    joined.attrs['annotation_conflicts'] = conflicts
+    joined.attrs['annotation_columns'] = names
+    return joined
