@@ -13689,7 +13689,7 @@
         "Vælge måledatabase, celleprædiktioner, guideandele og scorekolonne.",
         "Læse fanerne for evidens, brønde, guides og tærskel og finde de gemte tabeller."
       ],
-      "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. For at holde downloaden lille indeholder databasen 52 brønde: alle analyserede brønde med en guide til gen 225160 og, for hver af dem, tre brønde uden den fra samme plade. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
+      "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. Eksempeldatabasen indeholder 52 brønde: alle analyserede brønde med en guide til gen 225160 samt tre brønde fra samme plade uden denne guide for hver målbrønd. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Cellerne understøtter ikke denne kandidat.",
+          "narration": "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Denne analyse giver ingen klar evidens for en forskel for denne kandidat.",
           "hold_after": 0.7
         },
         {

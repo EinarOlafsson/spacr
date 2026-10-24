@@ -13684,7 +13684,7 @@
         "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
         "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
       ],
-      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Damit der Download klein bleibt, enthält die Datenbank 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 und zu jedem drei Wells ohne ihn von derselben Platte. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Die Beispieldatenbank enthält 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 sowie für jedes Ziel-Well drei Wells derselben Platte ohne diesen Guide. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13758,7 +13758,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Die Zellen stützen diesen Kandidaten nicht.",
+          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Diese Analyse liefert keine klaren Hinweise auf einen Unterschied bei diesem Kandidaten.",
           "hold_after": 0.7
         },
         {

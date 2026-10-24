@@ -14681,7 +14681,7 @@
         "Scegliere il database delle misure, le predizioni per cellula, le frazioni delle guide e la colonna del punteggio.",
         "Leggere le schede di evidenze, pozzetti, guide e soglia, e trovare le tabelle salvate."
       ],
-      "prerequisite": "Estrai Investigate_Hit_real_screen_example.zip. Tutto il contenuto proviene da un unico screening reale: l’esecuzione di Regression sui dati di prova di Regression (le impostazioni del tutorial di Regression), le corrispondenti predizioni CV per cellula e un database di misure con le reali misure di forma, dimensione e intensità delle stesse cellule. Per contenere il download, il database comprende 52 pozzetti: tutti i pozzetti analizzati con una guida per il gene 225160 e, per ciascuno, tre pozzetti senza guida della stessa piastra. Nessun gene di questa esecuzione rapida di Regression soddisfa q ≤ 0,05. Considera l’indagine un esempio pratico, non un hit confermato.",
+      "prerequisite": "Estrai Investigate_Hit_real_screen_example.zip. Tutto il contenuto proviene da un unico screening reale: l’esecuzione di Regression sui dati di prova di Regression (le impostazioni del tutorial di Regression), le corrispondenti predizioni CV per cellula e un database di misure con le reali misure di forma, dimensione e intensità delle stesse cellule. Il database di esempio comprende 52 pozzetti: tutti i pozzetti analizzati con una guida per il gene 225160, più tre pozzetti della stessa piastra senza quella guida per ogni pozzetto bersaglio. Nessun gene di questa esecuzione rapida di Regression soddisfa q ≤ 0,05. Considera l’indagine un esempio pratico, non un hit confermato.",
       "scenes": [
         {
           "visual": "01_module",
@@ -14767,9 +14767,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Le cellule non sostengono questo candidato.",
+          "narration": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Questa analisi non fornisce prove chiare di una differenza per questo candidato.",
           "hold_after": 0.7,
-          "speech_text": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Le cellule non sostengono questo candidato."
+          "speech_text": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Questa analisi non fornisce prove chiare di una differenza per questo candidato."
         },
         {
           "visual": "14_wells",

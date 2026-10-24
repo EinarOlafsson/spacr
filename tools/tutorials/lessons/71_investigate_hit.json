@@ -16,7 +16,7 @@
     "Choose the measurement database, cell predictions, guide fractions and score column.",
     "Read the evidence, wells, guides and threshold tabs and find the saved tables."
   ],
-  "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. To keep the download small, the database holds 52 wells: every analysed well with a guide for gene 225160, and three wells without one from the same plate for each. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+  "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. The example database contains 52 wells: every analysed well with a guide for gene 225160, plus three same-plate wells without that guide for each target well. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
   "scenes": [
     {
       "visual": "01_module",
@@ -90,7 +90,7 @@
     },
     {
       "visual": "13_evidence",
-      "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. The cells do not support this candidate.",
+      "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. This analysis provides no clear evidence of a difference for this candidate.",
       "hold_after": 0.7
     },
     {

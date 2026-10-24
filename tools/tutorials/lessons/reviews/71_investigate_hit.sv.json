@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
     "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
   ],
-  "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. För att hålla nedladdningen liten innehåller databasen 52 brunnar: alla analyserade brunnar med en guide för gen 225160 och, för var och en, tre brunnar utan den från samma platta. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+  "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. Exempeldatabasen innehåller 52 brunnar: alla analyserade brunnar med en guide för gen 225160 samt tre brunnar från samma platta utan den guiden för varje målbrunn. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
   "scenes": [
     "Från Home öppnar du Regression. Investigate Hit utgår från en färdig Regression-körning. Den frågar om de uppmätta cellerna i brunnarna bakom en gen ser annorlunda ut än celler i brunnar utan den genen.",
     "Välj Hits för att öppna Hit List. Packa först upp exempelarkivet. Det innehåller en Regression-körning på testdata, motsvarande CV-prediktioner per cell och en mätdatabas för samma celler. Alla tre kommer från en och samma verkliga screening.",
@@ -31,7 +31,7 @@
     "För Well/guide fractions väljer du regression_data.csv i samma resultatmapp. Tabellen skrevs av Regression. Den anger varje guides andel i varje analyserad brunn.",
     "Lämna Independent morphology features tomt. Modulen använder då databasens 13 numeriska cellmätningar och utelämnar identifierare, guideandelar och CV-poängen, så att kontrollen inte återanvänder poängen. För din egen databas anger du bara mätkolumner utan saknade värden.",
     "Klicka på Investigate hit. Modellen anpassas med en platta i taget undanhållen, så ingen cell poängsätts av en modell som tränats på dess egen platta. En brunns guideandel anger bara utgångsförväntningen för brunnens celler. Den markerar aldrig en cell som bärare av guiden. Exemplet tar några minuter.",
-    "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Cellerna stöder inte kandidaten.",
+    "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Den här analysen ger inga tydliga belägg för en skillnad för den här kandidaten.",
     "Wells listar varje brunns guideandel, genomsnittliga träfflika sannolikhet, prevalens och antal celler. Varje brunn räknas som en oberoende enhet, så jämförelsen använder 13 målbrunnar och 39 kontrollbrunnar, inte enskilda celler.",
     "Guides visar varje målguide för sig. Deras dos-responskurvor pekar åt olika håll, vilket är ytterligare ett skäl att inte behandla genen som en träff.",
     "Threshold sensitivity upprepar jämförelsen vid sannolikhetsgränser från 0,5 till 0,9. Vid varje gräns ligger skillnaden kvar nära 0,01, så slutsatsen beror inte på gränsen.",

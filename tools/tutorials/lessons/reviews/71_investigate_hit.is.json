@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
     "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
   ],
-  "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Til að halda niðurhalinu litlu inniheldur gagnagrunnurinn 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og, fyrir hvern þeirra, þrjá brunna án þess af sömu plötu. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+  "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Dæmisgagnagrunnurinn inniheldur 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og þrjá brunna af sömu plötu án þess fyrir hvern markbrunn. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
   "scenes": [
     "Frá Home opnarðu Regression. Investigate Hit byrjar á lokinni Regression-keyrslu. Það spyr hvort mældar frumur í brunnunum á bak við eitt gen líti öðruvísi út en frumur í brunnum án þess gens.",
     "Veldu Hits til að opna Hit List. Afþjappaðu fyrst dæmasafnið. Það inniheldur Regression-keyrslu á prófunargögnunum, samsvarandi CV-spár fyrir hverja frumu og mæligagnagrunn fyrir sömu frumur. Allt þrennt kemur úr einni raunverulegri skimun.",
@@ -31,7 +31,7 @@
     "Fyrir Well/guide fractions velurðu regression_data.csv í sömu niðurstöðumöppu. Regression skrifaði þessa töflu. Hún gefur hlutfall hvers leiðsagnar-RNA í hverjum greindum brunni.",
     "Hafðu Independent morphology features tómt. Þá notar einingin 13 tölulegar frumumælingar gagnagrunnsins og sleppir auðkennum, hlutföllum leiðsagnar-RNA og CV-stiginu, svo þessi athugun endurnýti ekki stigið. Fyrir eigin gagnagrunn tilgreinirðu aðeins mælidálka án gilda sem vantar.",
     "Smelltu á Investigate hit. Líkanið er aðlagað þannig að ein plata er haldin utan í einu, svo engin fruma fær stig frá líkani sem var þjálfað á hennar eigin plötu. Hlutfall leiðsagnar-RNA í brunni ákvarðar aðeins upphafsvæntingu fyrir frumur hans. Það merkir aldrei frumu sem bera leiðsagnar-RNA-ið. Þetta dæmi tekur nokkrar mínútur.",
-    "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Frumurnar styðja ekki þennan kandídat.",
+    "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Þessi greining gefur engar skýrar vísbendingar um mun fyrir þennan kandídat.",
     "Wells sýnir hlutfall leiðsagnar-RNA, meðallíkur á smell-líkri svipgerð, tíðni og fjölda frumna fyrir hvern brunn. Hver brunnur telst ein óháð eining, svo samanburðurinn notar 13 markbrunna og 39 viðmiðunarbrunna, ekki einstakar frumur.",
     "Guides sýnir hvert markleiðsagnar-RNA fyrir sig. Skammtasvörun þeirra vísar í ólíkar áttir, sem er enn ein ástæða til að líta ekki á þetta gen sem smell.",
     "Threshold sensitivity endurtekur samanburðinn við líkindamörk frá 0,5 upp í 0,9. Við hver mörk helst munurinn nálægt 0,01, svo niðurstaðan veltur ekki á mörkunum.",
