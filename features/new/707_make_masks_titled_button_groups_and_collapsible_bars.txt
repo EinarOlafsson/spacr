@@ -12,6 +12,18 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Default hint scope: at GUI200/90/100%, font200, initial and released prompt
+must fit actual600px styled contents and restore full original on growth,
+retaining the full accessible prompt, empty key/no hold and no module revival.
+Require asserting RED before private default rendering; retain unlaid1px rule.
+RED53310: GUI2 initial/released730.22px prompt exceeds552px contents; GUI.9/1
+controls pass. Render the original translated prompt against actual contents
+on initial/release/local geometry-font-style events, without entering hold.
+GREEN65013 retains13passes (6.33s/.296GiB), including three default and six
+held/height cases; exact unlaid1px fallback correction passes26232 alone
+(4.14s/.269GiB). All14 affected checks pass; actual full native hint/Apps
+geometry remains unaccepted, not implied by these controlled rich-text cases.
+
 Held hint-width scope: GUI200/90/100%, font200, one long summary plus stage
 must fit actual styled contents through wide/narrow/grow, restore original
 text on growth, and preserve key/accessibility/links and the original30s timer.

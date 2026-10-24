@@ -87,6 +87,7 @@ class ModuleHintBar(QLabel):
         self._fit_height()
         self.setWordWrap(False)
         self.setAccessibleName(default)
+        self._render_default_prompt()
 
     def _fit_height(self) -> None:
         """Reserve the real two-line glyph bounds at the current font scale."""
@@ -132,6 +133,8 @@ class ModuleHintBar(QLabel):
                             QEvent.Type.StyleChange, QEvent.Type.ApplicationFontChange):
             if getattr(self, '_held_summary', None) is not None:
                 self._render_held_summary()
+            elif hasattr(self, '_default'):
+                self._render_default_prompt()
         return handled
 
     @property
@@ -170,6 +173,14 @@ class ModuleHintBar(QLabel):
         if html != self.text():
             self.setText(html)
 
+    def _render_default_prompt(self) -> None:
+        """Refit the original prompt without entering the held-module state."""
+        from ..i18n import tr
+
+        html = escape(self._fit(tr(self._default)))
+        if html != self.text():
+            self.setText(html)
+
     def _fit(self, text: str, reserve: str = "") -> str:
         """``text`` shortened to the one line the strip has for it.
 
@@ -189,7 +200,7 @@ class ModuleHintBar(QLabel):
         metrics = self.fontMetrics()
         room = self.contentsRect().width() - (metrics.horizontalAdvance(reserve)
                                     if reserve else 0)
-        if room <= 0:
+        if self.width() <= 1 or room <= 0:
             return text
         return metrics.elidedText(text, _Qt.ElideRight, room)
 
@@ -243,7 +254,7 @@ class ModuleHintBar(QLabel):
         self._held_stage = self._held_links = ""
         self._hold(False)
         from ..i18n import tr
-        self.setText(escape(tr(self._default)))
+        self._render_default_prompt()
         self.setAccessibleName(tr(self._default))
         self.setAccessibleDescription(tr(self._default))
 

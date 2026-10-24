@@ -105,7 +105,10 @@ def test_module_hint_height_uses_actual_two_line_metrics(qtbot, qapp, gui):
             assert bar.property('size').height() == expected
             assert not bar.wordWrap()
             bar.release()
-            assert bar.text() == bar._default and not bar.is_holding()
+            assert bar.accessibleName() == bar._default and not bar.is_holding()
+            document.setHtml(bar.text())
+            assert document.size().width() <= bar.contentsRect().width()
+            assert document.size().height() <= bar.contentsRect().height()
     finally:
         try:
             if bar is not None:
@@ -202,12 +205,94 @@ def test_held_module_hint_refits_actual_contents_without_restarting_hold(qtbot, 
         gui_scale._resize_actual(bar, QSize(600, height))
         previous[0] = None
         qtbot.waitUntil(settled)
-        assert bar.text() == bar._default and not bar.is_holding()
+        assert bar.accessibleName() == bar._default and not bar.is_holding()
         assert bar.module_key == ''
         document.setHtml(bar.text())
         print('RELEASED_MODULE_HINT_WIDTH', json.dumps({
             'gui': gui, 'document': document.size().toTuple(),
-            'contents': bar.contentsRect().getRect(), 'fit_acceptance': False}), flush=True)
+            'contents': bar.contentsRect().getRect(), 'fit_acceptance': True}), flush=True)
+        assert document.size().width() <= bar.contentsRect().width()
+        assert document.size().height() <= bar.contentsRect().height()
+    finally:
+        try:
+            if bar is not None:
+                bar.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+@pytest.mark.parametrize('gui', [2., .9, 1.])
+def test_default_module_prompt_refits_without_holding_or_reviving_modules(qtbot, qapp, gui):
+    import json
+    import math
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QFontInfo, QTextDocument
+    from spacr.qt import app, gui_scale, preferences
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    bar = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(gui)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(gui)
+        preferences.apply_preferences_to_app()
+        bar = ModuleHintBar()
+        qtbot.addWidget(bar)
+        gui_scale._resize_actual(bar, QSize(600, 600))
+        bar.show()
+        previous = [None]
+
+        def settled():
+            now = (bar.property('size').toTuple(), bar.font().toString(), bar.text())
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        qtbot.waitUntil(settled)
+        assert QFontInfo(bar.font()).family() == 'Open Sans'
+        full = QTextDocument()
+        full.setDocumentMargin(0)
+        full.setDefaultFont(bar.font())
+        full.setPlainText(bar._default)
+        grow = max(900, math.ceil(full.idealWidth()) + bar.rect().width() - bar.contentsRect().width() + 2)
+        height = bar.property('size').height()
+        rows, failures = [], []
+        for phase in ('initial', 'released'):
+            if phase == 'released':
+                bar.show_module('mask', 'Segment cells and nuclei.', 'Preview')
+                bar.release()
+            for width in (600, grow):
+                gui_scale._resize_actual(bar, QSize(width, height))
+                previous[0] = None
+                qtbot.waitUntil(settled)
+                document = QTextDocument()
+                document.setDocumentMargin(0)
+                document.setDefaultFont(bar.font())
+                document.setHtml(bar.text())
+                row = {'phase': phase, 'width': width, 'html': bar.text(),
+                       'document': document.size().toTuple(), 'contents': bar.contentsRect().getRect()}
+                rows.append(row)
+                if (document.size().width() > bar.contentsRect().width()
+                        or document.size().height() > bar.contentsRect().height()):
+                    failures.append(row)
+                assert bar.accessibleName() == bar._default
+                assert not bar.is_holding() and bar.module_key == ''
+                assert 'Preview' not in bar.text() and '<a ' not in bar.text()
+                assert bar.property('size').height() == height
+                if width == grow:
+                    assert document.toPlainText() == bar._default
+        print('DEFAULT_MODULE_HINT_WIDTH', json.dumps({'gui': gui, 'rows': rows}), flush=True)
+        assert not failures, failures
     finally:
         try:
             if bar is not None:
