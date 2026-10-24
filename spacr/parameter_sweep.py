@@ -597,25 +597,34 @@ def _pin_threads(count: int = 1) -> None:
 _THREAD_LIMITS = None
 
 
+def _idle_priority_on_windows() -> None:
+    """On Windows, which has no nice, ionice or OOM score, drop to idle.
+
+    The worker moves to the idle priority class; elsewhere this does
+    nothing. Best-effort, like :func:`be_polite` that calls it.
+    """
+    if os.name != "nt":
+        return
+    try:
+        import psutil
+        psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS)
+    except Exception:
+        pass
+
+
 def be_polite() -> None:
     """Lower the current worker's CPU, I/O, and OOM-kill priority.
 
     The adjustments are best-effort and platform dependent. On Linux, the
     worker uses the lowest CPU and I/O priorities and sets
     ``oom_score_adj=800`` so it is preferred over interactive applications
-    when the system is under memory pressure. On Windows, which has none of
-    those, the worker drops to the idle priority class.
+    when the system is under memory pressure.
     """
     try:
         os.nice(19)
     except (OSError, AttributeError):
         pass
-    if os.name == "nt":
-        try:
-            import psutil
-            psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS)
-        except Exception:
-            pass
+    _idle_priority_on_windows()
     try:
         with open(f"/proc/{os.getpid()}/oom_score_adj", "w", encoding="utf-8") as handle:
             handle.write("800")
