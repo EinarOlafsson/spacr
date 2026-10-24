@@ -134,7 +134,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             report['normal_close_accepted'] = state['window'].close()
             persist()
 
-        def signature(window, target):
+        def signature(window, target, identities=None):
             """Observe only the target subtree and its actual layout ancestors."""
             snapshot = []
             widgets = [target, *target.findChildren(QWidget)]
@@ -162,6 +162,10 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 snapshot.append((id(w), w.property('size').toTuple(), w.pos().toTuple(),
                     w.property('minimumSize').toTuple(), w.property('maximumSize').toTuple(),
                     layout.geometry().getRect() if layout else None, w.font().toString()))
+                if identities is not None:
+                    identities.append({'class': type(w).__name__, 'name': w.objectName(),
+                        'python_wrapper_id': id(w), 'native_cpp_pointer': shiboken6.getCppPointer(w),
+                        'raw_signature': snapshot[-1]})
             return snapshot
 
         def native_menu_child(widget):
@@ -407,7 +411,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     close()
                     return
                 widget = state['widgets'][state['index']]
-                current = signature(window, widget)
+                actual_identities = []
+                current = signature(window, widget, actual_identities)
                 if current is None:
                     state['previous'] = None
                     return
@@ -421,8 +426,17 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             parent.ensureWidgetVisible(widget, 0, 0)
                         parent = parent.parentWidget()
                     state['revealed'] = True
-                    state['after_reveal'] = signature(window, widget)
+                    expected_identities = []
+                    state['after_reveal'] = signature(window, widget, expected_identities)
+                    state['after_reveal_identities'] = expected_identities
                     return
+                report.setdefault('post_reveal_signatures', []).append({
+                    'target_class': type(widget).__name__, 'target_name': widget.objectName(),
+                    'expected_raw': state['after_reveal'], 'actual_raw': current,
+                    'expected_identities': state['after_reveal_identities'],
+                    'actual_identities': actual_identities,
+                    'raw_identity_unchanged': current == state['after_reveal']})
+                persist()
                 assert state['after_reveal'] is not None and current == state['after_reveal'], 'Layout changed after the single reveal'
                 try:
                     check(widget)

@@ -79,6 +79,18 @@ consent/privacy/provider dialog. Startup/tour is one bounded20s operation;
 the original20s content operation begins only after the tour is hidden and
 actual target/ancestor layout is idle/stable. The normal cover, child180s and
 aggregate300s guards remain unchanged; no product change is assumed.
+Native71664/pYhCIf on69b16f2a0 exits naturally1 in32.53s/RSS1.211GiB.
+Normal cover and the actual enabled/fully visible164x95 Skip click complete
+in9.6398s; tour is hidden and owned seen state becomes true. Minimise now
+passes actual72px slot/DPR2 and whole75x75 visibility. Content stops after
+3.2796s on post-reveal signature drift before the second target;136/137 remain
+untested and no widget clipping error is reported. Normal close/return0 and
+helper/thread cleanup pass. Expected/actual signatures were not persisted;
+attribute the changing field before any product fix or assertion change.
+The next observer-only capture persists both expected/actual raw signatures
+and Python-wrapper/native-C++ identities before that same strict comparison.
+Retain the existing identity assertion, waits and budgets so the data, not an
+assumption, distinguishes wrapper churn from actual geometry or font changes.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
