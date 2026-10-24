@@ -93,7 +93,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls", "hint_bar", "home_access"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows"), cohort
     root = Path(app_mod.__file__).resolve().parents[2]
     source = ast.parse((root / "tests/qt/test_the_macos_application_menu.py").read_text())
     bootstrap = next(node.value.args[0] for node in source.body
@@ -118,7 +118,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows'), cohort
         preferences.set_gui_scale(2.)
         preferences.set_font_scale(2.)
         report = {'errors': [], 'checks': [], 'programmatic_not_physical': True, 'cohort': cohort}
@@ -291,6 +291,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             """Check the current native text or icon after one scroll reveal."""
             window = state['window']
             row = {'class': type(widget).__name__, 'name': widget.objectName(),
+                   'enabled': widget.isEnabled(),
                    'manifest_index': state['manifest_indices'][widget],
                    'rect': widget.rect().getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
                    'font': widget.font().toString(), 'startup_observation': startup_snapshot(window)}
@@ -495,6 +496,16 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             and (isinstance(w, QLabel) and (w.text() or (w.pixmap() is not None and not w.pixmap().isNull()))
                             or isinstance(w, QAbstractButton))]
                     aside = window._startup._aside
+                    tab_arrow_roles = {}
+                    if cohort == 'tab_arrows':
+                        tab_bar = window._startup._tabs.tabBar()
+                        arrows = [w for w in tab_bar.findChildren(QToolButton)
+                                  if w.isVisible() and w.arrowType() != Qt.NoArrow]
+                        assert len(arrows) == 2 and all(w in all_widgets and tab_bar.isAncestorOf(w) for w in arrows)
+                        assert {w.arrowType() for w in arrows} == {Qt.LeftArrow, Qt.RightArrow}
+                        tab_arrow_roles = {w: 'left' if w.arrowType() == Qt.LeftArrow else 'right' for w in arrows}
+                        report['tab_arrow_owner'] = {'class': type(tab_bar).__name__, 'name': tab_bar.objectName(),
+                            'native_cpp_pointer': shiboken6.getCppPointer(tab_bar)}
                     access_roles = {}
                     if cohort == 'home_access':
                         home = window._startup
@@ -520,16 +531,19 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         'native_cpp_pointer': shiboken6.getCppPointer(w),
                         'aside_control': isinstance(w, QAbstractButton) and aside.isAncestorOf(w),
                         'hint_bar': w is window._startup._hint_bar,
+                        'tab_arrows': w in tab_arrow_roles, 'tab_arrow_role': tab_arrow_roles.get(w),
                         'home_access': w in access_roles, 'home_access_role': access_roles.get(w)}
                         for index, w in enumerate(all_widgets)]
                     state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
                     report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
-                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access'}[cohort]]]
+                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows'}[cohort]]]
                     state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
                     assert state['widgets'], ('No actual targets in selected cohort', cohort)
                     state['index'] = 0
                     report['target_count'] = len(all_widgets)
                     report['selected_target_count'] = len(state['widgets'])
+                    if cohort == 'tab_arrows':
+                        assert len(state['widgets']) == 2
                     if cohort == 'home_access':
                         assert len(state['widgets']) == 12
                     if cohort == 'hint_bar':
@@ -691,6 +705,9 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
         assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
+        if cohort == 'tab_arrows':
+            assert report['selected_target_count'] == 2, report
+            assert sorted(report['target_manifest'][i]['tab_arrow_role'] for i in report['selected_indices']) == ['left', 'right'], report
         if cohort == 'home_access':
             assert report['selected_target_count'] == 12, report
             assert sorted(report['target_manifest'][i]['home_access_role'] for i in report['selected_indices']) == sorted(
@@ -730,9 +747,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert not report["errors"] and report["normal_close_accepted"]
     assert report["cohort"] == cohort and report["selected_inspection_complete"]
     expected_indices = [entry["index"] for entry in report["target_manifest"]
-                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access"}[cohort]]]
+                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows"}[cohort]]]
     assert expected_indices and report["selected_indices"] == expected_indices
     assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
+    if cohort == "tab_arrows":
+        assert len(expected_indices) == 2
+        assert sorted(report["target_manifest"][i]["tab_arrow_role"] for i in expected_indices) == ["left", "right"]
     if cohort == "home_access":
         assert len(expected_indices) == 12
         assert sorted(report["target_manifest"][i]["home_access_role"] for i in expected_indices) == sorted(

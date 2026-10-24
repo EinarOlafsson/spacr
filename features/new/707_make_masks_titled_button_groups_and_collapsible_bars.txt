@@ -12,6 +12,11 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next tab_arrows cohort selects exactly the two real HomeTabs overflow buttons,
+including disabled controls, from the actual tab bar. Preserve full manifest,
+explicit untested counts and original20s content/reveal/native-field visibility
+rules; this observes arrow access only, not all tabs or physical input.
+
 Next home_access cohort checks three real Hero objects, the first current-page
 icon-bearing tile/icon/name, five aside buttons and the pinned hint (12 targets).
 Retain full manifest/untested ledger and original20s content budget, owned body
