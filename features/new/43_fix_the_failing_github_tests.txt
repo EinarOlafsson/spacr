@@ -6,6 +6,15 @@ contracts. Preserve production behavior, native controls and all coverage limits
 use bounded CPU-only lifecycle and real Qt controls, then root review/publication.
 Three controls pass (4.25s); corrected missing-screen fixture passes alone (0.87s).
 Production/generated files are unchanged; root owns final publication.
+CURRENT REPORTING COVERAGE CONTRACTS — 2026-10-24
+widgets_g2 owns Main aggregate120781472369 gaps in crashreport, AI providers,
+ConsolePanel and AIChatPanel; root reviews and publishes. Bind exact missing
+statements/arcs to current source, reuse accepted Night controls first, then
+exercise only remaining real policy, lifetime and error-delivery boundaries.
+Keep all existing ceilings, consent/privacy/provider choices, batching and
+original output behavior. CPU-only fake transports; no live AI or issue posts.
+Remove only the proven redundant native-session non-Mapping guard; retain the
+JSON-object parser, sanitizer, consent, acknowledgement and history checks.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4927,3 +4936,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — The real-object classifier alpha fixture now follows the current Mask Object filtration α card: heading hidden/off, visible/on, hidden/off, retaining every row/search/hidden-value gate. The sole affected case PASS in 2.50s with independent source peer acceptance; production/generated outputs unchanged and root Main publication pending. The existing SpawnProcess exit diagnostic remains observed; no hosted runtime-cause claim.
 
 2026-10-24 — Mask typing diagnostics now include the actual unexpected visibility caller stack and edit/event-delivery phase while preserving the zero-count and 200ms assertions. Standalone qualification PASS (1 case, 5.22s) and the actual shared-state prerequisite sequence PASS (4 cases, 3.75s); the hosted failure is not reproduced or claimed fixed. No production/generated changes; root publication and hosted attribution remain pending.
+
+2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.

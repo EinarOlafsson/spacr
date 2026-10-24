@@ -379,3 +379,213 @@ def test_cli_chat_uses_captured_arguments_then_real_preferences(
     assert all(owner is provider for _, owner in calls)
     assert all(argv[0] == provider.name and "Explain the failure." in argv[2]
                for argv, _ in calls)
+
+
+@pytest.fixture
+def live_reporting_console(configured, qtbot, tmp_path, monkeypatch):
+    """Own one visible native console using real consent and fake relay transport."""
+    from spacr.qt import preferences
+    from spacr.qt.ai import settings
+    from spacr.qt.terms import record_agreement
+    from spacr.qt.widgets.console_panel import ConsolePanel
+
+    store = QSettings(str(tmp_path / "live-console.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: store)
+    monkeypatch.setattr(settings, "_settings", lambda: store)
+    record_agreement()
+    monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
+    owner = QWidget()
+    panel = ConsolePanel(parent=owner, follow_log=False)
+    qtbot.addWidget(owner)
+    owner.resize(640, 500)
+    panel.resize(640, 500)
+    owner.show()
+    panel.show()
+    yield owner, panel
+    if isValid(panel):
+        box = getattr(panel, "_error_storm_box", None)
+        if box is not None and isValid(box):
+            box.reject()
+        for event_id in tuple(panel._pending_report_entries):
+            panel._discard_error_report_entry(event_id)
+        panel.shutdown()
+        panel.close()
+    if isValid(owner):
+        owner.close()
+
+
+@pytest.mark.parametrize("reason", ["rate", "cooldown"])
+def test_actual_hosted_admission_refusal_is_readable_and_still_reports(
+        live_reporting_console, configured, qtbot, monkeypatch, reason):
+    """Actual hosted request history reaches the native refusal renderer."""
+    from spacr.qt.ai.providers import hosted_refusal_message
+
+    _owner, panel = live_reporting_console
+    relay = configured[0]
+    reserve = cr._reserve_hosted_request
+    clock = [0.]
+
+    def reserve_at_clock(*, error=False, now=None):
+        """Advance only the real admission clock, preserving persisted guard logic."""
+        return reserve(error=error, now=clock[0])
+
+    monkeypatch.setattr(cr, "_reserve_hosted_request", reserve_at_clock)
+    moments = (0., 1., 2.) if reason == "rate" else (0., 1., 2., 60., 61., 62., 120., 121., 122.)
+    exc, tb = failure()
+    summary = cr.public_summary(exc, traceback_text=tb)
+    for moment in moments:
+        clock[0] = moment
+        answer = cr.diagnose_remotely(summary, cr.EXPLAIN_QUESTION)
+        assert answer["advice"] == "Check the array dimensions."
+    calls_before = len(relay.calls_to("/diagnose"))
+    assert calls_before == len(moments)
+    worker = cr._dispatch_error(tb, exception=exc)
+    assert worker is not None
+    try:
+        qtbot.waitUntil(lambda: not worker.is_alive(), timeout=5000)
+        qtbot.waitUntil(lambda: "issue #12" in panel.as_text(), timeout=5000)
+        expected = hosted_refusal_message(reason,
+            resets_at=cr.datetime.fromtimestamp(60. if reason == "rate" else 3722., cr.timezone.utc))
+        assert expected in panel.as_text()
+        assert not panel._pending_report_entries
+        assert len(relay.calls_to("/diagnose")) == calls_before
+        reports = relay.calls_to("/report")
+        assert len(reports) == 1 and reports[0]["body"]["summarize"] is False
+        assert "ai_summary" not in reports[0]["body"]
+    finally:
+        worker.join(5)
+        assert not worker.is_alive()
+
+
+@pytest.mark.parametrize("choice", ["cancel", "restart", "quit"])
+def test_real_error_storm_offers_one_explicit_native_action(
+        live_reporting_console, configured, qtbot, monkeypatch, choice):
+    """A continuous real dispatch burst opens one Cancel-default native prompt."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QMessageBox
+    from spacr.qt import shutdown
+
+    _owner, panel = live_reporting_console
+    now, timers, workers, actions = [0.], [], [], []
+
+    def schedule(delay, callback):
+        """Keep actual daemon timers owned while the deterministic clock advances."""
+        timer = cr._ErrorBatcher._schedule(delay, callback)
+        timers.append(timer)
+        return timer
+
+    control = cr._ErrorBatcher(clock=lambda: now[0], schedule=schedule,
+                              notify=_ORIGINAL_DELIVERY)
+    monkeypatch.setattr(cr, "_ERROR_BATCHER", control)
+    monkeypatch.setattr(shutdown, "force_quit_now", lambda: actions.append("quit"))
+
+    def restart(*args):
+        """Record the destructive boundary and simulate a refused process spawn."""
+        actions.append("restart")
+        return False
+
+    monkeypatch.setattr(shutdown, "restart_spacr", restart)
+    try:
+        for moment in range(0, 300, 50):
+            now[0] = float(moment)
+            worker = cr._dispatch_error(f"RuntimeError: repeated field failure {moment}")
+            if worker is not None:
+                workers.append(worker)
+                qtbot.waitUntil(lambda: not worker.is_alive(), timeout=5000)
+        qtbot.waitUntil(lambda: "60 quiet seconds" in panel.as_text(), timeout=5000)
+        now[0] = 300.
+        control._tick()
+        qtbot.waitUntil(lambda: getattr(panel, "_error_storm_box", None) is not None, timeout=5000)
+        box = panel._error_storm_box
+        assert box.isVisible()
+        cancel = next(button for button in box.buttons()
+                      if box.buttonRole(button) == QMessageBox.RejectRole)
+        assert box.defaultButton() is cancel and box.escapeButton() is cancel
+        assert actions == []
+        now[0] = 301.
+        assert cr._dispatch_error("RuntimeError: later automatic failure") is None
+        QCoreApplication.processEvents()
+        assert panel._error_storm_box is box
+        assert len(panel.window().findChildren(QMessageBox)) == 1
+        wanted = cancel if choice == "cancel" else next(button for button in box.buttons()
+            if ("restart" if choice == "restart" else "quit") in button.text().lower())
+        qtbot.mouseClick(wanted, Qt.LeftButton)
+        qtbot.waitUntil(lambda: not isValid(box) or not box.isVisible(), timeout=5000)
+        assert actions == ([] if choice == "cancel" else [choice])
+        if choice == "restart":
+            assert "could not restart" in panel.as_text()
+        assert panel.isVisible() and panel.window().isVisible()
+        assert len(configured[0].calls_to("/report")) == 1
+    finally:
+        for timer in timers:
+            timer.cancel()
+            timer.join(1)
+            assert not timer.is_alive()
+        for worker in workers:
+            worker.join(5)
+            assert not worker.is_alive()
+
+
+@pytest.mark.parametrize("owner_state", ["deleted", "hidden"])
+def test_a_pending_native_owner_can_be_deleted_before_another_console_receives_the_answer(
+        live_reporting_console, configured, qtbot, monkeypatch, owner_state):
+    """A shown pending entry never keeps its deleted QObject owner alive."""
+    from spacr.qt.widgets.console_panel import ConsolePanel
+    from spacr.qt.widgets import console_panel
+
+    owner, panel = live_reporting_console
+    relay = configured[0]
+    entered, release = threading.Event(), threading.Event()
+    transport = cr._open_url
+
+    def blocked(request, timeout):
+        """Gate only the real fake-HTTP diagnosis after pending delivery."""
+        if request.full_url.endswith("/diagnose"):
+            entered.set()
+            assert release.wait(5)
+        return transport(request, timeout)
+
+    monkeypatch.setattr(cr, "_open_url", blocked)
+    worker = cr._dispatch_error("IndexError: pending field channel")
+    assert worker is not None
+    replacement = None
+    try:
+        qtbot.waitUntil(lambda: entered.is_set() and bool(panel._pending_report_entries), timeout=5000)
+        event_id = next(iter(panel._pending_report_entries))
+        block = panel._pending_report_entries[event_id][0]
+        assert block._ai_dots._timer.isActive()
+        if owner_state == "deleted":
+            panel.shutdown()
+        owner.close()
+        if owner_state == "deleted":
+            owner.deleteLater()
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+            assert not isValid(owner) and not isValid(panel) and not isValid(block)
+        else:
+            assert isValid(owner) and isValid(panel) and isValid(block)
+            assert not owner.isVisible()
+            assert event_id in panel._pending_report_entries
+            assert block._ai_dots._timer.isActive()
+        replacement = ConsolePanel(follow_log=False)
+        qtbot.addWidget(replacement)
+        replacement.show()
+        release.set()
+        qtbot.waitUntil(lambda: not worker.is_alive(), timeout=5000)
+        qtbot.waitUntil(lambda: "Check the array dimensions." in replacement.as_text(), timeout=5000)
+        assert "issue #12" in replacement.as_text()
+        assert not replacement._pending_report_entries
+        assert event_id not in console_panel._ERROR_REPORT_RELAY.pending
+        if owner_state == "hidden":
+            assert isValid(owner) and not owner.isVisible()
+            assert event_id not in panel._pending_report_entries
+            assert not isValid(block) or block.isHidden()
+            assert not isValid(block) or not block._ai_dots._timer.isActive()
+        assert len(relay.calls_to("/diagnose")) == len(relay.calls_to("/report")) == 1
+        assert replacement.isVisible()
+    finally:
+        release.set()
+        worker.join(5)
+        assert not worker.is_alive()
+        if replacement is not None and isValid(replacement):
+            replacement.shutdown()
+            replacement.close()
