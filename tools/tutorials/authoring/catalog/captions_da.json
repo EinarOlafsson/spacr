@@ -15565,7 +15565,7 @@
         },
         {
           "visual": "module_timelapse",
-          "narration": "Åbn Mask fra Home, og vælg derefter Timelapse. Åbn Timelapse i Mask for at segmentere og forbinde objekter på tværs af ordnede rammer; undersøg forbindelserne før videre bevægelsesanalyse. Timelapse læser mikroskopbillederne. Ud fra dem danner Timelapse billederne og labelmaskerne, labelmaskerne samt de forbundne tidsserieobjekter. Mask kan levere mikroskopbillederne. Aktivér den indlejrede tidsserierute, før du genererer sammenkoblede etiketter. Derefter overtager Measure billederne og labelmaskerne. Brug tidsserieprojektet med stabile ramme- og objektidentiteter. Du kan også tage de forbundne tidsserieobjekter videre til Motility Assay. Angiv rammeinterval og pikselkalibrering.",
+          "narration": "Åbn Mask fra Home. I Mask trykker du på Time for at vise indstillingerne for tidsakse og sporing, og derefter segmenterer og forbinder du objekter på tværs af ordnede rammer; undersøg forbindelserne før videre bevægelsesanalyse. Timelapse læser mikroskopbillederne. Ud fra dem danner Timelapse billederne og labelmaskerne, labelmaskerne samt de forbundne tidsserieobjekter. Mask kan levere mikroskopbillederne. Aktivér den indlejrede tidsserierute, før du genererer sammenkoblede etiketter. Derefter overtager Measure billederne og labelmaskerne. Brug tidsserieprojektet med stabile ramme- og objektidentiteter. Du kan også tage de forbundne tidsserieobjekter videre til Motility Assay. Angiv rammeinterval og pikselkalibrering.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",

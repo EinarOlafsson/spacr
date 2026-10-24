@@ -2034,7 +2034,7 @@ In Mask, press Time to show the time-axis and tracking settings, then segment an
 
 Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.
 
-**Open:** Mask → Timelapse.
+**Open:** Home → Mask → Time.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 

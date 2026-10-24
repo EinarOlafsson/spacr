@@ -1,13 +1,14 @@
 {
   "schema": 1,
   "language": "ja",
-  "workflow_map_sha256": "acc2262b70bdca85df02692ab4190b8856e9002e1878c5b1b81c3eae7ed7a392",
+  "workflow_map_sha256": "525297984345aeadceafd53104fad40f00e49d94a6c8b369d4a7719ddc16669a",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
     "pipeline_followup": "2026-09-23: seven new or expanded phrases checked against pipeline input routes and annotation behavior; no native-speaker sign-off.",
     "host_pathogen_followup": "2026-09-23: whole-vacuole identity, uninfected-host denominator, optional explicit parasite counts, control-calibrated ratios and unknown states reviewed against implementation; no native-speaker sign-off.",
-    "narration_2026_09_25": "107 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff."
+    "narration_2026_09_25": "107 phrases added for the rewritten 78-81 stories and generated handoffs; AI technical review (Claude Opus 5.5), no native-speaker signoff.",
+    "timelapse_time_followup": "2026-10-24: Timelapse guidance and opening follow the Mask Time control; English GUI label Time retained; AI translation, no native-speaker sign-off."
   },
   "records": [
     {
@@ -619,11 +620,6 @@
       "source": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
       "source_sha256": "e9b4f0e3bcc3cf2791f210cc78121e60d4e4f63441441f4f8bb4f62480c8c386",
       "translation": "Make Masks 内で Cellpose Workbench を開き、確認済みの画像とマスクのペアで学習します。Mask でチェックポイントを選ぶ前に、別の視野で評価します。"
-    },
-    {
-      "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
-      "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
-      "translation": "Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。"
     },
     {
       "source": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
@@ -1774,6 +1770,16 @@
       "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
       "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
       "translation": "テーブルを読み込むか、Merge tables で検証済みのキーと集約を備えた作業用セットを作成します。実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。Annotate を使って表示中のゲートをアノテーション列に書き込みます。選択したオブジェクトを確認し、二値または多クラスのラベルを選びます。"
+    },
+    {
+      "source": "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source_sha256": "f2e191d9bf6cc0edf8406a12a28b9ac2291b9b1ee18a9dce2981fa45ac71d2af",
+      "translation": "Mask で Time を押して時間軸とトラッキングの設定を表示し、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。"
+    },
+    {
+      "source": "Open Mask from Home.",
+      "source_sha256": "2fa1038d3ef5fc6812bd3153eebaa07b0d9435113958ddd6c6790b2944fe92ab",
+      "translation": "Home から Mask を開きます。"
     }
   ],
   "retired_records": [
@@ -1800,6 +1806,14 @@
         "translation": "測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。"
       },
       "reason": "2026-09-23: pipeline annotation and external-input guidance expanded in c94a48cd7; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+        "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
+        "translation": "Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。"
+      },
+      "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
     }
   ]
 }
