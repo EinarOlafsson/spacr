@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Remaining tile scope is four disjoint batches: measure/annotate/map_barcodes;
+regression/foreign/run_compare; power/align; graph_builder/toxoplasma. Run each
+once, sequentially on one source pin under unchanged exact-key/role/manifest
+visibility rules and20s content budget; stop further batches on failure.
+AW8oik records42 tile members/97 non-tile targets; no whole-Home coverage sum.
+
 Next tile_batch operation requests two or three real visible module keys through
 explicit JSON and checks each tile plus all its current-manifest descendants.
 Require exact requested/observed keys, module-role/full-caption ledger, full
