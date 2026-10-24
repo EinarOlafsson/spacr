@@ -553,7 +553,12 @@ def test_an_unreadable_driver_info_names_the_renderer_unknown(monkeypatch):
     module.PROGRAM_POINT_SIZE = 1
     module.BLEND = 2
     context = _BrokenInfoContext()
-    module.create_context = lambda **options: context
+
+    def create_context(**options):
+        context.version_code = options["require"]
+        return context
+
+    module.create_context = create_context
     monkeypatch.setitem(sys.modules, "moderngl", module)
     graphics = ambient._FlowPointGraphics()
     try:
