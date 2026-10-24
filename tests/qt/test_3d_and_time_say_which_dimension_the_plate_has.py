@@ -47,6 +47,120 @@ INSTALL_FOLDS = {"mask": mask_folds.install_folds,
                  "measure": measure_folds.install_folds}
 
 
+def test_dimension_word_native_floors_follow_selected_font(qtbot, qapp, monkeypatch):
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent, Qt
+    from PySide6.QtGui import QFontInfo
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.screens import app_screen
+
+    calls = []
+    original_fit = app_screen._ActionWordFit._fit
+
+    def observed_fit(owner):
+        calls.append(id(owner))
+        return original_fit(owner)
+
+    monkeypatch.setattr(app_screen._ActionWordFit, '_fit', observed_fit)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    saved_ai = preferences.get_ai_on_by_default()
+    live_gui = gui_scale.current_scale()
+    sheet, font, palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    screen = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_ai_on_by_default(False)
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        screen = AppScreen(app_key='mask')
+        qtbot.addWidget(screen)
+        screen.show()
+        qtbot.waitExposed(screen)
+        floors = []
+        for scale in (2., .9, 2.):
+            gui_scale.change_scales(screen, gui=2., font=scale, ask=False)
+            expected = gui_scale.scale_int(theme.font_px('body', scale), 2.)
+            for dimension in ('z', 't'):
+                switch = screen.dimension_switch(dimension)
+                assert switch is not None
+                qtbot.waitUntil(lambda: switch.font().pixelSize() == expected)
+                previous = [None]
+
+                def settled():
+                    fit = switch._action_word_fit
+                    if fit._busy or fit._timer.isActive():
+                        return False
+                    now = (switch.property('size').toTuple(), switch.contentsRect().getRect(),
+                           switch.font().toString(), switch.property('minimumSize').toTuple())
+                    same = now == previous[0]
+                    previous[0] = now
+                    return same
+
+                qtbot.waitUntil(settled)
+                text = switch.style().itemTextRect(switch.fontMetrics(), switch.contentsRect(),
+                    int(switch.alignment() | Qt.TextSingleLine), switch.isEnabled(), switch.text())
+                size, contents = switch.property('size'), switch.contentsRect()
+                required = (max(text.width(), switch.fontMetrics().horizontalAdvance(switch.text()))
+                            + size.width()-contents.width(), text.height()+size.height()-contents.height())
+                actual = switch.property('minimumSize')
+                row = {'dimension': dimension, 'font_scale': scale, 'font': switch.font().toString(),
+                    'size': size.toTuple(), 'contents': contents.getRect(), 'full_text': text.getRect(),
+                    'minimum': actual.toTuple(), 'required': required,
+                    'logical': dict(getattr(switch, '_gs_geo', {})), 'displayed': switch.displayed_text()}
+                print('DIMENSION_WORD_FLOOR', row, flush=True)
+                assert QFontInfo(switch.font()).family() == 'Open Sans'
+                assert actual.width() >= required[0] and actual.height() >= required[1], row
+                assert not switch.isChecked()
+                floors.append(actual.toTuple())
+            words = {'Live': screen._preview_switch, '3D': screen.dimension_switch('z'),
+                     'AI': screen._ai_switch}
+            assert words['Live'] is screen._lp_switch
+            for name, switch in words.items():
+                full = switch.style().itemTextRect(switch.fontMetrics(), switch.contentsRect(),
+                    int(switch.alignment() | Qt.TextSingleLine), switch.isEnabled(), switch.text())
+                print('SIBLING_WORD_SLOT', {'word': name, 'displayed': switch.displayed_text(),
+                    'font': switch.font().toString(), 'contents': switch.contentsRect().getRect(),
+                    'full_text': full.getRect()}, flush=True)
+                assert switch.text() == switch.displayed_text() == name
+                assert switch.contentsRect().contains(full)
+                assert switch.font().pixelSize() == expected and not switch.isChecked()
+            label, _field = screen._settings_sections[0]._row_widgets[0]
+            assert screen._settings_scroll.width() >= label.parentWidget().width()
+        assert floors[:2] == floors[4:] and all(a > b for a, b in zip(floors[0], floors[2]))
+        before = len(calls)
+        for _ in range(8):
+            qapp.processEvents()
+        assert len(calls) == before
+        timers = [switch._action_word_fit._timer for switch in
+                  (screen.dimension_switch('z'), screen.dimension_switch('t'), screen._ai_switch)]
+        assert all(not timer.isActive() for timer in timers)
+        for timer in timers:
+            timer.start(0)
+        screen.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert all(not shiboken6.isValid(timer) for timer in timers)
+        qapp.processEvents()
+        assert len(calls) == before
+        screen = None
+    finally:
+        try:
+            if screen is not None:
+                screen.close()
+        finally:
+            preferences.set_ai_on_by_default(saved_ai)
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(sheet)
+            qapp.setFont(font)
+            qapp.setPalette(palette)
+
+
 def _screen(qtbot, app_key: str) -> AppScreen:
     """One module screen, shown, with its fold switches on, ready to drive.
 
@@ -192,7 +306,8 @@ def test_the_switches_do_not_starve_the_settings_column(
         switch = screen.dimension_switch(dimension)
         assert switch.minimumSizeHint().width() > DIMENSION_TOGGLE_MIN_PX, (
             "the premise is that the label is wider than the cap")
-        assert switch.minimumWidth() == DIMENSION_TOGGLE_MIN_PX
+        # The former24px clipped-word cap is superseded by complete words.
+        assert switch.minimumWidth() >= DIMENSION_TOGGLE_MIN_PX
         assert switch.sizeHint().width() > DIMENSION_TOGGLE_MIN_PX, (
             "the full label is no longer asked for, so a wide row clips it")
 

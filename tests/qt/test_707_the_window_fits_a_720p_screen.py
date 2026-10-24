@@ -167,7 +167,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                 ancestor = ancestor.parentWidget()
             rows = []
             for widget in widgets:
-                for key in ('_text_fit', '_body_fit'):
+                for key in ('_text_fit', '_body_fit', '_action_word_fit'):
                     fitter = getattr(widget, key, None)
                     if require_idle and fitter is not None and (fitter._timer.isActive() or fitter._busy):
                         return None
@@ -193,7 +193,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                     ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer')
                     if (timer := getattr(widget, key, None)) is not None}
                 fitters = {key: {'busy': fitter._busy, 'timer_active': fitter._timer.isActive()}
-                    for key in ('_text_fit', '_body_fit') if (fitter := getattr(widget, key, None)) is not None}
+                    for key in ('_text_fit', '_body_fit', '_action_word_fit') if (fitter := getattr(widget, key, None)) is not None}
                 rows.append({'class': type(widget).__name__, 'name': widget.objectName(),
                     'pointer': shiboken6.getCppPointer(widget), 'flags': flags, 'timers': timers, 'fitters': fitters})
                 if widget is state['window']:
