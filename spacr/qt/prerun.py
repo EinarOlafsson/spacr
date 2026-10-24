@@ -583,13 +583,22 @@ class SegQCBanner(_JobMixin, QFrame):
             widget, "valueChanged", None)
         if signal is not None:
             try:
-                signal.connect(lambda *_a: self._timer.start())
+                signal.connect(lambda *_a: self.schedule_refresh())
             except Exception:
                 LOG.exception("could not follow the src field")
 
     def _on_screen_shown(self) -> None:
         """Re-read the QC scores when the screen becomes visible."""
-        self._timer.start()
+        self.schedule_refresh()
+
+    def _host_closed(self) -> bool:
+        """Drop deferred work only after the containing host accepted close."""
+        if not getattr(self._screen.window(), "_closing", False):
+            return False
+        self._timer.stop()
+        self._refresh_again = False
+        self._score_again = False
+        return True
 
     def schedule_refresh(self) -> None:
         """Schedule :meth:`refresh` after the typing debounce delay (450 ms).
@@ -599,7 +608,8 @@ class SegQCBanner(_JobMixin, QFrame):
         pay for one inside ``MainWindow._build_screen``: the banner is
         advisory, and 450 ms later is soon enough for advice.
         """
-        self._timer.start()
+        if not self._host_closed():
+            self._timer.start()
 
 
     def _read(self, src: Any):
@@ -676,6 +686,8 @@ class SegQCBanner(_JobMixin, QFrame):
         the banner and the read still in flight put the old plate's verdict
         straight back on screen under no name at all.
         """
+        if self._host_closed():
+            return
         src = _src_of(self._screen)
         self._refresh_gen += 1
         gen = self._refresh_gen
@@ -704,7 +716,7 @@ class SegQCBanner(_JobMixin, QFrame):
             return
         self._reading = True
         self._reading_gen = gen
-        if not self._start_job(self._refresh_job, box, self._on_refreshed,
+        if self._host_closed() or not self._start_job(self._refresh_job, box, self._on_refreshed,
                                QC_APP, user_visible=False,
                                capture_figures=False):
             self._reading = False
@@ -776,6 +788,8 @@ class SegQCBanner(_JobMixin, QFrame):
         :meth:`_on_scored` drains it. A click that turns out to have nothing
         to score falls through to the re-read here instead of swallowing it.
         """
+        if self._host_closed():
+            return
         if self._score_again:
             self._score_again = False
             self._on_score_clicked()
@@ -1043,6 +1057,8 @@ class SegQCBanner(_JobMixin, QFrame):
         the same sleeping mount, so nothing arrives sooner, and serialising
         the two keeps a write off the cards the read is parsing.
         """
+        if self._host_closed():
+            return
         src = _src_of(self._screen)
         if not _has_src(src):
             self._score_again = False
@@ -1073,7 +1089,7 @@ class SegQCBanner(_JobMixin, QFrame):
         box = {"src": src, "settings": settings}
         self._btn_score.setEnabled(False)
         self._title.setText("Segmentation QC — scoring the masks…")
-        if not self._start_job(_job, box, self._on_scored, "seg_qc"):
+        if self._host_closed() or not self._start_job(_job, box, self._on_scored, "seg_qc"):
             self._btn_score.setEnabled(True)
             self._draw()
 

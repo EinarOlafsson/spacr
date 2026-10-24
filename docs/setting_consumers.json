@@ -11961,7 +11961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1267,
+    "line": 1283,
     "module": "spacr.qt.prerun",
     "nested": false,
     "qualname": "DiameterPanel._on_measure_clicked"
@@ -13532,7 +13532,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter_estimate_n_fields",
-    "line": 1259,
+    "line": 1275,
     "module": "spacr.qt.prerun",
     "nested": false,
     "qualname": "DiameterPanel._on_measure_clicked"
@@ -24693,7 +24693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 1266,
+    "line": 1282,
     "module": "spacr.qt.prerun",
     "nested": false,
     "qualname": "DiameterPanel._on_measure_clicked"

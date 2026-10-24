@@ -231,6 +231,68 @@ def test_real_measure_factory_keeps_ordinary_open_host_construction(
         qapp.processEvents()
 
 
+def test_queued_measure_qc_starts_no_job_after_accepted_host_close(
+        window, qapp, qtbot, tmp_path, monkeypatch):
+    """Normal source debounce cannot register work after its host closed."""
+    import traceback
+    from shiboken6 import getCppPointer
+    from PySide6.QtWidgets import QLineEdit
+    from spacr.qt import app as app_module, chaining, prerun
+    from spacr.qt.bridge import registry
+    from spacr.qt.job_runner import shutdown_all
+
+    previous_factories, previous_inner = dict(app_module.APP_FACTORIES), dict(prerun._INNER)
+    runs, registrations, close_record = registry(), [], {}
+    original_register = runs.register
+
+    def register(handle):
+        registrations.append({
+            "name": handle.app_key, "handle_id": id(handle),
+            "handle_cpp": getCppPointer(handle), "kind": handle.kind,
+            "thread_id": id(handle.thread),
+            "after_accepted_close": close_record.get("accepted", False),
+            "stack": "".join(traceback.format_stack()),
+        })
+        return original_register(handle)
+
+    monkeypatch.setattr(runs, "register", register)
+    try:
+        chaining.register()
+        prerun.register()
+        window._on_nav_selected("measure")
+        screen = window._screens["measure"]
+        assert window._stack.currentWidget() is screen
+        banner = prerun.qc_banner(screen)
+        assert banner is not None
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        field = screen._settings_model._widgets["src"]
+        assert isinstance(field, QLineEdit)
+        field.setText(str(tmp_path))
+        assert prerun._has_src(prerun._src_of(screen))
+        assert banner._timer.isActive() and banner._timer.remainingTime() > 0
+        close_record["pending_ms"] = banner._timer.remainingTime()
+        close_record["registration_index"] = len(registrations)
+        close_record["before"] = [(id(h), h.app_key) for h in runs.active()]
+        close_record["accepted"] = window.close()
+        close_record["after"] = [(id(h), h.app_key) for h in runs.active()]
+        assert close_record["accepted"] is True
+        assert not [r for r in registrations[close_record["registration_index"]:]
+                    if r["name"] == "measure"], registrations
+        qtbot.wait(prerun.REFRESH_DELAY_MS + 100)
+        evidence = {"close": close_record, "registrations": registrations,
+                    "active": [(id(h), h.app_key) for h in runs.active()]}
+        print("Queued Measure close evidence:", evidence)
+        assert not [r for r in registrations if r["after_accepted_close"]], evidence
+    finally:
+        app_module.APP_FACTORIES.clear()
+        app_module.APP_FACTORIES.update(previous_factories)
+        prerun._INNER.clear()
+        prerun._INNER.update(previous_inner)
+        shutdown_all()
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        qapp.processEvents()
+
+
 def test_no_step_runs_while_input_is_recent(window, qapp, monkeypatch):
     prewarm = _prewarm(window, ["queue"], monkeypatch)
     ran = []
@@ -240,6 +302,54 @@ def test_no_step_runs_while_input_is_recent(window, qapp, monkeypatch):
     assert ran == []
     assert prewarm.busy_reason() == "input"
     assert prewarm._timer.isActive()
+
+
+def test_measure_source_debounce_survives_navigation_hide_and_show(
+        window, qapp, qtbot, tmp_path, monkeypatch):
+    """An open host keeps normal QC and chaining source-refresh behavior."""
+    from spacr.qt import app as app_module, chaining, prerun
+    from spacr.qt.bridge import registry
+    from spacr.qt.job_runner import shutdown_all
+
+    previous_factories, previous_inner = dict(app_module.APP_FACTORIES), dict(prerun._INNER)
+    runs, registered = registry(), []
+    original_register = runs.register
+
+    def register(handle):
+        registered.append(handle.app_key)
+        return original_register(handle)
+
+    monkeypatch.setattr(runs, "register", register)
+    try:
+        chaining.register()
+        prerun.register()
+        window._on_nav_selected("measure")
+        screen = window._screens["measure"]
+        banner, bar = prerun.qc_banner(screen), chaining.chaining_bar(screen)
+        assert banner is not None and bar is not None
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        field = screen._settings_model._widgets["src"]
+        for shown in (False, True):
+            window._on_nav_selected("measure" if shown else "__home__")
+            assert screen.isVisible() is shown
+            assert not window._closing
+            source = tmp_path / ("shown" if shown else "hidden")
+            source.mkdir()
+            before = {key: registered.count(key) for key in ("measure", "measure chaining")}
+            field.setText(str(source))
+            assert banner._timer.isActive() and bar._timer.isActive()
+            qtbot.waitUntil(lambda: all(registered.count(key) > count
+                for key, count in before.items()), timeout=5000)
+            qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+            assert not banner._host_closed() and not bar._host_closed()
+    finally:
+        app_module.APP_FACTORIES.clear()
+        app_module.APP_FACTORIES.update(previous_factories)
+        prerun._INNER.clear()
+        prerun._INNER.update(previous_inner)
+        shutdown_all()
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        qapp.processEvents()
 
 
 def test_input_events_push_the_next_step_back(window, qapp, monkeypatch):
