@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Bootstrap49903/ZmrKd5 diagnostic0/0.532GiB/zero missed:
+no Qt/app/Mask preload; MainWindow3.857s/Home9.332s, normal close/registry0.
+126 pre-MainWindow import finishes: inclusive VisPy.340s/app.328/fontmanager.301;
+nested/threaded durations are not additive, no culprit or speedup acceptance.
+Home5s/Mask10s/30FPS targets remain OPEN; no source change or profiler replay.
+
 2026-10-24 narrow shutdown attribution: retain the 673 late finished
 classify_merged chaining registration failure. A portable real-MainWindow
 prewarm test delivers one normal close through an actual constructor breath,
