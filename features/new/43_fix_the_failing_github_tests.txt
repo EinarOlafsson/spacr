@@ -15,6 +15,9 @@ Keep all existing ceilings, consent/privacy/provider choices, batching and
 original output behavior. CPU-only fake transports; no live AI or issue posts.
 Remove only the proven redundant native-session non-Mapping guard; retain the
 JSON-object parser, sanitizer, consent, acknowledgement and history checks.
+Check real logging-handler flush of an earlier non-logging ERROR fragment;
+preserve that fragment and structured-log deduplication. Remove only proven
+redundant timer cancellation while retaining lock/generation semantics.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4938,3 +4941,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Mask typing diagnostics now include the actual unexpected visibility caller stack and edit/event-delivery phase while preserving the zero-count and 200ms assertions. Standalone qualification PASS (1 case, 5.22s) and the actual shared-state prerequisite sequence PASS (4 cases, 3.75s); the hosted failure is not reproduced or claimed fixed. No production/generated changes; root publication and hosted attribution remain pending.
 
 2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.
+
+2026-10-24 — Preserve an independent terminal ERROR buffered before a real logging handler flush, restoring scoped provenance even when capture fails. Remove redundant error-batch timer cancellation after both locked callers establish no active timer. The real baseline failed; all 12 affected controls pass, with independent peer acceptance and no API/caption/consumer delta. Root publication and hosted aggregate qualification remain pending.
