@@ -682,12 +682,24 @@ def _headings(screen) -> dict:
 
 
 def test_a_heading_with_every_row_hidden_reports_itself_empty(qtbot):
-    """A heading that opens onto nothing is a smaller wall, but a wall."""
+    """An inactive slot leaves no empty heading; its channel activates its grid."""
     screen, model = _screen(qtbot, "mask")
+    grid = screen._object_grid
 
-    assert _headings(screen)["ORGANELLE 2"] is False
+    assert model.collect()["organelleb_channel"] is None
+    assert "organelleb" not in grid.objects()
+    assert "ORGANELLE 2" not in _headings(screen)
+    assert _row_shown(screen, "organelleb_type") is False
     _set(model, "organelleb_channel", 4)
-    assert _headings(screen)["ORGANELLE 2"] is True
+    assert model.collect()["organelleb_channel"] == 4
+    assert "organelleb" in grid.objects()
+    assert the_table_answers(screen, "organelleb_diameter")
+    assert _row_shown(screen, "organelleb_type") is True
+    assert "ORGANELLE 2" not in _headings(screen)
+    _set(model, "organelleb_channel", None)
+    assert "organelleb" not in grid.objects()
+    assert _row_shown(screen, "organelleb_type") is False
+    assert "ORGANELLE 2" not in _headings(screen)
 
 
 def test_a_heading_that_holds_a_switch_is_never_empty(qtbot):
