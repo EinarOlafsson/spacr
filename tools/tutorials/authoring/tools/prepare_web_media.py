@@ -39,10 +39,13 @@ def main() -> int:
             missing.append(lesson.name)
             continue
         scenes = json.loads(scenes_path.read_text(encoding="utf-8"))
-        if scenes.get("kind") in {"published_native_intervals", "edited_published_native_intervals", "mixed_published_native_intervals"}:
+        if scenes.get("kind") in {"published_native_intervals", "edited_published_native_intervals", "mixed_published_native_intervals", "published_legacy_picture_references"}:
             # Reuse has no raw image paths. Validate its real source/voice bindings
             # before extracting the actual first decoded master frame.
-            if scenes['kind'] == 'mixed_published_native_intervals':
+            if scenes['kind'] == 'published_legacy_picture_references':
+                from published_legacy_picture_mix import checked_legacy_picture_timing
+                checked_legacy_picture_timing(PRODUCTION.parent, lesson.name)
+            elif scenes['kind'] == 'mixed_published_native_intervals':
                 from published_native_mix import checked_mixed_native_timing
                 checked_mixed_native_timing(PRODUCTION.parent, lesson.name)
             elif scenes['kind'] == 'edited_published_native_intervals':
