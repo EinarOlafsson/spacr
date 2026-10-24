@@ -545,14 +545,19 @@ class OrganismDiagram(QWidget):
         """The model row's and the caption's heights at ``width``.
 
         The caption reserves the longest description any compartment can
-        show, so hovering never changes the height.
+        show, so hovering never changes the height. Answers are kept per
+        width: while a screen is shown its splitter settles through a few
+        widths more than once, and keeping only the last one re-measured
+        every description about 30 times, about 0.75 s of one open on an
+        Intel Mac.
 
         :param width: the diagram's width in pixels.
         :returns: ``(model row height, caption height)``.
         """
-        cached = getattr(self, "_reserved_cache", None)
-        if cached is not None and cached[0] == width:
-            return cached[1]
+        cached = getattr(self, "_reserved_cache", None) or {}
+        key = (width, scaled_px(10), self.caption.font().key())
+        if key in cached:
+            return cached[key]
         artwork_width = max(1, (width - scaled_px(10)) * 0.55)
         row = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
         self.caption.ensurePolished()
@@ -579,7 +584,10 @@ class OrganismDiagram(QWidget):
         finally:
             probe.deleteLater()
         answer = (row, max(heights) + scaled_px(6))
-        self._reserved_cache = (width, answer)
+        if len(cached) >= 16:
+            cached.clear()
+        cached[key] = answer
+        self._reserved_cache = cached
         return answer
 
     def _fit_width(self) -> None:

@@ -174,3 +174,32 @@ def test_caption_measurement_is_applied_once_at_each_gui_scale(
                     settings.setValue(key, previous[key])
                 else:
                     settings.remove(key)
+
+
+def test_a_width_seen_before_is_not_measured_again(diagram, monkeypatch):
+    """Settling back and forth between widths measures each width once.
+
+    Showing an organism screen took its splitter through widths 136, 367
+    and 372 about thirty times; with only the last width cached, every
+    alternation re-measured every compartment description, about 0.75 s of
+    one open on an Intel Mac. Counted, not timed.
+    """
+    measured = []
+    real = QLabel.heightForWidth
+
+    def counted(label, width):
+        measured.append(width)
+        return real(label, width)
+
+    diagram._reserved_cache = None
+    first = {width: diagram._measure_reserved_heights(width) for width in (136, 367, 372)}
+    monkeypatch.setattr(QLabel, "heightForWidth", counted)
+    for _ in range(10):
+        for width in (136, 367, 136, 372):
+            assert diagram._measure_reserved_heights(width) == first[width]
+    assert measured == []
+
+    QApplication.sendEvent(diagram, QEvent(QEvent.FontChange))
+    measured.clear()
+    diagram._measure_reserved_heights(136)
+    assert measured, "a font change must re-measure"
