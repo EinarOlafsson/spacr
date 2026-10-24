@@ -12,6 +12,44 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+The bounded native operation explicitly selects aside_controls: actual buttons under
+HomeAside only, with the original20s content budget. Default all retains the
+complete runtime target manifest. Record all identities/text, selected indices
+and inspected/untested counts; selected success is not full Home acceptance.
+No retained Chrome/Hero/header or prose replay and no News-policy waiver.
+Source pinning, normal cover/tour, strict styled visibility and process guards
+remain unchanged.
+Native69310 on b2fd77b41:5/5 selected checked in4.760s;132/137 untested.
+Clear/Reset/Refresh pass; Pipeline loses13/15px left/right, Updates29/31px.
+Aside458x84/viewport438x84 contains596px panels; both captions remain clipped.
+Natural failure34.69s/RSS1.211GiB, tour9.260s; normal close/cleanup pass,
+no deadline/overlay failure. Full Home and aside-controls acceptance stay open.
+
+Aside unit-normalization scope: `_fit_aside_minimum` measures actual native
+layout pixels but sends them through a GUI-scaled minimum setter. First
+prove the doubled floor using the real aside builder/fonts at GUI200/font200,
+with GUI90/100 controls; preserve exact actual minimum plus ceiling-converted
+logical records/pane minima through growth and reopening. Repair only that
+unit boundary if RED confirms it; do not infer full splitter/content fit or
+change global splitter policy from the existing native overflow.
+Clean25518 RED: GUI2001232px versus required616; GUI90248 versus276;
+GUI100 passes. Normalize only the measured minimum and independently sync
+the pane's ceiling-converted logical record. GREEN73063 passes3/18.67s/
+RSS0.312GiB, including content growth, repeated fit and collapse/reopen;
+prior fixture-only cleanup/setup failures are not native acceptance.
+
+Hero logo requirement: fit the actual masthead allocation from original source
+pixels, preserving aspect/DPR and selected preferred size on growth, without
+fixed floors. Controlled99256 reproduces the invisible logo in1104x84; focused
+89523 passes3/4.79s/RSS0.317GiB for shrink/grow, mockedDPR1/2/change, unchanged
+source and retained text-fit restoration/quiescence. Native17820/11zgAs on
+f40c66490 confirms full52x52 logo/DPR2, both text fields and all four Chrome
+marks. The case fails naturally1/50.72s/RSS1.305GiB:37/137 inspected,100 untested
+at content20.080s (tour8.712s). Pipeline overviews loses135px of styled text;
+Clear is outside the1200px client. News needs actual scroll-policy attribution.
+Normal close/worker cleanup pass. This accepts the bounded logo repair only;
+full Home minimum-content acceptance remains open, not a startup-speed failure.
+
 Chrome icon scope: current font200 paints a36px source while GUI200 uses a
 native72px icon slot; returned36px pixels cannot retain the same relative
 glyph size. Add an actual-slot GUI90→200→90/font200 regression with exact
@@ -91,6 +129,27 @@ The next observer-only capture persists both expected/actual raw signatures
 and Python-wrapper/native-C++ identities before that same strict comparison.
 Retain the existing identity assertion, waits and budgets so the data, not an
 assumption, distinguishes wrapper churn from actual geometry or font changes.
+Native19870/IUIKLz on5ef5a63fd fails naturally1 in32.61s/RSS1.210GiB.
+Tour completes in9.5261s; Minimise passes, then content stops after3.2516s
+before Maximise inspection. Persisted tuples prove all Python/native identities
+and actual widget sizes/positions/minima/maxima/fonts unchanged. The sole
+changed field is MainWindow's internal layout geometry:0,0,0,0 becomes
+0,98,1200,542. This disproves wrapper churn for this capture; it does not show
+target movement or clipping. One of137 targets is checked;136 remain untested.
+Normal close/return0 and helper/thread cleanup pass. Attribute internal Qt
+layout invalidation/readiness before changing any product geometry policy.
+The next evidence-based oracle correction omits only MainWindow's internal
+QLayout bookkeeping rectangle from stability equality, retaining it explicitly
+in both identity observations. Every actual widget/native geometry, position,
+minimum/maximum, font and identity remains strict, as do all other layouts,
+one-reveal/next-turn text/icon visibility and unchanged operation budgets.
+No product geometry repair or additional tested-target claim follows from this.
+Native95250 onb9f2dde4a: natural1/33.15s/RSS1.217GiB; real tour completes,
+four Chrome marks pass whole75x75/slot72/DPR2, but the logo lies outside its
+68px visible band;5/137 inspected,132 untested. Normal close/cleanup pass.
+Like19870, its structural abort changes only private layout bookkeeping, not
+actual widgets. Log QLayout rectangles separately; retain strict actual widget,
+glyph/visibility/reveal checks and20s budgets, with no content-policy waiver.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c

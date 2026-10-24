@@ -47,6 +47,181 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
+@pytest.mark.parametrize("gui", (2., .9, 1.))
+def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
+    import math
+    from PySide6.QtCore import QSize, Qt, Signal
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home as home_widgets
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    class AsideBuilder(QWidget):
+        sample_project_requested = Signal()
+        update_check_requested = Signal()
+        news_refresh_requested = Signal()
+        tile_clicked = Signal(str)
+        _build_aside = HomePage._build_aside
+        _build_aside_slider = HomePage._build_aside_slider
+        _scrolled = HomePage._scrolled
+        _fit_aside_minimum = HomePage._fit_aside_minimum
+        _rewrap_grids = HomePage._rewrap_grids
+        _apply_aside_text = HomePage._apply_aside_text
+        _on_aside_text = HomePage._on_aside_text
+        _on_run_clicked = HomePage._on_run_clicked
+        refresh = HomePage.refresh
+        _version = staticmethod(HomePage._version)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    page = split = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(gui)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(gui)
+        preferences.apply_preferences_to_app()
+        page = AsideBuilder()
+        qtbot.addWidget(page)
+        page._P = home_widgets.active_palette()
+        page._names, page._grids = {}, []
+        aside = page._build_aside()
+        split = CollapsibleSplitter(Qt.Horizontal)
+        qtbot.addWidget(split)
+        split.add_pane(QWidget(), "Apps", stretch=1)
+        pane = split.add_pane(aside, home_widgets._ASIDE_PANE, mode=EDGE, stretch=0)
+        page._aside_split = split
+        gui_scale._resize_actual(split, QSize(1600, 600))
+        split.show()
+        qapp.processEvents()
+        assert page._sample_project_button.font().pixelSize() == gui_scale.scale_int(theme.font_px('body', 2.), gui)
+        for extra in ("", "A deliberately longer panel heading"):
+            if extra:
+                page._recent.header.setText(extra)
+            page._aside_panels.layout().invalidate()
+            page._aside_panels.layout().activate()
+            expected = (page._aside_panels.layout().totalMinimumSize().width()
+                        + page._aside_scroll.verticalScrollBar().sizeHint().width())
+            page._fit_aside_minimum()
+            assert gui_scale._actual_minimum_size(aside).width() == expected
+            assert aside._gs_geo['minw'] == math.ceil(expected / gui)
+            assert pane.minimum == aside._gs_geo['minw']
+            pane.minimum = 0
+            page._fit_aside_minimum()
+            assert gui_scale._actual_minimum_size(aside).width() == expected
+            assert pane.minimum == aside._gs_geo['minw']
+        split.set_collapsed(home_widgets._ASIDE_PANE, True)
+        split.set_collapsed(home_widgets._ASIDE_PANE, False)
+        qtbot.waitUntil(lambda: not split._rebalance_queued and not split._limits_queued)
+        assert aside._gs_geo['minw'] == math.ceil(expected / gui)
+        assert pane.minimum == aside._gs_geo['minw']
+    finally:
+        try:
+            if split is not None:
+                split.close()
+            if page is not None:
+                page.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+@pytest.mark.parametrize("dpr", (1., 2.))
+def test_hero_mark_fits_its_real_compressed_slot_and_recovers_on_growth(qtbot, qapp, monkeypatch, dpr):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QEvent, QPoint, QSize, Qt
+    from PySide6.QtGui import QFontInfo, QPixmap, QRegion
+    from PySide6.QtWidgets import QStyle, QWidget
+    from spacr.qt import app, gui_scale, hidpi, preferences
+    from spacr.qt.widgets import home as home_widgets
+
+    ratio = [dpr]
+    monkeypatch.setattr(home_widgets, "device_ratio", lambda widget: ratio[0])
+    monkeypatch.setattr(hidpi, "device_ratio", lambda widget: ratio[0])
+    submitted = []
+    original_set = home_widgets._HeroMark.setPixmap
+
+    def set_pixmap(label, pixmap):
+        submitted.append(QPixmap(pixmap))
+        original_set(label, pixmap)
+
+    monkeypatch.setattr(home_widgets._HeroMark, "setPixmap", set_pixmap)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    host = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        host = QWidget()
+        builder = SimpleNamespace(_P=home_widgets.active_palette())
+        hero = HomePage._build_hero(builder)
+        hero.setParent(host)
+        mark = hero.findChild(QLabel, "HeroMark")
+        assert mark is not None
+        qtbot.addWidget(host)
+        gui_scale._resize_actual(host, QSize(1104, 84))
+        gui_scale._resize_actual(hero, QSize(1104, 84))
+        host.show()
+        assert QFontInfo(qapp.font()).family() == "Open Sans"
+
+        def fits():
+            pixmap = mark.pixmap()
+            if pixmap is None or pixmap.isNull():
+                return False
+            size = pixmap.deviceIndependentSize().toSize()
+            placed = QStyle.alignedRect(mark.layoutDirection(), mark.alignment(), size, mark.contentsRect())
+            return (mark.contentsRect().contains(placed)
+                    and QRegion(placed).subtracted(mark.visibleRegion()).isEmpty()
+                    and host.rect().contains(placed.translated(mark.mapTo(host, QPoint()))))
+
+        qtbot.waitUntil(fits)
+        assert submitted[-1].devicePixelRatio() == dpr
+        assert submitted[-1].width() == submitted[-1].height()
+        assert mark.property("minimumSize") == QSize(0, 0)
+        assert mark.property("maximumSize") == QSize(16777215, 16777215)
+        assert mark.sizeHint() == QSize(288, 288)
+        small = mark.pixmap().deviceIndependentSize()
+        assert max(small.width(), small.height()) <= 68
+        gui_scale._resize_actual(host, QSize(1600, 700))
+        gui_scale._resize_actual(hero, QSize(1600, 700))
+        qtbot.waitUntil(lambda: fits() and mark.pixmap().deviceIndependentSize().height() >= 288)
+        assert mark.sizeHint() == QSize(288, 288)
+        source_before = mark._source.toImage()
+        ratio[0] = 3. - dpr
+        mark.findChild(hidpi._RatioWatcher).eventFilter(mark, QEvent(QEvent.DevicePixelRatioChange))
+        assert submitted[-1].devicePixelRatio() == ratio[0]
+        assert submitted[-1].deviceIndependentSize().toSize() == QSize(288, 288)
+        assert fits() and mark._source.toImage() == source_before
+        gui_scale._resize_actual(host, QSize(1104, 84))
+        gui_scale._resize_actual(hero, QSize(1104, 84))
+        qtbot.waitUntil(lambda: fits() and mark.pixmap().deviceIndependentSize().height() <= 68)
+    finally:
+        try:
+            if host is not None:
+                host.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 def test_hero_text_fits_constrained_slots_and_restores_selected_style(qtbot, qapp, monkeypatch):
     from types import SimpleNamespace
     from PySide6.QtCore import QCoreApplication, QEvent, QSize, Qt
@@ -132,7 +307,16 @@ def test_hero_text_fits_constrained_slots_and_restores_selected_style(qtbot, qap
         gui_scale._resize_actual(hero, QSize(3004, 904))
         qtbot.waitUntil(lambda: title.font().pixelSize() == 208 and title.styleSheet() == custom
                         and subtitle.font().pixelSize() == 68)
-        qtbot.waitUntil(lambda: not hero._text_fit._timer.isActive())
+        previous_idle = [None]
+
+        def idle():
+            current = (len(calls), hero.property("size"),
+                       tuple((label.geometry().getRect(), label.font().toString()) for label in (title, subtitle)))
+            same = current == previous_idle[0]
+            previous_idle[0] = current
+            return not hero._text_fit._timer.isActive() and same
+
+        qtbot.waitUntil(idle)
         count = len(calls)
         for _ in range(8):
             qapp.processEvents()
