@@ -12,6 +12,44 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native25138/ORpMMJ onfc36398a05 PASS50.59s/RSS1.324GiB: lines[16,28)
+accepted12/12 via21/21 visible segments; startup8.527s/content19.990752s.
+Source/layout/doc696×21480/origin0/358-line witnesses EXACTLY match Qqn93W;
+combined[0,28) accepted28/358,330remaining (run-local346). Normal cleanup pass;
+17 whole bodies/139 whole-manifest targets uncertified; no timing-margin claim.
+
+News range selection scope: validate and forward exact release index0..16,
+start>=0 and maxcount1..16; require start within actual rendered lines and
+stop at min(start+maxcount,total). Keep structural tag/source pairing, strict
+segment coverage and separate actual-range/accepted/untested accounting.
+Next release0 range[16,28) avoids replay; cross-run joining requires identical
+HTML/font/document size/layout/line count, never cross-process Qt pointers.
+
+Native25645/Qqn93W on878b600914 PASS48.07s/RSS1.322GiB: body0 lines[0,16)
+accepted via24/24 fully visible, frozen segments with full original-line union.
+Open Sans44/doc696×21480/origin0/source+allocation unchanged; capacity544×274.
+Startup9.983s/content15.488s and normal cleanup pass;342/358 lines remain
+untested,17 whole bodies and all139 whole-manifest targets remain uncertified.
+
+News line-segment scope: preserve each full natural/run rectangle and partition
+against the smallest real ancestor viewport, reserving2px for exclusive-edge
+ensureVisible margins. Reveal each chunk once; frozen/idle strict visibility
+and accepted QRegion union must cover the original line before acceptance.
+Separate line/segment attempts and acceptance; retain16 lines/shared20s,
+original source/allocation and139 wholly unaccepted manifest targets.
+
+News body-range scope: release0/v1.5.1.5 rendered lines[0,16) only, one shared
+20s content clock. Structural17-body identity/renderer/object checks precede
+actual line/run inner-to-outer reveal and frozen/idle/full-visible proofs.
+Keep139 whole targets unaccepted, with separate requested/checked/untested
+line accounting; oversized single-position lines are unaccepted, not alone
+a product-defect verdict. No activation or whole-body certification.
+Native77490/HTJMX4 on22db5eb334 fails32.81s/RSS1.089GiB: line0 checked,
+0 accepted/357 untested of358;691px line exceeds546px viewport with real150px
+horizontal range. Stable actual geometry/source; the additional1px vertical
+miss is probe center/exclusive-bound math, not a product defect. Startup8.000s/
+content1.256s and normal cleanup pass; all139 whole targets remain unaccepted.
+
 Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
 17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;
 all title shaped lines/runs (long titles198px high) and209×55 dates visible.
