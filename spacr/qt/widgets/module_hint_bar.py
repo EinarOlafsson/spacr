@@ -92,7 +92,12 @@ class ModuleHintBar(QLabel):
         height = metrics.boundingRect(
             QRect(0, 0, 1 << 20, 0),
             int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft), text).height()
-        self.setFixedHeight(max(1, height) + 10)
+        from ..gui_scale import _set_actual_dim
+
+        insets = self.rect().height() - self.contentsRect().height()
+        actual = max(1, height) + max(10, insets)
+        _set_actual_dim(self, 'minh', actual)
+        _set_actual_dim(self, 'maxh', actual)
 
     def event(self, event):                     # noqa: N802 - Qt naming
         """Consume tooltip requests; this bar replaces the tooltip.

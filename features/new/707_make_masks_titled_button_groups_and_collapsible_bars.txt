@@ -12,6 +12,19 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Module hint-height scope: at GUI200/90/100%, font200 and normal Open Sans,
+compare actual fixed height/min/max and stored scale records with the actual
+two-line font metric plus10; retain styled two-line contents, width-change,
+summary/link and release behavior. Causal RED precedes any actual-pixel setter
+correction; native aside five-caption PASS and Apps124x0 limitation remain.
+RED54494 confirms actual double scaling (GUI2:304 vs152; GUI.9:67 vs74)
+and independent GUI1 two-line padding loss (72px text/65px contents). Reserve
+actual two-line metric plus max(10, measured vertical contents insets), using
+actual fixed min/max setters; horizontal summary fit remains separately open.
+GREEN58202: all three GUI cases pass (4.82s/.278GiB), actual heights175/79/89
+leave exactly142/64/72px styled contents for two-line text; width/show/release
+and normalized records pass. This is vertical unit/style fit, not full Home.
+
 Normal launch-policy scope: repeat the real Home causal fixture through the
 actual post-build arrow-removal operation, recording unchanged fonts and
 before/after native pane/tab constraints. Extract only a behavior-neutral

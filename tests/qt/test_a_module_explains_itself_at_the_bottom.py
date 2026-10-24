@@ -38,6 +38,87 @@ from spacr.qt.widgets.home import AppTile
 from spacr.qt.widgets.module_hint_bar import ModuleHintBar
 
 
+@pytest.mark.parametrize('gui', [2., .9, 1.])
+def test_module_hint_height_uses_actual_two_line_metrics(qtbot, qapp, gui):
+    import json
+    import math
+    from PySide6.QtCore import QRect, QSize, Qt
+    from PySide6.QtGui import QFontInfo, QTextDocument
+    from spacr.qt import app, gui_scale, preferences
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    bar = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(gui)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(gui)
+        preferences.apply_preferences_to_app()
+        bar = ModuleHintBar()
+        qtbot.addWidget(bar)
+        gui_scale._resize_actual(bar, QSize(900, 600))
+        bar.show()
+        previous = [None]
+
+        def settled():
+            now = (bar.font().toString(), bar.property('size').toTuple(),
+                   bar.property('minimumSize').toTuple(), bar.property('maximumSize').toTuple())
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        qtbot.waitUntil(settled)
+        assert QFontInfo(bar.font()).family() == 'Open Sans'
+        metrics = bar.fontMetrics()
+        measured = metrics.boundingRect(QRect(0, 0, 1 << 20, 0),
+            int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft), 'Xg\nXg').height()
+        insets = bar.rect().height() - bar.contentsRect().height()
+        expected = max(1, measured) + max(10, insets)
+        record = {'gui': gui, 'font_pixels': bar.font().pixelSize(),
+                  'metric': measured, 'old_metric_plus_10': max(1, measured) + 10,
+                  'vertical_insets': insets, 'expected_actual_height': expected,
+                  'size': bar.property('size').toTuple(),
+                  'minimum': bar.property('minimumSize').toTuple(),
+                  'maximum': bar.property('maximumSize').toTuple(),
+                  'logical': dict(getattr(bar, '_gs_geo', {})),
+                  'applied': dict(getattr(bar, '_gs_geo_set', {})),
+                  'contents': bar.contentsRect().getRect()}
+        print('MODULE_HINT_HEIGHT', json.dumps(record), flush=True)
+        assert record['minimum'][1] == record['maximum'][1] == record['size'][1] == expected, record
+        assert record['logical']['minh'] == record['logical']['maxh'] == math.ceil(expected / gui)
+        assert record['applied']['minh'] == record['applied']['maxh'] == expected
+        for width in (900, 600):
+            gui_scale._resize_actual(bar, QSize(width, expected))
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            bar.show_module('mask', 'A module summary with enough words to require width-aware shortening. ' * 4)
+            assert '<br>' in bar.text() and 'API' in bar.text() and 'Tutorial' in bar.text()
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(bar.font())
+            document.setHtml(bar.text())
+            assert document.size().height() <= bar.contentsRect().height(), record
+            assert bar.property('size').height() == expected
+            assert not bar.wordWrap()
+            bar.release()
+            assert bar.text() == bar._default and not bar.is_holding()
+    finally:
+        try:
+            if bar is not None:
+                bar.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 @pytest.fixture(scope="module")
 def window(qapp, qt_theme_applied):
     win = MainWindow()
