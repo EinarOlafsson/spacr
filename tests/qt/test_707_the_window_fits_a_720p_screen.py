@@ -438,7 +438,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
         import subprocess, time, traceback
         from pathlib import Path
-        from PySide6.QtCore import QPoint, QRect, QSize, Qt, QTimer
+        from PySide6.QtCore import QPoint, QPointF, QRect, QSize, Qt, QTimer
         from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
         from PySide6.QtWidgets import (QAbstractButton, QLabel, QMenuBar, QPushButton, QScrollArea,
             QStyle, QStyleOptionButton, QStyleOptionToolButton, QStyleOptionTab, QToolButton)
@@ -708,6 +708,70 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         document.setTextWidth(widget.contentsRect().width() if widget.wordWrap() else -1)
                         needed = document.size().toSize()
                         text = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(), needed, widget.contentsRect())
+                        if cohort == 'news_titles' and row['news_coverage']['news_role'] == 'title':
+                            attributed = document.clone()
+                            area = widget.contentsRect().adjusted(widget.margin(), widget.margin(),
+                                -widget.margin(), -widget.margin())
+                            alignment = QStyle.visualAlignment(widget.layoutDirection(), widget.alignment())
+                            indent = widget.indent()
+                            if indent < 0 and widget.frameWidth():
+                                indent = widget.fontMetrics().horizontalAdvance('x') // 2-widget.margin()
+                            if indent > 0:
+                                if alignment & Qt.AlignLeft:
+                                    area.setLeft(area.left()+indent)
+                                if alignment & Qt.AlignRight:
+                                    area.setRight(area.right()-indent)
+                                if alignment & Qt.AlignTop:
+                                    area.setTop(area.top()+indent)
+                                if alignment & Qt.AlignBottom:
+                                    area.setBottom(area.bottom()-indent)
+                            rich_option = attributed.defaultTextOption()
+                            rich_option.setAlignment(widget.alignment())
+                            attributed.setDefaultTextOption(rich_option)
+                            attributed.setTextWidth(area.width())
+                            height = attributed.size().height()
+                            offset = (max(0., (area.height()-height)/2) if alignment & Qt.AlignVCenter
+                                      else max(0., area.height()-height) if alignment & Qt.AlignBottom else 0.)
+                            origin = QPointF(area.x(), area.y()+offset)
+                            diagnostic = {'font': widget.font().toString(), 'sheet': widget.styleSheet(),
+                                'contents': widget.contentsRect().getRect(), 'document_area': area.getRect(),
+                                'margin': widget.margin(), 'indent': widget.indent(), 'frame_width': widget.frameWidth(),
+                                'alignment': widget.alignment().value, 'layout_direction': widget.layoutDirection().value,
+                                'document_origin': (origin.x(), origin.y()),
+                                'document_size': (attributed.size().width(), height),
+                                'visible_region': {'bounding_rect': widget.visibleRegion().boundingRect().getRect(),
+                                                   'rect_count': widget.visibleRegion().rectCount()},
+                                'label_in_window': widget.rect().translated(widget.mapTo(window, QPoint())).getRect(),
+                                'window_client': window.rect().getRect(), 'lines': []}
+
+                            def bounds(rect):
+                                native = rect.toAlignedRect()
+                                return {'label_rect': rect.getRect(),
+                                    'window_rect': native.translated(widget.mapTo(window, QPoint())).getRect(),
+                                    'contents_contains': widget.contentsRect().contains(native),
+                                    'whole_visible': visible(native)}
+
+                            block = attributed.begin()
+                            while block.isValid():
+                                layout = block.layout()
+                                block_rect = attributed.documentLayout().blockBoundingRect(block)
+                                for index in range(layout.lineCount()):
+                                    line = layout.lineAt(index)
+                                    runs = line.glyphRuns()
+                                    line_row = {'block_position': block.position(), 'block_text': block.text(),
+                                        'block_rect': block_rect.getRect(),
+                                        'layout_position': (layout.position().x(), layout.position().y()),
+                                        'line_position': (line.position().x(), line.position().y()),
+                                        'text_start': line.textStart(), 'text_length': line.textLength(),
+                                        'natural_raw': line.naturalTextRect().getRect(),
+                                        'natural': bounds(line.naturalTextRect().translated(block_rect.topLeft()+origin)),
+                                        'glyph_runs': [dict(bounds(run.boundingRect().translated(block_rect.topLeft()+origin)),
+                                            raw_rect=run.boundingRect().getRect(), glyph_count=len(run.glyphIndexes()),
+                                            font_family=run.rawFont().familyName(), font_pixels=run.rawFont().pixelSize())
+                                            for run in runs]}
+                                    diagnostic['lines'].append(line_row)
+                                block = block.next()
+                            row['rich_title_attribution'] = diagnostic
                     row.update(text=widget.text(), text_rect=text.getRect())
                     if isinstance(widget, ElidingLabel) and widget.is_elided():
                         row['intentional_elision'] = widget.full_text()
