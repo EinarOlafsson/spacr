@@ -443,3 +443,28 @@ def test_one_runner_that_will_not_stop_does_not_strand_the_others(qapp):
     finally:
         del stuck, fine
         gc.collect()
+
+
+def test_failed_occurrence_bookkeeping_keeps_the_job_error_and_next_job(runner, qtbot, monkeypatch):
+    """A reporting-store failure cannot replace the handler's original failure."""
+    from spacr import crashreport
+
+    def unavailable(_exception):
+        raise OSError("reporting metadata unavailable")
+
+    def rejected(_value):
+        raise ValueError("the loaded measurement is invalid")
+
+    monkeypatch.setattr(crashreport, "_new_error_occurrence", unavailable)
+    failures, delivered = [], []
+    runner.job_failed.connect(failures.append)
+    with qtbot.waitSignal(runner.job_finished, timeout=10000) as failed:
+        assert runner.submit(lambda: 42, rejected)
+    assert failed.args == [False]
+    assert failures == ["the loaded measurement is invalid"]
+    assert not runner.is_busy() and runner.pending_jobs() == 0
+    with qtbot.waitSignal(runner.job_finished, timeout=10000) as recovered:
+        assert runner.submit(lambda: 99, delivered.append)
+    assert recovered.args == [True] and delivered == [99]
+    assert failures == ["the loaded measurement is invalid"]
+    assert not runner.is_busy() and runner.pending_jobs() == 0

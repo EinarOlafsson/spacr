@@ -901,3 +901,50 @@ def test_a_drain_report_with_unavailable_original_stderr_keeps_native_completion
             assert report_failures == ([] if stderr_state == "missing" else [ValueError])
         finally:
             B.drain_thread(thread)
+
+
+def test_reporting_failures_preserve_pipeline_output_error_and_failed_manifest(
+        qapp, qtbot, monkeypatch, _isolated_worker_journal):
+    """Unavailable diagnostics cannot discard the run's visible failure or history."""
+    import json
+    from spacr import crashreport
+
+    captured, reports, lines, errors, completed = [], [], [], [], []
+
+    def capture_unavailable(text, *, origin):
+        captured.append((text, origin))
+        raise OSError("reporting capture unavailable")
+
+    def dispatch_unavailable(text, **kwargs):
+        reports.append(text)
+        raise OSError("reporting dispatch unavailable")
+
+    def failed_pipeline(_settings):
+        worker._push_output("direct progress before failure\n")
+        print("captured progress before failure")
+        raise ValueError("the input measurement is invalid")
+
+    monkeypatch.setattr(crashreport, "_capture_error_line", capture_unavailable)
+    monkeypatch.setattr(crashreport, "_dispatch_error", dispatch_unavailable)
+    worker = B.PipelineWorker(failed_pipeline, {}, app_key="measure", capture_figures=False)
+    worker.line_ready.connect(lines.append)
+    worker.error.connect(errors.append)
+    worker.finished.connect(completed.append)
+    try:
+        worker.run()
+        assert completed == [False]
+        assert len(errors) == 1 and "ValueError: the input measurement is invalid" in errors[0]
+        assert reports == errors
+        output = "".join(lines)
+        assert "direct progress before failure\n" in output
+        assert "captured progress before failure\n" in output
+        assert "Reproducibility manifest:" in output
+        assert ("direct progress before failure\n", "bridge") in captured
+        assert any(text.startswith("Reproducibility manifest:") and origin == "bridge"
+                   for text, origin in captured)
+        manifest_path, = _isolated_worker_journal.glob("*/manifest.json")
+        manifest = json.loads(manifest_path.read_text())
+        assert manifest["status"] == "failed"
+        assert "ValueError: the input measurement is invalid" in manifest["traceback"]
+    finally:
+        worker.deleteLater()
