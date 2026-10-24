@@ -189,3 +189,50 @@ def test_an_nvidia_card_with_a_cpu_only_torch_still_fails(ctx, monkeypatch):
 
     assert row.status == FAIL
     assert "CPU-only build" in row.message
+
+
+@pytest.mark.parametrize('hip,mps,expected', [
+    ('6.4', False, 'built against ROCm 6.4'),
+    (None, True, 'Metal/MPS build'),
+])
+def test_torch_row_reports_compiled_vendor_without_device_probe(ctx, monkeypatch, hip, mps, expected):
+    fake = _torch(hip=hip, mps=mps)
+    fake.__version__ = 'vendor-test'
+
+    def forbidden():
+        raise AssertionError('build reporting must not probe a device')
+
+    fake.cuda.is_available = forbidden
+    fake.backends.mps.is_available = forbidden
+    monkeypatch.setattr(doctor, '_import_torch', lambda: fake)
+    row = doctor.check_torch(ctx)
+    assert row.status == PASS
+    assert row.message == f'torch vendor-test ({expected}).'
+
+
+def test_float64_capable_non_cuda_device_does_not_get_a_cpu_precision_warning(ctx, monkeypatch):
+    from spacr import accelerator
+
+    monkeypatch.setattr(doctor, '_import_torch', lambda: _torch())
+    found = accelerator.Accelerator(kind='xpu', device='xpu:0', label='Intel XPU',
+                                    detected=True, usable=True, float64=True)
+    monkeypatch.setattr(accelerator, 'inspect_torch', lambda *args, **kwargs: found)
+    row = doctor.check_gpu(ctx)
+    assert row.status == PASS and row.message == 'Intel XPU — spaCR will use it.'
+    assert 'device: xpu:0' in row.details
+    assert not any('float64 is unsupported' in detail for detail in row.details)
+
+
+def test_darwin_default_wgpu_eligibility_does_not_read_linux_libc(monkeypatch):
+    import platform
+    import sys
+
+    monkeypatch.setattr(sys, 'version_info', (3, 12, 0, 'final', 0))
+    monkeypatch.setattr(sys, 'platform', 'darwin')
+    monkeypatch.setattr(platform, 'machine', lambda: 'arm64')
+
+    def forbidden():
+        raise AssertionError('Darwin eligibility must not inspect Linux libc')
+
+    monkeypatch.setattr(platform, 'libc_ver', forbidden)
+    assert doctor._wgpu_expected() == (True, '')

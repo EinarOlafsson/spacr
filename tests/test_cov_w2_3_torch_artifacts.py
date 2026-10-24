@@ -188,3 +188,35 @@ def test_a_whole_module_file_comes_back_as_its_own_module(tmp_path):
     assert loaded is not other
     assert payload["artifact_role"] == "legacy_full_module"
     assert payload["training_state"] == {}
+
+
+def test_metal_rng_state_round_trips_and_unavailable_backend_stays_untouched(monkeypatch):
+    from types import SimpleNamespace
+
+    generator = torch.Generator(device='cpu').manual_seed(179)
+    original = generator.get_state().clone()
+    calls = []
+
+    def restore(state):
+        calls.append(state.clone())
+        generator.set_state(state)
+
+    monkeypatch.setattr(torch.cuda, 'is_available', lambda: False)
+    monkeypatch.setattr(torch.backends, 'mps', SimpleNamespace(is_available=lambda: True))
+    monkeypatch.setattr(torch, 'mps', SimpleNamespace(
+        get_rng_state=lambda: generator.get_state(), set_rng_state=restore))
+    state = TA.capture_rng_state()
+    assert torch.equal(state['torch_mps'], original)
+    expected = torch.rand(6, generator=generator)
+    TA.restore_rng_state({'torch_mps': state['torch_mps']})
+    assert len(calls) == 1 and calls[0].device.type == 'cpu'
+    assert torch.equal(torch.rand(6, generator=generator), expected)
+    monkeypatch.setattr(torch.backends.mps, 'is_available', lambda: False)
+    before = generator.get_state().clone()
+    assert 'torch_mps' not in TA.capture_rng_state()
+    TA.restore_rng_state({'torch_mps': original})
+    assert len(calls) == 1 and torch.equal(generator.get_state(), before)
+    monkeypatch.setattr(torch.backends, 'mps', None)
+    assert 'torch_mps' not in TA.capture_rng_state()
+    TA.restore_rng_state({'torch_mps': original})
+    assert len(calls) == 1
