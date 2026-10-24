@@ -12,6 +12,18 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News intrinsic scope: all17 actual body labels, original HTML/font/source and
+fresh document natural/glyph-run bounds versus actual contents. Freeze actual
+allocation/CPP/source and require owned-idle next turn; separate intrinsic
+ledger only, visibility uncertified and139 whole targets unaccepted. Preserve
+existing range semantics and both20s clocks; no scroll or whole-body claim.
+
+Native33043/2CF5Sa on919b170142 PASS42.61s/RSS1.238GiB: last[352,358)
+accepted6/6 lines via10/10 visible segments; startup10.351s/content9.086s.
+Source/layout/doc696×21480/origin0/358total EXACTLY match both earlier ranges;
+disjoint[0,28)+[352,358) accepted34/358,324unchecked (run-local352).
+Normal cleanup pass;17 whole bodies/139 whole targets remain uncertified.
+
 Native25138/ORpMMJ onfc36398a05 PASS50.59s/RSS1.324GiB: lines[16,28)
 accepted12/12 via21/21 visible segments; startup8.527s/content19.990752s.
 Source/layout/doc696×21480/origin0/358-line witnesses EXACTLY match Qqn93W;
