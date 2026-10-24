@@ -344,3 +344,5 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-24 — Adopt approved feature-focused prose for Tutorial74 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
 
 2026-10-24 — Tutorial74 feature-focused prose now has source-bound mixed audio for the27 existing offerings and normal onset checks. Original master/web/poster and the independent original picture clock are retained; actual27 offering/caption/legacy-ratio and affected declared-gap checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.
+
+2026-10-24 — Adopt approved feature-focused prose for Tutorial78 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.

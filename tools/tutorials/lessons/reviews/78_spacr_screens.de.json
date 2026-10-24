@@ -1,7 +1,7 @@
 {
   "language": "de",
   "lesson": "78_spacr_screens",
-  "english_sha256": "9c69d3bd6bce92b72feef865100a92f462356235781349735280c3f6dbacb4f5",
+  "english_sha256": "1fe0879fc53974db1818ba1f3adfb18728ce7cb23a1b149e337a7d47f9bfe6a6",
   "title": "spaCR screens",
   "section": "Arbeitsabläufe",
   "description": "Verfolgen Sie einen gepoolten bildbasierten Screen von Home über Bildmessungen, Phänotypklassifikation und Barcode-Zählungen bis zur Regression.",
@@ -15,22 +15,18 @@
     "Ein gepoolter Screen erzählt seine Geschichte zweimal, einmal in Bildern und einmal in Sequenzier-Reads, und spaCR führt beides am Ende zusammen. Auf der Bildseite machen Mask und Measure aus Ihren Mikroskop-Bildfeldern gemessene Zellen, und Annotate und Classify machen aus diesen Zellen Phänotypscores. Auf der Sequenzierseite macht Map Barcodes aus Reads Guide-Zählungen. Regression verbindet beides über Platte und Well. Steigen Sie dort ein, wo Ihre Ergebnisse beginnen.",
     "Alles beginnt mit Ihren Mikroskopbildern. Öffnen Sie Mask von Home aus, wählen Sie die Kanäle und ein Segmentierungsmodell und prüfen Sie die Vorschau, bevor Sie es ausführen. Mask findet die Objekte in jedem Bildfeld und speichert jedes Bildfeld als zusammengeführtes Array, in dem die Bildkanäle mit ihren Labelmasken gestapelt sind. Diese zusammengeführten Arrays öffnet Measure als Nächstes. Die kleine Zähldatenbank, die Mask hinterlässt, ist nur eine Strichliste, noch keine Merkmalstabelle.",
     "Öffnen Sie als Nächstes Measure von Home aus und richten Sie es auf dasselbe Projekt, mit korrekt gesetzten Bild- und Maskenkanalindizes. Measure liest jedes zusammengeführte Array, Bilder und Labelebenen gemeinsam, und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Schalten Sie das Speichern von Ausschnitten ein, und es schneidet zusätzlich ein kleines PNG um jedes Objekt aus, indiziert in png_list. Ab hier verzweigt sich die Geschichte. Annotate zeigt diese Ausschnitte, damit Sie Beispiele beschriften können, und Classify lernt entweder aus den Ausschnitten oder aus den gemessenen Merkmalen; halten Sie Objektidentitäten daher stabil.",
-    "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus; es zeigt Ihnen die Objekt-Bildausschnitte, die Measure gespeichert hat oder streamt. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
+    "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus, um die Objekt-Bildausschnitte zu sehen, die zu Ihrem vermessenen Projekt gehören. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
     "Öffnen Sie Classify von Home aus – hier werden Ihre Labels zu Scores. Classify hat zwei Familien, und Ihre Daten entscheiden zwischen ihnen. Computer Vision lernt aus den Objekt-Bildausschnitten selbst, Tabular Machine Learning aus den gemessenen Merkmalsspalten. In beiden Fällen trainiert es auf den Labels aus Annotate, prüft sich an den zurückgehaltenen Objekten und speichert das trainierte Modell, ein Evaluierungspaket und die Scores, als CSV-Dateien und nach dem Zusammenführen in png_list. Wählen Sie die CV- oder ML-Score-Spalte, die Sie testen wollen, lassen Sie Platten- und Well-Identität intakt und bringen Sie sie in Regression.",
     "Während die Bilder einen Weg gehen, gehen die Sequenzier-Reads einen anderen. Öffnen Sie Map Barcodes von Home aus, geben Sie ihm Ihre FASTQ-Dateien und die Barcode-Referenzen, die Ihren Screen kodieren, und es zählt, welche Guides in jedem Well auftauchen. Prüfen Sie die zugeordneten Zählungen und die Barcode-QC, bevor Sie ihnen vertrauen. Die geschriebene unique_combinations.csv ist die Guide-Zähltabelle, die Regression Well für Well mit Ihren Phänotypscores verbindet.",
     "Hier treffen sich die beiden Hälften des Screens. Öffnen Sie Regression von Home aus und geben Sie ihm beides: die Phänotypscores aus Classify und die Guide-Zählungen aus Map Barcodes. Regression ordnet sie über Platte und Well zu, daher müssen diese Schlüssel in beiden Dateien übereinstimmen. Wählen Sie die Antwortspalte und Ihre Kontrollen, führen Sie die Anpassung aus und öffnen Sie die Diagnosen, bevor Sie irgendeinem Hit glauben. Wurden Ihre Barcodes stattdessen optisch mit OPS gelesen, verknüpfen und aggregieren Sie zuerst die dekodierten Objekte mit Ihren Phänotyp- und Guide-Daten; OPS liefert keine fertige Zähltabelle. Regression kann auch eine direkt gemessene Antwort modellieren. Es schreibt einen Ergebnisordner mit Koeffizienten, Hit-Tabellen, Einstellungen und Diagnoseabbildungen.",
     "Ein gepoolter Screen läuft also als zwei Ströme, die sich in Regression treffen. Prüfen Sie vor dem Öffnen, dass Platten- und Well-Kennungen zwischen Scores, Guide-Zählungen und Plattenlayout übereinstimmen, und bewahren Sie Annotationsspalte, Klassifikatoreinstellungen und Barcode-Referenzen beim Lauf auf. Die verlinkten Modul-Lektionen führen durch jeden Schritt, oder wählen Sie die Anleitung zum gepoolten Screen auf Home."
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
-    "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "bf2385a7264418dcb8c3853b8624c557bebad3809ecfadc6ecf93f1ec94252a4",
-    "corrections": [
-      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
-      "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); scene4 Annotate attribution sentence only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
+    "native_speaker_signoff": false,
     "listening_review": false
   }
 }
