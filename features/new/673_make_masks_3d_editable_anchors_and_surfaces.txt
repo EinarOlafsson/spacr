@@ -32,6 +32,11 @@ Require only Image opacity changes, exact current-request/completed-paint RGB
 and IDs with stable rays/quality/camera/session/cache/selection; RGB must change
 and restore exactly. All sibling model/UI fields, prefs/data/history/files and
 normal cleanup stay unchanged;30s initial/20s per operation, no pick/FPS claim.
+2026-10-24: opacity74815/sPOlVE on956e240809 FAIL32.63s/1.261GiB before
+rendering: immediate _screens['make_masks'] raises after open_module returns.
+Actual deferred branch was not observed; source permits queued publication.
+Home Skip/seen, normalclose/run0/jobs/threads/compiler pass; no opacity/frame
+acceptance. Observer must await real publication within the original30s.
 
 2026-10-24 — Native83585/vVwAFy on75cf7a4711 PASS69.47s/RSS1.341GiB:
 two same-build/profile Cocoa processes retain real Metal/explicit75% (B no reseed).

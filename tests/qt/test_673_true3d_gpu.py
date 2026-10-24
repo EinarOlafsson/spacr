@@ -265,6 +265,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert modal is None, 'No consent/provider dialog may be dismissed'
             if window._startup_sequence_running():
                 return False
+            home_context = state['operation'] == 'startup' and not state.get('module_requested', False)
             tours = [tour for tour in window.findChildren(_TourOverlay) if tour.isVisible()]
             observation = {'operation': state['operation'], 'home_seen': was_tour_shown(),
                 'stack_is_home': window._stack.currentWidget() is window._startup,
@@ -280,14 +281,14 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 report['tour_observation'] = observation
                 report.setdefault('tour_history', []).append(observation)
                 save()
-            if state['operation'] == 'startup' and not tours and not was_tour_shown():
+            if home_context and not tours and not was_tour_shown():
                 return False
             if tours:
                 assert len(tours) == 1
                 tour = tours[0]
                 assert tour.parentWidget() is window and tour._skip_btn.isVisible() and tour._skip_btn.isEnabled()
                 assert not tour._skip_btn.visibleRegion().isEmpty()
-                if state['operation'] == 'startup':
+                if home_context:
                     assert getattr(tour, '_walkthrough_app_key', None) is None
                     assert window._stack.currentWidget() is window._startup
                     assert not was_tour_shown()
@@ -298,7 +299,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 report.setdefault('owned_tour_skips', []).append(tour._skip_btn.text())
                 tour._skip_btn.click()
                 return False
-            if state['operation'] == 'startup':
+            if home_context:
                 assert was_tour_shown()
                 report['home_tour_hidden_and_seen_before_module'] = True
             return True
@@ -357,12 +358,42 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 elapsed = time.perf_counter()-state['started']
                 assert elapsed < (30 if state['operation'] in ('startup', 'initial') else 20), state['operation']
                 window = state['window']
+                assert QApplication.activeModalWidget() is None, 'No consent/provider dialog may be dismissed'
+                if state['operation'] == 'startup' and state.get('module_requested', False):
+                    screen = window._screens.get('make_masks')
+                    publication = {'registered_keys': sorted(window._screens),
+                        'opening': bool(getattr(window, '_opening_a_screen', False)),
+                        'screen_pointer': shiboken6.getCppPointer(screen) if screen is not None else None,
+                        'screen_class': type(screen).__name__ if screen is not None else None,
+                        'current': screen is not None and window._stack.currentWidget() is screen,
+                        'visible': screen is not None and screen.isVisible()}
+                    if publication != report.get('module_publication'):
+                        report['module_publication'] = publication
+                        report.setdefault('module_publication_history', []).append(publication)
+                        save()
+                    if screen is None:
+                        return
+                    assert isinstance(screen, mm.MakeMasksScreen)
+                    if publication['opening'] or not publication['current'] or not publication['visible']:
+                        return
+                    state['screen'] = screen
                 if not dismiss_owned_tour(window):
                     return
                 if state['operation'] == 'startup':
-                    assert window.open_module('make_masks') == 'make_masks'
-                    screen = window._screens['make_masks']
-                    state['screen'] = screen
+                    if not state.get('module_requested', False):
+                        assert report['home_tour_hidden_and_seen_before_module']
+                        state['module_requested'] = True
+                        report['module_request'] = {'opening_before': bool(getattr(window, '_opening_a_screen', False)),
+                            'registered_before': sorted(window._screens),
+                            'stack_before': type(window._stack.currentWidget()).__name__}
+                        save()
+                        report['module_request']['returned'] = window.open_module('make_masks')
+                        report['module_request']['opening_after'] = bool(getattr(window, '_opening_a_screen', False))
+                        report['module_request']['registered_after'] = sorted(window._screens)
+                        save()
+                        assert report['module_request']['returned'] == 'make_masks'
+                        return
+                    screen = state['screen']
                     assert load_the_fibsem_test_data(screen, with_masks=True, folder=folder,
                         ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
                     stage = screen._mask_stage
