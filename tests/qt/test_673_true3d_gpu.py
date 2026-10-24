@@ -254,7 +254,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         and any(isinstance(target, ast.Name) and target.id == '_OWNED_SETTINGS_PROBE'
                 for target in node.targets))
     child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
-        import hashlib, subprocess, time, traceback
+        import hashlib, subprocess, threading, time, traceback
         from pathlib import Path
         import numpy as np
         import shiboken6
@@ -263,7 +263,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         from spacr import layers
         from spacr.qt import preferences, timing
         from spacr.qt.app import MainWindow
-        from spacr.qt.bridge import registry, thread_has_stopped
+        from spacr.qt.bridge import RunRegistry, registry, thread_has_stopped
         from spacr.qt.first_run import _TourOverlay, was_tour_shown
         from spacr.qt.make_masks_demo import load_the_fibsem_test_data
         from spacr.qt.screens import make_masks as mm
@@ -316,6 +316,24 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert phase == 'A' and not report['initial_saved']
         preferences.set_ai_on_by_default(False)
         state = {}
+
+        original_registration = RunRegistry.__dict__['register']
+        registration_rows = []
+        report['registration_trace'] = registration_rows
+
+        def traced_registration(owner, handle):
+            window = state.get('window')
+            row = {'handle_id': id(handle), 'registry_id': id(owner),
+                'key': handle.app_key, 'kind': handle.kind,
+                'host_closing': bool(window._closing) if window is not None else None,
+                'phase': state.get('operation', 'before_home'),
+                'at': time.perf_counter(), 'thread_id': threading.get_ident(),
+                'stack': traceback.format_stack(),
+                'registered': False}
+            registration_rows.append(row)
+            result = original_registration(owner, handle)
+            row['registered'] = True
+            return result
 
         def digest(array):
             return hashlib.sha256(np.ascontiguousarray(array).tobytes()).hexdigest()
@@ -1090,7 +1108,13 @@ def _run_native_volume_probe(tmp_path, *, scenario):
 
         timing.subscribe_readiness(ready)
         from spacr.qt import run
-        result = run(['--no-setup', '--fresh'])
+        assert RunRegistry.__dict__['register'] is original_registration
+        RunRegistry.register = traced_registration
+        try:
+            result = run(['--no-setup', '--fresh'])
+        finally:
+            RunRegistry.register = original_registration
+            report['registration_descriptor_restored'] = RunRegistry.__dict__['register'] is original_registration
         timing.unsubscribe_readiness(ready)
         if 'paint_class' in state:
             state['paint_class'].paintEvent = state['original_paint']
@@ -1108,6 +1132,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             report['registry_diagnostic'] = state['registry_snapshots']
         save()
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert report['registration_descriptor_restored']
+        assert all(row['registered'] for row in report['registration_trace'])
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
         if scenario in ('chooser', 'chooser_cancel'):
@@ -1227,6 +1253,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert marker not in completed.stdout+completed.stderr, completed.stdout+completed.stderr
         report = json.loads(output.read_text())
         assert report['phase'] == phase and report['normal_return'] == 0 and report['normal_close_accepted']
+        assert report['registration_descriptor_restored']
+        assert all(row['registered'] for row in report['registration_trace'])
         assert report['native']['platform'] == 'cocoa' and report['native']['dpr'] == 2. and report['native']['exposed']
         assert report['home_tour_hidden_and_seen_before_module']
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30

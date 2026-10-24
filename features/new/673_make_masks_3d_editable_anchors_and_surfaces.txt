@@ -27,6 +27,11 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Persistent observer scope: preserve the proven primitive registration hook in
+the existing shared native helper, bound immediately before public run and
+restored in finally. Existing JSON only, all scenarios/zero-registry gates
+unchanged; no product repair, pruning, broader refactor or reassurance run.
+
 2026-10-24 — ThreadDraw43330/YHH29u FAIL42.51s/1.260GiB on5f8716a6:
 9core/9outer, core CPU223.766ms≤outer458.545ms;10motions/3.036s.
 FIBSEM626×122/DPR2/Metal75, freshframe/pick0/idle/resources/run0 PASS.
