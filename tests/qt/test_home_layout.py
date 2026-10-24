@@ -47,6 +47,95 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
+@pytest.mark.parametrize("dpr", (1., 2.))
+def test_hero_mark_fits_its_real_compressed_slot_and_recovers_on_growth(qtbot, qapp, monkeypatch, dpr):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QEvent, QPoint, QSize, Qt
+    from PySide6.QtGui import QFontInfo, QPixmap, QRegion
+    from PySide6.QtWidgets import QStyle, QWidget
+    from spacr.qt import app, gui_scale, hidpi, preferences
+    from spacr.qt.widgets import home as home_widgets
+
+    ratio = [dpr]
+    monkeypatch.setattr(home_widgets, "device_ratio", lambda widget: ratio[0])
+    monkeypatch.setattr(hidpi, "device_ratio", lambda widget: ratio[0])
+    submitted = []
+    original_set = home_widgets._HeroMark.setPixmap
+
+    def set_pixmap(label, pixmap):
+        submitted.append(QPixmap(pixmap))
+        original_set(label, pixmap)
+
+    monkeypatch.setattr(home_widgets._HeroMark, "setPixmap", set_pixmap)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    host = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        host = QWidget()
+        builder = SimpleNamespace(_P=home_widgets.active_palette())
+        hero = HomePage._build_hero(builder)
+        hero.setParent(host)
+        mark = hero.findChild(QLabel, "HeroMark")
+        assert mark is not None
+        qtbot.addWidget(host)
+        gui_scale._resize_actual(host, QSize(1104, 84))
+        gui_scale._resize_actual(hero, QSize(1104, 84))
+        host.show()
+        assert QFontInfo(qapp.font()).family() == "Open Sans"
+
+        def fits():
+            pixmap = mark.pixmap()
+            if pixmap is None or pixmap.isNull():
+                return False
+            size = pixmap.deviceIndependentSize().toSize()
+            placed = QStyle.alignedRect(mark.layoutDirection(), mark.alignment(), size, mark.contentsRect())
+            return (mark.contentsRect().contains(placed)
+                    and QRegion(placed).subtracted(mark.visibleRegion()).isEmpty()
+                    and host.rect().contains(placed.translated(mark.mapTo(host, QPoint()))))
+
+        qtbot.waitUntil(fits)
+        assert submitted[-1].devicePixelRatio() == dpr
+        assert submitted[-1].width() == submitted[-1].height()
+        assert mark.property("minimumSize") == QSize(0, 0)
+        assert mark.property("maximumSize") == QSize(16777215, 16777215)
+        assert mark.sizeHint() == QSize(288, 288)
+        small = mark.pixmap().deviceIndependentSize()
+        assert max(small.width(), small.height()) <= 68
+        gui_scale._resize_actual(host, QSize(1600, 700))
+        gui_scale._resize_actual(hero, QSize(1600, 700))
+        qtbot.waitUntil(lambda: fits() and mark.pixmap().deviceIndependentSize().height() >= 288)
+        assert mark.sizeHint() == QSize(288, 288)
+        source_before = mark._source.toImage()
+        ratio[0] = 3. - dpr
+        mark.findChild(hidpi._RatioWatcher).eventFilter(mark, QEvent(QEvent.DevicePixelRatioChange))
+        assert submitted[-1].devicePixelRatio() == ratio[0]
+        assert submitted[-1].deviceIndependentSize().toSize() == QSize(288, 288)
+        assert fits() and mark._source.toImage() == source_before
+        gui_scale._resize_actual(host, QSize(1104, 84))
+        gui_scale._resize_actual(hero, QSize(1104, 84))
+        qtbot.waitUntil(lambda: fits() and mark.pixmap().deviceIndependentSize().height() <= 68)
+    finally:
+        try:
+            if host is not None:
+                host.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 def test_hero_text_fits_constrained_slots_and_restores_selected_style(qtbot, qapp, monkeypatch):
     from types import SimpleNamespace
     from PySide6.QtCore import QCoreApplication, QEvent, QSize, Qt
@@ -132,7 +221,16 @@ def test_hero_text_fits_constrained_slots_and_restores_selected_style(qtbot, qap
         gui_scale._resize_actual(hero, QSize(3004, 904))
         qtbot.waitUntil(lambda: title.font().pixelSize() == 208 and title.styleSheet() == custom
                         and subtitle.font().pixelSize() == 68)
-        qtbot.waitUntil(lambda: not hero._text_fit._timer.isActive())
+        previous_idle = [None]
+
+        def idle():
+            current = (len(calls), hero.property("size"),
+                       tuple((label.geometry().getRect(), label.font().toString()) for label in (title, subtitle)))
+            same = current == previous_idle[0]
+            previous_idle[0] = current
+            return not hero._text_fit._timer.isActive() and same
+
+        qtbot.waitUntil(idle)
         count = len(calls)
         for _ in range(8):
             qapp.processEvents()

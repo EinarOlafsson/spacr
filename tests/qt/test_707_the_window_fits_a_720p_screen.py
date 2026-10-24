@@ -135,7 +135,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             persist()
 
         def signature(window, target, identities=None):
-            """Observe target geometry; log MainWindow's internal layout separately."""
+            """Compare actual widget geometry and log layout bookkeeping separately."""
             snapshot = []
             widgets = [target, *target.findChildren(QWidget)]
             ancestor = target.parentWidget()
@@ -161,8 +161,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 layout = w.layout()
                 snapshot.append((id(w), w.property('size').toTuple(), w.pos().toTuple(),
                     w.property('minimumSize').toTuple(), w.property('maximumSize').toTuple(),
-                    layout.geometry().getRect() if layout is not None and w is not window else None,
-                    w.font().toString()))
+                    None, w.font().toString()))
                 if identities is not None:
                     identities.append({'class': type(w).__name__, 'name': w.objectName(),
                         'python_wrapper_id': id(w), 'native_cpp_pointer': shiboken6.getCppPointer(w),

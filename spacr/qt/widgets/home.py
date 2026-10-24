@@ -78,6 +78,42 @@ HERO_LOGO_PX = 72
 HERO_TITLE_PX = 52
 
 
+class _HeroMark(QLabel):
+    """Keep the source mark while permitting the masthead to compress it."""
+
+    def __init__(self, source, preferred_side):
+        """Retain the original pixels and a logical preferred branding size."""
+        super().__init__()
+        self._source = QPixmap(source)
+        self._preferred_side = preferred_side
+        self._drawn = None
+        follow_device_ratio(self, self._redraw)
+
+    def sizeHint(self):
+        """Offer the selected font/GUI size without making it a hard floor."""
+        from ..gui_scale import scale_int
+
+        side = scale_int(font_px(self._preferred_side))
+        return QSize(side, side)
+
+    def minimumSizeHint(self):
+        """Allow the actual header allocation to be smaller than its preference."""
+        return QSize(0, 0)
+
+    def _redraw(self):
+        """Fit original source pixels to actual bounds, preserving ratio and DPR."""
+        bounds = self.contentsRect().size().boundedTo(self.sizeHint())
+        signature = (bounds.width(), bounds.height(), device_ratio(self))
+        if not bounds.isEmpty() and signature != self._drawn:
+            self.setPixmap(scaled_for(self._source, self, bounds))
+            self._drawn = signature
+
+    def resizeEvent(self, event):
+        """Redraw after the label receives its actual allocation."""
+        super().resizeEvent(event)
+        self._redraw()
+
+
 class _HeroLabel(QLabel):
     """Retain selected-font preferred space without imposing a minimum."""
 
@@ -2467,25 +2503,11 @@ class HomePage(QWidget):
                                SPACING["md"], SPACING["sm"])
         row.setSpacing(SPACING["md"])
 
-        logo_px = font_px(HERO_LOGO_PX)
         logo = _find_logo_pixmap()
         if logo is not None:
-            label = QLabel()
+            label = _HeroMark(logo, HERO_LOGO_PX)
             label.setObjectName("HeroMark")
-            label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
-
-            def _draw_mark(label=label, source=logo, side=logo_px):
-                """Redraw the mark at the ratio of the screen it is on.
-
-                Always from the 3334 px master. Re-scaling whatever is
-                already on the label would compound one resample for every
-                screen the window has been dragged across.
-                """
-                label.setPixmap(scaled_for(source, label, side))
-
-            _draw_mark()
-            follow_device_ratio(label, _draw_mark)
             self._hero_mark = label
             row.addWidget(label)
 

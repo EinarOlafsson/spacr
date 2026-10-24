@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Hero logo requirement: fit the actual masthead allocation from original source
+pixels, preserving aspect/DPR and selected preferred size on growth, without
+fixed floors. Controlled99256 reproduces the invisible logo in1104x84; focused
+89523 passes3/4.79s/RSS0.317GiB for shrink/grow, mockedDPR1/2/change, unchanged
+source and retained text-fit restoration/quiescence. Native retake remains due.
+
 Chrome icon scope: current font200 paints a36px source while GUI200 uses a
 native72px icon slot; returned36px pixels cannot retain the same relative
 glyph size. Add an actual-slot GUI90→200→90/font200 regression with exact
@@ -106,6 +112,12 @@ in both identity observations. Every actual widget/native geometry, position,
 minimum/maximum, font and identity remains strict, as do all other layouts,
 one-reveal/next-turn text/icon visibility and unchanged operation budgets.
 No product geometry repair or additional tested-target claim follows from this.
+Native95250 onb9f2dde4a: natural1/33.15s/RSS1.217GiB; real tour completes,
+four Chrome marks pass whole75x75/slot72/DPR2, but the logo lies outside its
+68px visible band;5/137 inspected,132 untested. Normal close/cleanup pass.
+Like19870, its structural abort changes only private layout bookkeeping, not
+actual widgets. Log QLayout rectangles separately; retain strict actual widget,
+glyph/visibility/reveal checks and20s budgets, with no content-policy waiver.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
