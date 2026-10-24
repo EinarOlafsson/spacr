@@ -1274,6 +1274,9 @@ class TestRunStopStateMachine:
 # H. Error routing / issue filing
 # ---------------------------------------------------------------------------
 
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import manual_error_batches
+
+
 class TestErrorRouting:
 
     def test_error_prints_raw_when_ai_is_off(self, qtbot, monkeypatch):
@@ -1288,25 +1291,53 @@ class TestErrorRouting:
         assert not scr._btn_file_issue.isVisible()
         assert not scr._btn_file_issue.isEnabled()
 
-    def test_error_routes_through_ai_and_hides_the_raw_traceback(
-            self, qtbot, monkeypatch):
-        monkeypatch.setattr("spacr.qt.ai.get_provider",
-                            lambda name: _FakeProvider(name, name.title()))
-        monkeypatch.setattr(
-            "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: True)
-        monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
-                            lambda: False)
+    def test_error_routes_through_ai_and_keeps_the_raw_traceback_local(
+            self, qtbot, monkeypatch, manual_error_batches):
+        from spacr import crashreport
+        from spacr.qt import preferences, terms
+        from spacr.qt.ai import providers, settings
+        from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
+        from tests.test_700_anonymous_error_reports import FakeRelay
+
+        relay = FakeRelay()
+        relay.routes["/diagnose"] = [(200, {"advice": "Check the image path."})]
+        monkeypatch.setattr(crashreport, "_open_url", relay)
         scr = _make_screen(qtbot, "mask")
-        scr._console.set_ai_active(True)
-        scr._console.set_ai_provider("claude")
+        preferences.set_preferred_provider(providers.HOSTED_PROVIDER_NAME)
+        terms.record_agreement()
+        settings.set_route_errors_through_ai(True)
+        settings.set_auto_file_issues(False)
+        crashreport.set_error_report_mode("summarize")
+        _sync_automatic_failure_policy()
+        scr.show()
+        qtbot.waitExposed(scr)
+        workers = []
+        dispatch = crashreport._dispatch_error_now
 
-        calls = []
-        scr._console.open_error_flow = lambda tb, **kw: calls.append((tb, kw))
-        scr._on_pipeline_error("SECRET-TRACEBACK")
+        def observe(*args, **kwargs):
+            worker = dispatch(*args, **kwargs)
+            if worker is not None:
+                workers.append(worker)
+            return worker
 
-        assert calls == [("SECRET-TRACEBACK",
-                          {"active_app": "mask", "show_raw": False})]
-        assert "SECRET-TRACEBACK" not in _console_text(scr._console)
+        monkeypatch.setattr(crashreport, "_dispatch_error_now", observe)
+        traceback = "RuntimeError: cannot read /home/PRIVATE_PERSON/SECRET-TRACEBACK.tif"
+        try:
+            scr._on_pipeline_error(traceback)
+            manual_error_batches()
+            assert workers
+            qtbot.waitUntil(lambda: all(not w.is_alive() for w in workers), timeout=20000)
+            qtbot.waitUntil(lambda: "Check the image path." in _console_text(scr._console),
+                            timeout=20000)
+            assert traceback in _console_text(scr._console)
+            assert len(relay.calls_to("/diagnose")) == 1
+            assert relay.calls_to("/report") == []
+            outgoing = str(relay.calls_to("/diagnose")[0]["body"])
+            assert "PRIVATE_PERSON" not in outgoing
+            assert "SECRET-TRACEBACK" not in outgoing
+        finally:
+            qtbot.waitUntil(lambda: all(not w.is_alive() for w in workers), timeout=20000)
+            scr._console.shutdown()
 
     def test_error_falls_back_to_raw_when_routing_is_disabled(
             self, qtbot, monkeypatch):
@@ -1326,12 +1357,12 @@ class TestErrorRouting:
 
     def test_error_falls_back_to_raw_when_the_ai_lookup_explodes(
             self, qtbot, monkeypatch):
-        monkeypatch.setattr(
-            "spacr.qt.ai.settings.get_route_errors_through_ai",
-            lambda: (_ for _ in ()).throw(RuntimeError("prefs gone")))
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
                             lambda: False)
         scr = _make_screen(qtbot, "mask")
+        monkeypatch.setattr(
+            "spacr.qt.ai.settings.get_route_errors_through_ai",
+            lambda: (_ for _ in ()).throw(RuntimeError("prefs gone")))
         scr._console.set_ai_active(True)
         scr._console.set_ai_provider("claude")
         scr._on_pipeline_error("STILL-VISIBLE")
@@ -1384,10 +1415,10 @@ class TestErrorRouting:
             self, qtbot, monkeypatch):
         monkeypatch.setattr(
             "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: False)
+        scr = _make_screen(qtbot, "mask")
         monkeypatch.setattr(
             "spacr.qt.ai.settings.get_auto_file_issues",
             lambda: (_ for _ in ()).throw(RuntimeError("registry gone")))
-        scr = _make_screen(qtbot, "mask")
         scr._on_pipeline_error("TB-VISIBLE")
         assert "TB-VISIBLE" in _console_text(scr._console)
         assert not scr._btn_file_issue.isEnabled()

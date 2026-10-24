@@ -1,31 +1,14 @@
-"""With issue reporting set to 'always', a failed run files its own report.
+"""Consented errors use the anonymous relay; explicit GitHub sends are reviewed.
 
-The maintainer's decision, 2026-09-19, after issue #117: "Do real
-auto-filing, and make this the default, and add the user agreeing to this in
-the user agreement, if set to always."
+The automatic route needs no GitHub sign-in and preserves bounded retry,
+per-occurrence delivery and relay issue deduplication. Local raw diagnostics
+stay visible while outgoing payloads are scrubbed. Explicit File as issue
+uses its real preview and Send action; absent credentials or an API failure
+can hand the approved report to the browser instead of publishing via API.
 
-Until then 'always' was inert. 807ba9e0a (instruction 45) removed automatic
-filing, and nothing read the choice afterwards, so it behaved like 'ask'.
-
-These tests hold the decision down:
-
-* a profile that never chose files automatically, and one that chose keeps
-  its choice;
-* nothing is filed automatically until the profile has accepted terms 4.2,
-  whose Section 5.6 is the consent;
-* the report filed is the one "File as issue" would build, with the
-  redaction its preview applies by default, and with this computer's login
-  and host names removed;
-* one crash is filed once: never twice from one profile, and as a comment
-  when an open issue already carries its fingerprint;
-* without a GitHub sign-in nothing is sent and no browser opens;
-* an AI provider's error is never attached as its analysis;
-* the terms of use say all of this, and point at the setting that
-  changes it.
-
-The network is faked at ``github_auth._HTTP_OPEN``, the one seam every
-GitHub request goes through, and the sign-in at ``github_auth.resolve_token``.
-Nothing here can reach github.com, and ``HOME`` is a temporary folder.
+Retain the saved reporting choices, terms, planted-identity redaction,
+analysis pairing and bounded worker lifetime contracts. All relay and GitHub
+transports are fakes, and HOME is a temporary folder.
 """
 from __future__ import annotations
 
@@ -668,90 +651,194 @@ def _run_and_wait_for(qtbot, screen, needle: str) -> str:
     return screen._console.as_text()
 
 
+@pytest.fixture
+def automatic_mask_screen(qtbot, monkeypatch, mask_screen, manual_error_batches):
+    """Observe consented automatic relay work and retire only its real workers."""
+    from PySide6.QtCore import QCoreApplication
+    from spacr import crashreport
+    from spacr.qt import preferences
+    from spacr.qt.ai import providers
+    from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
+    from tests.test_700_anonymous_error_reports import FakeRelay
+
+    relay = FakeRelay((200, {"issue_number": 501, "issue_url": FILED_URL,
+                             "deduplicated": False}))
+    monkeypatch.setattr(crashreport, "_open_url", relay)
+    monkeypatch.setattr(crashreport, "_ERROR_DISPATCH_SEEN", {})
+    monkeypatch.setattr(crashreport, "_ERROR_OCCURRENCE_POLICIES", {})
+    preferences.set_preferred_provider(providers.HOSTED_PROVIDER_NAME)
+    crashreport.set_error_report_mode("send_all")
+    _sync_automatic_failure_policy()
+    policy, explain, send = crashreport._automatic_error_policy(crashreport.KIND_FAULT)
+    assert not explain and send
+    mask_screen.show()
+    qtbot.waitExposed(mask_screen)
+    workers, releases = [], []
+    dispatch = crashreport._dispatch_error_now
+
+    def observe(*args, **kwargs):
+        worker = dispatch(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+
+    def finish():
+        manual_error_batches()
+        qtbot.waitUntil(lambda: all(not worker.is_alive() for worker in workers),
+                        timeout=30000)
+        QCoreApplication.processEvents()
+
+    monkeypatch.setattr(crashreport, "_dispatch_error_now", observe)
+    mask_screen.relay = relay
+    mask_screen.report_releases = releases
+    mask_screen.advance_reports = manual_error_batches
+    mask_screen.finish_reports = finish
+    yield mask_screen
+    for release in releases:
+        release.set()
+    finish()
+
+
+def _run_automatic_report(qtbot, screen, **override):
+    """Await the real failed pipeline before delivering its consented batch."""
+    from spacr.qt.bridge import thread_has_stopped
+
+    settings = {"src": "/Volumes/drive/Projection", "test_mode": True,
+                "hash_inputs": False}
+    settings.update(override)
+    screen._on_run(override=settings)
+    qtbot.waitUntil(lambda: "✗ Failed" in screen._console.as_text(), timeout=30000)
+    qtbot.waitUntil(lambda: thread_has_stopped(screen._thread), timeout=30000)
+    screen.finish_reports()
+    return screen._console.as_text()
+
+
+def _send_approved_issue(qtbot, screen, monkeypatch):
+    """Press the real preview's Send action and consume the owned report job."""
+    from PySide6.QtCore import QTimer, Qt
+    from PySide6.QtWidgets import QDialog, QDialogButtonBox
+    from spacr.qt.ai.issue_preview import IssuePreviewDialog
+
+    previews = []
+
+    def approve(dialog):
+        previews.append(dialog)
+        failures = []
+
+        def send_once():
+            try:
+                buttons = dialog.findChild(QDialogButtonBox)
+                send = next(button for button in buttons.buttons()
+                            if buttons.buttonRole(button) == QDialogButtonBox.AcceptRole)
+                qtbot.mouseClick(send, Qt.LeftButton)
+                assert dialog.result() == QDialog.Accepted
+            except BaseException as error:
+                failures.append(error)
+                dialog.reject()
+
+        timer = QTimer(dialog)
+        timer.setSingleShot(True)
+        timer.timeout.connect(send_once)
+        timer.start(0)
+        result = _REAL_DIALOG_EXEC(dialog)
+        assert failures == []
+        assert result == QDialog.Accepted
+        return result
+
+    monkeypatch.setattr(IssuePreviewDialog, "exec", approve)
+    screen.show()
+    qtbot.waitExposed(screen)
+    assert screen._btn_file_issue.isVisible() and screen._btn_file_issue.isEnabled()
+    qtbot.mouseClick(screen._btn_file_issue, Qt.LeftButton)
+    qtbot.waitUntil(lambda: not screen._jobs.is_busy(), timeout=30000)
+    qtbot.waitUntil(lambda: screen._jobs.active_jobs() == 0, timeout=30000)
+    assert len(previews) == 1
+    return screen._console.as_text()
+
+
 class TestAFailedRunFilesItself:
 
     def test_the_report_is_filed_with_no_preview(
-            self, qtbot, monkeypatch, signed_in, mask_screen, machine):
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-
-        text = _run_and_wait_for(qtbot, mask_screen, "[issue] Filed on")
-
-        failed = text.index("✗ Failed")
-        filing = text.index("[issue] Filing a redacted report")
-        filed = text.index(f"[issue] Filed on GitHub: {FILED_URL}")
-        assert failed < filing < filed
-        assert text[failed:filing].count("\n") == 1, (
-            "the line belongs directly under the failure")
-        assert "Nothing was sent to GitHub" not in text
-        assert mask_screen.previews == [] and mask_screen.opened == []
-
-        [created] = github.posted("/repos/EinarOlafsson/spacr/issues")
-        posted = created["title"] + "\n" + created["body"]
-        assert created["title"].startswith("[auto ")
-        assert "[mask] ValueError" in created["title"]
-        for leak in (str(machine), USER, HOST, "plate_01"):
+            self, qtbot, monkeypatch, automatic_mask_screen, machine):
+        screen = automatic_mask_screen
+        monkeypatch.setattr(github_auth, "resolve_token",
+                            lambda: pytest.fail("automatic relay must not query GitHub credentials"))
+        text = _run_automatic_report(qtbot, screen)
+        assert "Reported anonymously as issue #501" in text
+        assert "✗ Failed" in text
+        assert text.index("ValueError: cannot read") < text.index("Reported anonymously")
+        assert screen.previews == [] and screen.opened == []
+        [created] = screen.relay.calls_to("/report")
+        posted = json.dumps(created["body"])
+        for leak in (str(machine), USER, HOST, "plate_01", TOKEN):
             assert leak not in posted, leak
-        assert "<USER>" in posted and "<HOST>" in posted
+        assert "ValueError" in posted
+        assert screen.relay.calls_to("/diagnose") == []
 
     def test_the_same_crash_is_not_filed_twice(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-        _run_and_wait_for(qtbot, mask_screen, "[issue] Filed on")
-        requests_after_the_first = len(github.requests)
+            self, qtbot, automatic_mask_screen):
+        screen = automatic_mask_screen
+        screen.relay.routes["/report"] = [
+            (200, {"issue_number": 501, "issue_url": FILED_URL, "deduplicated": False}),
+            (200, {"issue_number": 501, "issue_url": FILED_URL, "deduplicated": True})]
+        _run_automatic_report(qtbot, screen)
+        _run_automatic_report(qtbot, screen)
+        reports = screen.relay.calls_to("/report")
+        assert len(reports) == 2
+        from spacr import crashreport
+        assert crashreport.explanation_signature(reports[0]["body"]) == \
+            crashreport.explanation_signature(reports[1]["body"])
+        assert "already has issue #501" in screen._console.as_text()
+        assert FILED_URL in screen._console.as_text()
+        assert screen.previews == [] and screen.opened == []
 
-        text = _run_and_wait_for(qtbot, mask_screen,
-                                 "was reported from this computer before")
+    def test_an_open_issue_gets_this_occurrence(self, qtbot, automatic_mask_screen):
+        screen = automatic_mask_screen
+        screen.relay.routes["/report"] = [(200, {
+            "issue_number": 88, "issue_url": OPEN_URL, "deduplicated": True})]
+        text = _run_automatic_report(qtbot, screen)
+        assert "already has issue #88, which now counts it again" in text
+        assert OPEN_URL in text
+        assert len(screen.relay.calls_to("/report")) == 1
+        assert screen.previews == [] and screen.opened == []
 
-        assert len(github.requests) == requests_after_the_first
-        assert f"not filed again: {FILED_URL}" in text
-        from spacr.qt.ai import settings as ai_settings
-        fingerprint = issue_report.fingerprint_of(
-            mask_screen._last_error_text)
-        assert ai_settings.auto_filed_url(fingerprint) == FILED_URL
-
-    def test_an_open_issue_gets_this_occurrence(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        github = FakeGitHub(open_issue={"number": 88, "html_url": OPEN_URL})
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-
-        text = _run_and_wait_for(qtbot, mask_screen, "already has an open")
-
-        assert f"This occurrence was added to it: {OPEN_URL}" in text
-        assert github.posted("/repos/EinarOlafsson/spacr/issues") == []
-        assert len(github.posted("/issues/88/comments")) == 1
-
-    def test_signed_out_it_says_how_to_sign_in(
-            self, qtbot, monkeypatch, mask_screen):
+    def test_signed_out_approved_report_uses_browser_fallback_without_api_request(
+            self, qtbot, monkeypatch, mask_screen, machine, manual_error_batches):
         github = FakeGitHub()
         monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
         monkeypatch.setattr(github_auth, "resolve_token", lambda: ("", None))
-
-        text = _run_and_wait_for(qtbot, mask_screen, "not signed in")
-
-        assert "`gh auth login`" in text
-        assert github.requests == [] and mask_screen.opened == []
+        mask_screen._on_pipeline_error(_traceback(machine))
+        text = _send_approved_issue(qtbot, mask_screen, monkeypatch)
+        assert github.requests == []
+        assert len(mask_screen.opened) == 1
+        assert mask_screen.opened[0].startswith(
+            "https://github.com/EinarOlafsson/spacr/issues/new?")
+        assert "report handoff completed" in text
         assert mask_screen._btn_file_issue.isEnabled()
-
-        monkeypatch.setattr(github_auth, "resolve_token",
-                            lambda: (TOKEN, "env"))
-        text = _run_and_wait_for(qtbot, mask_screen, "[issue] Filed on")
-
-        assert "reported from this computer before" not in text, (
-            "an unsent report was remembered, so it would never be sent")
+        monkeypatch.setattr(github_auth, "resolve_token", lambda: (TOKEN, "env"))
+        text = _send_approved_issue(qtbot, mask_screen, monkeypatch)
         assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
+        assert FILED_URL in text
 
-    def test_a_failure_is_said_and_can_be_retried(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN",
-                            FakeGitHub(create_fails=True))
-
-        text = _run_and_wait_for(qtbot, mask_screen, "[issue] Not filed")
-
-        assert "GitHub API error 500" in text
-        assert TOKEN not in text
-        assert "Press File as issue to try again" in text
+    def test_an_approved_api_failure_falls_back_and_can_be_retried(
+            self, qtbot, monkeypatch, signed_in, mask_screen, machine, manual_error_batches):
+        github = FakeGitHub(create_fails=True)
+        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
+        mask_screen._on_pipeline_error(_traceback(machine))
+        first = _send_approved_issue(qtbot, mask_screen, monkeypatch)
+        assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
+        assert len(mask_screen.opened) == 1
+        assert mask_screen.opened[0].startswith(
+            "https://github.com/EinarOlafsson/spacr/issues/new?")
+        assert TOKEN in first
+        notices = first[first.index("[issue] sending the approved report"):]
+        assert TOKEN not in notices
+        assert TOKEN not in json.dumps(github.posted("/repos/EinarOlafsson/spacr/issues"))
+        assert TOKEN not in mask_screen.opened[0]
+        github.create_fails = False
+        second = _send_approved_issue(qtbot, mask_screen, monkeypatch)
+        assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 2
+        assert FILED_URL in second
 
     def test_ask_files_nothing(self, qtbot, monkeypatch, signed_in,
                                mask_screen):
@@ -804,82 +891,73 @@ class TestAFailedRunFilesItself:
         assert "[issue]" not in text
 
     def test_a_run_on_a_folder_with_spaces_publishes_none_of_it(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        """The whole way a user hits it: Run on a macOS volume whose name
-        has a space in it, no preview, and what reaches github.com carries
-        neither the volume, the patient folder nor the file."""
+            self, qtbot, monkeypatch, automatic_mask_screen):
         from spacr.qt.screens import app_screen
-
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
 
         def entry(_key):
             def preprocess_generate_masks(settings):
                 raise FileNotFoundError(
-                    2, "No such file or directory",
-                    "/Volumes/Lab Drive/Patient 042/plate A.tif")
+                    2, "No such file or directory", "/Volumes/Lab Drive/Patient 042/plate A.tif")
             return preprocess_generate_masks
 
+        screen = automatic_mask_screen
         monkeypatch.setattr(app_screen, "resolve_pipeline_entry", entry)
-
-        mask_screen._on_run(override={"src": "/Volumes/Lab Drive/Patient 042",
-                                      "test_mode": True,
-                                      "hash_inputs": False})
-        qtbot.waitUntil(
-            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
-            timeout=30000)
-        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
-
-        [created] = github.posted("/repos/EinarOlafsson/spacr/issues")
-        posted = created["title"] + "\n" + created["body"]
+        _run_automatic_report(qtbot, screen, src="/Volumes/Lab Drive/Patient 042")
+        [created] = screen.relay.calls_to("/report")
+        posted = json.dumps(created["body"])
         for leak in ("Lab Drive", "Patient 042", "plate A.tif", "Volumes"):
             assert leak not in posted, f"{leak!r} was published: {posted!r}"
-        assert "FileNotFoundError" in created["title"]
+        assert created["body"]["exception_type"] == "FileNotFoundError"
 
     def test_a_report_that_never_came_back_does_not_block_the_next_one(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        """The runner hands nothing to `on_done` when the screen that
-        started the job was closed or cancelled, so the fingerprint stayed
-        in the in-flight record and every later failure with that traceback,
-        in any screen, said "being reported already" and filed nothing."""
-        from spacr.qt.screens import app_screen
+            self, qtbot, automatic_mask_screen):
+        from spacr import crashreport
 
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-        tb = _traceback("/home/" + USER)
-        fingerprint = issue_report.fingerprint_of(tb)
-        app_screen._REPORTS_BEING_FILED[fingerprint] = (
-            time.monotonic() - app_screen.REPORT_IN_FLIGHT_SECONDS - 1)
-        mask_screen._last_error_text = tb
+        screen = automatic_mask_screen
+        screen.relay.routes["/report"] = [OSError("offline"), (200, {
+            "issue_number": 501, "issue_url": FILED_URL, "deduplicated": False})]
+        first = _run_automatic_report(qtbot, screen)
+        assert "will retry later" in first
+        [queued] = crashreport.queued_summaries()
+        second = _run_automatic_report(qtbot, screen)
+        assert "Reported anonymously as issue #501" in second
+        assert crashreport.queued_summaries() == []
+        reports = screen.relay.calls_to("/report")
+        assert len(reports) == 3
+        signature = crashreport.explanation_signature(queued)
+        assert all(crashreport.explanation_signature(report["body"]) == signature
+                   for report in reports)
 
-        mask_screen._file_the_report_automatically()
-        qtbot.waitUntil(
-            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
-            timeout=30000)
-        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
+    def test_two_deliveries_before_the_relay_answers_file_once(
+            self, qtbot, monkeypatch, automatic_mask_screen, machine):
+        import threading
 
-        assert "being reported already" not in mask_screen._console.as_text()
-        assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
-        assert fingerprint not in app_screen._REPORTS_BEING_FILED
+        screen = automatic_mask_screen
+        entered, release = threading.Event(), threading.Event()
+        screen.report_releases.append(release)
+        transport = screen.relay
 
-    def test_two_failures_before_github_answers_file_once(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
-        """Two screens, or two quick runs, fail on one crash before the
-        first report has come back."""
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-        mask_screen._last_error_text = _traceback("/home/" + USER)
+        def gated(request, timeout):
+            if request.full_url.endswith("/report"):
+                entered.set()
+                assert release.wait(5)
+            return transport(request, timeout)
 
-        mask_screen._file_the_report_automatically()
-        mask_screen._file_the_report_automatically()
-        qtbot.waitUntil(
-            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
-            timeout=30000)
-        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(),
-                        timeout=30000)
-
-        assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
-        assert "being reported already" in mask_screen._console.as_text()
+        from spacr import crashreport
+        monkeypatch.setattr(crashreport, "_open_url", gated)
+        tb = _traceback(machine)
+        try:
+            screen._on_pipeline_error(tb)
+            occurrence = screen._last_error_occurrence
+            screen.advance_reports()
+            assert entered.wait(5)
+            screen._on_pipeline_error(tb, event_id=occurrence)
+            screen.advance_reports()
+            assert screen.relay.calls_to("/report") == []
+        finally:
+            release.set()
+        screen.finish_reports()
+        assert len(screen.relay.calls_to("/report")) == 1
 
 
 # ---------------------------------------------------------------------------
@@ -1069,21 +1147,18 @@ def test_the_route_errors_tooltip_states_the_real_default():
 ANALYSIS = "The masks file is missing because the plate folder moved."
 
 
-def _the_ai_is_answering(screen, tb):
-    """Put the console in the state an error sent to spaCR AI leaves it in."""
-    console = screen._console
-    screen._last_error_text = tb
-    console._ai_error_traceback = tb
-    console._ai_error_explanation = ""
-    console._ai_worker = object()
+def _enable_hosted_report_analysis(screen):
+    """Choose consented hosted explanations on the actual automatic route."""
+    from spacr import crashreport
+    from spacr.qt.ai import settings
+    from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
 
-
-def _the_ai_answered(screen, answer=ANALYSIS):
-    """Finish the pretend stream the way the console finishes a real one."""
-    console = screen._console
-    console._ai_worker = None
-    console._ai_error_explanation = answer
-    console.ai_stream_finished.emit()
+    settings.set_route_errors_through_ai(True)
+    crashreport.set_error_report_mode("all")
+    _sync_automatic_failure_policy()
+    _, explain, send = crashreport._automatic_error_policy(crashreport.KIND_FAULT)
+    assert explain and send
+    screen.relay.routes["/diagnose"] = [(200, {"advice": ANALYSIS})]
 
 
 class TestTheReportWaitsForTheAI:
@@ -1091,71 +1166,104 @@ class TestTheReportWaitsForTheAI:
     rarely carried the analysis it exists to carry."""
 
     def test_the_report_carries_the_answer_that_arrived_after_the_run(
-            self, qtbot, monkeypatch, signed_in, mask_screen, machine):
-        github = FakeGitHub()
-        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
-        tb = _traceback(machine)
-        _the_ai_is_answering(mask_screen, tb)
+            self, qtbot, monkeypatch, automatic_mask_screen, machine):
+        import threading
+        from spacr import crashreport
 
-        mask_screen._file_the_report_automatically()
+        screen = automatic_mask_screen
+        _enable_hosted_report_analysis(screen)
+        entered, release = threading.Event(), threading.Event()
+        screen.report_releases.append(release)
+        transport = screen.relay
 
-        assert "Waiting up to" in mask_screen._console.as_text()
-        assert github.requests == [], "filed before the AI had answered"
+        def gated(request, timeout):
+            if request.full_url.endswith("/diagnose"):
+                entered.set()
+                assert release.wait(5)
+            return transport(request, timeout)
 
-        _the_ai_answered(mask_screen)
-        qtbot.waitUntil(
-            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
-            timeout=30000)
-        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
-        [created] = github.posted("/repos/EinarOlafsson/spacr/issues")
-        assert ANALYSIS in created["body"]
+        monkeypatch.setattr(crashreport, "_open_url", gated)
+        try:
+            screen._on_pipeline_error(_traceback(machine))
+            screen.advance_reports()
+            assert entered.wait(5)
+            qtbot.waitUntil(lambda: "asking spaCR AI" in screen._console.as_text(), timeout=5000)
+            assert screen.relay.calls_to("/report") == [], "filed before the AI had answered"
+        finally:
+            release.set()
+        screen.finish_reports()
+        [created] = screen.relay.calls_to("/report")
+        assert ANALYSIS in created["body"]["ai_summary"]
+        assert ANALYSIS in screen._console.as_text()
 
     def test_an_ai_that_never_answers_does_not_hold_the_report(
-            self, qtbot, monkeypatch, mask_screen, machine):
-        from spacr.qt.screens import app_screen
+            self, qtbot, automatic_mask_screen, machine):
+        from spacr import crashreport
 
-        posted = []
-        monkeypatch.setattr(app_screen, "AI_ANSWER_WAIT_SECONDS", 0.05)
-        monkeypatch.setattr(mask_screen, "_post_the_report",
-                            lambda tb, fp: posted.append((tb, fp)))
+        screen = automatic_mask_screen
+        _enable_hosted_report_analysis(screen)
+        screen.relay.routes["/diagnose"] = [TimeoutError("diagnosis deadline")]
+        screen._on_pipeline_error(_traceback(machine))
+        screen.finish_reports()
+        [diagnosis] = screen.relay.calls_to("/diagnose")
+        assert diagnosis["timeout"] == crashreport.AI_SUMMARY_TIMEOUT_S
+        [report] = screen.relay.calls_to("/report")
+        assert "ai_summary" not in report["body"]
+        assert "diagnosis deadline" not in json.dumps(report["body"])
+        assert "without AI summary" in screen._console.as_text()
+        screen._console.ai_stream_finished.emit()
+        assert len(screen.relay.calls_to("/report")) == 1, "one failure files once"
+
+    def test_a_second_delivery_during_the_wait_is_not_filed_twice(
+            self, qtbot, monkeypatch, automatic_mask_screen, machine):
+        import threading
+        from spacr import crashreport
+
+        screen = automatic_mask_screen
+        _enable_hosted_report_analysis(screen)
+        entered, release = threading.Event(), threading.Event()
+        screen.report_releases.append(release)
+        transport = screen.relay
+
+        def gated(request, timeout):
+            if request.full_url.endswith("/diagnose"):
+                entered.set()
+                assert release.wait(5)
+            return transport(request, timeout)
+
+        monkeypatch.setattr(crashreport, "_open_url", gated)
         tb = _traceback(machine)
-        _the_ai_is_answering(mask_screen, tb)
-
-        mask_screen._file_the_report_automatically()
-        qtbot.waitUntil(lambda: bool(posted), timeout=5000)
-
-        assert [entry[0] for entry in posted] == [tb]
-        mask_screen._console._ai_worker = None
-        mask_screen._console.ai_stream_finished.emit()
-        assert len(posted) == 1, "one wait files once"
-
-    def test_a_second_failure_during_the_wait_is_not_filed_twice(
-            self, qtbot, monkeypatch, mask_screen, machine):
-        posted = []
-        monkeypatch.setattr(mask_screen, "_post_the_report",
-                            lambda tb, fp: posted.append(tb))
-        tb = _traceback(machine)
-        _the_ai_is_answering(mask_screen, tb)
-
-        mask_screen._file_the_report_automatically()
-        mask_screen._file_the_report_automatically()
-
-        assert "being reported already" in mask_screen._console.as_text()
-        _the_ai_answered(mask_screen)
-        assert posted == [tb]
+        try:
+            screen._on_pipeline_error(tb)
+            occurrence = screen._last_error_occurrence
+            screen.advance_reports()
+            assert entered.wait(5)
+            screen._on_pipeline_error(tb, event_id=occurrence)
+            screen.advance_reports()
+            assert screen.relay.calls_to("/report") == []
+        finally:
+            release.set()
+        screen.finish_reports()
+        assert len(screen.relay.calls_to("/diagnose")) == 1
+        [report] = screen.relay.calls_to("/report")
+        assert report["body"]["ai_summary"] == ANALYSIS
 
     def test_no_wait_when_the_ai_is_not_answering_this_error(
-            self, monkeypatch, mask_screen, machine):
-        posted = []
-        monkeypatch.setattr(mask_screen, "_post_the_report",
-                            lambda tb, fp: posted.append(tb))
-        tb = _traceback(machine)
-        mask_screen._last_error_text = tb
+            self, qtbot, automatic_mask_screen, machine):
+        from spacr.qt import preferences
+        from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
 
-        mask_screen._file_the_report_automatically()
-
-        assert posted == [tb]
-        assert "Waiting up to" not in mask_screen._console.as_text()
+        screen = automatic_mask_screen
+        preferences.set_preferred_provider("none")
+        _sync_automatic_failure_policy()
+        screen._on_pipeline_error(_traceback(machine))
+        screen.finish_reports()
+        assert screen.relay.calls_to("/diagnose") == []
+        [report] = screen.relay.calls_to("/report")
+        assert report["body"]["summarize"] is False
+        assert "ai_summary" not in report["body"]
+        assert "Waiting up to" not in screen._console.as_text()
+        assert "asking spaCR AI" not in screen._console.as_text()
 
 
 @pytest.mark.parametrize("line,leaks", [
