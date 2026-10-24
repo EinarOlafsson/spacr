@@ -74,6 +74,7 @@ except Exception:
         """Discard display payloads when IPython's helper is unavailable."""
         pass
 import warnings
+import weakref
 
 from .errors import RunLedger, raise_if_strict
 
@@ -2268,7 +2269,36 @@ def _watch_vendor_plane(handles, folder, member, locator):
     image = handle.images[index]
     selection = {axis: value for axis, value in zip('TMZC', (t, tile, z, c))
                  if axis in image.sizes}
-    return np.asarray(image.frame(**selection))
+    if hasattr(image, 'frame'):
+        return np.asarray(image.frame(**selection))
+    return _lif_plane_from_whole_image(handle, index, image, selection)
+
+
+_LIF_WHOLE_IMAGES = weakref.WeakKeyDictionary()
+
+
+def _lif_plane_from_whole_image(handle, index, image, selection):
+    """One plane of a LIF image through a ``liffile`` that has no ``frame``.
+
+    The ``liffile`` releases Python 3.10 and 3.11 can install read a whole
+    image with ``asarray`` only. The image is read once, kept while its
+    reader is open for the planes that follow, and indexed by its ``dims``.
+
+    :param handle: the open ``liffile.LifFile``.
+    :param index: image index within the file.
+    :param image: the ``liffile`` image.
+    :param selection: plane index by axis letter among ``T``, ``M``, ``Z``,
+        ``C``.
+    :returns: the plane as a 2-D (or 2-D plus samples) array.
+    """
+    cache = _LIF_WHOLE_IMAGES.setdefault(handle, {})
+    data = cache.get(index)
+    if data is None:
+        data = np.asarray(image.asarray())
+        cache[index] = data
+    spatial = {'Y', 'X', 'S'}
+    return data[tuple(slice(None) if axis in spatial else int(selection.get(axis, 0))
+                      for axis in image.dims)]
 
 
 def _watch_vendor_planes(folder, description):
