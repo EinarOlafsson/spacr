@@ -478,6 +478,17 @@ def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
     with the pictures drawn uncached, measured interleaved in the same
     test. Offscreen at 2560x1440, load 24-28, median of nine rounds: 3.1 and
     4.3 ms uncached, 1.4 and 2.0 cached, 0.9 and 1.3 with no picture.
+
+    What is compared is what the pictures add to the frame: each repaint
+    less the same repaint with the pictures hidden, measured interleaved in
+    the same rounds. The rest of the frame -- the field under the canvases,
+    the cards and splitters above it, the event hub -- is the same in both
+    arms and is not the cache's to remove. On hosted runners it is most of
+    the frame: 1.20 ms cached against 1.45 ms uncached (2026-10-24) is a
+    0.25 ms difference on top of about 1.07 ms that a picture costing
+    nothing would still leave, so the whole-frame ratio there could not go
+    below 0.74 whatever the cache did. Blitting the two cached pictures
+    alone costs about 0.13 ms and drawing them scaled 0.33-0.62 ms.
     """
     from PySide6.QtCore import QPoint, QRect
     from PySide6.QtGui import QRegion
@@ -511,15 +522,27 @@ def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
         region = region.united(QRect(corner, view.viewport().size()))
     assert not region.isEmpty()
 
-    cached, uncached = [], []
+    cached, uncached, bare = [], [], []
     for _round in range(9):
         for mode, out in ((QGraphicsItem.DeviceCoordinateCache, cached),
-                          (QGraphicsItem.NoCache, uncached)):
+                          (QGraphicsItem.NoCache, uncached),
+                          (None, bare)):
             for view in views:
-                view._pixmap_item.setCacheMode(mode)
+                view._pixmap_item.setVisible(mode is not None)
+                if mode is not None:
+                    view._pixmap_item.setCacheMode(mode)
             backdrop.repaint(region)
             out.append(_region_ms(backdrop, region))
-    ratio = statistics.median(cached) / statistics.median(uncached)
+    for view in views:
+        view._pixmap_item.setVisible(True)
+        view._pixmap_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+    frame = statistics.median(bare)
+    cached_pictures = statistics.median(cached) - frame
+    uncached_pictures = statistics.median(uncached) - frame
+    assert uncached_pictures > 0, (
+        f"drawing the pictures scaled cost nothing over the frame "
+        f"({statistics.median(uncached):.2f} against {frame:.2f} ms)")
+    ratio = cached_pictures / uncached_pictures
     from PySide6.QtGui import QPixmapCache
     from spacr.qt.gui_scale import current_scale
 
@@ -533,6 +556,7 @@ def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
         "views": [],
         "cached_ms": cached,
         "uncached_ms": uncached,
+        "no_picture_ms": bare,
     }
     for view in views:
         viewport = view.viewport()
@@ -551,5 +575,7 @@ def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
     print("preview cache diagnostics:", diagnostics, flush=True)
     assert ratio <= 0.75, (
         f"the cached previews cost {ratio:.2f} of drawing them scaled "
-        f"({statistics.median(cached):.2f} against "
+        f"({cached_pictures:.2f} against {uncached_pictures:.2f} ms over a "
+        f"{frame:.2f} ms frame with no picture; "
+        f"{statistics.median(cached):.2f} against "
         f"{statistics.median(uncached):.2f} ms a repaint); {diagnostics!r}")
