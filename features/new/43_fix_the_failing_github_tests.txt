@@ -15,6 +15,12 @@ waiting on the actual fake-provider subprocess stream. Preserve the original
 reply-content assertion, timeout and real worker shutdown; no production or
 consent-policy change and no live AI/report request. G2 peers, root publishes.
 
+CURRENT NATIVE SESSION REFUSAL FIXTURE — 2026-10-24
+The retained CI owner uses owned temporary paths for malicious session fields,
+preserving arbitrary-key and path-value privacy refusal while satisfying the
+existing home-path hygiene gate. Validate only the owning case and hygiene
+check; no product or policy change, root publication.
+
 CURRENT CACHE HELPER FAILURE FIXTURE — 2026-10-24
 The retained CI owner aligns the unavailable-interpreter control with the
 owned Popen lifecycle, isolating its stop event and preserving no-marker,
@@ -4665,3 +4671,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — The manual error-flow stress fixture now advances the real batcher's quiet clock before awaiting its real fake-provider subprocess. Its original reply-content, completion budget and shutdown assertions pass (1 test, 2.86s); independent peer accepted. Production and generated outputs are unchanged; root owns publication and hosted qualification.
 
 2026-10-24 — The unavailable ambient cache interpreter control now intercepts the actual owned Popen constructor and isolates its compiler-stop event; unchanged call-count, no-marker and NUMBA_CACHE_DIR assertions pass (1 test, 3.04s). No product or generated-output changes; root review/publication remains pending.
+
+2026-10-24 — Native-session privacy-negative fixtures now use owned temporary absolute paths instead of hard-coded home paths. Arbitrary-key and invalid-version rejection assertions remain unchanged; the owning refusal case and existing home-path hygiene gate pass (2 tests, 14.84s). No product/generated changes; root review/publication pending.
