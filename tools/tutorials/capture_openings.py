@@ -12,6 +12,9 @@ narration names.
 """
 from __future__ import annotations
 
+import capture_ui
+import capture_ui_drv_e as drv
+from capture_ui_drv_c import Scenes
 import time
 from pathlib import Path
 
@@ -48,12 +51,15 @@ def record_openings(app, window, captures, capture, settle, write_json):
         return [top_left.x(), top_left.y(), local.width(), local.height()]
 
     def go_home():
-        window._on_nav_selected('__home__')
+        import capture_ui
+        capture_ui.open_module(capture, window, '__home__', settle) if capture_ui.live(capture) \
+            else window._on_nav_selected('__home__')
         settle(1.0)
         if not window._startup.isVisible():
             raise RuntimeError('Home is not visible')
 
     from capture_policy import verify_fresh_start
+    scenes = Scenes(capture, settle)
 
     # The openings tour is a fresh start: refuse a reopened session or a
     # crash-draft offer before Home is recorded.
@@ -73,6 +79,7 @@ def record_openings(app, window, captures, capture, settle, write_json):
     menu = help_actions[0].menu()
     for name, label in HELP_ITEMS:
         go_home()
+        scenes.begin(name)      # host: the pointer is seen opening the Help menu and choosing the item
         choices = [action for action in menu.actions()
                    if _plain(action.text()).lower() == label.lower()]
         if len(choices) != 1 or not choices[0].isEnabled():
@@ -89,13 +96,15 @@ def record_openings(app, window, captures, capture, settle, write_json):
         record['help'][name] = {'label': choices[0].text(),
                                 'menu': window_rect(menu),
                                 'action': window_rect(menu, QRect(geometry))}
-        capture(name)
+        scenes.end(name, menu)
         menu.hide()
         settle(0.3)
 
     for name, key in HOSTS:
         go_home()
-        window._on_nav_selected(key)
+        import capture_ui
+        scenes.begin(name)
+        capture_ui.open_module(capture, window, key, settle)
         deadline = time.monotonic() + 60
         while window._screens.get(key) is None:
             if time.monotonic() > deadline:
@@ -112,7 +121,7 @@ def record_openings(app, window, captures, capture, settle, write_json):
             if key_name or label:
                 buttons.setdefault(str(key_name or label), window_rect(button))
         record['hosts'][name] = {'module': key, 'buttons': buttons}
-        capture(name)
+        scenes.end(name, screen)
     go_home()
     # Installer lessons end on Preferences > Performance over Home.
     from capture_home import record_performance
@@ -120,8 +129,12 @@ def record_openings(app, window, captures, capture, settle, write_json):
     write_json(captures / 'openings.json', record)
 
 
-def _open(window, settle, key):
-    window._on_nav_selected(key)
+def _open(window, settle, key, capture=None):
+    import capture_ui
+    if capture is not None and capture_ui.live(capture):
+        capture_ui.open_module(capture, window, key, settle)
+    else:
+        window._on_nav_selected(key)
     deadline = time.monotonic() + 60
     while window._screens.get(key) is None:
         if time.monotonic() > deadline:
@@ -131,6 +144,7 @@ def _open(window, settle, key):
     return window._screens[key]
 
 
+@drv.guarded
 def record_illumination_apply(app, window, stage, captures, capture, settle, write_json):
     """Measure reusing the model the Illumination lesson estimated.
 
@@ -158,11 +172,14 @@ def record_illumination_apply(app, window, stage, captures, capture, settle, wri
     model = Path(prepared.model_path)
     if not model.is_file():
         raise RuntimeError('No illumination model was saved')
-    screen = _open(window, settle, 'measure')
+    # Host: the clip opens before the pointer goes to Measure and holds the
+    # settings, the search and the model field the narration names.
+    rec = drv.scene(capture, settle, '10_measure_apply_model')
+    screen = _open(window, settle, 'measure', capture)
     values = {'src': str(plate), 'illumination_correction': True,
               'illumination_model': str(model)}
     for key, value in values.items():
-        if not screen._settings_model.set_value_for_key(key, value):
+        if not capture_ui.fill_setting(capture, screen, key, value):
             raise RuntimeError('No real Measure setting for ' + key)
         settle(.1)
     collected = screen._settings_model.collect()
@@ -174,7 +191,7 @@ def record_illumination_apply(app, window, stage, captures, capture, settle, wri
     if bar.level() != 'all':
         QTest.mouseClick(bar._disclosure, Qt.LeftButton)
     settle(.3)
-    bar._input.setFocus()
+    capture_ui.focus(capture, bar._input)
     QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
     QTest.keyClicks(bar._input, 'illumination')
     settle(.8)
@@ -184,10 +201,11 @@ def record_illumination_apply(app, window, stage, captures, capture, settle, wri
         raise RuntimeError('The settings search did not show the illumination settings: '
                            + repr(sorted(bar.visible_keys())[:40]) + ' level=' + str(bar.level()))
     field = screen._settings_model._widgets['illumination_model']
-    screen._settings_scroll.ensureWidgetVisible(field)
+    capture_ui.scroll_to(capture, screen._settings_scroll, field)
     settle(.4)
     top_left = field.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
-    capture('10_measure_apply_model')
+    rec.point(screen._settings_model._widgets['illumination_correction'], field)
+    rec.stop()
     write_json(captures / 'illumination_apply.json', {
         'model': str(model), 'settings': values,
         'model_field': [top_left.x(), top_left.y(), field.width(), field.height()],
@@ -201,21 +219,22 @@ def record_align_test_data(app, window, stage, captures, capture, settle, write_
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
 
-    screen = _open(window, settle, 'align')
+    screen = _open(window, settle, 'align', capture)
     button = screen._btn_test_data
     if not button.isVisible() or not button.isEnabled():
         raise RuntimeError('Load test data is not usable on Align & Stitch')
     capture('02a_align_load_test_data_button')
-    QTest.mouseClick(button, Qt.LeftButton)
-    deadline = time.monotonic() + timeout
-    while 'Press Plan' not in screen._status.text():
-        if time.monotonic() > deadline:
-            raise TimeoutError('The Align & Stitch test data did not load: ' + screen._status.text())
-        settle(0.5)
-    settle(1.5)
-    top_left = button.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
-    status = screen._status.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
-    capture('02b_align_test_data_loaded')
+    with capture_ui.clip(capture, '02b_align_test_data_loaded'):
+        QTest.mouseClick(button, Qt.LeftButton)
+        deadline = time.monotonic() + timeout
+        while 'Press Plan' not in screen._status.text():
+            if time.monotonic() > deadline:
+                raise TimeoutError('The Align & Stitch test data did not load: ' + screen._status.text())
+            settle(0.5)
+        settle(1.5)
+        top_left = button.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
+        status = screen._status.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
+        capture_ui.point_at(capture, screen._status, dwell=1.5)
     write_json(captures / 'align_test_data.json', {
         'status': screen._status.text(), 'source': screen._src_edit.text(),
         'button': [top_left.x(), top_left.y(), button.width(), button.height()],
@@ -231,7 +250,7 @@ def record_mask_source_channels(app, window, stage, captures, capture, settle, w
     source = Path(stage) / 'mask_src'
     if not any(source.glob('*.tif')):
         raise RuntimeError('No example fields in stage/mask_src')
-    mask = _open(window, settle, 'mask')
+    mask = _open(window, settle, 'mask', capture)
 
     def type_into(key, value):
         widget = mask._settings_model._widgets[key]
@@ -248,7 +267,7 @@ def record_mask_source_channels(app, window, stage, captures, capture, settle, w
     # The example's channels: nucleus 0, cell 1, pathogen 2 (its settings file).
     for key, value in (('nucleus_channel', '0'), ('cell_channel', '1'), ('pathogen_channel', '2')):
         type_into(key, value)
-    mask._settings_scroll.verticalScrollBar().setValue(0)
+    capture_ui.scroll_to_value(capture, mask._settings_scroll, 0)
     settle(0.6)
     capture('09b_mask_source_and_channels')
     write_json(captures / 'mask_source_channels.json',
@@ -279,19 +298,24 @@ def record_ram_guard(app, window, stage, captures, capture, settle, write_json, 
         plate = Path.home() / '.cache/spacr/example_data/stitched_mosaic'
     if not any((plate / 'merged').glob('*.npy')):
         raise RuntimeError('The stitched mosaic project has no merged field')
-    screen = _open(window, settle, 'measure')
+    screen = _open(window, settle, 'measure', capture)
     bar = screen._settings_search
     if not bar._disclosure.isChecked():
         QTest.mouseClick(bar._disclosure, Qt.LeftButton)
         settle()
 
+    import capture_ui
+
     def type_setting(key, value):
-        bar._input.setFocus()
+        if capture_ui.live(capture):
+            QTest.mouseClick(bar._input, Qt.LeftButton)
+        else:
+            capture_ui.focus(capture, bar._input)
         QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(bar._input, key)
         settle()
         control = screen._settings_model._widgets[key]
-        screen._settings_scroll.ensureWidgetVisible(control)
+        capture_ui.scroll_to(capture, screen._settings_scroll, control)
         settle()
         edit = control if isinstance(control, QLineEdit) else control.findChild(QLineEdit)
         if edit is None or capture_rect(edit, window) is None or not edit.isEnabled():
@@ -304,6 +328,11 @@ def record_ram_guard(app, window, stage, captures, capture, settle, write_json, 
         if screen._settings_model.collect().get(key) != value:
             raise RuntimeError(f'The actual Measure {key} editor did not retain its value')
 
+    # Host: the clip opens before Source is typed, so the viewer sees the
+    # project chosen, the workers raised, Run clicked and the guard answer.
+    guard_clip = capture_ui.live(capture) and capture.begin('batch_21_ram_guard')
+    if guard_clip:
+        capture_ui.wait(capture, 0.8, settle)
     type_setting('src', str(plate))
     workers = resolve_n_jobs(10 ** 6)  # one worker per core, Measure's cap
     type_setting('n_jobs', workers)
@@ -320,15 +349,24 @@ def record_ram_guard(app, window, stage, captures, capture, settle, write_json, 
             seen['rect'] = capture_rect(dialog, window)
             if seen['rect'] is None:
                 seen['other'].append('RAM guard outside recording window')
-                dialog.reject()
+                if guard_clip:
+                    capture.end()
+                capture_ui.reject_dialog(capture, dialog)
                 return
-            capture('batch_21_ram_guard')
+            if guard_clip:
+                capture_ui.point_at(capture, dialog, dwell=3.0)
+                capture.end()
+            elif not capture_ui.live(capture):
+                capture('batch_21_ram_guard')
             seen['guard'] = dialog.windowTitle()
-            dialog.reject()
+            if capture_ui.live(capture):
+                capture_ui.close_dialog(capture, dialog, prefer=('Cancel', 'Close'))
+            else:
+                capture_ui.reject_dialog(capture, dialog)
             return
         if isinstance(dialog, QMessageBox):
             seen['other'].append(dialog.windowTitle())
-            dialog.reject()
+            capture_ui.reject_dialog(capture, dialog)
             return
         QTimer.singleShot(300, watch)
 

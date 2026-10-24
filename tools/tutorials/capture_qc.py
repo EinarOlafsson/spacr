@@ -8,7 +8,12 @@ from dataclasses import asdict
 import hashlib
 import time
 
+import capture_ui
+from capture_ui_drv_e import guarded
+from capture_ui_drv_a import Rec, hover, modal_wait, type_text, watchdog_ms
 
+
+@guarded
 def record_qc(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
@@ -52,6 +57,12 @@ def record_qc(app, window, screen, stage, captures, capture, settle, write_json,
     def choose(name, frame):
         root = sources[name]
         errors, accepted = [], []
+        # Host: the picker clip starts before the pointer clicks Browse; the
+        # dashboard clip starts inside the picker, before the folder is
+        # accepted. Elsewhere each is the still taken where it always was.
+        picker_clip = Rec(capture, frame + '_picker', settle)
+        read_clip = Rec(capture, frame, settle, lead=0.3)
+
         def pick():
             dialog = app.activeModalWidget()
             try:
@@ -60,31 +71,42 @@ def record_qc(app, window, screen, stage, captures, capture, settle, write_json,
                 watchdog = QTimer(dialog)
                 watchdog.setSingleShot(True)
                 watchdog.timeout.connect(dialog.reject)
-                watchdog.start(12000)
+                watchdog.start(watchdog_ms(capture, 12000))
                 dialog.accepted.connect(lambda: accepted.append(True))
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
-                edit.setFocus()
-                QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-                QTest.keyClicks(edit, str(root))
-                QTest.keyClick(edit, Qt.Key_Tab)
+                type_text(capture, edit, str(root))
                 settle(0.2)
-                capture(frame + '_picker')
-                QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+                picker_clip.stop()
+                read_clip.start()
+                capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
             except Exception as exc:
                 errors.append(str(exc))
+                picker_clip.abort()
+                read_clip.abort()
                 if dialog is not None:
                     dialog.reject()
-        QTimer.singleShot(400, pick)
+        picker_clip.start()
+        modal_wait(capture, 400, pick)
         buttons = [button for button in screen.findChildren(QPushButton)
                    if button.isVisible() and button.text() == 'Browse...']
         if len(buttons) != 1:
+            picker_clip.abort()
             raise RuntimeError('Expected one actual Browse control')
-        QTest.mouseClick(buttons[0], Qt.LeftButton)
+        if capture_ui.live(capture):
+            capture_ui.press(capture, buttons[0])
+        else:
+            QTest.mouseClick(buttons[0], Qt.LeftButton)
         if errors or not accepted:
+            picker_clip.abort()
+            read_clip.abort()
             raise RuntimeError('; '.join(errors) or 'The source picker was cancelled')
-        dashboard = wait_read(root)
-        snapshots[name] = asdict(dashboard)
-        capture(frame)
+        try:
+            dashboard = wait_read(root)
+            snapshots[name] = asdict(dashboard)
+        except BaseException:
+            read_clip.abort()
+            raise
+        read_clip.stop()
         return dashboard
 
     for key in FOLDED_APPS:
@@ -92,9 +114,9 @@ def record_qc(app, window, screen, stage, captures, capture, settle, write_json,
                    if button.isVisible() and button.app_key == key]
         if len(buttons) != 1:
             raise RuntimeError(f'Expected one visible QC fold: {key}')
-        QTest.mouseMove(buttons[0])
-        settle(0.8)
-        capture('02_fold_' + key)
+        with capture_ui.clip(capture, '02_fold_' + key):
+            hover(capture, buttons[0], settle, 0.8)
+            capture_ui.point_at(capture, buttons[0], dwell=1.5)
 
     missing = choose('downloaded_annotation', '03_missing_reports')
     if missing.card('segmentation').verdict != 'missing' or missing.card('units').verdict != 'ok':
@@ -106,30 +128,42 @@ def record_qc(app, window, screen, stage, captures, capture, settle, write_json,
     if len(scrolls) != 1:
         raise RuntimeError('Expected the real dashboard card scroll area')
     bar = scrolls[0].verticalScrollBar()
-    bar.setFocus()
-    QTest.keyClick(bar, Qt.Key_End)
-    settle()
-    if bar.value() != bar.maximum():
-        raise RuntimeError('The actual scrollbar did not reveal the bottom cards')
-    capture('05_subset_remaining_checks')
+
+    def scroll_cards(to_end):
+        if capture_ui.live(capture):
+            capture_ui.scroll_to_value(capture, scrolls[0], bar.maximum() if to_end else 0)
+            return
+        bar.setFocus()
+        QTest.keyClick(bar, Qt.Key_End if to_end else Qt.Key_Home)
+
+    with capture_ui.clip(capture, '05_subset_remaining_checks'):
+        scroll_cards(True)
+        settle()
+        if bar.value() != bar.maximum():
+            raise RuntimeError('The actual scrollbar did not reveal the bottom cards')
+        capture_ui.wait(capture, 1.5, settle)
     plate = choose('downloaded_plate', '06_original_plate')
     if plate.card('segmentation').verdict != 'fail':
         raise RuntimeError('The downloaded full-plate scorecards do not support the planned failure scene')
-    bar.setFocus()
-    QTest.keyClick(bar, Qt.Key_Home)
-    settle()
-    capture('07_original_plate_details')
+    with capture_ui.clip(capture, '07_original_plate_details'):
+        scroll_cards(False)
+        settle()
+        capture_ui.wait(capture, 1.5, settle)
     refresh = [button for button in screen.findChildren(QPushButton)
                if button.isVisible() and button.text() == 'Refresh']
     if len(refresh) != 1:
         raise RuntimeError('Expected one actual Refresh control')
-    QTest.mouseClick(refresh[0], Qt.LeftButton)
-    after_refresh = wait_read(sources['downloaded_plate'])
-    if asdict(after_refresh) != snapshots['downloaded_plate']:
-        raise RuntimeError('Refreshing unchanged source files unexpectedly changed the cached evidence')
-    if 'Nothing on disk has changed' not in screen.status_text():
-        raise RuntimeError('The actual refresh did not report the unchanged source')
-    capture('08_unchanged_refresh')
+    with capture_ui.clip(capture, '08_unchanged_refresh'):
+        if capture_ui.live(capture):
+            capture_ui.press(capture, refresh[0])
+        else:
+            QTest.mouseClick(refresh[0], Qt.LeftButton)
+        after_refresh = wait_read(sources['downloaded_plate'])
+        if asdict(after_refresh) != snapshots['downloaded_plate']:
+            raise RuntimeError('Refreshing unchanged source files unexpectedly changed the cached evidence')
+        if 'Nothing on disk has changed' not in screen.status_text():
+            raise RuntimeError('The actual refresh did not report the unchanged source')
+        capture_ui.wait(capture, 1.5, settle)
     after = hashes()
     if after != before:
         raise RuntimeError('The QC recording altered original evidence')

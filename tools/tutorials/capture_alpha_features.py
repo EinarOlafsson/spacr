@@ -13,6 +13,15 @@ from __future__ import annotations
 
 import time
 
+import capture_ui
+from capture_ui_drv_e import guarded
+from capture_ui_drv_a import Rec, table_row_to_top
+from capture_ui_drv_f import fold_button, open_module_live, prefs_tabs_live, prefs_toggle_live
+
+class _Done(Exception):
+    """Leaves the Preferences tab block once the host route has recorded it."""
+
+
 #: (frame, module, settings keys to expose, widget object names to show).
 SETTINGS_GROUPS = (
     ('02_mask_preprocessing', 'mask',
@@ -62,6 +71,7 @@ WIDGET_GROUPS = (
 SEARCH_INSTEAD = {'13_activation_counterfactuals': 'counterfactual'}
 
 
+@guarded
 def record_alpha_features(app, window, stage, captures, capture, settle, write_json):
     from PySide6.QtCore import QObject, QPoint, Qt
     from PySide6.QtTest import QTest
@@ -77,7 +87,7 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         return [top_left.x(), top_left.y(), widget.width(), widget.height()]
 
     def open_module(key):
-        window._on_nav_selected(key)
+        open_module_live(capture, window, key, settle)
         deadline = time.monotonic() + 90
         while window._screens.get(key) is None:
             if time.monotonic() > deadline:
@@ -87,6 +97,16 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         return window._screens[key]
 
     def preferences_toggle(on, frame):
+        if capture_ui.live(capture):
+            # Host: one clip from the spaCR menu to the Save click.
+            def shown(dialog, toggle):
+                report['groups'][frame] = {'toggle': rect_of(toggle), 'dialog': rect_of(dialog)}
+            prefs_toggle_live(app, window, capture, settle, 'ShowAlphaFutureFeatures', on,
+                              (None, frame, None), on_shown=shown)
+            settle(1.5)
+            if prefs._get_show_alpha_features() != on:
+                raise RuntimeError('Saving Preferences did not apply Show alpha features')
+            return
         dialog = prefs.PreferencesDialog(window)
         try:
             toggle = dialog.findChild(QAbstractButton, 'ShowAlphaFutureFeatures')
@@ -129,7 +149,8 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             QTest.mouseClick(bar._modified, Qt.LeftButton)
         if bar.level() != 'all':
             QTest.mouseClick(bar._disclosure, Qt.LeftButton)
-        bar.set_query('')
+        if not capture_ui.live(capture) or bar.query():
+            capture_ui.search_settings(capture, bar, '')
         settle(0.6)
 
     def expose(screen, key):
@@ -145,9 +166,12 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             parent = parent.parentWidget()
         for section in reversed(parents):
             if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header())
+                capture_ui.scroll_to(capture, screen._settings_scroll, section.header())
                 settle(0.2)
-                section.header().click()
+                if capture_ui.live(capture):
+                    capture_ui.press(capture, section.header())
+                else:
+                    section.header().click()
                 settle(0.4)
             if not section.is_expanded():
                 raise RuntimeError(f'{section.title()} did not open for {key}')
@@ -167,9 +191,11 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         show_all_settings(screen)
         if frame in ('06_timelapse', '07b_measure_time'):
             time_switch(screen)
-            if module == 'mask':
+            if module == 'mask' and not screen._settings_model.collect().get('timelapse'):
                 # Timelapse itself is a stored setting (no control of its own
-                # once Time is on); a timelapse settings file sets it.
+                # once Time is on); a timelapse settings file sets it. No user
+                # route: in the host the clip gate sees this code action.
+                capture_ui.code_action(capture, 'apply the timelapse setting from a settings file')
                 screen.apply_settings_dict({'timelapse': True})
                 settle(1.0)
         shown = []
@@ -183,10 +209,10 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         # Opening a category can close its siblings; reopen the first key's.
         first = expose(screen, shown[0][0])
         if not first.isVisible() and frame in SEARCH_INSTEAD:
-            screen._settings_search.set_query(SEARCH_INSTEAD[frame])
+            capture_ui.search_settings(capture, screen._settings_search, SEARCH_INSTEAD[frame])
             settle(1.0)
-        screen._settings_scroll.ensureWidgetVisible(first, 0, 300)
-        screen._settings_scroll.horizontalScrollBar().setValue(0)
+        capture_ui.scroll_to(capture, screen._settings_scroll, first)
+        capture_ui.scroll_to_value(capture, screen._settings_scroll, 0, 'horizontal')
         settle(0.6)
         for name in widgets:
             for widget in window.findChildren(QWidget, name):
@@ -194,7 +220,7 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
                     report['groups'].setdefault(frame, {}).setdefault('widgets', {})[name] = rect_of(widget)
         report['groups'].setdefault(frame, {})['settings'] = {
             key: rect_of(widget) for key, widget in shown if widget.isVisible()}
-        capture(frame)
+        capture_ui.point_at(capture, *[widget for _key, widget in shown], dwell=1.2)
 
     def widget_group(frame, module, names):
         screen = open_module(module)
@@ -208,18 +234,21 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
                                    'missing': sorted(set(names) - set(found))}
         if not found:
             raise RuntimeError(f'No alpha control of {frame} is visible')
-        capture(frame)
+        capture_ui.point_at(capture, *[w for name in names for w in window.findChildren(QObject, name)
+                                       if isinstance(w, QWidget) and w.isVisible()][:4], dwell=1.2)
 
     groups = list(SETTINGS_GROUPS[:3]) + [('06_timelapse', 'mask',
                ('timelapse_mode', 'timelapse_lineage', 'timelapse_events'), ())] + list(SETTINGS_GROUPS[3:])
     for frame, module, keys, widgets in groups:
         try:
-            settings_group(frame, module, keys, widgets)
+            with capture_ui.clip(capture, frame):
+                settings_group(frame, module, keys, widgets)
         except Exception as error:  # report and keep touring
             report['groups'].setdefault(frame, {})['error'] = repr(error)
     # A genuine empty-folder watch exposes the card without inventing results.
     frame = '05b_watch_live_plate'
     watching = None
+    watch_clip = None
     try:
         watching = open_module('mask')
         source = stage / 'alpha_watch_empty'
@@ -241,6 +270,9 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         if (not applied.get('watch_folder') or applied.get('src') != str(source)
                 or applied.get('cell_channel') != 0):
             raise RuntimeError('The current Mask form did not accept the watch settings')
+        # Host: the clip starts before the pointer presses Run (the settings above
+        # are a settings file applied off screen: there is no control for them).
+        watch_clip = Rec(capture, frame, settle).start()
         QTest.mouseClick(watching._btn_run, Qt.LeftButton)
         ledger = source / 'spacr_watch/watch_ledger.json'
         deadline = time.monotonic() + 30
@@ -257,7 +289,9 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             'summary': watching._watch_live_plate._summary.text(),
             'ledger': str(ledger),
         }
-        capture(frame)
+        capture_ui.point_at(capture, watching._watch_live_plate, dwell=1.5)
+        watch_clip.stop()
+        watch_clip = None
         while watching._worker_thread_is_running():
             if time.monotonic() > deadline:
                 raise TimeoutError('The empty-folder watch did not finish')
@@ -265,6 +299,8 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         watching.apply_settings_dict(before)
         watching = None
     except Exception as error:
+        if watch_clip is not None:
+            watch_clip.abort()
         report['groups'].setdefault(frame, {})['error'] = repr(error)
     finally:
         if watching is not None and watching._worker_thread_is_running():
@@ -276,18 +312,25 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
                 settle(0.1)
     for frame, module, names in WIDGET_GROUPS:
         try:
-            widget_group(frame, module, names)
+            with capture_ui.clip(capture, frame):
+                widget_group(frame, module, names)
         except Exception as error:
             report['groups'].setdefault(frame, {})['error'] = repr(error)
     # Make Masks' folded Model Zoo lists the alpha backends and models
     # (DINOCell among them) once Scan lists the catalogue (642, 404).
     frame = '09b_model_zoo_alpha_models'
+    zoo_clip = None
     try:
         from spacr.qt.screens.model_zoo import _stem_version
         from spacr.settings import _is_alpha
 
+        zoo_clip = Rec(capture, frame, settle).start()
         masks = open_module('make_masks')
-        masks.open_folded('model_zoo')
+        zoo_button = fold_button(capture, masks, 'model_zoo') if capture_ui.live(capture) else None
+        if zoo_button is not None:
+            capture_ui.press(capture, zoo_button)       # the fold button opens the Model Zoo page
+        else:
+            masks.open_folded('model_zoo')
         settle(2)
         zoo = masks.folded_screen('model_zoo')
         QTest.mouseClick(zoo._btn_scan, Qt.LeftButton)
@@ -309,7 +352,10 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         if 'dinocell' not in names:
             raise RuntimeError(f'DINOCell is not among the alpha rows: {names}')
         backends = sorted(r for r, n in zip(rows, names) if '_' not in n)
-        table.scrollToItem(table.item(backends[0], 0), table.ScrollHint.PositionAtTop)
+        if capture_ui.live(capture):
+            table_row_to_top(capture, table, backends[0])
+        else:
+            table.scrollToItem(table.item(backends[0], 0), table.ScrollHint.PositionAtTop)
         settle(1)
         top = table.visualItemRect(table.item(backends[0], 0))
         bottom = table.visualItemRect(table.item(backends[-1], 0))
@@ -319,11 +365,23 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             'alpha_rows': names, 'focus_rows': [table.item(r, 0).text() for r in backends],
             'focus': [origin.x(), origin.y(), viewport.width(), bottom.bottom() - top.top() + 1],
             'table': rect_of(table)}
-        capture(frame)
+        capture_ui.point_at(capture, table, dwell=1.5)
+        zoo_clip.stop()
+        zoo_clip = None
     except Exception as error:
+        if zoo_clip is not None:
+            zoo_clip.abort()
         report['groups'].setdefault(frame, {})['error'] = repr(error)
     # Preferences tabs that only exist with alpha on: Notifications, plugins.
     try:
+        if capture_ui.live(capture):
+            # Host: the spaCR menu opens Preferences; the pointer clicks each tab.
+            for frame, error in prefs_tabs_live(
+                    app, window, capture, settle,
+                    [('18_prefs_notifications', 'NotifyTabHelp'),
+                     ('18b_prefs_plugins', 'PluginCatalogueHelp')]).items():
+                report['groups'].setdefault(frame, {})['error'] = error
+            raise _Done()
         dialog = prefs.PreferencesDialog(window)
         tabs = dialog.findChild(QTabWidget, 'PreferencesTabs')
         for name, frame in (('NotifyTabHelp', '18_prefs_notifications'),
@@ -344,6 +402,8 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
         dialog.close()
         dialog.deleteLater()
         settle(0.5)
+    except _Done:
+        pass
     except Exception as error:
         report['groups'].setdefault('18_prefs_notifications', {})['error'] = repr(error)
     write_json(captures / 'alpha_tour.json', report)

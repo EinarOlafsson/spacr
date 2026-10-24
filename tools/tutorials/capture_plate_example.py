@@ -2,6 +2,9 @@
 from pathlib import Path
 import math
 import time
+from contextlib import nullcontext
+
+import capture_ui
 
 from capture_database import _digest, _readonly
 from capture_plate_retention import verify_export, verify_wells
@@ -15,6 +18,7 @@ def record_plate_example(app, window, screen, stage, captures, capture,
     from spacr.qt.screens.plate_view import PlateViewScreen
     from spacr.qt.widgets.fold_strip import FoldButton
 
+    host = capture_ui.live(capture)
     database = Path(stage) / 'example_data/plate1/measurements/measurements.db'
     original = _digest(database)
     with _readonly(database) as connection:
@@ -54,6 +58,11 @@ def record_plate_example(app, window, screen, stage, captures, capture,
     def select(widget, text):
         index = widget.findText(text)
         assert index >= 0
+        if host:
+            capture_ui.select_combo(capture, widget, index)
+            idle()
+            assert widget.currentText() == text
+            return
         click(widget)
         QTest.keyClick(widget.view(), Qt.Key_Home)
         for _ in range(index):
@@ -62,40 +71,65 @@ def record_plate_example(app, window, screen, stage, captures, capture,
         idle()
         assert widget.currentText() == text
 
-    capture('01_graph_builder_host')
     folds = [w for w in screen.findChildren(FoldButton) if w.app_key == 'plate_view' and w.isVisible()]
     assert len(folds) == 1
-    click(folds[0]); settle(.5)
-    panels = [w for w in window.findChildren(PlateViewScreen) if w.isVisible()]
-    assert len(panels) == 1
-    panel = panels[0]
-    capture('02_empty_viewer')
-    click(panel._test_data_button)
-    idle()
-    assert panel.current_table() == 'cell' and panel.current_value_column() == 'cell_area'
-    select(panel._grouping_combo, 'mean')
-    click(panel._btn_render); idle()
-    records = panel._layout_df.to_dict('records')
-    proof['states']['mean'] = verify_wells(records, independent, 'mean', 0)
-    capture('03_example_mean')
-    click(panel._scale_combo); settle(.2); capture('04_colour_scale', desktop=True)
-    QTest.keyClick(panel._scale_combo.view(), Qt.Key_Escape); settle(.2)
+    with capture_ui.clip(capture, '01_graph_builder_host'):
+        capture_ui.point_at(capture, folds[0], dwell=1.0)
+        click(folds[0]); settle(.5)
+        panels = [w for w in window.findChildren(PlateViewScreen) if w.isVisible()]
+        assert len(panels) == 1
+        panel = panels[0]
+    with capture_ui.clip(capture, '02_empty_viewer'):
+        capture_ui.point_at(capture, panel._test_data_button, dwell=1.0)
+    with capture_ui.clip(capture, '03_example_mean'):
+        click(panel._test_data_button)
+        idle()
+        assert panel.current_table() == 'cell' and panel.current_value_column() == 'cell_area'
+        select(panel._grouping_combo, 'mean')
+        click(panel._btn_render); idle()
+        records = panel._layout_df.to_dict('records')
+        proof['states']['mean'] = verify_wells(records, independent, 'mean', 0)
+    with capture_ui.clip(capture, '04_colour_scale'):
+        click(panel._scale_combo); settle(.2)
+        if host:
+            capture_ui.wait(capture, 1.5, settle)
+        else:
+            capture('04_colour_scale', desktop=True)
+        QTest.keyClick(panel._scale_combo.view(), Qt.Key_Escape); settle(.2)
     row = records[0]
-    QTest.mouseClick(panel._grid, Qt.LeftButton,
-                     pos=panel._grid.cell_rect(int(row['row_index']), int(row['column_index'])).center().toPoint())
-    settle(.3)
-    proof['well_detail'] = panel.well_info_text()
-    assert str(row['well']) in proof['well_detail']
-    capture('05_well_detail')
-    select(panel._grouping_combo, 'count')
-    proof['states']['count'] = verify_wells(panel._layout_df.to_dict('records'), independent, 'count', 0)
-    capture('06_count')
-    fill(panel._min_count_box, minimum); idle()
-    records = panel._layout_df.to_dict('records')
-    proof['minimum_count'] = minimum
-    proof['states']['filtered'] = verify_wells(records, independent, 'count', minimum)
-    assert 0 < len(records) < 4
-    capture('07_filtered')
+    with capture_ui.clip(capture, '05_well_detail'):
+        QTest.mouseClick(panel._grid, Qt.LeftButton,
+                         pos=panel._grid.cell_rect(int(row['row_index']), int(row['column_index'])).center().toPoint())
+        settle(.3)
+        proof['well_detail'] = panel.well_info_text()
+        assert str(row['well']) in proof['well_detail']
+    with capture_ui.clip(capture, '06_count'):
+        select(panel._grouping_combo, 'count')
+        proof['states']['count'] = verify_wells(panel._layout_df.to_dict('records'), independent, 'count', 0)
+    with capture_ui.clip(capture, '07_filtered'):
+        fill(panel._min_count_box, minimum); idle()
+        # Typing the number emits valueChanged per digit; under load an earlier
+        # coalesced recompute can still land after the last one. Wait for the
+        # layout that belongs to the final value before verifying it.
+        wanted = sum(1 for v in independent.values() if v['n'] >= minimum)
+        # Bounded: a settled plate that still shows the wrong wells is a stuck entry, not a slow one.
+        # Re-enter the number once (the way a user would after seeing the plate unchanged), then
+        # report exactly what the screen holds instead of waiting out the whole timeout.
+        until, retried = time.monotonic() + 20, False
+        while (panel._layout_df is None or len(panel._layout_df) != wanted
+               or panel._min_count_box.value() != minimum):
+            if time.monotonic() > deadline or (retried and time.monotonic() > until):
+                raise TimeoutError(
+                    'Plate Viewer did not apply the minimum count '
+                    f'(wanted {wanted} wells at {minimum}; layout={None if panel._layout_df is None else len(panel._layout_df)}, '
+                    f'spinbox={panel._min_count_box.value()}, busy={panel.is_busy()}, status={panel._status.text()!r})')
+            if not retried and time.monotonic() > until:
+                fill(panel._min_count_box, minimum); retried = True; until = time.monotonic() + 20
+            settle(.2); idle()
+        records = panel._layout_df.to_dict('records')
+        proof['minimum_count'] = minimum
+        proof['states']['filtered'] = verify_wells(records, independent, 'count', minimum)
+        assert 0 < len(records) < 4
     exported = Path(stage) / 'example_well_counts.csv'
     errors, accepted = [], []
 
@@ -105,22 +139,28 @@ def record_plate_example(app, window, screen, stage, captures, capture,
             assert isinstance(dialog, QFileDialog)
             dialog.accepted.connect(lambda: accepted.append(True))
             field = dialog.findChild(QLineEdit, 'fileNameEdit')
-            click(field)
-            QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-            QTest.keyClicks(field, str(exported))
-            capture('08_save_csv')
-            click(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save))
+            if host:
+                capture_ui.set_text(capture, field, str(exported), commit=False)
+                capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save))
+            else:
+                click(field)
+                QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClicks(field, str(exported))
+                capture('08_save_csv')
+                click(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save))
         except Exception as error:
             errors.append(str(error))
             if isinstance(dialog, QFileDialog):
                 dialog.reject()
 
-    QTimer.singleShot(500, save)
-    click(panel._btn_export); idle()
-    if errors or not accepted:
-        raise RuntimeError('CSV export did not complete: ' + repr(errors))
-    proof['export'] = verify_export(exported, records)
-    capture('09_exported')
+    with (capture_ui.clip(capture, '08_save_csv') if host else nullcontext()):
+        capture_ui.when_modal(capture, 500, save)
+        click(panel._btn_export); idle()
+        if errors or not accepted:
+            raise RuntimeError('CSV export did not complete: ' + repr(errors))
+    with capture_ui.clip(capture, '09_exported'):
+        proof['export'] = verify_export(exported, records)
+        capture_ui.point_at(capture, panel._btn_export, dwell=1.5)
     fill(panel._min_count_box, 0); idle()
     proof['states']['restored'] = verify_wells(panel._layout_df.to_dict('records'), independent, 'count', 0)
     proof['database_unchanged'] = _digest(database) == original

@@ -3,6 +3,7 @@ from pathlib import Path
 import time
 
 from capture_model_zoo import FIELDS, PAIRS, _fingerprint
+from capture_ui_drv_a import Rec, type_text
 
 
 def record_screen(app, window, screen, stage, captures, capture, settle, write_json, timeout):
@@ -29,34 +30,34 @@ def record_screen(app, window, screen, stage, captures, capture, settle, write_j
                if b.app_key == 'model_compare' and b.isVisible() and b.isEnabled()]
     if len(buttons) != 1:
         raise ValueError('Expected the actual nested Model Compare control')
-    capture('01_make_masks_host')
-    QTest.mouseClick(buttons[0], Qt.LeftButton)
-    settle(.5)
-    screens = [w for w in window.findChildren(ModelCompareScreen) if w.isVisible()]
-    if len(screens) != 1:
-        raise ValueError('The actual Model Compare page did not open')
-    compare = screens[0]
-    if compare._segment_fn is not None or compare.report() is not None:
-        raise ValueError('Expected a fresh, unmodified comparison backend')
-    capture('02_model_parameters')
+    with Rec(capture, '01_make_masks_host', settle) as host_view:
+        host_view.point(buttons[0], dwell=2.0)
+    # Host: the clip holds the pointer's click on the Model Compare button.
+    with Rec(capture, '02_model_parameters', settle) as parameters:
+        QTest.mouseClick(buttons[0], Qt.LeftButton)
+        settle(.5)
+        screens = [w for w in window.findChildren(ModelCompareScreen) if w.isVisible()]
+        if len(screens) != 1:
+            raise ValueError('The actual Model Compare page did not open')
+        compare = screens[0]
+        if compare._segment_fn is not None or compare.report() is not None:
+            raise ValueError('Expected a fresh, unmodified comparison backend')
+        parameters.point(compare._path_edit, compare._btn_load, dwell=1.5)
     edit = compare._path_edit
     if not edit.isVisible() or not edit.isEnabled():
         raise ValueError('The actual source field is unavailable')
-    edit.setFocus()
-    QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-    QTest.keyClicks(edit, str(FIELDS))
-    QTest.keyClick(edit, Qt.Key_Tab)
-    QTest.mouseClick(compare._btn_load, Qt.LeftButton)
-    while compare._busy or compare.active_jobs():
-        tick(); settle(.1)
-    expected_names = [name for name, *_ in PAIRS]
-    if compare.field_names() != expected_names or len(compare._images) != 3:
-        raise ValueError('The actual field loader did not retain the three source identities')
-    for name, loaded in zip(expected_names, compare._images):
-        np.testing.assert_array_equal(loaded, tifffile.imread(FIELDS / (name + '.tif')))
-    if not compare._btn_compare.isEnabled() or compare.report() is not None:
-        raise ValueError('Loading fields must enable Compare without generating results')
-    capture('03_real_fields_loaded_not_compared')
+    with Rec(capture, '03_real_fields_loaded_not_compared', settle):
+        type_text(capture, edit, FIELDS)
+        QTest.mouseClick(compare._btn_load, Qt.LeftButton)
+        while compare._busy or compare.active_jobs():
+            tick(); settle(.1)
+        expected_names = [name for name, *_ in PAIRS]
+        if compare.field_names() != expected_names or len(compare._images) != 3:
+            raise ValueError('The actual field loader did not retain the three source identities')
+        for name, loaded in zip(expected_names, compare._images):
+            np.testing.assert_array_equal(loaded, tifffile.imread(FIELDS / (name + '.tif')))
+        if not compare._btn_compare.isEnabled() or compare.report() is not None:
+            raise ValueError('Loading fields must enable Compare without generating results')
     for path, expected in originals.items():
         if _fingerprint(Path(path), tick) != expected:
             raise ValueError('A source image changed')

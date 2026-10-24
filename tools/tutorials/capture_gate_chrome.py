@@ -25,7 +25,7 @@ def record_gate_chrome(app, window, screen, stage, captures, capture,
             watchdog = QTimer(dialog)
             watchdog.setSingleShot(True)
             watchdog.timeout.connect(dialog.reject)
-            watchdog.start(12000)
+            watchdog.start(120000 if getattr(capture, 'host', None) is not None else 12000)
             dialog.setDirectory(str(database.parent))
             settle(.3)
             edit = dialog.findChild(QLineEdit, "fileNameEdit")
@@ -114,7 +114,7 @@ def record_gate_chrome(app, window, screen, stage, captures, capture,
     watchdog.setSingleShot(True)
     watchdog.timeout.connect(lambda: [widget.close() for widget in app.topLevelWidgets()
                                      if isinstance(widget, QMenu) and widget.isVisible()])
-    watchdog.start(12000)
+    watchdog.start(120000 if getattr(capture, 'host', None) is not None else 12000)
     # Offscreen QTest mouse clicks do not synthesize the native context event.
     # Deliver that event to the actual Gate canvas, whose policy owns this menu.
     app.sendEvent(canvas, QContextMenuEvent(QContextMenuEvent.Mouse, point,
@@ -154,7 +154,7 @@ def record_gate_chrome(app, window, screen, stage, captures, capture,
                 menu.close()
 
     QTimer.singleShot(350, record_axis_menu)
-    watchdog.start(12000)
+    watchdog.start(120000 if getattr(capture, 'host', None) is not None else 12000)
     app.sendEvent(canvas, QContextMenuEvent(QContextMenuEvent.Mouse, axis_point,
                                            canvas.mapToGlobal(axis_point)))
     watchdog.stop()

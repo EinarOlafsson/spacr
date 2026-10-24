@@ -1,0 +1,136 @@
+{
+  "14_make_masks": [
+    {
+      "name": "editor",
+      "env": {},
+      "run_native": [
+        "--cuda",
+        "--ro-bind=/home/carruthers/.cellpose=profile/.cellpose",
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/inputs/editor"
+      ],
+      "capture": [
+        "--module",
+        "make_masks",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600",
+        "--mask-editor-tour",
+        "--mask-readouts-tour",
+        "--mask-curation-organize",
+        "--editor-detect"
+      ]
+    },
+    {
+      "name": "puncta",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/inputs/puncta"
+      ],
+      "capture": [
+        "--module",
+        "make_masks",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600",
+        "--puncta-tour"
+      ]
+    },
+    {
+      "name": "restoration",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/inputs/restoration",
+        "--ro-bind=/home/carruthers/.spacr/backends/cellpose3=app-state/backends/cellpose3",
+        "--ro-bind=/media/carruthers/mnt3/claude/n676_stages/inputs/restoration-backend-models=app-state/backends/cellpose3/models"
+      ],
+      "capture": [
+        "--module",
+        "make_masks",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600",
+        "--restoration-tour"
+      ]
+    },
+    {
+      "name": "yolo",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/inputs/yolo"
+      ],
+      "capture": [
+        "--module",
+        "make_masks",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600",
+        "--mask-yolo-tour"
+      ]
+    }
+  ],
+  "20_cellpose_masks": [
+    {
+      "name": "cellpose_masks",
+      "env": {
+        "SPACR_TUTORIAL_MODEL_FIELDS": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks"
+      },
+      "run_native": [
+        "--cuda",
+        "--ro-bind=/home/carruthers/.cellpose=profile/.cellpose"
+      ],
+      "capture": [
+        "--module",
+        "cellpose_masks",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ]
+    }
+  ],
+  "43_illumination": [
+    {
+      "name": "illumination",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination"
+      ],
+      "capture": [
+        "--module",
+        "illumination",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ]
+    },
+    {
+      "name": "apply",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination"
+      ],
+      "capture": [
+        "--module",
+        "home",
+        "--openings",
+        "--openings-set",
+        "illumination_apply",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ]
+    }
+  ]
+}

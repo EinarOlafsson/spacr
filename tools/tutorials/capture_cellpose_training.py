@@ -13,6 +13,7 @@ import time
 import numpy as np
 
 from build_evaluation_example import sha
+import capture_ui
 from capture_acceptance import assess_pipeline
 
 
@@ -137,7 +138,7 @@ def record_training(app, window, stage, captures, capture, settle, write_json, t
                 if isinstance(box,QMessageBox) and box.isVisible():
                     proof['unexpected_prompt']=box.text();box.reject()
         QTimer.singleShot(1000,reject_prompt)
-        started=time.monotonic();click(screen._btn_run);worker=screen._worker
+        started=time.monotonic();click(screen._btn_run);worker=capture_ui.wait_worker(screen,settle)
         if worker is None:raise ValueError('The native Run button did not start training')
         outcome=dict(finished=False,ok=False,errors=[])
         worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))

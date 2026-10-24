@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from capture_report import snapshot_source, verify_private_sqlite_changes
 from manager_data import verify_bind
 from project_browser_data import verify_originals, verify_summary
@@ -16,6 +18,7 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit, QSplitter
 
+    scenes = Scenes(capture, settle)
     inputs = json.loads((Path(stage)/'project_browser_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     registered = verify_bind(inputs)
     conversion = Path(inputs['conversion_copy'])
@@ -62,12 +65,13 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
                 click(edit)
                 QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
                 QTest.keyClicks(edit, str(directory))
-                capture(frame)
+                if not capture_ui.live(capture):
+                    capture(frame)      # host: the open clip shows the typing
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(buttons) != 1:
                     raise ValueError('Expected exactly one actual folder accept button')
-                click(buttons[0])
+                capture_ui.accept_file_dialog(capture, dialog, buttons[0])
             except Exception as error:
                 failures.append(str(error))
                 if dialog is not None:
@@ -81,8 +85,12 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
 
         timer.timeout.connect(handle)
         watchdog.timeout.connect(abort)
-        timer.start(300)
-        watchdog.start(15000)
+        if capture_ui.live(capture):
+            capture_ui.when_modal(capture, 300, handle)
+        else:
+            timer.start(300)
+        watchdog.start(120000 if capture_ui.live(capture) else 15000)
+        scenes.begin(frame)
         try:
             click(screen._add)
         finally:
@@ -93,6 +101,8 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
         if failures or not accepted:
             raise ValueError('; '.join(failures) or 'Actual folder picker was not accepted')
         done()
+        if capture_ui.live(capture):
+            scenes.end(frame, screen._add)
 
     def depth(value):
         click(screen._depth)
@@ -148,6 +158,7 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
 
     def sort_size(descending, frame):
         table, header = screen._table, screen._table.horizontalHeader()
+        scenes.begin(frame)
         by_root = {s.root: s.size_bytes for s in screen.summaries()}
         expected = sorted(by_root, key=by_root.get, reverse=descending)
         for _ in range(3):
@@ -161,17 +172,19 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
             raise ValueError('Actual header clicks did not produce numeric byte ordering')
         proof.setdefault('sorts', []).append({'descending': descending, 'roots': expected,
                                              'bytes': [by_root[root] for root in expected]})
-        capture(frame)
+        scenes.end(frame, header.viewport())
 
     try:
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = action.menu()
-        matches = [a for a in menu.actions() if a.text().replace('&', '') == 'Project browser']
+        matches = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'project browser']
         if len(matches) != 1:
             raise ValueError('No unique Help -> Project browser route')
+        scenes.begin('01_help_project_browser')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton, pos=window.menuBar().actionGeometry(action).center())
         settle(.2)
-        capture('01_help_project_browser')
+        scenes.end('01_help_project_browser', menu)
+        scenes.begin('02_empty_browser')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(matches[0]).center())
         wait_for(lambda: window._screens.get('project_browser') is not None)
         screen = window._screens['project_browser']
@@ -181,41 +194,49 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
         done()
         if screen.roots():
             raise ValueError('Fresh isolated Project Browser preferences must start without search roots')
-        capture('02_empty_browser')
+        scenes.end('02_empty_browser', screen._add)
+        scenes.begin('03_choose_search_parent')
         depth(0)
         add_folder(inputs['conversion_search'], '03_choose_search_parent')
+        scenes.begin('04_depth_zero_no_projects')
         expect_roots([])
-        capture('04_depth_zero_no_projects')
+        scenes.end('04_depth_zero_no_projects', screen._table.viewport())
+        scenes.begin('05_real_unregistered_conversion')
         depth(1)
         expect_roots([conversion])
         select(conversion)
         inspect(conversion, [])
-        capture('05_real_unregistered_conversion')
+        scenes.end('05_real_unregistered_conversion', screen._detail)
         add_folder(registered, '06_choose_registered_project')
+        scenes.begin('07_two_real_projects')
         expect_roots([conversion, registered])
-        capture('07_two_real_projects')
+        scenes.end('07_two_real_projects', screen._table.viewport())
+        scenes.begin('08_registered_measurements_detail')
         select(registered)
         inspect(registered, inputs['artifact_rows'])
-        capture('08_registered_measurements_detail')
-        splitter = screen._table.parentWidget()
+        scenes.end('08_registered_measurements_detail', screen._detail)
+        splitter = getattr(screen, '_body_splitter', None) or screen._table.parentWidget()
         if not isinstance(splitter, QSplitter):
             raise ValueError('Expected actual project table/detail splitter')
+        scenes.begin('09_enlarged_details')
         handle = splitter.handle(1)
         start = handle.rect().center()
         QTest.mousePress(handle, Qt.LeftButton, pos=start)
         QTest.mouseMove(handle, start-QPoint(400, 0), delay=120)
         QTest.mouseRelease(handle, Qt.LeftButton, pos=start-QPoint(400, 0))
         settle(.3)
-        capture('09_enlarged_details')
+        scenes.end('09_enlarged_details', screen._detail)
         scroll = screen._detail.verticalScrollBar()
-        scroll.setFocus()
-        QTest.keyClick(scroll, Qt.Key_End)
+        scenes.begin('10_stages_and_next_steps')
+        capture_ui.scroll_to_value(capture, screen._detail, scroll.maximum())
         settle(.2)
-        capture('10_stages_and_next_steps')
+        scenes.end('10_stages_and_next_steps', screen._detail)
         sort_size(False, '11_size_ascending')
+        scenes.begin('12_size_descending')
         select(conversion)
         inspect(conversion, [])
         sort_size(True, '12_size_descending')
+        scenes.begin('13_double_click_observation')
         item = select(registered)
         QTest.mouseDClick(screen._table.viewport(), Qt.LeftButton,
                          pos=screen._table.visualItemRect(item).center())
@@ -224,14 +245,17 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
         proof['double_click_browser_still_visible'] = screen.isVisible()
         if chosen != [str(registered)]:
             raise ValueError('Actual double-click did not emit the selected project identity once')
-        capture('13_double_click_observation')
+        scenes.end('13_double_click_observation', screen._table.viewport())
+        scenes.begin('14_depth_zero_keeps_direct_project')
         depth(0)
         expect_roots([registered])
-        capture('14_depth_zero_keeps_direct_project')
+        scenes.end('14_depth_zero_keeps_direct_project', screen._depth)
+        scenes.begin('15_depth_restores_both')
         depth(1)
         expect_roots([conversion, registered])
-        capture('15_depth_restores_both')
+        scenes.end('15_depth_restores_both', screen._depth)
         # Remove changes only search roots; do not remove a directory.
+        scenes.begin('16_remove_search_root_only')
         index = list(screen.roots()).index(str(registered))
         root_item = screen._root_list.item(index)
         QTest.mouseClick(screen._root_list.viewport(), Qt.LeftButton,
@@ -239,12 +263,13 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
         click(screen._forget)
         done()
         expect_roots([conversion])
-        capture('16_remove_search_root_only')
+        scenes.end('16_remove_search_root_only', screen._forget)
         add_folder(registered, '17_add_back_unchanged_project')
+        scenes.begin('18_restored_project_inventory')
         expect_roots([conversion, registered])
         select(registered)
         inspect(registered, inputs['artifact_rows'])
-        capture('18_restored_project_inventory')
+        scenes.end('18_restored_project_inventory', screen._detail)
         proof['source_preservation'] = verify_originals(inputs)
         proof['private_sqlite_sidecar_changes'] = verify_private_sqlite_changes(
             registered, inputs['clone_files'], snapshot_source(registered))

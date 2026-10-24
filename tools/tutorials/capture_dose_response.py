@@ -6,10 +6,15 @@ import os
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_a import Rec, table_into_view
+from capture_ui_drv_e import close_open, guarded
+from capture_ui_drv_f import opening
 from dose_response_evidence import (prepare,TRUTH,REVERSAL,synthetic_rows,
     check_fit,check_groups,check_profile,check_wald,check_drawn_curves)
 
 
+@guarded
 def record_dose_response(app,window,stage,captures,capture,settle,write_json,timeout):
     from PySide6.QtCore import Qt,QTimer,QPoint
     from PySide6.QtTest import QTest
@@ -63,32 +68,44 @@ def record_dose_response(app,window,stage,captures,capture,settle,write_json,tim
         buttons=[w for w in screen.findChildren(QPushButton) if w.isVisible() and w.text()=='Load table…']
         if len(buttons)!=1:raise ValueError('No unique actual Load table button')
         accepted=[];errors=[];timer=QTimer(window);watch=QTimer(window)
+        # Host: 03 starts before the pointer clicks Load table, 04 inside the picker before it is accepted.
+        picker=Rec(capture,'03_choose_disclosed_synthetic_csv',settle);loaded=Rec(capture,'04_loaded_120_synthetic_rows',settle,lead=.3)
         timer.setSingleShot(True);watch.setSingleShot(True)
         def handle():
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected actual CSV picker')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),source);capture('03_choose_disclosed_synthetic_csv')
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),source);picker.stop();loaded.start()
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('No unique actual file accept action')
+                until=time.monotonic()+8
+                while not buttons[0].isEnabled() and time.monotonic()<until:settle(.2)
                 click(buttons[0])
             except Exception as exc:
-                errors.append(str(exc))
+                errors.append(str(exc));picker.abort();loaded.abort()
                 if dialog is not None:dialog.reject()
         def abort():
             errors.append('File picker timed out');dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watch.timeout.connect(abort);timer.start(300);watch.start(15000)
+        timer.timeout.connect(handle);watch.timeout.connect(abort)
+        picker.start()
+        watch.start(120000 if capture_ui.live(capture) else 15000)
+        if capture_ui.live(capture):
+            capture_ui.when_modal(capture, 300, handle, timeout=90)
+        else:
+            timer.start(300)
         try:click(buttons[0])
         finally:timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
-        if errors or not accepted:raise ValueError('; '.join(errors) or 'File not accepted')
+        if errors or not accepted:
+            picker.abort();loaded.abort()
+            raise ValueError('; '.join(errors) or 'File not accepted')
         idle()
         if screen._path!=str(source) or len(screen._frame)!=120:raise ValueError('Actual loaded source differs')
         import pandas as pd
         pd.testing.assert_frame_equal(screen._frame.reset_index(drop=True),pd.DataFrame(synthetic_rows()),check_exact=False,rtol=1e-12,atol=1e-12)
-        capture('04_loaded_120_synthetic_rows')
+        loaded.stop()
 
     def verify_run(name):
         result=screen.result_set()
@@ -122,60 +139,78 @@ def record_dose_response(app,window,stage,captures,capture,settle,write_json,tim
         proof.pop('pending_run',None)
         return result
 
-    def select(group,frame):
+    def select_body(group,frame):
         rows=[r for r in range(screen.table.rowCount()) if screen.table.item(r,0).text()==group]
         if len(rows)!=1:raise ValueError('No unique actual results row')
-        item=screen.table.item(rows[0],0);screen.table.scrollToItem(item);settle(.1)
+        item=screen.table.item(rows[0],0)
+        if capture_ui.live(capture):table_into_view(capture,screen.table,rows[0])
+        else:screen.table.scrollToItem(item)
+        settle(.1)
         QTest.mouseClick(screen.table.viewport(),Qt.LeftButton,pos=screen.table.visualItemRect(item).center());settle(.3)
         fit=screen.result_set().get(group)
         expected=fit.result.report() if fit.result is not None else f'{group}: REFUSED\n\n{fit.error}'
         if screen.report.toPlainText()!=expected:raise ValueError('Selected row shows another group report')
         check_drawn_curves(screen._figure.axes[0])
         proof.setdefault('selected_reports',{})[frame]=dict(group=group,report=expected)
-        capture(frame)
+        capture_ui.point_at(capture,screen.report,dwell=1.5)
+
+    def select(group,frame):
+        # Host: the clip starts before the pointer picks the row.
+        with capture_ui.clip(capture,frame):select_body(group,frame)
 
     def sort_and_copy():
         header=screen.table.horizontalHeader()
-        QTest.mouseClick(header.viewport(),Qt.LeftButton,pos=QPoint(header.sectionViewportPosition(0)+30,header.height()//2));settle(.3)
-        select('SYNTHETIC inhibition','16_select_after_sorting')
-        click(screen.report);QTest.keyClick(screen.report,Qt.Key_A,Qt.ControlModifier);QTest.keyClick(screen.report,Qt.Key_C,Qt.ControlModifier)
-        if app.clipboard().text()!=screen.report.toPlainText():raise ValueError('Native report copy differs')
-        proof['report_copied']=app.clipboard().text();capture('17_copy_actual_report')
+        with capture_ui.clip(capture,'16_select_after_sorting'):
+            QTest.mouseClick(header.viewport(),Qt.LeftButton,pos=QPoint(header.sectionViewportPosition(0)+30,header.height()//2));settle(.3)
+            select_body('SYNTHETIC inhibition','16_select_after_sorting')
+        with capture_ui.clip(capture,'17_copy_actual_report'):
+            click(screen.report);QTest.keyClick(screen.report,Qt.Key_A,Qt.ControlModifier);QTest.keyClick(screen.report,Qt.Key_C,Qt.ControlModifier)
+            if app.clipboard().text()!=screen.report.toPlainText():raise ValueError('Native report copy differs')
+            proof['report_copied']=app.clipboard().text();settle(1.5)
         QTest.keyClick(screen.report,Qt.Key_Right);settle(.2)
 
     try:
         # Data is a visible band of Home tiles, not a Home tab.
-        capture('01_home_data')
+        # Host: 01_home_data starts on Home and holds the click on the tile.
+        home_clip=opening(capture,settle,'01_home_data')
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='dose_response' or w.property('navKey')=='dose_response')]
         if not tiles:raise ValueError('No actual Dose Response Home tile')
         click(max(tiles,key=lambda w:w.width()*w.height()));settle(.6)
         screen=window._screens['dose_response'];screen._jobs.job_failed.connect(lambda text:proof['job_errors'].append(str(text)))
+        home_clip.stop()
         capture('02_empty_dose_response');load()
         splitters=[w for w in screen.findChildren(QSplitter) if w.orientation()==Qt.Horizontal and w.isVisible()]
         if len(splitters)!=1:raise ValueError('No unique native plot/results splitter')
-        handle=splitters[0].handle(1);start=handle.rect().center()
-        end=start+QPoint(2000-handle.mapTo(window,start).x(),0)
-        QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
-        QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
-        combo(screen.concentration_picker,'concentration');combo(screen.response_picker,'response')
-        combo(screen.group_picker,'series');fill(screen.unit_edit,'uM')
-        if screen.force_check.isChecked() or screen.ci_picker.currentData()!='profile':raise ValueError('Unexpected initial fit policy')
-        capture('05_explicit_columns_and_profile')
-        click(screen.fit_button);idle();verify_run('profile');capture('06_profile_results')
+        with capture_ui.clip(capture,'05_explicit_columns_and_profile'):
+            handle=splitters[0].handle(1);start=handle.rect().center()
+            end=start+QPoint(2000-handle.mapTo(window,start).x(),0)
+            QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
+            QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
+            combo(screen.concentration_picker,'concentration');combo(screen.response_picker,'response')
+            combo(screen.group_picker,'series');fill(screen.unit_edit,'uM')
+            if screen.force_check.isChecked() or screen.ci_picker.currentData()!='profile':raise ValueError('Unexpected initial fit policy')
+            capture_ui.point_at(capture,screen.ci_picker,dwell=1.5)
+        with capture_ui.clip(capture,'06_profile_results'):
+            click(screen.fit_button);idle();verify_run('profile')
+            capture_ui.point_at(capture,screen.table,dwell=1.5)
         select('SYNTHETIC inhibition','07_inhibition_midpoint')
         select('SYNTHETIC activation','08_activation_midpoint')
         select('SYNTHETIC beyond range','09_unbounded_not_a_point_estimate')
         select(REVERSAL,'10_refused_reversing_series')
         if reproduce_sort_refit:sort_and_copy()
-        combo(screen.ci_picker,'Wald (symmetric, always finite)');capture('13_choose_wald')
-        click(screen.fit_button);idle();verify_run('wald');select('SYNTHETIC inhibition','14_wald_results')
-        combo(screen.ci_picker,'Profile likelihood (can decline to close)')
-        click(screen.fit_button);idle();verify_run('profile_restored');select('SYNTHETIC inhibition','15_profile_restored')
+        with capture_ui.clip(capture,'13_choose_wald'):
+            combo(screen.ci_picker,'Wald (symmetric, always finite)');capture_ui.wait(capture,1.5,settle)
+        with capture_ui.clip(capture,'14_wald_results'):
+            click(screen.fit_button);idle();verify_run('wald');select_body('SYNTHETIC inhibition','14_wald_results')
+        with capture_ui.clip(capture,'15_profile_restored'):
+            combo(screen.ci_picker,'Profile likelihood (can decline to close)')
+            click(screen.fit_button);idle();verify_run('profile_restored');select_body('SYNTHETIC inhibition','15_profile_restored')
         if not reproduce_sort_refit:sort_and_copy()
         proof['accepted']=True
     except Exception as exc:
         proof['failure']=str(exc)
+        close_open(capture)
         if screen is not None:capture('99_failure_state')
         raise
     finally:

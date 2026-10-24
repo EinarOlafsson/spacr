@@ -11,11 +11,31 @@ import sqlite3
 import time
 from pathlib import Path
 
+import sys
+from pathlib import Path as _Path
+
+sys.path.insert(0, str(_Path(__file__).resolve().parent))   # tests load drivers by path
+
+import capture_ui
+from capture_ui_drv_a import Rec, dismiss_menu, modal_wait, type_text, watchdog_ms
+
 
 def require_preserved(before, after):
     """An example label must not alter source pixels or pre-existing columns."""
     if before != after:
         raise RuntimeError('Annotation tour changed original data or labels')
+
+
+def close_coverage_report(capture, report):
+    """Keep the normal dismissal, allowing Qt to delete its closed report."""
+    from shiboken6 import isValid
+
+    try:
+        capture_ui.close_dialog(capture, report)
+    except TimeoutError:
+        pass
+    if isValid(report) and report.isVisible():
+        report.close()
 
 
 def record_annotation(app, window, screen, stage, captures, capture, settle,
@@ -25,6 +45,7 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
     from spacr.qt.screens.annotate import _SettingsDialog
     from spacr.qt.widgets.fold_strip import FoldButton
+    from shiboken6 import isValid
 
     # capture_refresh binds this private dataset onto the downloader's cache.
     # First verify the genuine automatic opening, then show the optional
@@ -87,12 +108,10 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
                 and screen._grid_scroll.isVisible())
 
     def fill(widget, value):
+        # Host: the pointer clicks the field and the keyboard types the text.
         if not widget.isVisible():
             raise RuntimeError('The tutorial field is not visible')
-        widget.setFocus()
-        QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(widget, str(value))
-        QTest.keyClick(widget, Qt.Key_Tab)
+        type_text(capture, widget, value)
 
     def modal_action(button, action):
         errors, accepted = [], []
@@ -115,8 +134,10 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
                 errors.append('The real dialog did not accept the requested action')
                 dialog.reject()
 
-        QTimer.singleShot(500, drive)
-        QTimer.singleShot(12000, reject_stalled)
+        # Host: the dialog opens only after the pointer has travelled to the
+        # button and clicked, so wait for it instead of a fixed delay.
+        modal_wait(capture, 500, drive)
+        QTimer.singleShot(watchdog_ms(capture, 12000) * (3 if capture_ui.live(capture) else 1), reject_stalled)
         QTest.mouseClick(button, Qt.LeftButton)
         settle()
         if errors or not accepted:
@@ -134,19 +155,19 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         'loaded_crops': len(screen._page_paths),
         'original_rows': before['row_count'],
     })
-    def choose_source(dialog, *, record_picker=True):
+    def choose_source(dialog, *, record_picker=True, rec=None):
         if not isinstance(dialog, QFileDialog):
             raise RuntimeError('Open source did not open the folder picker')
-        dialog.setDirectory(str(source))
+        capture_ui.file_dialog_dir(capture, dialog, source)
         dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
         settle()
-        dialog.resize(1300, 950)
+        capture_ui.dialog_geometry(capture, dialog, (1300, 950))
         edit = dialog.findChild(QLineEdit, 'fileNameEdit')
         if edit is None:
             raise RuntimeError('Folder picker has no filename field')
         fill(edit, source)
-        if record_picker:
-            capture('04_open_source_dialog')
+        if rec is not None:
+            rec.stop()
         QTest.keyClick(edit, Qt.Key_Return)
 
     # The automatically opened grid displays the actual account cache path
@@ -166,16 +187,28 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     screen._console.clear()
     # This is an optional, separately narrated choice of an existing plate,
     # never a workaround required to make Load test data open the grid.
-    modal_action(screen._btn_open, choose_source)
-    wait_for(page_ready, 'The optional Open source action did not load real crops')
-    capture('05_loaded_crops')
+    # Host: the clip starts before the pointer reaches Open source, so the
+    # viewer sees the click, the path typed into the picker and Enter.
+    picker_rec = Rec(capture, '04_open_source_dialog', settle).start()
+    try:
+        modal_action(screen._btn_open, lambda dialog: choose_source(dialog, rec=picker_rec))
+    except BaseException:
+        picker_rec.abort()
+        raise
+    with Rec(capture, '05_loaded_crops', settle) as loaded:
+        wait_for(page_ready, 'The optional Open source action did not load real crops')
+        loaded.point(screen._grid_scroll, dwell=2.0)
 
     def settings(column=None, primaries=None, frame='06_annotation_settings'):
+        # Host: the clip starts before the pointer reaches Settings.
+        rec = Rec(capture, frame, settle).start()
+
         def edit(dialog):
             # Deferred destruction of an earlier dialog can clear the screen's
             # retained reference while a new modal is already visible. Drive
             # the actual active editor, not that lifecycle bookkeeping slot.
             if not isinstance(dialog, _SettingsDialog):
+                rec.abort()
                 capture('unexpected_settings_dialog')
                 raise RuntimeError(f'Settings opened {type(dialog).__name__}: {dialog.windowTitle()}')
             if column is not None:
@@ -185,19 +218,20 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
                 target = combo.findData(primaries)
                 if target < 0 or not combo.isVisible():
                     raise RuntimeError('The requested channel-colour mode is unavailable')
-                combo.setFocus()
-                QTest.keyClick(combo, Qt.Key_Home)
-                for _ in range(target):
-                    QTest.keyClick(combo, Qt.Key_Down)
+                capture_ui.select_combo(capture, combo, target)
                 if combo.currentData() != primaries:
                     raise RuntimeError('Channel-colour selection did not change')
             settle()
-            capture(frame)
+            rec.stop()
             ok = dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
             if not ok.isVisible() or not window.screen().geometry().contains(ok.mapToGlobal(ok.rect().center())):
                 raise RuntimeError('Settings confirmation is outside the recording surface')
             QTest.mouseClick(ok, Qt.LeftButton)
-        modal_action(screen._btn_settings, edit)
+        try:
+            modal_action(screen._btn_settings, edit)
+        except BaseException:
+            rec.abort()
+            raise
         wait_for(page_ready, 'Changed annotation settings did not load crops')
 
     settings(column=annotation, primaries='rgb')
@@ -215,46 +249,54 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     if saved_label() is not None:
         raise RuntimeError('A new demonstration column already contains a label')
     thumb = screen._thumbs[0]
-    QTest.mouseClick(thumb, Qt.LeftButton)
-    settle()
-    if screen._current_value(0) != 1:
-        raise RuntimeError('The actual crop click did not assign class 1')
-    capture('08_class_one_pending')
+    # Host: each clip holds the clicks it narrates (crop, Next, Back).
+    with Rec(capture, '08_class_one_pending', settle):
+        QTest.mouseClick(thumb, Qt.LeftButton)
+        settle()
+        if screen._current_value(0) != 1:
+            raise RuntimeError('The actual crop click did not assign class 1')
     # The current app batches writes when changing page, not on a timer.
     # Demonstrate that real boundary instead of calling its private flush.
-    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
-    wait_for(page_ready, 'The real Next action did not load the next page')
-    wait_for(lambda: saved_label() == 1, 'Class 1 was not saved by the real annotation worker')
-    capture('08_next_page_saved')
-    QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
-    wait_for(page_ready, 'The real Back action did not reload the first page')
-    if screen._page_paths[0] != (first_path, 1):
-        raise RuntimeError('The saved class did not reload into its original crop')
-    capture('08_class_one_saved')
+    with Rec(capture, '08_next_page_saved', settle):
+        QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+        wait_for(page_ready, 'The real Next action did not load the next page')
+        wait_for(lambda: saved_label() == 1, 'Class 1 was not saved by the real annotation worker')
+    with Rec(capture, '08_class_one_saved', settle):
+        QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
+        wait_for(page_ready, 'The real Back action did not reload the first page')
+        if screen._page_paths[0] != (first_path, 1):
+            raise RuntimeError('The saved class did not reload into its original crop')
+
+    counts_rec = Rec(capture, '09_class_counts', settle)
 
     def show_counts(dialog):
         if not isinstance(dialog, QMessageBox) or 'Class counts' not in dialog.windowTitle():
             raise RuntimeError('Expected the actual Class counts dialog')
         write_json(captures / 'annotation_class_counts.json', {'text': dialog.text()})
-        capture('09_class_counts')
+        counts_rec.stop()
         QTest.mouseClick(dialog.button(QMessageBox.Ok), Qt.LeftButton)
 
-    modal_action(screen._btn_count, show_counts)
-    QTest.mouseClick(screen._btn_coverage, Qt.LeftButton)
+    counts_rec.start()
+    try:
+        modal_action(screen._btn_count, show_counts)
+    except BaseException:
+        counts_rec.abort()
+        raise
+    with Rec(capture, '09_annotation_coverage', settle):
+        QTest.mouseClick(screen._btn_coverage, Qt.LeftButton)
+        settle()
+        report = screen._reports.get('Annotation coverage')
+        if report is None or not isValid(report) or not report.isVisible():
+            raise RuntimeError('Coverage did not open its actual report')
+    close_coverage_report(capture, report)
     settle()
-    report = screen._reports.get('Annotation coverage')
-    if report is None or not report.isVisible():
-        raise RuntimeError('Coverage did not open its actual report')
-    capture('09_annotation_coverage')
-    report.close()
-    settle()
-    QTest.mouseClick(screen._thumbs[0], Qt.LeftButton)
-    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
-    wait_for(page_ready, 'Next did not load after clearing the example label')
-    wait_for(lambda: saved_label() is None, 'Clicking the same class did not clear the saved label')
-    QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
-    wait_for(page_ready, 'Back did not reload the cleared example')
-    capture('10_class_cleared')
+    with Rec(capture, '10_class_cleared', settle):
+        QTest.mouseClick(screen._thumbs[0], Qt.LeftButton)
+        QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+        wait_for(page_ready, 'Next did not load after clearing the example label')
+        wait_for(lambda: saved_label() is None, 'Clicking the same class did not clear the saved label')
+        QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
+        wait_for(page_ready, 'Back did not reload the cleared example')
 
     def pixels():
         from PySide6.QtGui import QImage
@@ -274,44 +316,54 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     write_json(captures / 'view_cmy.json', {'pixels': cmy, 'settings': vars(screen._settings)})
     if not rgb or cmy == rgb:
         raise RuntimeError('Changing channel colours did not visibly change the real crops')
-    capture('12_cmy_view')
+    with Rec(capture, '12_cmy_view', settle) as cmy_view:
+        cmy_view.point(screen._grid_scroll, dwell=2.0)
     settings(primaries='rgb', frame='13_restore_rgb_settings')
     restored = pixels()
     write_json(captures / 'view_rgb_restored.json', {'pixels': restored, 'settings': vars(screen._settings)})
-    capture('14_restored_rgb')
+    with Rec(capture, '14_restored_rgb', settle) as rgb_view:
+        rgb_view.point(screen._grid_scroll, dwell=2.0)
     if restored != rgb:
         raise RuntimeError('Restoring RGB did not restore the same displayed crops')
     folds = [b for b in screen.findChildren(FoldButton) if b.isVisible()]
     if [b.app_key for b in folds] != ['agreement']:
         raise RuntimeError('The current Annotate fold inventory changed')
-    QTest.mouseMove(folds[0])
-    settle(1)
-    capture('15_agreement_fold')
+    with Rec(capture, '15_agreement_fold', settle):
+        QTest.mouseMove(folds[0])
+        settle(1)
     menu = screen._btn_train.menu()
     actions = [a.text() for a in menu.actions() if not a.isSeparator()]
     menu_seen = []
+    routes_rec = Rec(capture, '16_training_routes', settle)
 
     def inspect_training_menu():
         if menu.isVisible():
-            capture('16_training_routes')
+            routes_rec.stop()
             menu_seen.append(True)
-        menu.close()
+        dismiss_menu(capture, menu)
 
-    QTimer.singleShot(600, inspect_training_menu)
-    QTest.mouseClick(screen._btn_train, Qt.LeftButton)
-    settle(0.9)
+    # Host: the menu opens when the pointer has clicked Train.
+    routes_rec.start()
+    modal_wait(capture, 600, inspect_training_menu)
+    try:
+        QTest.mouseClick(screen._btn_train, Qt.LeftButton)
+        settle(0.9)
+    except BaseException:
+        routes_rec.abort()
+        raise
     if not menu_seen:
+        routes_rec.abort()
         raise RuntimeError('The actual Train menu did not open')
-    QTest.mouseMove(screen._btn_generate)
-    settle(1)
-    capture('17_generate_database_entry')
-    if not screen._console_switch.isChecked():
-        QTest.mouseClick(screen._console_switch, Qt.LeftButton)
-    settle()
-    if not screen._console.isVisible():
-        raise RuntimeError('The Console switch did not reveal the actual console')
-    write_json(captures / 'annotation_console.json', {'text': screen._console.as_text()})
-    capture('18_annotation_console')
+    with Rec(capture, '17_generate_database_entry', settle):
+        QTest.mouseMove(screen._btn_generate)
+        settle(1)
+    with Rec(capture, '18_annotation_console', settle):
+        if not screen._console_switch.isChecked():
+            QTest.mouseClick(screen._console_switch, Qt.LeftButton)
+        settle()
+        if not screen._console.isVisible():
+            raise RuntimeError('The Console switch did not reveal the actual console')
+        write_json(captures / 'annotation_console.json', {'text': screen._console.as_text()})
     require_preserved(before, snapshot())
     if query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IS NOT NULL')[0][0] != 0:
         raise RuntimeError('The demonstration left a label in the new column')
@@ -351,6 +403,8 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
         return match.group(1) if match else None
 
     labelled_wells = set()
+    # Host: one clip holds the whole labelling pass, pointer and clicks.
+    labelling = Rec(capture, '19_labels_for_suggest', settle).start()
     for _ in range(12):
         paths = [p for p, _ in screen._page_paths]
         wells = {}
@@ -379,7 +433,7 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
     wait_for(lambda: query(f'SELECT count(*) FROM png_list WHERE "{annotation}" = 1')[0][0] >= 6
              and query(f'SELECT count(*) FROM png_list WHERE "{annotation}" = 2')[0][0] >= 6,
              'The labels were not saved')
-    capture('19_labels_for_suggest')
+    labelling.stop()
     seen = {}
 
     def pick():
@@ -390,7 +444,7 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
                 m.close()
             return
         menu = menus[0]
-        capture('19_suggest_menu')
+        menu_rec.stop()
         action = next((a for a in menu.actions() if a.text() == 'Suggest for the images on this page'), None)
         if action is None:
             seen['error'] = 'No page suggestion entry'
@@ -399,9 +453,11 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(action).center())
         seen['ok'] = True
 
-    QTimer.singleShot(900, pick)
+    menu_rec = Rec(capture, '19_suggest_menu', settle).start()
+    modal_wait(capture, 900, pick)
     QTest.mouseClick(screen._btn_suggest, Qt.LeftButton)
     settle(.5)
+    menu_rec.abort()
     if not seen.get('ok'):
         raise RuntimeError(seen.get('error', 'Suggest menu not handled'))
     settle(1.5)
@@ -423,12 +479,13 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
                  if (screen._page_paths[i][1] or 0) >= 10]
     if len(suggested) < 2:
         raise RuntimeError(f'Too few suggestions on the page: {screen._status_label.text()}')
-    capture('20_suggestions')
-    QTest.mouseClick(screen._thumbs[suggested[0]], Qt.LeftButton)
-    settle(.3)
-    QTest.mouseClick(screen._thumbs[suggested[1]], Qt.RightButton)
-    settle(.6)
-    capture('21_judged')
+    with Rec(capture, '20_suggestions', settle) as shown:
+        shown.point(screen._thumbs[suggested[0]], screen._thumbs[suggested[1]], dwell=1.5)
+    with Rec(capture, '21_judged', settle):
+        QTest.mouseClick(screen._thumbs[suggested[0]], Qt.LeftButton)
+        settle(.3)
+        QTest.mouseClick(screen._thumbs[suggested[1]], Qt.RightButton)
+        settle(.6)
     write_json(captures / 'suggest_tour.json', {
         'accepted': True, 'labelled_wells': sorted(labelled_wells),
         'suggested_on_page': len(suggested),

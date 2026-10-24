@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import time
 
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_report import snapshot_source, verify_private_sqlite_changes
 from manager_data import verify_bind
 from pipeline_graph_data import verify_graph, verify_originals
@@ -54,7 +56,8 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
                 click(edit)
                 QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
                 QTest.keyClicks(edit, str(directory))
-                capture(frame)
+                drv.snap(capture, frame)
+                capture_ui.wait(capture, 1.5, settle)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(buttons) != 1:
@@ -71,13 +74,14 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
             if dialog is not None:
                 dialog.reject()
 
-        timer.timeout.connect(handle)
         watchdog.timeout.connect(abort)
-        timer.start(300)
-        watchdog.start(15000)
+        watchdog.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        started = drv.begin(capture, settle, frame)
+        capture_ui.when_modal(capture, 300, handle)
         try:
             click(screen._browse_button)
         finally:
+            drv.finish(capture, started)
             timer.stop()
             watchdog.stop()
             timer.deleteLater()
@@ -95,9 +99,12 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
         proof['graph'] = graph.to_dict()
         return graph
 
-    def node(kind, frame):
+    def node(kind, frame, before=None):
         graph = check_graph()
         picked = next(n for n in graph.nodes if n.kind == kind)
+        started = drv.begin(capture, settle, frame)
+        if before is not None:
+            before()
         rect = screen._canvas.node_rects()[picked.artifact_id]
         QTest.mouseClick(screen._canvas, Qt.LeftButton, pos=rect.center())
         settle(.2)
@@ -110,9 +117,12 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
         if screen._canvas.selected != picked.artifact_id or any(value not in detail for value in expected):
             raise ValueError('Actual clicked node detail does not match its raw record')
         proof.setdefault('details', {})[kind] = detail
-        capture(frame)
+        capture_ui.point_at(capture, screen._details)
+        drv.snap(capture, frame)
+        drv.finish(capture, started)
 
     def filter_state(state, expected, frame):
+        started = drv.begin(capture, settle, frame)
         click(screen._filters[state])
         wanted = {n.artifact_id for n in screen.graph().nodes if n.state in expected}
         if screen._canvas._visible != wanted or set(screen._canvas.node_rects()) != wanted:
@@ -120,49 +130,66 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
         proof.setdefault('filters', []).append({'clicked': state, 'visible': sorted(wanted),
                                               'detail_text': screen._details.toPlainText(),
                                               'verdict': screen._verdict.text()})
-        capture(frame)
+        capture_ui.point_at(capture, screen._verdict)
+        drv.snap(capture, frame)
+        drv.finish(capture, started)
 
     try:
         help_action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = help_action.menu()
-        match = [a for a in menu.actions() if a.text().replace('&', '') == 'Pipeline graph']
+        match = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'pipeline graph']
         if len(match) != 1:
             raise ValueError('Expected unique Help -> Pipeline graph route')
+        started = drv.begin(capture, settle, '01_help_pipeline_graph')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton, pos=window.menuBar().actionGeometry(help_action).center())
         settle(.2)
-        capture('01_help_pipeline_graph')
+        capture_ui.wait(capture, 1.5, settle)
+        drv.snap(capture, '01_help_pipeline_graph')
+        drv.finish(capture, started)
+        started = drv.begin(capture, settle, '02_empty_graph')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(match[0]).center())
         wait_for(lambda: window._screens.get('pipeline_graph') is not None)
         screen = window._screens['pipeline_graph']
         screen.graph_loaded.connect(lambda g: loads.append(len(g.nodes)))
         done()
-        capture('02_empty_graph')
+        capture_ui.point_at(capture, screen._browse_button)
+        drv.snap(capture, '02_empty_graph')
+        drv.finish(capture, started)
         browse(inputs['conversion_copy'], '03_choose_real_conversion')
         graph = screen.graph()
         proof['unregistered'] = verify_graph(graph, inputs['conversion_copy'], [])
         proof['unregistered_verdict'] = screen._verdict.text()
-        capture('04_unregistered_is_not_unprocessed')
+        with capture_ui.clip(capture, '04_unregistered_is_not_unprocessed'):
+            capture_ui.point_at(capture, screen._verdict, screen._details)
         browse(root, '05_choose_cleanup_snapshot')
         check_graph()
         proof['verdict'] = screen._verdict.text()
         proof['declared_order'] = screen._declared.text()
-        capture('06_three_actual_artifacts')
-        splitter = screen._scroll.parentWidget()
+        with capture_ui.clip(capture, '06_three_actual_artifacts'):
+            capture_ui.point_at(capture, screen._verdict, screen._declared, screen._canvas)
+        splitter = getattr(screen, '_body_splitter', None) or screen._scroll.parentWidget()
         if not isinstance(splitter, QSplitter):
             raise ValueError('Expected real canvas/details splitter')
-        handle = splitter.handle(1)
-        start = handle.rect().center()
-        QTest.mousePress(handle, Qt.LeftButton, pos=start)
-        QTest.mouseMove(handle, start-QPoint(850, 0), delay=120)
-        QTest.mouseRelease(handle, Qt.LeftButton, pos=start-QPoint(850, 0))
-        settle(.3)
-        node('measurements-db', '07_measurement_provenance')
+        def drag_splitter():
+            handle = splitter.handle(1)
+            start = handle.rect().center()
+            # 850 px is a distance in the 3840 px wide final frame; the host window is 2560 px wide, where the same
+            # drag collapsed the canvas pane (hidden, so every later node click was done by code, not the pointer).
+            distance = int(round(850 * min(1.0, window.width() / 3840.0)))
+            QTest.mousePress(handle, Qt.LeftButton, pos=start)
+            QTest.mouseMove(handle, start-QPoint(distance, 0), delay=120)
+            QTest.mouseRelease(handle, Qt.LeftButton, pos=start-QPoint(distance, 0))
+            settle(.3)
+            if not screen._canvas.isVisible():
+                raise ValueError('The splitter drag collapsed the graph canvas (window %d px wide)' % window.width())
+        node('measurements-db', '07_measurement_provenance', before=drag_splitter)
         node('crops', '08_missing_crop_provenance')
         node('resource-log', '09_external_resource_log')
         filter_state('current', {'missing', 'stale'}, '10_missing_only')
         node('crops', '11_missing_detail')
         filter_state('missing', {'stale'}, '12_no_visible_artifacts')
         # Clipboard is a real GUI action, independently checked against SQL IDs.
+        copy_clip = drv.begin(capture, settle, '13_copy_full_graph_not_filtered_view')
         click(screen._copy_button)
         dot = app.clipboard().text()
         ids = {r['artifact_id'] for r in inputs['artifact_rows']}
@@ -170,16 +197,19 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
             raise ValueError('Copied DOT omits actual nodes or invents a recorded edge')
         proof['clipboard_dot'] = dot
         proof['copy_includes_hidden_nodes'] = len(ids)
-        capture('13_copy_full_graph_not_filtered_view')
+        capture_ui.point_at(capture, screen._copy_button)
+        drv.snap(capture, '13_copy_full_graph_not_filtered_view')
+        drv.finish(capture, copy_clip)
         filter_state('current', {'current', 'stale'}, '14_current_only')
         filter_state('missing', {'current', 'stale', 'missing'}, '15_restore_all_nodes')
         before = screen.graph().to_dict()
-        click(screen._reload_button)
-        done()
-        after = check_graph().to_dict()
-        if {k:v for k,v in before.items() if k != 'generated_utc'} != {k:v for k,v in after.items() if k != 'generated_utc'}:
-            raise ValueError('Redraw changed actual provenance or node states')
-        node('measurements-db', '16_redrawn_unchanged_graph')
+        def redraw():
+            click(screen._reload_button)
+            done()
+            after = check_graph().to_dict()
+            if {k:v for k,v in before.items() if k != 'generated_utc'} != {k:v for k,v in after.items() if k != 'generated_utc'}:
+                raise ValueError('Redraw changed actual provenance or node states')
+        node('measurements-db', '16_redrawn_unchanged_graph', before=redraw)
         proof['source_preservation'] = verify_originals(inputs)
         proof['private_sqlite_sidecar_changes'] = verify_private_sqlite_changes(root, inputs['clone_files'], snapshot_source(root))
         proof['load_counts'] = loads

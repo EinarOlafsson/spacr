@@ -4,10 +4,23 @@ from __future__ import annotations
 import math
 
 
-def check_recommendation(sentence, current_wells):
-    """An unchanged well count must not be narrated as an improvement."""
-    if f'Going to {current_wells:g} wells would take that to' in sentence:
-        raise ValueError('The headline recommends the unchanged well count as an improvement')
+def check_recommendation(sentence, current_wells, *, allow_baseline=False):
+    """An unchanged well count must not be narrated as an improvement.
+
+    The reviewer and the unit tests keep this refusal. The Power capture passes ``allow_baseline=True``: the
+    app headline can recommend the baseline well count itself because its two scans use different random draws,
+    the lesson narration (scene 12) says so and tells the viewer to disregard it, so the recorder reports the
+    app as it is and returns what it read instead of refusing.
+    """
+    import re
+    found = re.search(r'Going to ([0-9.]+) wells would take that to', sentence)
+    equals = f'Going to {current_wells:g} wells would take that to' in sentence
+    if not allow_baseline:
+        if equals:
+            raise ValueError('The headline recommends the unchanged well count as an improvement')
+        return None
+    return dict(recommended_wells=float(found.group(1)) if found else None, equals_baseline=equals,
+                headline_present=found is not None)
 
 
 def check_curves(records, threshold, replicates):

@@ -6,6 +6,8 @@ from pathlib import Path
 import shutil
 import tempfile
 import time
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import _digest
 from volcano_evidence import read_family,check_plot,check_frame
 
@@ -44,6 +46,14 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         QTest.mouseClick(w,Qt.LeftButton,pos=pos);settle(.3)
 
     def fill(w,value):
+        if capture_ui.live(capture):
+            if str(value):
+                capture_ui.set_text(capture,w,str(value))
+            else:
+                h=capture_ui._h();h.click(w);h.key(w,Qt.Key_A,Qt.ControlModifier)
+                h.key(w,Qt.Key_Backspace);h.key(w,Qt.Key_Tab)
+            settle(.35)
+            return
         click(w);QTest.keyClick(w,Qt.Key_A,Qt.ControlModifier)
         if str(value):QTest.keyClicks(w,str(value))
         else:QTest.keyClick(w,Qt.Key_Backspace)
@@ -52,6 +62,8 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
     def reveal(w):
         # Real keyboard scrolling, no direct scroll-position or state injection.
         if w.isVisible() and w.visibleRegion().boundingRect().height()>=w.height()-2:return
+        if capture_ui.live(capture):
+            capture_ui.scroll_to(capture,scroll,w);return
         bar=scroll.verticalScrollBar();bar.setFocus();QTest.keyClick(bar,Qt.Key_Home);settle(.1)
         while w.visibleRegion().boundingRect().height()<w.height()-2:
             tick();before=bar.value();QTest.keyClick(bar,Qt.Key_Down);settle(.035)
@@ -66,6 +78,10 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
     def combo(key,value,frame=None):
         box=control(key);idx=box.findData(value)
         if idx<0:raise ValueError('Actual Volcano selector has no '+str(value))
+        if capture_ui.live(capture):
+            capture_ui.select_combo(capture,box,idx);settle(.5)
+            if box.currentIndex()!=idx:raise ValueError('Actual selector did not reach requested value')
+            return
         click(box)
         if frame:capture(frame,desktop=True)
         QTest.keyClick(box.view(),Qt.Key_Home)
@@ -73,15 +89,15 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         QTest.keyClick(box.view(),Qt.Key_Return);settle(.5)
         if box.currentIndex()!=idx:raise ValueError('Actual selector did not reach requested value')
 
-    def picker(button,path,name):
+    def picker(button,path,name,started=None):
         accepted=[];errors=[];timer=QTimer(window);watch=QTimer(window)
         timer.setSingleShot(True);watch.setSingleShot(True)
         def handle():
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected genuine file picker')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);capture(name)
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);drv.snap(capture,name);capture_ui.wait(capture,1.5,settle)
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('No unique file-picker accept button')
@@ -92,9 +108,10 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         def abort():
             errors.append('File picker timed out');dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watch.timeout.connect(abort);timer.start(300);watch.start(15000)
+        watch.timeout.connect(abort);watch.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        started=drv.begin(capture,settle,name) if started is None else started;capture_ui.when_modal(capture,300,handle)
         try:click(button)
-        finally:timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
+        finally:drv.finish(capture,started);timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'No accepted file')
         settle(.6)
 
@@ -103,19 +120,24 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         if len(buttons)!=1:raise ValueError('No unique action '+text)
         reveal(buttons[0]);return buttons[0]
 
-    def check(name,**opts):
+    def check(name,act=None,**opts):
+        started=drv.begin(capture,settle,name)
+        if act is not None:act()
         settle(.4);p=check_plot(explorer,rows,**opts)
         p['path_label']=screen._path_label.text();p['style']=asdict(explorer.style())
-        proof.setdefault('checks',{})[name]=p;capture(name);return p
+        proof.setdefault('checks',{})[name]=p;capture_ui.point_at(capture,explorer._canvas);drv.snap(capture,name);drv.finish(capture,started);return p
 
     try:
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='regression' or w.property('navKey')=='regression')]
         if not tiles:raise ValueError('No Home Regression tile')
-        click(max(tiles,key=lambda w:w.width()*w.height()));settle(.9)
-        host=window._screens['regression'];folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='volcano_explorer']
-        if len(folds)!=1:raise ValueError('No unique Regression Volcano Explorer fold')
-        capture('01_regression_host');click(folds[0]);settle(.9)
+        with capture_ui.clip(capture,'01_regression_host'):
+            click(max(tiles,key=lambda w:w.width()*w.height()));settle(.9)
+            host=window._screens['regression'];folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='volcano_explorer']
+            if len(folds)!=1:raise ValueError('No unique Regression Volcano Explorer fold')
+            capture_ui.point_at(capture,folds[0])
+        scene2=drv.begin(capture,settle,'02_choose_completed_results_folder')
+        click(folds[0]);settle(.9)
         found=[w for w in window.findChildren(VolcanoExplorer) if w.isVisible()]
         if len(found)!=1:raise ValueError('Actual Volcano Explorer not visible')
         explorer=found[0];screen=explorer.parentWidget()
@@ -130,7 +152,7 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         handle=splitter.handle(1);start=handle.rect().center();end=start+QPoint(2300-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
         QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.4)
-        picker(next(b for b in screen.findChildren(QPushButton) if b.text()=='Open results…'),data,'02_choose_completed_results_folder')
+        picker(next(b for b in screen.findChildren(QPushButton) if b.text()=='Open results…'),data,'02_choose_completed_results_folder',started=scene2)
         check('03_real_guide_family_no_adjusted_hits')
         proof['initial_control_disagreement']=dict(
             rendered_alpha=explorer.style().alpha,displayed_alpha=explorer._controls['alpha'].value(),
@@ -146,41 +168,50 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
             explorer._controls['y_neg_log10'].isChecked()!=explorer.style().y_neg_log10):
             raise ValueError('Actual Save then Load style did not synchronise controls')
         check('03c_rendered_baseline_and_controls_agree')
-        control('y_column');capture('04_actual_effect_and_adjusted_p_columns')
+        with capture_ui.clip(capture,'04_actual_effect_and_adjusted_p_columns'):
+            capture_ui.point_at(capture,control('y_column'))
         # Native exact-coordinate click selects an existing guide, not a made-up point.
         index=max(range(len(rows)),key=lambda i:abs(float(rows[i]['standardized_marginal_effect'])))
         r=rows[index];axis=explorer._panels[0]
         x,y=axis.transData.transform((float(r['standardized_marginal_effect']),-math.log10(float(r['adjusted_p_value']))))
-        QTest.mouseClick(explorer._canvas,Qt.LeftButton,pos=QPoint(round(x),round(explorer._canvas.height()-y)));settle(.4)
-        if explorer.selected_index()!=index or not selections or selections[-1]['guide']!=r['guide']:
-            raise ValueError('Native point click resolved wrong guide identity')
-        proof['selected_guide']=dict(position=index,source=r,readout=selections[-1])
-        capture('05_selected_real_guide')
+        with capture_ui.clip(capture,'05_selected_real_guide'):
+            QTest.mouseClick(explorer._canvas,Qt.LeftButton,pos=QPoint(round(x),round(explorer._canvas.height()-y)));settle(.4)
+            if explorer.selected_index()!=index or not selections or selections[-1]['guide']!=r['guide']:
+                raise ValueError('Native point click resolved wrong guide identity')
+            proof['selected_guide']=dict(position=index,source=r,readout=selections[-1])
+            capture_ui.point_at(capture,explorer._detail_table)
         table=explorer._detail_table
-        table.verticalScrollBar().setFocus();QTest.keyClick(table.verticalScrollBar(),Qt.Key_End);settle(.3)
-        capture('06_selected_plotted_coordinates')
-        combo('y_column','permutation_p_value');check('07_raw_p_values_not_new_hits',y_column='permutation_p_value')
-        combo('y_column','adjusted_p_value');check('08_adjusted_p_restored')
-        click(control('y_neg_log10'));check('09_untransformed_adjusted_p',neglog=False)
-        click(control('y_neg_log10'));check('10_log_transform_restored')
-        fill(control('alpha').lineEdit(),.5);p=check('11_reference_line_does_not_retest',alpha=.5)
+        with capture_ui.clip(capture,'06_selected_plotted_coordinates'):
+            if capture_ui.live(capture):
+                capture_ui.scroll_to_value(capture,table,table.verticalScrollBar().maximum())
+            else:
+                table.verticalScrollBar().setFocus();QTest.keyClick(table.verticalScrollBar(),Qt.Key_End)
+            settle(.3)
+        check('07_raw_p_values_not_new_hits',act=lambda:combo('y_column','permutation_p_value'),y_column='permutation_p_value')
+        check('08_adjusted_p_restored',act=lambda:combo('y_column','adjusted_p_value'))
+        check('09_untransformed_adjusted_p',act=lambda:click(control('y_neg_log10')),neglog=False)
+        check('10_log_transform_restored',act=lambda:click(control('y_neg_log10')))
+        p=check('11_reference_line_does_not_retest',act=lambda:fill(control('alpha').lineEdit(),.5),alpha=.5)
         proof['alpha_semantics']=dict(below_new_cut=p['below_current_y_cut'],still_source_flagged=p['significant_by_source_flags'],new_statistical_test=False)
-        fill(control('alpha').lineEdit(),.05);check('12_original_alpha_restored')
-        effect=control('effect_threshold');click(effect._auto);fill(effect._spins[0].lineEdit(),.1)
-        check('13_explicit_effect_cut_times_multiplier',cut=.1)
-        click(control('effect_threshold')._auto);check('14_no_effect_cut_restored')
-        combo('color_by','wells_with_guide');check('15_colour_by_actual_support',colour='wells_with_guide')
-        combo('color_by',None);check('16_original_significance_colours')
-        for key,value in [('figure_width',7),('figure_height',5),('dpi',150),('font_size',12),('label_font_size',12),('tick_font_size',10)]:
-            fill(control(key).lineEdit(),value)
-        # Close sections through their actual headers before displaying export actions.
-        for section in explorer.sections():
-            if section.is_expanded():reveal(section.header());click(section.header())
-        check('17_publication_size_settings')
+        check('12_original_alpha_restored',act=lambda:fill(control('alpha').lineEdit(),.05))
+        def effect_cut():
+            effect=control('effect_threshold');click(effect._auto);fill(effect._spins[0].lineEdit(),.1)
+        check('13_explicit_effect_cut_times_multiplier',act=effect_cut,cut=.1)
+        check('14_no_effect_cut_restored',act=lambda:click(control('effect_threshold')._auto))
+        check('15_colour_by_actual_support',act=lambda:combo('color_by','wells_with_guide'),colour='wells_with_guide')
+        check('16_original_significance_colours',act=lambda:combo('color_by',None))
+        def publication_size():
+            for key,value in [('figure_width',7),('figure_height',5),('dpi',150),('font_size',12),('label_font_size',12),('tick_font_size',10)]:
+                fill(control(key).lineEdit(),value)
+            # Close sections through their actual headers before displaying export actions.
+            for section in explorer.sections():
+                if section.is_expanded():reveal(section.header());click(section.header())
+        check('17_publication_size_settings',act=publication_size)
         saved=work/'volcano_style.json';picker(action('Save style'),saved,'18_save_actual_style')
         wanted=json.loads(json.dumps(asdict(explorer.style())))
         if json.loads(saved.read_text(encoding="utf-8"))!=wanted:raise ValueError('Saved JSON differs from actual Volcano settings')
-        fill(control('marker_size').lineEdit(),40);capture('19_temporary_marker_change')
+        with capture_ui.clip(capture,'19_temporary_marker_change'):
+            fill(control('marker_size').lineEdit(),40)
         picker(action('Load style'),saved,'20_load_saved_style')
         if json.loads(json.dumps(asdict(explorer.style())))!=wanted:raise ValueError('Native Load style failed to restore exact style')
         check('21_saved_style_restored')

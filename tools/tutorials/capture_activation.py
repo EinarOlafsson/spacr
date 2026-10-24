@@ -2,6 +2,8 @@
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_a import Rec, type_text
 from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs, check_saved_runs
 
 
@@ -40,9 +42,9 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             p=p.parentWidget()
         for section in reversed(parents):
             if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header()); settle(.2)
+                capture_ui.scroll_to(capture, screen._settings_scroll, section.header()); settle(.2)
                 click(section.header())
-        screen._settings_scroll.ensureWidgetVisible(w); settle(.2)
+        capture_ui.scroll_to(capture, screen._settings_scroll, w); settle(.2)
         if not w.isVisible(): raise ValueError('Setting remains hidden: '+key)
         return w
 
@@ -53,24 +55,19 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             index=w.findData(value)
             if index<0:index=w.findText(str(value))
             if index<0:raise ValueError('Actual selector lacks '+str(value))
-            click(w);QTest.keyClick(w.view(),Qt.Key_Home)
-            for _ in range(index):QTest.keyClick(w.view(),Qt.Key_Down)
-            QTest.keyClick(w.view(),Qt.Key_Return);settle(.2)
+            capture_ui.select_combo(capture,w,index);settle(.2)
         elif isinstance(w,QCheckBox):
             if w.isChecked()!=value:click(w)
         else:
             field=w if isinstance(w,QLineEdit) else w.findChild(QLineEdit)
             if field is None:raise ValueError('No text entry for '+key+' '+type(w).__name__)
-            click(field);QTest.keyClick(field,Qt.Key_A,Qt.ControlModifier)
-            if str(value):QTest.keyClicks(field,str(value))
-            else:QTest.keyClick(field,Qt.Key_Backspace)
-            QTest.keyClick(field,Qt.Key_Tab);settle(.2)
+            type_text(capture,field,value);settle(.2)
         got=screen._settings_model.collect().get(key)
         if got!=value:raise ValueError(f'Visible setting {key}: {got!r} != {value!r}')
 
     def run(method,overlay,prefix):
-        set_value('cam_type',method);set_value('overlay',overlay)
-        capture(prefix+'_method_and_overlay')
+        with Rec(capture,prefix+'_method_and_overlay',settle):
+            set_value('cam_type',method);set_value('overlay',overlay)
         settings=screen._settings_model.collect()
         outcome=dict(finished=False,ok=False,errors=[]);lines=[]
         def reject_prompt():
@@ -81,21 +78,24 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
         timer=QTimer(window);timer.timeout.connect(reject_prompt);timer.start(300)
         try:
             if not screen._btn_run.isEnabled():raise ValueError('Actual Run is disabled')
+            # Host: the clip starts before the pointer reaches Run.
+            running=Rec(capture,prefix+'_running',settle).start()
             QTest.mouseClick(screen._btn_run,Qt.LeftButton)
             worker=getattr(screen,'_worker',None)
-            if worker is None:raise ValueError('Actual Run did not start a worker')
+            if worker is None:
+                running.abort();raise ValueError('Actual Run did not start a worker')
             worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))
             worker.error.connect(lambda text:outcome['errors'].append(str(text)))
             worker.line_ready.connect(lambda text:lines.append(str(text)))
-            settle(.5);capture(prefix+'_running')
+            settle(.5);running.stop()
             while not outcome['finished'] or screen._worker_thread_is_running():tick();settle(.1)
             settle(1)
         finally:
             timer.stop();timer.deleteLater()
             write_json(captures/(prefix+'_worker.json'),dict(outcome=outcome,lines=lines,settings=settings))
-        for block,_,_ in screen._console._pipeline_console_blocks():
-            block.setFocus();QTest.keyClick(block,Qt.Key_End,Qt.ControlModifier)
-        screen._console.jump_to_the_end();settle(.3);capture(prefix+'_finished_console')
+        with Rec(capture,prefix+'_finished_console',settle):
+            capture_ui.console_end_all(capture,screen._console)
+            capture_ui.console_to_end(capture,screen._console);settle(.3)
         if not outcome['finished'] or not outcome['ok'] or outcome['errors']:
             raise ValueError('Activation run failed: '+str(outcome))
         queue=screen._figure_queue
@@ -105,7 +105,8 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             if not pixmap.save(str(path),'PNG'):raise ValueError('Could not preserve actual figure')
             figures.append(path.name)
         if queue.count():
-            queue.show_index(queue.count()-1);settle(.3);capture(prefix+'_actual_plot')
+            with Rec(capture,prefix+'_actual_plot',settle):
+                capture_ui.show_figure(capture,queue,queue.count()-1);settle(.3)
         else:
             capture(prefix+'_missing_gui_plot')
         evidence=verify_saved(prepared,method,oracle)
@@ -136,14 +137,16 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')==HOST_KEY or w.property('navKey')==HOST_KEY)]
         if not tiles:raise ValueError('No actual Home Classify route')
-        click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
-        host=window._screens[HOST_KEY];capture('01_classify_host')
+        with Rec(capture,'01_classify_host',settle):
+            click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
+        host=window._screens[HOST_KEY]
         folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='activation']
         if len(folds)!=1:raise ValueError('No unique Classify Activation Maps fold')
-        click(folds[0]);settle(.8)
-        screens=[w for w in app.allWidgets() if isinstance(w,AppScreen) and w.app_key=='activation' and w.isVisible()]
-        if len(screens)!=1:raise ValueError('Actual Activation Maps form did not open')
-        screen=screens[0];capture('02_activation_fold')
+        with Rec(capture,'02_activation_fold',settle):
+            click(folds[0]);settle(.8)
+            screens=[w for w in app.allWidgets() if isinstance(w,AppScreen) and w.app_key=='activation' and w.isVisible()]
+            if len(screens)!=1:raise ValueError('Actual Activation Maps form did not open')
+            screen=screens[0]
         proof['defaults']=screen._settings_model.collect()
         handle=screen._body_splitter.handle(1);start=handle.rect().center()
         end=start+QPoint(1950-handle.mapTo(window,start).x(),0)
@@ -156,9 +159,13 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
                 ('channels',[1,2,3]),('normalize_input',True),('normalize',True),
                 ('plot',True),('save',True),('shuffle',False),('correlation',False),('n_jobs',1)]
         for index,(key,value) in enumerate(values):
-            set_value(key,value)
             if key in ('dataset','model_path','image_size','channels','normalize_input','plot','correlation','n_jobs'):
-                capture(f'03_{index:02d}_{key}')
+                # Host: the clip holds the pointer going to the control and setting it.
+                with Rec(capture,f'03_{index:02d}_{key}',settle) as scene:
+                    set_value(key,value)
+                    scene.point(screen._settings_model._widgets.get(key),dwell=1.5)
+            else:
+                set_value(key,value)
         proof['live_preview_control_present']=bool(getattr(screen,'_preview_switch',None) is not None)
         run('saliency_channel',True,'04_channel_saliency')
         run('saliency_image',False,'05_image_saliency')

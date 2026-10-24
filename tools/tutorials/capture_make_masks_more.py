@@ -8,6 +8,8 @@ exactly as a user answers them, after their frame is captured.
 """
 from __future__ import annotations
 
+import capture_ui
+import capture_ui_drv_e as drv
 import csv
 import time
 from pathlib import Path
@@ -26,12 +28,12 @@ def _modal(app, settle, kind, handle, errors, *, wait=20.0):
                 handle(widget)
             except Exception as exc:  # noqa: BLE001 - reported by the caller
                 errors.append(f'{kind.__name__}: {exc}')
-                widget.reject()
+                widget.reject()  # failure path
             return
         if time.monotonic() >= deadline:
             errors.append(f'No {kind.__name__} appeared')
             if widget is not None:
-                widget.reject()
+                widget.reject()  # failure path
             return
         QTimer.singleShot(150, poll)
 
@@ -48,6 +50,7 @@ def _press(box, role_button):
     QTest.mouseClick(button, Qt.LeftButton)
 
 
+@drv.guarded
 def record_curation(app, window, screen, captures, capture, settle, write_json, timeout):
     """Keep one field and Discard the next; read the verdicts back from the CSV."""
     from PySide6.QtCore import Qt
@@ -67,18 +70,20 @@ def record_curation(app, window, screen, captures, capture, settle, write_json, 
     for button in (screen._btn_keep, screen._btn_discard, screen._btn_skip, screen._btn_contribute):
         if not button.isVisible():
             raise RuntimeError(f'{button.text()} is not visible on the bottom row')
+    rec = drv.scene(capture, settle, '20_curate_keep')
     QTest.mouseMove(screen._btn_keep)
     QTest.mouseClick(screen._btn_keep, Qt.LeftButton)
     ready()
     second = screen._image_files[screen._current_index]
     if second == first:
         raise RuntimeError('Keep did not move to the next field')
-    capture('20_curate_keep')
+    rec.stop()
+    rec = drv.scene(capture, settle, '21_curate_discard')
     QTest.mouseMove(screen._btn_discard)
     QTest.mouseClick(screen._btn_discard, Qt.LeftButton)
     ready()
     settle(0.5)
-    capture('21_curate_discard')
+    rec.stop()
     ledger = folder / 'csv' / 'keep_discard.csv'
     if not ledger.is_file():
         raise RuntimeError('Keep/Discard did not write csv/keep_discard.csv')
@@ -94,6 +99,7 @@ def record_curation(app, window, screen, captures, capture, settle, write_json, 
         'files_deleted': False})
 
 
+@drv.guarded
 def record_upload(app, window, screen, captures, capture, settle, write_json):
     """Open Upload data, choose the curated fields and name the dataset; never send."""
     from PySide6.QtCore import Qt
@@ -102,6 +108,7 @@ def record_upload(app, window, screen, captures, capture, settle, write_json):
     from spacr.qt.widgets.model_share_dialog import CURATED_SOURCE
 
     sent = []
+    rec = drv.scene(capture, settle, '22_upload_data')
     QTest.mouseClick(screen._btn_contribute, Qt.LeftButton)
     settle(0.8)
     dialog = getattr(screen, '_contribute_dialog', None)
@@ -110,8 +117,8 @@ def record_upload(app, window, screen, captures, capture, settle, write_json):
     # Belt and braces: the namespace has no network, and this replaces the
     # sender so even a stray press could not reach the dataset.
     dialog._upload = lambda folder, target: sent.append(target) or ''
-    dialog.resize(1500, 1250)
-    dialog.move(window.pos().x() + 1150, window.pos().y() + 420)
+    capture_ui.dialog_geometry(capture, dialog, (1500, 1250))
+    capture_ui.dialog_geometry(capture, dialog, None, window.pos() + __import__('PySide6.QtCore', fromlist=['QPoint']).QPoint(1150, 420))
     settle()
     curated = dialog.source_buttons.get(CURATED_SOURCE)
     if curated is not None and curated.isEnabled():
@@ -125,8 +132,8 @@ def record_upload(app, window, screen, captures, capture, settle, write_json):
     link = dialog.target_label.text()
     if 'huggingface.co/datasets' not in link:
         raise RuntimeError('Naming the dataset did not show its destination link')
-    capture('22_upload_data')
-    dialog.close()
+    rec.stop()
+    capture_ui.close_dialog(capture, dialog)
     settle()
     if sent:
         raise RuntimeError('Upload data sent something during the recording')
@@ -169,6 +176,7 @@ def prepare_nested(stage, sources):
     return parent, by_well, export, masks, rows
 
 
+@drv.guarded
 def record_consolidation(app, window, screen, stage, by_well, captures, capture, settle, write_json, timeout):
     """Open a folder whose images sit in subfolders and accept Consolidate."""
     import os
@@ -178,33 +186,41 @@ def record_consolidation(app, window, screen, stage, by_well, captures, capture,
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
 
     errors = []
+    # Host: the offer clip opens before the click on Open folder and ends at
+    # the offer; the clip of the opened folder opens as the offer is accepted.
+    offer_rec = drv.Rec(capture, '23_consolidate_offer', settle)
+    opened_rec = drv.Rec(capture, '24_consolidated_opened', settle)
 
     def choose(dialog):
-        dialog.resize(1300, 950)
-        dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+        capture_ui.dialog_geometry(capture, dialog, (1300, 950))
+        if not capture_ui.live(capture):
+            dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
         # Browse to the parent (as a sidebar click would) and type the name.
-        dialog.setDirectory(str(by_well.parent))
+        capture_ui.file_dialog_dir(capture, dialog, str(by_well.parent))
         settle(0.5)
         edit = dialog.findChild(QLineEdit, 'fileNameEdit')
         QTest.mouseClick(edit, Qt.LeftButton)
         QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(edit, by_well.name)
+        wanted = str(by_well) if capture_ui.live(capture) else by_well.name   # host: the full path
+        QTest.keyClicks(edit, wanted)
         settle(0.2)
-        if edit.text() != by_well.name:
+        if edit.text() != wanted:
             raise RuntimeError(f'The folder picker holds {edit.text()!r}, not the prepared folder')
-        capture('23a_folder_picker_nested')
+        drv.snap(capture, '23a_folder_picker_nested')
         _modal(app, settle, QMessageBox, consolidate, errors)
-        QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+        capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
 
     def consolidate(box):
         settle(0.3)
         if 'Consolidate' not in box.windowTitle() and 'subfolder' not in box.text():
             raise RuntimeError(f'Unexpected box: {box.windowTitle()}')
-        capture('23_consolidate_offer')
+        offer_rec.stop()
+        opened_rec.start()
         _press(box, QMessageBox.Yes)
 
     _modal(app, settle, QFileDialog, choose, errors)
     previous = Path.cwd()
+    offer_rec.start()
     try:
         os.chdir(stage)
         QTest.mouseClick(screen._btn_open, Qt.LeftButton)
@@ -226,10 +242,11 @@ def record_consolidation(app, window, screen, stage, by_well, captures, capture,
         raise RuntimeError('Consolidation did not copy both images with a manifest')
     if not all((by_well / w / 'field_1.tif').is_file() for w in ('E01', 'E02')):
         raise RuntimeError('Consolidation changed the original folders')
-    capture('24_consolidated_opened')
+    opened_rec.stop()
     return {'output': str(output), 'copied': copied, 'originals_untouched': True}
 
 
+@drv.guarded
 def record_organize(app, window, screen, export, masks, captures, capture, settle, write_json, timeout):
     """Organize for Measure: a column per channel folder, a cell-mask column, Detect sets, Apply."""
     import numpy as np
@@ -241,21 +258,35 @@ def record_organize(app, window, screen, export, masks, captures, capture, settl
     from spacr.qt.widgets.organize_for_measure import OrganizeForMeasureDialog
 
     errors, facts = [], {}
+    # Host: one clip per scene, each opened where the actions of the scene
+    # begin. The popup is opened by a click, so the first one starts before it
+    # and the following ones start inside the callbacks of the popup.
+    open_rec = drv.Rec(capture, '25_organize_open', settle)
+    table_rec = drv.Rec(capture, '26_organize_table', settle)
+    sets_rec = drv.Rec(capture, '27_detect_sets_check', settle)
+    images_rec = drv.Rec(capture, '28_organize_images', settle)
+    plan_rec = drv.Rec(capture, '29_move_and_merge', settle)
+    done_rec = drv.Rec(capture, '30_organized_for_measure', settle)
 
     def fill(dialog):
         settle(0.5)
-        dialog.resize(2700, 1650)
-        dialog.move(window.pos().x() + 570, window.pos().y() + 260)
+        capture_ui.dialog_geometry(capture, dialog, (2700, 1650))
+        capture_ui.dialog_geometry(capture, dialog, None, window.pos() + __import__('PySide6.QtCore', fromlist=['QPoint']).QPoint(570, 260))
         settle()
         # Point the popup at the microscope export, so the sorted folder
         # lands beside it rather than beside the folder open in the editor.
-        dialog.source_edit.clear()
+        if not capture_ui.live(capture):
+            dialog.source_edit.clear()
         QTest.mouseClick(dialog.source_edit, Qt.LeftButton)
-        dialog.source_edit.setText(str(export))
-        dialog.source_edit.editingFinished.emit()
+        capture_ui.set_text(capture, dialog.source_edit, str(export))
+        if not capture_ui.live(capture):
+            dialog.source_edit.editingFinished.emit()   # the host's Tab already finished editing
         settle(0.5)
-        capture('25_organize_open')
+        open_rec.stop()
+        table_rec.start()
         channels = {}
+        capture_ui.code_action(capture, 'organizer columns filled by add_column/add_files: a folder '
+                               'drop needs a file manager, not available in the capture host')
         for name in ('Hoechst', 'ER', 'Toxo'):
             # What a drop of each channel folder on the new-column zone does.
             index = dialog.add_column('channel')
@@ -274,17 +305,19 @@ def record_organize(app, window, screen, export, masks, captures, capture, settl
         facts['columns'] = [c.kind for c in dialog.columns]
         if facts['rows'] != 2 or any(not all(row) for row in dialog.rows):
             raise RuntimeError(f'The table did not match two complete rows: {dialog.rows}')
-        capture('26_organize_table')
+        table_rec.stop()
+        sets_rec.start()
         _modal(app, settle, ExampleSetsDialog, examples, errors)
         QTest.mouseClick(dialog.detect_button, Qt.LeftButton)
         settle(0.5)
         index = dialog.view_box.findData('both')
-        dialog.view_box.setCurrentIndex(index)
-        dialog.size_slider.setValue(dialog.size_slider.maximum())
+        capture_ui.select_combo(capture, dialog.view_box, index)
+        capture_ui.set_slider(capture, dialog.size_slider, dialog.size_slider.maximum())
         # Item 611: High thumbnails for checking rows by eye (display only).
-        dialog.quality_box.setCurrentIndex(dialog.quality_box.findData('high'))
+        capture_ui.select_combo(capture, dialog.quality_box, dialog.quality_box.findData('high'))
         settle(2.5)
-        capture('28_organize_images')
+        images_rec.stop()
+        plan_rec.start()
         _modal(app, settle, QMessageBox, confirm, errors)
         QTest.mouseClick(dialog.apply_button, Qt.LeftButton)
 
@@ -292,16 +325,19 @@ def record_organize(app, window, screen, export, masks, captures, capture, settl
         settle(0.8)
         if 'sets' not in sets_dialog.windowTitle().lower():
             raise RuntimeError(f'Unexpected dialog {sets_dialog.windowTitle()}')
-        capture('27_detect_sets_check')
-        sets_dialog.accept()
+        sets_rec.stop()
+        images_rec.start()
+        capture_ui.accept_dialog(capture, sets_dialog)
 
     def confirm(box):
         settle(0.3)
         facts['plan'] = box.text()
-        capture('29_move_and_merge')
+        plan_rec.stop()
+        done_rec.start()
         _press(box, QMessageBox.Yes)
 
     _modal(app, settle, OrganizeForMeasureDialog, fill, errors, wait=30)
+    open_rec.start()
     QTest.mouseClick(screen._btn_organize, Qt.LeftButton)
     if errors:
         raise RuntimeError('; '.join(errors))
@@ -322,7 +358,7 @@ def record_organize(app, window, screen, export, masks, captures, capture, settl
     array = np.load(merged[0], mmap_mode='r')
     if array.shape[-1] != 4:
         raise RuntimeError(f'Merged array has {array.shape[-1]} planes, expected 3 images + 1 mask')
-    capture('30_organized_for_measure')
+    done_rec.stop()
     write_json(captures / 'organize_acceptance.json', {
         'accepted': True, 'rows': facts['rows'], 'columns': facts['columns'],
         'plan_summary': facts.get('plan'), 'destination': str(dest),

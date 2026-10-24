@@ -28,15 +28,16 @@ def test_all_current_source_bound_scenes_keep_captions_and_speak_controls(langua
     source = lesson('05_home', language)
     original = deepcopy(source)
     plans = renderer.prepare_scene_plans(source, language, 'us', voice=voice)
-    assert len(plans) == 39 and source == original
+    # 32 scenes since 2026-10-12: the seven modules hidden with alpha off left the Home tour.
+    assert len(plans) == 32 and source == original
     assert [p['display_text'] for p in plans] == [s['narration'] for s in source['scenes']]
     speech = ' '.join(s['speech_text'] for p in plans for s in p['sentences'])
     assert not re.search('[A-Za-z]', speech)
-    for required in (['プリファレンシズ','テーマ','アニメーション','オーガニズム',
+    for required in (['プリファレンシズ','テーマ','アニメーション',
                       'インポート セッティングス','ストップ',
                       'アプライ','キープ','リバート','デンシティ',
                       'セッティングス バックドロップ ダークネス'] if language == 'ja'
-                     else ['偏好设置','主题','动画','制作掩膜编辑器','批量掩膜模块','弓形虫',
+                     else ['偏好设置','主题','动画','制作掩膜编辑器','批量掩膜模块',
                            '导入设置','停止',
                            '应用','保留','还原','密度','设置背景暗度']):
         assert required in speech

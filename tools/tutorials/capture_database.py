@@ -7,7 +7,7 @@ No edit mode, backend replacement, direct result injection or training is used.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import csv
 import hashlib
 import json
@@ -19,10 +19,15 @@ import sqlite3
 import tempfile
 import time
 
+import capture_ui
 
-SOURCE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/'
-              'tutorials/measurements/measurements.db')
-SOURCE_SHA256 = '9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d'
+
+import os
+# SPACR_TUTORIAL_DATABASE_SOURCE / _SHA256: a copy of the example database whose personal crop paths were rewritten
+# to the stage path (the original names /nas_mnt paths, which the capture path guard refuses to show).
+SOURCE = Path(os.environ.get('SPACR_TUTORIAL_DATABASE_SOURCE', '/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/'
+              'tutorials/measurements/measurements.db'))
+SOURCE_SHA256 = os.environ.get('SPACR_TUTORIAL_DATABASE_SHA256', '9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d')
 ENGLISH_SHA256 = 'cfab2d77734441b48f73325808e55b91528307fc98e7a44732d3951255129e98'
 IDENTITY = ('plateID', 'rowID', 'columnID', 'fieldID', 'object_label')
 NARRATIONS = (
@@ -379,6 +384,7 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     from PySide6.QtWidgets import QAbstractItemView, QDialog, QDialogButtonBox, QFileDialog, QLineEdit
     from shiboken6 import isValid
 
+    host = capture_ui.live(capture)
     stage, captures = Path(stage), Path(captures)
     write_json(captures / 'scientific_acceptance.json', {
         'accepted': False, 'reason': 'Actual Database capture not independently verified',
@@ -396,10 +402,12 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     def fill(widget, text):
         if widget is None or not widget.isVisible() or not widget.isEnabled():
             raise RuntimeError('The actual editor is not usable')
+        if host:
+            capture_ui.focus(capture, widget)
         _native_replace_text(widget, text, QTest, Qt)
         settle(.2)
 
-    def choose(button, path, frame, *, save=False):
+    def choose(button, path, frame, *, save=False, scene_name=None, after=None):
         accepted, errors, owned = [], [], []
         timer, watchdog = QTimer(window), QTimer(window)
         timer.setSingleShot(True)
@@ -414,14 +422,18 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
                     raise RuntimeError('Expected the actual Qt file picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
                 bounds = window.geometry()
-                dialog.resize(min(1800, bounds.width() - 100), min(1200, bounds.height() - 100))
-                dialog.move(bounds.center() - dialog.rect().center())
+                capture_ui.dialog_geometry(capture, dialog, (min(1800, bounds.width() - 100), min(1200, bounds.height() - 100)),
+                                           bounds.center() - dialog.rect().center())
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                capture(frame)
+                if not host:
+                    capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
                 if box is None:
                     raise RuntimeError('The actual picker has no standard action buttons')
-                click(box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open))
+                if host:
+                    capture_ui.accept_file_dialog(capture, dialog, box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open))
+                else:
+                    click(box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open))
             except Exception as error:
                 errors.append(str(error))
                 if isinstance(dialog, QDialog) and isValid(dialog):
@@ -433,19 +445,21 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
                 if isValid(dialog) and dialog.isVisible():
                     dialog.reject()
 
-        timer.timeout.connect(handle)
         watchdog.timeout.connect(stalled)
-        timer.start(400)
-        watchdog.start(15000)
-        try:
-            click(button)
-        finally:
-            timer.stop()
-            watchdog.stop()
-            timer.deleteLater()
-            watchdog.deleteLater()
-        if errors or not accepted:
-            raise RuntimeError('; '.join(errors) or 'The file picker was not accepted')
+        with (capture_ui.clip(capture, scene_name or frame) if host else nullcontext()):
+            capture_ui.when_modal(capture, 400, handle)
+            watchdog.start(90000 if host else 15000)
+            try:
+                click(button)
+            finally:
+                timer.stop()
+                watchdog.stop()
+                timer.deleteLater()
+                watchdog.deleteLater()
+            if errors or not accepted:
+                raise RuntimeError('; '.join(errors) or 'The file picker was not accepted')
+            if after is not None:
+                after()
 
     # The parent may have instantiated the screen, but the recorded entry still
     # goes through Help; never substitute a call to the navigation slot here.
@@ -456,23 +470,24 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     choices = [a for a in menu.actions() if a.text().replace('&', '').casefold() == 'database browser']
     if len(choices) != 1 or not choices[0].isEnabled():
         raise RuntimeError('The actual Help menu lacks Database browser')
-    QTest.mouseClick(window.menuBar(), Qt.LeftButton,
-                     pos=window.menuBar().actionGeometry(help_actions[0]).center())
-    settle(.3)
-    if not menu.isVisible():
-        raise RuntimeError('Help did not open')
-    capture('00a_help_database_menu')
-    QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
-    deadline = time.monotonic() + timeout
-    while window._screens.get('db_browser') is None:
-        if time.monotonic() > deadline:
-            raise TimeoutError('Database Browser did not open through Help')
-        settle(.1)
-    screen = window._screens['db_browser']
-    settle(1)
-    if not screen.isVisible() or not screen._threaded:
-        raise RuntimeError('The visible Database Browser must use its real threaded workers')
-    capture('01_overview')
+    with capture_ui.clip(capture, '01_overview'):
+        QTest.mouseClick(window.menuBar(), Qt.LeftButton,
+                         pos=window.menuBar().actionGeometry(help_actions[0]).center())
+        settle(.3)
+        if not menu.isVisible():
+            raise RuntimeError('Help did not open')
+        if not host:
+            capture('00a_help_database_menu')
+        QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
+        deadline = time.monotonic() + timeout
+        while window._screens.get('db_browser') is None:
+            if time.monotonic() > deadline:
+                raise TimeoutError('Database Browser did not open through Help')
+            settle(.1)
+        screen = window._screens['db_browser']
+        settle(1)
+        if not screen.isVisible() or not screen._threaded:
+            raise RuntimeError('The visible Database Browser must use its real threaded workers')
 
     parent = stage / 'database_runs'
     parent.mkdir(exist_ok=True)
@@ -521,30 +536,35 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
         checks[label] = proof
         write_json(captures / 'query_evidence.json', checks)
 
-    choose(screen._btn_pick_db, database, '02_open')
-    wait_jobs('Open database')
-    if screen.tables() != facts['tables']:
-        raise RuntimeError('The actual table list differs from the independent schema')
-    capture('03_tables')
-    items = screen._table_list.findItems('cell', Qt.MatchExactly)
-    if len(items) != 1:
-        raise RuntimeError('No unique actual cell-table item')
-    screen._table_list.scrollToItem(items[0])
-    QTest.mouseClick(screen._table_list.viewport(), Qt.LeftButton,
-                     pos=screen._table_list.visualItemRect(items[0]).center())
-    prove('unfiltered')
-    capture('04_cell_table')
+    choose(screen._btn_pick_db, database, '02_open', after=lambda: wait_jobs('Open database'))
+    with capture_ui.clip(capture, '03_tables'):
+        wait_jobs('Open database')
+        if screen.tables() != facts['tables']:
+            raise RuntimeError('The actual table list differs from the independent schema')
+        capture_ui.point_at(capture, screen._table_list, dwell=1.5)
+    with capture_ui.clip(capture, '04_cell_table'):
+        items = screen._table_list.findItems('cell', Qt.MatchExactly)
+        if len(items) != 1:
+            raise RuntimeError('No unique actual cell-table item')
+        if host:
+            capture_ui.select_row(capture, screen._table_list, screen._table_list.row(items[0]))
+        else:
+            screen._table_list.scrollToItem(items[0])
+            QTest.mouseClick(screen._table_list.viewport(), Qt.LeftButton,
+                             pos=screen._table_list.visualItemRect(items[0]).center())
+        prove('unfiltered')
+        capture_ui.point_at(capture, screen._view, dwell=1.5)
     original_rows = screen.preview_rows()
-    fill(screen._col_search, 'cell_channel_1_mean_intensity')
-    if (screen.visible_columns() != ['cell_channel_1_mean_intensity']
-            or screen.preview_rows() != original_rows):
-        raise RuntimeError('Column search changed rows or selected the wrong feature')
-    prove('column_search')
-    capture('05_column_search')
-    fill(screen._col_search, '')
-    if screen.visible_columns() != facts['columns'] or screen.preview_rows() != original_rows:
-        raise RuntimeError('Clearing column search did not restore the exact view')
-    capture('05b_columns_restored')
+    with capture_ui.clip(capture, '05_column_search'):
+        fill(screen._col_search, 'cell_channel_1_mean_intensity')
+        if (screen.visible_columns() != ['cell_channel_1_mean_intensity']
+                or screen.preview_rows() != original_rows):
+            raise RuntimeError('Column search changed rows or selected the wrong feature')
+        prove('column_search')
+    with capture_ui.clip(capture, '05b_columns_restored'):
+        fill(screen._col_search, '')
+        if screen.visible_columns() != facts['columns'] or screen.preview_rows() != original_rows:
+            raise RuntimeError('Clearing column search did not restore the exact view')
 
     # Extra evidence for the current footer's SQL sorting. None of these
     # frames adds a sentence to the retained eight-scene lesson.
@@ -569,9 +589,9 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
         if (not header.viewport().rect().contains(point)
                 or header.logicalIndexAt(point) != section):
             raise RuntimeError('The native header click does not target the visible cell_area section')
-        QTest.mouseClick(header.viewport(), Qt.LeftButton, pos=point)
-        prove(label, sort=order)
-        capture(label)
+        with capture_ui.clip(capture, label):
+            QTest.mouseClick(header.viewport(), Qt.LeftButton, pos=point)
+            prove(label, sort=order)
     fill(screen._col_search, '')
 
     def select_combo(combo, text):
@@ -580,6 +600,10 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
             raise RuntimeError(f'Actual filter option is unavailable: {text}')
         click(combo)
         popup = combo.view()
+        for _ in range(30):                      # the popup maps after the click event, under load a moment later
+            if popup.isVisible():
+                break
+            settle(.1)
         if not popup.isVisible():
             raise RuntimeError('The actual filter choices did not open')
         QTest.keyClick(popup, Qt.Key_Home)
@@ -590,37 +614,39 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
         if combo.currentText() != text:
             raise RuntimeError('Native filter selection did not take effect')
 
-    select_combo(screen._filter_col, 'cell_area')
-    select_combo(screen._filter_op, '>=')
-    fill(screen._filter_value, 10000)
-    if screen._raw_toggle.isChecked():
-        raise RuntimeError('Expected the genuine structured filter, not raw SQL')
-    capture('08_filter')
-    click(screen._btn_apply)
-    prove('filtered', threshold=10000)
-    if screen.where_clause() != '"cell_area" >= ?' or screen._params != (10000,):
-        raise RuntimeError('The actual structured filter did not bind the numeric value')
-    capture('09_filtered')
-    click(screen._btn_clear)
-    prove('filter_cleared')
-    if screen.where_clause() is not None or screen.preview_rows() != original_rows:
-        raise RuntimeError('Clearing the filter did not restore the original complete query')
-    capture('09a_filter_restored')
-    fill(screen._filter_value, 10000)
-    click(screen._btn_apply)
-    prove('filter_reapplied', threshold=10000)
-    capture('09b_filter_reapplied')
+    with capture_ui.clip(capture, '08_filter'):
+        select_combo(screen._filter_col, 'cell_area')
+        select_combo(screen._filter_op, '>=')
+        fill(screen._filter_value, 10000)
+        if screen._raw_toggle.isChecked():
+            raise RuntimeError('Expected the genuine structured filter, not raw SQL')
+    with capture_ui.clip(capture, '09_filtered'):
+        click(screen._btn_apply)
+        prove('filtered', threshold=10000)
+        if screen.where_clause() != '"cell_area" >= ?' or screen._params != (10000,):
+            raise RuntimeError('The actual structured filter did not bind the numeric value')
+        capture_ui.point_at(capture, screen._rows_label, dwell=1.5)
+    with capture_ui.clip(capture, '09a_filter_restored'):
+        click(screen._btn_clear)
+        prove('filter_cleared')
+        if screen.where_clause() is not None or screen.preview_rows() != original_rows:
+            raise RuntimeError('Clearing the filter did not restore the original complete query')
+    with capture_ui.clip(capture, '09b_filter_reapplied'):
+        fill(screen._filter_value, 10000)
+        click(screen._btn_apply)
+        prove('filter_reapplied', threshold=10000)
 
     exported = run / 'cell_area_ge_10000.csv'
     if exported.exists() or screen.visible_columns() != facts['columns']:
         raise RuntimeError('Export must target a new file and the reviewed visible columns')
-    choose(screen._btn_export, exported, '10a_export_picker', save=True)
-    wait_jobs('Export')
+    choose(screen._btn_export, exported, '10a_export_picker', save=True, scene_name='10_export',
+           after=lambda: wait_jobs('Export'))
     result = verify_export(database, exported, screen.visible_columns(), facts['filtered_rows'])
     if (not screen.status_text().startswith(f"Exported {facts['filtered_rows']:,} rows × {len(facts['columns'])} columns")
             or str(exported) not in screen.status_text()):
         raise RuntimeError('The visible export confirmation disagrees with the independent output')
-    capture('10_export')
+    if not host:
+        capture('10_export')
     if _digest(database) != copied['database_sha256']:
         raise RuntimeError('The browsed private database changed')
     require_unchanged_source(SOURCE, copied['source_bundle'])

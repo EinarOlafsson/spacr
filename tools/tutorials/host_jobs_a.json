@@ -1,0 +1,240 @@
+{
+ "09_annotate": [
+  {
+   "name": "annotate_tour",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "annotate",
+    "--download",
+    "--annotation-tour",
+    "--ai-controls",
+    "--test-data-route",
+    "load",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Covers 01..21 and 30_ai_unsent_question. Scenes 02_data_choice_load/stream come from the chooser in capture_refresh. Needs the isolated example cache (Annotate refuses otherwise); flag set is inferred from capture_refresh argparse, not from a stage receipt."
+  },
+  {
+   "name": "annotate_suggest",
+   "env": {
+    "SPACR_TUTORIAL_ANNOTATE_SUGGEST": "1"
+   },
+   "run_native": [],
+   "capture": [
+    "--module",
+    "annotate",
+    "--download",
+    "--annotation-tour",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Scenes 19_labels_for_suggest, 20_suggestions, 21_judged only appear with the env var set; may be merged into annotate_tour by the integrator (record all with the env var set)."
+  }
+ ],
+ "10_classify_cv": [
+  {
+   "name": "classify_cv_gui",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "classify_merged",
+    "--download",
+    "--run",
+    "--settings-tour",
+    "--ai-controls",
+    "--classifier-family",
+    "cv",
+    "--platform",
+    "xcb"
+   ],
+   "note": "gui_18_source_folder_choice only shows in the --classifier-family ml run; for cv the existing-split run is the one that picks the folder (see next entry). Unsure which of the two covers 24_batch_figure/23_batch_finished; both run them."
+  },
+  {
+   "name": "classify_cv_existing_split",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "classify_merged",
+    "--download",
+    "--run",
+    "--settings-tour",
+    "--ai-controls",
+    "--classifier-existing-split",
+    "<STAGE>/classify_canonical_split_v2",
+    "--platform",
+    "xcb"
+   ],
+   "note": "From capture_classify_existing.py. <STAGE> is the integrator stage. The split must be produced first by the terminal run: python tools/tutorials/capture_classify_preparation.py --stage <STAGE> --source <STAGE>/annotate_fresh/example_data/plate1 --destination <STAGE>/classify_canonical_split_v2 (prepare_01..03 scenes, terminal capture, not host-mode)."
+  },
+  {
+   "name": "classify_prepare_terminal",
+   "env": {
+    "SPACR_TUTORIAL_CV_SOURCE": "<STAGE>/annotate_fresh/example_data/plate1",
+    "SPACR_TUTORIAL_CV_DESTINATION": "<STAGE>/classify_canonical_split_v2"
+   },
+   "run_native": [],
+   "capture": [],
+   "note": "Terminal-only (capture_classify_preparation.py --inside); prepare_01..03 scenes. Not a capture_refresh run; capture list intentionally empty."
+  }
+ ],
+ "11_classify_ml": [
+  {
+   "name": "classify_ml",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "classify_merged",
+    "--download",
+    "--run",
+    "--settings-tour",
+    "--ai-controls",
+    "--classifier-family",
+    "ml",
+    "--platform",
+    "xcb"
+   ],
+   "note": "capture_refresh runs choose_existing_folder (18_source_folder_choice) and capture_classify_ml.bounded_settings for this family. 25_ml_figure_02 recorded by the run."
+  }
+ ],
+ "41_classify": [
+  {
+   "name": "classify_overview",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "classify_merged",
+    "--classify-overview",
+    "--platform",
+    "xcb"
+   ],
+   "note": "main_02/03/05_*_tooltip/06. main_00_home comes from the shared openings run. ml_*/cv_* scenes reuse recordings from the 10 and 11 runs."
+  }
+ ],
+ "12_map_barcodes": [
+  {
+   "name": "map_barcodes_tour",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "map_barcodes",
+    "--download",
+    "--run",
+    "--barcode-search-tour",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Needs network for the SRA archive picker (gui_02). --barcode-reference-source defaults to ~/Documents/barcodes (must hold validated plain/reverse-complement pairs); pass it explicitly if the neutral account differs. gui_20_batch_settings/gui_23_batch_finished come from the --run part. Unsure whether --run and the tour are meant to be combined."
+  }
+ ],
+ "13_regression": [
+  {
+   "name": "regression_run",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "regression",
+    "--download",
+    "--run",
+    "--settings-tour",
+    "--ai-controls",
+    "--platform",
+    "xcb"
+   ],
+   "note": "README: use a fresh output root (stage) and run via run_neutral_capture.sh for the journal paths; CPU only. Covers 19_setting_*, 21_batch_running, 25_result_*, 26_detail_*."
+  }
+ ],
+ "15_image_umap": [
+  {
+   "name": "umap_run",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "umap",
+    "--download",
+    "--run",
+    "--settings-tour",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Covers 19_setting_*, batch scenes and capture_umap.record_explorer (25..28). Unsure whether --download exists for umap or the measurements come from a prior Measure stage."
+  }
+ ],
+ "16_activation": [
+  {
+   "name": "activation",
+   "env": {},
+   "run_native": [
+    "--cuda"
+   ],
+   "capture": [
+    "--module",
+    "activation",
+    "--platform",
+    "xcb"
+   ],
+   "note": "activation_evidence.prepare(stage) builds the 4-crop archive, model and reference; it may use the GPU for the oracle (pick_device). Saved-plot scenes (*_09_saved_batch_0_grid) need a separate run with --activation-saved-plots, not host-mode (external viewer)."
+  }
+ ],
+ "21_model_compare": [
+  {
+   "name": "model_compare_gui",
+   "env": {
+    "SPACR_TUTORIAL_MODEL_FIELDS": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks"
+   },
+   "run_native": [],
+   "capture": [
+    "--module",
+    "model_compare",
+    "--model-compare-api-introduction",
+    "--platform",
+    "xcb"
+   ],
+   "note": "gui_02_model_parameters. The api_* scenes are terminal captures (capture_model_compare_api.py --inside) on <STAGE>/model_compare_1507_inputs, not host-mode. gui_00_home from the shared openings run."
+  }
+ ],
+ "22_model_zoo": [
+  {
+   "name": "model_zoo_benchmark",
+   "env": {
+    "SPACR_TUTORIAL_MODEL_FIELDS": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+    "SPACR_TUTORIAL_MODEL_DIRECTORY": "/home/olafsson/.cellpose/models"
+   },
+   "run_native": [
+    "--cuda",
+    "--ro-bind=/home/olafsson/.cellpose/models=.cellpose/models"
+   ],
+   "capture": [
+    "--module",
+    "model_zoo",
+    "--model-zoo-additions",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Scenes 01b..11 and 03b/03c (needs network) and 09b..12 (uses <STAGE>/mask_src). Cellpose bind path and the --ro-bind target syntax are guesses: SOURCE=RELATIVE per run_native_capture; the app reads $SPACR_TUTORIAL_MODEL_DIRECTORY, so check which one the neutral account sees. Inputs under /mnt/firecuda2 must also be reachable (derived/cellpose_masks, derived/train_cellpose, test_datasets/spacr/tutorials/merged)."
+  }
+ ],
+ "23_agreement": [
+  {
+   "name": "agreement",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "agreement",
+    "--platform",
+    "xcb"
+   ],
+   "note": "Hosted on the Annotate screen; agreement_demo.prepare(stage) builds the artificial three-pass database. No download."
+  }
+ ]
+}

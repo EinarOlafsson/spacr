@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from batch_data import digest, prepare, verify_outputs
 
 
@@ -23,6 +25,7 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
                  model_run=False, ai_request_sent=False)
     write_json(evidence, proof)
     screen = None
+    scenes = Scenes(capture, settle)
 
     def tick():
         if time.monotonic() > deadline:
@@ -31,7 +34,11 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
     def click(widget):
         tick()
         if not widget.isVisible() or not widget.isEnabled():
-            raise ValueError('Requested Batch control is unavailable')
+            detail = ''
+            if screen is not None:
+                detail = ' (%s; jobs %s; busy=%s)' % (widget.text() if hasattr(widget, 'text') else type(widget).__name__,
+                                                      [j.status for j in screen.queue()], screen.is_busy())
+            raise ValueError('Requested Batch control is unavailable' + detail)
         QTest.mouseClick(widget, Qt.LeftButton, pos=widget.visibleRegion().boundingRect().center())
         settle(.08)
 
@@ -61,9 +68,10 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
                     raise ValueError('The genuine file picker did not open')
                 dialog.accepted.connect(lambda: accepted.append(True))
                 type_text(dialog.findChild(QLineEdit, 'fileNameEdit'), str(path))
-                capture(frame)
+                if not capture_ui.live(capture):
+                    capture(frame)       # host: the clip opened before the click shows the typing
                 key = QDialogButtonBox.Save if save else QDialogButtonBox.Open
-                click(dialog.findChild(QDialogButtonBox).button(key))
+                capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(key))
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
@@ -77,8 +85,13 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
 
         timer.timeout.connect(handle)
         watchdog.timeout.connect(stalled)
-        timer.start(300)
-        watchdog.start(15000)
+        if capture_ui.live(capture):
+            # The pointer first glides to the button: start when the picker shows.
+            capture_ui.when_modal(capture, 300, handle)
+        else:
+            timer.start(300)
+        watchdog.start(60000 if capture_ui.live(capture) else 15000)
+        scenes.begin(frame)
         previous_directory = Path.cwd()
         try:
             os.chdir(stage)
@@ -91,17 +104,14 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             watchdog.deleteLater()
         if errors or not accepted:
             raise ValueError('; '.join(errors) or 'The file picker was not accepted')
+        if capture_ui.live(capture):
+            scenes.end(frame, button)
 
     def choose(combo, value):
         index = combo.findData(value)
         if index < 0:
             raise ValueError(f'Missing native dropdown choice {value}')
-        click(combo)
-        view = combo.view()
-        QTest.keyClick(view, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(view, Qt.Key_Down)
-        QTest.keyClick(view, Qt.Key_Return)
+        capture_ui.select_combo(capture, combo, index)
         settle(.2)
         if combo.currentData() != value:
             raise ValueError('Native dropdown selected the wrong value')
@@ -117,7 +127,7 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         if screen.selected_job() is None or screen.selected_job().id != job_id:
             raise ValueError('Wrong actual table selection')
 
-    def record(frame):
+    def record(frame, *point):
         proof.setdefault('states', {})[frame] = {
             'order': screen.queue().ids,
             'jobs': [{'id': j.id, 'status': j.status, 'depends_on': j.depends_on,
@@ -126,7 +136,7 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
                       'run_status': j.run_status} for j in screen.queue()],
             'busy': screen.is_busy(), 'run_enabled': screen._btn_run.isEnabled(),
             'status_text': screen.status_text(), 'problems': screen.problems_text()}
-        capture(frame)
+        scenes.end(frame, *point)
 
     try:
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
@@ -134,10 +144,12 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         choice = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'batch runner']
         if len(choice) != 1:
             raise ValueError('No unique Help -> Batch runner route')
+        scenes.begin('01_help_batch')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
                          pos=window.menuBar().actionGeometry(action).center())
         settle(.2)
-        capture('01_help_batch')
+        scenes.end('01_help_batch', menu)
+        scenes.begin('02_empty_batch')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choice[0]).center())
         wait_for(lambda: window._screens.get('batch') is not None)
         screen = window._screens['batch']
@@ -146,17 +158,22 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             raise ValueError('The real threaded, empty Batch Runner is required')
         proof['normal_threaded_runner'] = True
         header = screen._table.horizontalHeader()
-        for col, width in enumerate((65, 270, 190, 550, 270, 220, 220)):
-            header.resizeSection(col, width)
-        record('02_empty_batch')
+        if not capture_ui.live(capture):
+            for col, width in enumerate((65, 270, 190, 550, 270, 220, 220)):
+                header.resizeSection(col, width)
+        record('02_empty_batch', screen._table)
         for job in inputs['jobs']:
             number = job['number']
+            scenes.begin(f'03_choose_settings_{number}')
             choose(screen._module_combo, 'convert')
             picker(screen._btn_pick, job['settings_file'], f'03_choose_settings_{number}')
+            scenes.begin(f'04_configure_job_{number}')
             type_text(screen._label_edit, f'field {number}: four real channels')
             type_text(screen._depends_edit, 'convert-1' if number == 2 else '')
             type_text(screen._overrides_edit, 'plate_naming=name' if number == 2 else '')
-            capture(f'04_configure_job_{number}')
+            scenes.end(f'04_configure_job_{number}', screen._label_edit, screen._depends_edit,
+                       screen._overrides_edit)
+            scenes.begin(f'05_added_job_{number}')
             click(screen._btn_add)
             if screen.queue().ids != [f'convert-{i}' for i in range(1, number + 1)] or screen.has_errors():
                 raise ValueError('The actual job did not validate: ' + screen.problems_text())
@@ -164,17 +181,19 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             expected = {**job['settings'], 'plate_naming': 'name' if number == 2 else 'index'}
             if any(resolved.get(k) != v for k, v in expected.items()):
                 raise ValueError('Saved settings or the native override changed')
-            record(f'05_added_job_{number}')
+            record(f'05_added_job_{number}', screen._table)
+        scenes.begin('06_invalid_dependency_order')
         select('convert-2')
         click(screen._btn_up)
         if not screen.has_errors() or screen._btn_run.isEnabled():
             raise ValueError('A later prerequisite failed to block the run')
-        record('06_invalid_dependency_order')
+        record('06_invalid_dependency_order', screen._problems_view)
         # The stock problem pane is height-limited. Use its real scrollbar
         # rather than changing application minimums or hiding the error text.
         bar = screen._problems_view.verticalScrollBar()
         before_scroll = bar.value()
-        QTest.keyClick(bar, Qt.Key_End)
+        scenes.begin('06b_dependency_error_scrolled')
+        capture_ui.scroll_to_value(capture, screen._problems_view, bar.maximum())
         settle(.2)
         # With no extra warnings the whole error fits and there is nothing to
         # scroll; the frame then shows it as is.
@@ -182,7 +201,8 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             raise ValueError('The actual error scrollbar did not reach its last line')
         proof['error_scrollbar'] = {'before': before_scroll, 'after': bar.value(),
                                     'maximum': bar.maximum()}
-        record('06b_dependency_error_scrolled')
+        record('06b_dependency_error_scrolled', screen._problems_view)
+        scenes.begin('07_valid_reordered_queue')
         click(screen._btn_down)
         if screen.has_errors() or screen.queue().ids != ['convert-1', 'convert-2', 'convert-3']:
             raise ValueError('Restoring valid dependency order did not clear the error')
@@ -196,56 +216,74 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             raise ValueError('The restored real queue is invalid: ' + repr(screen.problems_text()))
         # Warnings do not block a run; any are recorded, not hidden.
         proof['validation_warnings'] = problems
-        record('07_valid_reordered_queue')
+        record('07_valid_reordered_queue', screen._table)
+        scenes.begin('08_stop_policy')
         choose(screen._on_error_combo, 'stop')
-        record('08_stop_policy')
+        record('08_stop_policy', screen._on_error_combo)
+        scenes.begin('09_continue_policy')
         choose(screen._on_error_combo, 'continue')
-        record('09_continue_policy')
+        record('09_continue_policy', screen._on_error_combo)
         queue_path = Path(inputs['root']) / 'real_conversion_queue.json'
         picker(screen._btn_save, queue_path, '10_save_queue_picker', save=True)
         before = queue_path.read_bytes()
+        scenes.begin('11_load_queue_picker')
         select('convert-3')
         click(screen._btn_remove)
         if len(screen.queue()) != 2:
             raise ValueError('Remove did not remove the selected private pending row')
+        scenes.begin('11_load_queue_picker')
         picker(screen._btn_load, queue_path, '11_load_queue_picker')
         if queue_path.read_bytes() != before or screen.queue().ids != ['convert-1', 'convert-3', 'convert-2']:
             raise ValueError('Save/load did not restore the exact queued plan')
-        record('12_restored_queue')
+        scenes.begin('12_restored_queue')
+        record('12_restored_queue', screen._table)
         proof['saved_queue'] = str(queue_path)
         proof['saved_plan_sha256'] = digest(queue_path)
-        dock = open_jobs_dock(app, window, capture, settle)
+        dock = open_jobs_dock(app, window, capture, settle, scenes)
+        scenes.begin('13b_jobs_dock')
+        # The Batch screen shows each job's real subprocess log. A job started from the user's real home writes
+        # '/home/<user>/.config/matplotlib is not a writable directory' and similar lines there, and the privacy guard
+        # refuses a visible personal path. The subprocess inherits this process's environment, so point its caches
+        # at the private stage (the run is otherwise unchanged).
+        for key, rel in (('MPLCONFIGDIR', 'mpl'), ('XDG_CACHE_HOME', 'cache'), ('XDG_CONFIG_HOME', 'config')):
+            private = Path(stage) / rel
+            private.mkdir(parents=True, exist_ok=True)
+            os.environ[key] = str(private)
         click(screen._btn_run)
         wait_for(lambda: any(j.status == bt.STATUS_RUNNING for j in screen.queue()))
         if dock is not None:
             proof['jobs_dock_rows'] = jobs_dock_rows(dock)
-            capture('13b_jobs_dock')
-        record('13_real_subprocess_running')
+            scenes.end('13b_jobs_dock', dock)
+        scenes.begin('13_real_subprocess_running')
+        record('13_real_subprocess_running', screen._table)
+        scenes.begin('14_stopped_between_jobs')
         click(screen._btn_stop)
         if dock is not None:
             dock.close()
         wait_for(lambda: not screen.is_busy() and screen.active_jobs() == 0)
         if [j.status for j in screen.queue()] != [bt.STATUS_SUCCESS, bt.STATUS_NOT_RUN, bt.STATUS_NOT_RUN]:
             raise ValueError('Controlled Stop did not settle only the active real job: ' + screen.status_text())
-        record('14_stopped_between_jobs')
+        record('14_stopped_between_jobs', screen._table)
         first_times = (screen.queue().jobs[0].started, screen.queue().jobs[0].finished)
+        scenes.begin('15_completed_real_queue')
         click(screen._btn_run)
         wait_for(lambda: not screen.is_busy() and screen.active_jobs() == 0)
         if screen.result() is None or not screen.result().ok or any(j.status != bt.STATUS_SUCCESS for j in screen.queue()):
             raise ValueError('The real subprocess queue did not complete: ' + screen.status_text())
         if (screen.queue().jobs[0].started, screen.queue().jobs[0].finished) != first_times:
             raise ValueError('Continuing repeated the first successful job')
-        record('15_completed_real_queue')
+        record('15_completed_real_queue', screen._table)
         proof['outputs'] = [verify_outputs(job) for job in inputs['jobs']]
         proof['saved_final'] = json.loads(queue_path.read_text(encoding="utf-8"))
         saved = bt.load_queue(queue_path)
         if saved.ids != screen.queue().ids or any(j.status != bt.STATUS_SUCCESS for j in saved):
             raise ValueError('The persisted final queue differs from the successful GUI')
         for job in screen.queue():
+            scenes.begin('16_log_' + job.id)
             select(job.id)
             if not screen.log_text().strip() or 'exit code 0' not in Path(job.log_path).read_text(encoding="utf-8"):
                 raise ValueError('A successful row lacks the real subprocess log')
-            record('16_log_' + job.id)
+            record('16_log_' + job.id, screen._table)
         proof['first_job_not_repeated'] = True
         proof['accepted'] = True
     except Exception as error:
@@ -263,7 +301,7 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         write_json(evidence, proof)
 
 
-def open_jobs_dock(app, window, capture, settle):
+def open_jobs_dock(app, window, capture, settle, scenes=None):
     """Help > Window > Jobs through the real menus (650).
 
     :returns: the open Jobs dock, or None when this build has no Jobs entry.
@@ -283,6 +321,8 @@ def open_jobs_dock(app, window, capture, settle):
     jobs = next((a for a in window_action.menu().actions() if a.objectName() == 'ShowJobsAction'), None)
     if jobs is None:
         return None
+    if scenes is not None:
+        scenes.begin('13a_help_window_jobs')
     QTest.mouseClick(bar, Qt.LeftButton, pos=bar.actionGeometry(help_action).center())
     settle(.3)
     QTest.mouseMove(menu, menu.actionGeometry(window_action).center())
@@ -291,7 +331,11 @@ def open_jobs_dock(app, window, capture, settle):
     sub = window_action.menu()
     if not sub.isVisible():
         raise ValueError('The Help > Window submenu did not open')
-    capture('13a_help_window_jobs')
+    if scenes is not None:
+        scenes.end('13a_help_window_jobs', sub)
+        scenes.begin('13b_jobs_dock')
+    else:
+        capture('13a_help_window_jobs')
     QTest.mouseClick(sub, Qt.LeftButton, pos=sub.actionGeometry(jobs).center())
     settle(.8)
     dock = window.findChild(QDockWidget, 'JobsDock')

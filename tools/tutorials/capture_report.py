@@ -16,6 +16,9 @@ import shutil
 import sqlite3
 import tempfile
 import time
+from contextlib import nullcontext
+
+import capture_ui
 
 
 SOURCE_RELATIVE = 'external_mask_runs/example-pj_qwr_5/project'
@@ -303,6 +306,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         raise ValueError('Report needs an existing private capture directory')
     if not math.isfinite(float(timeout)) or timeout <= 0:
         raise ValueError('Report needs a positive finite timeout')
+    host = capture_ui.live(capture)
     deadline = time.monotonic() + timeout
     evidence = {'accepted': False, 'published': False, 'lesson': '29_report',
                 'reason': 'Actual Report scan/output has not been verified',
@@ -345,7 +349,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                         private_sqlite_sidecar_changes=changes)
         return changes
 
-    def choose_path(button, path, frame, save=False):
+    def choose_path(button, path, frame, save=False, after=None):
         errors, accepted, timers = [], [], []
 
         def handle():
@@ -356,38 +360,45 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                 dialog.accepted.connect(lambda: accepted.append(True))
                 timer = _picker_timeout(
                     window, dialog, QTimer,
-                    max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
+                    max(1, min(120000 if host else 12000, int((deadline - time.monotonic()) * 1000))))
                 timers.append(timer)
-                dialog.resize(1500, 950)
+                capture_ui.dialog_geometry(capture, dialog, (1500, 950))
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                 if edit is None:
                     raise RuntimeError('The actual file picker has no path editor')
-                edit.setFocus()
-                QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-                QTest.keyClicks(edit, str(path))
-                QTest.keyClick(edit, Qt.Key_Tab)
+                if host:
+                    capture_ui.set_text(capture, edit, str(path), commit=False)
+                else:
+                    edit.setFocus()
+                    QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+                    QTest.keyClicks(edit, str(path))
+                    QTest.keyClick(edit, Qt.Key_Tab)
                 settle(.15)
-                capture(frame)
+                if not host:
+                    capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
                 target = None if box is None else box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open)
                 if target is None:
                     raise RuntimeError('The actual picker lacks its confirmation control')
-                click(target)
+                if host:
+                    capture_ui.accept_file_dialog(capture, dialog, target)
+                else:
+                    click(target)
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
                     dialog.reject()
 
-        opener = QTimer(window)
-        opener.setSingleShot(True)
-        opener.timeout.connect(handle)
-        opener.start(350)
-        try:
-            click(button)
-        finally:
-            _dispose_timers([opener, *timers])
-        if errors or not accepted:
-            raise RuntimeError('; '.join(errors) or 'The actual Report picker was not accepted')
+        with (capture_ui.clip(capture, frame) if host else nullcontext()):
+            capture_ui.when_modal(capture, 350, handle)
+            try:
+                click(button)
+            finally:
+                _dispose_timers(timers)
+            if errors or not accepted:
+                raise RuntimeError('; '.join(errors) or 'The actual Report picker was not accepted')
+            if after is not None:
+                after()
 
     try:
         previous = stage / CAPTURE_RELATIVE
@@ -421,11 +432,13 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         output = destination / 'external_masks_report.html'
         if screen.report is not None or screen.written:
             raise RuntimeError('A fresh Report panel is required')
-        capture('01_current_report_controls')
-        choose_path(screen._btn_pick_src, source, '02_existing_project_picker')
-        wait_job()
-        click(screen._btn_scan)
-        wait_job()
+        with capture_ui.clip(capture, '01_current_report_controls'):
+            capture_ui.point_at(capture, screen._btn_pick_src, screen._btn_scan, dwell=1.0)
+        choose_path(screen._btn_pick_src, source, '02_existing_project_picker', after=wait_job)
+        with capture_ui.clip(capture, '03_actual_completion_not_qc_pass'):
+            click(screen._btn_scan)
+            wait_job()
+            capture_ui.point_at(capture, screen._sections, dwell=1.5)
         report = screen.report
         summary = {'src': str(report.src), 'title': report.title, 'status': report.status,
                    'status_detail': report.status_detail, 'figures_found': report.n_figures_found,
@@ -445,34 +458,43 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                     'original_preserved': True, 'private_material_files_unchanged': True,
                     'private_sqlite_sidecar_changes': evidence['private_sqlite_sidecar_changes'],
                     'sections_selectable': False})
-        capture('03_actual_completion_not_qc_pass')
-        capture('04_read_only_missing_sections')
-        click(screen._format)
-        capture('05_actual_output_format_choices', desktop=True)
-        QTest.keyClick(screen._format, Qt.Key_Escape)
-        if screen.output_format() != 'html':
-            raise RuntimeError('The fresh Report format must be HTML')
-        screen._figure_cap.setFocus()
-        QTest.keyClick(screen._figure_cap, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(screen._figure_cap, '3')
-        QTest.keyClick(screen._figure_cap, Qt.Key_Tab)
-        if screen.figure_cap() != 3:
-            raise RuntimeError('The actual figure-cap editor did not retain 3')
-        capture('06_actual_figure_cap')
+        with capture_ui.clip(capture, '04_read_only_missing_sections'):
+            capture_ui.point_at(capture, screen._sections, dwell=2.0)
+        with capture_ui.clip(capture, '05_actual_output_format_choices'):
+            click(screen._format)
+            if host:
+                capture_ui.wait(capture, 1.5, settle)
+            else:
+                capture('05_actual_output_format_choices', desktop=True)
+            QTest.keyClick(screen._format, Qt.Key_Escape)
+            if screen.output_format() != 'html':
+                raise RuntimeError('The fresh Report format must be HTML')
+        with capture_ui.clip(capture, '06_actual_figure_cap'):
+            if host:
+                capture_ui.set_number(capture, screen._figure_cap, 3)
+            else:
+                screen._figure_cap.setFocus()
+                QTest.keyClick(screen._figure_cap, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClicks(screen._figure_cap, '3')
+                QTest.keyClick(screen._figure_cap, Qt.Key_Tab)
+            if screen.figure_cap() != 3:
+                raise RuntimeError('The actual figure-cap editor did not retain 3')
         choose_path(screen._btn_pick_out, output, '07_separate_output_picker', save=True)
         if Path(screen._out_edit.text()).resolve() != output:
             raise RuntimeError('The actual output picker retained the wrong path')
-        capture('08_generate_report')
-        click(screen._btn_generate)
-        wait_job()
+        with capture_ui.clip(capture, '08_generate_report'):
+            capture_ui.point_at(capture, screen._btn_generate, dwell=1.5)
+        with capture_ui.clip(capture, '09_actual_report_written'):
+            click(screen._btn_generate)
+            wait_job()
         if screen.written != [str(output)] or not output.is_file():
             raise RuntimeError('Report generation did not write exactly the selected HTML file')
         if sorted(destination.iterdir()) != [output]:
             raise RuntimeError('Unexpected output files were generated')
         html_evidence = verify_html(output.read_text(encoding="utf-8"), summary, facts)
         check_copies()
-        capture('09_actual_report_written')
-        capture('10_open_control_not_yet_invoked')
+        with capture_ui.clip(capture, '10_open_control_not_yet_invoked'):
+            capture_ui.point_at(capture, getattr(screen, '_btn_open', None), dwell=1.5)
         evidence.update(accepted=True, reason='Real Scan and Generate returned the exact source stamp, six PDF identities and database counts; generated HTML retains sections and missing-QC disclosure; accepted original preserved and private-copy material unchanged, with any allowed SQLite sidecar changes explicitly recorded',
                         destination=str(destination), output=str(output), output_sha256=_digest(output),
                         report=summary, html=html_evidence,

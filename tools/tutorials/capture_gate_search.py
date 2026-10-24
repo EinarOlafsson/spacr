@@ -1,12 +1,19 @@
 """Exercise the actual bounded gate search, retaining refusals as outcomes."""
 from __future__ import annotations
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 
-def record_search(app, screen, captures, capture, settle, write_json, fill, choose, file_dialog, work):
+
+def record_search(app, screen, captures, capture, settle, write_json, fill, choose, file_dialog, work,
+                  scenes=None):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
+    # Host: the scene clips of the caller continue here (one shared Scenes object).
+    S = scenes if scenes is not None else Scenes(capture, settle)
+    S.begin('21_bounded_walk_settings')
     QTest.mouseClick(screen.gates._mode_buttons['2D'], Qt.LeftButton)
     choose(screen._x, 'cell_area')
     choose(screen._y, 'cell_channel_1_mean_intensity')
@@ -36,18 +43,20 @@ def record_search(app, screen, captures, capture, settle, write_json, fill, choo
                 'cluster_scale': True, 'cluster_walk': True, 'cluster_walk_steps': 5}
     if any(getattr(screen.settings(), key) != value for key, value in expected.items()):
         raise RuntimeError('Visible bounded search parameters did not reach the real settings')
-    capture('21_bounded_walk_settings')
+    S.end('21_bounded_walk_settings', screen.search._eps, screen.search._walk)
     outcomes = []
 
     def run(label):
         events, errors = [], []
+        S.begin(label + '_confirmation')
         timer = QTimer(screen)
         def observe():
             dialog = app.activeModalWidget()
             try:
                 if isinstance(dialog, QMessageBox):
                     events.append({'title': dialog.windowTitle(), 'text': dialog.text()})
-                    capture(label + '_outcome')
+                    S.end(label + '_outcome')
+                    S.begin(label + '_result', lead=0.3)
                     button = dialog.button(QMessageBox.Ok)
                     if button is None:
                         raise RuntimeError('The actual search message has no OK button')
@@ -61,7 +70,8 @@ def record_search(app, screen, captures, capture, settle, write_json, fill, choo
                             settings.cluster_eps, settings.cluster_min_samples, settings.cluster_walk,
                             settings.cluster_walk_steps, settings.cluster_scale):
                         raise RuntimeError('Search confirmation does not match the actual inline controls')
-                    capture(label + '_confirmation')
+                    S.end(label + '_confirmation')
+                    S.begin(label + '_outcome', lead=0.3)
                     QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
             except Exception as exc:
                 errors.append(str(exc))
@@ -76,7 +86,7 @@ def record_search(app, screen, captures, capture, settle, write_json, fill, choo
             timer.stop()
         if errors:
             raise RuntimeError('; '.join(errors))
-        capture(label + '_result')
+        S.end(label + '_result', screen.gates.tree)
         result = {'label': label, 'dialogs': events,
                   'gates': screen.gates.gates.to_dict(),
                   'status': screen.gates.status(),
@@ -91,8 +101,11 @@ def record_search(app, screen, captures, capture, settle, write_json, fill, choo
         raise RuntimeError('An empty Walk must explain why it refused a recommendation')
     # Keep the actual Walk result, including a refusal. A fixed-radius pass is
     # a different user decision and is labelled as such, never as Walk success.
-    if not screen.gates.gates.is_empty:
-        file_dialog(screen._save_gates, work / 'walk_gates.json', '23_save_walk_strategy', save=True)
+    if screen.gates.gates.is_empty:
+        S.begin('24_fixed_radius_settings')
+    else:
+        file_dialog(screen._save_gates, work / 'walk_gates.json', '23_save_walk_strategy', save=True,
+                    next_frame='24_fixed_radius_settings')
         while not screen.gates.gates.is_empty:
             item = tree.topLevelItem(0)
             QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=tree.visualItemRect(item).center())
@@ -101,11 +114,12 @@ def record_search(app, screen, captures, capture, settle, write_json, fill, choo
     QTest.mouseClick(screen.search._walk, Qt.LeftButton)
     if screen.settings().cluster_walk:
         raise RuntimeError('The real Walk toggle did not turn off')
-    capture('24_fixed_radius_settings')
+    S.end('24_fixed_radius_settings', screen.search._walk)
     fixed = run('25_fixed_radius')
     if not fixed['gates']['gates']:
         raise RuntimeError('This example did not produce an actual fixed-radius population')
     if any(gate.get('parent') for gate in fixed['gates']['gates']):
         raise RuntimeError('The cluster pass inherited an unintended parent gate')
-    file_dialog(screen._save_gates, work / 'cluster_gates.json', '26_save_cluster_strategy', save=True)
+    file_dialog(screen._save_gates, work / 'cluster_gates.json', '26_save_cluster_strategy', save=True,
+                next_frame='27_return_to_raw_strategy')
     return outcomes

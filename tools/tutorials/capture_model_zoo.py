@@ -14,6 +14,9 @@ from pathlib import Path
 import tempfile
 import time
 
+import capture_ui
+from capture_ui_drv_a import Rec, modal_wait, table_into_view, type_text, watchdog_ms
+
 
 AUTHOR = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
 SOURCE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged')
@@ -121,7 +124,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
             parent = widget.parentWidget()
             while parent is not None:
                 if isinstance(parent, QScrollArea):
-                    parent.ensureWidgetVisible(widget)
+                    capture_ui.scroll_to(capture, parent, widget)
                 parent = parent.parentWidget()
             settle(.1)
             if (not widget.isVisible() or not widget.isEnabled()
@@ -139,13 +142,14 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
             if edit is None:
                 raise RuntimeError('The actual picker has no filename editor')
             expose(edit)
-            edit.setFocus()
-            QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-            QTest.keyClicks(edit, str(value))
-            QTest.keyClick(edit, Qt.Key_Tab)
+            type_text(capture, edit, value)
             settle(.1)
 
-        def choose_directory(button, path, frame):
+        def choose_directory(button, path, frame, outer=None):
+            # ``outer`` is the narrated host clip that already spans this
+            # picker (it started before the pointer reached ``button``); one
+            # clip records at a time, so the picker's own frame is then taken
+            # only by the Xvfb recorder.
             accepted, errors = [], []
             timers = []
 
@@ -158,18 +162,22 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     watchdog = QTimer(dialog)
                     watchdog.setSingleShot(True)
                     watchdog.timeout.connect(dialog.reject)
-                    watchdog.start(max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
+                    watchdog.start(max(1, min(watchdog_ms(capture, 12000),
+                                              int((deadline - time.monotonic()) * 1000))))
                     timers.append(watchdog)
-                    dialog.resize(1400, 950)
-                    # Browse to the parent, then type the folder's name: a
-                    # typed absolute path races the picker's completer.
-                    dialog.setDirectory(str(Path(path).parent))
+                    capture_ui.dialog_geometry(capture, dialog, (1400, 950))
+                    # Xvfb: browse to the parent, then type the folder's name: a
+                    # typed absolute path races the picker's completer. Host:
+                    # the person types the full path of the folder.
+                    capture_ui.file_dialog_dir(capture, dialog, Path(path).parent)
                     settle(.4)
+                    typed = str(path) if capture_ui.live(capture) else Path(path).name
                     edit = dialog.findChild(QLineEdit, 'fileNameEdit')
-                    fill(edit, Path(path).name)
-                    if edit is None or edit.text() != Path(path).name:
+                    fill(edit, typed)
+                    if edit is None or edit.text() != typed:
                         raise RuntimeError(f'The picker holds {edit.text() if edit else None!r}')
-                    capture(frame)
+                    if not capture_ui.live(capture):
+                        capture(frame)
                     box = dialog.findChild(QDialogButtonBox)
                     accept = None if box is None else box.button(QDialogButtonBox.Open)
                     if accept is None:
@@ -180,15 +188,12 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     if dialog is not None:
                         dialog.reject()
 
-            opener = QTimer(window)
-            opener.setSingleShot(True)
-            opener.timeout.connect(handle)
-            opener.start(400)
+            if outer is not None:
+                outer.start()
+            modal_wait(capture, 400, handle)
             try:
                 click(button)
             finally:
-                opener.stop()
-                opener.deleteLater()
                 for timer in timers:
                     try:
                         timer.stop()
@@ -229,12 +234,9 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                 click(heading)
             row = zoo._row_of_group(group)
             combo = zoo._table.cellWidget(row, 4)
-            zoo._table.scrollTo(zoo._table.model().index(row, 4))
+            table_into_view(capture, zoo._table, row, 4)
             expose(combo)
-            combo.setFocus()
-            QTest.keyClick(combo, Qt.Key_Home)
-            for _ in range(version):
-                QTest.keyClick(combo, Qt.Key_Down)
+            capture_ui.select_combo(capture, combo, version)
             settle(.3)
             if Path(zoo.chosen_entry(group).path).resolve() != path.resolve():
                 raise RuntimeError('The version control did not select the requested checkpoint')
@@ -242,7 +244,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
 
         def select_model(path, add=False):
             item = model_item(path)
-            zoo._table.scrollToItem(item)
+            table_into_view(capture, zoo._table, item.row(), 0)
             expose(zoo._table)
             rect = zoo._table.visualItemRect(item)
             if not zoo._table.viewport().rect().contains(rect.center()):
@@ -310,17 +312,18 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                    if button.app_key == 'model_zoo' and button.isVisible()]
         if len(buttons) != 1:
             raise RuntimeError('Make Masks must expose one visible Model Zoo FoldButton')
-        click(buttons[0])
-        settle(.5)
-        visible = [child for child in window.findChildren(ModelZooScreen) if child.isVisible()]
-        if len(visible) != 1:
-            raise RuntimeError('The actual Model Zoo fold did not open visibly')
-        zoo = visible[0]
-        workers.append(zoo)
-        wait_job(zoo, 'Opening the Model Zoo fold')
-        if zoo._segment_fn is not None or zoo.result() is not None:
-            raise RuntimeError('A fresh Model Zoo with its unmodified inference backend is required')
-        capture('01b_current_model_zoo_fold')
+        # Host: the clip holds the pointer's click on the Model Zoo fold.
+        with Rec(capture, '01b_current_model_zoo_fold', settle):
+            click(buttons[0])
+            settle(.5)
+            visible = [child for child in window.findChildren(ModelZooScreen) if child.isVisible()]
+            if len(visible) != 1:
+                raise RuntimeError('The actual Model Zoo fold did not open visibly')
+            zoo = visible[0]
+            workers.append(zoo)
+            wait_job(zoo, 'Opening the Model Zoo fold')
+            if zoo._segment_fn is not None or zoo.result() is not None:
+                raise RuntimeError('A fresh Model Zoo with its unmodified inference backend is required')
 
         def remember_progress(message):
             progress.append({'seconds': time.monotonic() - started, 'message': str(message)})
@@ -328,51 +331,63 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
         started = time.monotonic()
         progress_slot = remember_progress
         zoo._progress_said.connect(progress_slot)
-        choose_directory(zoo._btn_pick_scan, MODELS, '02_actual_model_folder_picker')
-        wait_job(zoo, 'Normal model scan')
-        if Path(zoo._scan_edit.text()).resolve() != MODELS.resolve():
-            raise RuntimeError('The visible model folder does not match the actual cache')
-        capture('03_current_catalogue_and_local_models')
+        # Host: one clip from the click on Choose folder to the scanned catalogue.
+        scan = Rec(capture, '03_current_catalogue_and_local_models', settle)
+        try:
+            choose_directory(zoo._btn_pick_scan, MODELS, '02_actual_model_folder_picker', outer=scan)
+            wait_job(zoo, 'Normal model scan')
+            if Path(zoo._scan_edit.text()).resolve() != MODELS.resolve():
+                raise RuntimeError('The visible model folder does not match the actual cache')
+            scan.point(zoo._table, dwell=1.5)
+        except BaseException:
+            scan.abort()
+            raise
+        scan.stop()
         if additions:
             from capture_model_zoo_additions import record_source_headings
             evidence['source_headings'] = {}
             record_source_headings(app, zoo, capture, settle, timeout, evidence['source_headings'])
-        select_model(PRIMARY)
-        selected = zoo.selected_entries()
-        if (len(selected) != 1 or Path(selected[0].path).resolve() != PRIMARY.resolve()
-                or selected[0].kind != 'cellpose' or not selected[0].exists):
-            raise RuntimeError('The visible selection is not the exact local cpsam checkpoint')
-        entry = selected[0]
-        provenance = zoo.detail_text()
-        if provenance != entry.describe() or not provenance:
-            raise RuntimeError('The visible provenance card differs from the selected entry')
-        evidence['model'] = {'path': str(PRIMARY), 'kind': entry.kind,
-                             'checksum_state': entry.checksum_state,
-                             'trained_on': entry.trained_on, 'trained_by': entry.trained_by,
-                             'provenance': provenance}
-        expose(zoo._detail)
-        capture('04_actual_cpsam_provenance')
+        with Rec(capture, '04_actual_cpsam_provenance', settle) as chosen:
+            select_model(PRIMARY)
+            selected = zoo.selected_entries()
+            if (len(selected) != 1 or Path(selected[0].path).resolve() != PRIMARY.resolve()
+                    or selected[0].kind != 'cellpose' or not selected[0].exists):
+                raise RuntimeError('The visible selection is not the exact local cpsam checkpoint')
+            entry = selected[0]
+            provenance = zoo.detail_text()
+            if provenance != entry.describe() or not provenance:
+                raise RuntimeError('The visible provenance card differs from the selected entry')
+            evidence['model'] = {'path': str(PRIMARY), 'kind': entry.kind,
+                                 'checksum_state': entry.checksum_state,
+                                 'trained_on': entry.trained_on, 'trained_by': entry.trained_by,
+                                 'provenance': provenance}
+            expose(zoo._detail)
+            chosen.point(zoo._detail, dwell=1.5)
 
-        expose(zoo._fields_box)
-        zoo._fields_box.setFocus()
-        QTest.keyClick(zoo._fields_box, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(zoo._fields_box, '3')
-        QTest.keyClick(zoo._fields_box, Qt.Key_Tab)
-        wait_job(zoo, 'Setting the field limit')
-        if zoo._fields_box.value() != 3:
-            raise RuntimeError('The visible field count did not become three')
-        choose_directory(zoo._btn_pick_fields, FIELDS, '05_actual_real_fields_picker')
-        wait_job(zoo, 'Loading the three real fields')
-        if (Path(zoo.fields_folder()).resolve() != FIELDS.resolve()
-                or zoo.field_names() != expected_names or len(zoo._images) != 3
-                or any(not np.array_equal(got, expected)
-                       for got, expected in zip(zoo._images, expected_images))):
-            raise RuntimeError('The GUI loaded different fields or pixels')
-        capture('06_three_verified_real_fields')
+        # Host: the clip starts before the field count is typed and ends once
+        # the folder chosen in the picker has loaded its three fields.
+        fields = Rec(capture, '06_three_verified_real_fields', settle).start()
+        try:
+            expose(zoo._fields_box)
+            type_text(capture, zoo._fields_box, '3')
+            wait_job(zoo, 'Setting the field limit')
+            if zoo._fields_box.value() != 3:
+                raise RuntimeError('The visible field count did not become three')
+            choose_directory(zoo._btn_pick_fields, FIELDS, '05_actual_real_fields_picker')
+            wait_job(zoo, 'Loading the three real fields')
+            if (Path(zoo.fields_folder()).resolve() != FIELDS.resolve()
+                    or zoo.field_names() != expected_names or len(zoo._images) != 3
+                    or any(not np.array_equal(got, expected)
+                           for got, expected in zip(zoo._images, expected_images))):
+                raise RuntimeError('The GUI loaded different fields or pixels')
+        except BaseException:
+            fields.abort()
+            raise
+        fields.stop()
         if zoo._segment_fn is not None or zoo.result() is not None:
             raise RuntimeError('The benchmark must start without an override or stale result')
-        click(zoo._btn_test)
-        capture('07_actual_test_started')
+        with Rec(capture, '07_actual_test_started', settle):
+            click(zoo._btn_test)
         wait_job(zoo, 'Actual Cellpose benchmark')
         result = zoo.result()
         if (result is None or result.n_fields != 3 or result.fields != expected_names
@@ -412,20 +427,21 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                             'shape': list(mask.shape), 'dtype': str(mask.dtype),
                             'mask_evidence': str(output), 'mask_sha256': _digest(output, tick)})
             item = zoo._bench_table.item(index, 0)
-            zoo._bench_table.scrollToItem(item)
-            expose(zoo._bench_table)
-            rect = zoo._bench_table.visualItemRect(item)
-            if not zoo._bench_table.viewport().rect().contains(rect.center()):
-                raise RuntimeError('The requested result row is not visible')
-            QTest.mouseClick(zoo._bench_table.viewport(), Qt.LeftButton, pos=rect.center())
-            settle(.3)
-            expose(zoo._preview)
-            pixmap = zoo._preview.pixmap()
-            if zoo._bench_table.currentRow() != index or pixmap is None or pixmap.isNull():
-                raise RuntimeError(f'The actual per-field preview is missing: {name}')
-            capture(f'08_actual_preview_{index + 1:02d}')
-        expose(zoo._summary)
-        capture('09_actual_benchmark_summary')
+            with Rec(capture, f'08_actual_preview_{index + 1:02d}', settle):
+                table_into_view(capture, zoo._bench_table, index, 0)
+                expose(zoo._bench_table)
+                rect = zoo._bench_table.visualItemRect(item)
+                if not zoo._bench_table.viewport().rect().contains(rect.center()):
+                    raise RuntimeError('The requested result row is not visible')
+                QTest.mouseClick(zoo._bench_table.viewport(), Qt.LeftButton, pos=rect.center())
+                settle(.3)
+                expose(zoo._preview)
+                pixmap = zoo._preview.pixmap()
+                if zoo._bench_table.currentRow() != index or pixmap is None or pixmap.isNull():
+                    raise RuntimeError(f'The actual per-field preview is missing: {name}')
+        with Rec(capture, '09_actual_benchmark_summary', settle) as summary:
+            expose(zoo._summary)
+            summary.point(zoo._summary, dwell=2.0)
         if len(outputs) != 3 or result.total_objects != sum(row['objects'] for row in outputs):
             raise RuntimeError('The benchmark total does not match all three actual label masks')
         evidence['benchmark'] = {
@@ -448,21 +464,23 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                                if any(entry.path and Path(entry.path).resolve() == SECONDARY.resolve()
                                       for _, entry in pairs)), None)
         if secondary_group == primary_group:
-            select_model(SECONDARY)
-            capture('10_actual_alternate_version')
+            with Rec(capture, '10_actual_alternate_version', settle):
+                select_model(SECONDARY)
             evidence['comparison_handoff']['reason'] = (
                 'Both checkpoints belong to one model family; the current table selects one version per family.')
         elif SECONDARY in checkpoints:
-            select_model(PRIMARY)
-            select_model(SECONDARY, add=True)
-            chosen = {Path(item.path).resolve() for item in zoo.selected_entries()}
-            if chosen != {PRIMARY.resolve(), SECONDARY.resolve()}:
-                raise RuntimeError('The two visible selected checkpoint identities are incorrect')
-            capture('10_two_actual_cached_models_selected')
+            with Rec(capture, '10_two_actual_cached_models_selected', settle):
+                select_model(PRIMARY)
+                select_model(SECONDARY, add=True)
+                chosen = {Path(item.path).resolve() for item in zoo.selected_entries()}
+                if chosen != {PRIMARY.resolve(), SECONDARY.resolve()}:
+                    raise RuntimeError('The two visible selected checkpoint identities are incorrect')
+            handoff = Rec(capture, '11_actual_comparison_handoff_only', settle).start()
             click(zoo._btn_compare)
             settle(.5)
             visible = [child for child in window.findChildren(ModelCompareScreen) if child.isVisible()]
             if len(visible) != 1:
+                handoff.abort()
                 raise RuntimeError('The actual comparison handoff did not open visibly')
             comparison = visible[0]
             workers.append(comparison)
@@ -475,8 +493,9 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     or any(not np.array_equal(got, expected) for got, expected in
                            zip(comparison._images, expected_images))
                     or comparison.report() is not None or comparison._segment_fn is not None):
+                handoff.abort()
                 raise RuntimeError('Comparison handoff changed the checkpoint or field identities')
-            capture('11_actual_comparison_handoff_only')
+            handoff.stop()
             evidence['comparison_handoff'] = {
                 'performed': True, 'comparison_run': False,
                 'models': sorted(str(path) for path in chosen), 'fields': expected_names,

@@ -13,6 +13,8 @@ import shutil
 import time
 import zipfile
 
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import _digest
 
 GENE = '225160'
@@ -59,6 +61,17 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
         settle(.25)
 
     def fill(widget, value, key=Qt.Key_Tab):
+        if capture_ui.live(capture):
+            h = capture_ui._h()
+            h.click(widget)
+            h.key(widget, Qt.Key_A, Qt.ControlModifier)
+            if str(value):
+                h.type_text(widget, str(value))
+            else:
+                h.key(widget, Qt.Key_Backspace)
+            h.key(widget, key)
+            settle(.3)
+            return
         click(widget)
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         if str(value):
@@ -68,7 +81,7 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
         QTest.keyClick(widget, key)
         settle(.3)
 
-    def picker(button, path, name):
+    def picker(button, path, name, started=None):
         accepted, errors = [], []
         timer, watch = QTimer(window), QTimer(window)
         timer.setSingleShot(True); watch.setSingleShot(True)
@@ -79,12 +92,19 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
                 if not isinstance(dialog, QFileDialog):
                     raise ValueError('Expected the Qt file picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1600, 1000)
-                dialog.setDirectory(str(Path(path).parent))
+                capture_ui.dialog_geometry(capture, dialog, (1600, 1000))
+                if capture_ui.live(capture):
+                    typed = str(path)       # the full path is typed (the picker keeps its own folder)
+                else:
+                    dialog.setDirectory(str(Path(path).parent))
+                    typed = Path(path).name if Path(path).is_file() else str(path)
                 settle(.4)
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
-                fill(edit, Path(path).name if Path(path).is_file() else str(path), key=Qt.Key_End)
-                capture(name, desktop=True)
+                fill(edit, typed, key=Qt.Key_End)
+                if capture_ui.live(capture):
+                    capture_ui.wait(capture, 1.5, settle)
+                else:
+                    capture(name, desktop=True)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons()
                            if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
@@ -102,11 +122,14 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
             if dialog is not None:
                 dialog.reject()
 
-        timer.timeout.connect(handle); watch.timeout.connect(abort)
-        timer.start(400); watch.start(20000)
+        watch.timeout.connect(abort)
+        watch.start(120000 if getattr(capture, 'host', None) is not None else 20000)
+        opened = drv.begin(capture, settle, name) if started is None else started
+        capture_ui.when_modal(capture, 400, handle)
         try:
             click(button)
         finally:
+            drv.finish(capture, opened)
             timer.stop(); watch.stop()
         if errors or not accepted:
             raise ValueError('; '.join(errors) or 'No accepted path')
@@ -116,41 +139,54 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
     folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'hit_list']
     if len(folds) != 1:
         raise ValueError('No unique Hit List fold')
-    click(folds[0]); settle(.8)
-    lists = [w for w in app.allWidgets() if isinstance(w, HitListScreen) and w.isVisible()]
-    if len(lists) != 1:
-        raise ValueError('Hit List is not visible')
-    hits = lists[0]
-    capture('02_hit_list_open')
+    with capture_ui.clip(capture, '02_hit_list_open'):
+        click(folds[0]); settle(.8)
+        # The fold now opens in steps with event-loop breaths between them (strip, page, results); wait for it.
+        import time as _t
+        until = _t.monotonic() + 30
+        while True:
+            lists = [w for w in app.allWidgets() if isinstance(w, HitListScreen) and w.isVisible()]
+            if len(lists) == 1 or _t.monotonic() > until:
+                break
+            settle(.2)
+        if len(lists) != 1:
+            raise ValueError('Hit List is not visible (%d visible Hit List screens after 30 s)' % len(lists))
+        hits = lists[0]
+        capture_ui.point_at(capture, hits._browse_button)
     picker(hits._browse_button, run, '03_choose_regression_run')
-    while hits.is_busy() or hits.active_jobs():
-        if time.monotonic() > deadline:
-            raise TimeoutError('Hit List did not load')
-        settle(.1)
-    settle(.5)
-    loaded = hits.hits()
-    proof['hit_list_genes'] = len(loaded) if loaded is not None else 0
-    capture('04_ranked_genes')
-    fill(hits._q_spin.lineEdit(), '.05'); settle(.4)
-    proof['genes_at_q_0_05'] = hits._table.topLevelItemCount()
-    if proof['genes_at_q_0_05'] != 0:
-        raise ValueError('This example is described as having no gene at q <= 0.05')
-    capture('05_no_gene_passes_q')
-    fill(hits._q_spin.lineEdit(), '1'); settle(.4)
-    fill(hits._query, GENE); settle(.4)
-    items = [hits._table.topLevelItem(i) for i in range(hits._table.topLevelItemCount())]
-    rows = [item for item in items if str(item.data(0, Qt.UserRole)) == GENE]
-    if len(rows) != 1:
-        raise ValueError('Expected one row for ' + GENE)
-    hits._table.scrollToItem(rows[0])
-    rect = hits._table.visualItemRect(rows[0])
-    QTest.mouseClick(hits._table.viewport(), Qt.LeftButton, pos=rect.center()); settle(.4)
-    if hits._table.currentItem() is not rows[0]:
-        raise ValueError('The gene row was not selected')
-    capture('06_selected_gene')
+    with capture_ui.clip(capture, '04_ranked_genes'):
+        while hits.is_busy() or hits.active_jobs():
+            if time.monotonic() > deadline:
+                raise TimeoutError('Hit List did not load')
+            settle(.1)
+        settle(.5)
+        loaded = hits.hits()
+        proof['hit_list_genes'] = len(loaded) if loaded is not None else 0
+        capture_ui.point_at(capture, hits._table)
+    with capture_ui.clip(capture, '05_no_gene_passes_q'):
+        fill(hits._q_spin.lineEdit(), '.05'); settle(.4)
+        proof['genes_at_q_0_05'] = hits._table.topLevelItemCount()
+        if proof['genes_at_q_0_05'] != 0:
+            raise ValueError('This example is described as having no gene at q <= 0.05')
+    with capture_ui.clip(capture, '06_selected_gene'):
+        fill(hits._q_spin.lineEdit(), '1'); settle(.4)
+        fill(hits._query, GENE); settle(.4)
+        items = [hits._table.topLevelItem(i) for i in range(hits._table.topLevelItemCount())]
+        rows = [item for item in items if str(item.data(0, Qt.UserRole)) == GENE]
+        if len(rows) != 1:
+            raise ValueError('Expected one row for ' + GENE)
+        if capture_ui.live(capture):
+            capture_ui._wheel_item_into_view(capture, hits._table, rows[0])
+        else:
+            hits._table.scrollToItem(rows[0])
+        rect = hits._table.visualItemRect(rows[0])
+        QTest.mouseClick(hits._table.viewport(), Qt.LeftButton, pos=rect.center()); settle(.4)
+        if hits._table.currentItem() is not rows[0]:
+            raise ValueError('The gene row was not selected')
     buttons = [b for b in hits.findChildren(QPushButton) if b.text() == 'Investigate selected…']
     if len(buttons) != 1:
         raise ValueError('No unique Investigate selected… action')
+    scene7 = drv.begin(capture, settle, '07_investigate_prefilled')
     click(buttons[0]); settle(1.5)
     screens = [w for w in app.allWidgets() if isinstance(w, InvestigateHitScreen) and w.isVisible()]
     if len(screens) != 1:
@@ -163,18 +199,21 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
     proof['seeded_from_hit_list'] = seeded
     if seeded['gene'] != GENE or Path(seeded['folder']).resolve() != run.resolve():
         raise ValueError('Hit List hand-off did not carry the selected result')
-    capture('07_investigate_prefilled')
+    capture_ui.point_at(capture, panel.regression_folder, panel.gene, panel.guides)
+    drv.snap(capture, '07_investigate_prefilled'); drv.finish(capture, scene7)
     picker(panel.database.button, database, '08_choose_database')
     picker(panel.predictions.button, predictions, '09_choose_predictions')
     # Browsing fills the field without re-reading its header; Enter does.
+    scene10 = drv.begin(capture, settle, '10_choose_fractions')
     click(panel.predictions.edit); QTest.keyClick(panel.predictions.edit, Qt.Key_End)
     QTest.keyClick(panel.predictions.edit, Qt.Key_Return); settle(.5)
     options = [panel.score.itemText(i) for i in range(panel.score.count())]
     proof['score_choices'] = options
     if panel.score.currentText() != 'pred':
         raise ValueError(f'Expected pred as the score column, got {options}')
-    picker(panel.fractions.button, fractions, '10_choose_fractions')
-    capture('11_form_ready')
+    picker(panel.fractions.button, fractions, '10_choose_fractions', started=scene10)
+    with capture_ui.clip(capture, '11_form_ready'):
+        capture_ui.point_at(capture, panel.database.edit, panel.predictions.edit, panel.fractions.edit, panel.run_button)
     proof['form'] = dict(database=panel.database.text(), predictions=panel.predictions.text(),
                          fractions=panel.fractions.text(), folder=panel.regression_folder.text(),
                          gene=panel.gene.text(), guides=panel.guides.text(),
@@ -183,14 +222,20 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
     if panel.results_section.shut:
         panel.results_section.set_folded(False)
     started = time.monotonic()
+    scene12 = drv.begin(capture, settle, '12_running')
     click(panel.run_button); settle(.6)
-    capture('12_running')
+    drv.snap(capture, '12_running')
     while panel.result is None:
         if 'Could not' in panel.status.text():
             raise RuntimeError(panel.status.text())
         if time.monotonic() > deadline:
             raise TimeoutError('Investigation did not finish')
+        if scene12 and capture_ui.clip_due(capture):
+            capture.end(); scene12 = False      # a long run: the plan ends the clip
         settle(.5)
+    if scene12:
+        capture_ui.point_at(capture, panel.status)
+        drv.finish(capture, scene12)
     settle(1)
     proof['run_seconds'] = round(time.monotonic() - started, 1)
     result = panel.result
@@ -211,12 +256,13 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
     for number, title in (('13', 'Evidence'), ('14', 'Wells'), ('15', 'Guides'),
                           ('16', 'Threshold sensitivity'), ('17', 'Candidate cells'),
                           ('18', 'Control-fitted embedding')):
-        tab_bar = tabs.tabBar()
-        QTest.mouseClick(tab_bar, Qt.LeftButton, pos=tab_bar.tabRect(names[title]).center())
-        settle(.5)
-        if tabs.currentIndex() != names[title]:
-            raise ValueError('Tab did not open: ' + title)
-        capture(f'{number}_{title.lower().replace(" ", "_").replace("-", "_")}')
+        tab_name = f'{number}_{title.lower().replace(" ", "_").replace("-", "_")}'
+        with capture_ui.clip(capture, tab_name):
+            capture_ui.select_tab(capture, tabs, names[title])
+            settle(.5)
+            if tabs.currentIndex() != names[title]:
+                raise ValueError('Tab did not open: ' + title)
+            capture_ui.point_at(capture, tabs.currentWidget())
     proof['accepted'] = True
     write_json(Path(captures) / 'scientific_acceptance.json', proof)
     screens[0].close(); settle(.3)

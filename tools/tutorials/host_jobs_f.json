@@ -1,0 +1,283 @@
+{
+  "04_platform_installers": [
+    {
+      "name": "nightly_home_performance",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "home",
+        "--openings",
+        "--openings-set",
+        "install_nightly",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600"
+      ],
+      "note": "Scenes 13_current_nightly_home and 14_current_nightly_performance in the real app (capture_install_nightly.py). The other lesson 04 scenes stay with capture_pip_installation.py (desktop driver)."
+    }
+  ],
+  "05_home": [
+    {
+      "name": "startup_sequence",
+      "env": {},
+      "run_native": [
+        "--splash"
+      ],
+      "capture": [
+        "--module",
+        "home",
+        "--record-startup",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "300"
+      ],
+      "note": "Scene 01_startup_sequence: launch, logo (2 s hold, 4 s blow-away), Home. Needs the capture_host_mode.py change that begins the recording before the app window exists (proposed in the hand-off report); run_native_capture refuses --splash without --record-startup. Not part of the lesson 05 scene list yet."
+    }
+  ],
+  "24_plaque": [
+    {
+      "name": "plaque_zoo",
+      "env": {
+        "SPACR_TUTORIAL_PLAQUE_SOURCE": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/synthetic/plaque"
+      },
+      "run_native": [
+        "--cuda",
+        "--ro-bind=/home/carruthers/.cellpose=profile/.cellpose"
+      ],
+      "capture": [
+        "--module",
+        "analyze_plaques",
+        "--plaque-zoo-model",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "Scenes 03-08 settings tour, 09, 11, 12c, 18, 19, 21-23 (capture_plaque.py + plaque_native_views.py). Downloads the plaque model from the Model Zoo (network)."
+    },
+    {
+      "name": "plaque_current",
+      "env": {
+        "SPACR_TUTORIAL_PLAQUE_SOURCE": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/synthetic/plaque"
+      },
+      "run_native": [
+        "--cuda",
+        "--ro-bind=/home/carruthers/.cellpose=profile/.cellpose"
+      ],
+      "capture": [
+        "--module",
+        "analyze_plaques",
+        "--plaque-current-tour",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "Scenes 16b_overlay_settings, 20_help_route, 30_figure_mode, 30b_from_a_paper, 31_figure_wells, 32_figure_all_wells (capture_plaque_current.py). 30b needs SPACR_TUTORIAL_PLAQUE_PAPER=<open-access DOI> in env (optional SPACR_TUTORIAL_PLAQUE_FIGURE); without it the PDF drop route runs and 30b is skipped. Needs network for the detector download."
+    }
+  ],
+  "25_recruitment": [
+    {
+      "name": "recruitment",
+      "env": {
+        "SPACR_TUTORIAL_WORKSPACE": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials"
+      },
+      "run_native": [],
+      "capture": [
+        "--module",
+        "recruitment",
+        "--download",
+        "--run",
+        "--settings-tour",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "1800"
+      ],
+      "note": "Scenes 19_setting_* (settings tour), 21_batch_running, 25_recruitment_figure_02/04, 26_recruitment_console_counts (capture_recruitment.py). Needs <SPACR_TUTORIAL_WORKSPACE>/../test_datasets/spacr/tutorials (present at /media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials); WORKSPACE was hard-coded to /mnt/firecuda2 before this change."
+    }
+  ],
+  "26_invasion": [
+    {
+      "name": "invasion",
+      "env": {
+        "SPACR_TUTORIAL_SYNTHETIC_ROOT": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/synthetic"
+      },
+      "run_native": [],
+      "capture": [
+        "--module",
+        "invasion",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "Synthetic two-colour database at synthetic/invasion/measurements/measurements.db (invasion_demo.prepare)."
+    }
+  ],
+  "54_qc_dashboard": [
+    {
+      "name": "qc_dashboard",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/host/inputs/qc_dashboard"
+      ],
+      "capture": [
+        "--module",
+        "qc_dashboard",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600"
+      ],
+      "note": "Inputs assembled from refresh_2026-09-09: annotate_fresh/example_data/plate1/measurements, example_data/plate1/{measurements,qc}, example_data/plate1/test/{measurements,qc} (the three sources capture_qc.py reads)."
+    }
+  ],
+  "64_gate_editor": [
+    {
+      "name": "gate_editor",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh"
+      ],
+      "capture": [
+        "--module",
+        "gate_editor",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "Reads annotate_fresh/example_data/plate1/measurements/measurements.db (2341 cells) and works on a private copy."
+    }
+  ],
+  "67_experiment_design": [
+    {
+      "name": "experiment_design",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "experiment_design",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600"
+      ],
+      "note": "No input data."
+    }
+  ],
+  "69_dose_response": [
+    {
+      "name": "dose_response",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "dose_response",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600"
+      ],
+      "note": "Disclosed synthetic CSV written by dose_response_evidence.prepare; no input data. Optional env SPACR_TUTORIAL_DOSE_SORT_BEFORE_REFIT=1 reproduces the sort-before-refit scene order."
+    }
+  ],
+  "77_embeddings": [
+    {
+      "name": "embeddings",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "/media/carruthers/mnt3/claude/n676_stages/host/inputs/embeddings"
+      ],
+      "capture": [
+        "--module",
+        "embeddings",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "Inputs: embeddings_example/cell_png with the first sixteen crops of annotate_fresh plate1_E02 uninfected cell_png. CPU resnet18 encoder (timm weights may need network)."
+    }
+  ],
+  "82_toxoplasma": [
+    {
+      "name": "toxoplasma",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "toxoplasma",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "600"
+      ],
+      "note": "No input data; opens the Plaque Assay module from its tile."
+    }
+  ],
+  "85_host_pathogen": [
+    {
+      "name": "host_pathogen",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "host_pathogen",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "note": "The driver presses Load test data itself (network download of the THP-1 example into the stage); expects 97 vacuoles / 164 cells."
+    }
+  ],
+  "86_alpha_organism_modules": [
+    {
+      "name": "alpha_organisms",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "alpha_organisms",
+        "--alpha-lesson",
+        "86_alpha_organism_modules",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "900"
+      ],
+      "alpha": true,
+      "note": "Turns Show alpha species on and off again on camera; Show alpha features stays off."
+    }
+  ],
+  "87_alpha_features": [
+    {
+      "name": "alpha_features",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "home",
+        "--openings",
+        "--openings-set",
+        "alpha_features",
+        "--alpha-lesson",
+        "87_alpha_features",
+        "--clip-seconds",
+        "8",
+        "--timeout",
+        "1800"
+      ],
+      "alpha": true,
+      "note": "Turns Show alpha features on and off on camera, tours every alpha control. 09b needs network (Model Zoo Scan). 06_timelapse and 07b_measure_time apply the timelapse setting by code (recorded as a bypass: no user route)."
+    }
+  ]
+}

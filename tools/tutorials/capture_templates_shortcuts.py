@@ -8,6 +8,7 @@ Change shortcuts… editor, closed with Cancel so no key is changed.
 """
 from __future__ import annotations
 
+import capture_ui
 from copy import deepcopy
 import hashlib
 import os
@@ -25,6 +26,8 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     from spacr.qt import recipes
     from spacr.qt.recipes import RecipeDialog
     from capture_settings import require_unchanged_settings
+    import capture_ui
+    host = capture_ui.live(capture)
 
     csv_path = Path(stage) / 'settings_examples' / 'measure_crop_settings.csv'
     if not csv_path.is_file():
@@ -42,9 +45,19 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     def later(action, delay=700):
         errors = []
 
+        attempts = {'n': 0}
+
         def run():
             try:
                 action()
+            except StopIteration:
+                # The dialog is not open yet (a real pointer is still on its
+                # way to the button): look again shortly.
+                attempts['n'] += 1
+                if host and attempts['n'] < 100:
+                    QTimer.singleShot(200, run)
+                    return
+                errors.append(RuntimeError('The expected dialog never opened'))
             except Exception as exc:          # recorded, then raised below
                 errors.append(exc)
                 modal = app.activeModalWidget()
@@ -53,16 +66,34 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
         QTimer.singleShot(delay, run)
         return errors
 
+    def opening(name):
+        """Host: start the scene clip before its actions, so the pointer is seen doing them."""
+        if host and capture.begin(name):
+            capture_ui.wait(capture, 0.8, settle)
+            return True
+        return False
+
+    def closing(opened, *point_at):
+        if opened:
+            capture_ui.point_at(capture, *point_at, dwell=1.5)
+            capture.end()
+
+    def still(frame):
+        """The old finished-state frame; in the host the open clip already shows it."""
+        if not host:
+            capture(frame)
+
     def input_dialog(text, frame):
         def fill():
             dialog = next(d for d in app.topLevelWidgets()
                           if isinstance(d, QInputDialog) and d.isVisible())
-            edit = dialog.findChild(QLineEdit)
-            edit.selectAll()
-            QTest.keyClicks(edit, text)
+            capture_ui.answer_input(capture, dialog, text)
             settle(.3)
-            capture(frame)
-            dialog.accept()
+            still(frame)
+            if host:
+                capture_ui.close_dialog(capture, dialog, prefer=('OK',))
+            else:
+                dialog.accept()
         return later(fill)
 
     if recipes.list_recipes('measure'):
@@ -70,22 +101,39 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     button = screen.findChild(QToolButton, recipes.RECIPE_BUTTON_NAME)
     if button is None:
         raise RuntimeError('Measure has no Templates button')
+    clip = opening('31_template_save_name')
     click(button)
     dialogs = [d for d in app.topLevelWidgets() if isinstance(d, RecipeDialog) and d.isVisible()]
     if len(dialogs) != 1:
         raise RuntimeError('Templates did not open its dialog')
     dialog = dialogs[0]
-    dialog.resize(1400, 900)
+    capture_ui.dialog_geometry(capture, dialog, (1400, 900))
     settle(.5)
-    capture('30_templates_open')
+    still('30_templates_open')
     errors = input_dialog('Measure example, 4 channels', '31_template_save_name')
     click(dialog._btn_save)
     settle(1)
     if errors:
         raise errors[0]
+    closing(clip, dialog._list)
 
     def pick_csv():
         picker = next(d for d in app.topLevelWidgets() if isinstance(d, QFileDialog) and d.isVisible())
+        if host:
+            # As a user: choose the Settings CSV filter, type the file's path, press Enter.
+            file_type = picker.findChild(QComboBox, 'fileTypeCombo')
+            choices = [file_type.itemText(i) for i in range(file_type.count())]
+            capture_ui.select_combo(capture, file_type, choices.index('Settings CSV (*.csv)'))
+            settle(.4)
+            from PySide6.QtWidgets import QLineEdit as _Edit
+            name = next(e for e in picker.findChildren(_Edit) if e.isVisible() and e.isEnabled())
+            QTest.mouseClick(name, Qt.LeftButton)
+            QTest.keyClick(name, Qt.Key_A, Qt.ControlModifier)
+            QTest.keyClicks(name, str(csv_path))
+            settle(.4)
+            still('32_template_import_csv')
+            QTest.keyClick(name, Qt.Key_Return)
+            return
         picker.setDirectory(str(csv_path.parent))
         picker.setSidebarUrls([QUrl.fromLocalFile(str(csv_path.parent))])
         file_type = picker.findChild(QComboBox, 'fileTypeCombo')
@@ -126,6 +174,7 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
         if not open_button.isEnabled():
             raise RuntimeError('The actual picker refuses the complete run settings CSV')
         QTest.mouseDClick(view.viewport(), Qt.LeftButton, pos=rect.center())
+    clip = opening('33_templates_imported')
     errors = later(pick_csv, 900)
     previous_directory = Path.cwd()
     try:
@@ -141,9 +190,13 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
         raise RuntimeError(f'The CSV import did not add a template: {names}')
     imported = next(i for i in range(dialog._list.count())
                     if 'measure_crop_settings' in dialog._list.item(i).text())
-    dialog._list.setCurrentRow(imported)
+    capture_ui.select_row(capture, dialog._list, imported)
     settle(.4)
-    capture('33_templates_imported')
+    if clip:
+        closing(clip, dialog._list.viewport())
+    else:
+        capture('33_templates_imported')
+    clip = opening('35_templates_renamed')
     errors = input_dialog('Measure, last run', '34_template_rename')
     click(dialog._btn_rename)
     settle(1)
@@ -152,12 +205,17 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     renamed = [dialog._list.item(i).text() for i in range(dialog._list.count())]
     if not any('Measure, last run' in n for n in renamed):
         raise RuntimeError(f'Rename did not take: {renamed}')
-    capture('35_templates_renamed')
+    if clip:
+        # "Share writes the selected one to a file ... Apply loads it".
+        closing(clip, getattr(dialog, '_btn_export', None), getattr(dialog, '_btn_apply', None))
+    else:
+        capture('35_templates_renamed')
     proof['templates'] = renamed
-    dialog.close()
+    capture_ui.close_dialog(capture, dialog, prefer=('Close', 'Cancel', 'Done'))
     settle(.5)
 
     # Help > Keyboard shortcuts is the visible route to the sheet F1 opens.
+    clip = opening('37_change_shortcuts')
     bar = window.menuBar()
     help_action = next(a for a in bar.actions() if a.text().replace('&', '') == 'Help')
     menu = help_action.menu()
@@ -171,7 +229,7 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     overlay = getattr(window, '_spacr_shortcut_overlay', None)
     if overlay is None or not overlay.isVisible():
         raise RuntimeError('F1 did not show the cheat sheet')
-    capture('36_cheat_sheet')
+    still('36_cheat_sheet')
     edit = overlay.findChild(QPushButton, 'ShortcutOverlayEdit')
     if edit is None:
         raise RuntimeError('The cheat sheet has no Change shortcuts… button')
@@ -181,10 +239,16 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
               and d.objectName() == 'KeymapDialog' and d.isVisible()]
     if len(keymap) != 1:
         raise RuntimeError('Change shortcuts… did not open its editor')
-    keymap[0].resize(1300, 1100)
+    capture_ui.dialog_geometry(capture, keymap[0], (1300, 1100))
     settle(.5)
-    capture('37_change_shortcuts')
-    keymap[0].reject()
+    if clip:
+        closing(clip, keymap[0])
+    else:
+        capture('37_change_shortcuts')
+    if host:
+        capture_ui.close_dialog(capture, keymap[0], prefer=('Cancel',))
+    else:
+        keymap[0].reject()
     settle(.5)
     require_unchanged_settings(settings_before, screen._settings_model.collect())
     if hashlib.sha256(csv_path.read_bytes()).hexdigest() != csv_hash:

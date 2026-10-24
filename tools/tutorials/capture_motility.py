@@ -5,6 +5,9 @@ import shutil
 import tempfile
 import time
 
+import capture_ui
+import capture_ui_drv_b
+
 import numpy as np
 
 from capture_acceptance import assess_pipeline
@@ -22,7 +25,8 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
 
     stage = Path(stage).resolve()
     prior = json.loads((stage / 'captures/timelapse_verified_explicit_relink/scientific_acceptance.json').read_text(encoding="utf-8"))
-    source = Path(prior['source']).resolve()
+    # Lesson 17's acceptance now records the private source under full_run_inputs (it used to be a top-level key).
+    source = Path(prior.get('source') or prior['full_run_inputs']['source']).resolve()
     if not prior['accepted'] or not prior['synthetic'] or not source.is_relative_to(stage):
         raise ValueError('Motility requires the accepted private synthetic Timelapse source')
     files = [source / f'merged/plate1_A01_1_{i}.npy' for i in range(1, 9)]
@@ -59,19 +63,19 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
                (w.property('moduleAppKey') == 'measure' or w.property('navKey') == 'measure')]
     if not choices:
         raise ValueError('No actual Home -> Measure control')
-    click(max(choices, key=lambda w: w.width() * w.height()))
-    host = window._screens['measure']
-    capture('01_measure_host')
+    with capture_ui.clip(capture, '01_measure_host'):
+        click(max(choices, key=lambda w: w.width() * w.height()))
+        host = window._screens['measure']
     folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'motility']
     if len(folds) != 1:
         raise ValueError('No unique actual Measure -> Motility fold')
-    click(folds[0])
-    settle(.8)
-    screens = [w for w in window.findChildren(AppScreen) if w.isVisible() and w.app_key == 'motility']
-    if len(screens) != 1:
-        raise ValueError('The actual Motility page did not open')
-    screen = screens[0]
-    capture('02_motility_page')
+    with capture_ui.clip(capture, '02_motility_page'):
+        click(folds[0])
+        settle(.8)
+        screens = [w for w in window.findChildren(AppScreen) if w.isVisible() and w.app_key == 'motility']
+        if len(screens) != 1:
+            raise ValueError('The actual Motility page did not open')
+        screen = screens[0]
     if probe_screen_export:
         from motility_figure_preferences import choose_screen_export
         proof['figure_export_preference'] = choose_screen_export(app, window, screen, capture, settle)
@@ -100,7 +104,7 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
     if 'plot' in screen._settings_model._widgets:
         requested['plot'] = True
     for key, value in requested.items():
-        if not screen._settings_model.set_value_for_key(key, value):
+        if not capture_ui_drv_b.fill_setting(capture, screen, key, value):
             raise ValueError('No genuine Motility setting: ' + key)
     settings = screen._settings_model.collect()
     proof['configured_settings'] = settings
@@ -111,21 +115,22 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
             k: settings.get(k) for k, v in requested.items() if settings.get(k) != v}))
     for key in ('src', 'pixels_per_um', 'reuse_existing_measurements', 'infection_intensity_qc_graphs'):
         field = screen._settings_model._widgets[key]
-        parents, widget = [], field.parentWidget()
-        while widget is not None and widget is not screen:
-            if callable(getattr(widget, 'is_expanded', None)) and callable(getattr(widget, 'header', None)):
-                parents.append(widget)
-            widget = widget.parentWidget()
-        for section in reversed(parents):
-            if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header())
-                settle(.2)
-                click(section.header())
-        screen._settings_scroll.ensureWidgetVisible(field)
-        settle(.2)
-        if not field.isVisible() or field.visibleRegion().isEmpty():
-            raise ValueError('A narrated Motility setting is not visible: ' + key)
-        capture('03_actual_setting_' + key)
+        with capture_ui.clip(capture, '03_actual_setting_' + key):
+            parents, widget = [], field.parentWidget()
+            while widget is not None and widget is not screen:
+                if callable(getattr(widget, 'is_expanded', None)) and callable(getattr(widget, 'header', None)):
+                    parents.append(widget)
+                widget = widget.parentWidget()
+            for section in reversed(parents):
+                if not section.is_expanded():
+                    capture_ui.scroll_to(capture, screen._settings_scroll, section.header())
+                    settle(.2)
+                    click(section.header())
+            capture_ui.scroll_to(capture, screen._settings_scroll, field)
+            settle(.2)
+            if not field.isVisible() or field.visibleRegion().isEmpty():
+                raise ValueError('A narrated Motility setting is not visible: ' + key)
+            capture_ui.point_at(capture, field, dwell=1.5)
     if screen._ai_switch.isChecked():
         click(screen._ai_switch)
     if screen._console_folder.shut:
@@ -144,7 +149,7 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
     timer.start(300)
     try:
         click(screen._btn_run, settle_after=False)
-        worker = screen._worker
+        worker = capture_ui.wait_worker(screen, settle)
         if worker is None:
             raise ValueError('The actual Run button did not launch a worker')
         worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
@@ -173,17 +178,15 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
     proof['copied_inputs_preserved'] = all(digest(p) == h for p, h in copied.items())
     if not proof['source_preserved'] or not proof['copied_inputs_preserved']:
         raise ValueError('The native Motility run changed input arrays')
-    for block, _, _ in screen._console._pipeline_console_blocks():
-        block.setFocus()
-        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-    screen._console.jump_to_the_end()
-    settle(.3)
-    capture('05_actual_finished')
+    with capture_ui.clip(capture, '05_actual_finished'):
+        capture_ui.console_end_all(capture, screen._console)
+        capture_ui.console_to_end(capture, screen._console)
+        settle(.3)
     for index, pixmap in enumerate(screen._figure_queue.all_pixmaps()):
         pixmap.save(str(captures / f'figure_{index:02}.png'), 'PNG')
-        screen._figure_queue.show_index(index)
-        settle(.2)
-        capture(f'06_actual_figure_{index:02}')
+        with capture_ui.clip(capture, f'06_actual_figure_{index:02}'):
+            capture_ui.show_figure(capture, screen._figure_queue, index)
+            settle(.2)
     write_json(captures / 'scientific_acceptance.json', proof)
     if not proof['pipeline']['accepted']:
         return

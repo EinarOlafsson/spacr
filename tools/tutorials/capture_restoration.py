@@ -1,12 +1,15 @@
 """Record actual CPU restoration controls, comparison and Apply on a private field."""
 from __future__ import annotations
 
+import capture_ui
+import capture_ui_drv_e as drv
 from dataclasses import asdict
 import hashlib
 from pathlib import Path
 import time
 
 
+@drv.guarded
 def record_restoration(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     import numpy as np
     import tifffile
@@ -31,17 +34,18 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
         try:
             if not isinstance(dialog, QFileDialog):
                 raise RuntimeError('Open folder did not show the actual picker')
-            dialog.setDirectory(str(folder))
-            dialog.setSidebarUrls([QUrl.fromLocalFile(str(folder))])
+            capture_ui.file_dialog_dir(capture, dialog, str(folder))
+            if not capture_ui.live(capture):
+                dialog.setSidebarUrls([QUrl.fromLocalFile(str(folder))])
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
             QTest.mouseClick(edit, Qt.LeftButton)
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClicks(edit, str(folder))
-            QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+            capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
         except Exception as exc:
             errors.append(str(exc))
             if dialog is not None:
-                dialog.reject()
+                capture_ui.reject_dialog(capture, dialog)
 
     def wait(check, message):
         deadline = time.monotonic() + timeout
@@ -51,7 +55,10 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
             settle(.1)
         settle()
 
-    QTimer.singleShot(700, picker)
+    # The first scene starts at the click on Open folder: the picker, the load
+    # and the opening of the restoration row are what its narration shows.
+    rec = drv.scene(capture, settle, 'restoration_01_restoration_row')
+    capture_ui.when_modal(capture, 700, picker)
     QTest.mouseClick(screen._btn_open, Qt.LeftButton)
     if errors:
         raise RuntimeError('; '.join(errors))
@@ -75,12 +82,12 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
             if folded:
                 heading = section.header() if isinstance(section, Section) else section.heading
                 if scroll is not None:
-                    scroll.ensureWidgetVisible(heading)
+                    capture_ui.scroll_to(capture, scroll, heading)
                 settle()
                 QTest.mouseClick(heading, Qt.LeftButton)
                 settle()
         if scroll is not None:
-            scroll.ensureWidgetVisible(widget)
+            capture_ui.scroll_to(capture, scroll, widget)
         settle()
         point = widget.mapToGlobal(widget.rect().center())
         if not widget.isVisible() or not widget.isEnabled() or not app.primaryScreen().availableGeometry().contains(point):
@@ -93,14 +100,18 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
             settle()
     restoration = screen._restoration_controls
     expose(restoration.operation)
-    capture('restoration_01_restoration_row')
-    restoration.operation.setFocus()
+    rec.point(restoration.operation)
+    rec.stop()
+    rec = drv.scene(capture, settle, 'restoration_02_denoise_settings')
+    capture_ui.focus(capture, restoration.operation)
     QTest.keyClick(restoration.operation, Qt.Key_Home)
     QTest.keyClick(restoration.operation, Qt.Key_Down)
     if restoration.operation.currentData() != 'denoise' or restoration.structure.currentData() != 'cyto3':
         raise RuntimeError('The native Denoise choice/default model differs from the lesson')
     expose(restoration.structure)
-    capture('restoration_02_denoise_settings')
+    rec.point(restoration.structure)
+    rec.stop()
+    rec = drv.scene(capture, settle, 'restoration_03_model_ready')
     expose(restoration.reload)
     started = time.monotonic()
     QTest.mouseClick(restoration.reload, Qt.LeftButton)
@@ -111,7 +122,9 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
     if plan is None or not plan.device.startswith('cpu'):
         raise RuntimeError('Restoration did not load on the CPU: ' + restoration.status.text())
     expose(restoration.status)
-    capture('restoration_03_model_ready')
+    rec.point(restoration.status)
+    rec.stop()
+    rec = drv.scene(capture, settle, 'restoration_04_compare')
     expose(screen._btn_compare)
     started = time.monotonic()
     QTest.mouseClick(screen._btn_compare, Qt.LeftButton)
@@ -122,9 +135,11 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
         raise RuntimeError('The real comparison has no enhanced picture: ' + dialog.caption.text())
     compare_seconds = time.monotonic() - started
     caption = dialog.caption.text()
-    capture('restoration_04_compare')
+    rec.point(dialog)
+    rec.stop()
     QTest.mouseClick(dialog._buttons.button(QDialogButtonBox.Close), Qt.LeftButton)
     settle()
+    rec = drv.scene(capture, settle, 'restoration_05_apply')
     expose(screen._btn_apply)
     if screen._btn_apply.isChecked():
         raise RuntimeError('Apply must start off in the isolated fresh recording')
@@ -137,7 +152,7 @@ def record_restoration(app, window, screen, stage, captures, capture, settle, wr
     enhanced = canvas._enhanced_picture[2]
     if enhanced.shape != expected.shape or not np.isfinite(enhanced).all() or np.array_equal(enhanced, expected):
         raise RuntimeError('Apply did not produce a distinct finite same-grid enhanced picture')
-    capture('restoration_05_apply')
+    rec.stop()
     if not np.array_equal(canvas.image, expected) or np.any(canvas.mask) or hashlib.sha256(source.read_bytes()).hexdigest() != digest:
         raise RuntimeError('Restoration changed original intensity pixels or editable labels')
     write_json(captures / 'restoration_acceptance.json', {

@@ -3,6 +3,8 @@ from pathlib import Path
 import shutil
 import tempfile
 import time
+import capture_ui
+from capture_ui_drv_c import Scenes
 from capture_database import _digest
 from hit_list_evidence import expected_hits, filtered, check_screen, check_rows, read_rows
 
@@ -43,6 +45,11 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
             kwargs['desktop'] = True
         return base_capture(name, **kwargs)
 
+    for _attribute in ('begin', 'end', 'host', 'clip_seconds_of', 'supports_live_actions',
+                       'maximum_live_clip_seconds'):
+        setattr(capture, _attribute, getattr(base_capture, _attribute, None))
+    scenes = Scenes(capture, settle)
+
     def click(widget):
         if time.monotonic() > deadline:
             raise TimeoutError('Bounded Hit List recording timed out')
@@ -59,10 +66,24 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
     def combo(widget, value):
         index = widget.findText(value)
         if index < 0: raise ValueError('No native choice ' + value)
-        click(widget); QTest.keyClick(widget.view(), Qt.Key_Home)
-        for _ in range(index): QTest.keyClick(widget.view(), Qt.Key_Down)
-        QTest.keyClick(widget.view(), Qt.Key_Return); settle(.3)
-        if widget.currentText() != value: raise ValueError('Native choice not applied')
+        capture_ui.select_combo(capture, widget, index); settle(.3)
+        # Under load (live host) the popup choice can be dropped, or the screen can re-render and put the
+        # previous value back; choose again, as a user would, before calling it a failure.
+        for _ in range(2):
+            if widget.currentText() == value:
+                break
+            settle(.6)
+            if widget.currentText() != value:
+                # The popup route did not hold (it twice put the combo back on 'any'): use the keyboard on the
+                # focused combo box, as a user can -- Home, then Down to the wanted row.
+                capture_ui.focus(capture, widget)
+                QTest.keyClick(widget, Qt.Key_Home)
+                for _ in range(widget.findText(value)):
+                    QTest.keyClick(widget, Qt.Key_Down)
+                settle(.5)
+        if widget.currentText() != value:
+            raise ValueError('Native choice not applied: wanted %r, shows %r (enabled=%s, visible=%s)'
+                             % (value, widget.currentText(), widget.isEnabled(), widget.isVisible()))
 
     def picker(button, path, name):
         accepted = []; errors = []; timer = QTimer(window); watch = QTimer(window)
@@ -71,28 +92,34 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
             dialog = app.activeModalWidget()
             try:
                 if not isinstance(dialog, QFileDialog): raise ValueError('Expected native Qt file picker')
-                dialog.accepted.connect(lambda: accepted.append(True)); dialog.resize(1500, 1000)
-                fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path); capture(name, desktop=True)
+                dialog.accepted.connect(lambda: accepted.append(True)); capture_ui.dialog_geometry(capture, dialog, (1500, 1000))
+                fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
+                if not capture_ui.live(capture): capture(name, desktop=True)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(buttons) != 1: raise ValueError('No unique picker accept button')
-                click(buttons[0])
+                capture_ui.accept_file_dialog(capture, dialog, buttons[0])
             except Exception as error:
                 errors.append(str(error))
                 if dialog is not None: dialog.reject()
         def abort():
             errors.append('File picker timed out'); dialog = app.activeModalWidget()
             if dialog is not None: dialog.reject()
-        timer.timeout.connect(handle); watch.timeout.connect(abort); timer.start(300); watch.start(15000)
+        timer.timeout.connect(handle); watch.timeout.connect(abort)
+        if capture_ui.live(capture): capture_ui.when_modal(capture, 300, handle)
+        else: timer.start(300)
+        watch.start(120000 if capture_ui.live(capture) else 15000)
+        scenes.begin(name)
         try: click(button)
         finally: timer.stop(); watch.stop(); timer.deleteLater(); watch.deleteLater()
         if errors or not accepted: raise ValueError('; '.join(errors) or 'No accepted path')
         settle(.4)
+        if capture_ui.live(capture): scenes.end(name, button)
 
     def check(name, **options):
         settle(.3); wanted = filtered(expected, **options)
         proof.setdefault('checks', {})[name] = check_screen(screen, wanted)
-        capture(name); return wanted
+        scenes.end(name, screen._table); return wanted
 
     def action(text):
         buttons = [b for b in screen.findChildren(QPushButton) if b.text() == text]
@@ -103,11 +130,13 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
         tiles = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                  (w.property('moduleAppKey') == 'regression' or w.property('navKey') == 'regression')]
         if not tiles: raise ValueError('No real Regression Home tile')
+        scenes.begin('01_regression_hit_list_host')
         click(max(tiles, key=lambda w: w.width() * w.height())); settle(.8)
         host = window._screens['regression']
         folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'hit_list']
         if len(folds) != 1: raise ValueError('No unique Hit List fold')
-        capture('01_regression_hit_list_host'); click(folds[0]); settle(.8)
+        click(folds[0]); settle(.8)
+        scenes.end('01_regression_hit_list_host', host)
         panel = getattr(host, '_results_panel', None)
         card = getattr(host, '_figures_card', None)
         hits = getattr(panel, 'hits', None)
@@ -131,7 +160,8 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
                 raise ValueError('Companion requires the specifically observed hidden-panel failure')
             from hit_list_companion import create_window, TITLE
             companion_window, companion_screen = create_window()
-            companion_window.resize(3840, 2160)
+            # 3840x2160 was the old 4K desktop; the host screen is 2560x1440, so fit the companion to the screen.
+            companion_window.resize(window.screen().availableGeometry().size())
             companion_window.show(); settle(.8)
             found = [w for w in app.allWidgets() if isinstance(w, HitListScreen) and w.isVisible()]
             if found != [companion_screen] or companion_window.windowTitle() != TITLE:
@@ -145,6 +175,7 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
         while screen.is_busy() or screen.active_jobs():
             if time.monotonic() > deadline: raise TimeoutError('Hit List worker did not finish')
             settle(.1)
+        scenes.begin('03_all_325_ranked_genes_not_discoveries')
         header = screen._table.header()
         for column in (1, 3, 5, 6, 9):
             edge = header.sectionViewportPosition(column) + header.sectionSize(column) - 1
@@ -163,31 +194,45 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
                               first_gene=expected[0]['gene'], first_effect=expected[0]['effect'],
                               source_well_support=[int(r['wells_with_gene']) for r in read_rows(data / 'results_gene.csv')],
                               hit_n_obs_values=sorted({h.n_obs for h in screen.hits()}))
+        scenes.begin('04_no_genes_pass_q_point05')
         fill(screen._q_spin.lineEdit(), '.05'); check('04_no_genes_pass_q_point05', max_q=.05)
+        scenes.begin('05_all_candidates_restored')
         fill(screen._q_spin.lineEdit(), '1'); check('05_all_candidates_restored')
+        scenes.begin('06_at_least_two_tested_guides')
         fill(screen._guides_spin.lineEdit(), '2'); check('06_at_least_two_tested_guides', min_guides=2)
+        scenes.begin('07_all_tested_guides_same_sign')
         fill(screen._agreement_spin.lineEdit(), '1'); check('07_all_tested_guides_same_sign', min_guides=2, min_agreement=1)
+        scenes.begin('08_hide_controls_not_recalculate_q')
         click(screen._drop_controls); check('08_hide_controls_not_recalculate_q', min_guides=2, min_agreement=1, exclude_controls=True)
+        scenes.begin('09_positive_effect_not_significance')
         click(screen._drop_controls); fill(screen._agreement_spin.lineEdit(), '0'); fill(screen._guides_spin.lineEdit(), '0')
         combo(screen._direction, 'up'); check('09_positive_effect_not_significance', direction='up')
+        scenes.begin('10_positive_effect_magnitude_cut')
         fill(screen._effect_spin.lineEdit(), '.1'); check('10_positive_effect_magnitude_cut', direction='up', min_effect=.1)
+        scenes.begin('11_search_actual_positive_control')
         fill(screen._effect_spin.lineEdit(), '0'); combo(screen._direction, 'any')
         fill(screen._query, '239740'); check('11_search_actual_positive_control', query='239740')
+        scenes.begin('12_no_search_match')
         fill(screen._query, 'not_a_gene_in_this_example'); check('12_no_search_match', query='not_a_gene_in_this_example')
+        scenes.begin('13_real_gene_returns')
         fill(screen._query, '239740'); check('13_real_gene_returns', query='239740')
+        scenes.begin('14_all_genes_restored')
         fill(screen._query, ''); check('14_all_genes_restored')
+        scenes.begin('15_candidate_subset_for_export')
         fill(screen._guides_spin.lineEdit(), '2'); fill(screen._agreement_spin.lineEdit(), '1')
         export_rows = check('15_candidate_subset_for_export', min_guides=2, min_agreement=1)
         exports = {}
         for suffix, label in [('csv', 'Export CSV…'), ('md', 'Export Markdown…'), ('html', 'Export HTML…')]:
             target = work / ('ranked_candidates.' + suffix)
             picker(action(label), target, '16_export_' + suffix + '_picker')
+            scenes.begin('17_export_' + suffix + '_complete')
             if not target.is_file() or target.stat().st_size == 0: raise ValueError('Missing genuine export')
             exports[suffix] = dict(path=str(target), sha256=_digest(target), bytes=target.stat().st_size)
             if suffix == 'csv': exports[suffix]['values_checked'] = check_rows(read_rows(target), export_rows)
-            capture('17_export_' + suffix + '_complete')
+            scenes.end('17_export_' + suffix + '_complete', screen._table)
         proof['exports'] = exports
         proof['export_filters'] = screen.current_filters()
+        scenes.begin('18_original_ranked_population_restored')
         fill(screen._guides_spin.lineEdit(), '0'); fill(screen._agreement_spin.lineEdit(), '0')
         check('18_original_ranked_population_restored')
         proof['accepted'] = True

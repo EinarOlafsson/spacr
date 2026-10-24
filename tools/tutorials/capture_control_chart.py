@@ -3,6 +3,8 @@ from pathlib import Path
 import tempfile
 import time
 
+import capture_ui
+import capture_ui_drv_d as drv
 from control_chart_evidence import FIXTURE, digest, expected_points, verify_points, verify_export
 
 
@@ -102,7 +104,8 @@ def record_control_chart(app, window, screen, stage, captures, capture, settle, 
                     raise ValueError('The actual button did not open a file dialog')
                 dialog.accepted.connect(lambda: accepted.append(True))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                capture(name)
+                drv.snap(capture, name)
+                capture_ui.wait(capture, 1.5, settle)
                 standard = QDialogButtonBox.Save if save else QDialogButtonBox.Open
                 click(dialog.findChild(QDialogButtonBox).button(standard))
             except Exception as error:
@@ -116,13 +119,14 @@ def record_control_chart(app, window, screen, stage, captures, capture, settle, 
             if isinstance(dialog, QFileDialog):
                 dialog.reject()
 
-        opener.timeout.connect(handle)
         watchdog.timeout.connect(stalled)
-        opener.start(400)
-        watchdog.start(15000)
+        capture_ui.when_modal(capture, 400, handle)
+        watchdog.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        clip_started = drv.begin(capture, settle, name)
         try:
             click(button)
         finally:
+            drv.finish(capture, clip_started)
             for timer in (opener, watchdog):
                 timer.stop()
                 timer.deleteLater()
@@ -154,20 +158,24 @@ def record_control_chart(app, window, screen, stage, captures, capture, settle, 
                     points=result.points_frame().to_dict('records'),
                     visible_rule_rows=panel.violations.rowCount())
         proof['states'][name] = data
-        capture(name)
         return expected
 
     def show_choices(widget, name):
         """Expose full labels using the real popup, not a widened fake field."""
         before = widget.currentIndex()
+        started = drv.begin(capture, settle, name)
         click(widget)
         if not widget.view().isVisible():
             raise ValueError('The real choices popup did not open')
         proof.setdefault('dropdowns', {})[name] = [widget.itemText(i)
                                                   for i in range(widget.count())]
+        # Host: the pointer reads down the popup list.
+        drv.hover_rows(capture, widget.view(), 4)
         # Qt combo popups are separate QWidget windows, not QDialogs/QMenus;
         # a parent-window grab omits them. Capture this private desktop.
-        capture(name, desktop=True)
+        if not capture_ui.live(capture):
+            capture(name, desktop=True)
+        drv.finish(capture, started)
         QTest.keyClick(widget.view(), Qt.Key_Escape)
         idle()
         if widget.currentIndex() != before:
@@ -178,7 +186,9 @@ def record_control_chart(app, window, screen, stage, captures, capture, settle, 
                  if w.app_key == 'control_chart' and w.isVisible()]
         if len(folds) != 1:
             raise ValueError('QC has no unique visible Control Charts fold')
-        capture('01_qc_host')
+        with capture_ui.clip(capture, '01_qc_host'):
+            capture_ui.point_at(capture, folds[0])
+        scene2 = drv.begin(capture, settle, '02_control_charts')
         click(folds[0])
         panels = [w for w in window.findChildren(ControlChartScreen) if w.isVisible()]
         if len(panels) != 1:
@@ -190,40 +200,58 @@ def record_control_chart(app, window, screen, stage, captures, capture, settle, 
         buttons = {w.text(): w for w in panel.findChildren(QPushButton) if w.isVisible()}
         if 'Load test data' in buttons:
             raise ValueError('A new downloadable example exists; inspect it before using synthetic data')
-        capture('02_control_charts')
+        capture_ui.point_at(capture, buttons['Load table…'], buttons.get('Export points…'))
+        drv.snap(capture, '02_control_charts')
+        drv.finish(capture, scene2)
         picker(buttons['Load table…'], FIXTURE, '03_load_synthetic_csv')
         if len(panel._frame) != 270 or panel._path != str(FIXTURE):
             raise ValueError('The real CSV reader loaded a different campaign')
         proof['initial_unfiltered_report'] = panel.report.toPlainText()
-        capture('04_check_column_guesses')
+        with capture_ui.clip(capture, '04_check_column_guesses'):
+            capture_ui.point_at(capture, panel._plate, panel._order, panel._value, panel._control_column)
+        scene5 = drv.begin(capture, settle, '05_negative_control_default_rules')
         for widget, text in ((panel._plate, 'plateID'), (panel._order, 'run_date'),
                              (panel._value, 'signal'), (panel._control_column, 'well_type')):
             choose(widget, widget.findText(text))
         select_level('neg')
         inspect('05_negative_control_default_rules', limits_only=False)
+        capture_ui.point_at(capture, panel.canvas, panel.report)
+        drv.snap(capture, '05_negative_control_default_rules')
+        drv.finish(capture, scene5)
         show_choices(panel._estimator, '05a_sigma_choices')
         show_choices(panel._rules, '05b_rule_choices')
-        choose(panel._rules, 2)
-        inspect('06_limits_only')
-        select_level('pos')
-        inspect('07_positive_control', level='pos')
-        select_level('neg')
-        inspect('08_negative_restored')
-        fill(panel._baseline, '12')
-        QTest.keyClick(panel._baseline, Qt.Key_Return)
-        idle()
-        inspect('09_shorter_baseline', baseline=12)
-        fill(panel._baseline, '20')
-        QTest.keyClick(panel._baseline, Qt.Key_Return)
-        idle()
-        expected = inspect('10_baseline_restored')
+        with capture_ui.clip(capture, '06_limits_only'):
+            choose(panel._rules, 2)
+            inspect('06_limits_only')
+            capture_ui.point_at(capture, panel.canvas)
+        with capture_ui.clip(capture, '07_positive_control'):
+            select_level('pos')
+            inspect('07_positive_control', level='pos')
+            capture_ui.point_at(capture, panel.canvas)
+        with capture_ui.clip(capture, '08_negative_restored'):
+            select_level('neg')
+            inspect('08_negative_restored')
+            capture_ui.point_at(capture, panel.canvas)
+        with capture_ui.clip(capture, '09_shorter_baseline'):
+            fill(panel._baseline, '12')
+            QTest.keyClick(panel._baseline, Qt.Key_Return)
+            idle()
+            inspect('09_shorter_baseline', baseline=12)
+            capture_ui.point_at(capture, panel.canvas)
+        with capture_ui.clip(capture, '10_baseline_restored'):
+            fill(panel._baseline, '20')
+            QTest.keyClick(panel._baseline, Qt.Key_Return)
+            idle()
+            expected = inspect('10_baseline_restored')
+            capture_ui.point_at(capture, panel.canvas)
         parent = Path(stage) / 'control_chart_runs'
         parent.mkdir(exist_ok=True)
         private = Path(tempfile.mkdtemp(prefix='synthetic-', dir=parent))
         exported = private / 'synthetic_negative_control_points.csv'
         picker(buttons['Export points…'], exported, '11_actual_export_picker', save=True)
         proof['export'] = verify_export(exported, expected)
-        capture('12_exported')
+        with capture_ui.clip(capture, '12_exported'):
+            capture_ui.point_at(capture, panel.report)
         proof['accepted'] = True
     except Exception as error:
         proof['error'] = f'{type(error).__name__}: {error}'

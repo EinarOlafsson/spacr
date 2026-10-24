@@ -1,7 +1,10 @@
 """Capture the Live magnifier through real CPU-only gestures (Otsu, region under the mouse)."""
+import capture_ui
+import capture_ui_drv_e as drv
 import time
 
 
+@drv.guarded
 def record_readouts(app, window, screen, captures, capture, settle, write_json, timeout):
     import numpy as np
     from PySide6.QtCore import Qt
@@ -23,13 +26,17 @@ def record_readouts(app, window, screen, captures, capture, settle, write_json, 
     # silently select a model or invoke an invisible setting on a stale UI.
     if screen._mag_mode.currentData() != 'otsu' or screen._mag_scope.currentData() != 'region':
         raise RuntimeError('The readouts recording requires the default CPU Otsu region mode')
+    rec = drv.scene(capture, settle, '04_otsu_magnifier_settings')
     for scroll in screen.findChildren(QScrollArea):
         if scroll.isAncestorOf(screen._mag_scope):
-            scroll.ensureWidgetVisible(screen._mag_scope, 50, 400)
+            capture_ui.scroll_to(capture, scroll, screen._mag_scope)
     settle()
     if not screen._mag_scope.isVisible():
         raise RuntimeError('The Live magnifier settings are not visible')
-    capture('04_otsu_magnifier_settings')
+    # The narration names the detection method and the scope.
+    rec.point(screen._mag_mode, screen._mag_scope)
+    rec.stop()
+    rec = drv.scene(capture, settle, '05_live_otsu_magnifier')
     QTest.mouseClick(screen._btn_magnifier, Qt.LeftButton)
     position = canvas._image_to_canvas(pixels.shape[1] // 2, pixels.shape[0] // 2)
     if position is None or not canvas.rect().contains(position):
@@ -42,7 +49,7 @@ def record_readouts(app, window, screen, captures, capture, settle, write_json, 
     shown = magnifier._shown
     if shown.mode != 'otsu' or shown.count < 1:
         raise RuntimeError('The real magnifier did not outline any Otsu objects')
-    capture('05_live_otsu_magnifier')
+    rec.stop()
     QTest.mouseClick(screen._btn_magnifier, Qt.LeftButton)
     settle()
     if not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):

@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from build_evaluation_example import sha
 
 
@@ -13,6 +15,7 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
     from spacr.qt.screens.classifier_evaluation import ClassifierEvaluationScreen
     from spacr.qt.widgets.fold_strip import FoldButton
 
+    scenes = Scenes(capture, settle)
     stage, source = Path(stage).resolve(), Path(source).resolve()
     if not source.is_relative_to(stage / 'evaluation_runs'):
         raise ValueError('Only the private prepared tutorial bundle may be inspected')
@@ -40,18 +43,20 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
 
     options = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey') == 'classify_merged' or w.property('navKey') == 'classify_merged')]
+    scenes.begin('01_classify_host')
     click(max(options, key=lambda w: w.width() * w.height()))
     host = window._screens['classify_merged']
-    capture('01_classify_host')
+    scenes.end('01_classify_host', host)
     folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'classifier_evaluation']
     if len(folds) != 1:
         raise ValueError('No unique actual Classifier Evaluation fold')
+    scenes.begin('02_actual_evaluation_page')
     click(folds[0])
     candidates = [w for w in window.findChildren(ClassifierEvaluationScreen) if w.isVisible()]
     if len(candidates) != 1:
         raise ValueError('The actual evaluation page did not open')
     panel = candidates[0]
-    capture('02_actual_evaluation_page')
+    scenes.end('02_actual_evaluation_page', panel)
     errors, accepted = [], []
     timer, watchdog = QTimer(window), QTimer(window)
     timer.setSingleShot(True)
@@ -63,17 +68,18 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
             if not isinstance(dialog, QFileDialog):
                 raise ValueError('The real evaluation folder dialog did not open')
             dialog.accepted.connect(lambda: accepted.append(True))
-            dialog.resize(1400, 950)
+            capture_ui.dialog_geometry(capture, dialog, (1400, 950))
             field = dialog.findChild(QLineEdit, 'fileNameEdit')
             click(field)
             QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClicks(field, str(source / 'evaluation'))
-            capture('03_actual_bundle_folder')
+            if not capture_ui.live(capture):
+                capture('03_actual_bundle_folder')      # host: the open clip shows the typing
             box = dialog.findChild(QDialogButtonBox)
             buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
             if len(buttons) != 1:
                 raise ValueError('No unique real folder acceptance button')
-            click(buttons[0])
+            capture_ui.accept_file_dialog(capture, dialog, buttons[0])
         except Exception as error:
             errors.append(str(error))
             if dialog is not None:
@@ -86,10 +92,14 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
 
     timer.timeout.connect(choose)
     watchdog.timeout.connect(abort_dialog)
-    timer.start(400)
-    watchdog.start(20000)
+    if capture_ui.live(capture):
+        capture_ui.when_modal(capture, 400, choose)
+    else:
+        timer.start(400)
+    watchdog.start(120000 if capture_ui.live(capture) else 20000)
     loaded = []
     panel.evaluation_loaded.connect(loaded.append)
+    scenes.begin('03_actual_bundle_folder')
     try:
         click(panel._browse)
     finally:
@@ -97,6 +107,8 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
         watchdog.stop()
     if errors or not accepted:
         raise ValueError('; '.join(errors) or 'Folder selection was not accepted')
+    if capture_ui.live(capture):
+        scenes.end('03_actual_bundle_folder', panel._browse)
     while panel._busy or not loaded or panel._jobs:
         tick()
         if panel.last_error:
@@ -108,10 +120,11 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
     def table(widget):
         return dict(columns=[widget.horizontalHeaderItem(c).text() for c in range(widget.columnCount())],
             rows=[[widget.item(r, c).text() if widget.item(r, c) else ''
-                for c in range(widget.columnCount())] for r in range(widget.rowCount())])
+                for c in range(widget.columnCount())] for r in range(widget.rowCount())
+                if not widget.isRowHidden(r)])
 
-    def snapshot(name):
-        capture(name)
+    def snapshot(name, *point):
+        scenes.end(name, *point)
         proof['snapshots'][name] = dict(tab=panel._tabs.tabText(panel._tabs.currentIndex()),
             summary=panel._overview.toPlainText(), leakage=panel._leakage.toPlainText(),
             confusion=table(panel._confusion), per_plate=table(panel._per_plate),
@@ -124,15 +137,18 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
         write_json(captures / 'scientific_acceptance.json', proof)
 
     def tab(index):
-        bar = panel._tabs.tabBar()
-        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(index).center())
+        capture_ui.select_tab(capture, panel._tabs, index)
         settle(.3)
 
-    snapshot('04_actual_summary')
+    scenes.begin('04_actual_summary')
+    snapshot('04_actual_summary', panel._overview)
+    scenes.begin('05_actual_leakage_requires_review')
     tab(5)
-    snapshot('05_actual_leakage_requires_review')
+    snapshot('05_actual_leakage_requires_review', panel._leakage)
+    scenes.begin('06_actual_confusion_counts')
     tab(1)
-    snapshot('06_actual_confusion_counts')
+    snapshot('06_actual_confusion_counts', panel._confusion)
+    scenes.begin('07_actual_error_cell')
     row = next(r for r in range(panel._confusion.rowCount())
                if panel._confusion.item(r, 0).text() == 'infected_1')
     col = next(c for c in range(panel._confusion.columnCount())
@@ -142,7 +158,8 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
     QTest.mouseClick(panel._confusion.viewport(), Qt.LeftButton,
                     pos=panel._confusion.visualItemRect(item).center())
     settle(.3)
-    snapshot('07_actual_error_cell')
+    snapshot('07_actual_error_cell', panel._confusion.viewport())
+    scenes.begin('08_actual_confidence_threshold')
     click(panel._threshold)
     QTest.keyClick(panel._threshold, Qt.Key_A, Qt.ControlModifier)
     QTest.keyClicks(panel._threshold, '0.95')
@@ -150,23 +167,40 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
     settle(.3)
     if panel._threshold.value() != .95:
         raise ValueError('The actual confidence threshold differs')
-    snapshot('08_actual_confidence_threshold')
+    snapshot('08_actual_confidence_threshold', panel._threshold)
+    scenes.begin('09_actual_per_plate')
     tab(2)
-    snapshot('09_actual_per_plate')
+    snapshot('09_actual_per_plate', panel._per_plate)
+    scenes.begin('10_actual_calibration_table')
     tab(3)
-    snapshot('10_actual_calibration_table')
+    snapshot('10_actual_calibration_table', panel._calibration)
+    scenes.begin('11_actual_all_predictions')
     tab(4)
-    snapshot('11_actual_all_predictions')
+    snapshot('11_actual_all_predictions', panel._predictions)
+    def filter_settled():
+        # The prediction filter applies 250 ms after the last key (Home 3e407c3cb); a fixed wait is not enough
+        # under load. Wait until the filter timer is idle and the table had a pass of the event loop after it.
+        until = time.monotonic() + 10
+        timer = getattr(panel, '_filter_timer', None)
+        while timer is not None and timer.isActive() and time.monotonic() < until:
+            settle(.05)
+        settle(.3)
+        if timer is not None and timer.isActive():
+            raise TimeoutError('The prediction filter did not apply within 10 s')
+
+    scenes.begin('12_actual_prediction_filter')
     click(panel._prediction_filter)
     QTest.keyClicks(panel._prediction_filter, 'r5_c2')
-    settle(.3)
-    snapshot('12_actual_prediction_filter')
+    filter_settled()
+    snapshot('12_actual_prediction_filter', panel._prediction_filter)
+    scenes.begin('13_actual_filter_cleared')
     QTest.keyClick(panel._prediction_filter, Qt.Key_A, Qt.ControlModifier)
     QTest.keyClick(panel._prediction_filter, Qt.Key_Backspace)
-    settle(.3)
-    snapshot('13_actual_filter_cleared')
+    filter_settled()
+    snapshot('13_actual_filter_cleared', panel._prediction_filter)
+    scenes.begin('14_actual_final_leakage')
     tab(5)
-    snapshot('14_actual_final_leakage')
+    snapshot('14_actual_final_leakage', panel._leakage)
     proof['bundle_unchanged'] = all(sha(p) == value for p, value in before.items())
     proof['original_inputs_preserved'] = all(sha(p) == value for p, value in prepared['original_inputs'].items())
     if not proof['bundle_unchanged'] or not proof['original_inputs_preserved']:

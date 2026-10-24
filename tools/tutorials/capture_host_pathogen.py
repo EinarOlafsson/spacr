@@ -5,7 +5,13 @@ import hashlib
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_a import Rec, search_typed, table_into_view
+from capture_ui_drv_e import guarded
+from capture_ui_drv_f import sweep_over
 
+
+@guarded
 def record_host_pathogen(app, window, stage, captures, capture, settle, write_json, timeout):
     """Download the supplied microscopy sample, preview it and run the analysis."""
     import pandas as pd
@@ -26,7 +32,7 @@ def record_host_pathogen(app, window, stage, captures, capture, settle, write_js
         parent = widget.parentWidget()
         while parent is not None:
             if isinstance(parent, QScrollArea):
-                parent.ensureWidgetVisible(widget)
+                capture_ui.scroll_to(capture, parent, widget)
             parent = parent.parentWidget()
         settle(.2)
 
@@ -41,30 +47,42 @@ def record_host_pathogen(app, window, stage, captures, capture, settle, write_js
     tabs = window._startup._tabs
     tiles = [button for button in window._startup.findChildren(QAbstractButton)
              if button.property('moduleAppKey') == 'toxoplasma']
+    # Host: 00_home opens on the Home tabs and records the pointer choosing the
+    # Toxoplasma tile; 01_test_data records the organism page, the Host-Pathogen
+    # tile and the scroll to Load test data. Xvfb: the stills after the same steps.
+    home_clip = None
     for index in range(tabs.count()):
         candidates = [tile for tile in tiles if tabs.widget(index).isAncestorOf(tile)]
         if candidates:
+            home_clip = Rec(capture, '00_home', settle).start()
             QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
                              pos=tabs.tabBar().tabRect(index).center())
             settle(.4)
-            capture('00_home')
-            click(max(candidates, key=lambda tile: tile.width() * tile.height()))
+            toxo_tile = max(candidates, key=lambda tile: tile.width() * tile.height())
+            capture_ui.point_at(capture, toxo_tile, dwell=1.2)
+            if not capture_ui.live(capture):
+                home_clip.stop()                # Xvfb: the still of Home, before the tile is clicked
+            click(toxo_tile)
+            if capture_ui.live(capture):
+                home_clip.stop()
             break
     else:
         raise RuntimeError('The Toxoplasma Home tile is absent')
+    test_data_clip = Rec(capture, '01_test_data', settle).start()
     organism = window._screens['toxoplasma']
     tile = next(tile for tile in organism._tiles
                 if tile.property('organismModuleKey') == 'host_pathogen')
-    organism._module_scroll.ensureWidgetVisible(tile)
+    capture_ui.scroll_to(capture, organism._module_scroll, tile)
     settle(.4)
     click(tile)
     screen = window._screens['host_pathogen']
     if not screen.isVisible():
         raise RuntimeError('The actual organism tile did not open Host–Pathogen')
     button = screen._assay_example_button
-    screen._settings_scroll.ensureWidgetVisible(button)
+    capture_ui.scroll_to(capture, screen._settings_scroll, button)
     settle(.4)
-    capture('01_test_data')
+    capture_ui.point_at(capture, button, dwell=1.5)
+    test_data_clip.stop()
     click(button)
     wait_for(lambda: button.isEnabled(), 'The native example download did not finish')
     settings = screen._settings_model.collect()
@@ -87,37 +105,43 @@ def record_host_pathogen(app, window, stage, captures, capture, settle, write_js
                         ('hp_marker_channels', '04_markers'),
                         ('hp_marker_thresholds', '05_thresholds'),
                         ('hp_parasite_table', '06_counts')]:
-        bar._input.setFocus()
-        QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(bar._input, key)
-        settle(.4)
-        if key not in bar.visible_keys():
-            raise RuntimeError('The settings search did not expose ' + key)
-        field = screen._settings_model._widgets[key]
-        screen._settings_scroll.ensureWidgetVisible(field)
-        settle(.2)
-        capture(visual)
-    bar.set_query(previous[0])
-    bar.set_level(previous[1])
-    bar.set_modified_only(previous[2])
+        # Host: the clip starts before the pointer clicks the search box.
+        with Rec(capture, visual, settle) as scene:
+            search_typed(capture, bar, key)
+            settle(.4)
+            if key not in bar.visible_keys():
+                raise RuntimeError('The settings search did not expose ' + key)
+            field = screen._settings_model._widgets[key]
+            capture_ui.scroll_to(capture, screen._settings_scroll, field)
+            settle(.2)
+            scene.point(field, dwell=1.5)
+    capture_ui.search_settings(capture, bar, previous[0])
+    capture_ui.settings_level(capture, bar, previous[1])
+    capture_ui.settings_modified_only(capture, bar, previous[2])
     if screen._settings_model.collect() != settings:
         raise RuntimeError('The settings walkthrough changed the example configuration')
     wait_for(lambda: getattr(screen, '_registry_preview', None) is not None,
              'The live preview control did not become available')
     host = screen._registry_preview
-    click(host.toggle)
-    wait_for(host.panel_is_built, 'The live preview did not open')
-    panel = host.panel
-    click(panel._run_btn)
-    wait_for(lambda: panel._jobs.active_jobs() == 0, 'The real preview did not finish')
-    if panel._result is None or panel._table.rowCount() == 0:
-        raise RuntimeError('The preview did not produce vacuole measurements')
-    item = panel._table.item(0, 0)
-    panel._table.scrollToItem(item)
-    QTest.mouseClick(panel._table.viewport(), Qt.LeftButton,
-                     pos=panel._table.visualItemRect(item).center())
-    settle(.5)
-    capture('07_preview')
+    with capture_ui.clip(capture, '07_preview'):
+        click(host.toggle)
+        wait_for(host.panel_is_built, 'The live preview did not open')
+        panel = host.panel
+        click(panel._run_btn)
+        wait_for(lambda: panel._jobs.active_jobs() == 0, 'The real preview did not finish')
+        if panel._result is None or panel._table.rowCount() == 0:
+            raise RuntimeError('The preview did not produce vacuole measurements')
+        item = panel._table.item(0, 0)
+        if capture_ui.live(capture):
+            table_into_view(capture, panel._table, 0)
+        else:
+            panel._table.scrollToItem(item)
+        QTest.mouseClick(panel._table.viewport(), Qt.LeftButton,
+                         pos=panel._table.visualItemRect(item).center())
+        settle(.5)
+        capture_ui.point_at(capture, panel._table, dwell=1.5)
+    # Host: 08_run starts before Live is switched off and ends once Run has started.
+    run_clip = Rec(capture, '08_run', settle).start()
     click(host.toggle)
     if not screen._actions_body.isVisible():
         click(screen._actions_heading)
@@ -128,12 +152,13 @@ def record_host_pathogen(app, window, stage, captures, capture, settle, write_js
     if not screen._btn_run.isEnabled() or screen._btn_run.visibleRegion().isEmpty():
         raise RuntimeError('The Run control is unavailable')
     QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-    worker = screen._worker
+    worker = capture_ui.wait_worker(screen, settle)
     if worker is None:
         raise RuntimeError('The Run control did not start Host–Pathogen')
     worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
     worker.error.connect(lambda message: outcome['errors'].append(str(message)))
-    capture('08_run')
+    capture_ui.wait(capture, 2.0, settle)
+    run_clip.stop()
     wait_for(lambda: outcome['finished'] and not screen._worker_thread_is_running(),
              'The actual Host–Pathogen analysis did not finish')
     write_json(captures / 'run_outcome.json', outcome)
@@ -147,11 +172,15 @@ def record_host_pathogen(app, window, stage, captures, capture, settle, write_js
         raise RuntimeError('The example has no parasite counts; its output must remain unknown')
     if hashlib.sha256(database.read_bytes()).hexdigest() != before:
         raise RuntimeError('The analysis changed the input measurement database')
-    screen._console.jump_to_the_end()
-    settle(.5)
-    capture('09_vacuoles')
-    capture('10_summaries')
-    capture('11_denominators')
+    # Host: the pointer takes the console from its end to the written tables.
+    with capture_ui.clip(capture, '09_vacuoles'):
+        capture_ui.console_to_end(capture, screen._console)
+        settle(.5)
+        sweep_over(capture, screen._console, dwell=1.2)
+    with capture_ui.clip(capture, '10_summaries'):
+        sweep_over(capture, screen._console, fractions=(0.3, 0.6, 0.9), dwell=1.2)
+    with capture_ui.clip(capture, '11_denominators'):
+        sweep_over(capture, screen._console, fractions=(0.9, 0.6, 0.3), dwell=1.2)
     write_json(captures / 'scientific_acceptance.json', {
         'accepted': True, 'synthetic': False, 'actual_gui_run': True,
         'home_and_organism_tiles_clicked': True, 'test_data_button_clicked': True,

@@ -1,11 +1,14 @@
 """Record native parent-constrained puncta controls on an exact acquired pair."""
 from __future__ import annotations
 
+import capture_ui
+import capture_ui_drv_e as drv
 import hashlib
 from pathlib import Path
 import time
 
 
+@drv.guarded
 def record_puncta(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     import numpy as np
     import tifffile
@@ -34,8 +37,9 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         try:
             if not isinstance(dialog, QFileDialog):
                 raise RuntimeError('Open folder did not open the real folder picker')
-            dialog.setDirectory(str(images))
-            dialog.setSidebarUrls([QUrl.fromLocalFile(str(images))])
+            capture_ui.file_dialog_dir(capture, dialog, str(images))
+            if not capture_ui.live(capture):
+                dialog.setSidebarUrls([QUrl.fromLocalFile(str(images))])
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
             QTest.mouseClick(edit, Qt.LeftButton)
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
@@ -44,9 +48,10 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         except Exception as exc:
             errors.append(str(exc))
             if dialog is not None:
-                dialog.reject()
+                capture_ui.reject_dialog(capture, dialog)
 
-    QTimer.singleShot(700, picker)
+    rec = drv.scene(capture, settle, 'puncta_01_raw_input')
+    capture_ui.when_modal(capture, 700, picker)
     QTest.mouseClick(screen._btn_open, Qt.LeftButton)
     if errors:
         raise RuntimeError('; '.join(errors))
@@ -64,7 +69,8 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
     canvas = screen._canvas
     if not np.array_equal(canvas.image, expected_image):
         raise RuntimeError('The canvas is not the acquired raw image')
-    capture('puncta_01_raw_input')
+    rec.point(canvas)
+    rec.stop()
 
     def expose(widget):
         sections = []
@@ -79,12 +85,12 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         for section in reversed(sections):
             if not section.is_expanded():
                 if scroll is not None:
-                    scroll.ensureWidgetVisible(section.header())
+                    capture_ui.scroll_to(capture, scroll, section.header())
                 settle()
                 QTest.mouseClick(section.header(), Qt.LeftButton)
                 settle()
         if scroll is not None:
-            scroll.ensureWidgetVisible(widget)
+            capture_ui.scroll_to(capture, scroll, widget)
         settle()
         centre = widget.mapToGlobal(widget.rect().center())
         if not widget.isVisible() or not widget.isEnabled() or not app.primaryScreen().availableGeometry().contains(centre):
@@ -95,7 +101,7 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         index = box.findData(value)
         if index < 0:
             raise RuntimeError(f'The actual selector does not offer {value}')
-        box.setFocus()
+        capture_ui.focus(capture, box)
         QTest.keyClick(box, Qt.Key_Home)
         for _ in range(index):
             QTest.keyClick(box, Qt.Key_Down)
@@ -106,7 +112,7 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
     def type_into(edit, text):
         expose(edit)
         QTest.mouseClick(edit, Qt.LeftButton)
-        edit.setFocus()
+        capture_ui.focus(capture, edit)
         QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(edit, text)
         QTest.keyClick(edit, Qt.Key_Tab)
@@ -114,6 +120,7 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         if edit.text() != text:
             raise RuntimeError('The native parent-source editor did not retain its value')
 
+    rec = drv.scene(capture, settle, 'puncta_02_parent_and_settings')
     choose(screen._mag_mode, cpu_modes.PUNCTA)
     for section in screen.findChildren(Section):
         if section.title() in {'DISPLAY', 'FILTER', 'OBJECT OPERATIONS'} and section.is_expanded():
@@ -145,16 +152,18 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
             'source_editor_has_focus': selector.path.hasFocus()})
         raise
     expose(screen._puncta_widgets['puncta_sigmas'])
-    capture('puncta_02_parent_and_settings')
+    rec.point(screen._puncta_widgets['puncta_sigmas'])
+    rec.stop()
+    rec = drv.scene(capture, settle, 'puncta_03_detected_centres')
     choose(screen._combine_mode, 'replace')
 
     def reject_warning():
         dialog = app.activeModalWidget()
         if isinstance(dialog, QMessageBox):
             errors.append(dialog.text())
-            dialog.reject()
+            capture_ui.reject_dialog(capture, dialog)
 
-    QTimer.singleShot(700, reject_warning)
+    capture_ui.when_modal(capture, 700, reject_warning)
     expose(screen._btn_otsu)
     QTest.mouseClick(screen._btn_otsu, Qt.LeftButton)
     settle()
@@ -162,8 +171,10 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
         raise RuntimeError('; '.join(errors) or 'Puncta detection produced no included centres')
     if np.any(canvas.mask[expected_parent == 0]):
         raise RuntimeError('Puncta labels leave the acquired parent masks')
-    capture('puncta_03_detected_centres')
-    QTimer.singleShot(700, reject_warning)
+    rec.point(canvas)
+    rec.stop()
+    rec = drv.scene(capture, settle, 'puncta_04_saved_mask_and_measurements')
+    capture_ui.when_modal(capture, 700, reject_warning)
     QTest.mouseClick(screen._btn_save, Qt.LeftButton)
     settle()
     if errors:
@@ -177,7 +188,7 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
                 'local_bg', 'included', 'mask_pixels'}
     if not required.issubset(rows.columns):
         raise RuntimeError('Exact centre/annulus measurements were not saved')
-    capture('puncta_04_saved_mask_and_measurements')
+    rec.stop()
     if hashlib.sha256(source.read_bytes()).hexdigest() != source_hash or hashlib.sha256(parent.read_bytes()).hexdigest() != parent_hash:
         raise RuntimeError('An acquired image or parent mask changed')
     write_json(captures / 'puncta_acceptance.json', {

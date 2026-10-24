@@ -129,7 +129,8 @@ def check_groups(fits):
     if len(fits)!=4 or set(fits)!=set(TRUTH)|{REVERSAL}:
         raise ValueError('A fitted, unbounded or refused series disappeared')
     rejected=fits[REVERSAL]
-    if rejected['result'] is not None or 'not monotone' not in rejected['error']:
+    # the reversing series is refused for its shape: as 'not monotone', or, now that the fitter tells a low-dose stimulation apart, as 'hormetic, not sigmoid'
+    if rejected['result'] is not None or not any(word in (rejected['error'] or '') for word in ('not monotone', 'hormetic, not sigmoid')):
         raise ValueError('The deliberately reversing example was not refused for its shape')
 
 

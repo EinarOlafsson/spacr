@@ -15,6 +15,10 @@ from pathlib import Path
 import tempfile
 import time
 import zipfile
+from contextlib import nullcontext
+
+import capture_ui
+import capture_ui_drv_b
 
 import numpy as np
 
@@ -81,6 +85,8 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
 
     def picker(button, path, name, *, accept_file=False, after=None):
         accepted, errors = [], []
+        live = capture_ui.live(capture)
+        scene = capture_ui.clip(capture, name) if (name and live) else nullcontext()
         timer, watchdog = QTimer(window), QTimer(window)
         timer.setSingleShot(True)
         watchdog.setSingleShot(True)
@@ -91,9 +97,9 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
                 if not isinstance(dialog, QFileDialog):
                     raise ValueError('Expected the actual file picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1400, 950)
+                capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                if name:
+                if name and not live:
                     capture(name)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
@@ -109,17 +115,18 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
             errors.append('The file picker timed out')
             if app.activeModalWidget() is not None:
                 app.activeModalWidget().reject()
-        timer.timeout.connect(handle)
         watchdog.timeout.connect(abort)
-        timer.start(400)
         watchdog.start(90000)
-        try:
-            click(button)
-        finally:
-            timer.stop()
-            watchdog.stop()
-        if errors or not accepted:
-            raise ValueError('; '.join(errors) or 'The file picker was not accepted')
+        with scene:
+            capture_ui.when_modal(capture, 400, handle)
+            try:
+                click(button)
+            finally:
+                watchdog.stop()
+            if errors or not accepted:
+                raise ValueError('; '.join(errors) or 'The file picker was not accepted')
+            if after is not None:
+                after()
 
     # Home -> Mask -> Time.
     home = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
@@ -130,40 +137,41 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     settle(1.5)
     screen = window._screens['mask']
     capture('01_mask_host')
-    folds = [w for w in screen.findChildren(FoldButton) if w.isVisible() and w.app_key == 'timelapse']
-    if folds:
-        if len(folds) != 1:
-            raise ValueError('No unique Mask -> Timelapse fold')
-        if not folds[0].isChecked():
-            click(folds[0])
-        settle(1)
-        if screen._settings_model.collect().get('timelapse') is not True:
-            raise ValueError('The Timelapse fold did not enable tracking')
-        proof['fold_rect'] = capture_rect(folds[0], window)
-    else:
-        # The current Mask screen shows its timelapse settings through the
-        # Time switch in the Actions row; Timelapse itself is a setting there.
-        switch = screen.dimension_switch('t')
-        if switch is None or not switch.isVisible():
-            raise ValueError('No Time switch on Mask')
-        if not switch.isChecked():
-            click(switch)
-        settle(1)
-        if not screen.dimension_is_on('t'):
-            raise ValueError('The Time switch did not show the timelapse settings')
-        field = screen._settings_model._widgets.get('timelapse')
-        if field is None:
-            raise ValueError('Mask has no Timelapse setting')
-        screen._settings_scroll.ensureWidgetVisible(field, 50, 200)
-        settle(.5)
-        if not screen._settings_model.collect().get('timelapse'):
-            click(field)
+    with capture_ui.clip(capture, '02_timelapse_fold'):
+        folds = [w for w in screen.findChildren(FoldButton) if w.isVisible() and w.app_key == 'timelapse']
+        if folds:
+            if len(folds) != 1:
+                raise ValueError('No unique Mask -> Timelapse fold')
+            if not folds[0].isChecked():
+                click(folds[0])
+            settle(1)
+            if screen._settings_model.collect().get('timelapse') is not True:
+                raise ValueError('The Timelapse fold did not enable tracking')
+            proof['fold_rect'] = capture_rect(folds[0], window)
+        else:
+            # The current Mask screen shows its timelapse settings through the
+            # Time switch in the Actions row; Timelapse itself is a setting there.
+            switch = screen.dimension_switch('t')
+            if switch is None or not switch.isVisible():
+                raise ValueError('No Time switch on Mask')
+            if not switch.isChecked():
+                click(switch)
+            settle(1)
+            if not screen.dimension_is_on('t'):
+                raise ValueError('The Time switch did not show the timelapse settings')
+            field = screen._settings_model._widgets.get('timelapse')
+            if field is None:
+                raise ValueError('Mask has no Timelapse setting')
+            capture_ui.scroll_to(capture, screen._settings_scroll, field, margin=50)
             settle(.5)
-        if screen._settings_model.collect().get('timelapse') is not True:
-            raise ValueError('Clicking Timelapse did not enable tracking')
-        proof['fold_rect'] = capture_rect(switch, window)
-        proof['timelapse_setting_rect'] = capture_rect(field, window)
-    capture('02_timelapse_fold')
+            if not screen._settings_model.collect().get('timelapse'):
+                click(field)
+                settle(.5)
+            if screen._settings_model.collect().get('timelapse') is not True:
+                raise ValueError('Clicking Timelapse did not enable tracking')
+            proof['fold_rect'] = capture_rect(switch, window)
+            proof['timelapse_setting_rect'] = capture_rect(field, window)
+        capture_ui.point_at(capture, folds[0] if folds else switch, field if not folds else None, dwell=1.2)
 
     # A bounded full run on a synthetic sequence, set up through Import settings.
     from spacr.qt.synthetic import generate_timelapse_demo
@@ -192,7 +200,7 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     if 'n_jobs' in screen._settings_model._widgets:
         requested['n_jobs'] = 1
     for key, value in requested.items():
-        if not screen._settings_model.set_value_for_key(key, value):
+        if not capture_ui_drv_b.fill_setting(capture, screen, key, value):
             raise ValueError('Missing setting: ' + key)
     configured = screen._settings_model.collect()
     if any(configured.get(k) != v for k, v in requested.items()):
@@ -203,29 +211,30 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
         click(bar._modified)
     if bar.level() != 'all':
         click(bar._disclosure)
-    bar.set_query('')
+    capture_ui.search_settings(capture, bar, '')
     settle(.5)
     for key in ('src', 'channels', 'timelapse_frame_limits', 'timelapse_objects', 'timelapse_mode',
                 'timelapse_displacement', 'keep_original_images', 'plot'):
         field = screen._settings_model._widgets.get(key)
         if field is None:
             continue
-        parents, widget = [], field.parentWidget()
-        while widget is not None and widget is not screen:
-            if callable(getattr(widget, 'is_expanded', None)) and callable(getattr(widget, 'header', None)):
-                parents.append(widget)
-            widget = widget.parentWidget()
-        for section in reversed(parents):
-            if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header())
-                settle(.2)
-                click(section.header())
-        screen._settings_scroll.ensureWidgetVisible(field, 50, 200)
-        settle(.3)
-        if not field.isVisible() or field.visibleRegion().isEmpty():
-            raise ValueError('The Timelapse setting is not visible: ' + key)
-        proof.setdefault('setting_rectangles', {})[key] = capture_rect(field, window)
-        capture('05_setting_' + key)
+        with capture_ui.clip(capture, '05_setting_' + key):
+            parents, widget = [], field.parentWidget()
+            while widget is not None and widget is not screen:
+                if callable(getattr(widget, 'is_expanded', None)) and callable(getattr(widget, 'header', None)):
+                    parents.append(widget)
+                widget = widget.parentWidget()
+            for section in reversed(parents):
+                if not section.is_expanded():
+                    capture_ui.scroll_to(capture, screen._settings_scroll, section.header())
+                    settle(.2)
+                    click(section.header())
+            capture_ui.scroll_to(capture, screen._settings_scroll, field, margin=50)
+            settle(.3)
+            if not field.isVisible() or field.visibleRegion().isEmpty():
+                raise ValueError('The Timelapse setting is not visible: ' + key)
+            proof.setdefault('setting_rectangles', {})[key] = capture_rect(field, window)
+            capture_ui.point_at(capture, field, dwell=1.2)
     if screen._settings_model.collect() != configured:
         raise ValueError('The settings tour changed the configuration')
     if screen._ai_switch.isChecked():
@@ -243,7 +252,13 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     guard.start(400)
     try:
         click(screen._btn_run)
-        worker = screen._worker
+        # The run starts in deferred parts: the worker is not there (the attribute is not even set)
+        # at the click. Wait for it, bounded.
+        start_deadline = time.monotonic() + 120
+        worker = getattr(screen, '_worker', None)
+        while worker is None and time.monotonic() < start_deadline:
+            settle(.2)
+            worker = getattr(screen, '_worker', None)
         if worker is None:
             raise ValueError('Run did not launch a worker: ' + repr(outcome['errors']))
         worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
@@ -272,23 +287,21 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
         return path if path.exists() else path.parent / 'orig' / path.name
     proof['original_files_preserved'] = all(relocated(p).is_file() and digest(relocated(p)) == h
                                             for p, h in original.items())
-    for block, _, _ in screen._console._pipeline_console_blocks():
-        block.setFocus()
-        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-    screen._console.jump_to_the_end()
-    settle(.5)
-    capture('07_actual_finished')
+    with capture_ui.clip(capture, '07_actual_finished'):
+        capture_ui.console_end_all(capture, screen._console)
+        capture_ui.console_to_end(capture, screen._console)
+        settle(.5)
     write_json(captures / 'scientific_acceptance.json', proof)
     if not proof['pipeline']['accepted']:
         raise ValueError('The full Timelapse run did not complete: ' + repr(proof['pipeline']) +
                          ' ' + repr(outcome['errors'])[:2000])
     for i, pixmap in enumerate(screen._figure_queue.all_pixmaps()):
         pixmap.save(str(captures / f'figure_{i:02}.png'), 'PNG')
-        screen._figure_queue.show_index(i)
-        settle(.3)
-        proof.setdefault('figure_rects', {})[f'08_actual_figure_{i:02}'] = capture_rect(
-            screen._figures_card, window)
-        capture(f'08_actual_figure_{i:02}')
+        with capture_ui.clip(capture, f'08_actual_figure_{i:02}'):
+            capture_ui.show_figure(capture, screen._figure_queue, i)
+            settle(.3)
+            proof.setdefault('figure_rects', {})[f'08_actual_figure_{i:02}'] = capture_rect(
+                screen._figures_card, window)
     merged = sorted((root / 'merged').glob('*.npy'))
     tracks = sorted((root / 'tracks').glob('*.csv'))
     proof['merged_arrays'] = len(merged)
@@ -302,73 +315,74 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     write_json(captures / 'scientific_acceptance.json', proof)
 
     # Track preview on the downloadable example.
-    screen = window._screens['mask']
-    clear = [b for b in screen.findChildren(QLabel) if b.isVisible() and
-             b.objectName() == 'FigureQueueClear' and b.text() == 'Clear figures']
-    if len(clear) == 1:
-        click(clear[0])
-    host = (getattr(screen, '_folded_previews', None) or {}).get('timelapse')
-    if host is None:
-        raise ValueError('The folded Timelapse preview is not attached')
-    # Figures collapse the settings column and fold Console, System and the
-    # actions row (which carries the Track preview switch). Reopen every
-    # collapsed pane through its own heading or handle, as a user would.
-    from spacr.qt.widgets.collapsible_splitter import EDGE, HEADER, _PaneHandle
-    for split in (getattr(screen, '_body_splitter', None), getattr(screen, '_runtime_splitter', None)):
-        if split is None or not hasattr(split, 'panes'):
-            continue
-        for pane in split.panes():
-            if not pane.is_collapsed() or pane.name.strip().lower() == 'figures':
+    with capture_ui.clip(capture, '09_actual_track_preview'):
+        screen = window._screens['mask']
+        clear = [b for b in screen.findChildren(QLabel) if b.isVisible() and
+                 b.objectName() == 'FigureQueueClear' and b.text() == 'Clear figures']
+        if len(clear) == 1:
+            click(clear[0])
+        host = (getattr(screen, '_folded_previews', None) or {}).get('timelapse')
+        if host is None:
+            raise ValueError('The folded Timelapse preview is not attached')
+        # Figures collapse the settings column and fold Console, System and the
+        # actions row (which carries the Track preview switch). Reopen every
+        # collapsed pane through its own heading or handle, as a user would.
+        from spacr.qt.widgets.collapsible_splitter import EDGE, HEADER, _PaneHandle
+        for split in (getattr(screen, '_body_splitter', None), getattr(screen, '_runtime_splitter', None)):
+            if split is None or not hasattr(split, 'panes'):
                 continue
-            if pane.mode == HEADER and pane.folder is not None and pane.folder.heading.isVisible():
-                click(pane.folder.heading)
-            elif pane.mode == EDGE:
-                for index in range(1, split.count()):
-                    handle = split.handle(index)
-                    if isinstance(handle, _PaneHandle) and handle.edge_pane() is pane:
-                        QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+            for pane in split.panes():
+                if not pane.is_collapsed() or pane.name.strip().lower() == 'figures':
+                    continue
+                if pane.mode == HEADER and pane.folder is not None and pane.folder.heading.isVisible():
+                    click(pane.folder.heading)
+                elif pane.mode == EDGE:
+                    for index in range(1, split.count()):
+                        handle = split.handle(index)
+                        if isinstance(handle, _PaneHandle) and handle.edge_pane() is pane:
+                            QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+                settle(.8)
+                proof.setdefault('reopened_panes', []).append([pane.name, pane.is_collapsed()])
+        if not host.toggle.isVisible():
+            # After Import settings rebuilt the form, the Track preview switch
+            # is not offered until the Time fold is switched off and on again.
+            folds = [w for w in screen.findChildren(FoldButton) if w.isVisible() and w.app_key == 'timelapse']
+            if len(folds) != 1 or not folds[0].isChecked():
+                raise ValueError('No checked Time fold to re-offer the Track preview')
+            click(folds[0])
             settle(.8)
-            proof.setdefault('reopened_panes', []).append([pane.name, pane.is_collapsed()])
-    if not host.toggle.isVisible():
-        # After Import settings rebuilt the form, the Track preview switch
-        # is not offered until the Time fold is switched off and on again.
-        folds = [w for w in screen.findChildren(FoldButton) if w.isVisible() and w.app_key == 'timelapse']
-        if len(folds) != 1 or not folds[0].isChecked():
-            raise ValueError('No checked Time fold to re-offer the Track preview')
-        click(folds[0])
-        settle(.8)
-        click(folds[0])
+            click(folds[0])
+            settle(1)
+            proof['preview_reoffered_by_time_fold'] = True
+            if screen._settings_model.collect().get('timelapse') is not True:
+                raise ValueError('Time did not switch back on')
+        if not host.toggle.isChecked():
+            click(host.toggle)
         settle(1)
-        proof['preview_reoffered_by_time_fold'] = True
-        if screen._settings_model.collect().get('timelapse') is not True:
-            raise ValueError('Time did not switch back on')
-    if not host.toggle.isChecked():
-        click(host.toggle)
-    settle(1)
-    # Give the preview the room: fold the other runtime panes and the
-    # settings column through their own headings and handle.
-    for split in (getattr(screen, '_runtime_splitter', None), getattr(screen, '_body_splitter', None)):
-        if split is None or not hasattr(split, 'panes'):
-            continue
-        for pane in split.panes():
-            if pane.is_collapsed() or pane.widget is host.card or host.card.isAncestorOf(pane.widget) \
-                    or pane.widget.isAncestorOf(host.card):
+        # Give the preview the room: fold the other runtime panes and the
+        # settings column through their own headings and handle.
+        for split in (getattr(screen, '_runtime_splitter', None), getattr(screen, '_body_splitter', None)):
+            if split is None or not hasattr(split, 'panes'):
                 continue
-            if pane.mode == HEADER and pane.folder is not None and pane.folder.heading.isVisible():
-                click(pane.folder.heading)
-            elif pane.mode == EDGE:
-                for index in range(1, split.count()):
-                    handle = split.handle(index)
-                    if isinstance(handle, _PaneHandle) and handle.edge_pane() is pane:
-                        QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
-            settle(.6)
-            proof.setdefault('folded_for_preview', []).append([pane.name, pane.is_collapsed()])
-    settle(1)
-    panel = host.panel
-    if not panel.isVisible():
-        raise ValueError('The Track preview is hidden')
-    proof['preview_rect'] = capture_rect(panel, window)
-    capture('09_actual_track_preview')
+            for pane in split.panes():
+                if pane.is_collapsed() or pane.widget is host.card or host.card.isAncestorOf(pane.widget) \
+                        or pane.widget.isAncestorOf(host.card):
+                    continue
+                if pane.mode == HEADER and pane.folder is not None and pane.folder.heading.isVisible():
+                    click(pane.folder.heading)
+                elif pane.mode == EDGE:
+                    for index in range(1, split.count()):
+                        handle = split.handle(index)
+                        if isinstance(handle, _PaneHandle) and handle.edge_pane() is pane:
+                            QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+                settle(.6)
+                proof.setdefault('folded_for_preview', []).append([pane.name, pane.is_collapsed()])
+        settle(1)
+        panel = host.panel
+        if not panel.isVisible():
+            raise ValueError('The Track preview is hidden')
+        proof['preview_rect'] = capture_rect(panel, window)
+        capture_ui.point_at(capture, panel, dwell=1.5)
 
     def loaded():
         deadline = time.monotonic() + timeout
@@ -381,17 +395,11 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     fill(panel._max_frames, 8)
     fill(panel._channel, 0)
     fill(panel._movie_panel._fields_spin, 1)
-    picker(panel._seq_btn, images, '10_actual_image_sequence_folder')
-    loaded()
-    picker(panel._mask_btn, labels, '11_actual_mask_sequence_folder')
-    loaded()
+    picker(panel._seq_btn, images, '10_actual_image_sequence_folder', after=loaded)
+    picker(panel._mask_btn, labels, '11_actual_mask_sequence_folder', after=loaded)
     if panel._mode_box.currentText() != 'iou':
         index = panel._mode_box.findText('iou')
-        panel._mode_box.setFocus()
-        QTest.keyClick(panel._mode_box, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(panel._mode_box, Qt.Key_Down)
-        QTest.keyClick(panel._mode_box, Qt.Key_Tab)
+        capture_ui.select_combo(capture, panel._mode_box, index)
         settle(.3)
     if panel._mode_box.currentText() != 'iou':
         raise ValueError('The preview must use the IoU linker')
@@ -427,7 +435,6 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
         checked['indicator_text'] = panel._stats_label.text()
         write_json(captures / (name + '_tracks.json'), tracks)
         proof.setdefault('preview_rects', {})[name] = capture_rect(panel, window)
-        capture(name)
         return checked
 
     raw_results = []
@@ -441,30 +448,35 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
             segmented=None if result is None else result.get('segmented'), error=error,
             threshold=threshold)))
     panel._iou.valueChanged.connect(observe_worker)
-    QTest.mouseClick(panel._run_btn, Qt.LeftButton)
-    observe_worker()
-    baseline = inspect('12_actual_linked_preview')
+    with capture_ui.clip(capture, '12_actual_linked_preview'):
+        capture_ui.point_at(capture, panel._iou, dwell=0.8)
+        QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+        observe_worker()
+        baseline = inspect('12_actual_linked_preview')
     raw, tracked = panel._masks.copy(), panel._tracked.copy()
-    fill(panel._iou, 1)
-    strict = inspect('13_actual_strict_overlap')
+    with capture_ui.clip(capture, '13_actual_strict_overlap'):
+        fill(panel._iou, 1)
+        strict = inspect('13_actual_strict_overlap')
     if strict['independent_statistics']['n_tracks'] <= baseline['independent_statistics']['n_tracks']:
         raise ValueError('The strict overlap did not fragment the example')
-    fill(panel._iou, .1)
-    idle()
-    QTest.mouseClick(panel._relink_btn, Qt.LeftButton)
-    observe_worker()
-    restored = inspect('14_actual_overlap_restored')
+    with capture_ui.clip(capture, '14_actual_overlap_restored'):
+        fill(panel._iou, .1)
+        idle()
+        QTest.mouseClick(panel._relink_btn, Qt.LeftButton)
+        observe_worker()
+        restored = inspect('14_actual_overlap_restored')
     if not np.array_equal(panel._masks, raw) or not np.array_equal(panel._tracked, tracked):
         raise ValueError('Restoring overlap did not restore the same tracks')
     write_json(captures / 'raw_preview_worker_results.json', raw_results)
     worker_checks = verify_worker_passes(raw_results)
-    panel._frame_slider.setFocus()
-    QTest.keyClick(panel._frame_slider, Qt.Key_End)
-    settle(.5)
-    if panel._frame_slider.value() != 7:
-        raise ValueError('The scrubber did not reach the eighth frame')
-    proof.setdefault('preview_rects', {})['15_actual_final_frame'] = capture_rect(panel, window)
-    capture('15_actual_final_frame')
+    with capture_ui.clip(capture, '15_actual_final_frame'):
+        capture_ui.point_at(capture, panel._frame_slider, dwell=0.8)
+        panel._frame_slider.setFocus()
+        QTest.keyClick(panel._frame_slider, Qt.Key_End)
+        settle(.5)
+        if panel._frame_slider.value() != 7:
+            raise ValueError('The scrubber did not reach the eighth frame')
+        proof.setdefault('preview_rects', {})['15_actual_final_frame'] = capture_rect(panel, window)
     if baseline['independent_statistics']['n_tracks'] != 16:
         raise ValueError('The narrated sixteen tracks are not what the example produced')
     proof['live_preview'] = dict(baseline=baseline, strict_overlap=strict, restored=restored,

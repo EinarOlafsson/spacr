@@ -10,6 +10,8 @@ import math
 import sqlite3
 from pathlib import Path
 
+from capture_acceptance import run_recorded_pipeline as run_ml_pipeline
+
 
 def bounded_settings():
     return {

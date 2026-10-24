@@ -11,6 +11,9 @@ import shutil
 import time
 from pathlib import Path
 
+import capture_ui
+import capture_ui_drv_d as drv
+
 
 def record_overview(app, window, captures, capture, settle, write_json,
                     lesson_id='78_spacr_screens', *, browser=None):
@@ -34,6 +37,17 @@ def record_overview(app, window, captures, capture, settle, write_json,
         expected = ['00_home', *('module_' + key for key in keys), 'home_summary']
     if [scene['visual'] for scene in lesson['scenes']] != expected:
         raise ValueError('The workflow lesson and map disagree')
+
+    live = capture_ui.live(capture)
+
+    def clear_field(field):
+        """Empty the Help search field: Ctrl+A, Backspace (host); ``clear()`` as before."""
+        if live:
+            h = capture_ui._h()
+            h.key(field, Qt.Key_A, Qt.ControlModifier)
+            h.key(field, Qt.Key_Backspace)
+        else:
+            field.clear()
 
     def click(button):
         visible = button.visibleRegion()
@@ -60,10 +74,14 @@ def record_overview(app, window, captures, capture, settle, write_json,
         if field is None or not field.isVisible():
             raise ValueError('The native Help search is unavailable')
         query = data['modules'][key]['name']
-        field.setFocus()
-        QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(field, query)
+        def type_query():
+            capture_ui.focus(capture, field)
+            QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+            QTest.keyClicks(field, query)
+
+        type_query()
         deadline = time.monotonic() + 30
+        retried = False
         while True:
             matches = [index for index, entry in enumerate(field.results())
                        if entry.kind == 'module' and entry.payload.get('app') == key]
@@ -71,14 +89,25 @@ def record_overview(app, window, captures, capture, settle, write_json,
                     and field.popup().isVisible()):
                 break
             if time.monotonic() >= deadline:
-                raise ValueError('The actual Help index did not find module ' + key)
+                if not retried and field.text() != query:
+                    # Paced live typing can lose or garble characters; type the query once more.
+                    retried = True
+                    type_query()
+                    deadline = time.monotonic() + 30
+                    continue
+                raise ValueError('The actual Help index did not find module ' + key + ' (typed %r, field %r, popup visible=%s, '
+                                 'results=%s)' % (query, field.text(), field.popup().isVisible(),
+                                                  [(e.kind, e.title) for e in field.results()][:8]))
             settle(.1)
         for _ in range(matches[0]):
             QTest.keyClick(field, Qt.Key_Down)
         if field._list.currentRow() != matches[0]:
             raise ValueError('The intended native Help result is not selected')
         settle(.4)
-        capture(visual, desktop=True)
+        if not live:
+            capture(visual, desktop=True)
+        else:
+            capture_ui.wait(capture, 1.2, settle)
         QTest.keyClick(field, Qt.Key_Return)
         settle(2)
         screen = window._screens.get(key)
@@ -86,13 +115,14 @@ def record_overview(app, window, captures, capture, settle, write_json,
             raise ValueError('The actual Help result did not open ' + key)
         if getattr(screen, '_worker_thread_is_running', lambda: False)():
             raise ValueError(f'Opening {key} unexpectedly started an analysis')
-        field.clear()
+        clear_field(field)
         return screen
 
-    home()
-    capture(expected[0])
+    with capture_ui.clip(capture, expected[0]):
+        home()
     routes = []
     for key in keys:
+        scene = drv.begin(capture, settle, 'module_' + key)
         home()
         module = data['modules'][key]
         scene_captured = False
@@ -104,7 +134,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 raise ValueError('The native Help search is unavailable')
             symbol = module['api_entry']
             query = symbol.rsplit('.', 1)[-1]
-            field.setFocus()
+            capture_ui.focus(capture, field)
             QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClicks(field, query)
             deadline = time.monotonic() + 30
@@ -116,7 +146,10 @@ def record_overview(app, window, captures, capture, settle, write_json,
             if not field.popup().isVisible():
                 raise ValueError('The API search result is not visible')
             settle(.5)
-            capture('api_search_' + key, desktop=True)
+            if not live:
+                capture('api_search_' + key, desktop=True)
+            else:
+                capture_ui.wait(capture, 1.2, settle)
             QTest.keyClick(field, Qt.Key_Return)
             deadline = time.monotonic() + 15
             dialog = None
@@ -137,7 +170,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
             if page is not None:
                 external = browser.prepare_frame(page, symbol)
                 settle(1)
-                capture('module_' + key, desktop=True)
+                drv.snap(capture, 'module_' + key)
+                drv.finish(capture, scene)
                 routes.append({'module': key, 'api_symbol': symbol, 'search_query': query,
                                'real_help_result_visible': True, 'api_executed': False,
                                'local_docstring_displayed': False, 'browser_reference': external,
@@ -146,17 +180,18 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 window.raise_()
                 window.activateWindow()
                 settle(.5)
-                field.clear()
+                clear_field(field)
                 continue
             body = dialog.findChild(QTextBrowser)
             from spacr.qt.help_search import local_docstring
 
             if body is None or body.toPlainText() != local_docstring(symbol):
                 raise ValueError('The displayed API reference differs from the current source')
-            dialog.resize(2200, 1400)
-            dialog.move(window.mapToGlobal(QPoint(800, 350)))
+            capture_ui.dialog_geometry(capture, dialog, (2200, 1400), window.mapToGlobal(QPoint(800, 350)))
             settle(.8)
-            capture('module_' + key)
+            capture_ui.point_at(capture, body)
+            drv.snap(capture, 'module_' + key)
+            drv.finish(capture, scene)
             routes.append({'module': key, 'api_symbol': symbol, 'search_query': query,
                            'real_help_result_visible': True, 'api_executed': False,
                            'local_docstring_displayed': True,
@@ -165,13 +200,15 @@ def record_overview(app, window, captures, capture, settle, write_json,
             QTest.keyClick(dialog, Qt.Key_Escape)
             settle(.3)
             QTest.keyClick(field, Qt.Key_Escape)
-            field.clear()
+            clear_field(field)
             settle(.3)
             continue
         host_key = module['home']
         if not host_key:
             screen = search_module(key, 'help_search_' + key)
-            capture('module_' + key)
+            capture_ui.point_at(capture, screen)
+            drv.snap(capture, 'module_' + key)
+            drv.finish(capture, scene)
             routes.append({'module': key, 'home_tile_clicked': False,
                            'search_query': module['name'], 'real_help_result_visible': True,
                            'module_result_selected': True, 'screen_visible': True,
@@ -187,8 +224,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
             for index in range(tabs.count()):
                 candidates = [button for button in tiles if tabs.widget(index).isAncestorOf(button)]
                 if candidates:
-                    QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
-                                     pos=tabs.tabBar().tabRect(index).center())
+                    capture_ui.select_tab(capture, tabs, index)
                     settle(.4)
                     tile = max(candidates, key=lambda button: button.width() * button.height())
                     break
@@ -201,8 +237,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
             raise ValueError(f'The native Home tile did not open {host_key}')
         pages = getattr(screen, '_fold_pages', None)
         if pages is not None and pages.currentIndex() != 0:
-            QTest.mouseClick(pages.tabBar(), Qt.LeftButton,
-                             pos=pages.tabBar().tabRect(0).center())
+            capture_ui.select_tab(capture, pages, 0)
             settle(.4)
         if module['parent']:
             expected_screen_key = key
@@ -211,9 +246,10 @@ def record_overview(app, window, captures, capture, settle, write_json,
                                if button.property('organismModuleKey') == key]
                 if len(assay_tiles) != 1:
                     raise ValueError('No unique organism assay tile for ' + key)
-                screen._module_scroll.ensureWidgetVisible(assay_tiles[0])
+                capture_ui.scroll_to(capture, screen._module_scroll, assay_tiles[0])
                 settle(.4)
-                capture('organism_route_' + key)
+                if not live:
+                    capture('organism_route_' + key)
                 click(assay_tiles[0])
                 settle(1)
                 screen = window._screens.get(key)
@@ -236,15 +272,18 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 section = next(section for section in screen._settings_sections
                                if section.isAncestorOf(selector))
                 if not section.is_expanded():
-                    screen._settings_scroll.ensureWidgetVisible(section.header())
+                    capture_ui.scroll_to(capture, screen._settings_scroll, section.header())
                     settle(.2)
                     click(section.header())
-                screen._settings_scroll.ensureWidgetVisible(selector)
-                click(selector)
-                QTest.keyClick(selector.view(), Qt.Key_Home)
-                for _ in range(selector.findData(family)):
-                    QTest.keyClick(selector.view(), Qt.Key_Down)
-                QTest.keyClick(selector.view(), Qt.Key_Return)
+                capture_ui.scroll_to(capture, screen._settings_scroll, selector)
+                if live:
+                    capture_ui.select_combo(capture, selector, selector.findData(family))
+                else:
+                    click(selector)
+                    QTest.keyClick(selector.view(), Qt.Key_Home)
+                    for _ in range(selector.findData(family)):
+                        QTest.keyClick(selector.view(), Qt.Key_Down)
+                    QTest.keyClick(selector.view(), Qt.Key_Return)
                 settle(.7)
                 if screen._settings_model.collect().get('classifier_family') != family:
                     raise ValueError('The actual family selector did not reach ' + family)
@@ -283,18 +322,25 @@ def record_overview(app, window, captures, capture, settle, write_json,
                         if dialog.text() != ('This project has no regression diagnostics yet. They '
                                              'are written when a regression finishes.'):
                             raise ValueError('Unexpected regression-diagnostics state')
-                        capture('module_regression_diagnostics', desktop=True)
+                        if live:
+                            capture_ui.wait(capture, 1.5, settle)
+                        else:
+                            capture('module_regression_diagnostics', desktop=True)
                         observed['captured'] = True
                     except Exception as error:
                         observed['error'] = str(error)
                     finally:
                         if dialog is not None:
-                            dialog.accept()
+                            capture_ui.accept_dialog(capture, dialog)
 
-                QTimer.singleShot(500, record_empty_diagnostics)
+                if live:
+                    capture_ui.when_modal(capture, 500, record_empty_diagnostics)
+                else:
+                    QTimer.singleShot(500, record_empty_diagnostics)
                 click(buttons[0])
                 if not observed.get('captured'):
                     raise ValueError(observed.get('error', 'The diagnostics dialog was not captured'))
+                drv.finish(capture, scene)
                 scene_captured = True
                 expected_screen_key = 'regression'
             else:
@@ -344,7 +390,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
                            if 'count_data' in {name for name, widget in screen._settings_model._widgets.items()
                                                if section.isAncestorOf(widget)})
             if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header())
+                capture_ui.scroll_to(capture, screen._settings_scroll, section.header())
                 settle(.2)
                 click(section.header())
             input_widget = screen._settings_model._widgets['count_data']
@@ -437,20 +483,28 @@ def record_overview(app, window, captures, capture, settle, write_json,
                         timer = QTimer(dialog)
                         timer.setSingleShot(True)
                         timer.timeout.connect(dialog.reject)
-                        timer.start(12000)
+                        timer.start(90000 if live else 12000)
                         timers.append(timer)
-                        dialog.raise_()
-                        dialog.activateWindow()
-                        QApplication.setActiveWindow(dialog)
+                        if not live:
+                            dialog.raise_()
+                            dialog.activateWindow()
+                            QApplication.setActiveWindow(dialog)
                         editor = dialog.findChild(QLineEdit, 'fileNameEdit')
                         QTest.mouseClick(editor, Qt.LeftButton, pos=editor.rect().center())
-                        editor.setFocus()
+                        if not live:
+                            editor.setFocus()
                         QTest.keyClick(editor, Qt.Key_A, Qt.ControlModifier)
                         if editor.text() and editor.selectedText() != editor.text():
                             raise ValueError('The actual file picker did not select its existing filename')
                         QTest.keyClicks(editor, str(target))
+                        # Live typing is paced and the completer may be mid-update: give the field
+                        # up to 8 s to show the whole path (the 12 s watchdog above is now 90 s on the host).
+                        until = time.monotonic() + 8
+                        while editor.text() != str(target) and time.monotonic() < until:
+                            settle(.2)
                         if editor.text() != str(target):
-                            raise ValueError('The actual file picker did not retain the typed filename')
+                            raise ValueError('The actual file picker did not retain the typed filename '
+                                             f'(typed {str(target)!r}, field {editor.text()!r})')
                         buttons = dialog.findChild(QDialogButtonBox)
                         QTest.keyClick(editor, Qt.Key_Tab)
                         settle(.15)
@@ -460,7 +514,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
                         picker_errors.append(str(error))
                         if isinstance(dialog, QFileDialog):
                             dialog.reject()
-                QTimer.singleShot(250, choose_template)
+                capture_ui.when_modal(capture, 250, choose_template)
                 click(field.parentWidget()._add_files_button)
                 if picker_errors:
                     raise ValueError('; '.join(picker_errors))
@@ -477,7 +531,9 @@ def record_overview(app, window, captures, capture, settle, write_json,
             write_json(captures / 'neutral_barcode_templates.json', copied)
         if not scene_captured:
             # Mask scenes keep the spaCR field like every other scene (2026-10-10).
-            capture('module_' + key)
+            capture_ui.point_at(capture, screen)
+            drv.snap(capture, 'module_' + key)
+            drv.finish(capture, scene)
         routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
                        'tile_text': tile.text() if tile is not None else None,
                        'screen_class': type(screen).__name__,
@@ -489,8 +545,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
                        'native_no_diagnostics_message': key == 'regression_diagnostics',
                        'default_count_path_cleared': key == 'barcode_qc',
                        'actions_folded_for_navigation_only': actions_folded})
-    home()
-    capture('home_summary')
+    with capture_ui.clip(capture, 'home_summary'):
+        home()
     write_json(captures / 'workflow_acceptance.json', {
         'accepted': True, 'scope': 'Real Home/fold navigation and indexed API search; data handoffs explained by the shared map',
         'lesson': lesson['id'], 'workflow_map_sha256': hashlib.sha256(map_path.read_bytes()).hexdigest(),

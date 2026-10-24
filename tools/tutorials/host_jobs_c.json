@@ -1,0 +1,397 @@
+{
+  "35_converter": [
+    {
+      "name": "converter",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "convert",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "foreign_runs (two neutral TIFFs via captures/foreign_release_v2/inputs.json)",
+        "captures/foreign_release_v2 (accepted scientific_acceptance.json + inputs.json)",
+        "converter_runs/ (empty dir, created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. UNSURE: record_converter reads stage/captures/foreign_release_v2, but run_native_capture refuses captures/ in --inputs; the integrator must place it in the new stage after copy or relax the check. 01_module is recorded by capture_refresh itself."
+    }
+  ],
+  "36_import": [
+    {
+      "name": "import-foreign",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "foreign",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "example_data/plate1/merged/plate1_E01_1_1.npy and plate1_L02_9_1.npy (seven-plane uint16)",
+        "foreign_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. Covers 01_module and 02_fold_import_images..14_import_scope."
+    },
+    {
+      "name": "import-organizer",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "import_images",
+        "--organize-popup",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "example_data/plate1 (merged fields for the organizer copies)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. Scene organize_popup (lesson visual org_organize_popup). It fills the organizer by add_column/add_files (recorded as an adapter bypass) so the clip gate will fail it: needs a real route. Run name for the lesson visual may be renamed by the integrator."
+    }
+  ],
+  "37_batch": [
+    {
+      "name": "batch",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "batch",
+        "--batch-input-root",
+        "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "batch_runs/ (created)",
+        "twelve original acquired Batch tutorial channel TIFFs under --batch-input-root"
+      ],
+      "note": "UNSURE of the batch-input-root: it must contain the twelve original channel TIFFs (batch_data.prepare); source_01 of the earlier run is a guess, check batch_data.py. Covers 01_help_batch..16_log_convert-N."
+    }
+  ],
+  "38_distributed_jobs": [
+    {
+      "name": "distributed",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "distributed_jobs",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [],
+      "note": "No inputs. capture_refresh sets SPACR_REMOTE_STATE_DIR itself to stage/distributed_state/<capture name> and requires a fresh --capture-name (integrator: use a new unique name each run). Network namespace isolation is in the tool; no credentials."
+    }
+  ],
+  "39_classifier_evaluation": [
+    {
+      "name": "evaluation",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "classifier_evaluation",
+        "--evaluation-from",
+        "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/evaluation_runs/REAL-predictions-known-well-overlap-dqwys72y",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "evaluation_runs/<bundle> inside the stage (the arg must be under stage/evaluation_runs and keep preparation.json)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. UNSURE: --evaluation-from must be the path INSIDE the new stage after --inputs copies evaluation_runs, so rewrite the prefix to the new stage. Alternative bundle: REAL-portable-inspector-jqkicv9l (used for the portable capture); the lesson needs the known-overlap one (leakage requires review)."
+    }
+  ],
+  "40_run_history": [
+    {
+      "name": "history",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "run_history",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "runs/ (the 2026-09-09_* journals: recruitment 2026-09-09_201318_6b415b85, regression 2026-09-09_154327_c79bb2f6, failed job 2026-09-09_210220_6f581c02, three 2026-09-10 convert runs)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. run_native_capture binds the stage runs/ over ~/.spacr/runs. The three 2026-09-10 convert journals may live elsewhere (batch lesson runs); check they exist under runs/. SPACR_TUTORIAL_HISTORY_MODE=restore_latest is an alternative mode that is NOT what the lesson needs."
+    }
+  ],
+  "42_curate": [
+    {
+      "name": "curate",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "curate",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "timelapse_runs/SYNTHETIC-current-demo-os07d4sa (merged/plate1_A01_1_1.npy and tracks/trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv)",
+        "curate_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. "
+    }
+  ],
+  "44_data_manager": [
+    {
+      "name": "data-manager",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "data_manager",
+        "--manager-execute",
+        "--capture-name",
+        "data_manager_complete_confirmation",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "data_manager_state/data_manager_complete_confirmation.json",
+        "the disposable project clone and original_readonly it names",
+        "archive destination it names"
+      ],
+      "note": "UNSURE: the state json holds absolute /mnt/firecuda2/... paths that no longer exist (data is under /media/carruthers/mnt3/claude/...); verify_bind will fail until the paths are rewritten or the project re-cloned. --capture-name must equal the json file stem. Without --manager-execute only scenes 01-08 are recorded (use data_manager_verified_plan then)."
+    }
+  ],
+  "45_project_browser": [
+    {
+      "name": "project-browser",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "project_browser",
+        "--capture-name",
+        "project_browser_verified_provenance",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "project_browser_state/project_browser_verified_provenance.json (conversion_search, conversion_copy, registered project, artifact_rows, clone_files)"
+      ],
+      "note": "UNSURE: same absolute-path caveat as the Data Manager state json; the capture name must equal the json stem. Only four state jsons exist: project_browser_verified_provenance is the accepted one."
+    }
+  ],
+  "46_napari_bridge": [
+    {
+      "name": "napari",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "napari_bridge",
+        "--napari-reopen-each-edit",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy",
+        "napari_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. Needs napari installed in the spacr env and a display for its separate window. The reopen-each-edit run is the accepted flow (napari_reopen_font20); the lesson visuals 12d and 14 belong to it. Drop the flag for the same-viewer variant (held, not accepted)."
+    }
+  ],
+  "47_barcode_qc": [
+    {
+      "name": "barcode-qc",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "barcode_qc",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "example_data/plate_1_unique_combinations.csv",
+        "barcode_qc_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. Scenes 01-08."
+    },
+    {
+      "name": "barcode-qc-saved-plots",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "barcode_qc",
+        "--barcode-saved-plots",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "same as barcode-qc"
+      ],
+      "note": "UNSURE / likely unusable in the GNOME host: scenes 09_saved_barcode_qc, 10_saved_threshold_sweep, 11_back_to_actual_gui come from capture_saved_plots.show_saved_plots, which opens eog on a PrivateDesktop (Xvfb). Needs a host-mode viewer launch before it can be recorded."
+    }
+  ],
+  "48_hit_list": [
+    {
+      "name": "hit-list",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "hit_list",
+        "--hit-list-companion",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "regression_runs/example-9wut6lcv/results/guide_permutation (results_gene.csv, results_grna.csv, results.csv, results_significant.csv, model_summary.txt)",
+        "hit_list_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. --hit-list-companion is required by the lesson (01b route failure, 01c explicit companion window built by code). The companion window is not a user route; scenes 02-18 run in it."
+    }
+  ],
+  "49_methods_results": [
+    {
+      "name": "methods",
+      "env": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "run_native": [
+        "--host",
+        "gnome"
+      ],
+      "capture": [
+        "--module",
+        "methods_export",
+        "--methods-review-export",
+        "--timeout",
+        "1800"
+      ],
+      "inputs_needed_in_stage": [
+        "regression_runs/example-9wut6lcv (project)",
+        "runs/2026-09-09_154327_c79bb2f6__regression (run_dir with manifest.json)",
+        "methods_runs/ (created)"
+      ],
+      "note": "--inputs must name a prepared tree (no captures/ subtree allowed) assembled from /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09; copy_inputs preserves mtimes. --methods-review-export gives scenes 08/09 (export picker, export completed); --methods-export-picker-only would record only scene 08."
+    }
+  ]
+}

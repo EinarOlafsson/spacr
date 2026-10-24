@@ -1,0 +1,422 @@
+{
+ "50_run_compare": [
+  {
+   "name": "run_compare",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with captures/.../run_compare_verified_snapshots_v1 built by build_run_compare_download.py>"
+   ],
+   "capture": [
+    "--module",
+    "run_compare"
+   ],
+   "note": "Driver reads <stage>/run_compare_verified_snapshots_v1 (preparation.json, snapshots/*/measurements.db, artifacts.db); build it with tools/tutorials/build_run_compare_download.py first."
+  }
+ ],
+ "51_control_charts": [
+  {
+   "name": "control_charts",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "control_chart"
+   ],
+   "note": "Uses the synthetic CSV FIXTURE from control_chart_evidence.py; no external input. Host key is qc_dashboard (fold control_chart)."
+  }
+ ],
+ "52_pipeline_graph": [
+  {
+   "name": "pipeline_graph",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with pipeline_graph_state/<capture-name>.json and the cleanup snapshot>"
+   ],
+   "capture": [
+    "--module",
+    "pipeline_graph"
+   ],
+   "note": "capture_refresh prepares pipeline_graph state (line 333); needs data_manager/cleanup evidence from pipeline_graph_data."
+  }
+ ],
+ "53_prediction_profiler": [
+  {
+   "name": "profiler",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "profiler"
+   ],
+   "note": "Synthetic OLS example created by profiler_example.prepare; no external input. Host key regression."
+  }
+ ],
+ "55_image_scatter": [
+  {
+   "name": "image_scatter",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with example_data (lineage_data.prepare source) >"
+   ],
+   "capture": [
+    "--module",
+    "image_scatter",
+    "--capture-name",
+    "image-scatter-d1"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). capture_refresh prepares image_scatter_state itself; the capture name must be new."
+  }
+ ],
+ "56_lineage": [
+  {
+   "name": "lineage",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with example_data>"
+   ],
+   "capture": [
+    "--module",
+    "lineage",
+    "--capture-name",
+    "lineage-d1"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). Fresh capture name required (lineage_state)."
+  }
+ ],
+ "57_layer_viewer": [
+  {
+   "name": "layer_viewer",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with captures/foreign_release_v2/inputs.json and its fov01 image/mask/source npy>"
+   ],
+   "capture": [
+    "--module",
+    "layer_viewer"
+   ],
+   "note": "Reads <stage>/captures/foreign_release_v2/inputs.json (record neutral_stem fov01)."
+  }
+ ],
+ "58_graph_builder": [
+  {
+   "name": "graph_builder",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "graph_builder",
+    "--graph-review-handoff"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). --graph-review-handoff is the path that records scenes 12+ (annotation, schema, merge); without it the plain path runs. Unsure which the integrator wants; both write the same scene names up to 12."
+  }
+ ],
+ "59_anndata_export": [
+  {
+   "name": "anndata_export",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "anndata_export"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "60_pca": [
+  {
+   "name": "pca",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "pca"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "61_tabulate": [
+  {
+   "name": "tabulate",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "tabulate"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "62_feature_dictionary": [
+  {
+   "name": "feature_dict",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "feature_dict"
+   ],
+   "note": "No input; opens Help -> Feature Dictionary."
+  }
+ ],
+ "63_small_multiples": [
+  {
+   "name": "trellis",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "trellis"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "65_feature_explorer": [
+  {
+   "name": "feature_explorer",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "feature_explorer"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "66_outliers": [
+  {
+   "name": "outliers",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "outliers"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts)."
+  }
+ ],
+ "68_power_design": [
+  {
+   "name": "power",
+   "env": {},
+   "run_native": [
+    "--cuda"
+   ],
+   "capture": [
+    "--module",
+    "power"
+   ],
+   "note": "Backend 'torch' fit; GPU assumed (--cuda). No input data."
+  }
+ ],
+ "70_explain_cv": [
+  {
+   "name": "explain_cv",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "explain_cv"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). Also needs datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_time_260909_test_acc.csv under the same plate1 (saved predictions). Random Forest only, CPU."
+  }
+ ],
+ "71_investigate_hit": [
+  {
+   "name": "investigate_hit",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing Investigate_Hit_real_screen_example.zip at the stage root>"
+   ],
+   "capture": [
+    "--module",
+    "regression",
+    "--investigate-hit-example"
+   ],
+   "note": "Run must use a fresh stage (driver refuses an existing <stage>/tutorial). Zip built by build_investigate_hit_example.py."
+  }
+ ],
+ "72_volcano_explorer": [
+  {
+   "name": "volcano_explorer",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with regression_runs/example-9wut6lcv/results/guide_permutation>"
+   ],
+   "capture": [
+    "--module",
+    "volcano_explorer"
+   ],
+   "note": "Reads the completed guide-permutation results of the Regression example run."
+  }
+ ],
+ "73_parameter_sweep": [
+  {
+   "name": "parameter_sweep",
+   "env": {},
+   "run_native": [
+    "--cuda",
+    "--inputs",
+    "<INPUTS_DIR with captures/regression_release/batch_settings.json and the four score/count pairs>"
+   ],
+   "capture": [
+    "--module",
+    "parameter_sweep"
+   ],
+   "note": "Needs <stage>/captures/regression_release/batch_settings.json and the four score/count pairs from the Regression example run (--module regression --download --run) ; pass that prepared tree via --inputs. Two real ridge trials; --cuda is a guess (CPU may suffice). record_sweep also accepts existing=/input_root= via capture_refresh flags (not set here)."
+  }
+ ],
+ "74_import_images": [
+  {
+   "name": "import_images",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "import_images"
+   ],
+   "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). Needs plate1/*.tif (Mask example raw images); driver copies two 4-channel fields."
+  },
+  {
+   "name": "import_images_organizer",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR containing annotate_fresh/example_data/plate1 (Mask example incl. measurements/measurements.db, sha 7b18161f...)>"
+   ],
+   "capture": [
+    "--module",
+    "import_images",
+    "--organize-popup"
+   ],
+   "note": "Records org_organize_popup (Organize images and masks); needs example_data/plate1/merged/*.npy and stage/make_masks_runs/ to exist; capture name should differ from the first run."
+  }
+ ],
+ "75_regression_diagnostics": [
+  {
+   "name": "regression_diagnostics",
+   "env": {},
+   "run_native": [
+    "--inputs",
+    "<INPUTS_DIR with regression_runs/<project>/ holding results/*/diagnostics>"
+   ],
+   "capture": [
+    "--module",
+    "regression_diagnostics",
+    "--diagnostics-from",
+    "<STAGE>/regression_runs/<completed project>"
+   ],
+   "note": "Host path records only 02 and 03; the viewer scenes stay Xvfb. The project must be inside <stage>/regression_runs."
+  }
+ ],
+ "76_ops": [
+  {
+   "name": "ops",
+   "env": {
+    "SPACR_OPS_WALKTHROUGH": "1",
+    "SPACR_OPS_CAPTURE_TIMEOUT": "10800"
+   },
+   "run_native": [
+    "--cuda"
+   ],
+   "capture": [
+    "--module",
+    "ops"
+   ],
+   "note": "Downloads/uses ~/.cache/spacr/example_data/ops_screen (inside the neutral stage cache); needs a fresh stage (ops_output must not exist). Optional SPACR_OPS_RUN_FRAME_ONLY=1 stops after the run-start frame."
+  }
+ ],
+ "78_spacr_screens": [
+  {
+   "name": "workflow_overview",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "workflow_overview",
+    "--workflow-overview",
+    "--workflow-lesson",
+    "78_spacr_screens"
+   ],
+   "note": "No input; navigation only. Do not pass --workflow-browser (external browser) in the host. map_barcodes step copies bundled templates into <stage>/example_data/barcode_templates."
+  }
+ ],
+ "79_module_inputs_outputs": [
+  {
+   "name": "workflow_overview",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "workflow_overview",
+    "--workflow-overview",
+    "--workflow-lesson",
+    "79_module_inputs_outputs"
+   ],
+   "note": "No input; navigation only. Do not pass --workflow-browser (external browser) in the host. map_barcodes step copies bundled templates into <stage>/example_data/barcode_templates."
+  }
+ ],
+ "80_image_analysis_pathways": [
+  {
+   "name": "workflow_overview",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "workflow_overview",
+    "--workflow-overview",
+    "--workflow-lesson",
+    "80_image_analysis_pathways"
+   ],
+   "note": "No input; navigation only. Do not pass --workflow-browser (external browser) in the host. map_barcodes step copies bundled templates into <stage>/example_data/barcode_templates."
+  }
+ ],
+ "81_sequencing_pathways": [
+  {
+   "name": "workflow_overview",
+   "env": {},
+   "run_native": [],
+   "capture": [
+    "--module",
+    "workflow_overview",
+    "--workflow-overview",
+    "--workflow-lesson",
+    "81_sequencing_pathways"
+   ],
+   "note": "No input; navigation only. Do not pass --workflow-browser (external browser) in the host. map_barcodes step copies bundled templates into <stage>/example_data/barcode_templates."
+  }
+ ]
+}

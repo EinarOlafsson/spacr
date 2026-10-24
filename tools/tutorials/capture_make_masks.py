@@ -5,11 +5,29 @@ visible gestures and buttons edit masks, save them or recrop them.
 """
 from __future__ import annotations
 
+import capture_ui
+import capture_ui_drv_e as drv
 import hashlib
 import os
 import tempfile
 import time
+import time
 from pathlib import Path
+
+
+def _shortcut(screen, which):
+    """Undo or Redo the way a user does since 707: Ctrl+Z or Ctrl+Y.
+
+    Make Masks has no Undo/Redo buttons any more (Edit menu and keys only).
+    Under the capture host, QTest is the real-input adapter, so this is a
+    real key chord on the canvas.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    key = Qt.Key_Z if which == 'undo' else Qt.Key_Y
+    # The 708 Edit Label field is a text field: if it holds the focus it takes Ctrl+Z / Ctrl+Y as its own text undo. Focus the canvas first.
+    screen._canvas.setFocus(Qt.OtherFocusReason)
+    QTest.keyClick(screen._canvas, key, Qt.ControlModifier)
 
 
 def digest(path):
@@ -62,6 +80,7 @@ def prepare_fields(stage):
     return folder, evidence
 
 
+@drv.guarded
 def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
                       write_json, timeout):
     """Record real annotation gestures and independently verify their exports.
@@ -85,13 +104,17 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     def expose(widget):
         for area in window.findChildren(QScrollArea):
             if area.widget() is not None and area.widget().isAncestorOf(widget):
-                area.ensureWidgetVisible(widget, 30, 30)
+                capture_ui.scroll_to(capture, area, widget)
         settle(.2)
         if not widget.isVisible() or not widget.isEnabled():
             raise RuntimeError('The requested YOLO control is not usable')
 
-    def picker(button, destination, name, *, save=False):
+    def picker(button, destination, name, *, save=False, record=True):
         answered = []
+        # Host: the clip opens before the pointer goes to the button, and ends
+        # where the picker used to be captured. record=False: a scene that
+        # sits inside the clip of the next one, so only the old still is kept.
+        rec = drv.scene(capture, settle, name) if record else None
 
         def choose():
             dialog = app.activeModalWidget()
@@ -99,8 +122,9 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
                 if not isinstance(dialog, QFileDialog):
                     raise RuntimeError('The control did not open a real file picker')
                 dialog.accepted.connect(lambda: answered.append(True))
-                dialog.resize(1300, 950)
-                dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+                capture_ui.dialog_geometry(capture, dialog, (1300, 950))
+                if not capture_ui.live(capture):
+                    dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                 if edit is None:
                     raise RuntimeError('The actual file picker has no filename field')
@@ -110,14 +134,19 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
                 if edit.text() != str(destination):
                     raise RuntimeError('The picker did not take the exact destination')
                 settle(.2)
-                capture(name)
+                if rec is not None:
+                    rec.stop()
+                else:
+                    drv.snap(capture, name)
                 box = dialog.findChild(QDialogButtonBox)
                 action = QDialogButtonBox.Save if save else QDialogButtonBox.Open
-                QTest.mouseClick(box.button(action), Qt.LeftButton)
+                capture_ui.accept_file_dialog(capture, dialog, box.button(action))
             except Exception as exc:
                 errors.append(str(exc))
+                if rec is not None:
+                    rec.abort()
                 if dialog is not None:
-                    dialog.reject()
+                    capture_ui.reject_dialog(capture, dialog)
 
         def reject_stalled():
             if answered or errors:
@@ -125,10 +154,10 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
             errors.append('The actual file picker was not answered')
             dialog = app.activeModalWidget()
             if dialog is not None:
-                dialog.reject()
+                capture_ui.reject_dialog(capture, dialog)
 
         expose(button)
-        QTimer.singleShot(500, choose)
+        capture_ui.when_modal(capture, 500, choose)
         QTimer.singleShot(stall_milliseconds(capture), reject_stalled)
         previous = Path.cwd()
         try:
@@ -136,6 +165,8 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
             QTest.mouseClick(button, Qt.LeftButton)
         finally:
             os.chdir(previous)
+        if rec is not None and (errors or not answered):
+            rec.abort()
         if errors or not answered:
             raise RuntimeError('; '.join(errors) or 'The picker was cancelled')
         settle()
@@ -158,13 +189,17 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     filename = screen._image_files[screen._current_index]
     assert np.array_equal(pixels, tifffile.imread(folder / filename))
     assert np.array_equal(mask, tifffile.imread(folder / 'masks' / filename))
-    capture('yolo_03_source_and_mask')
+    drv.snap(capture, 'yolo_03_source_and_mask')
+    rec = drv.scene(capture, settle, 'yolo_04_box_controls')
     expose(screen._mode_buttons['box'])
     QTest.mouseClick(screen._mode_buttons['box'], Qt.LeftButton)
     settle()
     if canvas.mode != 'box' or not screen._box_controls.isVisible():
         raise RuntimeError('The Box button did not reveal the real class controls')
-    capture('yolo_04_box_controls')
+    rec.point(screen._box_controls)
+    rec.stop()
+
+    add_class_rec = drv.Rec(capture, 'yolo_05_add_class', settle)
 
     def name_class():
         dialog = app.activeModalWidget()
@@ -174,16 +209,18 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
             edit = dialog.findChild(QLineEdit)
             QTest.mouseClick(edit, Qt.LeftButton)
             QTest.keyClicks(edit, 'demonstration')
-            capture('yolo_05_add_class')
+            add_class_rec.stop()
             box = dialog.findChild(QDialogButtonBox)
             QTest.mouseClick(box.button(QDialogButtonBox.Ok), Qt.LeftButton)
         except Exception as exc:
             errors.append(str(exc))
+            add_class_rec.abort()
             if dialog is not None:
-                dialog.reject()
+                capture_ui.reject_dialog(capture, dialog)
 
+    add_class_rec.start()
     expose(screen._btn_add_box_class)
-    QTimer.singleShot(500, name_class)
+    capture_ui.when_modal(capture, 500, name_class)
     QTest.mouseClick(screen._btn_add_box_class, Qt.LeftButton)
     settle()
     if errors or screen._box_classes != ['object', 'demonstration']:
@@ -206,51 +243,59 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
         settle()
 
     height, width = pixels.shape[:2]
+    rec = drv.scene(capture, settle, 'yolo_06_drawn_box')
     drag((int(width * .35), int(height * .35)),
          (int(width * .55), int(height * .55)))
     if len(canvas.boxes) != 1 or canvas.boxes[0][0] != 1:
         raise RuntimeError('The visible gesture did not draw one class-1 box')
     drawn = list(canvas.boxes[0])
-    capture('yolo_06_drawn_box')
+    rec.stop()
     cx, cy = (drawn[1] + drawn[3]) / 2, (drawn[2] + drawn[4]) / 2
+    rec = drv.scene(capture, settle, 'yolo_07_moved_box')
     drag((cx, cy), (cx + int(width * .05), cy + int(height * .05)))
     moved = list(canvas.boxes[0])
     if moved == drawn or moved[3] - moved[1] != drawn[3] - drawn[1]:
         raise RuntimeError('Dragging the box did not translate it at fixed width')
-    capture('yolo_07_moved_box')
+    rec.stop()
+    rec = drv.scene(capture, settle, 'yolo_08_resized_box')
     drag((moved[3] - .75, moved[4] - .75),
          (moved[3] + int(width * .04), moved[4] + int(height * .04)))
     resized = list(canvas.boxes[0])
     if resized[1:3] != moved[1:3] or resized[3] <= moved[3] or resized[4] <= moved[4]:
         raise RuntimeError('The visible corner gesture did not enlarge the box')
-    capture('yolo_08_resized_box')
+    rec.stop()
     dx, dy = resized[3] - resized[1], resized[4] - resized[2]
+    rec = drv.scene(capture, settle, 'yolo_09_contained_box')
     drag((resized[1] + .25 * dx, resized[2] + .25 * dy),
          (resized[1] + .55 * dx, resized[2] + .55 * dy), Qt.ControlModifier)
     if len(canvas.boxes) != 2 or list(canvas.boxes[0]) != resized:
         raise RuntimeError('Ctrl-drag did not add the contained demonstration box')
     saved_boxes = [list(box) for box in canvas.boxes]
-    capture('yolo_09_contained_box')
+    rec.stop()
     second = saved_boxes[1]
+    rec = drv.scene(capture, settle, 'yolo_10_deleted_box')
     QTest.mouseClick(canvas, Qt.RightButton,
                      pos=position((second[1] + second[3]) / 2,
                                   (second[2] + second[4]) / 2))
     settle()
     if len(canvas.boxes) != 1:
         raise RuntimeError('Right-click did not delete the box under the cursor')
-    capture('yolo_10_deleted_box')
-    screen._act_undo.trigger()
+    rec.stop()
+    rec = drv.scene(capture, settle, 'yolo_11_undo_boxes')
+    _shortcut(screen, 'undo')
     settle()
     if [list(box) for box in canvas.boxes] != saved_boxes:
         raise RuntimeError('Box Undo did not restore both exact annotations')
-    capture('yolo_11_undo_boxes')
-    screen._act_redo.trigger()
+    rec.stop()
+    rec = drv.scene(capture, settle, 'yolo_12_redo_boxes')
+    _shortcut(screen, 'redo')
     settle()
     if len(canvas.boxes) != 1:
         raise RuntimeError('Box Redo did not restore the demonstrated deletion')
-    capture('yolo_12_redo_boxes')
-    screen._act_undo.trigger()
+    rec.stop()
+    _shortcut(screen, 'undo')
     settle()
+    rec = drv.scene(capture, settle, 'yolo_13_saved_boxes')
     expose(screen._btn_save_boxes)
     QTest.mouseClick(screen._btn_save_boxes, Qt.LeftButton)
     settle()
@@ -258,7 +303,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     stored = engine.load_yolo_boxes(folder, filename, pixels.shape)
     if screen._boxes_dirty or [list(box) for box in stored['boxes']] != saved_boxes:
         raise RuntimeError('Save boxes did not persist the exact annotations')
-    capture('yolo_13_saved_boxes')
+    rec.stop()
     labels = folder / (Path(filename).stem + '.txt')
     picker(screen._btn_export_yolo, labels, 'yolo_14_export_picker', save=True)
     exported = [line.split() for line in labels.read_text(encoding="utf-8").splitlines()]
@@ -273,23 +318,28 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     classes = folder / '.classes.json'
     if 'demonstration' not in json.dumps(json.loads(classes.read_text(encoding="utf-8"))):
         raise RuntimeError('YOLO export omitted the stable class-name companion')
-    capture('yolo_15_exported')
+    drv.snap(capture, 'yolo_15_exported')
+    # The clip of the negative export holds the move to the second field and
+    # the export of its empty label file, which is what the scene shows.
+    rec = drv.scene(capture, settle, 'yolo_17_negative_exported')
     next_filename = screen._image_files[screen._current_index + 1]
-    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+    capture_ui.navigate_image(capture, screen, +1)
     ready(next_filename)
     if canvas.boxes:
         raise RuntimeError('The untouched second field is not a negative example')
     negative_name = screen._image_files[screen._current_index]
     negative = folder / (Path(negative_name).stem + '.txt')
-    picker(screen._btn_export_yolo, negative, 'yolo_16_negative_export_picker', save=True)
+    picker(screen._btn_export_yolo, negative, 'yolo_16_negative_export_picker', save=True,
+           record=False)
     if negative.read_bytes() != b'':
         raise RuntimeError('The negative image did not export an empty label file')
-    capture('yolo_17_negative_exported')
-    QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
+    rec.stop()
+    rec = drv.scene(capture, settle, 'yolo_18_reloaded_boxes')
+    capture_ui.navigate_image(capture, screen, -1)
     ready(filename)
     if screen._image_files[screen._current_index] != filename or [list(box) for box in canvas.boxes] != saved_boxes:
         raise RuntimeError('Navigation did not reload the exact saved annotations')
-    capture('yolo_18_reloaded_boxes')
+    rec.stop()
     if not np.array_equal(canvas.image, pixels) or not np.array_equal(canvas.mask, mask):
         raise RuntimeError('Box annotation changed source image or segmentation pixels')
     for row in inputs:
@@ -309,6 +359,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     })
 
 
+@drv.guarded
 def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
                   *, detect=False, readouts_only=False, include_readouts=False,
                   curation_organize=False):
@@ -325,19 +376,24 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     # sample of each training dataset. Open the menu only; nothing downloads.
     from PySide6.QtCore import QPoint
     test_data = screen._btn_test_data
+    rec = drv.scene(capture, settle, '01b_test_data_menu')
     QTest.mouseClick(test_data, Qt.LeftButton,
                      pos=QPoint(test_data.width() - 8, test_data.height() // 2))
     settle(0.6)
     menu = test_data.split_menu()
     if menu is None or not menu.isVisible():
         raise RuntimeError('The Load test data arrow did not open its menu')
-    capture('01b_test_data_menu')
+    rec.stop()
     menu.hide()
     settle()
 
     folder, evidence = prepare_fields(stage)
     write_json(captures / 'inputs.json', evidence)
     errors, accepted = [], []
+    # Host: the clip of the picker opens before the click on Open folder; the
+    # clip of the loaded labels opens inside the picker, before it is accepted.
+    picker_rec = drv.Rec(capture, '02_folder_picker', settle)
+    labels_rec = drv.Rec(capture, '03_real_labels', settle)
 
     def choose():
         dialog = app.activeModalWidget()
@@ -345,8 +401,9 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
             if not isinstance(dialog, QFileDialog):
                 raise RuntimeError('Open folder did not open the actual directory picker')
             dialog.accepted.connect(lambda: accepted.append(True))
-            dialog.resize(1300, 950)
-            dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+            capture_ui.dialog_geometry(capture, dialog, (1300, 950))
+            if not capture_ui.live(capture):
+                dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
             settle(0.2)
             QTest.mouseClick(edit, Qt.LeftButton)
@@ -356,12 +413,15 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
             QTest.keyClicks(edit, str(folder))
             if edit.text() != str(folder):
                 raise RuntimeError('The folder picker did not take the exact prepared path')
-            capture('02_folder_picker')
-            QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+            picker_rec.stop()
+            labels_rec.start()
+            capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
         except Exception as exc:
             errors.append(str(exc))
+            picker_rec.abort()
+            labels_rec.abort()
             if dialog is not None:
-                dialog.reject()
+                capture_ui.reject_dialog(capture, dialog)
 
     def reject_stalled():
         if accepted and not errors:
@@ -369,15 +429,18 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         dialog = app.activeModalWidget()
         if isinstance(dialog, QMessageBox):
             errors.append(dialog.text())
-            capture('02_folder_warning')
-            dialog.reject()
+            picker_rec.abort()
+            labels_rec.abort()
+            drv.snap(capture, '02_folder_warning')
+            capture_ui.reject_dialog(capture, dialog)
         elif dialog is not None and not accepted:
             errors.append('Folder picker did not accept the real path')
-            dialog.reject()
+            capture_ui.reject_dialog(capture, dialog)
 
-    QTimer.singleShot(500, choose)
+    capture_ui.when_modal(capture, 500, choose)
     QTimer.singleShot(stall_milliseconds(capture), reject_stalled)
     previous_directory = Path.cwd()
+    picker_rec.start()
     try:
         # The genuine picker starts at cwd when no folder is open. Give it
         # the neutral prepared workspace before showing its first frame.
@@ -386,6 +449,8 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     finally:
         os.chdir(previous_directory)
     if errors or not accepted:
+        picker_rec.abort()
+        labels_rec.abort()
         raise RuntimeError('; '.join(errors) or 'Folder selection was cancelled')
 
     def ready():
@@ -402,15 +467,15 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     pixels = canvas.image.copy()
     if not np.array_equal(original, tifffile.imread(evidence[0]['mask'])):
         raise RuntimeError('The editor did not load the actual companion labels')
-    capture('03_real_labels')
+    labels_rec.point(canvas)
+    labels_rec.stop()
     if readouts_only or include_readouts:
         from capture_mask_readouts import record_readouts
 
         # Record the readouts before editing or recropping this same field.
         # Prefix their frame names so a complete lesson cannot overwrite an
         # editor frame with the readouts tour's independently numbered scenes.
-        def readout_capture(name, **kwargs):
-            return capture(f'readouts_{name}', **kwargs)
+        readout_capture = drv.prefixed(capture, 'readouts_')
 
         record_readouts(app, window, screen, captures,
                        readout_capture if include_readouts else capture,
@@ -423,7 +488,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     steps = []
 
     def undo():
-        screen._act_undo.trigger()
+        _shortcut(screen, 'undo')
         settle()
         if not np.array_equal(canvas.mask, original):
             raise RuntimeError('Undo did not restore every original label pixel')
@@ -454,9 +519,19 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                 'requested_points': [[int(x), int(y)] for x, y in points],
                 'observed_points': [list(canvas._canvas_to_image(p.x(), p.y()))
                                     for p in canvas._gesture_points]})
-            capture(f'08_{name}_gesture')
+            drv.snap(capture, f'08_{name}_gesture')
         QTest.mouseRelease(canvas, button, modifiers, pos=positions[-1])
         settle()
+        # On a large field the Wand floods off the GUI thread and the mask changes when it lands,
+        # so read the result only after the flood has been applied (bounded, raises).
+        busy = getattr(canvas, '_wand_busy', None)
+        if busy is not None:
+            until = time.monotonic() + 60
+            while busy():
+                if time.monotonic() > until:
+                    raise TimeoutError('The Wand flood did not land within 60 s')
+                settle(.1)
+            settle(.1)
 
     counts = np.bincount(original.ravel())
     for candidate in np.argsort(counts[1:])[::-1] + 1:
@@ -468,22 +543,25 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     else:
         raise RuntimeError('No complete interior label for reversible editing and recropping')
     center = int(xx[len(xx)//2]), int(yy[len(yy)//2])
+    rec = drv.scene(capture, settle, '04_erase_one_object')
     mode('erase_object')
     gesture([center])
     expected = original.copy()
     expected[expected == label] = 0
     if not np.array_equal(canvas.mask, expected):
         raise RuntimeError('Erase object did not remove exactly the clicked real label')
-    capture('04_erase_one_object')
+    rec.stop()
     steps.append({'action': 'erase_object', 'label': label, 'before': original_count,
                   'after': int(np.count_nonzero(np.unique(canvas.mask)))})
+    rec = drv.scene(capture, settle, '05_undo_exactly')
     undo()
-    capture('05_undo_exactly')
-    screen._act_redo.trigger()
+    rec.stop()
+    rec = drv.scene(capture, settle, '06_redo')
+    _shortcut(screen, 'redo')
     settle()
     if not np.array_equal(canvas.mask, expected):
         raise RuntimeError('Redo did not restore the demonstrated deletion')
-    capture('06_redo')
+    rec.stop()
     undo()
 
     free = distance_transform_edt(original == 0)
@@ -493,23 +571,25 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     radius = min(35, int(free[y, x] / 2))
     if radius < 10:
         raise RuntimeError('No clear background region for a reversible Draw demonstration')
+    rec = drv.scene(capture, settle, '07_draw_demo_not_annotation')
     mode('draw')
     gesture([(x-radius, y-radius), (x+radius, y-radius),
              (x+radius, y+radius), (x-radius, y+radius), (x-radius, y-radius)])
     if np.count_nonzero(np.unique(canvas.mask)) != original_count + 1:
         raise RuntimeError('The actual Draw gesture did not create one closed object')
-    capture('07_draw_demo_not_annotation')
+    rec.stop()
     steps.append({'action': 'draw', 'demonstration_only': True,
                   'before': original_count, 'after': original_count + 1})
     undo()
 
+    rec = drv.scene(capture, settle, '08_divide_demo')
     mode('divide')
     cut_y = int(np.median(yy))
     gesture([(int(xx.min())-3, cut_y), (int(xx.max())+3, cut_y)])
     divided_count = int(np.count_nonzero(np.unique(canvas.mask)))
     if divided_count <= original_count:
         raise RuntimeError('The actual Divide gesture did not split a label')
-    capture('08_divide_demo')
+    rec.stop()
     steps.append({'action': 'divide', 'before': original_count, 'after': divided_count})
     divided = canvas.mask.copy()
     pieces = [int(value) for value in np.unique(divided[original == label]) if value > 0]
@@ -520,6 +600,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         inside = distance_transform_edt((divided == value) & (original == label))
         py, px = np.unravel_index(np.argmax(inside), inside.shape)
         join_points.append((int(px), int(py)))
+    rec = drv.scene(capture, settle, '08b_merge_demo')
     gesture(join_points, button=Qt.RightButton)
     if not canvas.manual_ids or not np.array_equal(canvas.mask > 0, divided > 0):
         raise RuntimeError('Right-drag did not merge without painting background')
@@ -527,12 +608,12 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         raise RuntimeError('The two crossed pieces did not retain one shared identity')
     if not np.array_equal(canvas.image, pixels):
         raise RuntimeError('Manual merge changed the acquired image')
-    capture('08b_merge_demo')
+    rec.stop()
     steps.append({'action': 'merge', 'button': 'right', 'demonstration_only': True,
                   'foreground_pixels_unchanged': True, 'acquired_image_unchanged': True,
                   'before': divided_count,
                   'after': int(np.count_nonzero(np.unique(canvas.mask)))})
-    screen._act_undo.trigger()
+    _shortcut(screen, 'undo')
     settle()
     if not np.array_equal(canvas.mask, divided) or canvas.manual_ids:
         raise RuntimeError('Undo did not restore the pre-merge labels and identity policy')
@@ -543,7 +624,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
             screen._set_settings_shown(True)
         for scroll in screen.findChildren(QScrollArea):
             if scroll.isAncestorOf(widget):
-                scroll.ensureWidgetVisible(widget)
+                capture_ui.scroll_to(capture, scroll, widget)
         settle()
         if not widget.isVisible() or not window.screen().geometry().contains(
                 widget.mapToGlobal(widget.rect().center())):
@@ -551,7 +632,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
 
     def number(widget, value):
         expose(widget)
-        widget.setFocus()
+        capture_ui.focus(capture, widget)
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(widget, str(value))
         QTest.keyClick(widget, Qt.Key_Tab)
@@ -564,6 +645,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         image = canvas.pixmap().toImage().copy()
         return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
+    rec = drv.scene(capture, settle, '07b_wand_add')
     mode('wand_add')
     if 'wand_erase' in screen._mode_buttons or screen._btn_wand.text() != 'Wand':
         raise RuntimeError('The current editor must offer exactly one Wand button')
@@ -579,18 +661,19 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if (not changed.any() or np.any(original[changed] != 0)
             or np.any(added[changed] == 0) or not np.array_equal(canvas.image, pixels)):
         raise RuntimeError('Default Wand did not add only a bounded real intensity region')
-    capture('07b_wand_add')
+    rec.stop()
+    rec = drv.scene(capture, settle, '07c_wand_ctrl_remove')
     gesture([(int(x), int(y))], modifiers=Qt.ControlModifier)
     if not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
         raise RuntimeError('Ctrl+Wand did not remove exactly its added region')
     if screen._shortcut_rows['Ctrl + left click'][1].text() != 'Remove the intensity region':
         raise RuntimeError('The selected Wand shortcut help describes the wrong operation')
-    capture('07c_wand_ctrl_remove')
+    rec.stop()
     steps.append({'action': 'wand', 'add_button': 'left', 'remove_modifier': 'Ctrl',
                   'demonstration_only': True, 'added_pixels': int(changed.sum()),
                   'exact_original_labels_restored': True, 'acquired_image_unchanged': True,
                   'tolerance_percent': 0.5, 'max_pixels': 256, 'single_toolbar_button': True})
-    screen._act_undo.trigger()
+    _shortcut(screen, 'undo')
     settle()
     if not np.array_equal(canvas.mask, added):
         raise RuntimeError('Undo did not restore the Wand addition')
@@ -598,13 +681,14 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     number(screen._wand_pct, old_wand_pct)
     number(screen._wand_max, old_wand_max)
 
+    rec = drv.scene(capture, settle, '08b_contrast_only')
     expose(screen._norm_lo)
     before_display = display_digest()
     old_lower = screen._norm_lo.value()
     number(screen._norm_lo, 10)
     if display_digest() == before_display or not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
         raise RuntimeError('Display contrast must change the rendering but not labels or raw intensities')
-    capture('08b_contrast_only')
+    rec.stop()
     number(screen._norm_lo, old_lower)
     if display_digest() != before_display:
         raise RuntimeError('Restoring contrast did not restore the original display')
@@ -613,11 +697,12 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     # minimum like a user, then press Filter; the ledger lists what it hid.
     threshold = int(np.median(counts[1:][counts[1:] > 0])) + 1
     filters = screen._filter_list
+    rec = drv.scene(capture, settle, '08c_filter_edits_labels')
     expose(filters.property_box)
     index = filters.property_box.findText('area')
     if index < 0:
         raise RuntimeError('The Filter category does not offer area')
-    filters.property_box.setCurrentIndex(index)
+    capture_ui.select_combo(capture, filters.property_box, index)
     settle()
     QTest.mouseClick(filters.add_button, Qt.LeftButton)
     settle()
@@ -640,31 +725,34 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if not ledger:
         raise RuntimeError('The filter ledger does not list the hidden objects')
     expose(screen._filter_log)
-    capture('08c_filter_edits_labels')
+    rec.stop()
     steps.append({'action': 'area_filter_row', 'minimum_area': threshold,
                   'before': original_count, 'after': filtered_count,
                   'ledger_rows': len(ledger), 'model_rerun': False})
+    rec = drv.scene(capture, settle, '08d_filter_removed')
     expose(rows[0]['remove'])
     QTest.mouseClick(rows[0]['remove'], Qt.LeftButton)
     settle()
     if filters.rows() or not np.array_equal(canvas.mask, original):
         raise RuntimeError('Removing the filter row did not bring every hidden object back')
-    capture('08d_filter_removed')
+    rec.stop()
 
     for key in FOLD_ORDER:
         button = screen._folds.button_for(key)
         if button is None or not button.isVisible():
             raise RuntimeError(f'Missing visible folded route: {key}')
+        rec = drv.scene(capture, settle, '09_fold_' + key)
         QTest.mouseMove(button)
         settle(0.7)
-        capture('09_fold_' + key)
+        rec.stop()
 
+    rec = drv.scene(capture, settle, '11_saved_restored_mask')
     QTest.mouseClick(screen._btn_save, Qt.LeftButton)
     settle()
     saved = tifffile.imread(evidence[0]['mask'])
     if not np.array_equal(saved > 0, original > 0):
         raise RuntimeError('Saving the restored mask changed its foreground geometry')
-    capture('11_saved_restored_mask')
+    rec.stop()
 
     # Recrop is a different kind of action: it writes a child immediately
     # and archives this PRIVATE copied parent when Next is pressed.
@@ -673,6 +761,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     box = (max(0, int(xx.min())-margin), max(0, int(yy.min())-margin),
            min(original.shape[1]-1, int(xx.max())+margin),
            min(original.shape[0]-1, int(yy.max())+margin))
+    rec = drv.scene(capture, settle, '12_recrop_written')
     mode('recrop')
     gesture([(box[0], box[1]), (box[2], box[3])])
     if len(screen._recrop_children) != 1:
@@ -683,32 +772,36 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     child_mask = tifffile.imread(folder / 'masks' / child.name)
     if not np.array_equal(child_image, pixels[y0:y1, x0:x1]) or not np.any(child_mask):
         raise RuntimeError('Recrop did not preserve image pixels and complete labelled objects')
-    capture('12_recrop_written')
+    rec.stop()
     recrop = {'child': str(child), 'box': [x0, y0, x1, y1],
               'image_sha256': digest(child),
               'child_objects': int(np.count_nonzero(np.unique(child_mask)))}
-    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+    rec = drv.scene(capture, settle, '13_child_and_recovery_archive')
+    capture_ui.navigate_image(capture, screen, +1)
     ready()
     archive = folder / 'recropped_originals' / parent_name
     if not archive.is_file() or digest(archive) != evidence[0]['image_sha256']:
         raise RuntimeError('Recrop did not preserve the parent image in its recovery archive')
     if parent_name in screen._image_files or screen._image_files[screen._current_index] != child.name:
         raise RuntimeError('The editor did not replace the copied parent with its child in the queue')
-    capture('13_child_and_recovery_archive')
+    rec.stop()
     recrop['parent_recovery_path'] = str(archive)
 
     inference = None
     if detect:
         # Cellpose's settings show once Detection method is Cellpose.
+        rec = drv.scene(capture, settle, '14_cellpose_settings')
         expose(screen._mag_mode)
         chosen = screen._mag_mode.findData('cellpose')
         if chosen < 0:
             raise RuntimeError('Detection method does not offer Cellpose')
-        screen._mag_mode.setCurrentIndex(chosen)
+        capture_ui.select_combo(capture, screen._mag_mode, chosen)
         settle()
         expose(screen._cp_diameter)
-        capture('14_cellpose_settings')
+        rec.point(screen._cp_diameter)
+        rec.stop()
         initial_child_mask = canvas.mask.copy()
+        rec = drv.scene(capture, settle, '15_cellpose_detected')
         QTest.mouseClick(screen._btn_cellpose, Qt.LeftButton)
         settle()
         # Detection runs on a worker thread; wait for the real result.
@@ -725,13 +818,14 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         inferred_objects = int(np.count_nonzero(np.unique(canvas.mask)))
         if inferred_objects == 0:
             raise RuntimeError('Cellpose did not produce a usable example detection')
-        capture('15_cellpose_detected')
+        rec.stop()
         for index, name in [(screen._tab_prob, '16_cell_probability'),
                             (screen._tab_flow, '17_flows'), (0, '18_mask_again')]:
             tabs = screen._view_tabs
+            rec = drv.scene(capture, settle, name)
             QTest.mouseClick(tabs.tabBar(), Qt.LeftButton, pos=tabs.tabBar().tabRect(index).center())
             settle()
-            capture(name)
+            rec.stop()
         inference = {'model': screen._cp_model.currentData(),
                      'objects': inferred_objects, 'status': screen._status_label.text(),
                      'input_shape': list(child_image.shape),
@@ -740,11 +834,12 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                      'diameter': screen._cp_diameter.value(),
                      'normalize': screen._cp_normalize.isChecked(),
                      'mode': screen._combine_mode.currentData()}
-        screen._act_undo.trigger()
+        rec = drv.scene(capture, settle, '19_detection_undone')
+        _shortcut(screen, 'undo')
         settle()
         if not np.array_equal(canvas.mask, initial_child_mask):
             raise RuntimeError('Undo did not restore the pre-inference child labels')
-        capture('19_detection_undone')
+        rec.stop()
 
     if not np.array_equal(canvas.image, child_image):
         raise RuntimeError('Editing masks changed source image pixels')

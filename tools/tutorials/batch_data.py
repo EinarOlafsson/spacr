@@ -26,7 +26,10 @@ def prepare(stage, input_root=None):
                 Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig'))
     if not original.is_dir():
         raise ValueError('The original Batch tutorial TIFF directory is unavailable')
-    prefixes = ('W0127F0004T0001Z000', 'W0315F0003T0001Z000', 'W0025F0001T0001Z000')
+    # Three fields that have all four channels on this machine (the original three lost channels C1 and C2, C1, and C3).
+    import os
+    prefixes = tuple(os.environ.get('SPACR_TUTORIAL_BATCH_PREFIXES',
+                                    'W0127F0004T0001Z000,W0315F0003T0001Z000,W0025F0001T0001Z000').split(','))
     parent = Path(stage) / 'batch_runs'
     parent.mkdir(exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix='real-channels-', dir=parent))

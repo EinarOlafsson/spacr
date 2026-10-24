@@ -7,6 +7,8 @@ import time
 import numpy as np
 import tifffile
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from build_evaluation_example import sha
 from curate_evidence import check_mask
 
@@ -24,6 +26,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
     from napari.settings import get_settings
     get_settings().appearance.font_size = 20
 
+    scenes=Scenes(capture,settle)
     stage=Path(stage)
     source=stage/'timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy'
     original_sha=sha(source);raw=np.load(source,allow_pickle=False)
@@ -63,23 +66,26 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('The actual file dialog did not open')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                dialog.setDirectory(str(Path(path).parent));settle(.4)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),Path(path).name);capture(name)
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                capture_ui.file_dialog_dir(capture,dialog,Path(path).parent);settle(.4)
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),str(path) if capture_ui.live(capture) else Path(path).name)
+                if not capture_ui.live(capture):capture(name)
                 box=dialog.findChild(QDialogButtonBox)
                 accept=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(accept)!=1:raise ValueError('No unique real file acceptance button')
-                click(accept[0])
+                capture_ui.accept_file_dialog(capture,dialog,accept[0])
             except Exception as e:
                 errors.append(str(e))
                 if dialog is not None:dialog.reject()
         watch=QTimer(window);watch.setSingleShot(True)
         watch.timeout.connect(lambda:app.activeModalWidget().reject() if app.activeModalWidget() else None)
-        QTimer.singleShot(300,choose);watch.start(60000);click(button);watch.stop()
+        capture_ui.when_modal(capture,300,choose);watch.start(120000 if capture_ui.live(capture) else 60000)
+        scenes.begin(name);click(button);watch.stop()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'Actual file selection was not accepted')
+        if capture_ui.live(capture):scenes.end(name,button)
 
-    def snapshot(name,*,desktop=False,**facts):
-        capture(name,desktop=desktop);proof['checks'][name]=facts
+    def snapshot(name,*,desktop=False,point=(),**facts):
+        scenes.end(name,*point,desktop=desktop);proof['checks'][name]=facts
         write_json(captures/'scientific_acceptance.json',proof)
 
     def front_spacr():
@@ -89,7 +95,8 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
         # Xvfb has no window manager to honour showMaximized. Resize the real
         # viewer window explicitly; do not enlarge a tiny screenshot afterwards.
         top=viewer.window._qt_window
-        top.showNormal();top.resize(3840,2160);top.move(0,0)
+        if not capture_ui.live(capture):
+            top.showNormal();top.resize(3840,2160);top.move(0,0)
         top.raise_();top.activateWindow();settle(.7)
 
     def layers():
@@ -100,6 +107,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
         return labels[0]
 
     def fill_object(old,new,expected,name):
+        scenes.begin(name)
         front_napari();layer=layers();qt=viewer.window._qt_viewer
         controls=qt._controls.widgets[layer]
         fill(controls._label_control.selection_spinbox,new)
@@ -127,37 +135,43 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
         buttons=[b for b in window.findChildren(QAbstractButton) if b.isVisible() and
             (b.property('moduleAppKey')=='make_masks' or b.property('navKey')=='make_masks')]
         if not buttons:raise ValueError('Actual Make Masks Home control missing')
+        scenes.begin('01_make_masks_host')
         click(max(buttons,key=lambda b:b.width()*b.height()));host=window._screens['make_masks']
         folds=[b for b in host.findChildren(FoldButton) if b.isVisible() and b.app_key=='napari_bridge']
         if len(folds)!=1:raise ValueError('Actual Make Masks Napari Bridge fold is not unique')
-        snapshot('01_make_masks_host');click(folds[0])
+        snapshot('01_make_masks_host',point=(host,));scenes.begin('02_actual_bridge');click(folds[0])
         found=[p for p in window.findChildren(NapariBridgeScreen) if p.isVisible()]
         if len(found)!=1:raise ValueError('Actual Napari Bridge did not open')
-        panel=found[0];snapshot('02_actual_bridge')
+        panel=found[0];snapshot('02_actual_bridge',point=(panel,))
         browse=sorted([b for b in panel.findChildren(QPushButton) if b.text()=='Browse…'],key=lambda b:b.y())
         if len(browse)!=2:raise ValueError('Expected actual mask/image Browse buttons')
         picker(browse[0],mask_path,'03_private_mask_picker')
         picker(browse[1],image_path,'04_private_image_picker')
+        scenes.begin('05_ready_to_open')
         if panel.mask_path()!=str(mask_path) or panel.image_path()!=str(image_path):
             raise ValueError('Native file selection differs from private teaching copies')
         snapshot('05_ready_to_open',status=panel.status.toPlainText())
         opened=[];corrected=[];panel.opened.connect(opened.append);panel.corrected.connect(corrected.append)
+        scenes.begin('06_actual_napari_layers')
         click(panel.open_button);viewer=panel._viewer
         if viewer is None:raise ValueError('Real napari viewer did not open: '+panel.status.toPlainText())
         if opened!=[str(mask_path)]:raise ValueError('Actual bridge opened a different mask')
         front_napari();layer=layers();check_mask(layer.data,before)
         if np.shares_memory(layer.data,panel._handoff.mask):raise ValueError('Editable labels alias the saved baseline')
         snapshot('06_actual_napari_layers',desktop=True,mask=check_mask(layer.data,before),names=[l.name for l in viewer.layers])
+        scenes.begin('07_unchanged_round_trip')
         front_spacr();click(panel.take_button)
         if sha(mask_path)!=original_mask_sha or log_path.exists() or corrected:
             raise ValueError('An unchanged round trip wrote a file or correction')
         snapshot('07_unchanged_round_trip',status=panel.status.toPlainText(),no_writes=True)
         after=fill_object(2,18,before,'08_fill_one_synthetic_object')
         if sha(mask_path)!=original_mask_sha:raise ValueError('Editing in napari prematurely wrote the original mask')
-        canvas=viewer.window._qt_viewer.canvas.native;canvas.setFocus()
+        scenes.begin('09_actual_napari_undo')
+        canvas=viewer.window._qt_viewer.canvas.native;capture_ui.focus(capture,canvas)
         QTest.keyClick(canvas,Qt.Key_Z,Qt.ControlModifier);settle(.7)
         snapshot('09_actual_napari_undo',desktop=True,mask=check_mask(layers().data,before))
         after=fill_object(2,18,before,'10_refill_before_import')
+        scenes.begin('11_imported_and_recorded')
         front_spacr();click(panel.take_button)
         check_mask(tifffile.imread(mask_path),after)
         first=json.loads(log_path.read_text(encoding="utf-8"))
@@ -168,6 +182,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
                 or entry['kind']!='napari' or entry['target']!=[18]):
             raise ValueError('First correction ledger differs from the actual pixel edit')
         snapshot('11_imported_and_recorded',status=panel.status.toPlainText(),mask=check_mask(tifffile.imread(mask_path),after),ledger=first)
+        scenes.begin('12_second_import_is_noop')
         saved_sha=sha(mask_path);log_sha=sha(log_path);click(panel.take_button)
         if sha(mask_path)!=saved_sha or sha(log_path)!=log_sha or len(corrected)!=1:
             raise ValueError('A duplicate import rewrote data or padded the ledger')
@@ -178,6 +193,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
         saved_second=None
         if not reopen_each_edit:
             same_session=fill_object(3,19,after,'12b_same_viewer_new_edit')
+            scenes.begin('12c_same_viewer_import_result')
             front_spacr();click(panel.take_button)
             disk=tifffile.imread(mask_path)
             saved_second=np.array_equal(disk,same_session)
@@ -188,15 +204,18 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
                 saved_second_edit=saved_second,ledger=json.loads(log_path.read_text(encoding="utf-8")))
             if saved_second:after=same_session
         proof['same_session_second_edit_saved']=saved_second
+        scenes.begin('12d_closed_before_next_edit')
         click(panel.close_button)
         if panel._viewer is not None or panel.take_button.isEnabled():raise ValueError('Close viewer did not release the bridge')
         snapshot('12d_closed_before_next_edit',status=panel.status.toPlainText(),viewer_released=True)
+        scenes.begin('13_reopened_second_correction')
         click(panel.open_button);viewer=panel._viewer
         if viewer is None:raise ValueError('The saved corrected field did not reopen')
         check_mask(layers().data,after)
         if np.shares_memory(layers().data,panel._handoff.mask):
             raise ValueError('Reopening did not separate the editable labels from the saved baseline')
         again=fill_object(4,20,after,'13_reopened_second_correction')
+        scenes.begin('14_history_preserved_after_reopen')
         front_spacr();click(panel.take_button)
         second=json.loads(log_path.read_text(encoding="utf-8"));check_mask(tifffile.imread(mask_path),again)
         if len(second['edits'])!=(3 if saved_second else 2) or second['edits'][0]!=first['edits'][0]:
@@ -207,7 +226,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
                 or entry['kind']!='napari' or entry['target']!=[20]):
             raise ValueError('Reopened correction ledger differs from the actual pixel edit')
         snapshot('14_history_preserved_after_reopen',status=panel.status.toPlainText(),mask=check_mask(tifffile.imread(mask_path),again),ledger=second)
-        click(panel.close_button);snapshot('15_viewer_closed',status=panel.status.toPlainText())
+        scenes.begin('15_viewer_closed');click(panel.close_button);snapshot('15_viewer_closed',status=panel.status.toPlainText())
         proof.update(accepted=bool(saved_second or reopen_each_edit),acceptance_scope=(
             'Explicit close/reopen between edits; synthetic exact pixels and correction history only'
             if reopen_each_edit else 'synthetic editing, exact pixels and correction history only'),

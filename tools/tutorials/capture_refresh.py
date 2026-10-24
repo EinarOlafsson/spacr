@@ -18,11 +18,18 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
+import capture_ui
 from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_fresh_start, verify_visible_paths, warm_gui_imports
 
 REPO = Path(__file__).resolve().parents[2]
-WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
+WORKSPACE = Path(os.environ.get('SPACR_TUTORIAL_WORKSPACE', '/mnt/firecuda2/Claude/toxoplasma_projects/tutorials'))
 DEFAULT_STAGE = WORKSPACE / 'refresh_2026-09-09'
+# The controls each module narration asks the viewer to check once the
+# example has loaded (03_data_ready); the pointer visits them in the clip.
+DATA_READY_KEYS = {
+    'mask': ('src', 'channels', 'nucleus_channel', 'cell_channel', 'pathogen_channel'),
+    'measure': ('src', 'channels', 'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'),
+}
 
 
 def write_json(path: Path, value) -> None:
@@ -31,7 +38,132 @@ def write_json(path: Path, value) -> None:
                     encoding='utf-8')
 
 
-def main() -> int:
+def record_default_batch_figure(module, queue, capture, settle):
+    """Inspect a normal figure queue; Regression uses its public results tour."""
+    if module == 'regression':
+        # Its queue now lives in a hidden detail page behind the public
+        # figure grid. The settings tour below clicks the real Runs/Results
+        # tabs instead; scene 24 is not part of the Regression lesson.
+        return
+    if queue.count():
+        with capture_ui.clip(capture, '24_batch_figure'):
+            capture_ui.show_figure(capture, queue, queue.count() - 1)
+            settle()
+
+
+def run_mask_preview(panel, click, settle, timeout, after_click):
+    """Observe the public result before requesting the actual preview."""
+    observed = []
+    def ready(masks):
+        observed.append(masks)
+    panel.preview_ready.connect(ready)
+    try:
+        click()
+        after_click()
+        deadline = time.monotonic() + timeout
+        while not observed or panel.preview_running():
+            if observed and observed[-1] is None:
+                raise RuntimeError(f'Preview failed: {panel._status.text()}')
+            if time.monotonic() > deadline:
+                raise TimeoutError(f'Preview not finished: {panel._status.text()}')
+            settle(0.2)
+        if observed[-1] is None or not panel._raw_masks:
+            raise RuntimeError(f'Preview failed: {panel._status.text()}')
+    finally:
+        panel.preview_ready.disconnect(ready)
+
+
+def schedule_test_data_choice(app, capture, settle, route, choice, timeout=180.0):
+    """Wait for the actual chooser after pointer travel; bound its nested loop.
+
+    The returned watchdog must be stopped once the opening click returns.
+    It keeps rejecting a late modal after a timeout, rather than leaving a
+    subsequently opened dialog without any surviving callback.
+    """
+    from PySide6.QtCore import QTimer, Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QAbstractButton
+    from spacr.qt.widgets.test_data_chooser import TestDataChooser
+    from shiboken6 import isValid
+
+    deadline = time.monotonic() + timeout
+    watchdog = QTimer(app)
+    watchdog.setInterval(150)
+
+    def fail(message):
+        choice.setdefault('error', message)
+        modal = app.activeModalWidget()
+        if modal is not None and modal.isVisible():
+            reject = getattr(modal, 'reject', None)
+            if callable(reject):
+                reject()
+            else:
+                modal.close()
+
+    def check_deadline():
+        if time.monotonic() >= deadline:
+            fail('Timed out waiting for or selecting the actual test-data chooser')
+
+    def choose_test_data():
+        if not isValid(watchdog) or not watchdog.isActive():
+            return
+        dialogs = [d for d in app.topLevelWidgets()
+                   if isinstance(d, TestDataChooser) and d.isVisible()]
+        if len(dialogs) != 1 or app.activeModalWidget() is not dialogs[0]:
+            fail('Expected exactly one active test-data chooser')
+            return
+        dialog = dialogs[0]
+        if choice.get('error'):
+            dialog.reject()
+            return
+        try:
+            options = {str(b.property('routeKey')): b for b in dialog.findChildren(QAbstractButton)
+                       if b.property('routeKey')}
+            for key in ('load', 'stream'):
+                QTest.mouseMove(options[key])
+                settle()
+                capture(f'02_data_choice_{key}')
+            QTest.mouseClick(options[route], Qt.LeftButton)
+            if dialog.chosen != route:
+                raise RuntimeError('The actual test-data route was not selected')
+            choice['selected_route'] = dialog.chosen
+        except Exception as error:
+            fail(str(error))
+            dialog.reject()
+
+    watchdog.timeout.connect(check_deadline)
+    watchdog.start()
+    capture_ui.when_modal(capture, 1200, choose_test_data, timeout=timeout)
+    return watchdog
+
+
+def capture_environment(args, stage: Path) -> dict:
+    """Private profile, state and cache locations of one recording (set before the app starts)."""
+    return {
+        'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
+        'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
+        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation', 'annotate') else args.module)),
+        # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
+        # remembered `src`) live in XDG STATE storage, and without this a
+        # "fresh" Mask recording opened on whatever path a test last pinned
+        # in the real ~/.local/state/spacr/chaining/pins.json. One private
+        # state directory per recording, so no capture inherits another's.
+        'XDG_STATE_HOME': str(stage / 'state' / (args.capture_name or args.module)),
+        'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
+        'SPACR_LOG_DIR': str(stage / 'logs'),
+        'MPLCONFIGDIR': str(stage / 'mpl'),
+        # spacr.qt.app.main() forces Agg before any figure is drawn; this
+        # recorder builds the window without main(), so match it here. Under
+        # QtAgg a pipeline plotting from a worker thread (Plate queue) fails.
+        'MPLBACKEND': 'Agg',
+        'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2',
+        'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
+    }
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """The recorder options (shared with the capture-host launcher, which parses them first)."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--module', default='home')
     parser.add_argument('--home-preferences-only', action='store_true',
@@ -40,8 +172,6 @@ def main() -> int:
                         help='Refresh only current Home/navigation/host chrome through real tabs and sidebar controls; no Preferences, download or analysis')
     parser.add_argument('--gate-chrome-only', action='store_true',
                         help='Record current Gate plot chrome and its real figure menu on a private existing measurement database; no gating or export')
-    parser.add_argument('--spaceout-effects-only', action='store_true',
-                        help='Record a separate fresh Spaceout field Preferences companion with eight effect controls; ordinary lessons stay unchanged')
     parser.add_argument('--gate-database', type=Path,
                         help='Private completed measurement database for --gate-chrome-only')
     parser.add_argument('--stage', type=Path,
@@ -121,7 +251,7 @@ def main() -> int:
     parser.add_argument('--pca-host-only', action='store_true',
                         help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
-    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels', 'ram_guard', 'alpha_features'), default='home',
+    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels', 'ram_guard', 'alpha_features', 'install_nightly'), default='home',
                         help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--preview-filter-only', action='store_true', help='With --preview-variants, record the size filter but no second model run')
     parser.add_argument('--plaque-current-tour', action='store_true', help='Record the current Plaque preview overlay settings, Help route and Figure mode on the synthetic example')
@@ -137,23 +267,56 @@ def main() -> int:
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
+    parser.add_argument('--home-host-smoke', action='store_true',
+                        help='Home alone: the 00_home clip and a Preferences open/close clip through the real menu (capture-host smoke proof)')
+    parser.add_argument('--record-startup', action='store_true',
+                        help='GNOME capture host only, with run_native_capture --splash: end the 01_startup_sequence '
+                             'clip that was begun before the app window appeared (launch, logo, blow-away, Home). '
+                             'Home alone; no other scene is recorded')
+    return parser
+
+
+
+def _same_setting(actual, wanted):
+    """Equal as the editor holds it: a class rule value is typed text, so 1 and '1' are the same value."""
+    if isinstance(wanted, dict) and isinstance(actual, dict) and set(wanted) == set(actual):
+        return all(_same_setting(actual[k], wanted[k]) for k in wanted)
+    if isinstance(wanted, (int, float)) and isinstance(actual, str) and not isinstance(wanted, bool):
+        return actual.strip() == str(wanted)
+    return actual == wanted
+
+def main() -> int:
+    parser = build_parser()
     args = parser.parse_args()
     clip_durations = json.loads(args.clip_durations.read_text(encoding="utf-8")) if args.clip_durations else {}
-    if args.spaceout_effects_only and (args.module != 'home' or args.home_preferences_only
-                                     or args.run or args.download or args.preview or args.openings):
-        parser.error('--spaceout-effects-only requires Home alone, without another tour')
-    if args.spaceout_effects_only:
-        args.backdrop = 'data_art_spaceout_field'
     if args.gate_chrome_only and (args.module != 'gate_editor' or args.gate_database is None
                                  or args.run or args.download or args.preview):
         parser.error('--gate-chrome-only requires --module gate_editor and --gate-database, without run/download/preview')
     if args.home_navigation_only and (args.module != 'home' or args.openings or args.home_preferences_only
-                                     or args.spaceout_effects_only or args.run or args.download or args.preview):
-        parser.error('--home-navigation-only requires Home alone without Preferences, Spaceout, download or analysis')
+                                     or args.run or args.download or args.preview):
+        parser.error('--home-navigation-only requires Home alone without Preferences, download or analysis')
     if args.home_preferences_only and (args.module != 'home' or args.openings):
         parser.error('--home-preferences-only requires --module home without --openings')
-    if args.home_preferences_only or args.home_navigation_only:
+    if args.record_startup and (args.module != 'home' or args.openings or args.home_preferences_only
+                                or args.home_navigation_only
+                                or args.home_host_smoke or args.run or args.download or args.preview):
+        parser.error('--record-startup requires Home alone, without another tour')
+    if (args.home_preferences_only or args.home_navigation_only or args.home_host_smoke
+            or args.record_startup):
         args.backdrop = 'data_art_impulse_lens'
+    if args.home_host_smoke and (args.module != 'home' or args.openings or args.home_preferences_only
+                                 or args.home_navigation_only
+                                 or args.run or args.download or args.preview):
+        parser.error('--home-host-smoke requires Home alone, without another tour')
+    # Inside the headless GNOME capture host (run_native_capture.py --host gnome)
+    # the real application is already running, launched by spacr.qt.run();
+    # see capture_host_mode.py. Every clip is then a GNOME screen recording.
+    import capture_host_mode
+    host = capture_host_mode.runtime()
+    if host is not None:
+        args.live_video = True
+        if args.platform != 'xcb':
+            parser.error('The GNOME capture host records the xcb (Xwayland) application')
     if args.mask_yolo_tour and (args.module != 'make_masks' or args.run or args.download
                               or args.mask_editor_tour or args.mask_readouts_tour
                               or args.puncta_tour or args.restoration_tour or args.editor_detect):
@@ -327,27 +490,7 @@ def main() -> int:
                           '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
                           *sys.argv[1:]])
-    for key, value in {
-        'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
-        'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
-        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation', 'annotate') else args.module)),
-        # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
-        # remembered `src`) live in XDG STATE storage, and without this a
-        # "fresh" Mask recording opened on whatever path a test last pinned
-        # in the real ~/.local/state/spacr/chaining/pins.json. One private
-        # state directory per recording, so no capture inherits another's.
-        'XDG_STATE_HOME': str(stage / 'state' / (args.capture_name or args.module)),
-        'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
-        'SPACR_LOG_DIR': str(stage / 'logs'),
-        'MPLCONFIGDIR': str(stage / 'mpl'),
-        # spacr.qt.app.main() forces Agg before any figure is drawn; this
-        # recorder builds the window without main(), so match it here. Under
-        # QtAgg a pipeline plotting from a worker thread (Plate queue) fails.
-        'MPLBACKEND': 'Agg',
-        'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2',
-        'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
-    }.items():
+    for key, value in capture_environment(args, stage).items():
         os.environ[key] = value
     # An inherited explicit pin file would outrank XDG_STATE_HOME.
     os.environ.pop('SPACR_CHAINING_PINS', None)
@@ -392,9 +535,6 @@ def main() -> int:
         # imported module and emit a traceback with local installation paths.
         import torch  # noqa: F401
     app = QApplication.instance() or QApplication([])
-    if args.spaceout_effects_only:
-        from spacr.qt.theme import enable_spaceout
-        enable_spaceout()
     mark_tour_seen()
     for key, *_ in gui.APPS:
         mark_seen(key)
@@ -405,7 +545,6 @@ def main() -> int:
     # Also turns Show alpha features off: alpha features get no tutorials.
     configure_appearance(args.theme, args.backdrop,
                          home_preferences=args.home_preferences_only or args.home_navigation_only,
-                         spaceout_effects=args.spaceout_effects_only,
                          default_field=args.backdrop == 'data_art_impulse_lens')
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
@@ -421,11 +560,16 @@ def main() -> int:
         _note_running_version(_installed_version())
     except Exception:
         pass
-    window = gui.MainWindow()
-    warm_gui_imports()
-    window.apply_dock_mode('locked')
-    window.resize(3840, 2160)
-    window.show()
+    if host is not None:
+        window = host.window               # the real window spacr.qt.run() opened
+        warm_gui_imports()
+        window.apply_dock_mode('locked')
+    else:
+        window = gui.MainWindow()
+        warm_gui_imports()
+        window.apply_dock_mode('locked')
+        window.resize(3840, 2160)
+        window.show()
     # Every recording starts as `spacr --fresh` (configure_appearance):
     # refuse a window that reopened a session or offers crash drafts.
     app.processEvents()
@@ -438,6 +582,9 @@ def main() -> int:
     frames = {}
 
     def settle(seconds=0.6):
+        if host is not None:
+            # Fine slices: the field keeps painting at its own rate.
+            return host.pump.run(seconds)
         until = time.monotonic() + seconds
         while time.monotonic() < until:
             app.processEvents()
@@ -447,12 +594,18 @@ def main() -> int:
         from capture_geometry import capture_rect
         return capture_rect(widget, window)
 
-    def capture(name, *, desktop=False, actions=()):
+    def capture(name, *, desktop=False, actions=(), _begin=False):
         if args.record_scenes and name not in args.record_scenes.split(','):
-            return
+            if actions and host is not None:
+                # Not recorded, but later scenes depend on what its actions do
+                # (open a module, a dialog): perform them without a clip.
+                for _when, _label, callback in sorted(actions, key=lambda item: item[0]):
+                    callback()
+                    settle(0.3)
+            return False
         if args.live_video and (name in frames or (captures / f'{name}.mp4').exists()):
             raise FileExistsError(f'Native capture already exists: {name}')
-        if args.home_preferences_only or args.home_navigation_only or args.spaceout_effects_only:
+        if args.home_preferences_only or args.home_navigation_only:
             exclude_release_history(window)
         hidden_backdrops = exclude_special_backdrops(window)
         if hidden_backdrops:
@@ -461,7 +614,6 @@ def main() -> int:
             window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
             alpha_lesson=args.alpha_lesson,
             home_preferences=args.home_preferences_only or args.home_navigation_only,
-            spaceout_effects=args.spaceout_effects_only,
             default_field=args.backdrop == 'data_art_impulse_lens')
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
@@ -483,6 +635,32 @@ def main() -> int:
                 while running():
                     settle(.1)
             raise
+        if host is not None:
+            buttons = []
+            for widget in window.findChildren(QAbstractButton):
+                geometry = rect(widget)
+                if geometry is not None:
+                    buttons.append({'text': widget.text(), 'name': widget.objectName(),
+                                    'tooltip': widget.toolTip(), 'rect': host.to_handoff(geometry),
+                                    'enabled': widget.isEnabled(),
+                                    'nav_key': widget.property('navKey'),
+                                    'module_key': widget.property('moduleAppKey')})
+            from capture_geometry import foreground_dialogs
+            dialogs = foreground_dialogs([w for w in app.topLevelWidgets()
+                                          if isinstance(w, (QDialog, QMenu)) and w.isVisible()],
+                                         app.activeModalWidget(), app.activePopupWidget())
+            dialogs = [{'title': d.windowTitle(), 'rect': host.to_handoff(rect(d)),
+                        'labels': [label.text() for label in d.findChildren(QLabel)]} for d in dialogs]
+            duration = float(clip_durations.get(name, args.clip_seconds))
+            facts = dict(appearance=appearance, hidden_backdrops=hidden_backdrops,
+                         buttons=buttons, dialogs=dialogs)
+            if _begin:
+                host.start_scene(captures, name, duration, **facts)
+                return True
+            frames[name] = host.record_scene(captures, name, duration, actions, **facts)
+            write_json(captures / 'frames.json', frames)
+            print(f'captured {args.module}/{name} (GNOME capture host)', flush=True)
+            return True
         pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
@@ -529,6 +707,24 @@ def main() -> int:
         write_json(captures / 'frames.json', frames)
         print(f'captured {args.module}/{name}', flush=True)
 
+    def begin_scene(name):
+        """Host mode: start recording ``name`` now; the scene script calls end_scene()."""
+        if host is None:
+            raise RuntimeError('begin_scene/end_scene record only in the GNOME capture host')
+        return capture(name, _begin=True)
+
+    def end_scene():
+        if host is None or host.current is None:
+            return
+        name = host.current['name']
+        frames[name] = host.end_scene()
+        write_json(captures / 'frames.json', frames)
+        print(f'captured {args.module}/{name} (GNOME capture host)', flush=True)
+
+    capture.clip_seconds_of = lambda scene: float(clip_durations.get(scene, args.clip_seconds))
+    capture.begin = begin_scene
+    capture.end = end_scene
+    capture.host = host
     capture.supports_live_actions = args.live_video
     capture.maximum_live_clip_seconds = max([args.clip_seconds, *clip_durations.values()]) if args.live_video else 0
 
@@ -555,15 +751,34 @@ def main() -> int:
         elif args.openings_set == 'alpha_features':
             from capture_alpha_features import record_alpha_features
             record_alpha_features(app, window, stage, captures, capture, settle, write_json)
+        elif args.openings_set == 'install_nightly':
+            from capture_install_nightly import record_install_nightly
+            record_install_nightly(app, window, captures, capture, settle, write_json)
         elif args.openings_set == 'ram_guard':
             capture_openings.record_ram_guard(app, window, stage, captures, capture, settle, write_json)
         elif args.openings_set == 'mask_source_channels':
             capture_openings.record_mask_source_channels(app, window, stage, captures, capture, settle, write_json)
         else:
             capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
-    elif args.module not in ('workflow_overview', 'toxoplasma', 'plasmodium', 'candida'):
+    elif args.module not in ('workflow_overview', 'toxoplasma', 'plasmodium', 'candida') and not (
+            host is not None and args.module in ('embeddings', 'host_pathogen')) and not args.record_startup:
+        # (host: these drivers record their own 00_home, with the pointer on the tile)
         capture('00_home')
-    if args.module == 'home' and not args.openings and not args.home_preferences_only and not args.home_navigation_only and not args.spaceout_effects_only:
+    if args.home_host_smoke:
+        from capture_home import record_preferences_open_close
+        record_preferences_open_close(app, window, capture, settle)
+    if args.record_startup:
+        # The clip began in capture_host_mode.run_child BEFORE the app launched
+        # (see capture_startup). It ends once the logo is gone and Home has settled.
+        from capture_startup import end_startup_clip
+        frames.update(end_startup_clip(window, host, capture, settle, captures))
+        write_json(captures / 'frames.json', frames)
+    if (host is not None and args.module == 'home' and not args.openings and not args.home_preferences_only
+            and not args.home_navigation_only and not args.home_host_smoke
+            and not args.record_startup):
+        raise RuntimeError('In the capture host record Home with --home-navigation-only, '
+                           '--home-preferences-only (capture_home_live.py)')
+    if args.module == 'home' and not args.openings and not args.home_preferences_only and not args.home_navigation_only and not args.home_host_smoke and not args.record_startup:
         home = window._startup
         tabs = home._tabs
         for index in range(1, tabs.count()):
@@ -604,11 +819,22 @@ def main() -> int:
         home_focus['13e_session_updates'] = record_session_and_updates(window, capture, settle)
         home_focus['13g_storage_prune'] = record_storage(window, capture, settle)
         write_json(captures / 'home_focus.json', home_focus)
-    if args.home_navigation_only:
+    if args.home_navigation_only and host is not None:
+        # The real UI through the human pointer (capture_home_live.py).
+        from capture_home_live import record_home_navigation_live
+        live = record_home_navigation_live(app, window, capture, settle)
+        write_json(captures / 'home_focus.json', live['focus'])
+        write_json(captures / 'home_navigation_proof.json', live['proof'])
+    elif args.home_navigation_only:
         from capture_home import record_home_navigation
         write_json(captures / 'home_focus.json',
                    record_home_navigation(app, window, capture, settle))
-    if args.home_preferences_only:
+    if args.home_preferences_only and host is not None:
+        from capture_home_live import record_preferences_live
+        live = record_preferences_live(app, window, capture, settle)
+        write_json(captures / 'home_focus.json', live['focus'])
+        write_json(captures / 'appearance_controls.json', live['proof'])
+    elif args.home_preferences_only:
         from capture_home import (record_performance, record_preferences_page,
                                   record_appearance_sections, record_session_and_updates,
                                   record_storage, record_preferences_apply)
@@ -622,10 +848,6 @@ def main() -> int:
                  '13g_storage_prune': record_storage(window, capture, settle),
                  '13h_preferences_apply': record_preferences_apply(window, capture, settle)}
         write_json(captures / 'home_focus.json', focus)
-    if args.spaceout_effects_only:
-        from capture_home import record_spaceout_effects
-        write_json(captures / 'spaceout_effects.json',
-                   record_spaceout_effects(window, capture, settle))
     if args.workflow_overview:
         from capture_workflow_overview import record_overview
         browser = None
@@ -852,8 +1074,18 @@ def main() -> int:
             capture('00a_help_report_menu')
             QTest.mouseClick(menu, Qt.LeftButton,
                              pos=menu.actionGeometry(choices[0]).center())
+        elif host is not None:
+            pass        # opened inside the 01_module clip, from its Home tile
         else:
             window._on_nav_selected(host_key)
+        if host is not None and args.module != 'report':
+            capture('01_module', actions=[(1.0, f'open {host_key} from Home',
+                                           lambda: capture_ui.open_module(capture, window, host_key, settle,
+                                                                          prefer='tile'))])
+            if (window._screens.get(host_key) is None
+                    or window._stack.currentWidget() is not window._screens.get(host_key)):
+                # 01_module not recorded in this run: open it anyway, for real.
+                capture_ui.open_module(capture, window, host_key, settle, prefer='tile')
         deadline = time.monotonic() + 60
         while window._screens.get(host_key) is None:
             if time.monotonic() > deadline:
@@ -861,7 +1093,8 @@ def main() -> int:
             settle(0.1)
         settle(2)
         screen = window._screens[host_key]
-        capture('01_module')
+        if host is None or args.module == 'report':
+            capture('01_module')
         if args.organize_popup:
             from capture_organize_popup import record_organize_popup
             target = screen
@@ -1006,6 +1239,10 @@ def main() -> int:
             from capture_mask_saved_plots import record
             record(app, window, stage, captures, capture, settle, write_json)
         if args.download:
+            if args.module == 'map_barcodes' and args.barcode_search_tour:
+                from capture_barcode_search import prepare_default_references
+                prepared = prepare_default_references(screen, stage, capture, settle)
+                write_json(captures / 'default_reference_preparation.json', prepared)
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
                         if w.isVisible() and w.isEnabled()
@@ -1027,45 +1264,45 @@ def main() -> int:
             if len(buttons) != 1:
                 raise RuntimeError(f'Expected one visible test-data control, got {len(buttons)}')
             button = buttons[0]
-            if hasattr(screen, '_settings_scroll'):
-                screen._settings_scroll.ensureWidgetVisible(button)
-                settle()
             already_cached = any((stage / 'example_data/plate1').glob('*.tif'))
             loading_frame = '02_cached_load' if already_cached else '02_download'
-            if not args.neutral_measure_source:
+            # Host: the loading clip starts before the pointer scrolls to and
+            # clicks Load test data, so the viewer sees the click and the load.
+            # (Choosers that record their own frames during the load keep the
+            # old timing: one clip records at a time.)
+            loading_clip = (capture_ui.live(capture) and not args.neutral_measure_source
+                            and args.module not in {'annotate', 'classify_merged', 'map_barcodes'}
+                            and capture.begin(loading_frame))
+            if loading_clip:
+                capture_ui.wait(capture, 0.8, settle)
+            if hasattr(screen, '_settings_scroll'):
+                capture_ui.scroll_to(capture, screen._settings_scroll, button)
+                settle()
+            if not args.neutral_measure_source and not loading_clip:
                 QTimer.singleShot(800, lambda: capture(loading_frame))
             choice = {}
-            if args.module == 'map_barcodes':
-                from capture_sequencing import schedule_picker
-                sequence_choice = schedule_picker(app, captures, capture, settle,
-                                                  write_json, args.timeout)
-            if args.module in {'annotate', 'classify_merged'}:
-                def choose_test_data():
-                    from spacr.qt.widgets.test_data_chooser import TestDataChooser
-                    dialogs = [d for d in app.topLevelWidgets()
-                               if isinstance(d, TestDataChooser) and d.isVisible()]
-                    if len(dialogs) != 1:
-                        choice['error'] = 'Expected exactly one test-data chooser'
-                        for d in dialogs:
-                            d.reject()
-                        return
-                    dialog = dialogs[0]
-                    try:
-                        options = {str(b.property('routeKey')): b for b in dialog.findChildren(QAbstractButton)
-                                   if b.property('routeKey')}
-                        for route in ('load', 'stream'):
-                            QTest.mouseMove(options[route])
-                            settle()
-                            capture(f'02_data_choice_{route}')
-                        QTest.mouseClick(options[args.test_data_route], Qt.LeftButton)
-                        if dialog.chosen != args.test_data_route:
-                            raise RuntimeError('The actual test-data route was not selected')
-                        choice['selected_route'] = dialog.chosen
-                    except Exception as error:
-                        choice['error'] = str(error)
-                        dialog.reject()
-                QTimer.singleShot(1200, choose_test_data)
-            QTest.mouseClick(button, Qt.LeftButton)
+            # The archive example is a real download from the sequence archive; a read timeout there is
+            # the network, not the lesson, so the Load is pressed again (up to 3 tries) before giving up.
+            for attempt in range(3 if args.module == 'map_barcodes' else 1):
+                if args.module == 'map_barcodes':
+                    from capture_sequencing import schedule_picker
+                    sequence_choice = schedule_picker(app, captures, capture, settle,
+                                                      write_json, args.timeout)
+                choice_watchdog = None
+                if args.module in {'annotate', 'classify_merged'}:
+                    choice_watchdog = schedule_test_data_choice(
+                        app, capture, settle, args.test_data_route, choice,
+                        timeout=min(180.0, args.timeout))
+                try:
+                    QTest.mouseClick(button, Qt.LeftButton)
+                finally:
+                    if choice_watchdog is not None:
+                        choice_watchdog.stop()
+                        choice_watchdog.deleteLater()
+                if not (args.module == 'map_barcodes' and 'timed out' in str(sequence_choice.get('error', ''))):
+                    break
+                print('archive download timed out, pressing Load again (attempt %d)' % (attempt + 1), flush=True)
+                settle(3)
             if args.module == 'map_barcodes' and (
                     sequence_choice.get('error') or not sequence_choice.get('paired_read_identities_match')):
                 raise RuntimeError(f'The archive example was not verified: {sequence_choice}')
@@ -1077,6 +1314,9 @@ def main() -> int:
             while isValid(button) and not button.isEnabled():
                 if time.monotonic() > deadline:
                     raise TimeoutError('Download did not finish')
+                if loading_clip and capture_ui.clip_due(capture):
+                    capture.end()           # a long download: the plan ends the clip
+                    loading_clip = False
                 settle(0.2)
             settle(2)
             # Applying the example settings may replace the entire screen.
@@ -1099,7 +1339,7 @@ def main() -> int:
                 if not isinstance(control, QLineEdit):
                     raise RuntimeError('The native Measure source editor is unavailable')
                 previous = screen._settings_model.collect().get('src')
-                screen._settings_scroll.ensureWidgetVisible(control)
+                capture_ui.scroll_to(capture, screen._settings_scroll, control)
                 settle()
                 if not control.isVisible() or not control.isEnabled():
                     raise RuntimeError('The native Measure source editor is not visible and enabled')
@@ -1113,8 +1353,16 @@ def main() -> int:
                 write_json(captures / 'neutral_source_selection.json', {
                     'genuine_native_edit': True, 'previous': previous, 'selected': str(source),
                     'source_count': 16, 'application_source_modified': False})
+            if loading_clip:
+                # "Check Source before continuing": the pointer goes to it.
+                capture_ui.point_at_settings(capture, screen, ['src'], dwell=1.5)
+                capture.end()
+                loading_clip = False
             if not (args.module == 'annotate' and args.annotation_tour):
-                capture('03_data_ready')
+                # Host: the pointer visits the channel / plane controls the
+                # narration asks the viewer to check.
+                with capture_ui.clip(capture, '03_data_ready'):
+                    capture_ui.point_at_settings(capture, screen, DATA_READY_KEYS.get(args.module, ()))
             # Annotate's automatic opening displays the real account cache
             # path. Its tour verifies that opening independently, then shows
             # the optional source picker at a neutral alias before capturing
@@ -1165,9 +1413,9 @@ def main() -> int:
             # vertical space to see the live crop categories and their images.
             if screen._usage_card.body.isVisible():
                 QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
-            screen._runtime_splitter.setSizes([1400, 300])
+            capture_ui.splitter_sizes(capture, screen._runtime_splitter, [1400, 300])
             panel = screen._measure_preview
-            screen._preview_switch.setChecked(True)
+            capture_ui.set_checked(capture, screen._preview_switch, True)
             settle()
             deadline = time.monotonic() + args.timeout
             while panel._data is None or panel._loads_in_flight:
@@ -1181,12 +1429,11 @@ def main() -> int:
             QTest.mouseClick(panel._settings_btn, Qt.LeftButton)
             settle()
             dialog = panel._crop_settings_dialog
-            dialog.resize(1350, 1350)
-            dialog.move(window.mapToGlobal(QPoint(60, 110)))
+            capture_ui.dialog_geometry(capture, dialog, (1350, 1350), window.mapToGlobal(QPoint(60, 110)))
             tabs = dialog.findChild(QTabWidget)
             settle()
             capture('05_crop_general')
-            tabs.setCurrentIndex(1)
+            capture_ui.select_tab(capture, tabs, 1)
             settle()
             capture('06_crop_options')
             # The current dialog can exceed the desktop because its Crop modes
@@ -1196,7 +1443,8 @@ def main() -> int:
             def expose_dialog_control(control):
                 origin = control.mapToGlobal(QPoint(0, 0))
                 available = app.primaryScreen().availableGeometry()
-                if not available.contains(control.mapToGlobal(control.rect().bottomRight())) or origin.y() < available.top():
+                if (not capture_ui.live(capture) and (not available.contains(control.mapToGlobal(control.rect().bottomRight()))
+                                                      or origin.y() < available.top())):
                     dialog.move(dialog.x(), dialog.y() + available.center().y() - origin.y())
                     settle()
                 if not available.contains(control.mapToGlobal(control.rect().center())):
@@ -1217,8 +1465,8 @@ def main() -> int:
                         raise TimeoutError('Normalised crop preview did not finish')
                     settle(0.2)
             capture('06_normalised_crops')
-            tabs.setCurrentIndex(2)
-            dialog.move(window.mapToGlobal(QPoint(60, 110)))
+            capture_ui.select_tab(capture, tabs, 2)
+            capture_ui.dialog_geometry(capture, dialog, None, window.mapToGlobal(QPoint(60, 110)))
             settle()
             capture('07_crops_before')
             def crop_rows():
@@ -1234,7 +1482,10 @@ def main() -> int:
                     QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
                 def set_area(value):
                     control = panel._min_sizes['cell']
-                    control.setFocus()
+                    if capture_ui.live(capture):
+                        QTest.mouseClick(control, Qt.LeftButton)
+                    else:
+                        control.setFocus()
                     QTest.keyClick(control, Qt.Key_A, Qt.ControlModifier)
                     QTest.keyClicks(control, str(value))
                     QTest.keyClick(control, Qt.Key_Enter)
@@ -1259,14 +1510,14 @@ def main() -> int:
                 if screen._settings_model.collect()['cell_min_size'] != threshold:
                     raise RuntimeError('Propagate settings did not reach the real batch form')
                 capture('09_crops_propagated')
-                dialog.move(window.mapToGlobal(QPoint(60, 110)))
+                capture_ui.dialog_geometry(capture, dialog, None, window.mapToGlobal(QPoint(60, 110)))
                 set_area(original)
                 restored = crop_rows()
                 if restored != before:
                     raise RuntimeError('Restoring the filter did not restore the same crops')
                 expose_dialog_control(panel._propagate_btn)
                 QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
-                dialog.move(window.mapToGlobal(QPoint(60, 110)))
+                capture_ui.dialog_geometry(capture, dialog, None, window.mapToGlobal(QPoint(60, 110)))
                 capture('10_crops_restored')
                 if hashlib.sha256(panel._data.tobytes()).hexdigest() != source_hash:
                     raise RuntimeError('Filtering unexpectedly modified the loaded array')
@@ -1287,7 +1538,12 @@ def main() -> int:
             if args.module != 'mask':
                 raise ValueError('The current preview capture supports Mask and Measure')
             panel = screen._live_preview
-            screen._preview_switch.setChecked(True)
+            # Host: 04_live_image opens before Live is switched on, so the
+            # viewer sees the switch, the Choose image dialog and the field.
+            live_clip = capture_ui.live(capture) and capture.begin('04_live_image')
+            if live_clip:
+                capture_ui.wait(capture, 0.8, settle)
+            capture_ui.set_checked(capture, screen._preview_switch, True)
             settle()
             if not panel.isVisible():
                 ancestors = []
@@ -1300,6 +1556,8 @@ def main() -> int:
                                       'size': [ancestor.width(), ancestor.height()]})
                     ancestor = ancestor.parentWidget()
                 write_json(captures / 'preview_visibility.json', ancestors)
+                if live_clip:
+                    capture.end()
                 capture('04_preview_visibility_failure')
                 raise RuntimeError('Live preview is not visible after enabling Live: '
                                    f'checked={screen._preview_switch.isChecked()}, '
@@ -1324,6 +1582,10 @@ def main() -> int:
                         if len(attempts) < 100:
                             QTimer.singleShot(200, choose_field)
                         return
+                    if capture_ui.live(capture):
+                        chosen.append(field.name)
+                        capture_ui.choose_file(capture, dialogs[0], field)
+                        return
                     dialogs[0].selectFile(str(field))
                     settle(0.5)
                     capture('04a_choose_image')
@@ -1342,33 +1604,45 @@ def main() -> int:
                     raise TimeoutError(f'Preview image not loaded: {panel._status.text()}')
                 settle(0.1)
             settle(1)
-            capture('04_live_image')
-            panel.open_live_settings()
+            if live_clip:
+                capture_ui.point_at(capture, getattr(panel, '_src_view', None), getattr(panel, '_mask_view', None), dwell=1.5)
+                capture.end()
+            elif not capture_ui.live(capture):
+                capture('04_live_image')
+            settings_clip = capture_ui.live(capture) and capture.begin('05_live_settings')
+            if settings_clip:
+                capture_ui.wait(capture, 0.8, settle)
+            if capture_ui.live(capture):
+                QTest.mouseClick(panel._live_settings_btn, Qt.LeftButton)
+            else:
+                panel.open_live_settings()
             settle(1)
             dialog = panel._live_settings_dialog
-            dialog.resize(1650, 1100)
-            dialog.move(window.mapToGlobal(QPoint(50, 120)))
+            capture_ui.dialog_geometry(capture, dialog, (1650, 1100), window.mapToGlobal(QPoint(50, 120)))
             settle()
-            capture('05_live_settings')
-            dialog.close()
+            if settings_clip:
+                # "Choose the model ... set the approximate diameter, then
+                # click Run preview": the pointer goes to each, then clicks.
+                capture_ui.point_at(capture, getattr(panel, '_model_box', None),
+                                    getattr(panel, '_diameter', None), dwell=1.5)
+            elif not capture_ui.live(capture):
+                capture('05_live_settings')
+            capture_ui.close_dialog(capture, dialog, prefer=('Close', 'Cancel', 'Done', 'OK'))
             settle()
-            QTest.mouseClick(panel._run_btn, Qt.LeftButton)
-            preview_error = []
-            panel._worker.finished_masks.connect(
-                lambda masks, error, token: preview_error.append(error) if error else None)
-            settle(0.5)
-            capture('06_preview_running')
-            deadline = time.monotonic() + args.timeout
-            while not panel._raw_masks or (panel._worker and panel._worker.isRunning()):
-                if time.monotonic() > deadline:
-                    raise TimeoutError(f'Preview not finished: {panel._status.text()}')
-                # Thread completion can precede delivery of the GUI's queued
-                # result signal. A stopped thread alone is not a failed run.
-                if preview_error:
-                    raise RuntimeError(f'Preview failed: {preview_error[0]}')
-                settle(0.2)
+            def after_preview_click():
+                if settings_clip:
+                    capture_ui.wait(capture, 1.0, settle)
+                    capture.end()
+                settle(0.5)
+                capture('06_preview_running')
+            run_mask_preview(panel,
+                lambda: QTest.mouseClick(panel._run_btn, Qt.LeftButton),
+                settle, args.timeout, after_preview_click)
             settle(1)
-            capture('07_preview_result')
+            with capture_ui.clip(capture, '07_preview_result'):
+                # Compare the outlines with the image, then read the status line.
+                capture_ui.point_at(capture, getattr(panel, '_src_view', None), getattr(panel, '_mask_view', None), dwell=2.0)
+                capture_ui.point_at(capture, getattr(panel, '_status', None), dwell=1.5)
             import numpy as np
             outputs = {}
             for name, mask in panel._raw_masks.items():
@@ -1381,11 +1655,18 @@ def main() -> int:
                 raise RuntimeError('Preview completed but detected no objects')
             write_json(captures / 'preview_outputs.json', outputs)
             if args.preview_variants:
-                panel.open_live_settings()
+                # Host: 09_filters_after opens before Live settings, so the
+                # viewer sees the dialog open and the minimum area typed.
+                filter_clip = capture_ui.live(capture) and capture.begin('09_filters_after')
+                if filter_clip:
+                    capture_ui.wait(capture, 0.8, settle)
+                if capture_ui.live(capture):
+                    QTest.mouseClick(panel._live_settings_btn, Qt.LeftButton)
+                else:
+                    panel.open_live_settings()
                 settle()
                 dialog = panel._live_settings_dialog
-                dialog.resize(1650, 1100)
-                dialog.move(window.mapToGlobal(QPoint(50, 120)))
+                capture_ui.dialog_geometry(capture, dialog, (1650, 1100), window.mapToGlobal(QPoint(50, 120)))
                 settle()
                 minimum = panel._compartment_widgets['cell']['min_area']
                 if not minimum.isVisible():
@@ -1397,24 +1678,41 @@ def main() -> int:
                 before = int(np.count_nonzero(np.unique(panel._masks['cell'])))
                 raw_hash = hashlib.sha256(raw.tobytes()).hexdigest()
                 worker_before = panel._worker
-                capture('08_filters_before')
-                minimum.setFocus()
-                minimum.selectAll()
-                QTest.keyClicks(minimum, str(cutoff))
-                QTest.keyClick(minimum, Qt.Key_Tab)
+                if not capture_ui.live(capture):
+                    capture('08_filters_before')
+                if capture_ui.live(capture):
+                    capture_ui.set_number(capture, minimum, cutoff)
+                else:
+                    minimum.setFocus()
+                    minimum.selectAll()
+                    QTest.keyClicks(minimum, str(cutoff))
+                    QTest.keyClick(minimum, Qt.Key_Tab)
                 settle(1)
                 after = int(np.count_nonzero(np.unique(panel._masks['cell'])))
                 if not 0 < after < before:
                     raise RuntimeError(f'Live area filter had no demonstrated selective effect: {before} -> {after}')
                 if panel._worker is not worker_before or hashlib.sha256(panel._raw_masks['cell'].tobytes()).hexdigest() != raw_hash:
                     raise RuntimeError('The filter changed/recomputed the raw segmentation')
-                capture('09_filters_after')
-                minimum.setValue(original)
+                if filter_clip:
+                    capture_ui.point_at(capture, getattr(panel, '_src_view', None), getattr(panel, '_mask_view', None), dwell=2.0)
+                    capture.end()
+                elif not capture_ui.live(capture):
+                    capture('09_filters_after')
+                restore_clip = capture_ui.live(capture) and capture.begin('10_filters_restored')
+                if restore_clip:
+                    capture_ui.wait(capture, 0.8, settle)
+                capture_ui.set_number(capture, minimum, original)
                 settle()
                 restored = int(np.count_nonzero(np.unique(panel._masks['cell'])))
                 if restored != before:
                     raise RuntimeError('Restoring the area threshold did not restore the original result')
-                capture('10_filters_restored')
+                if restore_clip:
+                    # "If the model splits or joins objects ... change Diameter".
+                    capture_ui.point_at(capture, getattr(panel, '_src_view', None), getattr(panel, '_mask_view', None),
+                                        getattr(panel, '_diameter', None), dwell=1.8)
+                    capture.end()
+                elif not capture_ui.live(capture):
+                    capture('10_filters_restored')
             if args.preview_variants and args.preview_filter_only:
                 # CPU recordings: the size filter needs no model rerun, and a
                 # second full Cellpose-SAM pass would take an hour on a CPU.
@@ -1427,10 +1725,13 @@ def main() -> int:
             elif args.preview_variants:
                 available_models = [panel._model_box.itemText(i) for i in range(panel._model_box.count())]
                 old_diameter = panel._diameter.value()
-                panel._diameter.setFocus()
-                panel._diameter.selectAll()
-                QTest.keyClicks(panel._diameter, str(old_diameter * 2))
-                QTest.keyClick(panel._diameter, Qt.Key_Tab)
+                if capture_ui.live(capture):
+                    capture_ui.set_number(capture, panel._diameter, old_diameter * 2)
+                else:
+                    panel._diameter.setFocus()
+                    panel._diameter.selectAll()
+                    QTest.keyClicks(panel._diameter, str(old_diameter * 2))
+                    QTest.keyClick(panel._diameter, Qt.Key_Tab)
                 capture('11_model_diameter')
                 QTest.mouseClick(dialog._run_btn, Qt.LeftButton)
                 settle(0.3)
@@ -1465,14 +1766,19 @@ def main() -> int:
                 # be brightened for inspection without teaching irreversible
                 # per-crop intensity rescaling as a default for saved data.
                 warning_seen = []
-                def decline_crop_warning():
+                def decline_crop_warning(attempt=0):
+                    if (capture_ui.live(capture) and attempt < 60
+                            and not any(isinstance(b, QMessageBox) and b.isVisible() for b in app.topLevelWidgets())):
+                        QTimer.singleShot(200, lambda: decline_crop_warning(attempt + 1))
+                        return
                     for box in app.topLevelWidgets():
                         if isinstance(box, QMessageBox) and box.isVisible():
                             if box.windowTitle() != 'Check the crop settings':
                                 box.reject()
                                 return
-                            box.setMinimumWidth(1000)
-                            box.resize(1100, 1250)
+                            if not capture_ui.live(capture):
+                                box.setMinimumWidth(1000)
+                                box.resize(1100, 1250)
                             settle(0.2)
                             capture('19_crop_normalization_warning')
                             warning_seen.append(box.text())
@@ -1506,7 +1812,7 @@ def main() -> int:
                            'model_type': 'resnet18', 'epochs': 1, 'batch_size': 8,
                            'image_size': 128, 'n_jobs': 2, 'init_weights': False,
                            'tensorboard': False, 'augment': False,
-                           'gradient_accumulation': False, 'train': True, 'test': True,
+                           'gradient_accumulation_steps': 1, 'train': True, 'test': True,
                            'generate_training_dataset': True,
                            'apply_model_to_dataset': False, 'generate_full_dataset': False,
                            'plot': True, 'cv_group_by': 'well', 'random_seed': 42,
@@ -1566,7 +1872,7 @@ def main() -> int:
                                        capture, settle)
                 write_json(captures / 'scientific_acceptance.json', {
                     'accepted': False, 'reason': 'The prepared split has not completed a verified native run'})
-                presets['classify_merged'].pop('gradient_accumulation', None)
+                presets['classify_merged'].pop('gradient_accumulation_steps', None)
                 presets['classify_merged'].update(
                     src=[str(args.classifier_existing_split.resolve())],
                     generate_training_dataset=False, n_jobs=2, val_split=0.5,
@@ -1598,14 +1904,29 @@ def main() -> int:
             if args.module not in presets:
                 raise ValueError('No bounded recording preset for this module')
             bounded = presets[args.module]
-            for key, value in bounded.items():
-                if not model.set_value_for_key(key, value):
-                    raise RuntimeError(f'Cannot configure the real {key} control')
+            # Host: 20_batch_settings opens before the first setting is
+            # edited, so the viewer sees each one typed, then Run clicked.
+            batch_clip = (capture_ui.live(capture) and not args.settings_tour
+                          and capture.begin('20_batch_settings'))
+            if batch_clip:
+                capture_ui.wait(capture, 0.8, settle)
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                from capture_settings import import_capture_settings
+                imported = import_capture_settings(app, screen, stage, bounded, capture,
+                    settle, filename='classify_ml_settings.csv')
+                write_json(captures / 'bounded_settings_import.json', imported)
+                screen = window._screens[args.module]
+                model = screen._settings_model
+            else:
+                for key, value in bounded.items():
+                    # Host: each control edited by the human pointer/keyboard.
+                    if not capture_ui.fill_setting(capture, screen, key, value):
+                        raise RuntimeError(f'Cannot configure the real {key} control')
             settings = model.collect()
             write_json(captures / 'configured_settings.json', settings)
             for key, value in bounded.items():
-                if settings.get(key) != value:
-                    raise RuntimeError(f'The UI did not retain {key}={value}')
+                if not _same_setting(settings.get(key), value):
+                    raise RuntimeError(f'The UI did not retain {key}={value!r} (holds {settings.get(key)!r})')
             write_json(captures / 'batch_settings.json', settings)
             if args.settings_tour:
                 from capture_settings import record_settings
@@ -1613,54 +1934,96 @@ def main() -> int:
                     extra_keys=('src', 'generate_training_dataset', 'val_split', 'train_channels')
                     if args.classifier_existing_split else ())
             if getattr(screen, '_preview_switch', None) is not None:
-                screen._preview_switch.setChecked(False)
+                capture_ui.set_checked(capture, screen._preview_switch, False)
             settle()
-            capture('20_batch_settings')
+            if batch_clip and args.batch_settings_only:
+                capture.end()
+                batch_clip = False
+            elif not batch_clip and not capture_ui.live(capture):
+                capture('20_batch_settings')
             if not args.batch_settings_only:
                 def reject_unexpected_prompt():
                     for box in app.topLevelWidgets():
                         if isinstance(box, QMessageBox) and box.isVisible():
-                            capture('21_unexpected_run_prompt')
+                            if capture.host is None or capture.host.current is None:
+                                capture('21_unexpected_run_prompt')
                             write_json(captures / 'unexpected_prompt.json', {
                                 'title': box.windowTitle(), 'text': box.text(), 'accepted': False})
                             box.reject()
                 QTimer.singleShot(1000, reject_unexpected_prompt)
-                QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-                worker = getattr(screen, '_worker', None)
-                if worker is None:
-                    capture('21_batch_not_started')
-                    raise RuntimeError('The Run button did not start a pipeline worker')
-                outcome = {'finished': False, 'ok': False, 'errors': []}
-                def finished(ok):
-                    outcome.update(finished=True, ok=bool(ok))
-                worker.finished.connect(finished)
-                worker.error.connect(lambda text: outcome['errors'].append(str(text)))
-                settle(1)
-                capture('21_batch_running')
-                deadline = time.monotonic() + args.timeout
-                next_frame = time.monotonic() + 20
-                while not outcome['finished'] or screen._worker_thread_is_running():
-                    if time.monotonic() > deadline:
-                        QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
-                        settle(3)
-                        raise TimeoutError('Bounded pipeline exceeded the recording time limit')
-                    if time.monotonic() >= next_frame:
-                        capture('22_batch_progress')
-                        next_frame = time.monotonic() + 30
-                    settle(0.2)
+                # Host: with the settings tour (or when 20_batch_settings is not
+                # recorded) 21_batch_running opens BEFORE the Run click.
+                running_clip = (capture_ui.live(capture) and not batch_clip
+                                and capture.begin('21_batch_running'))
+                if running_clip:
+                    capture_ui.wait(capture, 0.8, settle)
+                if (args.module in {'mask', 'map_barcodes', 'regression', 'umap'} or
+                        (args.module == 'classify_merged' and args.classifier_family == 'ml')):
+                    from capture_acceptance import run_recorded_pipeline
+                    outcome = run_recorded_pipeline(screen, capture, settle, args.timeout,
+                        batch_clip=batch_clip, running_clip=running_clip)
+                else:
+                    QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+                    if batch_clip:
+                        capture_ui.wait(capture, 1.5, settle)
+                        capture.end()
+                    # The pipeline is imported off the GUI thread since 71a7563af,
+                    # so the worker appears a moment after the Run click.
+                    start_deadline = time.monotonic() + 60
+                    while getattr(screen, '_worker', None) is None and time.monotonic() < start_deadline:
+                        settle(0.2)
+                    worker = getattr(screen, '_worker', None)
+                    if worker is None:
+                        if running_clip:
+                            capture.end()
+                            running_clip = False
+                        capture('21_batch_not_started')
+                        raise RuntimeError('The Run button did not start a pipeline worker')
+                    outcome = {'finished': False, 'ok': False, 'errors': []}
+                    def finished(ok):
+                        outcome.update(finished=True, ok=bool(ok))
+                    worker.finished.connect(finished)
+                    worker.error.connect(lambda text: outcome['errors'].append(str(text)))
+                    settle(1)
+                    if running_clip:
+                        capture_ui.wait(capture, 1.5, settle)
+                        capture.end()
+                    else:
+                        capture('21_batch_running')
+                    deadline = time.monotonic() + args.timeout
+                    next_frame = time.monotonic() + 20
+                    while not outcome['finished'] or screen._worker_thread_is_running():
+                        if time.monotonic() > deadline:
+                            QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
+                            settle(3)
+                            raise TimeoutError('Bounded pipeline exceeded the recording time limit')
+                        if time.monotonic() >= next_frame:
+                            capture('22_batch_progress')
+                            next_frame = time.monotonic() + 30
+                        settle(0.2)
                 settle(2)
                 write_json(captures / 'batch_outcome.json', outcome)
                 blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
                 write_json(captures / 'batch_console.json', blocks)
                 write_json(captures / 'settings_after_run.json', screen._settings_model.collect())
+                finished_clip = capture_ui.live(capture) and capture.begin('23_batch_finished')
+                if finished_clip:
+                    capture_ui.wait(capture, 0.8, settle)
                 for block, _, _ in screen._console._pipeline_console_blocks():
                     # Real text selection/navigation, including an internally
                     # scrollable console block, not a replacement transcript.
+                    if capture_ui.live(capture):
+                        continue          # the console follows its tail; Jump to the end below
                     block.setFocus()
                     QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-                screen._console.jump_to_the_end()
+                capture_ui.console_to_end(capture, screen._console)
                 settle()
-                capture('23_batch_finished')
+                if finished_clip:
+                    # "the figure list fills with its plots": the pointer goes there.
+                    capture_ui.point_at(capture, screen._console, screen._figure_queue, dwell=1.8)
+                    capture.end()
+                elif not capture_ui.live(capture):
+                    capture('23_batch_finished')
                 if not outcome['ok'] or outcome['errors']:
                     raise RuntimeError('The real pipeline failed; see batch_outcome.json')
                 queue = screen._figure_queue
@@ -1679,23 +2042,20 @@ def main() -> int:
                 if not acceptance['accepted']:
                     raise RuntimeError('Recording is not a successful complete example: '
                                        + '; '.join(acceptance['reasons']))
-                if queue.count():
-                    queue.show_index(queue.count() - 1)
-                    settle()
-                    capture('24_batch_figure')
+                record_default_batch_figure(args.module, queue, capture, settle)
                 if args.module == 'mask':
                     # The run's own overlay figures, as the figure panel shows them.
                     for index in range(min(3, queue.count())):
-                        queue.show_index(index)
-                        settle(2)
-                        capture(f'25_mask_figure_{index:02d}')
+                        with capture_ui.clip(capture, f'25_mask_figure_{index:02d}'):
+                            capture_ui.show_figure(capture, queue, index)
+                            settle(2)
                 if args.module == 'classify_merged' and args.classifier_family == 'ml':
                     # Make room for the complete native charts through the same
                     # splitter a user can drag. Let each live canvas settle after
                     # navigation; never crop or rebuild a chart for the video.
-                    screen._runtime_splitter.setSizes([1200, 450])
+                    capture_ui.splitter_sizes(capture, screen._runtime_splitter, [1200, 450])
                     for index in range(queue.count()):
-                        queue.show_index(index)
+                        capture_ui.show_figure(capture, queue, index)
                         settle(2)
                         capture(f'25_ml_figure_{index:02d}')
                 if args.module == 'measure':
@@ -1703,17 +2063,19 @@ def main() -> int:
                     before_tour = screen._settings_model.collect()
                     if screen._usage_card.body.isVisible():
                         QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
-                    screen._runtime_splitter.setSizes([1400, 300])
+                    capture_ui.splitter_sizes(capture, screen._runtime_splitter, [1400, 300])
                     for index in (0, 1, 2):
-                        queue.show_index(index)
-                        settle()
-                        capture(f'25_measure_figure_{index:02d}')
-                    screen._runtime_splitter.setSizes([300, 1400])
-                    screen._console._split.setSizes([1200, 100])
+                        with capture_ui.clip(capture, f'25_measure_figure_{index:02d}'):
+                            capture_ui.show_figure(capture, queue, index)
+                            settle()
+                    capture_ui.splitter_sizes(capture, screen._runtime_splitter, [300, 1400])
+                    capture_ui.splitter_sizes(capture, screen._console._split, [1200, 100])
                     for block, _, _ in screen._console._pipeline_console_blocks():
+                        if capture_ui.live(capture):
+                            continue
                         block.setFocus()
                         QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-                    screen._console.jump_to_the_end()
+                    capture_ui.console_to_end(capture, screen._console)
                     settle()
                     capture('26_measure_console_complete')
                     require_unchanged_settings(before_tour, screen._settings_model.collect())
@@ -1723,30 +2085,11 @@ def main() -> int:
                 if args.module == 'recruitment':
                     # Preserve the genuine overlay and every calculated chart.
                     # The archived masks are NOT asserted to be the postprocessed
-                    # masks behind the stored measurement rows.
-                    if 'Failed to plot images with outlines' in '\n'.join(blocks):
-                        raise RuntimeError('The actual Recruitment overlay failed')
-                    if queue.count() < 5:
-                        raise RuntimeError('Recruitment did not produce its overlay and four charts')
-                    width = sum(screen._body_splitter.sizes())
-                    screen._body_splitter.setSizes([width // 4, width - width // 4])
-                    screen._settings_scroll.horizontalScrollBar().setValue(0)
-                    if screen._usage_card.body.isVisible():
-                        QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
-                    screen._runtime_splitter.setSizes([1200, 450])
-                    for index in range(queue.count()):
-                        queue.show_index(index)
-                        settle()
-                        capture(f'25_recruitment_figure_{index:02d}')
-                    screen._runtime_splitter.setSizes([300, 1350])
-                    screen._console._split.setSizes([1200, 100])
-                    for block, _, _ in screen._console._pipeline_console_blocks():
-                        block.setFocus()
-                        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-                    screen._console.jump_to_the_end()
-                    settle()
-                    capture('26_recruitment_console_counts')
-                    screen._runtime_splitter.setSizes([1200, 450])
+                    # masks behind the stored measurement rows. The scene clips
+                    # (pointer picks each figure, then the console counts) live in
+                    # capture_recruitment.
+                    from capture_recruitment import record_recruitment_results
+                    record_recruitment_results(window, screen, queue, blocks, capture, settle)
                 if args.module == 'map_barcodes':
                     from capture_sequencing import inspect_mapping
                     write_json(captures / 'mapping_outputs.json',
@@ -1772,15 +2115,20 @@ def main() -> int:
             # request or imply that an AI response was generated.
             if not hasattr(screen, '_ai_switch'):
                 raise RuntimeError('This screen has no AI console control')
-            screen._ai_switch.setChecked(True)
+            capture_ui.set_checked(capture, screen._ai_switch, True)
             settle()
-            screen._console._input.setPlainText(
+            capture_ui.set_text(capture, screen._console._input,
                 'Explain the latest results and suggest which settings I should inspect. Do not change anything.')
             capture('30_ai_unsent_question')
             write_json(captures / 'ai_demo.json', {'prompt_submitted': False,
                        'response_generated': False, 'toggle_enabled': screen._ai_switch.isChecked()})
-            screen._console._input.clear()
-            screen._ai_switch.setChecked(False)
+            if capture_ui.live(capture):
+                QTest.mouseClick(screen._console._input, Qt.LeftButton)
+                QTest.keyClick(screen._console._input, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClick(screen._console._input, Qt.Key_Backspace)
+            else:
+                screen._console._input.clear()
+            capture_ui.set_checked(capture, screen._ai_switch, False)
         if args.run:
             # Opening result tabs can launch a reader after the main worker
             # finished. Do not accept a lesson that then logs a late failure.
@@ -1843,6 +2191,10 @@ def main() -> int:
                    if args.module in ('lineage', 'image_scatter') else str(stage / 'example_data')),
                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
                'completed_capture': True, 'selected_scenes': args.record_scenes})
+    if host is not None:
+        # The launched application owns its own shutdown (and its window).
+        host.finish(captures)
+        return 0
     window.close()
     settle(0.2)
     app.quit()

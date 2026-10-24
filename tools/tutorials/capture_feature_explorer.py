@@ -6,6 +6,8 @@ from pathlib import Path
 import tempfile
 import time
 
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import prepare_database_copy, require_unchanged_source, _digest
 from feature_explorer_evidence import read_measurements, verify_ranking
 
@@ -50,7 +52,18 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
                  not screen.explorer._debounce.isActive() and not screen.filters._debounce.isActive())
         settle(.4)
 
+    def shot(name,act=None,*targets):
+        """Clip ``name``: the action performed with the pointer, then the result read."""
+        started=drv.begin(capture,settle,name)
+        if act is not None:act()
+        idle()
+        capture_ui.point_at(capture,*(targets or (screen.explorer.table,)))
+        drv.snap(capture,name);drv.finish(capture,started)
+
     def fill(edit,text):
+        if capture_ui.live(capture):
+            capture_ui.set_text(capture,edit,str(text));settle(.3)
+            return
         click(edit)
         QTest.keyClick(edit,Qt.Key_A,Qt.ControlModifier)
         QTest.keyClicks(edit,str(text))
@@ -62,6 +75,11 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
         if index<0:
             raise ValueError(f'The real selector does not offer {value}')
         if index==box.currentIndex():
+            return
+        if capture_ui.live(capture):
+            capture_ui.select_combo(capture,box,index);idle()
+            if (box.currentData() if data else box.currentText())!=value:
+                raise ValueError('The real selector did not reach the requested value')
             return
         click(box)
         view=box.view()
@@ -82,7 +100,7 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected genuine file picker')
                 dialog.accepted.connect(lambda:accepted.append(True))
                 fill(dialog.findChild(QLineEdit,'fileNameEdit'),path)
-                capture(frame)
+                drv.snap(capture,frame);capture_ui.wait(capture,1.5,settle)
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('Expected unique picker accept action')
@@ -94,10 +112,13 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
             errors.append('Actual file picker timed out')
             dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watchdog.timeout.connect(abort)
-        timer.start(300);watchdog.start(15000)
+        watchdog.timeout.connect(abort)
+        watchdog.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        started=drv.begin(capture,settle,frame)
+        capture_ui.when_modal(capture,300,handle)
         try:click(button)
         finally:
+            drv.finish(capture,started)
             timer.stop();watchdog.stop();timer.deleteLater();watchdog.deleteLater()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'File not accepted')
         idle()
@@ -123,66 +144,74 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
         pd.testing.assert_frame_equal(actual,expected,check_dtype=False,rtol=1e-12,atol=1e-12)
         proof.setdefault('exports',{})[name]={'path':str(target),'rows':len(actual),'columns':list(actual.columns),
                                             'sha256':_digest(target),'all_cells_match_current_ranking':True}
-        capture(name+'_complete')
+        with capture_ui.clip(capture,name+'_complete'):
+            capture_ui.point_at(capture,buttons[0])
 
     try:
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='classify_merged' or w.property('navKey')=='classify_merged')]
         if not tiles:raise ValueError('No actual Home Classify tile')
-        click(max(tiles,key=lambda w:w.width()*w.height()))
-        wait_for(lambda:window._screens.get('classify_merged') is not None)
-        host=window._screens['classify_merged']
-        folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='feature_explorer']
-        if len(folds)!=1:raise ValueError('No unique Classify -> Feature Explorer fold')
-        capture('01_classify_host')
+        with capture_ui.clip(capture,'01_classify_host'):
+            click(max(tiles,key=lambda w:w.width()*w.height()))
+            wait_for(lambda:window._screens.get('classify_merged') is not None)
+            host=window._screens['classify_merged']
+            folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='feature_explorer']
+            if len(folds)!=1:raise ValueError('No unique Classify -> Feature Explorer fold')
+            capture_ui.point_at(capture,folds[0])
+        scene2=drv.begin(capture,settle,'02_current_feature_explorer')
         click(folds[0])
         panels=[w for w in window.findChildren(FeatureExplorerScreen) if w.isVisible()]
         if len(panels)!=1:raise ValueError('Actual Feature Explorer fold did not open')
         screen=panels[0]
         screen.explorer.ranked.connect(lambda r:outcomes.append({'rows':r.n_rows,'statistic':r.spec.statistic,'top':r.spec.top}))
-        capture('02_current_feature_explorer')
+        capture_ui.point_at(capture,screen._table_picker)
+        drv.snap(capture,'02_current_feature_explorer');drv.finish(capture,scene2)
         loads=[b for b in screen.findChildren(QPushButton) if b.text()=='Load table…']
         picker(loads[0],work/'measurements.db','03_choose_real_measurements')
         combo(screen._table_picker,'cell')
         if len(screen._frame)!=2341:raise ValueError('Expected full downloaded cell table')
-        combo(screen.explorer._label,'rowID')
+        def compare_rows():
+            combo(screen.explorer._label,'rowID')
+            header=screen.explorer.table.horizontalHeader()
+            for section in range(1,6):
+                QTest.mouseDClick(header.viewport(),Qt.LeftButton,
+                    pos=QPoint(header.sectionViewportPosition(section)+header.sectionSize(section)-1,
+                               header.height()//2))
+            settle(.3)
+        shot('04_real_row_comparison',compare_rows)
         verify('initial')
-        header=screen.explorer.table.horizontalHeader()
-        for section in range(1,6):
-            QTest.mouseDClick(header.viewport(),Qt.LeftButton,
-                pos=QPoint(header.sectionViewportPosition(section)+header.sectionSize(section)-1,
-                           header.height()//2))
-        settle(.3)
-        capture('04_real_row_comparison')
-        fill(screen.explorer._top.lineEdit(),4);idle();verify('top4',top=4)
-        capture('05_four_distributions')
+        shot('05_four_distributions',lambda:fill(screen.explorer._top.lineEdit(),4))
+        verify('top4',top=4)
         export('06_top_four_ranking')
-        fill(screen.explorer._top.lineEdit(),500);idle();verify('all',top=500)
-        capture('07_all_ranked_features')
+        shot('07_all_ranked_features',lambda:fill(screen.explorer._top.lineEdit(),500))
+        verify('all',top=500)
         export('08_full_ranking')
-        combo(screen.explorer._statistic,'ks',data=True);verify('ks',statistic='ks',top=500)
-        capture('09_ks_comparison')
+        shot('09_ks_comparison',lambda:combo(screen.explorer._statistic,'ks',data=True))
+        verify('ks',statistic='ks',top=500)
         combo(screen.explorer._statistic,'auc',data=True);verify('restored_auc',top=500)
-        combo(screen.filters._picker,'cell_area')
-        click(screen.filters.findChild(QPushButton,'FilterAddButton'));idle()
-        range_row=screen.filters._rows['cell_area']
         threshold=sorted(r['cell_area'] for r in rows)[len(rows)//2]
-        fill(range_row._low.lineEdit(),threshold);idle()
+        def area_filter():
+            combo(screen.explorer._statistic,'auc',data=True)
+            combo(screen.filters._picker,'cell_area')
+            click(screen.filters.findChild(QPushButton,'FilterAddButton'));idle()
+            range_row=screen.filters._rows['cell_area']
+            fill(range_row._low.lineEdit(),threshold)
+        shot('10_live_area_filter',area_filter,screen.filters)
         filtered=[r for r in rows if r['cell_area']>=threshold]
         verify('area_filtered',selected_rows=filtered,top=500)
         proof['area_threshold']=threshold
-        capture('10_live_area_filter')
-        click(screen.filters._clear);idle();verify('cleared_area',top=500)
-        capture('11_restore_all_cells')
-        combo(screen.filters._picker,'rowID')
-        click(screen.filters.findChild(QPushButton,'FilterAddButton'));idle()
-        category=screen.filters._rows['rowID']
-        toggle=next(b for b in category._boxes if b.text()=='r5')
-        click(toggle);idle()
+        shot('11_restore_all_cells',lambda:click(screen.filters._clear))
+        verify('cleared_area',top=500)
+        def one_row():
+            combo(screen.filters._picker,'rowID')
+            click(screen.filters.findChild(QPushButton,'FilterAddButton'));idle()
+            category=screen.filters._rows['rowID']
+            toggle=next(b for b in category._boxes if b.text()=='r5')
+            click(toggle);idle()
+        shot('12_one_row_changes_comparison',one_row,screen.filters)
         actual_label=screen.explorer._label.currentText()
         proof['one_class_filter_observation']={'selected_label':actual_label,
             'summary':screen.explorer.summary(),'result_label':screen.explorer.result.label if screen.explorer.result else None}
-        capture('12_one_row_changes_comparison')
         if actual_label!='cell_channel_0_maxima_count':
             raise ValueError('Investigate the observed post-filter comparison before narrating it')
         groups=Counter(str(r[actual_label]) for r in rows if r['rowID']=='r12' and r[actual_label] is not None)
@@ -194,18 +223,25 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
             independently_counted_classes=dict(groups),
             multiclass_scores_not_independently_validated=True,
             not_presented_as_evidence_of_biological_separation=True)
-        click(screen.filters._clear);idle()
-        proof['label_after_clear']=screen.explorer._label.currentText()
-        combo(screen.explorer._label,'rowID');verify('restored_classes',top=500)
-        capture('13_restore_two_classes')
+        def restore_classes():
+            click(screen.filters._clear);idle()
+            proof['label_after_clear']=screen.explorer._label.currentText()
+            combo(screen.explorer._label,'rowID')
+        shot('13_restore_two_classes',restore_classes)
+        verify('restored_classes',top=500)
         tabs=screen.formulas.parentWidget().parentWidget()
         if not isinstance(tabs,QTabWidget):raise ValueError('Expected actual Filter/Columns tabs')
-        QTest.mouseClick(tabs.tabBar(),Qt.LeftButton,pos=tabs.tabBar().tabRect(tabs.indexOf(screen.formulas)).center())
-        settle(.3)
-        fill(screen.formulas._name,'area_k')
-        fill(screen.formulas._expression,'cell_area/1e3')
-        wait_for(lambda:screen.formulas._add.isEnabled())
-        capture('14_scaled_area_formula')
+        def formula_form():
+            if capture_ui.live(capture):
+                capture_ui.select_tab(capture,tabs,tabs.indexOf(screen.formulas))
+            else:
+                QTest.mouseClick(tabs.tabBar(),Qt.LeftButton,pos=tabs.tabBar().tabRect(tabs.indexOf(screen.formulas)).center())
+            settle(.3)
+            fill(screen.formulas._name,'area_k')
+            fill(screen.formulas._expression,'cell_area/1e3')
+            wait_for(lambda:screen.formulas._add.isEnabled())
+        shot('14_scaled_area_formula',formula_form,screen.formulas)
+        scene15=drv.begin(capture,settle,'15_derived_feature_ranked')
         click(screen.formulas._add);idle()
         verify('derived_area',top=500,extra=True)
         computed=screen.formulas.computed_frame()
@@ -215,14 +251,17 @@ def record_explorer(app, window, stage, captures, capture, settle, write_json, t
         derived=screen.explorer.result.score_for('area_k')
         if original_score.auc!=derived.auc or original_score.ks!=derived.ks:
             raise ValueError('Positive scaling did not preserve actual rank/CDF separation')
-        capture('15_derived_feature_ranked')
+        capture_ui.point_at(capture,screen.explorer.table)
+        drv.snap(capture,'15_derived_feature_ranked');drv.finish(capture,scene15)
         export('16_ranking_with_derived_area')
-        items=screen.formulas._list
-        item=items.item(0)
-        QTest.mouseClick(items.viewport(),Qt.LeftButton,pos=items.visualItemRect(item).center())
-        remove=next(b for b in screen.formulas.findChildren(QPushButton) if b.text()=='Remove')
-        click(remove);idle();verify('formula_removed',top=500)
-        capture('17_original_features_restored')
+        def remove_formula():
+            items=screen.formulas._list
+            item=items.item(0)
+            QTest.mouseClick(items.viewport(),Qt.LeftButton,pos=items.visualItemRect(item).center())
+            remove=next(b for b in screen.formulas.findChildren(QPushButton) if b.text()=='Remove')
+            click(remove)
+        shot('17_original_features_restored',remove_formula)
+        verify('formula_removed',top=500)
         require_unchanged_source(source,original['source_bundle'])
         if _digest(work/'measurements.db')!=original['database_sha256']:
             raise ValueError('The private source database was modified')

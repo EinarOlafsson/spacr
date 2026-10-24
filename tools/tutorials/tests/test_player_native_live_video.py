@@ -43,7 +43,7 @@ def test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served,t
         f'/media_host/{identity}/video/native-live-timings.json':(native,'application/json')})
     with sync_playwright() as engine:
         browser=engine.chromium.launch(executable_path=str(CHROME),headless=True,
-            args=['--disable-gpu','--autoplay-policy=no-user-gesture-required'])
+            args=['--disable-gpu','--disable-accelerated-video-decode','--autoplay-policy=no-user-gesture-required'])
         page=browser.new_page();page.add_init_script(
             "localStorage.setItem('spacr-tutorial-voice-v2','af_heart');"
             "localStorage.setItem('spacr-tutorial-quality-v1','1440p');")

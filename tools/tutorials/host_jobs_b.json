@@ -1,0 +1,208 @@
+{
+  "17_timelapse": [
+    {
+      "name": "timelapse",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "timelapse",
+        "--capture-name",
+        "timelapse_verified_explicit_relink",
+        "--timeout",
+        "900"
+      ],
+      "note": "UNSURE: the driver is capture_timelapse.record_timelapse, selected by --module timelapse (host key mask). Use --module timelapse. Needs no prepared input (extracts docs/source/_extra/tutorials/examples/SYNTHETIC_timelapse_preview.zip itself). Writes captures/timelapse; lesson 18 expects it as captures/timelapse_verified_explicit_relink (use --capture-name timelapse_verified_explicit_relink)."
+    }
+  ],
+  "18_motility": [
+    {
+      "name": "motility",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "motility",
+        "--timeout",
+        "900"
+      ],
+      "note": "Needs stage/captures/timelapse_verified_explicit_relink/scientific_acceptance.json and its merged/ arrays from the lesson 17 run (accepted synthetic source under the stage). run_native --inputs refuses a captures/ top folder, so run 17 and 18 in the same stage or copy that capture in. Host Measure; 01_measure_host through Home tile."
+    }
+  ],
+  "19_train_cellpose": [
+    {
+      "name": "train_cellpose",
+      "env": {},
+      "run_native": [
+        "--cuda",
+        "--inputs",
+        "<prepared dir containing Cellpose_training_images_masks/ extracted from docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip>",
+        "--ro-bind=/home/carruthers/.spacr/backends/cellpose3=app-state/backends/cellpose3"
+      ],
+      "capture": [
+        "--module",
+        "train_cellpose",
+        "--cellpose-training-gui",
+        "--timeout",
+        "1800"
+      ],
+      "note": "Trains 10 epochs on the GPU (torch.cuda required; run in a GPU turn). UNSURE about the Cellpose bind (the driver expects base_model 'cpsam' in the form; memory says always cpsam_v2 by full path - check the bind actually provides the weights). Needs the extracted example with source_manifest.json, training/, apply/. Use --cellpose-training-gui --stop-before-training only for a dry run."
+    }
+  ],
+  "27_replication": [
+    {
+      "name": "replication",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "replication",
+        "--timeout",
+        "900"
+      ],
+      "note": "Reads stage.parent/synthetic/replication/measurements/measurements.db (/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/synthetic/replication) and stage.parent/catalog/27_replication_settings.json (/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/catalog/). Paths below are the author-side tree on this machine; capture_*.py constants say /mnt/firecuda2/Claude/toxoplasma_projects (absent here) and several drivers read stage.parent/... (synthetic/, catalog/, derived/), which the neutral bwrap stage does not provide: the integrator must bind or relocate these."
+    }
+  ],
+  "28_training_runs": [
+    {
+      "name": "training_runs",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "train_compare",
+        "--timeout",
+        "900"
+      ],
+      "note": "Host Classify (classify_merged). Reads SOURCE=/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/training_runs (here /media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/synthetic/training_runs) and tools/tutorials/evidence/2026-09-09_training_runs_input_audit.json; SOURCE is a hard-coded absolute path, so it must exist at that path inside the sandbox (bind it)."
+    }
+  ],
+  "29_report": [
+    {
+      "name": "report",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "report",
+        "--timeout",
+        "900"
+      ],
+      "note": "Depends on the lesson 31 run: needs stage/external_mask_runs/example-pj_qwr_5/project and stage/captures/external_masks_final_console/{scientific_acceptance,provenance,output_evidence}.json (31 must be recorded with --capture-name external_masks_final_console in the same stage, or those folders copied in). The 00a_help_report_menu scene and browser_* scenes are not driven by capture_report (browser scenes need a separate step)."
+    }
+  ],
+  "30_plate_queue": [
+    {
+      "name": "plate_queue",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "queue",
+        "--timeout",
+        "1800"
+      ],
+      "note": "Depends on lesson 25: needs stage/captures/recruitment_release/{scientific_acceptance,input_manifest,batch_settings}.json plus its measurements.db subset (record 25 with --capture-name recruitment_release). Also needs a private queue state bind: stage/queue_state/<capture dir name> bind-mounted onto ~/.spacr (queue.json) - see capture_refresh 'queue' handling around line 364; UNSURE how run_native sets it."
+    }
+  ],
+  "31_external_masks": [
+    {
+      "name": "external_masks",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "<prepared dir with captures-free copy of the preserved Foreign inputs>"
+      ],
+      "capture": [
+        "--module",
+        "external_masks",
+        "--capture-name",
+        "external_masks_final_console",
+        "--external-input-root",
+        "<stage-relative dir of byte-identical Foreign TIFF copies, e.g. foreign_inputs>",
+        "--timeout",
+        "1800"
+      ],
+      "note": "Needs stage/captures/foreign_release_v2/{inputs.json,scientific_acceptance.json} (the Foreign lesson capture) and the two retained TIFF pairs (fov01/fov02) under --external-input-root. Use --external-preview-only for a preview-only run. UNSURE where the foreign capture is staged (captures/ cannot come through --inputs)."
+    }
+  ],
+  "32_align_stitch": [
+    {
+      "name": "align",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "align",
+        "--timeout",
+        "900"
+      ],
+      "note": "Reads stage.parent/derived/align_stitch/{source_manifest.json,tiles/} and authoring.parent/test_datasets/spacr/tutorials/orig/test/stack/test_E11_2_1.npy (/media/carruthers/mnt3/claude/toxoplasma_projects). Paths below are the author-side tree on this machine; capture_*.py constants say /mnt/firecuda2/Claude/toxoplasma_projects (absent here) and several drivers read stage.parent/... (synthetic/, catalog/, derived/), which the neutral bwrap stage does not provide: the integrator must bind or relocate these."
+    },
+    {
+      "name": "align_test_data",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "home",
+        "--openings",
+        "--openings-set",
+        "align_test_data",
+        "--timeout",
+        "900"
+      ],
+      "note": "Scene 02b_align_test_data_loaded (Load test data button). UNSURE the example download needs network/cached example_data (SPACR_TUTORIAL_OFFLINE must be unset)."
+    }
+  ],
+  "33_plate_viewer": [
+    {
+      "name": "plate_viewer",
+      "env": {},
+      "run_native": [
+        "--inputs",
+        "<prepared dir containing example_data/plate1/measurements/measurements.db (the public Annotate example)>"
+      ],
+      "capture": [
+        "--module",
+        "plate_view",
+        "--plate-current-example",
+        "--timeout",
+        "900"
+      ],
+      "note": "Host Graph Builder. The driver reads stage/example_data/plate1/measurements/measurements.db (expects 4 wells, 2341 cell rows); the Load test data button uses the cached copy. Needs the example staged or downloadable."
+    }
+  ],
+  "34_database": [
+    {
+      "name": "database",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "db_browser",
+        "--timeout",
+        "900"
+      ],
+      "note": "SOURCE is hard-coded /mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/measurements/measurements.db (sha256 9028eabf...); absent here, exists at /media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/measurements/measurements.db - bind it at the hard-coded path or patch the constant. The app is opened through Help > Database browser."
+    }
+  ],
+  "25_recruitment": [
+    {
+      "name": "recruitment",
+      "env": {},
+      "run_native": [],
+      "capture": [
+        "--module",
+        "recruitment",
+        "--capture-name",
+        "recruitment_release",
+        "--download",
+        "--run",
+        "--timeout",
+        "1800"
+      ],
+      "note": "NOT converted/verified by group B (driver is capture_refresh main); listed only because lesson 30 depends on its capture name recruitment_release. UNSURE of flags."
+    }
+  ]
+}

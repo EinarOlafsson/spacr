@@ -13,6 +13,10 @@ import json
 from pathlib import Path
 import tempfile
 import time
+from contextlib import nullcontext
+
+import capture_ui
+import capture_ui_drv_b
 
 
 def _digest(path):
@@ -89,6 +93,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     from external_evidence import verify_external_project
 
     stage, captures = Path(stage), Path(captures)
+    host = capture_ui.live(capture)
+    lesson_scenes = {row.get('visual') for row in json.loads(
+        (Path(__file__).resolve().parent / 'lessons/31_external_masks.json').read_text())['scenes']}
     write_json(captures / 'scientific_acceptance.json', {
         'accepted': False, 'published': False,
         'reason': 'The actual External Masks project has not been independently verified',
@@ -159,7 +166,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     def fill(widget, value):
         if widget is None or not widget.isVisible() or not widget.isEnabled():
             raise RuntimeError('The actual text control is not usable')
-        widget.setFocus()
+        capture_ui.focus(capture, widget)
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(widget, str(value))
         QTest.keyClick(widget, Qt.Key_Tab)
@@ -176,11 +183,14 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 fill(box.lineEdit(), value)
                 return
             raise RuntimeError(f'The actual control has no option {value!r}')
-        box.setFocus()
-        QTest.keyClick(box, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(box, Qt.Key_Down)
-        QTest.keyClick(box, Qt.Key_Tab)
+        if host:
+            capture_ui.select_combo(capture, box, index)
+        else:
+            box.setFocus()
+            QTest.keyClick(box, Qt.Key_Home)
+            for _ in range(index):
+                QTest.keyClick(box, Qt.Key_Down)
+            QTest.keyClick(box, Qt.Key_Tab)
         settle(0.15)
         if box.currentIndex() != index:
             raise RuntimeError(f'The actual option did not become selected: {value!r}')
@@ -189,17 +199,17 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                if button.app_key == 'external_masks' and button.isVisible()]
     if len(buttons) != 1:
         raise RuntimeError('Import must expose exactly one External Masks fold')
-    click(buttons[0])
-    settle(2)
-    children = [child for child in window.findChildren(AppScreen)
-                if child.app_key == 'external_masks' and child.isVisible()]
-    if len(children) != 1:
-        raise RuntimeError('The actual External Masks fold did not open')
-    screen = children[0]
-    capture('01b_current_external_masks_fold')
+    with capture_ui.clip(capture, '01b_current_external_masks_fold'):
+        click(buttons[0])
+        settle(2)
+        children = [child for child in window.findChildren(AppScreen)
+                    if child.app_key == 'external_masks' and child.isVisible()]
+        if len(children) != 1:
+            raise RuntimeError('The actual External Masks fold did not open')
+        screen = children[0]
     model = screen._settings_model
     width = sum(screen._body_splitter.sizes())
-    screen._body_splitter.setSizes([width // 2, width - width // 2])
+    capture_ui.splitter_sizes(capture, screen._body_splitter, [width // 2, width - width // 2])
 
     def owning_sections(field):
         # The folded AppScreen has no shell-installed settings search.
@@ -242,16 +252,16 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 unavailable(key, 'a required section is hidden or discarded', field)
             header = section.header()
             if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(header)
-                screen._settings_scroll.horizontalScrollBar().setValue(0)
+                capture_ui.scroll_to(capture, screen._settings_scroll, header)
+                capture_ui.scroll_to_value(capture, screen._settings_scroll, 0, 'horizontal')
                 settle(0.2)
                 if not header.visibleRegion().contains(header.rect().center()):
                     unavailable(key, 'the section header is outside the visible viewport', field)
                 click(header)
                 if not section.is_expanded():
                     unavailable(key, 'the actual section header did not expand', field)
-        screen._settings_scroll.ensureWidgetVisible(field)
-        screen._settings_scroll.horizontalScrollBar().setValue(0)
+        capture_ui.scroll_to(capture, screen._settings_scroll, field)
+        capture_ui.scroll_to_value(capture, screen._settings_scroll, 0, 'horizontal')
         settle(0.2)
         if not field.isVisible() or not field.visibleRegion().contains(field.rect().center()):
             unavailable(key, 'the control remains hidden or outside the viewport', field)
@@ -278,11 +288,12 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 if not isinstance(dialog, QFileDialog):
                     raise RuntimeError('Expected the real Qt folder picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1400, 950)
+                capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                capture(frame)
+                if not host:
+                    capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
-                QTest.mouseClick(box.button(QDialogButtonBox.Open), Qt.LeftButton)
+                capture_ui.accept_file_dialog(capture, dialog, box.button(QDialogButtonBox.Open))
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
@@ -294,11 +305,12 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 errors.append('The folder picker did not accept the requested directory')
                 dialog.reject()
 
-        QTimer.singleShot(500, handle)
-        QTimer.singleShot(12000, reject_stalled)
-        click(inputs._add_folder)
-        if errors or not accepted:
-            raise RuntimeError('; '.join(errors) or 'Folder selection was cancelled')
+        with (capture_ui.clip(capture, frame) if host else nullcontext()):
+            capture_ui.when_modal(capture, 500, handle)
+            QTimer.singleShot(90000 if host else 12000, reject_stalled)
+            click(inputs._add_folder)
+            if errors or not accepted:
+                raise RuntimeError('; '.join(errors) or 'Folder selection was cancelled')
 
     choose_folder(images, '02_choose_real_images')
     choose_folder(masks, '03_choose_real_cell_masks')
@@ -319,23 +331,23 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         return matches[0]
 
     image_row, mask_row = row_for(image_paths), row_for(mask_paths)
-    select(inputs._table.cellWidget(image_row, 2), 'image')
-    select(inputs._table.cellWidget(mask_row, 2), 'mask')
-    select(inputs._table.cellWidget(mask_row, 3), 'cell')
-    capture('04_review_detected_roles')
+    with capture_ui.clip(capture, '04_review_detected_roles'):
+        select(inputs._table.cellWidget(image_row, 2), 'image')
+        select(inputs._table.cellWidget(mask_row, 2), 'mask')
+        select(inputs._table.cellWidget(mask_row, 3), 'cell')
     initial_groups = inputs.get_value()
     if (len(initial_groups) != 2
             or {group['role'] for group in initial_groups} != {'image', 'mask'}
             or next(group for group in initial_groups if group['role'] == 'mask')['object_type'] != 'cell'):
         raise RuntimeError('The visible input roles were not retained')
-    select(inputs._table.cellWidget(image_row, 2), 'ignore')
-    if len(inputs.get_value()) != 1 or inputs.get_value()[0]['role'] != 'mask':
-        raise RuntimeError('Ignore did not exclude the image group from the actual settings')
-    capture('04b_image_ignored_not_submitted')
-    select(inputs._table.cellWidget(image_row, 2), 'image')
-    if inputs.get_value() != initial_groups or model.collect().get('inputs') != initial_groups:
-        raise RuntimeError('Restoring the actual role did not restore the original input groups')
-    capture('04c_image_role_restored')
+    with capture_ui.clip(capture, '04b_image_ignored_not_submitted'):
+        select(inputs._table.cellWidget(image_row, 2), 'ignore')
+        if len(inputs.get_value()) != 1 or inputs.get_value()[0]['role'] != 'mask':
+            raise RuntimeError('Ignore did not exclude the image group from the actual settings')
+    with capture_ui.clip(capture, '04c_image_role_restored'):
+        select(inputs._table.cellWidget(image_row, 2), 'image')
+        if inputs.get_value() != initial_groups or model.collect().get('inputs') != initial_groups:
+            raise RuntimeError('Restoring the actual role did not restore the original input groups')
     write_json(captures / 'input_roles.json', {
         'groups': initial_groups, 'files': inputs.file_count(),
         'image_ignore_image_restored': True, 'groups_obtained_from_real_pickers': True,
@@ -363,34 +375,35 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     observations = []
 
     def set_setting(key, value, frame=None):
-        field = expose(key)
-        if model.collect().get(key) != value:
-            if isinstance(field, QAbstractButton) and isinstance(value, bool):
-                click(field)
-            elif isinstance(field, QSpinBox):
-                fill(field, value)
-            elif isinstance(field, QComboBox):
-                select(field, value)
-            elif isinstance(field, QLineEdit):
-                fill(field, value)
-            elif isinstance(field, ChannelMappingWidget):
-                for channel, index in value.items():
-                    fill(field._boxes[channel], index)
-            elif not model.set_value_for_key(key, value):
-                raise RuntimeError(f'The real setting editor cannot accept {key}={value!r}')
-        settle(0.15)
-        actual = model.collect().get(key)
-        if actual != value:
-            raise RuntimeError(f'The real setting did not retain {key}={value!r}: {actual!r}')
-        observations.append({'key': key, 'value': actual,
-                             'exposure': 'actual_section_headers_and_scroll_area',
-                             'section_path': [section.property('settingsCategorySource')
-                                              for section in owning_sections(field)],
-                             'visible_keys': [name for name, widget in model._widgets.items()
-                                              if widget.isVisible() and not widget.visibleRegion().isEmpty()],
-                             'widget': type(field).__name__})
-        if frame:
-            capture(frame)
+        with (capture_ui.clip(capture, frame) if frame else nullcontext()):
+            field = expose(key)
+            if model.collect().get(key) != value:
+                if isinstance(field, QAbstractButton) and isinstance(value, bool):
+                    click(field)
+                elif isinstance(field, QSpinBox):
+                    fill(field, value)
+                elif isinstance(field, QComboBox):
+                    select(field, value)
+                elif isinstance(field, QLineEdit):
+                    fill(field, value)
+                elif isinstance(field, ChannelMappingWidget):
+                    for channel, index in value.items():
+                        fill(field._boxes[channel], index)
+                elif not capture_ui_drv_b.fill_setting(capture, screen, key, value):
+                    raise RuntimeError(f'The real setting editor cannot accept {key}={value!r}')
+            settle(0.15)
+            actual = model.collect().get(key)
+            if actual != value:
+                raise RuntimeError(f'The real setting did not retain {key}={value!r}: {actual!r}')
+            observations.append({'key': key, 'value': actual,
+                                 'exposure': 'actual_section_headers_and_scroll_area',
+                                 'section_path': [section.property('settingsCategorySource')
+                                                  for section in owning_sections(field)],
+                                 'visible_keys': [name for name, widget in model._widgets.items()
+                                                  if widget.isVisible() and not widget.visibleRegion().isEmpty()],
+                                 'widget': type(field).__name__})
+            if frame:
+                capture_ui.point_at(capture, field, dwell=1.0)
 
     for key, value in preset.items():
         set_setting(key, value, '05_setting_' + key)
@@ -401,10 +414,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     write_json(captures / 'settings_tour.json', {'observations': observations})
 
     def console_end():
-        for block, _, _ in screen._console._pipeline_console_blocks():
-            block.setFocus()
-            QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-        screen._console.jump_to_the_end()
+        capture_ui.console_end_all(capture, screen._console)
+        capture_ui.console_to_end(capture, screen._console)
         settle(0.4)
 
     def run_job(name, requires_figure):
@@ -421,26 +432,27 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                     outcome['errors'].append(box.windowTitle() + ': ' + box.text())
                     box.reject()
 
-        prompt_timer = QTimer()
+        prompt_timer = QTimer(window)
         prompt_timer.setInterval(500)
         prompt_timer.timeout.connect(reject_prompt)
         prompt_timer.start()
         try:
+            actions_fold(False)          # the console tour may have folded it; Run lives in Actions
             if not screen._btn_run.isVisible() or not screen._btn_run.isEnabled():
                 raise RuntimeError('The actual Run button is not usable')
             # Connect immediately, before processing GUI events: a preview
             # may finish quickly, but its queued signals must still be seen.
-            QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-            worker = getattr(screen, '_worker', None)
-            if worker is None:
-                raise RuntimeError('The actual Run button did not start a pipeline worker')
-            worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
-            worker.error.connect(lambda text: outcome['errors'].append(str(text)))
-            worker.line_ready.connect(lambda text: lines.append(str(text)))
-            deadline = time.monotonic() + timeout
-            next_frame = time.monotonic() + 20
-            settle(0.5)
-            capture(name + '_running')
+            with capture_ui.clip(capture, name + '_running'):
+                QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+                worker = getattr(screen, '_worker', None)
+                if worker is None:
+                    raise RuntimeError('The actual Run button did not start a pipeline worker')
+                worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
+                worker.error.connect(lambda text: outcome['errors'].append(str(text)))
+                worker.line_ready.connect(lambda text: lines.append(str(text)))
+                deadline = time.monotonic() + timeout
+                next_frame = time.monotonic() + 20
+                settle(0.5)
             while not outcome['finished'] or screen._worker_thread_is_running():
                 if time.monotonic() >= deadline:
                     QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
@@ -453,6 +465,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             settle(2)
         finally:
             prompt_timer.stop()
+            prompt_timer.deleteLater()
             write_json(captures / (name + '_outcome.json'), outcome)
             write_json(captures / (name + '_worker_lines.json'), lines)
         blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
@@ -460,8 +473,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         count = screen._figure_queue.count() - starting_figures
         acceptance = assess_pipeline(outcome, blocks, count, requires_figure=requires_figure)
         write_json(captures / (name + '_acceptance.json'), acceptance)
-        console_end()
-        capture(name + '_finished')
+        with capture_ui.clip(capture, name + '_finished'):
+            console_end()
         if not acceptance['accepted']:
             raise RuntimeError(f'{name} failed: ' + '; '.join(acceptance['reasons']))
         return outcome, lines, count
@@ -497,6 +510,17 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         if screen._console_folder.shut != shut:
             raise RuntimeError('The actual Console heading did not change its fold state')
 
+    def actions_fold(shut):
+        # The Actions heading is a real fold (its chevron is in the pane). Folding it gives the
+        # console the room the Import host form above leaves too little of.
+        folder = getattr(screen, '_actions_folder', None)
+        if folder is None or folder.shut == shut:
+            return
+        heading = folder.heading if folder.heading.isVisible() else screen._actions_heading
+        click(heading)
+        if folder.shut != shut:
+            raise RuntimeError('The actual Actions heading did not change its fold state')
+
     def runtime_space(for_figures):
         # Use the actual Figures heading to trade room with the console.
         # Preserve the other panes and all native minimum heights.
@@ -519,7 +543,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         available = max(1, max(sum(sizes), runtime.height()) - other)
         sizes[figure_slot] = available if for_figures else figures.title_label.sizeHint().height()
         sizes[console_slot] = screen._console_header.sizeHint().height() if for_figures else available
-        runtime.setSizes(sizes)
+        capture_ui_drv_b.splitter_to(capture, runtime, sizes)
         settle(0.5)
 
     def retained_console_state():
@@ -611,10 +635,10 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 if own_dialog is not dialog and own_dialog.isVisible():
                     own_dialog.reject()
 
-        handler = QTimer()
+        handler = QTimer(window)
         handler.setSingleShot(True)
         handler.timeout.connect(configure_preferences)
-        watchdog = QTimer()
+        watchdog = QTimer(window)
         watchdog.setSingleShot(True)
         watchdog.timeout.connect(cancel_stalled_preferences)
         try:
@@ -626,6 +650,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         finally:
             handler.stop()
             watchdog.stop()
+            handler.deleteLater()
+            watchdog.deleteLater()
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'The native Font scale was not saved')
         settle(1)
@@ -678,7 +704,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         if not usage.folder.shut or usage.body.isVisible():
             raise RuntimeError('The native System card did not remain collapsed')
         width = sum(screen._body_splitter.sizes())
-        screen._body_splitter.setSizes([width // 4, width - width // 4])
+        capture_ui.splitter_sizes(capture, screen._body_splitter, [width // 4, width - width // 4])
         readable_tour['font_scale_changes'].append({
             'frame': frame, 'from_percent': original_percent, 'to_percent': percent,
             'control': 'Preferences / Font scale', 'actual_save_clicked': True,
@@ -691,14 +717,20 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         write_json(captures / 'readable_tour.json', readable_tour)
 
     def readable_console():
+        # 360 px is a height in the 3840 px wide final frame; the host window is 2560 px wide and the
+        # video is scaled up, so the same readability is 2/3 of that in window pixels (350 px is readable).
+        readable_px = int(round(360 * min(1.0, window.width() / 3840.0)))
         def position():
             console_fold(False)
             runtime_space(False)
-            console.set_split_sizes(1400, 80)
+            if host:
+                capture_ui_drv_b.splitter_to(capture, console._split, [1400, 80])
+            else:
+                console.set_split_sizes(1400, 80)
             settle(0.5)
 
         position()
-        if console.isVisible() and console._scroll.viewport().height() < 360:
+        if console.isVisible() and console._scroll.viewport().height() < readable_px:
             # Preview is already readable with no figures and must stay a
             # genuinely non-writing operation. Only the completed six-figure
             # tour may use this shown, reversible preference adjustment.
@@ -708,78 +740,110 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                     if percent < int(round(get_font_scale() * 100)):
                         smaller_console_preference(percent)
                         position()
-                        if console._scroll.viewport().height() >= 360:
+                        if console._scroll.viewport().height() >= readable_px:
                             break
-        if not console.isVisible() or console._scroll.viewport().height() < 360:
+        if console.isVisible() and console._scroll.viewport().height() < readable_px:
+            # A live (GNOME host) drag of the console splitter can stop short while the
+            # preceding fold/runtime animations are still settling; settle and drag once more
+            # before declaring the viewport too short.
+            settle(1.0)
+            position()
+        if console.isVisible() and console._scroll.viewport().height() < readable_px:
+            # External Masks is a fold page under the Import form, so the runtime pane is only about
+            # half the window. Fold Actions (opened again before the next Run) and repeat the drag.
+            actions_fold(True)
+            settle(.5)
+            position()
+        if not console.isVisible() or console._scroll.viewport().height() < readable_px:
             capture('readability_error_console')
-            raise RuntimeError('The actual console viewport remains too short for the readable tour')
+            raise RuntimeError(
+                'The actual console viewport remains too short for the readable tour '
+                f'(visible={console.isVisible()}, viewport={console._scroll.viewport().height()}, '
+                f'split={console._split.sizes()}, runtime={runtime.sizes()}, figures={screen._figure_queue.count()}, '
+                f'runtime_height={runtime.height()}, window={window.width()}x{window.height()}, '
+                f'dpr={window.devicePixelRatioF()}, screen={window.screen().size().width()}x{window.screen().size().height()}, '
+                f'actions_min={screen._actions_section.minimumSizeHint().height()})')
 
     def show_console_marker(marker, frame, *, require_unwritten=False, also_visible=()):
-        if require_unwritten and destination.exists():
-            raise RuntimeError('The non-writing preview frame requires a nonexistent destination')
-        readable_console()
-        candidates = [(block, text) for block, _, text in console._pipeline_console_blocks()
-                      if marker in text]
-        if not candidates:
-            raise RuntimeError(f'The actual pipeline console has no summary marker: {marker}')
-        block, before_text = candidates[-1]
-        if not block.isVisible():
-            raise RuntimeError('The actual pipeline summary block is folded or hidden')
-        # Find in the existing Qt document rather than counting Python
-        # characters (Qt uses UTF-16 cursor offsets). Use the last matching
-        # occurrence so each frame shows the most recent actual operation.
-        found = block.document().find(marker, 0)
-        selected = None
-        while not found.isNull():
-            selected = found
-            found = block.document().find(marker, found)
-        if selected is None:
-            raise RuntimeError('The rendered console document lost its summary marker')
-        block.setFocus()
-        block.setTextCursor(selected)
-        block.centerCursor()
-        settle(0.2)
-        target = block.viewport().mapTo(console._holder, block.cursorRect().center())
-        scrollbar = console._scroll.verticalScrollBar()
-        scrollbar.setValue(max(0, min(scrollbar.maximum(),
-                                     target.y() - console._scroll.viewport().height() // 3)))
-        settle(0.4)
-        if not block.viewport().visibleRegion().contains(block.cursorRect().center()):
-            capture('readability_error_summary')
-            raise RuntimeError('The actual summary marker did not scroll into view')
-        # Geometry alone is not readable evidence: require normal-sized text
-        # and the actual named summary/table list inside the clipped viewport.
-        if block.font().pointSizeF() < 9 or block.fontMetrics().height() < 12:
-            raise RuntimeError('The actual console summary font is too small to read')
-        for text in (marker, *also_visible):
-            cursor = block.document().find(text, selected.selectionStart())
-            if cursor.isNull():
-                raise RuntimeError(f'The actual console lacks the required visible text: {text}')
-            for position in (cursor.selectionStart(), cursor.selectionEnd()):
-                cursor.setPosition(position)
-                if not block.viewport().visibleRegion().contains(block.cursorRect(cursor).center()):
-                    capture('readability_error_summary')
-                    raise RuntimeError('The actual console summary/table text is clipped')
-        if block.toPlainText() != before_text:
-            raise RuntimeError('Navigating the actual console changed its text')
-        capture(frame)
-        if require_unwritten and destination.exists():
-            raise RuntimeError('The destination appeared while recording the non-writing preview')
-        readable_tour['console_markers'].append({
-            'marker': marker, 'frame': frame, 'runtime_sizes': runtime.sizes(),
-            'console_chat_sizes': console.split_sizes(),
-            'visible_height': console._scroll.viewport().height(),
-            'document_text_unchanged': True, 'destination_exists': destination.exists(),
-            'nonwriting_frame': require_unwritten,
-            'font_point_size': block.font().pointSizeF(),
-            'font_line_height': block.fontMetrics().height(),
-            'additional_visible_text': list(also_visible),
-        })
-        write_json(captures / 'readable_tour.json', readable_tour)
+        with capture_ui.clip(capture, frame):
+            if require_unwritten and destination.exists():
+                raise RuntimeError('The non-writing preview frame requires a nonexistent destination')
+            readable_console()
+            candidates = [(block, text) for block, _, text in console._pipeline_console_blocks()
+                          if marker in text]
+            if not candidates:
+                raise RuntimeError(f'The actual pipeline console has no summary marker: {marker}')
+            block, before_text = candidates[-1]
+            if not block.isVisible():
+                raise RuntimeError('The actual pipeline summary block is folded or hidden')
+            # Find in the existing Qt document rather than counting Python
+            # characters (Qt uses UTF-16 cursor offsets). Use the last matching
+            # occurrence so each frame shows the most recent actual operation.
+            found = block.document().find(marker, 0)
+            selected = None
+            while not found.isNull():
+                selected = found
+                found = block.document().find(marker, found)
+            if selected is None:
+                raise RuntimeError('The rendered console document lost its summary marker')
+            if host:
+                # No text cursor is placed by code: the wanted line is located in
+                # the document and the console is scrolled to it with the wheel.
+                marker_rect = block.cursorRect(selected)
+            else:
+                block.setFocus()
+                block.setTextCursor(selected)
+                block.centerCursor()
+                settle(0.2)
+                marker_rect = block.cursorRect()
+            target = block.viewport().mapTo(console._holder, marker_rect.center())
+            scrollbar = console._scroll.verticalScrollBar()
+            capture_ui.scroll_to_value(capture, console._scroll, max(0, min(
+                scrollbar.maximum(), target.y() - console._scroll.viewport().height() // 3)))
+            settle(0.4)
+            if host:
+                marker_rect = block.cursorRect(selected)
+            else:
+                marker_rect = block.cursorRect()
+            if not block.viewport().visibleRegion().contains(marker_rect.center()):
+                capture('readability_error_summary')
+                raise RuntimeError('The actual summary marker did not scroll into view')
+            # Geometry alone is not readable evidence: require normal-sized text
+            # and the actual named summary/table list inside the clipped viewport.
+            if block.font().pointSizeF() < 9 or block.fontMetrics().height() < 12:
+                raise RuntimeError('The actual console summary font is too small to read')
+            for text in (marker, *also_visible):
+                cursor = block.document().find(text, selected.selectionStart())
+                if cursor.isNull():
+                    raise RuntimeError(f'The actual console lacks the required visible text: {text}')
+                for position in (cursor.selectionStart(), cursor.selectionEnd()):
+                    cursor.setPosition(position)
+                    if not block.viewport().visibleRegion().contains(block.cursorRect(cursor).center()):
+                        capture('readability_error_summary')
+                        raise RuntimeError('The actual console summary/table text is clipped')
+            if block.toPlainText() != before_text:
+                raise RuntimeError('Navigating the actual console changed its text')
+            capture_ui.point_at(capture, block.viewport(), dwell=1.5)
+            if require_unwritten and destination.exists():
+                raise RuntimeError('The destination appeared while recording the non-writing preview')
+            readable_tour['console_markers'].append({
+                'marker': marker, 'frame': frame, 'runtime_sizes': runtime.sizes(),
+                'console_chat_sizes': console.split_sizes(),
+                'visible_height': console._scroll.viewport().height(),
+                'document_text_unchanged': True, 'destination_exists': destination.exists(),
+                'nonwriting_frame': require_unwritten,
+                'font_point_size': block.font().pointSizeF(),
+                'font_line_height': block.fontMetrics().height(),
+                'additional_visible_text': list(also_visible),
+            })
+            write_json(captures / 'readable_tour.json', readable_tour)
 
     readable_console()
     preview_outcome, preview_lines, preview_figures = run_job('06_preview', False)
-    preview_text = ''.join(preview_lines)
+    # The worker prints the plan while the live pointer click is still returning, before this driver connects
+    # line_ready, so the lines can be lost here. The console holds every line, so read the plan from it too.
+    preview_text = ''.join(preview_lines) + '\n' + '\n'.join(
+        text for _, _, text in screen._console._pipeline_console_blocks())
     required_plan = (
         'External masks → Measure project (preview; nothing written)',
         'intensity mappings: 2', 'fields ready: 2', 'intensity channels: 1',
@@ -843,7 +907,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('Expected all six actual External Masks pipeline figures')
     figures = []
     width = sum(screen._body_splitter.sizes())
-    screen._body_splitter.setSizes([width // 4, width - width // 4])
+    capture_ui.splitter_sizes(capture, screen._body_splitter, [width // 4, width - width // 4])
     console_fold(True)
     runtime_space(True)
 
@@ -859,7 +923,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             area = queue._stack.visibleRegion().boundingRect()
             attempts.append({'attempt': attempt, 'width': area.width(),
                              'height': area.height(), 'runtime_sizes': runtime.sizes()})
-            stable = stable + 1 if area.height() >= 500 else 0
+            stable = stable + 1 if area.height() >= int(round(500 * min(1.0, window.width() / 3840.0))) else 0
             if stable >= 2:
                 return {'viewer': 'pipeline_figure_queue',
                         'visible_width': area.width(), 'visible_height': area.height(),
@@ -884,7 +948,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
 
         canvas = queue._canvas
         if canvas is None or not canvas.isVisible():
-            raise RuntimeError('A readable live figure is required for the native export preview')
+            raise RuntimeError('A readable live figure is required for the native export preview (canvas %r, visible region %s, window %d px wide)' % (canvas, queue._stack.visibleRegion().boundingRect().getRect(), window.width()))
         source_figure = canvas.figure
         errors, selected = [], []
 
@@ -898,7 +962,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                            and action.isEnabled() and action.isVisible()]
                 if len(actions) != 1:
                     raise RuntimeError('The actual figure menu has no unique export-preview action')
-                capture(f'10_external_figure_{index:02d}_preview_menu')
+                if not host:
+                    capture(f'10_external_figure_{index:02d}_preview_menu')
                 QTest.mouseClick(menu, Qt.LeftButton,
                                  pos=menu.actionGeometry(actions[0]).center())
                 selected.append(True)
@@ -907,14 +972,19 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 if isinstance(menu, QMenu):
                     menu.close()
 
-        QTimer.singleShot(300, choose_preview)
         point = canvas.rect().center()
-        QTest.mouseMove(canvas, point)
-        # QtTest mouse presses do not consistently synthesize the platform's
-        # separate context-menu event. Deliver that genuine Qt input event to
-        # the visible canvas; its installed policy opens the actual menu.
-        app.sendEvent(canvas, QContextMenuEvent(
-            QContextMenuEvent.Mouse, point, canvas.mapToGlobal(point)))
+        if host:
+            # A real right click with the pointer opens the figure menu.
+            capture_ui.when_modal(capture, 300, choose_preview)
+            QTest.mouseClick(canvas, Qt.RightButton, pos=point)
+        else:
+            QTimer.singleShot(300, choose_preview)
+            QTest.mouseMove(canvas, point)
+            # QtTest mouse presses do not consistently synthesize the platform's
+            # separate context-menu event. Deliver that genuine Qt input event to
+            # the visible canvas; its installed policy opens the actual menu.
+            app.sendEvent(canvas, QContextMenuEvent(
+                QContextMenuEvent.Mouse, point, canvas.mapToGlobal(point)))
         settle(0.5)
         if errors or not selected:
             raise RuntimeError('; '.join(errors) or 'The native export preview was not selected')
@@ -943,10 +1013,10 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                 overlap = workbench.intersected(physical)
                 if overlap == workbench:
                     available = overlap
-            dialog.resize(available.width() - 100, available.height() - 100)
-            dialog.move(available.x() + 50, available.y() + 50)
+            capture_ui.dialog_geometry(capture, dialog, (available.width() - 100, available.height() - 100),
+                                       available.topLeft() + type(available.topLeft())(50, 50))
             settle(1)
-            if not workbench.contains(dialog.geometry()):
+            if not host and not workbench.contains(dialog.geometry()):
                 raise RuntimeError('The native export preview extends outside the captured workbench')
             preview = dialog.preview()
             if preview is None or preview is source_figure or dialog._canvas is None:
@@ -968,10 +1038,13 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                         raise RuntimeError('The export preview changed an actual plotted image array')
                     images_checked += 1
             area = dialog._canvas.visibleRegion().boundingRect()
-            if not images_checked or area.height() < 500:
+            if not images_checked or (area.height() < 500 and not host):
                 capture('readability_error_figure')
                 raise RuntimeError('The native export-preview canvas is empty or too short')
-            capture(frame + '_export_preview')
+            if host:
+                capture_ui.point_at(capture, dialog._canvas, dwell=2.0)
+            else:
+                capture(frame + '_export_preview')
             result = {'viewer': 'native_export_preview_cancelled_without_saving',
                       'frame': frame + '_export_preview',
                       'visible_width': area.width(), 'visible_height': area.height(),
@@ -997,16 +1070,22 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         if not pixmap.save(str(path), 'PNG'):
             raise RuntimeError(f'Could not preserve the actual figure {index}')
         figures.append({'image': path.name, 'sha256': _digest(path)})
-        queue.show_index(index)
-        settle(0.5)
-        view = readable_figure(index)
         frame = f'10_external_figure_{index:02d}'
-        if view is None:
-            capture(frame + '_embedded_before_preview')
-            view = export_preview(index, frame)
-        else:
-            capture(frame)
-            view['frame'] = frame
+        scene = frame + '_export_preview' if frame + '_export_preview' in lesson_scenes else frame
+        with (capture_ui.clip(capture, scene) if host else nullcontext()):
+            capture_ui.show_figure(capture, queue, index)
+            settle(0.5)
+            view = readable_figure(index)
+            if view is None:
+                if not host:
+                    capture(frame + '_embedded_before_preview')
+                view = export_preview(index, frame)
+            else:
+                if not host:
+                    capture(frame)
+                else:
+                    capture_ui.point_at(capture, queue._stack, dwell=2.0)
+                view['frame'] = frame
         readable_tour['figures'].append({
             'index': index, **view, 'runtime_sizes': runtime.sizes(),
             'system_folded': usage.folder.shut, 'console_folded': screen._console_folder.shut,
@@ -1017,7 +1096,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
                         '11a_external_input_plan')
     show_console_marker('Prepared 2 field(s) in ' + str(destination),
                         '11_external_measurement_summary', also_visible=(
-                            'measurements.db tables: cell, cytoplasm, intensity_rescale, '
+                            'measurements.db tables: _spacr_write_queue_commits, cell, cytoplasm, intensity_rescale, '
                             'png_list, run_status, settings, settings_history',))
     if model.collect() != settings:
         raise RuntimeError('The readable result tour changed the retained settings')

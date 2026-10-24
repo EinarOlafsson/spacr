@@ -5,6 +5,8 @@ import shutil
 import tempfile
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from barcode_qc_evidence import read_counts, verify_outputs, check_native_run
 
 
@@ -17,6 +19,7 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.preferences import set_figure_format
 
+    scenes=Scenes(capture,settle)
     set_figure_format('png')  # Private recording preference, not an application patch.
     original=stage/'example_data/plate_1_unique_combinations.csv'
     parent=stage/'barcode_qc_runs';parent.mkdir(exist_ok=True)
@@ -62,9 +65,9 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             p=p.parentWidget()
         for section in reversed(parents):
             if not section.is_expanded():
-                screen._settings_scroll.ensureWidgetVisible(section.header());settle(.2)
+                capture_ui.scroll_to(capture,screen._settings_scroll,section.header());settle(.2)
                 click(section.header())
-        screen._settings_scroll.ensureWidgetVisible(w);settle(.2)
+        capture_ui.scroll_to(capture,screen._settings_scroll,w);settle(.2)
         if not w.isVisible():raise ValueError('Setting remains hidden: '+key)
         return w
 
@@ -75,9 +78,7 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             index=w.findData(value)
             if index<0:index=w.findText(str(value))
             if index<0:raise ValueError('Actual selector lacks '+str(value))
-            click(w);QTest.keyClick(w.view(),Qt.Key_Home)
-            for _ in range(index):QTest.keyClick(w.view(),Qt.Key_Down)
-            QTest.keyClick(w.view(),Qt.Key_Return);settle(.2)
+            capture_ui.select_combo(capture,w,index);settle(.2)
         elif isinstance(w,QCheckBox):
             if w.isChecked()!=value:click(w)
         else:fill(w if isinstance(w,QLineEdit) else w.findChild(QLineEdit),value)
@@ -93,38 +94,48 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected genuine count-file picker')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),source);capture('03_choose_published_plate1')
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),source)
+                if not capture_ui.live(capture):capture('03_choose_published_plate1')
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('No unique file-picker accept action')
-                click(buttons[0])
+                capture_ui.accept_file_dialog(capture,dialog,buttons[0])
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:dialog.reject()
         def abort():
             errors.append('Count-file picker timed out');dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watch.timeout.connect(abort);timer.start(300);watch.start(15000)
+        timer.timeout.connect(handle);watch.timeout.connect(abort)
+        if capture_ui.live(capture):capture_ui.when_modal(capture,300,handle)
+        else:timer.start(300)
+        watch.start(120000 if capture_ui.live(capture) else 15000)
+        scenes.begin('03_choose_published_plate1')
         try:click(w._add_files_button)
         finally:timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'No file was accepted')
+        if capture_ui.live(capture):scenes.end('03_choose_published_plate1',w)
+        scenes.begin('04_actual_count_input')
         if screen._settings_model.collect()['count_data']!=[str(source)]:
             raise ValueError('Actual count-data setting does not identify exactly the copied example')
-        capture('04_actual_count_input')
+        scenes.end('04_actual_count_input',w)
 
     try:
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='map_barcodes' or w.property('navKey')=='map_barcodes')]
         if not tiles:raise ValueError('No actual Home Map Barcodes route')
+        scenes.begin('01_map_barcodes_host')
         click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
-        host=window._screens['map_barcodes'];capture('01_map_barcodes_host')
+        host=window._screens['map_barcodes'];scenes.end('01_map_barcodes_host',host)
         folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='barcode_qc']
         if len(folds)!=1:raise ValueError('No unique Barcode QC fold')
+        scenes.begin('02_barcode_qc_fold')
         click(folds[0]);settle(.8)
         screens=[w for w in app.allWidgets() if isinstance(w,AppScreen) and w.app_key=='barcode_qc' and w.isVisible()]
         if len(screens)!=1:raise ValueError('Actual Barcode QC form did not open')
-        screen=screens[0];capture('02_barcode_qc_fold');proof['defaults']=screen._settings_model.collect()
+        screen=screens[0];scenes.end('02_barcode_qc_fold',screen);proof['defaults']=screen._settings_model.collect()
+        scenes.begin('03_choose_published_plate1')
         handle=screen._body_splitter.handle(1);start=handle.rect().center()
         end=start+QPoint(1950-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
@@ -135,9 +146,12 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             ('min_reads_per_well',0),('starved_read_fraction',.1),('exclude_starved_wells',True),
             ('position_effect_ratio',2.),('sweep_span',4.),('sweep_points',25),
             ('plot',True),('save',True),('verbose',True)]):
+            nxt=next((i for i in (0,1,4,9) if i>=index),None)
+            if nxt is not None:scenes.begin(f'05_{nxt:02d}_'+('dst','target_grnas_per_well','x','x','starved_read_fraction','x','x','x','x','plot')[nxt])
+            else:scenes.begin('06_running')
             set_value(key,value)
             if key in ('dst','target_grnas_per_well','starved_read_fraction','plot'):
-                capture(f'05_{index:02d}_{key}')
+                scenes.end(f'05_{index:02d}_{key}',expose(key))
         settings=screen._settings_model.collect();proof['settings']=settings
         for key in proof['omitted_optional_inputs']:
             if settings.get(key):raise ValueError('Unvalidated optional input is not empty: '+key)
@@ -148,29 +162,32 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             for box in app.topLevelWidgets():
                 if isinstance(box,QMessageBox) and box.isVisible():
                     outcome['errors'].append(box.windowTitle()+': '+box.text())
-                    capture('06_prompt');box.reject()
+                    scenes.end('06_prompt');box.reject()
         timer=QTimer(window);timer.timeout.connect(reject_prompt);timer.start(300)
         try:
             if not screen._btn_run.isEnabled():raise ValueError('Actual Run is disabled')
+            scenes.begin('06_running')
             QTest.mouseClick(screen._btn_run,Qt.LeftButton);worker=getattr(screen,'_worker',None)
             if worker is None:raise ValueError('Actual Run did not start a worker')
             worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))
             worker.error.connect(lambda text:outcome['errors'].append(str(text)))
             worker.line_ready.connect(lambda text:lines.append(str(text)))
-            settle(.5);capture('06_running')
+            settle(.5);scenes.end('06_running',screen._console)
             while not outcome['finished'] or screen._worker_thread_is_running():tick();settle(.1)
             settle(1)
         finally:timer.stop();timer.deleteLater()
-        for block,_,_ in screen._console._pipeline_console_blocks():
-            block.setFocus();QTest.keyClick(block,Qt.Key_End,Qt.ControlModifier)
-        screen._console.jump_to_the_end();settle(.3);capture('07_finished_console')
+        scenes.begin('07_finished_console')
+        capture_ui.console_end_all(capture,screen._console)
+        if not capture_ui.live(capture):screen._console.jump_to_the_end()
+        settle(.3);scenes.end('07_finished_console',screen._console)
         queue=screen._figure_queue;figures=[]
         for index,pixmap in enumerate(queue.all_pixmaps()):
             path=captures/f'actual_gui_figure_{index}.png'
             if not pixmap.save(str(path),'PNG'):raise ValueError('Could not preserve actual figure')
             figures.append(path.name)
-        if queue.count():queue.show_index(queue.count()-1);settle(.3)
-        capture('08_actual_figures_state')
+        scenes.begin('08_actual_figures_state')
+        if queue.count():capture_ui.show_figure(capture,queue,queue.count()-1);settle(.3)
+        scenes.end('08_actual_figures_state',screen._figures_card)
         proof['run'].update(gui_figure_count=queue.count(),figures_card_visible=screen._figures_card.isVisible(),
             figures=figures,settings_errors=[line for line in lines if '[settings] ERROR' in line])
         proof['independent_csv_check']=verify_outputs(project/'results',oracle)

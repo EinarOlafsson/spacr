@@ -19,8 +19,19 @@ import time
 from pathlib import Path
 
 
+class _NoX:
+    """Stand-in for libX11 in the capture host: the shell places windows, nothing is moved or raised by code."""
+    def __getattr__(self, name):
+        return lambda *args, **kwargs: None
+
+
 class PrivateDesktop:
     def __init__(self, stage):
+        self.host = bool(os.environ.get('SPACR_CAPTURE_HOST'))
+        if self.host:
+            # Capture host: the whole GNOME session is private, a system viewer is an ordinary window.
+            self.x, self.display = _NoX(), 0
+            return
         if os.environ.get('SPACR_TUTORIAL_PRIVATE_DESKTOP') != '1':
             raise RuntimeError('Use a dedicated dbus-run-session and Xvfb for external viewers')
         display = os.environ.get('DISPLAY', '')
@@ -44,6 +55,9 @@ class PrivateDesktop:
             raise RuntimeError('The recording X display could not be opened')
 
     def find(self, title, settle):
+        if self.host:
+            settle(3.0)             # the viewer maps its own window; the recording shows it
+            return 0, title
         deadline = time.monotonic() + 25
         while time.monotonic() < deadline:
             tree = subprocess.check_output(['xwininfo', '-root', '-tree'], text=True)
@@ -56,15 +70,21 @@ class PrivateDesktop:
         raise RuntimeError(f'The system viewer did not show {title!r} on the private display')
 
     def show(self, wid):
+        if self.host:
+            return
         self.x.XMoveResizeWindow(self.display, wid, 200, 100, 3440, 1920)
         self.x.XMapRaised(self.display, wid)
         self.x.XFlush(self.display)
 
     def lower(self, wid):
+        if self.host:
+            return
         self.x.XLowerWindow(self.display, wid)
         self.x.XFlush(self.display)
 
     def close(self):
+        if self.host:
+            return
         self.x.XCloseDisplay(self.display)
 
 
@@ -107,7 +127,14 @@ def record_diagnostics(window, screen, stage, project, captures, capture, settle
     project = project.resolve()
     if not project.is_relative_to(stage / 'regression_runs') or not project.is_dir():
         raise RuntimeError('Only a completed project in the private tutorial workspace is permitted')
-    if not screen._settings_model.set_value_for_key('src', str(project)):
+    import capture_ui
+    import capture_ui_drv_d as drv
+    host_mode = capture_ui.live(capture)
+    if host_mode:
+        # The project root is typed into the Source field (a user does the same).
+        if not capture_ui.fill_setting(capture, screen, 'src', str(project)):
+            raise RuntimeError('Could not select the real project output root')
+    elif not screen._settings_model.set_value_for_key('src', str(project)):
         raise RuntimeError('Could not select the real project output root')
     settle()
     opener = DiagnosticsOpener(screen)
@@ -131,6 +158,18 @@ def record_diagnostics(window, screen, stage, project, captures, capture, settle
                if button.isVisible() and button.app_key == 'regression_diagnostics']
     if len(buttons) != 1 or not buttons[0].isEnabled():
         raise RuntimeError('Regression must expose its actual Diagnostics button')
+    if host_mode:
+        # GNOME capture host: the Diagnostics button is clicked by the pointer and the
+        # session's own file manager opens the folder. The panel viewers (04-06) and
+        # the private-desktop window search need the Xvfb recorder: not recorded here.
+        with capture_ui.clip(capture, '02_diagnostics_button'):
+            capture_ui.point_at(capture, buttons[0], dwell=1.5)
+        scene3 = drv.begin(capture, settle, '03_diagnostics_folder')
+        QTest.mouseClick(buttons[0], Qt.LeftButton)
+        capture_ui.wait(capture, 3.0, settle)
+        drv.snap(capture, '03_diagnostics_folder')
+        drv.finish(capture, scene3)
+        return
     desktop = PrivateDesktop(stage)
     try:
         file_manager_settings = _configure_file_manager(stage)

@@ -1,8 +1,15 @@
 """Native Image UMAP -> Image Scatter: real cell crops, no invented results."""
 import json
 from pathlib import Path
+
+
+def _real(path):
+    """The example database names its crops under the author account; this stage holds them under its own home."""
+    return str(path).replace('/home/olafsson/.cache/spacr/example_data', str(Path.home() / '.cache/spacr/example_data'))
 import time
 import numpy as np
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import _readonly, _digest
 from lineage_data import verify_preserved
 from feature_explorer_evidence import read_measurements
@@ -52,8 +59,8 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected real file picker')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);capture(name)
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);drv.snap(capture,name);capture_ui.wait(capture,1.5,settle)
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('No unique actual picker accept action')
@@ -64,9 +71,10 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
         def abort():
             errors.append('File picker timed out');dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watch.timeout.connect(abort);timer.start(300);watch.start(15000)
+        watch.timeout.connect(abort);watch.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        started=drv.begin(capture,settle,name);capture_ui.when_modal(capture,300,handle)
         try:click(button)
-        finally:timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
+        finally:drv.finish(capture,started);timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'File not accepted')
         idle()
 
@@ -78,10 +86,15 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
         QTest.keyClick(box.view(),Qt.Key_Return);idle()
         if box.currentText()!=text:raise ValueError('Actual axis/table choice differs')
 
-    def check(name):
-        idle();p=verify(screen,rows,paths);proof['checks'][name]=p;capture(name);return p
+    def check(name,act=None):
+        started=drv.begin(capture,settle,name)
+        if act is not None:act()
+        idle();p=verify(screen,rows,paths);proof['checks'][name]=p
+        capture_ui.point_at(capture,screen.canvas);drv.snap(capture,name);drv.finish(capture,started);return p
 
-    def hover(index,name):
+    def hover(index,name,act=None):
+        started=drv.begin(capture,settle,name)
+        if act is not None:act()
         xy=screen.canvas.point_position(index)
         if xy is None:raise ValueError('Intended real point is not plottable')
         pos=QPoint(round(xy[0]),round(xy[1]))
@@ -90,9 +103,9 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
         if screen.canvas.hovered!=index:raise ValueError('Actual pointer did not hover the intended point')
         key=identity(rows[index]);path=paths[key]
         p=verify_preview(screen.preview.pixmap(),path,screen.caption.text(),key)
-        p.update(source_sha256=_digest(path),index=index,x=screen._x_choice.currentText(),y=screen._y_choice.currentText(),
+        p.update(source_sha256=_digest(_real(path)),index=index,x=screen._x_choice.currentText(),y=screen._y_choice.currentText(),
                  decodes=screen._thumbs.decodes,cache_hits=screen._thumbs.hits,open_button_enabled=screen._open_button.isEnabled())
-        proof['hover_checks'].append(p);capture(name);return pos
+        proof['hover_checks'].append(p);capture_ui.wait(capture,1.5,settle);drv.snap(capture,name);drv.finish(capture,started);return pos
 
     def nav(key):
         buttons=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and w.property('navKey')==key]
@@ -115,35 +128,42 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
     try:
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='umap' or w.property('navKey')=='umap')]
-        click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8);capture('01_image_umap_host')
+        with capture_ui.clip(capture,'01_image_umap_host'):
+            click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
         folds=[w for w in window._screens['umap'].findChildren(FoldButton) if w.isVisible() and w.app_key=='image_scatter']
         if len(folds)!=1:raise ValueError('No Image UMAP Image Scatter fold')
+        scene2=drv.begin(capture,settle,'02_current_image_scatter')
         click(folds[0]);settle(.8)
         screens=[w for w in window.findChildren(ImageScatterScreen) if w.isVisible()]
         if len(screens)!=1:raise ValueError('No visible actual Image Scatter')
         screen=screens[0];screen._jobs.job_failed.connect(lambda t:proof['job_errors'].append(str(t)))
         bus=linked_selection();bus.selection_changed.connect(lambda:proof['selection_events'].append(
             dict(source=bus.selection.source,keys=[] if bus.selection.keys is None else list(bus.selection.keys))))
-        idle();capture('02_current_image_scatter')
+        idle();capture_ui.point_at(capture,screen._browse)
+        drv.snap(capture,'02_current_image_scatter');drv.finish(capture,scene2)
         picker(screen._browse,database,'03_choose_real_measurements')
-        combo(screen._table,'cell');capture('04_choose_cell_not_children');click(screen._load);idle()
-        combo(screen._x_choice,'cell_area');combo(screen._y_choice,'cell_channel_1_mean_intensity')
-        check('05_real_measurement_scatter')
+        with capture_ui.clip(capture,'04_choose_cell_not_children'):
+            combo(screen._table,'cell')
+        def load_and_axes():
+            click(screen._load);idle()
+            combo(screen._x_choice,'cell_area');combo(screen._y_choice,'cell_channel_1_mean_intensity')
+        check('05_real_measurement_scatter',act=load_and_axes)
         high=int(np.argmax([r['cell_area'] for r in rows]));hover(high,'06_genuine_large_cell_preview')
         before=screen._thumbs.decodes
-        QTest.mouseMove(screen._db,screen._db.rect().center());idle();capture('07_leaving_clears_hover')
+        with capture_ui.clip(capture,'07_leaving_clears_hover'):
+            QTest.mouseMove(screen._db,screen._db.rect().center());idle()
         if screen.preview.text()!='Hover a point' or screen.caption.text() or screen._open_button.isEnabled():
             raise ValueError('Leaving canvas did not clear temporary hover')
         hover(high,'08_cached_same_cell')
         if screen._thumbs.decodes!=before:raise ValueError('Same unchanged crop was decoded twice')
-        combo(screen._x_choice,'cell_channel_1_mean_intensity');combo(screen._y_choice,'cell_area');check('09_swapped_raw_axes')
+        check('09_swapped_raw_axes',act=lambda:(combo(screen._x_choice,'cell_channel_1_mean_intensity'),combo(screen._y_choice,'cell_area')))
         hover(high,'10_same_cell_after_axis_swap')
-        combo(screen._x_choice,'cell_area');combo(screen._y_choice,'cell_channel_0_homogeneity_distance_32')
-        p=check('11_missing_texture_not_plotted')
+        p=check('11_missing_texture_not_plotted',act=lambda:(combo(screen._x_choice,'cell_area'),combo(screen._y_choice,'cell_channel_0_homogeneity_distance_32')))
         if p['finite_points']!=2334:raise ValueError('Expected seven missing coordinate pairs')
-        combo(screen._y_choice,'measurement_ndim');check('12_constant_axis_is_centred')
-        combo(screen._y_choice,'cell_channel_1_mean_intensity');check('13_original_axes_restored')
-        nav('annotate');annotate=window._screens['annotate'];capture('14_annotate_before_project')
+        check('12_constant_axis_is_centred',act=lambda:combo(screen._y_choice,'measurement_ndim'))
+        check('13_original_axes_restored',act=lambda:combo(screen._y_choice,'cell_channel_1_mean_intensity'))
+        with capture_ui.clip(capture,'14_annotate_before_project'):
+            nav('annotate');annotate=window._screens['annotate']
         picker(annotate._btn_open,prepared['project'],'15_annotate_private_project_picker')
         def crops_ready():
             while (annotate._page_worker is not None or annotate._pending_page_load is not None
@@ -151,14 +171,17 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
                    or any(i is None for i in annotate._raw_thumb_images[:len(annotate._page_paths)])):
                 tick();settle(.1)
             settle(.5)
-        crops_ready();capture('16_real_annotate_grid')
-        return_scatter();pos=hover(high,'17_cell_ready_for_click')
+        with capture_ui.clip(capture,'16_real_annotate_grid'):
+            crops_ready()
+            capture_ui.point_at(capture,annotate)
+        pos=hover(high,'17_cell_ready_for_click',act=return_scatter)
         before=screen._open_button.isEnabled()
-        QTest.mouseMove(screen._open_button,screen._open_button.rect().center(),delay=100);idle()
-        proof['open_button_pointer_exit']=dict(enabled_before=before,enabled_after=screen._open_button.isEnabled(),
-                                              hover_after=screen.canvas.hovered,caption_after=screen.caption.text())
-        capture('17b_actual_open_button_pointer_exit')
+        with capture_ui.clip(capture,'17b_actual_open_button_pointer_exit'):
+            QTest.mouseMove(screen._open_button,screen._open_button.rect().center(),delay=100);idle()
+            proof['open_button_pointer_exit']=dict(enabled_before=before,enabled_after=screen._open_button.isEnabled(),
+                                                  hover_after=screen.canvas.hovered,caption_after=screen.caption.text())
         pos=hover(high,'17c_native_point_click_target')
+        scene18=drv.begin(capture,settle,'18_verified_clicked_cell_in_annotate')
         QTest.mouseClick(screen.canvas,Qt.LeftButton,pos=pos);settle(.4)
         proof['selection_after_click']=dict(keys=[] if bus.selection.keys is None else list(bus.selection.keys),
              selected_rings=int(screen.canvas._selected.sum()),annotate_visible=annotate.isVisible())
@@ -168,8 +191,10 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
         if set(request.keys)!={identity(rows[high])} or annotate._total!=1 or len(annotate._page_paths)!=1 or annotate._page_paths[0][0]!=paths[identity(rows[high])]:
             raise ValueError('Actual annotation handoff does not show exactly the clicked cell')
         proof['handoff']=dict(key=identity(rows[high]),paths=list(annotate._page_paths),note=annotate._request_note,
-                             sha256=_digest(annotate._page_paths[0][0]),shown=1,labels_edited=False)
-        capture('18_verified_clicked_cell_in_annotate');return_scatter();check('19_returned_measurement_scatter')
+                             sha256=_digest(_real(annotate._page_paths[0][0])),shown=1,labels_edited=False)
+        capture_ui.point_at(capture,annotate)
+        drv.snap(capture,'18_verified_clicked_cell_in_annotate');drv.finish(capture,scene18)
+        check('19_returned_measurement_scatter',act=return_scatter)
         proof.update(accepted=True,pipeline_requested=False,own_export_control=False,
                      no_nucleus_or_pathogen_crop_mapping_claim=True)
     finally:

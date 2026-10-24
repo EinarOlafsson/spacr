@@ -1,13 +1,40 @@
 """Record the actual Invasion UI on a new, explicitly synthetic input copy."""
+import capture_ui
+from capture_ui_drv_a import search_typed
+from capture_ui_drv_c import Scenes
+from capture_ui_drv_e import guarded
 from pathlib import Path
-import time
 
-from capture_acceptance import assess_pipeline
+from capture_acceptance import assess_pipeline, observe_pipeline_run
 from invasion_demo import prepare, check_preserved, verify_output, verify_figure, verify_histograms, digest
 from native_figure_legend import fit_legend
 from stage_lesson import read
+from capture_settings import import_capture_settings as import_invasion_settings
 
 
+def run_invasion_pipeline(screen, scenes, settle, timeout):
+    """Keep the real Run and completion scenes across deferred or fast runs."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    def after_click():
+        settle(.3)
+        scenes.end('13_actual_run', screen._console)
+        scenes.begin('14_actual_completion')
+
+    scenes.begin('13_actual_run')
+    try:
+        return observe_pipeline_run(screen,
+            lambda: QTest.mouseClick(screen._btn_run, Qt.LeftButton),
+            settle, timeout, after_click=after_click)
+    except TimeoutError:
+        if screen._worker_thread_is_running():
+            QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
+            settle(3)
+        raise
+
+
+@guarded
 def record_invasion(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
@@ -27,10 +54,8 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
     # The actual GUI field has six decimals; record its representable value,
     # not an unrepresentable old script constant or a loosened readback check.
     settings['bimodality_cutoff'] = .555556
-    for key, value in settings.items():
-        if not screen._settings_model.set_value_for_key(key, value):
-            raise ValueError('No current Invasion setting: '+key)
-        settle(.03)
+    proof['settings_import'] = import_invasion_settings(
+        app, screen, stage, settings, capture, settle)
     before = screen._settings_model.collect()
     write_json(captures/'configured_settings.json', before)
     mismatch = {key: dict(requested=value, actual=before.get(key))
@@ -38,6 +63,7 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
     if mismatch:
         write_json(captures/'settings_mismatch.json', mismatch)
         raise ValueError('The native Invasion settings differ: '+str(mismatch))
+    S = Scenes(capture, settle)
     bar = screen._settings_search
     old_query, old_level, old_modified = bar.query(), bar.level(), bar.modified_only()
     if bar.modified_only():
@@ -48,9 +74,8 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
         'intensity_statistic', 'stain_baseline_wells', 'control_quantile',
         'threshold_sensitivity', 'min_total_intensity', 'extracellular_class',
         'pathogen_plate_metadata', 'save'), 2):
-        bar._input.setFocus()
-        QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(bar._input, key)
+        S.begin(f'{index:02}_setting_{key}')      # host: before the pointer clicks the search box
+        search_typed(capture, bar, key)
         settle(.35)
         if key not in bar.visible_keys():
             raise ValueError('Settings search did not expose '+key)
@@ -59,37 +84,22 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
         # registered backing editor stays hidden; the row is what the user sees.
         if field.isHidden() and field.parentWidget() is not None:
             field = field.parentWidget()
-        screen._settings_scroll.ensureWidgetVisible(field)
+        capture_ui.scroll_to(capture, screen._settings_scroll, field)
         settle(.2)
         if not field.isVisible():
             raise ValueError('The requested setting remains hidden: '+key)
-        capture(f'{index:02}_setting_{key}')
-    bar.set_query(old_query)
-    bar.set_level(old_level)
-    bar.set_modified_only(old_modified)
+        S.end(f'{index:02}_setting_{key}', field)
+    capture_ui.search_settings(capture, bar, old_query)
+    capture_ui.settings_level(capture, bar, old_level)
+    capture_ui.settings_modified_only(capture, bar, old_modified)
     if screen._settings_model.collect() != before:
         raise ValueError('The display tour changed analysis settings')
     if screen._ai_switch.isChecked():
         QTest.mouseClick(screen._ai_switch, Qt.LeftButton)
     if screen._ai_switch.isChecked():
         raise ValueError('No external AI request is part of this example')
-    outcome = dict(finished=False, ok=False, errors=[])
-    QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-    worker = screen._worker
-    if worker is None:
-        raise ValueError('The actual Run control did not launch a worker')
-    worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
-    worker.error.connect(lambda message: outcome['errors'].append(str(message)))
+    outcome = run_invasion_pipeline(screen, S, settle, timeout)
     proof['actual_gui_run'] = True
-    settle(.3)
-    capture('13_actual_run')
-    deadline = time.monotonic()+timeout
-    while not outcome['finished'] or screen._worker_thread_is_running():
-        if time.monotonic() > deadline:
-            QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
-            settle(3)
-            raise TimeoutError('The bounded synthetic Invasion run did not finish')
-        settle(.1)
     settle(1)
     blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
     write_json(captures/'batch_outcome.json', outcome)
@@ -103,12 +113,11 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
     proof.update(source_unchanged=True, private_database_unchanged=True,
         figures_visible=screen._figures_card.isVisible())
     write_json(captures/'scientific_acceptance.json', proof)
-    for block, _, _ in screen._console._pipeline_console_blocks():
-        block.setFocus()
-        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-    screen._console.jump_to_the_end()
+    capture_ui.console_end_all(capture, screen._console)
+    if not capture_ui.live(capture):
+        screen._console.jump_to_the_end()
     settle(.3)
-    capture('14_actual_completion')
+    S.end('14_actual_completion', screen._console, screen._figures_card)
     if not proof['pipeline']['accepted'] or not proof.get('output_checks') or not proof['figures_visible']:
         raise ValueError('The actual outputs, console or visible figures failed acceptance')
     proof['figure_checks'] = []
@@ -116,9 +125,10 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
     for index, pixmap in enumerate(queue.all_pixmaps()):
         if not pixmap.save(str(captures/f'figure_{index:02}.png'), 'PNG'):
             raise ValueError('Could not preserve the actual figure')
-        queue.show_index(index)
+        S.begin(f'15_figure_{index:02}')
+        capture_ui.show_figure(capture, queue, index)
         settle(.4)
-        capture(f'15_figure_{index:02}')
+        S.end(f'15_figure_{index:02}', queue)
         figure = queue.figure_for(index)
         if index < 2:
             axis = figure.axes[0]
@@ -132,13 +142,14 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
             denominators = [text.get_text() for text in axis.texts if text.get_text().startswith('n=')]
             if denominators != [f"n={manifest['expected']['tables'][filename][1][key]['n_total']}" for key in groups]:
                 raise ValueError('Actual bar denominator labels differ from counted objects')
-            styled = fit_legend(app, window, queue, figure, capture, settle, f'16_legend_{index:02}')
+            styled = fit_legend(app, window, queue, figure, capture, settle, f'16_legend_{index:02}',
+                                scenes=S, next_name=f'17_readable_figure_{index:02}')
             after = [dict(bucket=item.get_label(), rectangles=[
                 dict(height=float(p.get_height()), bottom=float(p.get_y())) for p in item.patches])
                 for item in axis.containers if isinstance(item, BarContainer)]
             if after != series or [text.get_text() for text in axis.get_xticklabels()] != groups:
                 raise ValueError('Changing legend position changed actual plotted data')
-            capture(f'17_readable_figure_{index:02}')
+            S.end(f'17_readable_figure_{index:02}', queue)
             proof['figure_checks'].append(dict(index=index, geometry_fields_checked=checked,
                 groups=groups, series=series, denominators=denominators, styling=styled))
         else:

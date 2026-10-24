@@ -10,6 +10,9 @@ import hashlib
 import time
 from dataclasses import asdict
 
+import capture_ui
+import capture_ui_drv_d as drv
+
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -37,10 +40,13 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
     with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True) as connection:
         expected_frame = pd.read_sql_query('SELECT * FROM cell', connection)
     chart_checks = []
-    desktop = PrivateDesktop(stage)
-    xtest = ctypes.CDLL('libXtst.so.6')
-    xtest.XTestFakeMotionEvent.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
-    xtest.XTestFakeButtonEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_int, ctypes.c_ulong]
+    live = capture_ui.live(capture)
+    desktop = xtest = None
+    if not live:        # the Xvfb recorder drives drags with XTest; the host uses its real pointer
+        desktop = PrivateDesktop(stage)
+        xtest = ctypes.CDLL('libXtst.so.6')
+        xtest.XTestFakeMotionEvent.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
+        xtest.XTestFakeButtonEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_int, ctypes.c_ulong]
 
     def motion(point):
         xtest.XTestFakeMotionEvent(desktop.display, -1, point.x(), point.y(), 0)
@@ -51,6 +57,9 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         desktop.x.XFlush(desktop.display)
 
     def fill(widget, value):
+        if live:
+            capture_ui.set_text(capture, widget, str(value))
+            return
         widget.setFocus()
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(widget, str(value))
@@ -75,6 +84,19 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
                  if listing.item(i).data(Qt.UserRole) == column]
         if len(items) != 1:
             raise RuntimeError(f'The real column list does not contain exactly one {column}')
+        if live:
+            # A real drag of the list entry onto the channel zone (QDrag runs its own loop).
+            capture_ui._wheel_item_into_view(capture, listing, items[0])
+            zone = panel.zone(channel)
+            start_local = listing.visualItemRect(items[0]).center()
+            delta = zone.mapToGlobal(zone.rect().center()) - listing.viewport().mapToGlobal(start_local)
+            capture_ui._h().drag_qdrag(capture, listing.viewport(), start_local, (delta.x(), delta.y()), duration=1.2)
+            capture_ui._h().pause(capture, 1.0)
+            if zone.column != column or panel.spec.column_for(channel) != column:
+                raise RuntimeError(f'The real drag did not assign {column} to {channel}')
+            if panel.canvas.render_data is None:
+                raise RuntimeError('The actual chart did not render after the drop')
+            return
         listing.scrollToItem(items[0])
         start = listing.viewport().mapToGlobal(listing.visualItemRect(items[0]).center())
         zone = panel.zone(channel)
@@ -138,9 +160,12 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             buttons = [b for b in screen.findChildren(FoldButton) if b.isVisible() and b.app_key == key]
             if len(buttons) != 1:
                 raise RuntimeError(f'Expected one visible Graph Builder fold: {key}')
-            QTest.mouseMove(buttons[0])
-            settle(0.8)
-            capture('02_fold_' + key)
+            with capture_ui.clip(capture, '02_fold_' + key):
+                if live:
+                    capture_ui.point_at(capture, buttons[0], dwell=1.5)
+                else:
+                    QTest.mouseMove(buttons[0])
+                    settle(0.8)
 
         errors, accepted = [], []
         def choose():
@@ -149,28 +174,35 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
                 if not isinstance(dialog, QFileDialog):
                     raise RuntimeError('Load table did not open the actual file picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1400, 950)
+                capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), database)
-                capture('03_choose_database')
+                drv.snap(capture, '03_choose_database')
+                capture_ui.wait(capture, 1.5, settle)
                 QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
                     dialog.reject()
-        QTimer.singleShot(500, choose)
         buttons = [b for b in screen.findChildren(QPushButton) if b.isVisible() and b.text().startswith('Load table')]
         if len(buttons) != 1:
             raise RuntimeError('Expected one visible Load table control')
+        scene3 = drv.begin(capture, settle, '03_choose_database')
+        capture_ui.when_modal(capture, 500, choose)
         QTest.mouseClick(buttons[0], Qt.LeftButton)
+        drv.finish(capture, scene3)
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'Database selection was cancelled')
+        scene4 = drv.begin(capture, settle, '04_real_cell_table')
         wait_loaded()
         if screen._table_picker.currentText() != 'cell':
             raise RuntimeError('Expected the actual cell measurement table')
         frame = screen._frame
         pd.testing.assert_frame_equal(frame, expected_frame)
         canvas = screen.builder.canvas
-        capture('04_real_cell_table')
+        capture_ui.point_at(capture, screen._table_picker, screen.builder.well._list)
+        drv.snap(capture, '04_real_cell_table')
+        drv.finish(capture, scene4)
+        scene5 = drv.begin(capture, settle, '05_area_histogram')
         drag('cell_area', 'x')
         axes = canvas.axes_at()
         edges = canvas.scales.x_edges
@@ -182,28 +214,43 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
                 raise RuntimeError('Actual histogram bar locations differ')
         histogram = check_histogram(expected_frame.cell_area, edges, [bar.get_height() for bar in bars])
         chart_checks.append({'scene':'05_area_histogram', 'actual_bar_counts':histogram})
-        capture('05_area_histogram')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '05_area_histogram')
+        drv.finish(capture, scene5)
+        scene6 = drv.begin(capture, settle, '06_real_scatter')
         drag('cell_channel_1_mean_intensity', 'y')
         check_scatter('06_real_scatter', expected_frame)
-        capture('06_real_scatter')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '06_real_scatter')
+        drv.finish(capture, scene6)
+        scene7 = drv.begin(capture, settle, '07_well_column_colour')
         drag('columnID', 'colour')
         check_scatter('07_well_column_colour', expected_frame)
-        capture('07_well_column_colour')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '07_well_column_colour')
+        drv.finish(capture, scene7)
         initial_count = canvas.render_data.n_total
         if initial_count != len(frame):
             raise RuntimeError('The initial chart unexpectedly omits measurement rows')
+        scene8 = drv.begin(capture, settle, '08_acquisition_row_facets')
         drag('rowID', 'facet_row')
         check_scatter('08_acquisition_row_facets', expected_frame, faceted=True)
-        capture('08_acquisition_row_facets')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '08_acquisition_row_facets')
+        drv.finish(capture, scene8)
+        scene9 = drv.begin(capture, settle, '09_live_area_filter')
         picker = screen.filters._picker
-        picker.setFocus()
-        QTest.keyClick(picker, Qt.Key_Home)
         target = picker.findText('cell_area')
         if target < 0:
             raise RuntimeError('The actual filter menu has no cell_area entry')
-        for _ in range(target):
-            QTest.keyClick(picker, Qt.Key_Down)
-        QTest.keyClick(picker, Qt.Key_Tab)
+        if live:
+            capture_ui.select_combo(capture, picker, target)
+        else:
+            picker.setFocus()
+            QTest.keyClick(picker, Qt.Key_Home)
+            for _ in range(target):
+                QTest.keyClick(picker, Qt.Key_Down)
+            QTest.keyClick(picker, Qt.Key_Tab)
         if picker.currentText() != 'cell_area':
             raise RuntimeError(f'The visible filter picker selected {picker.currentText()!r}, not cell_area')
         print('Actual filter picker selected cell_area', flush=True)
@@ -219,13 +266,19 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         if filtered_count != expected or not 0 < filtered_count < initial_count:
             raise RuntimeError('The live area filter did not select the expected real rows')
         check_scatter('09_live_area_filter', expected_frame[expected_frame.cell_area >= cutoff], faceted=True)
-        capture('09_live_area_filter')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '09_live_area_filter')
+        drv.finish(capture, scene9)
+        scene10 = drv.begin(capture, settle, '10_filter_cleared')
         QTest.mouseClick(screen.filters._clear, Qt.LeftButton)
         settle(1)
         if canvas.render_data.n_total != initial_count:
             raise RuntimeError('Clearing the live filter did not restore the actual rows')
         check_scatter('10_filter_cleared', expected_frame, faceted=True)
-        capture('10_filter_cleared')
+        capture_ui.point_at(capture, canvas._canvas)
+        drv.snap(capture, '10_filter_cleared')
+        drv.finish(capture, scene10)
+        scene11 = drv.begin(capture, settle, '11_actual_brush_state')
         QTest.mouseClick(screen.builder.zone('facet_row')._clear, Qt.LeftButton)
         settle(1)
         ax = canvas.axes_at()
@@ -242,13 +295,17 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         observers = [canvas._canvas.mpl_connect(kind, observed) for kind in
                      ('button_press_event', 'motion_notify_event', 'button_release_event')]
         print(f'Brush canvas {canvas._canvas.size()}, figure {canvas._figure.bbox.bounds}, points {start} -> {end}', flush=True)
-        motion(canvas._canvas.mapToGlobal(start))
-        settle(0.2)
-        button(True)
-        settle(0.2)
-        motion(canvas._canvas.mapToGlobal(end))
-        settle(0.3)
-        button(False)
+        if live:
+            capture_ui._h().drag(capture, canvas._canvas, start, (end.x() - start.x(), end.y() - start.y()),
+                                 duration=1.2)
+        else:
+            motion(canvas._canvas.mapToGlobal(start))
+            settle(0.2)
+            button(True)
+            settle(0.2)
+            motion(canvas._canvas.mapToGlobal(end))
+            settle(0.3)
+            button(False)
         settle(1)
         selected = canvas.selected_count()
         print(f'Actual brush: {selected}; handoff enabled={screen._to_annotate.isEnabled()}; notice={canvas.notice()}', flush=True)
@@ -264,7 +321,9 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             'database_sha256_after': digest(database),
             'reason': 'The actual brush must visibly select rows and enable its handoff',
         }
-        capture('11_actual_brush_state')
+        capture_ui.point_at(capture, screen._to_annotate)
+        drv.snap(capture, '11_actual_brush_state')
+        drv.finish(capture, scene11)
         write_json(captures / 'brush_outcome.json', brush_proof)
         if review_handoff:
             press = [event for event in events if event['kind'] == 'button_press_event']
@@ -283,11 +342,11 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             expected_keys = parts.agg('_'.join,axis=1).tolist()
             brush_review = check_brush(expected_keys,canvas.link.selection.keys,selected,screen._to_annotate.isEnabled())
             # A plain native click clears publication too, not only its stale display.
-            QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
-            settle(0.8)
-            if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
-                raise RuntimeError('The native click failed to clear the brush state')
-            capture('12_selection_cleared')
+            with capture_ui.clip(capture, '12_selection_cleared'):
+                QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
+                settle(0.8)
+                if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
+                    raise RuntimeError('The native click failed to clear the brush state')
             extras = {'schema': stage / 'graph_schema' / captures.name / 'conditions.schema.json'}
             extras['schema'].parent.mkdir(parents=True, exist_ok=True)
             annotation_proof = record_annotations(app, screen, capture, settle, timeout, extras=extras)
@@ -315,12 +374,13 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         if not 0 < selected < initial_count or not screen._to_annotate.isEnabled():
             write_json(captures / 'scientific_acceptance.json', brush_proof)
             raise RuntimeError('The actual brush did not create a partial linked selection')
-        capture('11_real_brush_selection')
-        QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
-        settle(0.8)
-        if canvas.selected_count() != 0 or screen._to_annotate.isEnabled():
-            raise RuntimeError('The actual click did not clear the linked selection')
-        capture('12_selection_cleared')
+        with capture_ui.clip(capture, '11_real_brush_selection'):
+            capture_ui.point_at(capture, screen._to_annotate)
+        with capture_ui.clip(capture, '12_selection_cleared'):
+            QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
+            settle(0.8)
+            if canvas.selected_count() != 0 or screen._to_annotate.isEnabled():
+                raise RuntimeError('The actual click did not clear the linked selection')
         annotation_proof = record_annotations(app, screen, capture, settle, timeout)
         if digest(database) != original_hash:
             raise RuntimeError('Exploring the chart modified the downloaded database')
@@ -336,5 +396,6 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             'annotation_handoff_clicked': False, 'published': False})
         print(f'Accepted Graph Builder: {initial_count} -> {filtered_count} -> {initial_count} rows', flush=True)
     finally:
-        button(False)
-        desktop.close()
+        if desktop is not None:
+            button(False)
+            desktop.close()

@@ -8,7 +8,13 @@ import sqlite3
 import tempfile
 import time
 
+import capture_ui
+from capture_ui_drv_a import modal_wait, watchdog_ms
+from capture_ui_drv_c import Scenes
+from capture_ui_drv_e import guarded
 
+
+@guarded
 def record_gates(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
@@ -34,6 +40,11 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         'invented_measurements': False,
     })
 
+    # Each scene clip starts BEFORE the actions that lead to its state (host); the
+    # old stills are taken where they always were (Xvfb). A scene that is not in the
+    # recorded list still runs its actions.
+    S = Scenes(capture, settle)
+
     def fill(edit, value):
         QTest.mouseClick(edit, Qt.LeftButton)
         QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
@@ -45,11 +56,14 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         index = box.findData(value) if data else box.findText(value)
         if index < 0:
             raise RuntimeError(f'Actual selector lacks {value!r}')
-        box.setFocus()
-        QTest.keyClick(box, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(box, Qt.Key_Down)
-        QTest.keyClick(box, Qt.Key_Tab)
+        if capture_ui.live(capture):
+            capture_ui.select_combo(capture, box, index)       # the pointer opens the list and picks
+        else:
+            box.setFocus()
+            QTest.keyClick(box, Qt.Key_Home)
+            for _ in range(index):
+                QTest.keyClick(box, Qt.Key_Down)
+            QTest.keyClick(box, Qt.Key_Tab)
         settle(0.8)
         if (box.currentData() if data else box.currentText()) != value:
             raise RuntimeError('Actual axis/tool selector did not reach the requested entry')
@@ -72,12 +86,19 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         settle(0.5)
 
     # Keep every real panel. Resize with the same handles a user can drag.
+    S.begin('01b_readable_panels')
     drag_handle(screen.gates.parentWidget(), 1, 3220)
     drag_handle(screen.gates.body, 1, 2440)
-    capture('01b_readable_panels')
+    S.end('01b_readable_panels', screen.gates.tree, screen.gates.canvas)
 
-    def file_dialog(button, path, frame, *, save=False):
+    def file_dialog(button, path, frame, *, save=False, next_frame=None):
+        """Click ``button``, type the file name in the picker and accept it.
+
+        ``frame`` ends in the picker once the name is typed; ``next_frame``
+        (the scene that follows) starts there, before the accepting click.
+        """
         errors, accepted = [], []
+        S.begin(frame)
         def pick():
             dialog = app.activeModalWidget()
             try:
@@ -86,21 +107,24 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
                 watchdog = QTimer(dialog)
                 watchdog.setSingleShot(True)
                 watchdog.timeout.connect(dialog.reject)
-                watchdog.start(12000)
+                watchdog.start(watchdog_ms(capture, 12000))
                 dialog.accepted.connect(lambda: accepted.append(True))
                 # Browse to the folder, then type the name: a typed absolute
-                # path races the picker's completer.
-                dialog.setDirectory(str(Path(path).parent))
+                # path races the picker's completer. (Host: the full path is typed.)
+                capture_ui.file_dialog_dir(capture, dialog, Path(path).parent)
                 settle(0.4)
-                fill(dialog.findChild(QLineEdit, 'fileNameEdit'), Path(path).name)
-                capture(frame)
+                fill(dialog.findChild(QLineEdit, 'fileNameEdit'),
+                     str(path) if capture_ui.live(capture) else Path(path).name)
+                S.end(frame)
+                if next_frame:
+                    S.begin(next_frame, lead=0.3)
                 key = QDialogButtonBox.Save if save else QDialogButtonBox.Open
-                QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(key), Qt.LeftButton)
+                capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(key))
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
                     dialog.reject()
-        QTimer.singleShot(400, pick)
+        modal_wait(capture, 400, pick)
         QTest.mouseClick(button, Qt.LeftButton)
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'File selection was cancelled')
@@ -109,17 +133,19 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     buttons = [b for b in screen.findChildren(QPushButton) if b.isVisible() and b.text() == 'Load table…']
     if len(buttons) != 1:
         raise RuntimeError('Expected one real Load table button')
-    file_dialog(buttons[0], database, '02_real_database_picker')
+    file_dialog(buttons[0], database, '02_real_database_picker', next_frame='03_downloaded_cells')
     if screen._frame is None or len(screen._frame) != 2341 or screen._table != 'cell':
         raise RuntimeError('Expected all 2341 downloaded cell measurements')
-    capture('03_downloaded_cells')
+    S.end('03_downloaded_cells', screen._x, screen._y)
+    S.begin('04_real_scatter')
     choose(screen._x, 'cell_area')
     choose(screen._y, 'cell_channel_1_mean_intensity')
     choose(screen.gates._tool, 'rectangle', data=True)
     canvas = screen.gates.canvas
     if len(canvas.population()) != 2341:
         raise RuntimeError('The initial view does not contain the full loaded table')
-    capture('04_real_scatter')
+    S.end('04_real_scatter', screen._x, screen._y, canvas)
+    S.begin('05_name_drawn_gate')
     ax = canvas.axes_at()
     frame = screen._frame
     x0, x1 = frame['cell_area'].quantile([.25, .75])
@@ -138,10 +164,14 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
                 raise RuntimeError('Drawing did not open the actual gate-name dialog')
             dialog.accepted.connect(lambda: named.append(True))
             fill(dialog.findChild(QLineEdit), pending_name)
-            capture({'tutorial_population': '05_name_drawn_gate',
-                     'tutorial_second': '13_name_second_gate',
-                     'tutorial_volume': '17b_name_volume_gate',
-                     'tutorial_polygon': '17g_name_polygon_gate'}[pending_name])
+            S.end({'tutorial_population': '05_name_drawn_gate',
+                   'tutorial_second': '13_name_second_gate',
+                   'tutorial_volume': '17b_name_volume_gate',
+                   'tutorial_polygon': '17g_name_polygon_gate'}[pending_name])
+            S.begin({'tutorial_population': '06_real_gate_and_counts',
+                     'tutorial_second': '14_second_gate_not_automatically_nested',
+                     'tutorial_volume': '17c_actual_volume_gate',
+                     'tutorial_polygon': '17g_polygon_gate'}[pending_name], lead=0.3)
             QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
         except Exception as exc:
             errors.append(str(exc))
@@ -150,7 +180,7 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     start, end = pixel(x0, y0), pixel(x1, y1)
     QTest.mousePress(surface, Qt.LeftButton, pos=start)
     QTest.mouseMove(surface, end, delay=200)
-    QTimer.singleShot(500, name_gate)
+    modal_wait(capture, 500, name_gate)
     QTest.mouseRelease(surface, Qt.LeftButton, pos=end)
     settle(1)
     if errors or not named or screen.gates.gates.names != ('tutorial_population',):
@@ -162,38 +192,47 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     if not (expected.to_numpy() == actual).all() or not 0 < int(actual.sum()) < len(frame):
         raise RuntimeError('Actual gate membership does not match its drawn data bounds')
     count = int(actual.sum())
-    capture('06_real_gate_and_counts')
     tree = screen.gates.tree.tree
+    S.end('06_real_gate_and_counts', tree, canvas)
+    S.begin('07_gate_hidden_not_deleted')
+    capture_ui.point_at(capture, tree, dwell=0.8)
     QTest.keyClick(tree, Qt.Key_Space)
     settle(0.5)
     if canvas.is_gate_enabled(gate.name):
         raise RuntimeError('The real checkbox did not hide the gate')
-    capture('07_gate_hidden_not_deleted')
+    S.end('07_gate_hidden_not_deleted', canvas)
+    S.begin('08_gate_restored')
     QTest.keyClick(tree, Qt.Key_Space)
     settle(0.5)
     if not canvas.is_gate_enabled(gate.name) or int(screen.gates.gates.mask(frame, gate.name).sum()) != count:
         raise RuntimeError('Showing the gate did not preserve its exact membership')
-    capture('08_gate_restored')
+    S.end('08_gate_restored', canvas)
+    S.begin('09_save_strategy')
 
     saved = work / 'gates.json'
     strategy = screen.gates.gates.to_dict()
-    file_dialog(screen._save_gates, saved, '09_save_strategy', save=True)
-    if json.loads(saved.read_text(encoding="utf-8")) != strategy:
+    file_dialog(screen._save_gates, saved, '09_save_strategy', save=True,
+                next_frame='10_gate_deleted_before_reload')
+    written = json.loads(saved.read_text(encoding="utf-8"))
+    # the editor adds its own display controls (and a merge definition when one exists) beside the gating strategy
+    editor_keys = {key: written.pop(key) for key in ('editor_controls', 'merge_definition') if key in written}
+    if written != strategy or set(editor_keys) - {'editor_controls', 'merge_definition'}:
         raise RuntimeError('The saved strategy differs from the actual gate')
     QTest.mouseClick(screen.gates.tree._remove, Qt.LeftButton)
     settle(0.5)
     if not screen.gates.gates.is_empty:
         raise RuntimeError('The real Delete gate did not remove the current gate')
-    capture('10_gate_deleted_before_reload')
-    file_dialog(screen._load_gates, saved, '11_reload_strategy')
+    S.end('10_gate_deleted_before_reload', tree)
+    file_dialog(screen._load_gates, saved, '11_reload_strategy', next_frame='12_strategy_restored')
     if screen.gates.gates.to_dict() != strategy:
         raise RuntimeError('Load gates did not restore the saved strategy')
     if int(screen.gates.gates.mask(frame, gate.name).sum()) != count:
         raise RuntimeError('Reloading the strategy changed its population')
-    capture('12_strategy_restored')
+    S.end('12_strategy_restored', tree, canvas)
     # Save the ACTUAL drawn graph and export gate membership to this private
     # database, never to the downloaded source.
-    file_dialog(screen._save_graph, work / 'gate_graph.png', '12b_save_graph', save=True)
+    file_dialog(screen._save_graph, work / 'gate_graph.png', '12b_save_graph', save=True,
+                next_frame='12c_exported_gate_membership')
     if not (work / 'gate_graph.png').is_file():
         raise RuntimeError('The actual Save graph action produced no PNG')
     QTest.mouseClick(screen._export, Qt.LeftButton)
@@ -216,7 +255,8 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         with sqlite3.connect(original.as_uri() + '?mode=ro', uri=True) as source:
             if connection.execute('SELECT * FROM cell ORDER BY rowid').fetchall() != source.execute('SELECT * FROM cell ORDER BY rowid').fetchall():
                 raise RuntimeError('Gate export changed the underlying raw cell measurements')
-    capture('12c_exported_gate_membership')
+    S.end('12c_exported_gate_membership', screen._source)
+    S.begin('13_name_second_gate')
 
     items = tree.findItems('tutorial_population', Qt.MatchExactly | Qt.MatchRecursive, 0)
     if len(items) != 1:
@@ -233,7 +273,7 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     end = pixel((gate.x_low + gate.x_high) / 2, (gate.y_low + gate.y_high) / 2)
     QTest.mousePress(surface, Qt.LeftButton, pos=start)
     QTest.mouseMove(surface, end, delay=200)
-    QTimer.singleShot(500, name_gate)
+    modal_wait(capture, 500, name_gate)
     QTest.mouseRelease(surface, Qt.LeftButton, pos=end)
     settle(0.6)
     if errors or not named or 'tutorial_second' not in screen.gates.gates.names:
@@ -244,15 +284,17 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     second_mask = screen.gates.gates.mask(frame, second.name)
     if not (second_mask == second.mask(frame)).all() or not (second_mask & ~actual).any():
         raise RuntimeError('The second shape must retain its real rows outside the first gate')
-    capture('14_second_gate_not_automatically_nested')
-    file_dialog(screen._save_gates, work / 'two_gates.json', '15_save_two_gate_strategy', save=True)
+    S.end('14_second_gate_not_automatically_nested', tree, canvas)
+    file_dialog(screen._save_gates, work / 'two_gates.json', '15_save_two_gate_strategy', save=True,
+                next_frame='16_actual_three_dimensional_view')
     two_gate_strategy = screen.gates.gates.to_dict()
 
     QTest.mouseClick(screen.gates._mode_buttons['3D'], Qt.LeftButton)
     choose(screen._z, 'cell_perimeter')
     if screen.settings().gate_mode != '3D' or not hasattr(canvas.axes_at(), 'get_zlim'):
         raise RuntimeError('The actual three-measurement volume did not render')
-    capture('16_actual_three_dimensional_view')
+    S.end('16_actual_three_dimensional_view', screen.gates._mode_buttons['3D'], screen._z, canvas)
+    S.begin('17_rotated_volume')
     QTest.mouseClick(screen.gates._spin_buttons['z'], Qt.LeftButton)
     ax = canvas.axes_at()
     angle_before = (ax.elev, ax.azim)
@@ -265,11 +307,12 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     write_json(captures / 'volume_angles.json', {'before': angle_before, 'after': angle_after})
     if angle_before == angle_after:
         raise RuntimeError('The genuine 3D drag did not rotate the displayed volume')
-    capture('17_rotated_volume')
+    S.end('17_rotated_volume', canvas)
+    S.begin('17b_name_volume_gate')
     pending_name = 'tutorial_volume'
     named.clear()
     errors.clear()
-    QTimer.singleShot(400, name_gate)
+    modal_wait(capture, 400, name_gate)
     QTest.mouseClick(screen.gates._box_gate, Qt.LeftButton)
     settle(0.7)
     if errors or not named or 'tutorial_volume' not in screen.gates.gates.names:
@@ -280,8 +323,9 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     volume_count = int(screen.gates.gates.mask(frame, volume.name).sum())
     if volume_count <= 0:
         raise RuntimeError('The actual volume contains no measured objects')
-    capture('17c_actual_volume_gate')
-    file_dialog(screen._save_gates, work / 'three_gates.json', '17d_save_volume_strategy', save=True)
+    S.end('17c_actual_volume_gate', tree, canvas)
+    file_dialog(screen._save_gates, work / 'three_gates.json', '17d_save_volume_strategy', save=True,
+                next_frame='17e_free_orbit')
 
     # Item 632: free orbit, a gate drawn at the angle on screen with a live
     # highlight, and renaming by double-click.
@@ -295,10 +339,11 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     after_orbit = (canvas.axes_at().elev, canvas.axes_at().azim, canvas.axes_at().roll)
     if after_orbit[:2] == before_orbit[:2] or abs(after_orbit[2]) > 1e-6:
         raise RuntimeError('Free orbit did not turn the volume without rolling it')
-    capture('17e_free_orbit')
+    S.end('17e_free_orbit', canvas)
+    S.begin('17f_live_highlight')
     from spacr.qt.widgets.gate_editor import _screen_points
     shape = screen.gates._volume_shape
-    shape.setCurrentIndex(shape.findData('view_polygon'))
+    capture_ui.select_combo(capture, shape, shape.findData('view_polygon'))
     QTest.mouseClick(screen.gates._drag_buttons['draw'], Qt.LeftButton)
     settle(0.3)
     columns = [screen._x.currentText(), screen._y.currentText(), screen._z.currentText()]
@@ -316,8 +361,9 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     settle(0.6)
     if getattr(canvas, '_live', None) is None:
         raise RuntimeError('The polygon shows no live highlight while drawing')
-    capture('17f_live_highlight')
-    QTimer.singleShot(400, name_gate)
+    S.end('17f_live_highlight', canvas)
+    S.begin('17g_name_polygon_gate')
+    modal_wait(capture, 400, name_gate)
     QTest.mouseClick(surface, Qt.LeftButton, pos=corners[0])
     settle(1.0)
     if errors or 'tutorial_polygon' not in screen.gates.gates.names:
@@ -325,7 +371,8 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     polygon_count = int(screen.gates.gates.mask(frame, 'tutorial_polygon').sum())
     if polygon_count <= 0:
         raise RuntimeError('The polygon holds no measured objects')
-    capture('17g_polygon_gate')
+    S.end('17g_polygon_gate', screen.gates.tree.tree, canvas)
+    S.begin('17h_rename_gate')
     tree = screen.gates.tree.tree
     items = [tree.topLevelItem(i) for i in range(tree.topLevelItemCount())]
     stack = list(items)
@@ -343,16 +390,20 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
             if not isinstance(dialog, QInputDialog):
                 raise RuntimeError('Double-click did not open Rename gate')
             fill(dialog.findChild(QLineEdit), 'dense_core')
-            capture('17h_rename_gate')
+            S.end('17h_rename_gate')
+            S.begin('18_actual_projection_2d', lead=0.3)
             QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
             renamed.append(True)
         except Exception as exc:
             errors.append(str(exc))
             if dialog is not None:
                 dialog.reject()
-    tree.scrollToItem(item)
+    if capture_ui.live(capture):
+        capture_ui._wheel_item_into_view(capture, tree, item)
+    else:
+        tree.scrollToItem(item)
     rect = tree.visualItemRect(item)
-    QTimer.singleShot(400, rename)
+    modal_wait(capture, 400, rename)
     QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
     QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
     settle(0.8)
@@ -371,23 +422,27 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         raise RuntimeError('The real projection did not create three actual component columns')
     if screen._x.currentText() != 'PC1' or screen._y.currentText() != 'PC2' or screen.settings().gate_mode != '2D':
         raise RuntimeError('xD must change the measurements without forcing the separate 2D/3D choice')
-    capture('18_actual_projection_2d')
+    S.end('18_actual_projection_2d', screen.gates._xd_button, canvas)
+    S.begin('19_actual_projection_3d')
     QTest.mouseClick(screen.gates._mode_buttons['3D'], Qt.LeftButton)
     settle(0.8)
-    capture('19_actual_projection_3d')
+    S.end('19_actual_projection_3d', canvas)
+    S.begin('20_projection_off_keeps_columns')
     QTest.mouseClick(screen.gates._xd_button, Qt.LeftButton)
     settle(0.6)
     if not all(name in screen._frame.columns for name in ('PC1', 'PC2', 'PC3')):
         raise RuntimeError('Turning off xD must not delete columns existing gates could depend on')
-    capture('20_projection_off_keeps_columns')
+    S.end('20_projection_off_keeps_columns', screen.gates._xd_button, screen._x, screen._y)
+    S.begin('21_bounded_walk_settings')
     projection_label = screen._source.text()
     # The search labels need more width at the tutorial's readable font size.
     drag_handle(screen.gates.parentWidget(), 1, 2630)
     drag_handle(screen.gates.body, 1, 2000)
     from capture_gate_search import record_search
     searches = record_search(app, screen, captures, capture, settle, write_json,
-                             fill, choose, file_dialog, work)
-    file_dialog(screen._load_gates, work / 'two_gates.json', '27_return_to_raw_strategy')
+                             fill, choose, file_dialog, work, scenes=S)
+    file_dialog(screen._load_gates, work / 'two_gates.json', '27_return_to_raw_strategy',
+                next_frame='28_live_area_filter')
     if screen.gates.gates.to_dict() != two_gate_strategy:
         raise RuntimeError('Reloading the raw-feature strategy did not restore both actual gates')
     QTest.mouseClick(screen.side_tabs.tabBar(), Qt.LeftButton,
@@ -402,14 +457,16 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     filtered_count = len(canvas.population())
     if filtered_count != int((frame['cell_area'] >= cutoff).sum()) or filtered_count >= len(frame):
         raise RuntimeError('The visible live filter did not retain exactly the expected objects')
-    capture('28_live_area_filter')
+    S.end('28_live_area_filter', row._low, canvas)
+    S.begin('29_live_filter_cleared')
     QTest.mouseClick(screen.filters._clear, Qt.LeftButton)
     settle(0.7)
     if len(canvas.population()) != len(frame):
         raise RuntimeError('Clearing the actual live filter did not restore every object')
     if screen.gates.gates.to_dict() != two_gate_strategy:
         raise RuntimeError('Preview filtering unexpectedly changed the stored gate definitions')
-    capture('29_live_filter_cleared')
+    S.end('29_live_filter_cleared', screen.filters._clear, canvas)
+    S.begin('30_real_console_expression')
 
     drag_handle(screen.gates.parentWidget(), 1, 2350)
     drag_handle(screen.gates.parentWidget(), 2, 3100)
@@ -420,20 +477,22 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     before_expression = console.transcript()
     QTest.mouseClick(console.input, Qt.LeftButton)
     QTest.keyClicks(console.input, 'len(df)')
-    capture('30_real_console_expression')
+    S.end('30_real_console_expression', console.input)
+    S.begin('31_real_console_answer')
     QTest.keyClick(console.input, Qt.Key_Return)
     settle(0.4)
     after_expression = console.transcript()
     if after_expression == before_expression or 'len(df)' not in after_expression or '2341' not in after_expression:
         raise RuntimeError('The actual console did not evaluate the real measurement table')
-    capture('31_real_console_answer')
+    S.end('31_real_console_answer', console)
+    S.begin('32_chat_draft_not_sent')
     question = 'How should I interpret this gate?'
     QTest.mouseClick(console.chat, Qt.LeftButton)
     QTest.keyClicks(console.chat, question)
     settle(0.3)
     if console.chat.toPlainText() != question or console.transcript() != after_expression:
         raise RuntimeError('The draft chat question was not preserved unsent')
-    capture('32_chat_draft_not_sent')
+    S.end('32_chat_draft_not_sent', console.chat)
     write_json(captures / 'console_evidence.json', {
         'expression': 'len(df)', 'transcript': after_expression,
         'unsent_question': question, 'assistant_responder_configured': console._responder is not None,

@@ -10,9 +10,9 @@ CAPTURE_THEME = "dark"
 #: palette (maintainer rule, 2026-10-10). Mask scenes used Blobs at density
 #: 2.0 until then; that exception is gone.
 CAPTURE_BACKDROP = "data_art_impulse_lens"
-#: The one exception: the Spaceout companion recorded with
-#: ``--spaceout-effects-only`` (05_home scene 39) shows the Spaceout field,
-#: because that scene demonstrates Spaceout mode (agreed 2026-10-11).
+#: Settings windows (Preferences, ...) show plain glass in tutorials: no popup
+#: backdrop animation (maintainer decision, 2026-10-13).
+CAPTURE_POPUP_BACKDROP = "off"
 _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
 
 
@@ -61,13 +61,24 @@ WHATS_NEW_DIALOG = "WhatsNewDialog"
 
 
 def running_version():
-    """The installed spaCR version the way the app reads it, or ``"unknown"``.
+    """The running spaCR version the way the app reads it, or ``"unknown"``.
 
-    Reads package metadata only (``spacr.updater._installed_version``), so
-    shell launchers need not import spaCR.
+    The app asks ``spacr.version.get_version`` (through
+    ``spacr.updater._installed_version``), which reads the running checkout;
+    package metadata can lag behind it (1.5.1.4 installed while the checkout
+    is 1.5.1.5), and marking that older version as seen would put the "What's
+    new" note into a recording. Package metadata is only the fallback.
     """
     from importlib.metadata import PackageNotFoundError, version
 
+    try:
+        from spacr.version import get_version
+
+        found = get_version()
+        if found and found != "unknown":
+            return found
+    except Exception:                                        # noqa: BLE001
+        pass
     for name in ("spacr", "spacr-nightly"):
         try:
             return version(name)
@@ -355,7 +366,7 @@ def verify_alpha_features_off(*, allow_alpha_toggle_scene=False, alpha_lesson=No
 
 
 def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home_preferences=False,
-                         spaceout_effects=False, default_field=False):
+                         default_field=False):
     """Set the requested recording appearance in the isolated Qt store.
 
     Also turns Show alpha features off: no recording shows alpha features.
@@ -363,8 +374,7 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
     drafts; Preferences -> Session stays at its default): no recording
     reopens a remembered session.
     """
-    expected = ("data_art_spaceout_field" if spaceout_effects else
-                "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP)
+    expected = "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP
     if (theme, backdrop) != (CAPTURE_THEME, expected):
         raise ValueError("Tutorial appearance does not match its declared recording profile")
     from spacr.qt import preferences as prefs
@@ -378,12 +388,15 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
         from spacr.qt.widgets.ambient import _default_density_for
         prefs.set_ambient_palette(prefs.ambient_default_palette(backdrop))
         prefs.set_ambient_density(_default_density_for(backdrop))
+    # Settings windows on plain glass (maintainer, 2026-10-13); verify_appearance
+    # refuses any other choice, so every capture path sets it here.
+    prefs.set_popup_backdrop(CAPTURE_POPUP_BACKDROP)
     force_alpha_features_off()
     force_fresh_start()
 
 
 def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None,
-                      home_preferences=False, spaceout_effects=False, default_field=False):
+                      home_preferences=False, default_field=False):
     """Check the effective palette and the backdrop widgets being painted.
 
     Also refuses the frame while Show alpha features is on, unless
@@ -400,12 +413,7 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
     verify_fresh_start(window)
     if prefs.resolve_effective_theme() != CAPTURE_THEME:
         raise RuntimeError("Capture refused: the effective theme is not dark")
-    expected = ("data_art_spaceout_field" if spaceout_effects else
-                "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP)
-    if spaceout_effects:
-        from spacr.qt.theme import spaceout_enabled
-        if not spaceout_enabled():
-            raise RuntimeError("Spaceout companion requires the actual Spaceout process mode")
+    expected = "data_art_impulse_lens" if home_preferences or default_field else CAPTURE_BACKDROP
     if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != expected:
         raise RuntimeError("Capture refused: the backdrop is disabled or another backdrop is selected")
     if expected == "data_art_impulse_lens":
@@ -416,17 +424,35 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
             raise RuntimeError("Capture refused: the spaCR field is not at its shipped density")
     if window.palette().color(QPalette.Window).lightness() >= 128:
         raise RuntimeError("Capture refused: the window is painting a light palette")
-    visible = [widget for widget in window.findChildren(AmbientWidget) if widget.isVisible()]
+    def _ready(widget):
+        # A backdrop still being built (e.g. inside a dialog that is opening)
+        # has no theme yet; it is checked on the next frame, not refused.
+        try:
+            widget.theme()
+            return True
+        except AttributeError:
+            return False
+
+    shown = [widget for widget in window.findChildren(AmbientWidget) if widget.isVisible() and _ready(widget)]
+    # A settings window opened by the user (Preferences) carries its own
+    # popup backdrop (Preferences -> Settings-window animation); check it
+    # against that setting, not against the main field.
+    popups = [widget for widget in shown if widget.property("spacrPopupBackdrop")]
+    visible = [widget for widget in shown if not widget.property("spacrPopupBackdrop")]
     if not visible or any(widget.theme() != expected for widget in visible):
         raise RuntimeError("Capture refused: visible backdrop widgets are not the requested backdrop")
+    popup_choice = prefs.get_popup_backdrop() if hasattr(prefs, "get_popup_backdrop") else None
+    if popup_choice != CAPTURE_POPUP_BACKDROP:
+        raise RuntimeError(f"Capture refused: the settings-window backdrop is {popup_choice!r}, "
+                           f"tutorials record it {CAPTURE_POPUP_BACKDROP!r}")
+    if any(widget.theme() not in ("off", None) for widget in popups):
+        raise RuntimeError("Capture refused: a settings window is painting a backdrop animation")
     if not any(widget.frames_painted > 0 for widget in visible):
         raise RuntimeError("Capture refused: the backdrop has not painted a frame")
     if any(widget.isVisible() for widget in window.findChildren(DnaRainWidget)):
         raise RuntimeError("Capture refused: DNA rain covers the requested backdrop")
     receipt = {"theme": CAPTURE_THEME, "backdrop": expected,
                "painted_frames": sum(widget.frames_painted for widget in visible)}
-    if spaceout_effects:
-        receipt["spaceout_process_mode"] = True
     if alpha_shown:
         receipt["alpha_features_shown_for_toggle_scene"] = True
     return receipt

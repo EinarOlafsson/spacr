@@ -3,6 +3,8 @@ from pathlib import Path
 import tempfile
 import time
 import numpy as np
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import prepare_database_copy, require_unchanged_source, _digest
 from feature_explorer_evidence import read_measurements
 from pca_evidence import verify, verify_csv, close
@@ -23,14 +25,15 @@ def capture_pca_host(window, capture, settle):
     tile = max(tiles, key=lambda w: w.width() * w.height())
     if tile.visibleRegion().isEmpty():
         raise ValueError('Image UMAP tile is not exposed')
-    QTest.mouseClick(tile, Qt.LeftButton, pos=tile.visibleRegion().boundingRect().center())
-    settle(.8)
-    host = window._screens['umap']
-    folds = [w for w in host.findChildren(FoldButton)
-             if w.isVisible() and w.isEnabled() and w.app_key == 'pca']
-    if len(folds) != 1 or folds[0].visibleRegion().isEmpty():
-        raise ValueError('No unique exposed Image UMAP PCA fold')
-    capture('01_image_umap_host')
+    with capture_ui.clip(capture, '01_image_umap_host'):
+        QTest.mouseClick(tile, Qt.LeftButton, pos=tile.visibleRegion().boundingRect().center())
+        settle(.8)
+        host = window._screens['umap']
+        folds = [w for w in host.findChildren(FoldButton)
+                 if w.isVisible() and w.isEnabled() and w.app_key == 'pca']
+        if len(folds) != 1 or folds[0].visibleRegion().isEmpty():
+            raise ValueError('No unique exposed Image UMAP PCA fold')
+        capture_ui.point_at(capture, folds[0])
     return folds[0]
 
 
@@ -74,11 +77,17 @@ def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
         else:QTest.keyClick(w,Qt.Key_Backspace)
         QTest.keyClick(w,Qt.Key_Tab);settle(.25)
 
-    def combo(box,value,*,data=True,frame=None):
+    def open_popup(box,frame):
+        """Clip ``frame``: the selector's real popup opened and read."""
+        started=drv.begin(capture,settle,frame)
+        click(box);capture_ui.wait(capture,1.5,settle)
+        if not capture_ui.live(capture):capture(frame,desktop=True)
+        drv.finish(capture,started)
+
+    def combo(box,value,*,data=True,popup_open=False):
         idx=box.findData(value) if data else box.findText(value)
         if idx<0:raise ValueError('Actual PCA selector has no '+str(value))
-        click(box)
-        if frame:capture(frame,desktop=True)
+        if not popup_open:click(box)
         QTest.keyClick(box.view(),Qt.Key_Home)
         for _ in range(idx):QTest.keyClick(box.view(),Qt.Key_Down)
         QTest.keyClick(box.view(),Qt.Key_Return);idle()
@@ -91,8 +100,8 @@ def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
             dialog=app.activeModalWidget()
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('Expected genuine file picker')
-                dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);capture(name)
+                dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);drv.snap(capture,name);capture_ui.wait(capture,1.5,settle)
                 box=dialog.findChild(QDialogButtonBox)
                 buttons=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(buttons)!=1:raise ValueError('No unique file-picker accept control')
@@ -103,22 +112,25 @@ def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
         def abort():
             errors.append('File picker timed out');dialog=app.activeModalWidget()
             if dialog is not None:dialog.reject()
-        timer.timeout.connect(handle);watch.timeout.connect(abort);timer.start(300);watch.start(15000)
+        watch.timeout.connect(abort);watch.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        started=drv.begin(capture,settle,name);capture_ui.when_modal(capture,300,handle)
         try:click(button)
-        finally:timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
+        finally:drv.finish(capture,started);timer.stop();watch.stop();timer.deleteLater();watch.deleteLater()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'No accepted file')
         idle()
 
     def feature(name,on):
         fill(panel.features._search,name);listing=panel.features._list
-        matches=[listing.item(i) for i in range(listing.count()) if listing.item(i).data(Qt.UserRole)==name]
+        matches=[listing.item(i) for i in range(listing.count()) if listing.item(i).data(Qt.UserRole)==name and not listing.item(i).isHidden()]
         if len(matches)!=1:raise ValueError('No unique actual feature '+name)
         item=matches[0];listing.scrollToItem(item);settle(.1)
         rect=listing.visualItemRect(item)
         QTest.mouseClick(listing.viewport(),Qt.LeftButton,pos=QPoint(rect.left()+12,rect.center().y()));settle(.2)
         if (item.checkState()==Qt.Checked)!=on:raise ValueError('Actual feature checkbox did not change')
 
-    def check(name,population=None,features=None,scaling='zscore',policy='auto',components=3):
+    def check(name,population=None,features=None,scaling='zscore',policy='auto',components=3,act=None):
+        started=drv.begin(capture,settle,name)
+        if act is not None:act()
         idle();data=rows if population is None else population;fs=chosen if features is None else features
         if panel.result is None:raise ValueError('PCA has no result: '+panel.report.text())
         p=verify(panel.result,data,fs,scaling=scaling,policy=policy,components=components)
@@ -133,55 +145,71 @@ def record_pca(app,window,stage,captures,capture,settle,write_json,timeout):
         p.update(plane=list(plane),drawn_points=len(points),source_label=screen._source.text(),
                  report=panel.report.text(),arrow_scale=panel.canvas.arrow_scale,
                  selected_features=list(panel.features.selected()))
-        proof.setdefault('checks',{})[name]=p;capture(name);return p
+        proof.setdefault('checks',{})[name]=p;capture_ui.point_at(capture,panel.canvas);drv.snap(capture,name);drv.finish(capture,started);return p
 
     try:
         fold = capture_pca_host(window, capture, settle)
+        scene2=drv.begin(capture,settle,'02_current_pca')
         click(fold);settle(.8)
         screens=[w for w in window.findChildren(PCAScreen) if w.isVisible()]
         if len(screens)!=1:raise ValueError('Actual PCA fold not visible')
         screen=screens[0];panel=screen.pca
         panel.computed.connect(lambda r:events.append(dict(rows=len(r),features=list(r.features),policy=r.nan_policy,scaling=r.scaling)))
         panel.failed.connect(lambda text:failures.append(text))
-        splitter=panel.features.parentWidget().parentWidget();handle=splitter.handle(1)
+        splitter=panel.splitter;handle=splitter.handle(1)
         start=handle.rect().center();end=start+QPoint(1400-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
-        QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3);capture('02_current_pca')
+        QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
+        capture_ui.point_at(capture,panel.features);drv.snap(capture,'02_current_pca');drv.finish(capture,scene2)
         picker(next(b for b in screen.findChildren(QPushButton) if b.text()=='Load table…'),work/'measurements.db','03_real_measurement_picker')
         proof['initial_auto_fit']=dict(rows=len(panel.result) if panel.result else 0,report=panel.report.text(),independently_validated=False)
-        fill(panel.features._search,'')
-        click(next(b for b in panel.features.findChildren(QPushButton) if b.text()=='None'))
-        for name in chosen:feature(name,True)
-        fill(panel.features._search,'');capture('04_three_features_before_run')
-        fill(panel._components.lineEdit(),3);idle();click(panel._run);base=check('05_standardised_three_features')
-        old=panel.result;combo(panel._colour,'rowID');check('06_spatial_row_colours')
+        def choose_features():
+            fill(panel.features._search,'')
+            click(next(b for b in panel.features.findChildren(QPushButton) if b.text()=='None'))
+            for name in chosen:feature(name,True)
+            fill(panel.features._search,'')
+        with capture_ui.clip(capture,'04_three_features_before_run'):
+            choose_features();capture_ui.point_at(capture,panel.features)
+        def run_three():
+            fill(panel._components.lineEdit(),3);idle();click(panel._run)
+        base=check('05_standardised_three_features',act=run_three)
+        old=panel.result
+        check('06_spatial_row_colours',act=lambda:combo(panel._colour,'rowID'))
         if panel.result is not old:raise ValueError('Colour unexpectedly refitted PCA')
-        combo(panel._pc_x,'PC3');combo(panel._pc_y,'PC1');check('07_pc3_against_pc1')
+        check('07_pc3_against_pc1',act=lambda:(combo(panel._pc_x,'PC3'),combo(panel._pc_y,'PC1')))
         if panel.result is not old:raise ValueError('Axis choice unexpectedly refitted PCA')
-        combo(panel._pc_x,'PC1');combo(panel._pc_y,'PC2');click(panel._biplot);check('08_arrows_hidden')
+        check('08_arrows_hidden',act=lambda:(combo(panel._pc_x,'PC1'),combo(panel._pc_y,'PC2'),click(panel._biplot)))
         if panel.canvas.arrow_scale!=0:raise ValueError('Hidden loadings retained display scale')
-        click(panel._biplot);check('09_biplot_restored')
-        combo(panel._scaling,'none',frame='10_actual_scaling_menu');check('11_raw_units_pca',scaling='none')
-        combo(panel._scaling,'zscore');check('12_standardisation_restored')
-        combo(screen.filters._picker,'cell_area',data=False);click(screen.filters.findChild(QPushButton,'FilterAddButton'))
-        fill(screen.filters._rows['cell_area']._low.lineEdit(),21925)
+        check('09_biplot_restored',act=lambda:click(panel._biplot))
+        open_popup(panel._scaling,'10_actual_scaling_menu')
+        check('11_raw_units_pca',scaling='none',act=lambda:combo(panel._scaling,'none',popup_open=True))
+        check('12_standardisation_restored',scaling='zscore',act=lambda:combo(panel._scaling,'zscore'))
+        def add_filter():
+            combo(screen.filters._picker,'cell_area',data=False);click(screen.filters.findChild(QPushButton,'FilterAddButton'))
+            fill(screen.filters._rows['cell_area']._low.lineEdit(),21925)
         selected=[r for r in rows if r['cell_area']>=21925]
-        p=check('13_live_filter_refits_basis',selected)
+        p=check('13_live_filter_refits_basis',selected,act=add_filter)
         if p['analysed_rows']!=1171 or p['centre']==base['centre']:raise ValueError('Filter did not genuinely refit population')
-        click(screen.filters._clear);p=check('14_clear_restores_full_basis')
+        p=check('14_clear_restores_full_basis',act=lambda:click(screen.filters._clear))
         if p['centre']!=base['centre']:raise ValueError('Clear did not restore original PCA basis')
-        feature(missing,True);capture('15_missing_feature_ticked_not_run')
+        with capture_ui.clip(capture,'15_missing_feature_ticked_not_run'):
+            feature(missing,True)
+            capture_ui.point_at(capture,panel.features)
         if panel.result.n_features!=3:raise ValueError('Feature ticks unexpectedly recomputed before Run')
-        click(panel._run);fs=(*chosen,missing);check('16_auto_seven_rows_removed',features=fs)
-        combo(panel._nan,'drop_features',frame='17_missing_value_choices');check('18_drop_feature_keeps_objects',features=fs,policy='drop_features')
-        combo(panel._nan,'mean');check('19_mean_imputes_seven_values',features=fs,policy='mean')
-        combo(panel._nan,'complete');check('20_complete_cases',features=fs,policy='complete')
-        combo(panel._nan,'auto');feature(missing,False);fill(panel.features._search,'');click(panel._run)
-        combo(panel._colour,'');check('21_original_three_features_restored')
+        fs=(*chosen,missing);check('16_auto_seven_rows_removed',features=fs,act=lambda:click(panel._run))
+        open_popup(panel._nan,'17_missing_value_choices')
+        check('18_drop_feature_keeps_objects',features=fs,policy='drop_features',act=lambda:combo(panel._nan,'drop_features',popup_open=True))
+        check('19_mean_imputes_seven_values',features=fs,policy='mean',act=lambda:combo(panel._nan,'mean'))
+        check('20_complete_cases',features=fs,policy='complete',act=lambda:combo(panel._nan,'complete'))
+        def restore():
+            combo(panel._nan,'auto');feature(missing,False);fill(panel.features._search,'');click(panel._run)
+            combo(panel._colour,'')
+        check('21_original_three_features_restored',act=restore)
         stem=work/'pca_example';picker(screen._export,stem.with_suffix('.csv'),'22_actual_three_file_export')
         proof['exports']=verify_csv(stem,rows,panel.result)
         for p in proof['exports'].values():p['sha256']=_digest(p['path'])
-        capture('23_export_confirmation')
+        with capture_ui.clip(capture,'23_export_confirmation'):
+            capture_ui.point_at(capture,screen._export)
         proof['accepted']=True
     finally:
         require_unchanged_source(source,original['source_bundle']);proof['original_unchanged']=True

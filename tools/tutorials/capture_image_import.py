@@ -13,6 +13,9 @@ import tempfile
 import time
 from pathlib import Path
 
+import capture_ui
+import capture_ui_drv_d as drv
+
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -76,9 +79,13 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                if button.app_key == 'import_images' and button.isVisible()]
     if len(buttons) != 1 or not buttons[0].isEnabled():
         raise RuntimeError('Import must expose exactly one usable Import Images fold')
-    QTest.mouseMove(buttons[0])
-    settle(1)
-    capture('02_import_fold')
+    with capture_ui.clip(capture, '02_import_fold'):
+        if capture_ui.live(capture):
+            capture_ui.point_at(capture, buttons[0], dwell=1.5)
+        else:
+            QTest.mouseMove(buttons[0])
+            settle(1)
+    scene3 = drv.begin(capture, settle, '03_import_images')
     QTest.mouseClick(buttons[0], Qt.LeftButton)
     settle(2)
     screens = [screen for screen in window.findChildren(ImageImportScreen)
@@ -86,7 +93,9 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
     if len(screens) != 1:
         raise RuntimeError(f'Fold did not reveal one Import Images screen: {len(screens)}')
     screen = screens[0]
-    capture('03_import_images')
+    capture_ui.point_at(capture, screen._root_edit, screen._dst_edit)
+    drv.snap(capture, '03_import_images')
+    drv.finish(capture, scene3)
     run, raw, source, originals = prepare_example(stage)
     destination = run / 'spacr_project'
     write_json(captures / 'dataset.json', {'subset': True, 'fields': 2,
@@ -96,6 +105,10 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                'destination': str(destination)})
 
     def fill(widget, text):
+        if capture_ui.live(capture):
+            capture_ui.set_text(capture, widget, str(text))
+            settle(0.1)
+            return
         widget.setFocus()
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(widget, str(text))
@@ -112,9 +125,10 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
         if screen.last_error and not (allow_questions and screen.plan() is not None):
             raise RuntimeError(f'{label}: {screen.last_error}')
 
-    fill(screen._root_edit, raw)
-    fill(screen._dst_edit, destination)
-    capture('04_source_options')
+    with capture_ui.clip(capture, '04_source_options'):
+        fill(screen._root_edit, raw)
+        fill(screen._dst_edit, destination)
+    scene4a = drv.begin(capture, settle, '04a_unresolved_acquisition_token')
     QTest.mouseClick(screen._btn_scan, Qt.LeftButton)
     wait_job('Raw scan', allow_questions=True)
     write_json(captures / 'raw_scan.json', {'report': screen.report_text(),
@@ -122,10 +136,13 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                'destination_exists': destination.exists()})
     if not screen.problems() or destination.exists() or screen._btn_import.isEnabled():
         raise RuntimeError('The raw-name ambiguity demonstration no longer matches current source')
-    capture('04a_unresolved_acquisition_token')
+    capture_ui.point_at(capture, getattr(screen, '_report', None) or screen._btn_scan)
+    drv.snap(capture, '04a_unresolved_acquisition_token')
+    drv.finish(capture, scene4a)
     # Do not map A to channel: C01 and C04 both use A02 in the real example.
     # Show the prepared-copy input explicitly, rather than claim automatic
     # ingestion of the original naming scheme succeeded.
+    scene5 = drv.begin(capture, settle, '05_scan_proposal')
     fill(screen._root_edit, source)
     QTest.mouseClick(screen._btn_scan, Qt.LeftButton)
     wait_job('Scan')
@@ -144,16 +161,24 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                'counts': screen.plan().counts(), 'files': screen.plan().files,
                'destination_exists': destination.exists(),
                'columns': screen.proposal_columns()})
-    capture('05_scan_proposal')
-    screen._table.selectRow(0)
-    settle()
-    capture('06_check_filename')
+    capture_ui.point_at(capture, screen._table)
+    drv.snap(capture, '05_scan_proposal')
+    drv.finish(capture, scene5)
+    with capture_ui.clip(capture, '06_check_filename'):
+        if capture_ui.live(capture):
+            capture_ui._h().click(screen._table.viewport(),
+                                  screen._table.visualRect(screen._table.model().index(0, 0)).center())
+        else:
+            screen._table.selectRow(0)
+        settle()
     # A portable copied project is more useful for this small demonstration.
     # Leave tile policy unchanged: these real source files are not tiled.
-    if screen._link_box.isChecked():
-        QTest.mouseClick(screen._link_box, Qt.LeftButton)
-    settle()
-    capture('07_copy_destination')
+    with capture_ui.clip(capture, '07_copy_destination'):
+        if screen._link_box.isChecked():
+            capture_ui.set_checked(capture, screen._link_box, False) if capture_ui.live(capture) \
+                else QTest.mouseClick(screen._link_box, Qt.LeftButton)
+        settle()
+        capture_ui.point_at(capture, screen._dst_edit, screen._link_box)
 
     plan_path = run / 'import_plan.json'
 
@@ -170,16 +195,20 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                         raise RuntimeError('The expected file dialog did not open')
                     QTimer.singleShot(100, choose)
                     return
-                dialog.selectFile(str(path))
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                 if edit is None:
                     raise RuntimeError('No filename editor in the real file dialog')
-                edit.setFocus()
+                if capture_ui.live(capture):
+                    capture_ui._h().click(edit)
+                else:
+                    dialog.selectFile(str(path))
+                    edit.setFocus()
                 QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
                 QTest.keyClicks(edit, str(path))
-                dialog.resize(1200, 900)
+                capture_ui.dialog_geometry(capture, dialog, (1200, 900))
                 settle(0.2)
-                capture(frame)
+                drv.snap(capture, frame)
+                capture_ui.wait(capture, 1.5, settle)
                 dialog.accepted.connect(lambda: accepted.append(True))
                 QTest.keyClick(edit, Qt.Key_Return)
                 def reject_stalled():
@@ -192,9 +221,11 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                 if app.activeModalWidget() is not None:
                     app.activeModalWidget().reject()
 
-        QTimer.singleShot(200, choose)
+        started = drv.begin(capture, settle, frame)
+        capture_ui.when_modal(capture, 200, choose)
         QTest.mouseClick(button, Qt.LeftButton)
         settle()
+        drv.finish(capture, started)
         if errors:
             raise RuntimeError('; '.join(errors))
         if not accepted:
@@ -205,12 +236,15 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
     file_dialog(screen._btn_save_plan, plan_path, '08_save_plan_dialog')
     if not plan_path.is_file():
         raise RuntimeError('Save plan did not produce a file')
-    capture('09_saved_plan')
+    with capture_ui.clip(capture, '09_saved_plan'):
+        capture_ui.point_at(capture, screen._btn_save_plan)
     file_dialog(screen._btn_load_plan, plan_path, '10_load_plan_dialog')
-    wait_job('Load plan')
-    if screen.proposal_row_count() != 8 or screen.problems():
-        raise RuntimeError('Loading the saved plan did not restore the source proposal')
-    capture('11_reloaded_plan')
+    with capture_ui.clip(capture, '11_reloaded_plan'):
+        wait_job('Load plan')
+        if screen.proposal_row_count() != 8 or screen.problems():
+            raise RuntimeError('Loading the saved plan did not restore the source proposal')
+        capture_ui.point_at(capture, screen._table)
+    scene12 = drv.begin(capture, settle, '12_import_complete')
     QTest.mouseClick(screen._btn_import, Qt.LeftButton)
     wait_job('Import')
     result = screen.result()
@@ -224,7 +258,9 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
     if expected != actual or any(digest(Path(entry['input'])) != entry['sha256']
                                  for entry in originals):
         raise RuntimeError('Import altered or lost source image content')
-    capture('12_import_complete')
+    capture_ui.point_at(capture, screen._btn_import)
+    drv.snap(capture, '12_import_complete')
+    drv.finish(capture, scene12)
     write_json(captures / 'import_acceptance.json', {'accepted': True,
                'summary': result.summary(), 'status': screen.status_text(),
                'copied_images': len(outputs), 'source_bytes_unchanged': True,
@@ -245,10 +281,10 @@ def open_import_images(app, window, host, capture, settle):
                if button.app_key == 'import_images' and button.isVisible()]
     if len(buttons) != 1 or not buttons[0].isEnabled():
         raise RuntimeError('Import must expose exactly one usable Import Images fold')
-    QTest.mouseClick(buttons[0], Qt.LeftButton)
-    settle(2)
-    screens = [screen for screen in window.findChildren(ImageImportScreen) if screen.isVisible()]
-    if len(screens) != 1:
-        raise RuntimeError(f'Fold did not reveal one Import Images screen: {len(screens)}')
-    capture('03_import_images')
+    with capture_ui.clip(capture, '03_import_images'):
+        QTest.mouseClick(buttons[0], Qt.LeftButton)
+        settle(2)
+        screens = [screen for screen in window.findChildren(ImageImportScreen) if screen.isVisible()]
+        if len(screens) != 1:
+            raise RuntimeError(f'Fold did not reveal one Import Images screen: {len(screens)}')
     return screens[0]

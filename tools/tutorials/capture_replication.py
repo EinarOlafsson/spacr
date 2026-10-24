@@ -1,6 +1,10 @@
 """Record a bounded synthetic Replication example without changing spaCR."""
 from pathlib import Path
 import time
+from contextlib import nullcontext
+
+import capture_ui
+import capture_ui_drv_b
 
 from capture_acceptance import assess_pipeline
 from replication_demo import prepare, digest, verify_files, verify_bars
@@ -11,6 +15,8 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QMessageBox, QComboBox, QDialogButtonBox
+
+    host = capture_ui.live(capture)
 
     manifest = prepare(stage)
     database = Path(manifest['database'])
@@ -25,7 +31,7 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
     if (root / 'results').exists():
         raise ValueError('A fresh tutorial run must not inherit old outputs')
     for key, value in settings.items():
-        if not screen._settings_model.set_value_for_key(key, value):
+        if not capture_ui_drv_b.fill_setting(capture, screen, key, value):
             raise ValueError('No real Replication setting for ' + key)
         settle(.05)
     collected = screen._settings_model.collect()
@@ -43,21 +49,24 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
     for index, key in enumerate(('src', 'vacuole_key', 'require_host_cell',
             'min_parasite_area', 'max_parasites_per_vacuole', 'non_power_of_two_warn',
             'pathogen_plate_metadata', 'save'), 3):
-        bar._input.setFocus()
-        QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(bar._input, key)
-        settle(.4)
-        if key not in bar.visible_keys():
-            raise ValueError('The real settings search did not expose ' + key)
-        field = screen._settings_model._widgets[key]
-        screen._settings_scroll.ensureWidgetVisible(field)
-        settle(.2)
-        if not field.isVisible():
-            raise ValueError('The intended setting is hidden: ' + key)
-        capture(f'{index:02d}_setting_{key}')
-    bar.set_query(old_query)
-    bar.set_level(old_level)
-    bar.set_modified_only(old_modified)
+        with capture_ui.clip(capture, f'{index:02d}_setting_{key}'):
+            capture_ui.search_settings(capture, bar, key)
+            settle(.4)
+            if key not in bar.visible_keys():
+                raise ValueError('The real settings search did not expose ' + key)
+            field = screen._settings_model._widgets[key]
+            capture_ui.scroll_to(capture, screen._settings_scroll, field)
+            settle(.2)
+            if not field.isVisible():
+                raise ValueError('The intended setting is hidden: ' + key)
+            capture_ui.point_at(capture, field, dwell=1.2)
+    capture_ui.search_settings(capture, bar, old_query)
+    capture_ui.settings_level(capture, bar, old_level)
+    if bar.modified_only() != old_modified:
+        if host:
+            QTest.mouseClick(bar._modified, Qt.LeftButton)
+        else:
+            bar.set_modified_only(old_modified)
     settle(.3)
     if screen._settings_model.collect() != before:
         raise ValueError('A display-only settings tour changed the analysis')
@@ -73,16 +82,20 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
                 write_json(captures / 'unexpected_prompt.json', dict(title=dialog.windowTitle(), text=dialog.text()))
                 dialog.reject()
 
-    QTimer.singleShot(800, reject_prompt)
-    QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-    worker = screen._worker
-    if worker is None:
-        raise ValueError('The native Run button did not start a worker')
-    worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
-    worker.error.connect(lambda message: outcome['errors'].append(str(message)))
-    proof['actual_gui_run'] = True
-    settle(.3)
-    capture('11_actual_run')
+    with capture_ui.clip(capture, '11_actual_run'):
+        QTimer.singleShot(800, reject_prompt)
+        QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+        # Run starts its worker after the reproducibility pre-flight, not inside the click: wait for it.
+        wait_until = time.monotonic() + 60
+        while getattr(screen, '_worker', None) is None and time.monotonic() < wait_until:
+            settle(.1)
+        worker = getattr(screen, '_worker', None)
+        if worker is None:
+            raise ValueError('The native Run button did not start a worker')
+        worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
+        worker.error.connect(lambda message: outcome['errors'].append(str(message)))
+        proof['actual_gui_run'] = True
+        settle(.3)
     deadline = time.monotonic() + timeout
     while not outcome['finished'] or screen._worker_thread_is_running():
         if time.monotonic() > deadline:
@@ -103,12 +116,10 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
     proof['private_database_unchanged'] = digest(database) == manifest['database_sha256']
     proof['figures_visible'] = screen._figures_card.isVisible()
     write_json(captures / 'scientific_acceptance.json', proof)
-    for block, _, _ in screen._console._pipeline_console_blocks():
-        block.setFocus()
-        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-    screen._console.jump_to_the_end()
-    settle(.3)
-    capture('12_actual_completion')
+    with capture_ui.clip(capture, '12_actual_completion'):
+        capture_ui.console_end_all(capture, screen._console)
+        capture_ui.console_to_end(capture, screen._console)
+        settle(.3)
     if (not proof['pipeline']['accepted'] or not proof.get('output_checks') or
             not proof['source_unchanged'] or not proof['private_database_unchanged'] or
             not proof['figures_visible']):
@@ -130,9 +141,9 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
     for index, pixmap in enumerate(queue.all_pixmaps()):
         if not pixmap.save(str(captures / f'figure_{index:02}.png'), 'PNG'):
             raise ValueError('Could not preserve an actual output figure')
-        queue.show_index(index)
-        settle(.3)
-        capture(f'13_figure_{index:02}')
+        with capture_ui.clip(capture, f'13_figure_{index:02}'):
+            capture_ui.show_figure(capture, queue, index)
+            settle(.3)
         figure = queue.figure_for(index)
         groups, series = bar_data(figure)
         write_json(captures / f'figure_data_{index:02}.json', dict(groups=groups, series=series))
@@ -149,16 +160,19 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
                 watchdog = QTimer(dialog)
                 watchdog.setSingleShot(True)
                 watchdog.timeout.connect(dialog.reject)
-                watchdog.start(15000)
-                dialog.resize(1000, 1500)
-                dialog.move(window.geometry().center() - dialog.rect().center())
+                watchdog.start(120000 if host else 15000)
+                capture_ui.dialog_geometry(capture, dialog, (1000, 1500),
+                                           window.geometry().center() - dialog.rect().center())
                 tabs = dialog.tabs
                 axis_title = figure.axes[0].get_title()[:18]
                 matches = [i for i in range(tabs.count()) if tabs.tabText(i) == axis_title]
                 if len(matches) != 1:
                     raise ValueError('The figure axes tab is ambiguous')
-                QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
-                                 pos=tabs.tabBar().tabRect(matches[0]).center())
+                if host:
+                    capture_ui.select_tab(capture, tabs, matches[0])
+                else:
+                    QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                                     pos=tabs.tabBar().tabRect(matches[0]).center())
                 settle(.2)
                 page = tabs.currentWidget()
                 choices = [box for box in page.findChildren(QComboBox)
@@ -166,39 +180,60 @@ def record_replication(app, window, screen, stage, captures, capture, settle, wr
                 if len(choices) != 1:
                     raise ValueError('No unique native Legend position control')
                 choice = choices[0]
-                page.ensureWidgetVisible(choice)
-                choice.setFocus()
-                QTest.keyClick(choice, Qt.Key_Home)
-                QTest.keyClick(choice, Qt.Key_Down)
-                QTest.keyClick(choice, Qt.Key_Home)
-                QTest.keyClick(choice, Qt.Key_Tab)
+                capture_ui.scroll_to(capture, page, choice)
+                if host:
+                    # The legend is rebuilt only when the combo CHANGES. If it already reads 'best'
+                    # (the first item) selecting it again changes nothing and the legend stays
+                    # outside the canvas, so step to another item first, then to 'best'.
+                    if choice.currentText() == 'best':
+                        capture_ui.select_combo(capture, choice, 1 if choice.count() > 1 else 0)
+                        settle(.3)
+                    capture_ui.select_combo(capture, choice, choice.findText('best'))
+                else:
+                    choice.setFocus()
+                    QTest.keyClick(choice, Qt.Key_Home)
+                    QTest.keyClick(choice, Qt.Key_Down)
+                    QTest.keyClick(choice, Qt.Key_Home)
+                    QTest.keyClick(choice, Qt.Key_Tab)
                 settle(.5)
                 if choice.currentText() != 'best':
                     raise ValueError('The native legend choice did not take effect')
-                capture(f'14_legend_settings_{index:02}')
+                if not host:
+                    capture(f'14_legend_settings_{index:02}')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
+                if host:
+                    capture_ui.point_at(capture, choice, dwell=1.5)
+                    capture_ui.accept_dialog(capture, dialog)
+                else:
+                    QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
                     dialog.reject()
 
-        QTimer.singleShot(350, move_legend)
-        QTest.mouseClick(queue._fig_settings_btn, Qt.LeftButton)
-        settle(.6)
-        if errors or not accepted:
-            raise ValueError('; '.join(errors) or 'The figure dialog was not accepted')
-        after = bar_data(figure)
-        if after != (groups, series):
-            raise ValueError('Moving the legend changed plotted values or bar geometry')
-        verify_bars(*after, manifest['expected'][table][1])
-        legend = figure.axes[0].get_legend()
-        bounds = legend.get_window_extent(figure.canvas.get_renderer())
-        canvas = figure.bbox
-        if not (canvas.x0 <= bounds.x0 <= bounds.x1 <= canvas.x1 and
-                canvas.y0 <= bounds.y0 <= bounds.y1 <= canvas.y1):
-            raise ValueError('The actual legend still leaves the figure canvas')
-        capture(f'15_readable_legend_{index:02}')
+        with (capture_ui.clip(capture, f'14_legend_settings_{index:02}') if host else nullcontext()):
+            capture_ui.when_modal(capture, 350, move_legend)
+            QTest.mouseClick(queue._fig_settings_btn, Qt.LeftButton)
+            settle(.6)
+            if errors or not accepted:
+                raise ValueError('; '.join(errors) or 'The figure dialog was not accepted')
+        with capture_ui.clip(capture, f'15_readable_legend_{index:02}'):
+            after = bar_data(figure)
+            if after != (groups, series):
+                raise ValueError('Moving the legend changed plotted values or bar geometry')
+            verify_bars(*after, manifest['expected'][table][1])
+            legend = figure.axes[0].get_legend()
+            # The legend moves when the canvas repaints. Under load (GNOME host) the repaint
+            # queued by the dialog can still be pending after the settle, so measure a drawn
+            # figure, not the previous frame.
+            figure.canvas.draw()
+            bounds = legend.get_window_extent(figure.canvas.get_renderer())
+            canvas = figure.bbox
+            if not (canvas.x0 <= bounds.x0 <= bounds.x1 <= canvas.x1 and
+                    canvas.y0 <= bounds.y0 <= bounds.y1 <= canvas.y1):
+                raise ValueError(f'The actual legend still leaves the figure canvas '
+                                 f'(legend={bounds.bounds}, canvas={canvas.bounds}, loc={legend._loc})')
+            capture_ui.point_at(capture, screen._figures_card, dwell=1.5)
         proof['figure_checks'].append(dict(index=index, groups=groups, series=series,
             geometry_fields_checked=checks, legend_inside_canvas=True,
             legend_bounds=list(bounds.bounds), canvas_bounds=list(canvas.bounds),

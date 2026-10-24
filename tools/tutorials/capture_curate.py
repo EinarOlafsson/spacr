@@ -9,6 +9,8 @@ import time
 import numpy as np
 import tifffile
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from build_evaluation_example import sha
 from curate_evidence import check_mask, check_tracks, painted_disk
 from curate_checkpoint import checkpoint
@@ -48,6 +50,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
     from spacr.qt.screens.curate import CurateScreen
     from spacr.qt.widgets.fold_strip import FoldButton
 
+    scenes = Scenes(capture, settle)
     stage = Path(stage)
     work, baseline, tracks, original = prepare(stage)
     mask_path, track_path = work / 'mask.tif', work / 'tracks.csv'
@@ -82,15 +85,17 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
                 if not isinstance(dialog, QFileDialog):
                     raise ValueError('The real Curate file picker did not open')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1500,1000)
+                capture_ui.dialog_geometry(capture,dialog,(1500,1000))
                 # Browse to the folder, then type the name: a typed absolute
-                # path races the picker's completer.
-                dialog.setDirectory(str(Path(path).parent)); settle(.4)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),Path(path).name); capture(frame)
+                # path races the picker's completer. The host user types the full path.
+                capture_ui.file_dialog_dir(capture,dialog,Path(path).parent); settle(.4)
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),
+                     str(path) if capture_ui.live(capture) else Path(path).name)
+                if not capture_ui.live(capture): capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
                 buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(buttons) != 1: raise ValueError('No unique actual picker accept button')
-                click(buttons[0])
+                capture_ui.accept_file_dialog(capture,dialog,buttons[0])
             except Exception as error:
                 errors.append(str(error))
                 if dialog is not None: dialog.reject()
@@ -98,13 +103,17 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
             errors.append('Actual file picker timed out')
             if app.activeModalWidget() is not None: app.activeModalWidget().reject()
         timer.timeout.connect(handle); watchdog.timeout.connect(abort)
-        timer.start(300); watchdog.start(60000)
+        if capture_ui.live(capture): capture_ui.when_modal(capture,300,handle)
+        else: timer.start(300)
+        watchdog.start(120000 if capture_ui.live(capture) else 60000)
+        scenes.begin(frame)
         try: click(button)
         finally: timer.stop(); watchdog.stop()
         if errors or not accepted: raise ValueError('; '.join(errors) or 'No accepted source file')
+        if capture_ui.live(capture): scenes.end(frame,button)
 
-    def snapshot(name, **details):
-        capture(name)
+    def snapshot(name, *point, **details):
+        scenes.end(name, *point)
         proof['checks'][name] = details
         write_json(captures / 'scientific_acceptance.json',proof)
 
@@ -112,23 +121,27 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         options = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
             (w.property('moduleAppKey') == 'make_masks' or w.property('navKey') == 'make_masks')]
         if not options: raise ValueError('No actual Make Masks Home control')
+        scenes.begin('01_make_masks_host')
         click(max(options,key=lambda w:w.width()*w.height())); host=window._screens['make_masks']
-        capture('01_make_masks_host')
+        scenes.end('01_make_masks_host',host)
         folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='curate']
         if len(folds)!=1: raise ValueError('No unique actual Curate fold')
+        scenes.begin('02_actual_curate_page')
         click(folds[0]); candidates=[w for w in window.findChildren(CurateScreen) if w.isVisible()]
         if len(candidates)!=1: raise ValueError('No actual visible Curate page')
-        panel=candidates[0]; capture('02_actual_curate_page')
+        panel=candidates[0]; scenes.end('02_actual_curate_page',panel)
         picker(panel._browse_mask,mask_path,'03_actual_mask_picker')
         if panel.brush is None:
             snapshot('03b_actual_mask_open_failure',path=panel._mask_edit.text(),
                 status=panel.status.text(),viewer_status=panel.viewer.status.text())
             raise ValueError('Actual mask opening failed: '+panel.status.text()+'; '+panel.viewer.status.text())
         brush=panel.brush; layer=brush.session.layer
+        scenes.begin('04_original_sixteen_label_mask')
         snapshot('04_original_sixteen_label_mask',mask=check_mask(layer.data,baseline),
             status=panel.status.text(),ledger_entries=len(brush.session.log.edits))
         if tuple(layer.spacing.scale)!=(1.,1.) or tuple(layer.spacing.translate)!=(0.,0.):
             raise ValueError('The uncalibrated mask must use the unit-pixel oracle')
+        scenes.begin('05_practice_disk_not_a_real_object')
         fill(brush.radius_spin,8); click(brush.next_label_button)
         if brush.label_spin.value()!=18: raise ValueError('New did not select the next unused label')
         click(brush.paint_button)
@@ -152,9 +165,11 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         snapshot('05_practice_disk_not_a_real_object',mask=check_mask(layer.data,painted),
             changed_pixels=changed,actual_centre=list(centre),radius=8,label=18,
             disk_file_unchanged=sha(mask_path)==mask_initial_sha)
+        scenes.begin('06_undo_restores_every_original_pixel')
         click(brush.undo_button)
         snapshot('06_undo_restores_every_original_pixel',mask=check_mask(layer.data,baseline),
             actions=[e.kind for e in brush.session.log.edits])
+        scenes.begin('07_saved_mask_and_ledger')
         painted,centre=paint_at(64,64)
         saved=[];brush.saved.connect(saved.append);click(brush.save_mask_button)
         if saved!=[str(mask_path)]:raise ValueError('The real Save mask control did not save its private input')
@@ -167,10 +182,12 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         # Reopening must be observed, not simulated by passing an old session.
         picker(panel._browse_mask,mask_path,'08_reopen_the_actual_saved_mask')
         brush=panel.brush;layer=brush.session.layer
+        scenes.begin('09_reopened_mask_history')
         proof['mask_history_on_reopen']=dict(previous_entries=len(first_log['edits']),
             current_entries=len(brush.session.log.edits),status=panel.status.text())
         snapshot('09_reopened_mask_history',mask=check_mask(layer.data,painted),
             history=proof['mask_history_on_reopen'])
+        scenes.begin('10_second_session_saved_history')
         fill(brush.radius_spin,4);click(brush.next_label_button);click(brush.paint_button)
         second,centre=paint_at(192,32);click(brush.save_mask_button)
         second_log=json.loads(log_path.read_text(encoding="utf-8"))
@@ -182,6 +199,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         if any(sha(p)!=v for p,v in proof['external_first_mask_checkpoint']['copied_sha256'].items()):
             raise ValueError('The external first-session checkpoint did not survive reopening')
         proof['external_first_history_still_preserved']=True
+        scenes.begin('11_actual_track_csv_picker')
         click(brush.paint_button)
         picker(panel._browse_tracks,track_path,'11_actual_track_csv_picker')
         tr=panel.tracks
@@ -196,25 +214,32 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
                     Qt.ControlModifier if number else Qt.NoModifier,
                     pos=tr.track_list.visualItemRect(item).center());settle(.15)
             if set(tr.selected_tracks())!=set(ids):raise ValueError('Native track selection differs')
+        scenes.begin('12_sixteen_tracks_128_rows')
         snapshot('12_sixteen_tracks_128_rows',tracks=check_tracks(table(),tracks),status=tr.status.text())
+        scenes.begin('13_overlapping_tracks_cannot_join')
         select([2,3]);click(tr.join_button)
         if 'both present' not in tr.status.text() or len(tr.session.log.edits):
             raise ValueError('The overlapping-track join did not refuse cleanly')
         snapshot('13_overlapping_tracks_cannot_join',tracks=check_tracks(table(),tracks),status=tr.status.text())
+        scenes.begin('14_split_tail_starts_at_frame_four')
         select([2]);fill(tr.frame_spin,4);click(tr.split_button)
         split=[dict(r,track_id=18) if int(r['track_id'])==2 and int(r['frame'])>=4 else dict(r) for r in tracks]
         snapshot('14_split_tail_starts_at_frame_four',tracks=check_tracks(table(),split),status=tr.status.text())
+        scenes.begin('15_join_halves_restores_all_rows')
         select([2,18]);click(tr.join_button)
         snapshot('15_join_halves_restores_all_rows',tracks=check_tracks(table(),tracks),status=tr.status.text())
         if sha(track_path)!=track_initial_sha:raise ValueError('Unsaved track edits changed the disk CSV')
+        scenes.begin('16_saved_tracks_and_history')
         saved=[];tr.saved.connect(saved.append);click(tr.save_button)
         if saved!=[str(track_path)]:raise ValueError('The real Save tracks button did not write')
         saved_log=json.loads(Path(str(track_path)+'.curation.json').read_text(encoding="utf-8"))
         snapshot('16_saved_tracks_and_history',tracks=check_tracks(list(csv.DictReader(track_path.open())),tracks),ledger=saved_log)
+        scenes.begin('17_unsaved_delete_removes_eight_rows')
         select([3]);click(tr.delete_button)
         reduced=[dict(r) for r in tracks if int(r['track_id'])!=3]
         snapshot('17_unsaved_delete_removes_eight_rows',tracks=check_tracks(table(),reduced),status=tr.status.text())
         picker(panel._browse_tracks,track_path,'18_reload_discards_only_unsaved_deletion')
+        scenes.begin('19_saved_tracks_and_two_actions_return')
         snapshot('19_saved_tracks_and_two_actions_return',tracks=check_tracks(table(),tracks),
             actions=[e.kind for e in tr.session.log.edits],status=tr.status.text())
         proof['tracks_prior_history_preserved']=len(tr.session.log.edits)==2

@@ -12,8 +12,11 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
+import sys
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(REPO), str(Path(__file__).resolve().parent)]
 DEFAULT_STAGE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09')
 
 
@@ -52,6 +55,91 @@ def require_append_identity(lesson, current, released):
         raise ValueError(f'New lesson must append with number {expected} or its exact published placeholder identity')
 
 
+def require_cellpose_acceptance(lesson, capture, frames):
+    """Keep lesson 20 bound to its verified science and selected live clips."""
+    if lesson['id'] != '20_cellpose_masks':
+        return
+    path = capture / 'scientific_acceptance.json'
+    if not path.is_file():
+        raise ValueError('Lesson 20 requires source-bound scientific acceptance')
+    proof = read(path)
+    canonical = hashlib.sha256(json.dumps(lesson, sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()
+    if (proof.get('schema') != 1 or proof.get('accepted') is not True
+            or proof.get('lesson') != lesson['id']
+            or proof.get('canonical_english_sha256') != canonical
+            or proof.get('accuracy_validated') is not False
+            or proof.get('ground_truth_used') is not False):
+        raise ValueError('Lesson 20 scientific acceptance differs from the lesson or its verified scope')
+    hashes = proof.get('source_hashes')
+    if not isinstance(hashes, dict) or not hashes:
+        raise ValueError('Lesson 20 scientific acceptance has no bound source evidence')
+    for source, expected in hashes.items():
+        source = Path(source)
+        if not source.is_absolute() or not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected):
+            raise ValueError('Lesson 20 scientific acceptance has invalid source hashes')
+        digest = hashlib.sha256()
+        try:
+            with source.open('rb') as handle:
+                for block in iter(lambda: handle.read(1024 * 1024), b''):
+                    digest.update(block)
+        except OSError as error:
+            raise ValueError(f'Scientific acceptance evidence is unavailable: {source}') from error
+        if digest.hexdigest() != expected:
+            raise ValueError(f'Scientific acceptance evidence changed: {source}')
+    selected = proof.get('selected_clips')
+    expected_scenes = {scene['visual'] for scene in lesson['scenes']}
+    if (not isinstance(selected, list) or len(selected) != len(expected_scenes)
+            or any(not isinstance(row, dict) for row in selected)
+            or {row.get('scene') for row in selected} != expected_scenes
+            or set(frames) != expected_scenes):
+        raise ValueError('Lesson 20 scientific acceptance must cover every scene exactly once')
+    for row in selected:
+        frame = frames[row['scene']]
+        clip = frame.get('clip')
+        origin = frame.get('composition_source', {})
+        if (not isinstance(clip, dict) or not clip
+                or any(not isinstance(row.get(key), str)
+                       or not re.fullmatch(r'[0-9a-f]{64}', row[key])
+                       for key in ('video_sha256', 'native_sha256', 'gate_sha256'))
+                or origin.get('capture') != row.get('capture')
+                or origin.get('visual') != row['scene']
+                or clip.get('sha256') != row.get('video_sha256')
+                or clip.get('native_sha256') != row.get('native_sha256')
+                or row.get('decision') not in ('strict_pass', 'approved_capture_loss_near_miss')):
+            raise ValueError('Lesson 20 scientific acceptance names different selected clips')
+        for key, expected in (('video', row['video_sha256']),
+                              ('native_video', row['native_sha256']),
+                              ('receipt', clip.get('receipt_sha256'))):
+            relative = Path(clip.get(key, ''))
+            if (not relative.parts or relative.is_absolute() or '..' in relative.parts
+                    or hashes.get(str(Path(row['capture']) / relative)) != expected
+                    or not isinstance(expected, str)
+                    or not re.fullmatch(r'[0-9a-f]{64}', expected)):
+                raise ValueError('Lesson 20 scientific acceptance does not bind selected clip files')
+        gate_path = Path(row['capture']) / f'{row["scene"]}.gate.json'
+        if hashes.get(str(gate_path)) != row['gate_sha256']:
+            raise ValueError('Lesson 20 scientific acceptance does not bind the selected gate')
+        gate = read(gate_path)
+        if (gate.get('app_freeze_seconds') or gate.get('app_slow_seconds')
+                or float(gate.get('limits', {}).get('min_fps', 0)) < 27.9):
+            raise ValueError('Lesson 20 scientific acceptance contains an app stall or weakened gate')
+        if row['decision'] == 'strict_pass':
+            valid = (gate.get('passed') is True and gate.get('reasons') == []
+                     and float(gate.get('distinct_fps', 0)) >= 27.9)
+        else:
+            reasons = gate.get('reasons')
+            valid = (gate.get('passed') is False
+                     and gate.get('accepted_near_miss') == 'capture loss'
+                     and float(gate.get('distinct_fps', 0)) >= 27.0
+                     and not gate.get('app_unknown_seconds')
+                     and bool(gate.get('capture_loss_seconds'))
+                     and isinstance(reasons, list) and len(reasons) == 1
+                     and reasons[0].startswith('choppy (capture loss):'))
+        if not valid:
+            raise ValueError('Lesson 20 scientific acceptance does not match the selected gate decision')
+
+
 def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_map=None):
     from PIL import Image
     lesson = read(lesson_path)
@@ -85,6 +173,7 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
         if not read(capture / 'scientific_acceptance.json').get('accepted'):
             raise ValueError('Cannot stage an example that failed its real-data scientific checks')
     frames = read(capture / 'frames.json')
+    require_cellpose_acceptance(lesson, capture, frames)
     destination = stage / 'production' / lesson['id']
     scenes = []
     for number, scene in enumerate(lesson['scenes'], 1):

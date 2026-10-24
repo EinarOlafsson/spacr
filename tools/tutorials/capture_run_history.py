@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from history_evidence import read_record, snapshot, verify_panels, verify_preserved, verify_visible
 
 RECRUITMENT = '2026-09-09_201318_6b415b85__recruitment'
@@ -21,6 +23,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QSplitter
 
+    scenes = Scenes(capture, settle)
     root = Path(stage) / 'runs'
     actual_root = Path.home() / '.spacr/runs'
     if (root.stat().st_dev, root.stat().st_ino) != (actual_root.stat().st_dev, actual_root.stat().st_ino):
@@ -64,22 +67,22 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
             raise ValueError('Actual search input differs')
 
     def choose(combo, value):
+        for _ in range(300):                     # the journal is read off the GUI thread; the choices fill when it lands
+            if combo.findData(value) >= 0:
+                break
+            settle(.1)
         index = combo.findData(value)
         if index < 0:
             raise ValueError('No such actual filter choice')
-        click(combo)
-        view = combo.view()
-        QTest.keyClick(view, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(view, Qt.Key_Down)
-        QTest.keyClick(view, Qt.Key_Return)
+        capture_ui.select_combo(capture, combo, index)
         settle(.2)
         if combo.currentData() != value:
             raise ValueError('Native filter selected the wrong value')
 
     def visible(expected):
         return verify_visible([screen._table.item(i, 0).data(Qt.UserRole)
-                               for i in range(screen._table.rowCount())], expected)
+                               for i in range(screen._table.rowCount())
+                               if not screen._table.isRowHidden(i)], expected)    # filtered rows are hidden, not removed
 
     def panels(rid):
         raw = {'overview': screen._overview.toPlainText(),
@@ -91,16 +94,16 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         return raw
 
     def tab(index, frame):
-        bar = screen._tabs.tabBar()
-        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(index).center())
+        scenes.begin(frame)
+        capture_ui.select_tab(capture, screen._tabs, index)
         settle(.2)
         if screen._tabs.currentIndex() != index:
             raise ValueError('The requested native detail tab did not open')
-        capture(frame)
+        scenes.end(frame, screen._tabs)
 
     def scroll_bottom(widget):
         bar = widget.verticalScrollBar()
-        QTest.keyClick(bar, Qt.Key_End)
+        capture_ui.scroll_to_value(capture, widget, bar.maximum())
         settle(.15)
         if bar.value() != bar.maximum():
             raise ValueError('The native text scrollbar did not reach the end')
@@ -111,10 +114,12 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'run history']
         if len(choices) != 1:
             raise ValueError('No unique Help -> Run history route')
+        scenes.begin('01_help_history')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
                          pos=window.menuBar().actionGeometry(help_action).center())
         settle(.2)
-        capture('01_help_history')
+        scenes.end('01_help_history', menu)
+        scenes.begin('02_loaded_history')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
         wait_for(lambda: window._screens.get('run_history') is not None)
         screen = window._screens['run_history']
@@ -124,7 +129,8 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         proof['loaded_records'] = len(screen.records)
         proof['status_choices'] = [screen._status_filter.itemText(i)
                                   for i in range(screen._status_filter.count())]
-        capture('02_loaded_history')
+        scenes.end('02_loaded_history', screen._table)
+        scenes.begin('03_batch_search')
         # Move the genuine, user-resizable divider to enlarge the detail panes.
         splitter = screen.findChild(QSplitter)
         handle = splitter.handle(1)
@@ -137,7 +143,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         choose(screen._status_filter, 'success')
         fill('real-channels-u0zjboui')
         proof['batch_filter_ids'] = visible(BATCH)
-        capture('03_batch_search')
+        scenes.end('03_batch_search', screen._search)
         rid = screen._table.item(screen._table.currentRow(), 0).data(Qt.UserRole)
         panels(rid)
         tab(2, '04_batch_empty_inventory')
@@ -145,6 +151,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         # dictionaries are not evidence that the jobs produced no images.
         if records[rid]['manifest']['input_hashing'] != 'skipped':
             raise ValueError('The selected conversion no longer demonstrates skipped hashing')
+        scenes.begin('05_no_match')
         fill('no-such-tutorial-run-7d40a281')
         visible([])
         if any(w.toPlainText() for w in (screen._overview, screen._settings, screen._outputs,
@@ -152,45 +159,55 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
             raise ValueError('No-match search left stale detail text')
         if any(w.isEnabled() for w in (screen._copy_path, screen._open_folder, screen._load_settings)):
             raise ValueError('No-match search left selected-run actions enabled')
-        capture('05_no_match')
+        scenes.end('05_no_match', screen._search)
+        scenes.begin('06_restored_search')
         fill('real-channels-u0zjboui')
         visible(BATCH)
         panels(screen._table.item(screen._table.currentRow(), 0).data(Qt.UserRole))
-        capture('06_restored_search')
+        scenes.end('06_restored_search', screen._table.viewport())
 
+        scenes.begin('07_recruitment_overview')
         choose(screen._module, 'recruitment')
         fill(RECRUITMENT)
         visible([RECRUITMENT])
         raw = panels(RECRUITMENT)
         tab(0, '07_recruitment_overview')
         tab(1, '08_resolved_settings')
+        scenes.begin('09_settings_source')
         scroll_bottom(screen._settings)
-        capture('09_settings_source')
+        scenes.end('09_settings_source', screen._settings)
         tab(2, '10_recorded_files')
         tab(4, '11_environment')
+        scenes.begin('12_hashes_and_seeds')
         scroll_bottom(screen._environment)
-        capture('12_hashes_and_seeds')
+        scenes.end('12_hashes_and_seeds', screen._environment)
+        scenes.begin('13_copy_run_path')
         click(screen._copy_path)
         copied = app.clipboard().text()
-        if copied != str(actual_root / RECRUITMENT):
+        from spacr.run_journal import runs_root     # the app reports its journal under SPACR_HOME, the same folder as ~/.spacr/runs here
+        if copied not in {str(actual_root / RECRUITMENT), str(runs_root() / RECRUITMENT)}:
             raise ValueError('Copy path returned a different journal')
         proof['copied_run_path'] = copied
-        capture('13_copy_run_path')
+        scenes.end('13_copy_run_path', screen._copy_path)
 
+        scenes.begin('14_recorded_warning')
         choose(screen._module, 'regression')
         fill(REGRESSION)
         visible([REGRESSION])
         panels(REGRESSION)
         tab(3, '14_recorded_warning')
+        scenes.begin('15_actual_failed_job')
         choose(screen._module, '')
         choose(screen._status_filter, 'failed')
         fill(FAILED)
         visible([FAILED])
         panels(FAILED)
         tab(3, '15_actual_failed_job')
+        scenes.begin('16_failure_exception')
         scroll_bottom(screen._problems)
-        capture('16_failure_exception')
+        scenes.end('16_failure_exception', screen._problems)
 
+        scenes.begin('17_ready_to_restore')
         choose(screen._status_filter, 'success')
         choose(screen._module, 'recruitment')
         fill(RECRUITMENT)
@@ -203,6 +220,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         visible([RECRUITMENT])
         panels(RECRUITMENT)
         tab(1, '17_ready_to_restore')
+        scenes.begin('18_restored_recruitment')
         click(screen._load_settings)
         wait_for(lambda: window._screens.get('recruitment') is not None)
         target = window._screens['recruitment']
@@ -216,7 +234,7 @@ def record_history(app, window, stage, captures, capture, settle, write_json, ti
         proof['settings_not_represented'] = sorted(set(original) - set(collected))
         proof['restored_matching_keys'] = sorted(k for k, v in original.items()
                                                 if k in collected and collected[k] == v)
-        capture('18_restored_recruitment')
+        scenes.end('18_restored_recruitment', target)
         if proof['restoration_differences']:
             # Preserve evidence of current limitations; never silently fix an
             # application-owned seed handler to make the recording succeed.
@@ -245,6 +263,7 @@ def _record_restore_latest(app, window, root, actual_root, before, captures, cap
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
 
+    scenes = Scenes(capture, settle)
     proof = {'lesson': '40_run_history', 'mode': 'restore_latest', 'accepted': False,
              'published': False, 'app_source_modified': False, 'analysis_run': False,
              'deleted_runs': 0, 'journal_before': before}
@@ -270,10 +289,12 @@ def _record_restore_latest(app, window, root, actual_root, before, captures, cap
         choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'run history']
         if len(choices) != 1:
             raise ValueError('No unique Help -> Run history route')
+        scenes.begin('01_help_history')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
                          pos=window.menuBar().actionGeometry(help_action).center())
         settle(.2)
-        capture('01_help_history')
+        scenes.end('01_help_history', menu)
+        scenes.begin('02_loaded_history')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
         wait_for(lambda: window._screens.get('run_history') is not None)
         screen = window._screens['run_history']
@@ -284,19 +305,26 @@ def _record_restore_latest(app, window, root, actual_root, before, captures, cap
         index = combo.findData('recruitment')
         if index < 0:
             raise ValueError('No recruitment run in the neutral journal')
-        combo.setCurrentIndex(index)
+        scenes.begin('17_ready_to_restore')
+        capture_ui.select_combo(capture, combo, index)
         settle(.4)
-        rows = screen._table.rowCount()
+        shown = [i for i in range(screen._table.rowCount()) if not screen._table.isRowHidden(i)]
+        rows = len(shown)
         if rows < 1:
             raise ValueError('No recruitment row to restore')
-        screen._table.selectRow(0)
+        if capture_ui.live(capture):
+            first = screen._table.item(shown[0], 0)
+            QTest.mouseClick(screen._table.viewport(), Qt.LeftButton,
+                             pos=screen._table.visualItemRect(first).center())
+        else:
+            screen._table.selectRow(shown[0])
         settle(.4)
-        rid = screen._table.item(0, 0).data(Qt.UserRole)
+        rid = screen._table.item(shown[0], 0).data(Qt.UserRole)
         record = read_record(root, rid)
-        bar = screen._tabs.tabBar()
-        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(1).center())
+        capture_ui.select_tab(capture, screen._tabs, 1)
         settle(.3)
-        capture('17_ready_to_restore')
+        scenes.end('17_ready_to_restore', screen._tabs)
+        scenes.begin('18_restored_recruitment')
         click(screen._load_settings)
         wait_for(lambda: window._screens.get('recruitment') is not None)
         target = window._screens['recruitment']
@@ -305,7 +333,7 @@ def _record_restore_latest(app, window, root, actual_root, before, captures, cap
         collected = target._settings_model.collect()
         if collected.get('src') != record['settings'].get('src'):
             raise ValueError('Load settings did not restore the source')
-        capture('18_restored_recruitment')
+        scenes.end('18_restored_recruitment', target)
         proof.update(run_id=rid, restored_src=collected.get('src'),
                      journal_preservation=verify_preserved(root, before), accepted=True)
     finally:

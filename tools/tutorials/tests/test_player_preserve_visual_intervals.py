@@ -170,3 +170,31 @@ def test_cold_paused_sentence_seeks_never_rewind_the_requested_audio_offset(serv
         finally:
             page.evaluate('delete elements.audio.currentTime')
             browser.close()
+
+
+def test_complete_clips_with_static_scenes_map_speech_by_elapsed_time(served, tmp_path, monkeypatch):
+    """A complete-clip lesson that mixes stills with native footage (lesson 04).
+
+    The picture runs at speed 1 in every scene, so a still scene must map
+    speech by elapsed time as a preserved one does; a proportional map put
+    the expected picture 1.3 s ahead of the playing one after a chapter seek.
+    """
+    from playwright.sync_api import sync_playwright
+    import test_player_holds_narration
+    monkeypatch.setattr(test_player_holds_narration, 'VIDEO_DELAY_SECONDS', 0)
+    url = complete_fixture(served, tmp_path)
+    visual_path = tmp_path / 'complete-native-visual.json'
+    visual = json.loads(visual_path.read_text())
+    assert visual['complete_native_clips'] is True
+    visual['scenes'][0]['native_live_video'] = False
+    visual['scenes'][-1]['native_live_video'] = False
+    visual_path.write_text(json.dumps(visual))
+    with sync_playwright() as engine:
+        browser, page = open_player(engine, url)
+        try:
+            page.wait_for_function('elements.video.buffered.length && elements.video.buffered.end(elements.video.buffered.length-1)>=11.99', timeout=30000)
+            assert page.evaluate('completeNativePlayback()') is True
+            assert page.evaluate('videoTimeFromAudio(.25)') == .25
+            assert page.evaluate('audioTimeFromVideo(.25)') == .25
+        finally:
+            browser.close()

@@ -11,6 +11,9 @@ import json
 from pathlib import Path
 import tempfile
 import time
+from contextlib import nullcontext
+
+import capture_ui
 
 
 def record_align(app, window, screen, stage, captures, capture, settle, write_json, timeout):
@@ -25,7 +28,8 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
     })
     authoring = stage.parent
     manifest = json.loads((authoring / 'derived/align_stitch/source_manifest.json').read_text(encoding="utf-8"))
-    source_path = authoring.parent / 'test_datasets/spacr/tutorials/orig/test/stack/test_E11_2_1.npy'
+    import os
+    source_path = Path(os.environ.get('SPACR_TUTORIAL_TEST_DATASETS', authoring.parent / 'test_datasets')) / 'spacr/tutorials/orig/test/stack/test_E11_2_1.npy'
     source = np.load(source_path, mmap_mode='r')
     if source.shape != (2000, 2000, 4) or source.dtype != np.uint16:
         raise RuntimeError('The preserved acquired field has changed its shape or dtype')
@@ -54,6 +58,8 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
         'new_test_data_download_button': False, 'ops_validation': False,
     })
 
+    host = capture_ui.live(capture)
+
     def fill(edit, value):
         QTest.mouseClick(edit, Qt.LeftButton)
         QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
@@ -65,6 +71,9 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
         index = box.findText(text)
         if index < 0:
             raise RuntimeError('The actual settings lack ' + text)
+        if host:
+            capture_ui.select_combo(capture, box, index)
+            return
         box.setFocus()
         QTest.keyClick(box, Qt.Key_Home)
         for _ in range(index):
@@ -81,40 +90,43 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
             watchdog = QTimer(dialog)
             watchdog.setSingleShot(True)
             watchdog.timeout.connect(dialog.reject)
-            watchdog.start(12000)
+            watchdog.start(90000 if host else 12000)
             fill(dialog.findChild(QLineEdit, 'fileNameEdit'), tiles)
-            capture('02_preserved_real_pixel_tiles')
-            QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+            if not host:
+                capture('02_preserved_real_pixel_tiles')
+            capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
         except Exception as exc:
             errors.append(str(exc))
             if dialog is not None:
                 dialog.reject()
-    QTimer.singleShot(400, select_source)
-    QTest.mouseClick(screen._btn_pick_src, Qt.LeftButton)
+    with (capture_ui.clip(capture, '02_preserved_real_pixel_tiles') if host else nullcontext()):
+        capture_ui.when_modal(capture, 400, select_source)
+        QTest.mouseClick(screen._btn_pick_src, Qt.LeftButton)
     if errors or not accepted or Path(screen._src_edit.text()) != tiles:
         raise RuntimeError('; '.join(errors) or 'The actual folder selection was not accepted')
-    fill(screen._rows_box.lineEdit(), 3)
-    fill(screen._cols_box.lineEdit(), 3)
-    fill(screen._overlap_box.lineEdit(), .25)
-    choose(screen._order_combo, 'row-major')
-    fill(screen._ref_box.lineEdit(), 1)
-    fill(screen._conf_box.lineEdit(), .30)
-    fill(screen._radius_box.lineEdit(), 1)
-    choose(screen._blend_combo, 'feather')
-    fill(screen._budget_box.lineEdit(), 8)
-    fill(screen._dst_edit, destination)
-    fill(screen._db_edit, database)
-    if screen._overwrite_box.isChecked():
-        QTest.mouseClick(screen._overwrite_box, Qt.LeftButton)
-    settings = screen.settings()
-    expected = {'grid': (3, 3), 'overlap': .25, 'reference_channel': 1,
-                'min_confidence': .30, 'neighbour_radius': 1, 'max_buffer_bytes': 8 << 20,
-                'blend': 'feather', 'order': 'row-major', 'overwrite': False}
-    if any(settings[key] != value for key, value in expected.items()):
-        raise RuntimeError('The recorded controls did not reach the expected real settings')
-    if screen._btn_write.isEnabled():
-        raise RuntimeError('Writing should require an actual computed plan')
-    capture('03_actual_layout_and_budget')
+    with capture_ui.clip(capture, '03_actual_layout_and_budget'):
+        fill(screen._rows_box.lineEdit(), 3)
+        fill(screen._cols_box.lineEdit(), 3)
+        fill(screen._overlap_box.lineEdit(), .25)
+        choose(screen._order_combo, 'row-major')
+        fill(screen._ref_box.lineEdit(), 1)
+        fill(screen._conf_box.lineEdit(), .30)
+        fill(screen._radius_box.lineEdit(), 1)
+        choose(screen._blend_combo, 'feather')
+        fill(screen._budget_box.lineEdit(), 8)
+        fill(screen._dst_edit, destination)
+        fill(screen._db_edit, database)
+        if screen._overwrite_box.isChecked():
+            QTest.mouseClick(screen._overwrite_box, Qt.LeftButton)
+        settings = screen.settings()
+        expected = {'grid': (3, 3), 'overlap': .25, 'reference_channel': 1,
+                    'min_confidence': .30, 'neighbour_radius': 1, 'max_buffer_bytes': 8 << 20,
+                    'blend': 'feather', 'order': 'row-major', 'overwrite': False}
+        if any(settings[key] != value for key, value in expected.items()):
+            raise RuntimeError('The recorded controls did not reach the expected real settings')
+        if screen._btn_write.isEnabled():
+            raise RuntimeError('Writing should require an actual computed plan')
+        capture_ui.point_at(capture, screen._budget_box, screen._btn_plan, dwell=1.2)
 
     def wait():
         deadline = time.monotonic() + timeout
@@ -125,31 +137,34 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
         settle(.5)
         if screen.last_error:
             raise RuntimeError(screen.last_error)
-    QTest.mouseClick(screen._btn_plan, Qt.LeftButton)
-    wait()
-    plan = screen.plan()
-    if plan is None or len(plan.placements) != 9 or plan.n_registered != 9 or plan.n_nominal or plan.unplaced:
-        raise RuntimeError('The known-geometry example did not register all nine actual tiles')
-    if not screen._btn_write.isEnabled() or destination.exists() or database.exists():
-        raise RuntimeError('Plan must enable Write without already creating output')
-    capture('04_registered_plan_not_yet_written')
+    with capture_ui.clip(capture, '04_registered_plan_not_yet_written'):
+        QTest.mouseClick(screen._btn_plan, Qt.LeftButton)
+        wait()
+        plan = screen.plan()
+        if plan is None or len(plan.placements) != 9 or plan.n_registered != 9 or plan.n_nominal or plan.unplaced:
+            raise RuntimeError('The known-geometry example did not register all nine actual tiles')
+        if not screen._btn_write.isEnabled() or destination.exists() or database.exists():
+            raise RuntimeError('Plan must enable Write without already creating output')
     expected_positions = {Path(r['path']).name: r['source_yx'] for r in records}
     for placement in plan.placements:
         y, x = expected_positions[Path(placement.tile.path).name]
         if abs(placement.y - plan.origin[0] - y) > .01 or abs(placement.x - plan.origin[1] - x) > .01:
             raise RuntimeError('The actual solved geometry differs from the known crop origins')
     index, rectangle = screen._layout_view.tile_rects()[4]
-    QTest.mouseClick(screen._layout_view, Qt.LeftButton, pos=rectangle.center().toPoint())
-    settle(.4)
-    clicked = next(p for p in plan.placements if p.tile.index == index)
-    if Path(clicked.tile.path).name not in screen._tile_label.text():
-        raise RuntimeError('The actual tile selection did not display its measured details')
-    capture('05_actual_tile_detail')
-    QTest.mouseClick(screen._btn_write, Qt.LeftButton)
-    wait()
-    result = screen.result()
-    if result is None or result.n_written != 9 or result.n_skipped:
-        raise RuntimeError('The stitch did not write all nine input tiles')
+    with capture_ui.clip(capture, '05_actual_tile_detail'):
+        QTest.mouseClick(screen._layout_view, Qt.LeftButton, pos=rectangle.center().toPoint())
+        settle(.4)
+        clicked = next(p for p in plan.placements if p.tile.index == index)
+        if Path(clicked.tile.path).name not in screen._tile_label.text():
+            raise RuntimeError('The actual tile selection did not display its measured details')
+        capture_ui.point_at(capture, screen._tile_label, dwell=1.5)
+    with capture_ui.clip(capture, '06_real_stitch_complete'):
+        QTest.mouseClick(screen._btn_write, Qt.LeftButton)
+        wait()
+        result = screen.result()
+        if result is None or result.n_written != 9 or result.n_skipped:
+            raise RuntimeError('The stitch did not write all nine input tiles')
+        capture_ui.point_at(capture, screen._report_view, dwell=1.5)
     stack = Path(result.stack_path)
     output = np.load(stack, mmap_mode='r')
     if output.shape != source.shape or output.dtype != source.dtype:
@@ -170,7 +185,6 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
     for path, digest in originals.items():
         if hashlib.sha256(Path(path).read_bytes()).hexdigest() != digest:
             raise RuntimeError('The stitch modified an original source or preserved tile')
-    capture('06_real_stitch_complete')
     write_json(captures / 'stitch_evidence.json', {
         'settings': settings, 'registered': plan.n_registered, 'nominal': plan.n_nominal,
         'max_residual_pixels': plan.max_residual, 'all_crop_origins_match_within_pixels': .01,

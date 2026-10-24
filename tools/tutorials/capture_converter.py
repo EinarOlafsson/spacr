@@ -91,19 +91,23 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit
     from spacr.qt.screens.convert import ConvertScreen
     from spacr.qt.widgets.fold_strip import FoldButton
+    import capture_ui
+    from capture_ui_drv_c import Scenes
+    scenes = Scenes(capture, settle)
 
     # Reach the module through its current parent, not a hidden Home route.
     buttons = [button for button in screen.findChildren(FoldButton)
                if button.app_key == 'convert' and button.isVisible()]
     if len(buttons) != 1 or not buttons[0].isEnabled():
         raise RuntimeError('Import must expose one usable Format Converter fold')
+    scenes.begin('01b_current_converter_fold')
     QTest.mouseClick(buttons[0], Qt.LeftButton)
     settle(2)
     children = [child for child in window.findChildren(ConvertScreen) if child.isVisible()]
     if len(children) != 1:
         raise RuntimeError('The actual Format Converter fold did not open')
     screen = children[0]
-    capture('01b_current_converter_fold')
+    scenes.end('01b_current_converter_fold', screen)
 
     stage, captures = Path(stage), Path(captures)
     write_json(captures / 'scientific_acceptance.json', {
@@ -121,6 +125,11 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
         input_manifest = foreign_capture / 'inputs.json'
     prior = json.loads(input_manifest.read_text(encoding="utf-8"))
     records = prior['records']
+    import os
+    if os.environ.get('SPACR_TUTORIAL_FOREIGN_INPUTS'):
+        # byte-identical copies inside the stage, so no legacy absolute path is ever shown (same helper as lesson 31)
+        from capture_external_masks import private_input_records
+        records = private_input_records(prior, stage, Path(os.environ['SPACR_TUTORIAL_FOREIGN_INPUTS']))
     if (len(records) != 2 or {r['neutral_stem'] for r in records} != {'fov01', 'fov02'}
             or len({Path(r['image']).parent for r in records}) != 1):
         raise RuntimeError('Expected exactly the two preserved Foreign TIFF inputs')
@@ -183,7 +192,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     def fill(edit, value):
         if edit is None:
             raise RuntimeError('The actual dialog has no filename editor')
-        edit.setFocus()
+        capture_ui.focus(capture, edit)
         QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(edit, str(value))
         QTest.keyClick(edit, Qt.Key_Tab)
@@ -206,32 +215,36 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
                 dialog.accepted.connect(lambda: accepted.append(True))
                 watchdog = QTimer(dialog)
                 watchdog.setSingleShot(True)
-                watchdog.timeout.connect(dialog.reject)
-                watchdog.start(12000)
-                dialog.resize(1400, 950)
+                # 12 s was shorter than a live (GNOME host) pick under load 9-10: the dialog was
+                # rejected mid-typing and the pick failed as 'cancelled' with no error. 60 s, and a
+                # fired watchdog now says so.
+                watchdog.timeout.connect(lambda: (errors.append('The directory picker watchdog expired'),
+                                                  dialog.reject()))
+                watchdog.start(60000)
+                capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                capture(frame)
+                if not capture_ui.live(capture):
+                    capture(frame)       # host: the open clip shows the typing
                 buttons = dialog.findChild(QDialogButtonBox)
-                QTest.mouseClick(buttons.button(QDialogButtonBox.Open), Qt.LeftButton)
+                capture_ui.accept_file_dialog(capture, dialog, buttons.button(QDialogButtonBox.Open))
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
                     dialog.reject()
 
-        QTimer.singleShot(400, handle)
+        scenes.begin(frame)
+        capture_ui.when_modal(capture, 400, handle)
         click(button)
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'The real directory picker was cancelled')
+        if capture_ui.live(capture):
+            scenes.end(frame, button)
 
     def choose_option(box, value):
         index = box.findData(value)
         if index < 0:
             raise RuntimeError(f'The actual converter lacks the option {value}')
-        box.setFocus()
-        QTest.keyClick(box, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(box, Qt.Key_Down)
-        QTest.keyClick(box, Qt.Key_Tab)
+        capture_ui.select_combo(capture, box, index)
         settle(.1)
         if box.currentData() != value:
             raise RuntimeError('The visible option did not reach the requested value')
@@ -250,6 +263,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     choose_directory(screen._btn_pick_dst, destination, '03_new_private_destination')
     if Path(screen.source_path()) != images or Path(screen.destination_path()) != destination:
         raise RuntimeError('The accepted folder choices do not match the intended paths')
+    scenes.begin('04_explicit_flat_single_plane_settings')
     choose_option(screen._layout_box, 'flat')
     choose_option(screen._z_box, 'keep')
     choose_option(screen._plate_box, 'index')
@@ -257,7 +271,9 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
         click(screen._resume)
     if screen.resume_enabled() or screen.plan() is not None or any(destination.iterdir()):
         raise RuntimeError('The first run requires Resume off and an empty destination')
-    capture('04_explicit_flat_single_plane_settings')
+    scenes.end('04_explicit_flat_single_plane_settings', screen._layout_box,
+               screen._z_box, screen._plate_box, screen._resume)
+    scenes.begin('05_preview_no_output_written')
     click(screen._btn_preview)
     wait_job('Read-only Preview')
     plan = screen.plan()
@@ -276,12 +292,13 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
             raise RuntimeError('Preview changed a field, channel or source identity')
     if screen._model.flags(screen._model.index(0, 0)) & Qt.ItemIsEditable:
         raise RuntimeError('The preview table unexpectedly allows source mapping edits')
-    capture('05_preview_no_output_written')
+    scenes.end('05_preview_no_output_written', screen._table.viewport())
     scrollbar = screen._table.horizontalScrollBar()
-    QTest.keyClick(scrollbar, Qt.Key_End)
+    scenes.begin('06_preview_source_channel_and_plane_provenance')
+    capture_ui.scroll_to_value(capture, screen._table, scrollbar.maximum(), 'horizontal')
     settle(.2)
-    capture('06_preview_source_channel_and_plane_provenance')
-    QTest.keyClick(scrollbar, Qt.Key_Home)
+    scenes.end('06_preview_source_channel_and_plane_provenance', screen._table.viewport())
+    capture_ui.scroll_to_value(capture, screen._table, 0, 'horizontal')
     write_json(captures / 'preview_evidence.json', {
         'summary': screen.summary_text(), 'status': screen.status_text(),
         'rows': [m.to_row(str(destination), 'planned') for m in plan.mappings],
@@ -342,38 +359,41 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
                 'n_written': result.n_written, 'n_existing': len(result.existing),
                 'resumed_fields': list(result.resumed_fields)}
 
+    scenes.begin('07_actual_conversion_complete')
     click(screen._btn_convert)
     wait_job('Convert')
     result = screen.result()
     if result is None or result.n_written != 2 or result.existing:
         raise RuntimeError('The first conversion did not write exactly two new TIFFs')
+    scenes.end('07_actual_conversion_complete', screen._summary)
     first = verify_outputs(result, 'converted')
-    capture('07_actual_conversion_complete')
     first['summary'], first['status'] = screen.summary_text(), screen.status_text()
     write_json(captures / 'conversion_evidence.json', first)
 
+    scenes.begin('08_resume_enabled')
     click(screen._resume)
     if not screen.resume_enabled():
         raise RuntimeError('The real Resume toggle did not enable checkpoint reuse')
-    capture('08_resume_enabled')
+    scenes.end('08_resume_enabled', screen._resume)
+    scenes.begin('09_completed_fields_reused')
     click(screen._btn_convert)
     wait_job('Resume')
     resumed = screen.result()
     if (resumed is None or resumed is result or resumed.n_written != 0
             or len(resumed.existing) != 2 or len(resumed.resumed_fields) != 2):
         raise RuntimeError('Resume did not reuse the two complete fields')
+    scenes.end('09_completed_fields_reused', screen._summary)
     second = verify_outputs(resumed, 'existing', previous_records=first['run_status'])
     if second['outputs'] != first['outputs']:
         raise RuntimeError('Resume modified the independently verified TIFFs')
     second.update(summary=screen.summary_text(), status=screen.status_text(),
                   application_resume_checks='Readable TIFF metadata/pages, not all pixel values',
                   independent_recorder_check='Every output pixel, dtype and source identity compared')
-    capture('09_completed_fields_reused')
     # Read the genuinely scrollable summary, including the checkpoint line
     # below its three-line viewport; do not enlarge or replace app widgets.
     summary_scroll = screen._summary.verticalScrollBar()
-    summary_scroll.setFocus()
-    QTest.keyClick(summary_scroll, Qt.Key_End)
+    scenes.begin('10_resume_checkpoint_summary')
+    capture_ui.scroll_to_value(capture, screen._summary, summary_scroll.maximum())
     settle(.2)
     if summary_scroll.value() != summary_scroll.maximum():
         raise RuntimeError('The real summary scrollbar did not reach its last line')
@@ -381,7 +401,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
         'minimum': summary_scroll.minimum(), 'maximum': summary_scroll.maximum(),
         'value': summary_scroll.value(), 'summary': screen.summary_text(),
     })
-    capture('10_resume_checkpoint_summary')
+    scenes.end('10_resume_checkpoint_summary', screen._summary)
     write_json(captures / 'resume_evidence.json', second)
     for path, digest in originals.items():
         if _digest(path) != digest:

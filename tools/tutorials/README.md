@@ -393,6 +393,37 @@ real-data or live-preview requirement as satisfied by relocating its page.
 
 ## Recording and staging commands
 
+### GNOME capture host (real app, human pointer) — 11 October 2026
+
+`run_native_capture.py --host gnome` records a lesson as a real screen capture:
+spaCR is started by `spacr.qt.run(['--fresh', '--no-setup'])` inside a private
+headless GNOME Shell (2560x1440, top bar hidden), the scene drivers run inside
+the app, and every QTest click, drag, hover or key goes through
+`capture_host_adapter.py` to the real pointer and keyboard (minimum-jerk glides,
+real presses). Each clip is a GNOME screencast with the cursor embedded, checked
+by `capture_clip_gate.py` (distinct frames >= 0.93 x the recording rate, no pointer jump, no top bar, no
+adapter bypass). The `captures/<module>/` files are those of the Xvfb path
+(`NAME.mp4` scaled to 3840x2160, `NAME.capture.json`, `NAME.png`,
+`frames.json`), so staging is unchanged; `NAME.native.mp4`, `NAME.gate.json`
+and `NAME.pointer.json` keep the evidence. A failed clip marks the capture
+incomplete (`host_gate_summary.json`), so `stage_lesson.py` refuses it.
+
+    tools/gpu_turn.sh lesson-05-host tools/run_capped.sh 12G \
+      python tools/tutorials/run_native_capture.py --host gnome --stage NEW_STAGE -- \
+      --module home --record-scenes 00_home --clip-seconds 8
+
+`--fps auto` (default) records at 30: at 2560x1440 the GNOME screencast hands over
+only ~40 frames per second of the 60 fps field (mutter-bound, measured on an idle
+machine), so 60 fps clips are choppy; `--fps 60` stays available.
+
+Scene drivers act through `capture_ui.py` (one call per user action: real in the
+host, the old direct call on Xvfb) and `capture_home_live.py` (lesson 05 and the
+app scenes of 04). Model previews and runs in the host need `--cuda`.
+
+`python tools/tutorials/capture_host_adapter.py --audit` lists, per scene
+driver, the UI changes made without QTest (`button.click()`, `setCurrentIndex`,
+dialogs built by code, ...): those still need rewriting before a re-record.
+
 Use the private refresh environment under the authoring workspace, never its
 old broken `.venv` symlink or an in-place dependency change to the app environment.
 `requirements-refresh.txt` records the additional renderer/browser dependencies.

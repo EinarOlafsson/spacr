@@ -14,11 +14,14 @@ from pathlib import Path
 import sqlite3
 import time
 
+import capture_ui
+import capture_ui_drv_d as drv
+
 
 def record_screen(app, window, stage, captures, capture, settle, write_json):
-    if os.environ.get('SPACR_OPS_WALKTHROUGH') == '1':
+    if (os.environ.get('SPACR_TUTORIAL_OPS_WALKTHROUGH') or os.environ.get('SPACR_OPS_WALKTHROUGH')) == '1':
         return record_walkthrough(app, window, stage, captures, capture, settle, write_json,
-                                  float(os.environ.get('SPACR_OPS_CAPTURE_TIMEOUT', '10800')))
+                                  float(os.environ.get('SPACR_TUTORIAL_OPS_CAPTURE_TIMEOUT') or os.environ.get('SPACR_OPS_CAPTURE_TIMEOUT', '10800')))
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton
@@ -28,22 +31,23 @@ def record_screen(app, window, stage, captures, capture, settle, write_json):
                and w.property('moduleAppKey') == 'mask' and w.objectName() == 'AppTile']
     if len(buttons) != 1 or not buttons[0].isEnabled():
         raise ValueError('Expected one enabled Mask Home tile')
-    QTest.mouseClick(buttons[0], Qt.LeftButton)
-    settle(2)
-    screen = window._screens.get('mask')
-    if screen is None or not screen.isVisible():
-        raise ValueError('The actual Home click did not open Mask')
-    switch = screen._ops_switch
-    if not switch.isVisible() or not switch.isEnabled() or switch.isChecked():
-        raise ValueError('Expected the visible, initially closed OPS toggle')
-    capture('01_mask_host')
-    QTest.mouseClick(switch, Qt.LeftButton)
-    settle(2)
-    manager = ops_page(screen)
-    if (not switch.isChecked() or manager is None or manager.page is None
-            or not manager.page.isVisible() or manager.page.app_key != 'ops'):
-        raise ValueError('The real OPS toggle did not open its settings page')
-    capture('02_ops_settings')
+    with capture_ui.clip(capture, '01_mask_host'):
+        QTest.mouseClick(buttons[0], Qt.LeftButton)
+        settle(2)
+        screen = window._screens.get('mask')
+        if screen is None or not screen.isVisible():
+            raise ValueError('The actual Home click did not open Mask')
+        switch = screen._ops_switch
+        if not switch.isVisible() or not switch.isEnabled() or switch.isChecked():
+            raise ValueError('Expected the visible, initially closed OPS toggle')
+        capture_ui.point_at(capture, switch)
+    with capture_ui.clip(capture, '02_ops_settings'):
+        QTest.mouseClick(switch, Qt.LeftButton)
+        settle(2)
+        manager = ops_page(screen)
+        if (not switch.isChecked() or manager is None or manager.page is None
+                or not manager.page.isVisible() or manager.page.app_key != 'ops'):
+            raise ValueError('The real OPS toggle did not open its settings page')
     write_json(captures / 'scientific_acceptance.json', {
         'accepted': True, 'scope': 'Visible Home to Mask to OPS navigation only',
         'route': ['mask', 'ops'], 'gui_workflow_completed': False,
@@ -134,6 +138,10 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
             if len(editors) != 1:
                 raise RuntimeError('No unique visible editor for a typed OPS setting')
             editor = editors[0]
+        if capture_ui.live(capture):
+            capture_ui.set_text(capture, editor, str(value))
+            settle(.3)
+            return
         editor.setFocus()
         QTest.mouseClick(editor, Qt.LeftButton)
         QTest.keyClick(editor, Qt.Key_A, Qt.ControlModifier)
@@ -147,15 +155,17 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
              and w.property('moduleAppKey') == 'mask' and w.objectName() == 'AppTile']
     if len(tiles) != 1:
         raise RuntimeError('Expected one Mask Home tile')
-    click(tiles[0])
-    settle(2)
-    mask = window._screens.get('mask')
-    if mask is None or not mask.isVisible():
-        raise RuntimeError('The Home tile did not open Mask')
-    switch = mask._ops_switch
-    if switch is None or not switch.isVisible() or switch.isChecked():
-        raise RuntimeError('Expected the visible, initially closed OPS switch')
-    capture('01_mask_host')
+    with capture_ui.clip(capture, '01_mask_host'):
+        click(tiles[0])
+        settle(2)
+        mask = window._screens.get('mask')
+        if mask is None or not mask.isVisible():
+            raise RuntimeError('The Home tile did not open Mask')
+        switch = mask._ops_switch
+        if switch is None or not switch.isVisible() or switch.isChecked():
+            raise RuntimeError('Expected the visible, initially closed OPS switch')
+        capture_ui.point_at(capture, switch)
+    scene_ops = drv.begin(capture, settle, '01_mask_ops')
     click(switch)
     settle(2)
     manager = ops_page(mask)
@@ -175,11 +185,9 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     bar = getattr(page, '_settings_search', None)
     proof['settings_search_bar'] = bar is not None
     if bar is not None:
-        if bar.modified_only():
-            click(bar._modified)
-        if bar.level() != 'all':
-            click(bar._disclosure)
-        bar.set_query('')
+        capture_ui.settings_modified_only(capture, bar, False)
+        capture_ui.settings_level(capture, bar, 'all')
+        capture_ui.search_settings(capture, bar, '')
     settle(.5)
     if getattr(page, '_console_folder', None) is not None and page._console_folder.shut:
         click(page._console_folder.heading)
@@ -189,7 +197,8 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
         'cellpose_model', 'cellpose_diameter', 'ops_raster_overlap', 'ops_window_overlap',
         'ops_base_channels', 'ops_read_threshold', 'ops_footprint', 'ops_store_reads',
         'ops_gpu', 'n_workers')}
-    capture('01_mask_ops')
+    drv.snap(capture, '01_mask_ops')
+    drv.finish(capture, scene_ops)
 
     def show(keys):
         """Expand the real sections holding ``keys`` and scroll them into view."""
@@ -203,34 +212,54 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
                 widget = widget.parentWidget()
             for section in reversed(parents):
                 if not section.is_expanded():
-                    page._settings_scroll.ensureWidgetVisible(section.header())
+                    capture_ui.scroll_to(capture, page._settings_scroll, section.header())
                     settle(.2)
-                    click(section.header())
-        page._settings_scroll.ensureWidgetVisible(fields[-1], 50, 120)
-        settle(.2)
-        page._settings_scroll.ensureWidgetVisible(fields[0], 50, 120)
+                    if capture_ui.live(capture):
+                        capture_ui._h().toggle_section(capture, section, True)
+                    else:
+                        click(section.header())
+        if capture_ui.live(capture):
+            capture_ui.scroll_to(capture, page._settings_scroll, fields[-1], margin=50)
+            capture_ui.scroll_to(capture, page._settings_scroll, fields[0], margin=50)
+        else:
+            page._settings_scroll.ensureWidgetVisible(fields[-1], 50, 120)
+            settle(.2)
+            page._settings_scroll.ensureWidgetVisible(fields[0], 50, 120)
         settle(.3)
         for key, field in zip(keys, fields):
             if not field.isVisible() or field.visibleRegion().isEmpty():
                 raise RuntimeError('The actual OPS setting is not visible: ' + key)
             rects.append(capture_rect(field, window))
+        capture_ui.point_at(capture, *fields, dwell=1.0)
         return rects
 
     # Load test data: the real button, the real download and the real fill.
     button = page._ops_example_button
-    page._settings_scroll.ensureWidgetVisible(button, 50, 200)
-    settle(.3)
     folder = Path.home() / '.cache/spacr/example_data/ops_screen'
     proof['cached_before_click'] = (folder / 'manifest.csv').is_file()
-    QTimer.singleShot(2500, lambda: capture('02_downloading'))
+    scene_load = drv.begin(capture, settle, '02_load_test_data')
+    capture_ui.scroll_to(capture, page._settings_scroll, button, margin=50)
+    settle(.3)
+    if not capture_ui.live(capture):
+        QTimer.singleShot(2500, lambda: capture('02_downloading'))
     click(button)
     deadline = time.monotonic() + 3600
     while not model.collect().get('genotype_source') or not button.isEnabled():
         if time.monotonic() > deadline:
             raise TimeoutError('The OPS test data did not finish loading')
+        if scene_load and capture_ui.clip_due(capture):
+            capture.end()               # a long download: the plan ends the clip
+            scene_load = False
         settle(.5)
     settle(1)
     filled = model.collect()
+    rects = show(['genotype_source', 'ops_library', 'dst_root'])
+    capture_ui.scroll_to(capture, page._settings_scroll, button, margin=50)
+    settle(.3)
+    rects.append(capture_rect(button, window))
+    proof.setdefault('focus', {})['02_load_test_data'] = [r for r in rects if r]
+    drv.snap(capture, '02_load_test_data')
+    drv.finish(capture, scene_load)
     source = Path(filled['genotype_source'])
     library = Path(filled['ops_library'])
     destination = Path(filled['dst_root'])
@@ -262,13 +291,6 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
                           'downloaded_in_this_recording': not proof['cached_before_click']}
     write_json(captures / 'input_manifest.json', {'folder': str(folder), 'files': inputs})
     write_json(captures / 'scientific_acceptance.json', proof)
-    rects = show(['genotype_source', 'ops_library', 'dst_root'])
-    page._settings_scroll.ensureWidgetVisible(button, 50, 200)
-    settle(.3)
-    rects.append(capture_rect(button, window))
-    proof.setdefault('focus', {})['02_load_test_data'] = [r for r in rects if r]
-    capture('02_load_test_data')
-
     tour = [('03_inputs', ['genotype_source', 'ops_library', 'dst_root']),
             ('04_phenotype', ['phenotype_source']),
             ('05_alignment', ['cellpose_model', 'cellpose_diameter', 'ops_raster_overlap']),
@@ -277,9 +299,12 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
             ('08_read_settings', ['ops_read_threshold', 'ops_footprint']),
             ('09_store_reads', ['ops_store_reads'])]
     for name, keys in tour:
+        started = drv.begin(capture, settle, name)
         proof['focus'][name] = show(keys)
-        capture(name)
+        drv.snap(capture, name)
+        drv.finish(capture, started)
     # Two example fields: two decode workers are enough and keep memory low.
+    scene_run = drv.begin(capture, settle, '10_run')
     type_into(model._widgets['n_workers'], 2)
     configured = model.collect()
     if configured.get('n_workers') != 2:
@@ -298,14 +323,15 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
         for box in app.topLevelWidgets():
             if isinstance(box, QMessageBox) and box.isVisible():
                 outcome['prompts'].append(box.windowTitle() + ': ' + box.text())
-                capture('10_unexpected_prompt')
+                if not capture_ui.live(capture):
+                    capture('10_unexpected_prompt')
                 box.reject()
     guard.timeout.connect(refuse_prompts)
     guard.start(500)
     started = time.monotonic()
     try:
         click(page._btn_run)
-        worker = page._worker
+        worker = capture_ui.wait_worker(page, settle)
         if worker is None:
             raise RuntimeError('Run did not start a pipeline worker: ' + repr(outcome['prompts']))
         worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
@@ -318,11 +344,19 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
         while 'stitch:' not in console_text() and not outcome['finished']:
             if time.monotonic() > wait_until:
                 break
+            if scene_run and capture_ui.clip_due(capture):
+                capture.end()           # the plan ends the clip; the run goes on
+                scene_run = False
             settle(.5)
-        page._console.jump_to_the_end()
+        if capture_ui.live(capture):
+            capture_ui.console_to_end(capture, page._console)
+        else:
+            page._console.jump_to_the_end()
         settle(.5)
-        capture('10_run')
-        if os.environ.get('SPACR_OPS_RUN_FRAME_ONLY') == '1':
+        capture_ui.point_at(capture, page._console)
+        drv.snap(capture, '10_run')
+        drv.finish(capture, scene_run)
+        if (os.environ.get('SPACR_TUTORIAL_OPS_RUN_FRAME_ONLY') or os.environ.get('SPACR_OPS_RUN_FRAME_ONLY')) == '1':
             # Re-take of the run-start scene only. The frame shows this run's
             # own console; the completed run's evidence is in the earlier
             # recording. The process ends here without waiting for the run.
@@ -349,9 +383,15 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
                 page._request_cooperative_stop()
                 raise TimeoutError('The native OPS run exceeded its time limit')
             if not progress_captured and 'objects:' in console_text():
-                page._console.jump_to_the_end()
+                started = drv.begin(capture, settle, '10b_progress')
+                if capture_ui.live(capture):
+                    capture_ui.console_to_end(capture, page._console)
+                else:
+                    page._console.jump_to_the_end()
                 settle(.3)
-                capture('10b_progress')
+                capture_ui.point_at(capture, page._console)
+                drv.snap(capture, '10b_progress')
+                drv.finish(capture, started)
                 progress_captured = True
             settle(1)
         settle(1)
@@ -367,15 +407,20 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     if not proof['pipeline']['accepted']:
         page._console.jump_to_the_end()
         settle(.5)
-        capture('11_failed_run')
+        if not capture_ui.live(capture):
+            capture('11_failed_run')
         raise RuntimeError('The native OPS run did not complete: ' + repr(proof['pipeline']) +
                            ' ' + repr(outcome['errors'])[:2000])
-    for block, _, _ in page._console._pipeline_console_blocks():
-        block.setFocus()
-        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-    page._console.jump_to_the_end()
-    settle(.5)
-    capture('11_run_finished')
+    with capture_ui.clip(capture, '11_run_finished'):
+        if capture_ui.live(capture):
+            capture_ui.console_end_all(capture, page._console)
+        else:
+            for block, _, _ in page._console._pipeline_console_blocks():
+                block.setFocus()
+                QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+            page._console.jump_to_the_end()
+        settle(.5)
+        capture_ui.point_at(capture, page._console)
 
     database = destination / 'measurements.db'
     reports = sorted(destination.glob('*/ops_report.json'))
@@ -410,12 +455,15 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     choices = [a for a in menu.actions() if a.text().replace('&', '').rstrip('…').strip().lower() == 'database browser']
     if len(choices) != 1 or not choices[0].isEnabled():
         raise RuntimeError('The actual Help menu lacks Database browser')
+    scene_help = drv.begin(capture, settle, '11a_help_database_menu')
     QTest.mouseClick(window.menuBar(), Qt.LeftButton,
                      pos=window.menuBar().actionGeometry(help_actions[0]).center())
     settle(.4)
     if not menu.isVisible():
         raise RuntimeError('Help did not open')
-    capture('11a_help_database_menu')
+    capture_ui.wait(capture, 1.5, settle)
+    drv.snap(capture, '11a_help_database_menu')
+    drv.finish(capture, scene_help)
     QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
     deadline = time.monotonic() + 120
     while window._screens.get('db_browser') is None:
@@ -446,10 +494,14 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
                 raise RuntimeError('Expected the actual Qt file picker')
             dialog.accepted.connect(lambda: accepted.append(True))
             bounds = window.geometry()
-            dialog.resize(min(1800, bounds.width() - 100), min(1200, bounds.height() - 100))
-            dialog.move(bounds.center() - dialog.rect().center())
+            if not capture_ui.live(capture):
+                dialog.resize(min(1800, bounds.width() - 100), min(1200, bounds.height() - 100))
+                dialog.move(bounds.center() - dialog.rect().center())
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
-            edit.setFocus()
+            if capture_ui.live(capture):
+                capture_ui._h().click(edit)
+            else:
+                edit.setFocus()
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClick(edit, Qt.Key_Backspace)
             QTest.keyClicks(edit, str(destination))
@@ -457,8 +509,12 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
             settle(1.5)
             if Path(dialog.directory().absolutePath()) != destination:
                 raise RuntimeError('The picker did not open the selected output folder')
-            capture('11_output_folder')
-            edit.setFocus()
+            drv.snap(capture, '11_output_folder')
+            capture_ui.wait(capture, 1.5, settle)
+            if capture_ui.live(capture):
+                capture_ui._h().click(edit)
+            else:
+                edit.setFocus()
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClick(edit, Qt.Key_Backspace)
             QTest.keyClicks(edit, 'measurements.db')
@@ -479,32 +535,41 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     timer, watchdog = QTimer(window), QTimer(window)
     timer.setSingleShot(True)
     watchdog.setSingleShot(True)
-    timer.timeout.connect(handle)
     watchdog.timeout.connect(stalled)
-    timer.start(500)
     watchdog.start(30000)
+    scene_pick = drv.begin(capture, settle, '11_output_folder')
+    capture_ui.when_modal(capture, 500, handle)
     try:
         click(browser._btn_pick_db)
     finally:
+        drv.finish(capture, scene_pick)
         timer.stop()
         watchdog.stop()
     if errors or not accepted:
         raise RuntimeError('; '.join(errors) or 'The database picker was not accepted')
-    wait_jobs('Open database')
+    with capture_ui.clip(capture, '11b_tables'):
+        wait_jobs('Open database')
+        capture_ui.point_at(capture, browser._table_list)
     if Path(browser.database_path()).resolve() != database.resolve():
         raise RuntimeError('The browser opened a different database')
     if sorted(browser.tables()) != sorted(t for t in tables):
         raise RuntimeError('Browser table list differs from SQLite: %r' % (browser.tables(),))
-    capture('11b_tables')
     shown = {}
     for table, frame in (('ops_barcodes', '12_barcode_table'), ('ops_objects', '12b_nucleus_table')):
         items = browser._table_list.findItems(table, Qt.MatchExactly)
         if len(items) != 1:
             raise RuntimeError('No unique table item ' + table)
-        browser._table_list.scrollToItem(items[0])
+        scene_table = drv.begin(capture, settle, frame)
+        if capture_ui.live(capture):
+            capture_ui._wheel_item_into_view(capture, browser._table_list, items[0])
+        else:
+            browser._table_list.scrollToItem(items[0])
         QTest.mouseClick(browser._table_list.viewport(), Qt.LeftButton,
                          pos=browser._table_list.visualItemRect(items[0]).center())
         wait_jobs(table)
+        capture_ui.point_at(capture, browser._table_list)
+        drv.snap(capture, frame)
+        drv.finish(capture, scene_table)
         if browser.current_table() != table:
             raise RuntimeError('The table click did not select ' + table)
         columns, rows = browser.preview_columns(), browser.preview_rows()
@@ -517,7 +582,6 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
             raise RuntimeError('The displayed row count differs for ' + table)
         shown[table] = {'columns': list(columns), 'loaded_rows': len(rows), 'total_rows': count,
                         'rows_label': browser._rows_label.text()}
-        capture(frame)
     proof['database_browser'] = shown
     proof['accepted'] = True
     proof['scope'] = ('Real downloaded OPS example, complete native stitch/objects/decode run '

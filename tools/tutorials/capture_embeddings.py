@@ -3,7 +3,12 @@ from pathlib import Path
 import hashlib
 import time
 
+import capture_ui
+from capture_ui_drv_a import type_text
+from capture_ui_drv_e import guarded
 
+
+@guarded
 def record_screen(app, window, stage, captures, capture, settle, write_json):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
@@ -50,44 +55,56 @@ def record_screen(app, window, stage, captures, capture, settle, write_json):
                and w.property('moduleAppKey') == 'embeddings']
     if len(buttons) != 1:
         raise ValueError('Expected the actual Embeddings Home tile')
-    click(buttons[0]); settle(1)
-    screen = window._screens["embeddings"]
-    screen._jobs.job_failed.connect(failures.append)
-    capture('01_crop_loader')
-    select(screen._where, 'folder')
-    click(screen._path)
-    QTest.keyClicks(screen._path, str(folder))
-    QTest.keyClick(screen._path, Qt.Key_Return)
-    QTest.keyClick(screen._path, Qt.Key_Tab)
-    screen._limit.setFocus()
-    QTest.keyClick(screen._limit, Qt.Key_A, Qt.ControlModifier)
-    QTest.keyClicks(screen._limit, '16')
-    QTest.keyClick(screen._limit, Qt.Key_Tab)
-    settle(.3); capture('02_folder_selected')
-    click(screen._load)
-    wait_for(lambda: screen._run.isEnabled() and not screen._loading)
-    if screen._crops.shape != (16, 224, 224, 3):
-        raise ValueError('Unexpected crop stack: ' + str(screen._crops.shape))
-    capture('03_crops_loaded')
-    screen._batch.setFocus()
-    QTest.keyClick(screen._batch, Qt.Key_A, Qt.ControlModifier)
-    QTest.keyClicks(screen._batch, '4')
-    QTest.keyClick(screen._batch, Qt.Key_Tab)
-    if screen.spec().backbone != 'resnet18' or screen.spec().batch_size != 4:
-        raise ValueError('Unexpected encoder controls')
+    if capture_ui.live(capture):
+        # Host: Home, the pointer on the Embeddings tile (Xvfb: capture_refresh took 00_home).
+        with capture_ui.clip(capture, '00_home'):
+            capture_ui.point_at(capture, buttons[0], dwell=2.5)
+    screen = None
+    # Host: each clip starts BEFORE its actions (the click on the tile, the typing, Load, Run).
+    with capture_ui.clip(capture, '01_crop_loader'):
+        click(buttons[0]); settle(1)
+        screen = window._screens["embeddings"]
+        screen._jobs.job_failed.connect(failures.append)
+        capture_ui.point_at(capture, screen._where, screen._path, screen._limit, screen._load, dwell=1.0)
+    with capture_ui.clip(capture, '02_folder_selected'):
+        select(screen._where, 'folder')
+        click(screen._path)
+        if capture_ui.live(capture):
+            capture_ui.set_text(capture, screen._path, str(folder), commit=False)
+            h = capture_ui._h()
+            h.key(screen._path, Qt.Key_Return)
+            h.key(screen._path, Qt.Key_Tab)
+        else:
+            QTest.keyClicks(screen._path, str(folder))
+            QTest.keyClick(screen._path, Qt.Key_Return)
+            QTest.keyClick(screen._path, Qt.Key_Tab)
+        type_text(capture, screen._limit, '16')
+        settle(.3)
+    with capture_ui.clip(capture, '03_crops_loaded'):
+        click(screen._load)
+        wait_for(lambda: screen._run.isEnabled() and not screen._loading)
+        if screen._crops.shape != (16, 224, 224, 3):
+            raise ValueError('Unexpected crop stack: ' + str(screen._crops.shape))
+        capture_ui.point_at(capture, screen._table, dwell=1.5)
     runs = []
     for policy, dimensions in [('per_channel', 1536), ('project', 512)]:
-        select(screen._policy, policy)
-        capture('04_' + policy + '_settings')
-        previous = screen._result
-        click(screen._run)
-        wait_for(lambda: screen._result is not None and screen._result is not previous)
-        values = np.asarray(screen._result.values)
-        if values.shape != (16, dimensions) or not np.isfinite(values).all():
-            raise ValueError('Invalid native embedding result')
-        if screen._table.rowCount() != 16:
-            raise ValueError('GUI preview did not display the result')
-        capture('05_' + policy + '_result')
+        with capture_ui.clip(capture, '04_' + policy + '_settings'):
+            if not runs:
+                type_text(capture, screen._batch, '4')
+                if screen.spec().backbone != 'resnet18' or screen.spec().batch_size != 4:
+                    raise ValueError('Unexpected encoder controls')
+            select(screen._policy, policy)
+            capture_ui.point_at(capture, screen._policy, dwell=1.5)
+        with capture_ui.clip(capture, '05_' + policy + '_result'):
+            previous = screen._result
+            click(screen._run)
+            wait_for(lambda: screen._result is not None and screen._result is not previous)
+            values = np.asarray(screen._result.values)
+            if values.shape != (16, dimensions) or not np.isfinite(values).all():
+                raise ValueError('Invalid native embedding result')
+            if screen._table.rowCount() != 16:
+                raise ValueError('GUI preview did not display the result')
+            capture_ui.point_at(capture, screen._table, dwell=1.5)
         output = Path(captures) / (policy + '.npy')
         np.save(output, values)
         runs.append(dict(policy=policy, shape=list(values.shape), finite=True,

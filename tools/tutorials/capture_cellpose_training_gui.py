@@ -12,8 +12,12 @@ import json
 from pathlib import Path
 import re
 import time
+from contextlib import nullcontext
 
 import numpy as np
+
+import capture_ui
+import capture_ui_drv_b
 
 from build_evaluation_example import sha
 
@@ -65,9 +69,14 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         QTest.mouseClick(widget, Qt.LeftButton, pos=widget.visibleRegion().boundingRect().center())
         settle(.25)
 
-    def pick(opener, directory, name, frame):
-        """Answer the real Qt file dialog that ``opener`` shows."""
+    def pick(opener, directory, name, frame, *, scene=True, after=None):
+        """Answer the real Qt file dialog that ``opener`` shows.
+
+        Host: with ``scene`` the clip ``frame`` is recorded around the click that
+        opens the dialog, the typed path and the answer (``after`` runs inside).
+        """
         errors, accepted = [], []
+        host = capture_ui.live(capture)
 
         def answer():
             dialog = app.activeModalWidget()
@@ -75,16 +84,21 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 if not isinstance(dialog, QFileDialog):
                     raise ValueError('The real file dialog did not open')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1700, 1050)
-                dialog.setDirectory(str(directory)); settle(.6)
+                capture_ui.dialog_geometry(capture, dialog, (1700, 1050))
+                capture_ui.file_dialog_dir(capture, dialog, directory); settle(.6)
                 field = dialog.findChild(QLineEdit, 'fileNameEdit')
-                field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-                QTest.keyClicks(field, name); settle(.4)
-                if frame:
+                typed = str(Path(directory) / name) if host else name
+                if host:
+                    capture_ui.set_text(capture, field, typed, commit=False)
+                else:
+                    field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+                    QTest.keyClicks(field, name)
+                settle(.4)
+                if frame and not host:
                     capture(frame)
                 box = dialog.findChild(QDialogButtonBox)
                 button = box.button(QDialogButtonBox.Open) or box.button(QDialogButtonBox.Save)
-                QTest.mouseClick(button, Qt.LeftButton)
+                capture_ui.accept_file_dialog(capture, dialog, button)
             except Exception as error:
                 errors.append(str(error))
                 if dialog is not None:
@@ -92,10 +106,13 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
 
         watchdog = QTimer(window); watchdog.setSingleShot(True)
         watchdog.timeout.connect(lambda: app.activeModalWidget().reject() if app.activeModalWidget() else None)
-        QTimer.singleShot(600, answer); watchdog.start(20000)
-        opener(); watchdog.stop(); settle(.5)
-        if errors or not accepted:
-            raise ValueError('File dialog failed: ' + repr(errors))
+        with (capture_ui.clip(capture, frame) if (host and scene and frame) else nullcontext()):
+            capture_ui.when_modal(capture, 600, answer); watchdog.start(90000 if host else 20000)
+            opener(); watchdog.stop(); settle(.5)
+            if errors or not accepted:
+                raise ValueError('File dialog failed: ' + repr(errors))
+            if after is not None:
+                after()
 
     def rects(screen, keys):
         out = {}
@@ -121,32 +138,33 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
             widget = widget.parentWidget()
         return widget
 
-    def tour(screen, frame, query, keys):
+    def tour(screen, frame, query, keys, act=None, pre=None):
         bar = screen._settings_search
-        bar._input.setFocus(); QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
-        if query:
-            QTest.keyClicks(bar._input, query)
-        else:
-            QTest.keyClick(bar._input, Qt.Key_Backspace)
-        settle(.4)
-        if not query:
-            # An empty filter shows the category headings; open the ones that
-            # hold these settings with their own header clicks, shut the rest.
-            wanted = {id(foldable(bar.section_of(key))) for key in keys}
-            for key in bar.indexed_keys():
-                section = foldable(bar.section_of(key))
-                if section is not None and section.is_expanded() != (id(section) in wanted):
-                    click(section._header); settle(.2)
-        settle(.3)
-        visible = [key for key in bar.visible_keys()
-                   if screen._settings_model._widgets.get(key) is not None
-                   and screen._settings_model._widgets[key].isVisible()]
-        missing = [key for key in keys if key not in visible]
-        if missing:
-            raise ValueError(f'{frame}: search {query!r} hides {missing}; shows {visible}')
-        screen._settings_scroll.ensureWidgetVisible(screen._settings_model._widgets[keys[0]]); settle(.3)
-        proof['rects'][frame] = dict(query=query, visible=visible, fields=rects(screen, keys))
-        capture(frame)
+        with capture_ui.clip(capture, frame):
+            if pre is not None:
+                pre()
+            capture_ui.search_settings(capture, bar, query)
+            settle(.4)
+            if not query:
+                # An empty filter shows the category headings; open the ones that
+                # hold these settings with their own header clicks, shut the rest.
+                wanted = {id(foldable(bar.section_of(key))) for key in keys}
+                for key in bar.indexed_keys():
+                    section = foldable(bar.section_of(key))
+                    if section is not None and section.is_expanded() != (id(section) in wanted):
+                        click(section._header); settle(.2)
+            settle(.3)
+            if act is not None:
+                act()
+            visible = [key for key in bar.visible_keys()
+                       if screen._settings_model._widgets.get(key) is not None
+                       and screen._settings_model._widgets[key].isVisible()]
+            missing = [key for key in keys if key not in visible]
+            if missing:
+                raise ValueError(f'{frame}: search {query!r} hides {missing}; shows {visible}')
+            capture_ui.scroll_to(capture, screen._settings_scroll, screen._settings_model._widgets[keys[0]]); settle(.3)
+            proof['rects'][frame] = dict(query=query, visible=visible, fields=rects(screen, keys))
+            capture_ui.point_at_settings(capture, screen, keys, dwell=1.0)
 
     def console_text(screen):
         return '\n'.join(text for _, _, text in screen._console._pipeline_console_blocks())
@@ -178,69 +196,87 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         capture('make_masks_host')
 
         # Inspect the training pairs in Make Masks' editor.
-        pick(lambda: click(host._btn_open), example, 'training', 'make_masks_open_training')
-        deadline = time.monotonic() + 60
-        while host._loading or host._canvas.image is None:
-            if time.monotonic() > deadline:
-                raise TimeoutError('The training pair did not load')
-            settle(.1)
-        settle(.5)
-        click(host._btn_next)
-        deadline = time.monotonic() + 30
-        expected = tifffile.imread(training / 'masks/cell_pair_02.tif')
-        while host._loading or host._canvas.mask is None or not np.array_equal(host._canvas.mask, expected):
-            if time.monotonic() > deadline:
-                raise TimeoutError('The editor did not show cell_pair_02 and its mask')
-            settle(.1)
-        settle(.5)
-        proof['editor_pair'] = dict(file='cell_pair_02.tif',
-                                    objects=int(np.count_nonzero(np.unique(host._canvas.mask))),
-                                    image_equal=bool(np.array_equal(np.squeeze(host._canvas.image),
-                                                                    tifffile.imread(training / 'cell_pair_02.tif'))))
-        capture('train_pairs')
+        with capture_ui.clip(capture, 'train_pairs'):
+            pick(lambda: click(host._btn_open), example, 'training', 'make_masks_open_training', scene=False)
+            deadline = time.monotonic() + 60
+            while host._loading or host._canvas.image is None:
+                if time.monotonic() > deadline:
+                    raise TimeoutError('The training pair did not load')
+                settle(.1)
+            settle(.5)
+            click(host._btn_next)
+            deadline = time.monotonic() + 30
+            expected = tifffile.imread(training / 'masks/cell_pair_02.tif')
+            while host._loading or host._canvas.mask is None or not np.array_equal(host._canvas.mask, expected):
+                if time.monotonic() > deadline:
+                    raise TimeoutError('The editor did not show cell_pair_02 and its mask')
+                settle(.1)
+            settle(.5)
+            proof['editor_pair'] = dict(file='cell_pair_02.tif',
+                                        objects=int(np.count_nonzero(np.unique(host._canvas.mask))),
+                                        image_equal=bool(np.array_equal(np.squeeze(host._canvas.image),
+                                                                        tifffile.imread(training / 'cell_pair_02.tif'))))
+
+            capture_ui.point_at(capture, host._canvas, dwell=1.2)
 
         # Cellpose Workbench -> Train.
         folds = [b for b in host.findChildren(FoldButton) if b.isVisible() and b.app_key == 'train_cellpose']
         if len(folds) != 1:
             raise ValueError('The Cellpose Workbench fold is not unique')
-        click(folds[0])
-        panels = [p for p in window.findChildren(CellposeWorkbenchScreen) if p.isVisible()]
-        if len(panels) != 1:
-            raise ValueError('Cellpose Workbench did not open')
-        panel = panels[0]; screen = panel.train_screen
-        if panel.active_app_key() != 'train_cellpose':
-            raise ValueError('The Train tab is not selected')
-        if screen._ai_switch.isChecked():
-            click(screen._ai_switch)
-        bar = screen._settings_search
-        if bar.modified_only():
-            click(bar._modified)
-        if bar.level() != 'all':
-            click(bar._disclosure)
-        if screen._console_folder.shut:
-            click(screen._console_folder.heading)
-        settle(.5)
-        proof['rects']['home_make_masks'] = dict(fold=capture_rect(folds[0], window))
-        capture('home_make_masks')
+        with capture_ui.clip(capture, 'home_make_masks'):
+            click(folds[0])
+            panels = [p for p in window.findChildren(CellposeWorkbenchScreen) if p.isVisible()]
+            if len(panels) != 1:
+                raise ValueError('Cellpose Workbench did not open')
+            panel = panels[0]; screen = panel.train_screen
+            if panel.active_app_key() != 'train_cellpose':
+                raise ValueError('The Train tab is not selected')
+            if screen._ai_switch.isChecked():
+                click(screen._ai_switch)
+            bar = screen._settings_search
+            if bar.modified_only():
+                click(bar._modified)
+            if bar.level() != 'all':
+                click(bar._disclosure)
+            if screen._console_folder.shut:
+                click(screen._console_folder.heading)
+            settle(.5)
+            proof['rects']['home_make_masks'] = dict(fold=capture_rect(folds[0], window))
+            capture_ui.point_at(capture, folds[0], dwell=1.2)
 
         # Source through its real folder button.
         source = screen._settings_model._widgets['src']
-        bar._input.setFocus(); QTest.keyClicks(bar._input, 'src'); settle(.4)
-        screen._settings_scroll.ensureWidgetVisible(source); settle(.3)
-        proof['source_button_state'] = dict(field_visible=source.isVisible())
-        actions = [a for a in source.actions() if a.toolTip().startswith('Choose folder')]
-        buttons = [b for a in actions for b in a.associatedObjects()
-                   if isinstance(b, QToolButton)]
-        if len(buttons) != 1:
-            raise ValueError(f'The Source folder button is not unique: {len(actions)} actions, '
-                             f'{[type(b).__name__ for a in actions for b in a.associatedObjects()]}')
-        proof['source_button_state']['button_visible'] = buttons[0].isVisible()
-        pick(lambda: click(buttons[0]), example, 'training', 'train_source')
-        if screen._settings_model.collect().get('src') != str(training):
-            raise ValueError('Source did not take the training folder')
-        for key, value in (('model_name', MODEL_NAME), ('n_epochs', EPOCHS)):
-            if not screen._settings_model.set_value_for_key(key, value):
-                raise ValueError('The Train form has no ' + key)
+        with capture_ui.clip(capture, 'train_source'):
+            capture_ui.search_settings(capture, bar, 'src'); settle(.4)
+            capture_ui.scroll_to(capture, screen._settings_scroll, source); settle(.3)
+            proof['source_button_state'] = dict(field_visible=source.isVisible())
+            actions = [a for a in source.actions() if a.toolTip().startswith('Choose folder')]
+            buttons = [b for a in actions for b in a.associatedObjects()
+                       if isinstance(b, QToolButton)]
+            if len(buttons) != 1:
+                raise ValueError(f'The Source folder button is not unique: {len(actions)} actions, '
+                                 f'{[type(b).__name__ for a in actions for b in a.associatedObjects()]}')
+            proof['source_button_state']['button_visible'] = buttons[0].isVisible()
+            pick(lambda: click(buttons[0]), example, 'training', 'train_source', scene=False)
+            if screen._settings_model.collect().get('src') != str(training):
+                raise ValueError('Source did not take the training folder')
+            capture_ui.point_at(capture, source, dwell=1.2)
+        def enter(key, value):
+            def run():
+                if not capture_ui_drv_b.fill_setting(capture, screen, key, value):
+                    raise ValueError('The Train form has no ' + key)
+            return run
+
+        tour(screen, 'train_source_set', 'src', ['src', 'mask_src'])
+        tour(screen, 'train_channels', 'channel', ['channels', 'channel_axis'])
+        tour(screen, 'train_model_output', 'model', ['base_model', 'model_name', 'save_path'],
+             act=enter('model_name', MODEL_NAME))
+        tour(screen, 'train_save_path', 'save_path', ['save_path'])
+        tour(screen, 'train_schedule', '', ['n_epochs', 'batch_size', 'learning_rate'],
+             act=enter('n_epochs', EPOCHS))
+        tour(screen, 'train_normalization', '', ['normalize', 'percentiles', 'scale_range', 'min_train_masks'])
+        tour(screen, 'train_validation', 'test', ['test_src', 'test_mask_src'])
+        tour(screen, 'train_form', '', ['src', 'model_name', 'n_epochs'])
         settings = screen._settings_model.collect()
         expected_settings = dict(src=str(training), model_name=MODEL_NAME, n_epochs=EPOCHS,
                                  base_model='cpsam', batch_size=1, learning_rate=1e-5,
@@ -253,40 +289,42 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
             raise ValueError(f'Unexpected training settings: {wrong} {empty}')
         proof['train_settings'] = settings
         write_json(captures / 'train_settings.json', settings)
-        tour(screen, 'train_source_set', 'src', ['src', 'mask_src'])
-        tour(screen, 'train_channels', 'channel', ['channels', 'channel_axis'])
-        tour(screen, 'train_model_output', 'model', ['base_model', 'model_name', 'save_path'])
-        tour(screen, 'train_save_path', 'save_path', ['save_path'])
-        tour(screen, 'train_schedule', '', ['n_epochs', 'batch_size', 'learning_rate'])
-        tour(screen, 'train_normalization', '', ['normalize', 'percentiles', 'scale_range', 'min_train_masks'])
-        tour(screen, 'train_validation', 'test', ['test_src', 'test_mask_src'])
-        tour(screen, 'train_form', '', ['src', 'model_name', 'n_epochs'])
-        if screen._settings_model.collect() != settings:
-            raise ValueError('The settings tour changed training values')
         if dry_run:
             proof['dry_run_stopped_before'] = 'Train Run'
             return
 
         QTimer.singleShot(1500, reject_prompts)
-        started = time.monotonic(); click(screen._btn_run)
-        worker = screen._worker
-        if worker is None:
-            raise ValueError('Run did not start training')
         outcome = dict(finished=False, ok=False, errors=[])
-        worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
-        worker.error.connect(lambda error: outcome['errors'].append(str(error)))
-        seen = set()
+        with capture_ui.clip(capture, 'train_run_started'):
+            started = time.monotonic(); click(screen._btn_run)
+            # The run now starts in deferred parts, so the worker does not exist (the attribute is not
+            # even set) at the moment of the click. Wait for it, with a bound that raises.
+            start_deadline = started + 120
+            worker = getattr(screen, '_worker', None)
+            while worker is None and time.monotonic() < start_deadline:
+                settle(.2)
+                worker = getattr(screen, '_worker', None)
+            if worker is None:
+                raise ValueError('Run did not start training')
+            worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
+            worker.error.connect(lambda error: outcome['errors'].append(str(error)))
+            while not outcome['finished'] or screen._worker_thread_is_running():
+                if time.monotonic() - started > timeout:
+                    screen._request_cooperative_stop()
+                    raise TimeoutError('Training exceeded its bound')
+                if 'Training model on' in console_text(screen) and screen._worker_thread_is_running():
+                    settle(.3)
+                    break
+                settle(.1)
+        if screen._worker_thread_is_running():
+            with capture_ui.clip(capture, 'train_run_console'):
+                open_fold(screen, screen._console_folder, 'Console')
+                capture_ui.console_to_end(capture, screen._console); settle(.3)
+                capture_ui.point_at(capture, screen._console, dwell=1.5)
         while not outcome['finished'] or screen._worker_thread_is_running():
             if time.monotonic() - started > timeout:
                 screen._request_cooperative_stop()
                 raise TimeoutError('Training exceeded its bound')
-            text = console_text(screen)
-            if 'Training model on' in text and not seen and screen._worker_thread_is_running():
-                seen.add('started'); settle(.3); capture('train_run_started')
-                open_fold(screen, screen._console_folder, 'Console')
-                screen._console.jump_to_the_end(); settle(.3)
-                if screen._worker_thread_is_running():
-                    capture('train_run_console')
             settle(.1)
         settle(1)
         proof['train_elapsed_seconds'] = time.monotonic() - started
@@ -295,8 +333,10 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         write_json(captures / 'training_outcome.json', outcome)
         if not outcome['ok'] or outcome['errors']:
             raise ValueError('Training failed: ' + repr(outcome['errors']) + text[-2000:])
-        open_fold(screen, screen._console_folder, 'Console')
-        screen._console.jump_to_the_end(); settle(.6); capture('train_checkpoint')
+        with capture_ui.clip(capture, 'train_checkpoint'):
+            open_fold(screen, screen._console_folder, 'Console')
+            capture_ui.console_to_end(capture, screen._console); settle(.6)
+            capture_ui.point_at(capture, screen._console, dwell=1.5)
         folder = training / 'models/cellpose_model/models'
         checkpoints = sorted(p for p in folder.glob(MODEL_NAME + '_*') if p.is_file())
         if len(checkpoints) != 1:
@@ -308,35 +348,40 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                                    console_matches=[str(checkpoint)] == saved)
         proof['training_losses_console'] = re.findall(r'train_loss=([0-9.]+)', text)
         if screen._figure_queue.count():
-            screen._figure_queue.show_index(0); settle(.4)
-            capture('train_pair_figure')
+            with capture_ui.clip(capture, 'train_pair_figure'):
+                capture_ui.show_figure(capture, screen._figure_queue, 0); settle(.4)
             screen._figure_queue.all_pixmaps()[0].save(str(captures / 'train_pair_figure.png'), 'PNG')
 
         # Apply the checkpoint to the separate images.
-        QTest.mouseClick(panel._tabs.tabBar(), Qt.LeftButton, pos=panel._tabs.tabBar().tabRect(1).center())
-        settle(.8)
         apply = panel.apply_screen
-        if panel.active_app_key() != 'cellpose_masks':
-            raise ValueError('The Apply tab is not selected')
-        if apply._ai_switch.isChecked():
-            click(apply._ai_switch)
         abar = apply._settings_search
-        if abar.modified_only():
-            click(abar._modified)
-        if abar.level() != 'all':
-            click(abar._disclosure)
-        carried = apply._settings_model.collect().get('custom_model')
-        if carried != str(checkpoint):
-            raise ValueError(f'Apply did not pick up the checkpoint: {carried}')
-        proof['carry_note'] = panel._carry_note.text()
-        # One grayscale channel with explicit 2-99 percentile scaling (the
-        # Apply lesson's recipe); save writes masks, verbose shows figures.
-        # fill_in stays off: its hole filling relabels touching cells as one
-        # object (ndimage.label on the label image), reported to the app owners.
-        for key, value in (('src', str(apply_folder)), ('channels', [0]), ('percentiles', [2, 99]),
-                           ('fill_in', False), ('save', True), ('verbose', True)):
-            if not apply._settings_model.set_value_for_key(key, value):
-                raise ValueError('The Apply form has no ' + key)
+
+        def apply_setup():
+            capture_ui.select_tab(capture, panel._tabs, 1)
+            settle(.8)
+            if panel.active_app_key() != 'cellpose_masks':
+                raise ValueError('The Apply tab is not selected')
+            if apply._ai_switch.isChecked():
+                click(apply._ai_switch)
+            if abar.modified_only():
+                click(abar._modified)
+            if abar.level() != 'all':
+                click(abar._disclosure)
+            carried = apply._settings_model.collect().get('custom_model')
+            if carried != str(checkpoint):
+                raise ValueError(f'Apply did not pick up the checkpoint: {carried}')
+            proof['carry_note'] = panel._carry_note.text()
+            # One grayscale channel with explicit 2-99 percentile scaling (the
+            # Apply lesson's recipe); save writes masks, verbose shows figures.
+            # fill_in stays off: its hole filling relabels touching cells as one
+            # object (ndimage.label on the label image), reported to the app owners.
+            for key, value in (('src', str(apply_folder)), ('channels', [0]), ('percentiles', [2, 99]),
+                               ('fill_in', False), ('save', True), ('verbose', True)):
+                if not capture_ui_drv_b.fill_setting(capture, apply, key, value):
+                    raise ValueError('The Apply form has no ' + key)
+
+        tour(apply, 'apply_checkpoint', '', ['src', 'channels', 'percentiles', 'custom_model', 'fill_in', 'save', 'verbose'],
+             pre=apply_setup)
         apply_settings = apply._settings_model.collect()
         proof['apply_settings'] = apply_settings
         write_json(captures / 'apply_settings.json', apply_settings)
@@ -344,70 +389,74 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 or apply_settings.get('channels') != [0] or apply_settings.get('percentiles') != [2, 99]
                 or apply_settings.get('fill_in') is not False):
             raise ValueError('Apply settings changed unexpectedly')
-        tour(apply, 'apply_checkpoint', '', ['src', 'channels', 'percentiles', 'custom_model', 'fill_in', 'save', 'verbose'])
         tour(apply, 'apply_custom_model', 'model', ['model_name', 'custom_model'])
         tour(apply, 'apply_form', '', ['src'])
 
         # Live preview on one separate image.
-        for folder_, heading in ((apply._usage_card.folder, apply._usage_card.title_label),
-                                 (apply._console_folder, apply._console_header)):
-            if not folder_.shut:
-                QTest.mouseClick(heading, Qt.LeftButton); settle(.3)
         preview = apply._registry_preview
-        QTest.mouseClick(preview.toggle, Qt.LeftButton); settle(.6)
-        live = preview.panel
-        if not live.isVisible():
-            raise ValueError('The live preview is hidden')
-        pick(lambda: QTest.mouseClick(live._pick_btn, Qt.LeftButton), apply_folder, 'cell_field_01.tif',
-             'apply_preview_picker')
-        deadline = time.monotonic() + 60
-        while live._image is None:
-            if time.monotonic() > deadline:
-                raise TimeoutError('The preview image did not load')
-            settle(.1)
-        if not np.array_equal(np.squeeze(live._image), tifffile.imread(apply_folder / 'cell_field_01.tif')):
-            raise ValueError('The preview loaded different pixels')
-        live.open_live_settings(); settle(.4)
-        dialog = live._live_settings_dialog
-        field = live._cell_channel
-        field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(field, '0'); QTest.keyClick(field, Qt.Key_Tab); settle(.3)
-        for field, value in ((live._lo_pct, 2), (live._hi_pct, 99)):
-            field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-            QTest.keyClicks(field, str(value)); QTest.keyClick(field, Qt.Key_Tab); settle(.3)
-        dialog.close(); settle(.3)
-        proof['preview_params'] = live.current_params()
+        with capture_ui.clip(capture, 'apply_preview_picker'):
+            for folder_, heading in ((apply._usage_card.folder, apply._usage_card.title_label),
+                                     (apply._console_folder, apply._console_header)):
+                if not folder_.shut:
+                    QTest.mouseClick(heading, Qt.LeftButton); settle(.3)
+            QTest.mouseClick(preview.toggle, Qt.LeftButton); settle(.6)
+            live = preview.panel
+            if not live.isVisible():
+                raise ValueError('The live preview is hidden')
+            pick(lambda: QTest.mouseClick(live._pick_btn, Qt.LeftButton), apply_folder, 'cell_field_01.tif',
+                 'apply_preview_picker', scene=False)
+            deadline = time.monotonic() + 60
+            while live._image is None:
+                if time.monotonic() > deadline:
+                    raise TimeoutError('The preview image did not load')
+                settle(.1)
+            if not np.array_equal(np.squeeze(live._image), tifffile.imread(apply_folder / 'cell_field_01.tif')):
+                raise ValueError('The preview loaded different pixels')
         failures = []
-        QTest.mouseClick(live._run_btn, Qt.LeftButton)
-        if live._worker is None:
-            raise ValueError('Preview Run did not start')
-        live._worker.finished_masks.connect(lambda masks, error, token: failures.append(error) if error else None)
-        deadline = time.monotonic() + timeout
-        while not live._raw_masks or live._worker.isRunning():
-            if failures:
-                raise ValueError('Preview failed: ' + repr(failures))
-            if time.monotonic() > deadline:
-                raise TimeoutError('Preview exceeded its bound')
-            settle(.1)
-        settle(.8)
-        raw = live._raw_masks['cell']
-        proof['preview'] = dict(status=live._status.text(), objects=int(np.count_nonzero(np.unique(raw))),
-                                params=live.current_params())
-        np.save(captures / 'preview_cell.npy', raw, allow_pickle=False)
-        capture('apply_preview')
+        with capture_ui.clip(capture, 'apply_preview'):
+            capture_ui.open_live_settings(capture, live); settle(.4)
+            dialog = live._live_settings_dialog
+            capture_ui.set_number(capture, live._cell_channel, 0); settle(.3)
+            for field, value in ((live._lo_pct, 2), (live._hi_pct, 99)):
+                capture_ui.set_number(capture, field, value); settle(.3)
+            capture_ui.close_dialog(capture, dialog, prefer=('Close', 'Done', 'OK')); settle(.3)
+            proof['preview_params'] = live.current_params()
+            QTest.mouseClick(live._run_btn, Qt.LeftButton)
+            if live._worker is None:
+                raise ValueError('Preview Run did not start')
+            live._worker.finished_masks.connect(lambda masks, error, token: failures.append(error) if error else None)
+            deadline = time.monotonic() + timeout
+            while not live._raw_masks or live._worker.isRunning():
+                if failures:
+                    raise ValueError('Preview failed: ' + repr(failures))
+                if time.monotonic() > deadline:
+                    raise TimeoutError('Preview exceeded its bound')
+                settle(.1)
+            settle(.8)
+            raw = live._raw_masks['cell']
+            proof['preview'] = dict(status=live._status.text(), objects=int(np.count_nonzero(np.unique(raw))),
+                                    params=live.current_params())
+            np.save(captures / 'preview_cell.npy', raw, allow_pickle=False)
+            capture_ui.point_at(capture, live, dwell=1.5)
 
         # Run the whole folder.
-        QTest.mouseClick(preview.toggle, Qt.LeftButton); settle(.5)
-        open_fold(apply, apply._console_folder, 'Console')
-        open_fold(apply, apply._actions_folder, 'Actions')
-        QTimer.singleShot(1500, reject_prompts)
-        started = time.monotonic(); click(apply._btn_run)
-        worker = apply._worker
-        if worker is None:
-            raise ValueError('Apply Run did not start')
         outcome = dict(finished=False, ok=False, errors=[])
-        worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
-        worker.error.connect(lambda error: outcome['errors'].append(str(error)))
+        with capture_ui.clip(capture, 'apply_run_started'):
+            QTest.mouseClick(preview.toggle, Qt.LeftButton); settle(.5)
+            open_fold(apply, apply._console_folder, 'Console')
+            open_fold(apply, apply._actions_folder, 'Actions')
+            QTimer.singleShot(1500, reject_prompts)
+            started = time.monotonic(); click(apply._btn_run)
+            start_deadline = started + 120
+            worker = getattr(apply, '_worker', None)
+            while worker is None and time.monotonic() < start_deadline:
+                settle(.2)
+                worker = getattr(apply, '_worker', None)
+            if worker is None:
+                raise ValueError('Apply Run did not start')
+            worker.finished.connect(lambda ok: outcome.update(finished=True, ok=bool(ok)))
+            worker.error.connect(lambda error: outcome['errors'].append(str(error)))
+            settle(1.5)
         while not outcome['finished'] or apply._worker_thread_is_running():
             if time.monotonic() - started > timeout:
                 apply._request_cooperative_stop()
@@ -428,14 +477,15 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                                                objects=int(np.count_nonzero(np.unique(mask)))))
         proof['preview']['batch_mask_equal'] = bool(np.array_equal(
             raw, tifffile.imread(apply_folder / 'masks/cell_field_01.tif')))
-        apply._console.jump_to_the_end(); settle(.3)
         count = apply._figure_queue.count()
         proof['apply_figures'] = count
-        if count:
-            apply._figure_queue.show_index(0); settle(.5)
-        capture('apply_result')
+        with capture_ui.clip(capture, 'apply_result'):
+            capture_ui.console_to_end(capture, apply._console); settle(.3)
+            if count:
+                capture_ui.show_figure(capture, apply._figure_queue, 0); settle(.5)
         if count > 1:
-            apply._figure_queue.show_index(count - 1); settle(.5); capture('apply_result_last')
+            with capture_ui.clip(capture, 'apply_result_last'):
+                capture_ui.show_figure(capture, apply._figure_queue, count - 1); settle(.5)
         proof['accepted'] = True
     finally:
         proof['original_inputs_preserved'] = all(sha(p) == h for p, h in originals.items())

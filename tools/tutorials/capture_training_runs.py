@@ -14,10 +14,14 @@ import math
 from pathlib import Path
 import statistics
 import time
+from contextlib import nullcontext
+
+import capture_ui
 
 
 AUTHOR = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
-SOURCE = AUTHOR / 'synthetic/training_runs'
+import os
+SOURCE = Path(os.environ.get('SPACR_TUTORIAL_TRAINING_RUNS', str(AUTHOR / 'synthetic/training_runs')))
 AUDIT = Path(__file__).parent / 'evidence/2026-09-09_training_runs_input_audit.json'
 RUNS = {
     'baseline': 'baseline/model/maxvit_t/0_1/epochs_20',
@@ -132,6 +136,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
         'core_classify_hold_unchanged': True,
     }
     write_json(acceptance, evidence)
+    host = capture_ui.live(capture)
     panel = None
     originals, expected, settings, identities = {}, {}, {}, {}
     jobs, picked_events, snapshots = [], [], []
@@ -171,7 +176,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             parent = widget.parentWidget()
             while parent is not None:
                 if isinstance(parent, QScrollArea):
-                    parent.ensureWidgetVisible(widget)
+                    capture_ui.scroll_to(capture, parent, widget)
                 parent = parent.parentWidget()
             settle(.1)
             if not widget.isVisible() or not widget.isEnabled() or widget.visibleRegion().isEmpty():
@@ -204,14 +209,20 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             expose(splitter)
             before = splitter.sizes()
             total = sum(before)
-            if total < 2920:
-                raise RuntimeError('The native window is too narrow for readable list and plot panes')
+            # The readable widths (list 920, plot 2000, together 2920) are pixels of the 3840 px wide
+            # final frame. The host window is 2560 px wide and its video is scaled up to 3840, so the
+            # same widths are 2/3 of that in window pixels.
+            k = min(1.0, window.width() / 3840.0)
+            if total < 2920 * k:
+                raise RuntimeError('The native window is too narrow for readable list and plot panes '
+                                   f'(splitter {total} px, window {window.width()} px, needs {2920 * k:.0f})')
             # Resize only the existing user-adjustable divider; no widget,
             # font, layout minimum or size-policy changes are introduced.
-            splitter.setSizes([920, total - 920])
+            wanted = int(round(920 * k))
+            capture_ui.splitter_sizes(capture, splitter, [wanted, total - wanted])
             settle(.35)
             after = splitter.sizes()
-            if not 850 <= after[0] <= 950 or panel._canvas.width() < 2000:
+            if not 850 * k <= after[0] <= 950 * k or panel._canvas.width() < 2000 * k:
                 raise RuntimeError('The native splitter did not leave readable list and plot widths')
             evidence['native_layout'] = {
                 'splitter_sizes_before': before, 'splitter_sizes_after': after,
@@ -277,46 +288,49 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                     timer = QTimer(dialog)
                     timer.setSingleShot(True)
                     timer.timeout.connect(dialog.reject)
-                    timer.start(max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
+                    timer.start(max(1, min(120000 if host else 12000, int((deadline - time.monotonic()) * 1000))))
                     timers.append(timer)
-                    dialog.resize(1400, 950)
+                    capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                     edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                     if edit is None:
                         raise RuntimeError('The actual picker lacks its filename editor')
                     expose(edit)
-                    edit.setFocus()
-                    QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-                    QTest.keyClicks(edit, str(SOURCE))
-                    QTest.keyClick(edit, Qt.Key_Tab)
+                    if host:
+                        capture_ui.set_text(capture, edit, str(SOURCE), commit=False)
+                    else:
+                        edit.setFocus()
+                        QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+                        QTest.keyClicks(edit, str(SOURCE))
+                        QTest.keyClick(edit, Qt.Key_Tab)
                     settle(.15)
-                    capture('02_synthetic_source_folder_picker')
+                    if not host:
+                        capture('02_synthetic_source_folder_picker')
                     box = dialog.findChild(QDialogButtonBox)
                     button = None if box is None else box.button(QDialogButtonBox.Open)
                     if button is None:
                         raise RuntimeError('The actual folder picker lacks Open')
-                    click(button)
+                    if host:
+                        capture_ui.accept_file_dialog(capture, dialog, button)
+                    else:
+                        click(button)
                 except Exception as exc:
                     errors.append(str(exc))
                     if dialog is not None:
                         dialog.reject()
 
-            opener = QTimer(window)
-            opener.setSingleShot(True)
-            opener.timeout.connect(handle)
-            opener.start(400)
-            try:
-                click(panel._btn_pick)
-            finally:
-                opener.stop()
-                opener.deleteLater()
-                for timer in timers:
-                    try:
-                        timer.stop()
-                    except RuntimeError:
-                        pass
-            if errors or not accepted:
-                raise RuntimeError('; '.join(errors) or 'The source picker was not accepted')
-            wait_scan()  # Choosing the folder itself starts the normal scan.
+            with (capture_ui.clip(capture, '02_synthetic_source_folder_picker') if host else nullcontext()):
+                capture_ui.when_modal(capture, 400, handle)
+                try:
+                    click(panel._btn_pick)
+                finally:
+                    for timer in timers:
+                        try:
+                            timer.stop()
+                        except RuntimeError:
+                            pass
+                if errors or not accepted:
+                    raise RuntimeError('; '.join(errors) or 'The source picker was not accepted')
+                wait_scan()  # Choosing the folder itself starts the normal scan.
 
         def choose_combo(combo, text, frame=None):
             diagnostic = {
@@ -334,7 +348,10 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                 if not view.isVisible():
                     raise RuntimeError('The actual combo popup did not open')
                 if frame is not None:
-                    capture(frame, desktop=True)
+                    if host:
+                        capture_ui.wait(capture, 1.5, settle)
+                    else:
+                        capture(frame, desktop=True)
                 # Popup coordinates can move after a metric redraw. Navigate
                 # its real selection model through keyboard events instead.
                 view.setFocus()
@@ -364,7 +381,10 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                 desired = item.data(Qt.UserRole) in wanted
                 if (item.checkState() == Qt.Checked) == desired:
                     continue
-                panel._runs_list.scrollToItem(item)
+                if host:
+                    capture_ui._wheel_item_into_view(capture, panel._runs_list, item)
+                else:
+                    panel._runs_list.scrollToItem(item)
                 expose(panel._runs_list)
                 rect = panel._runs_list.visualItemRect(item)
                 point = QPoint(rect.left() + 9, rect.center().y())
@@ -493,7 +513,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             verify_diff(comparison, names)
             expose(panel._canvas)
             verify_visible_identifiers(names, frame)
-            capture(frame)
+            capture_ui.point_at(capture, panel._canvas, dwell=1.5)
             snapshots.append({'frame': frame, 'synthetic': True, 'fold_mode': mode,
                               'metric': metric, 'series_count': len(summary), 'series': summary,
                               'status': panel.status_text(), 'settings_summary': panel.summary_text(),
@@ -543,65 +563,69 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                    if b.app_key == 'train_compare' and b.isVisible()]
         if len(buttons) != 1:
             raise RuntimeError('Classify must expose one visible Training Runs fold')
-        click(buttons[0])
-        visible = [w for w in window.findChildren(TrainCompareScreen) if w.isVisible()]
-        if len(visible) != 1:
-            raise RuntimeError('The actual Training Runs fold did not open visibly')
-        panel = visible[0]
-        if panel.runs() or panel.comparison() is not None:
-            raise RuntimeError('A fresh current Training Runs panel is required')
-        widen_existing_splitter()
-        panel.job_finished.connect(job_finished)
-        panel.series_clicked.connect(series_clicked)
-        capture('01_current_training_runs_fold')
+        with capture_ui.clip(capture, '01_current_training_runs_fold'):
+            click(buttons[0])
+            visible = [w for w in window.findChildren(TrainCompareScreen) if w.isVisible()]
+            if len(visible) != 1:
+                raise RuntimeError('The actual Training Runs fold did not open visibly')
+            panel = visible[0]
+            if panel.runs() or panel.comparison() is not None:
+                raise RuntimeError('A fresh current Training Runs panel is required')
+            widen_existing_splitter()
+            panel.job_finished.connect(job_finished)
+            panel.series_clicked.connect(series_clicked)
         choose_source()
-        click(panel._btn_scan)  # Show the actual Scan action as well as the picker.
-        wait_scan()
-        if not jobs or not all(jobs) or Path(panel.root()).resolve() != SOURCE.resolve():
-            raise RuntimeError('The real Scan did not succeed on the exact synthetic source')
-        runs = panel.runs()
-        if len(runs) != len(RUNS) or len(panel.run_ids()) != len(set(panel.run_ids())):
-            raise RuntimeError('The real Scan returned unexpected run identities/counts')
-        for run in runs:
-            matches = [name for name, relative in RUNS.items() if run.path.resolve() == (SOURCE / relative).resolve()]
-            if len(matches) != 1:
-                raise RuntimeError('The real Scan returned a different run path')
-            name = matches[0]
-            identities[name] = run.run_id
-            if run.settings != settings[name]:
-                raise RuntimeError('The actual recovered settings differ from the source CSV')
-            if name in SETTINGS and Path(run.settings_path).resolve() != (SOURCE / SETTINGS[name]).resolve():
-                raise RuntimeError('The settings were recovered from the wrong project')
-            blocks = expected[name]
-            actual_blocks = set(zip(run.curves['split'], run.curves['fold']))
-            if actual_blocks != set(blocks) or sorted(run.folds) != sorted({f for s, f in blocks if f}):
-                raise RuntimeError('The loaded split/fold identities differ from the CSVs')
-            for (split, fold), rows in blocks.items():
-                actual = run.curves[(run.curves['split'] == split) & (run.curves['fold'] == fold)]
-                if set(actual['run_id']) != {run.run_id}:
-                    raise RuntimeError('Returned curve rows have the wrong run identity')
-                _same_rows(actual.drop(columns=['run_id', 'split', 'fold']).to_dict(orient='records'), rows, name)
-            if name == 'incomplete' and (run.has_curves or run.settings or not run.notes):
-                raise RuntimeError('The actual incomplete-run warning is missing')
-        if set(identities) != set(RUNS) or identities['incomplete'] not in panel.problem_text():
-            raise RuntimeError('The actual discovered-run warnings are incomplete')
-        evidence['discovered_runs'] = [{'name': name, 'run_id': identities[name],
-                                       'path': str(SOURCE / RUNS[name]),
-                                       'csv_rows': sum(len(v) for v in expected[name].values())}
-                                      for name in RUNS]
-        evidence['run_rows'] = panel.run_rows()
-        evidence['problem_text'] = panel.problem_text()
-        verify_visible_identifiers(list(RUNS), 'discovery')
-        capture('03_synthetic_runs_and_real_warnings')
+        with capture_ui.clip(capture, '03_synthetic_runs_and_real_warnings'):
+            click(panel._btn_scan)  # Show the actual Scan action as well as the picker.
+            wait_scan()
+            if not jobs or not all(jobs) or Path(panel.root()).resolve() != SOURCE.resolve():
+                raise RuntimeError('The real Scan did not succeed on the exact synthetic source')
+            runs = panel.runs()
+            if len(runs) != len(RUNS) or len(panel.run_ids()) != len(set(panel.run_ids())):
+                raise RuntimeError('The real Scan returned unexpected run identities/counts')
+            for run in runs:
+                matches = [name for name, relative in RUNS.items() if run.path.resolve() == (SOURCE / relative).resolve()]
+                if len(matches) != 1:
+                    raise RuntimeError('The real Scan returned a different run path')
+                name = matches[0]
+                identities[name] = run.run_id
+                if run.settings != settings[name]:
+                    raise RuntimeError('The actual recovered settings differ from the source CSV')
+                if name in SETTINGS and Path(run.settings_path).resolve() != (SOURCE / SETTINGS[name]).resolve():
+                    raise RuntimeError('The settings were recovered from the wrong project')
+                blocks = expected[name]
+                actual_blocks = set(zip(run.curves['split'], run.curves['fold']))
+                if actual_blocks != set(blocks) or sorted(run.folds) != sorted({f for s, f in blocks if f}):
+                    raise RuntimeError('The loaded split/fold identities differ from the CSVs')
+                for (split, fold), rows in blocks.items():
+                    actual = run.curves[(run.curves['split'] == split) & (run.curves['fold'] == fold)]
+                    if set(actual['run_id']) != {run.run_id}:
+                        raise RuntimeError('Returned curve rows have the wrong run identity')
+                    _same_rows(actual.drop(columns=['run_id', 'split', 'fold']).to_dict(orient='records'), rows, name)
+                if name == 'incomplete' and (run.has_curves or run.settings or not run.notes):
+                    raise RuntimeError('The actual incomplete-run warning is missing')
+            if set(identities) != set(RUNS) or identities['incomplete'] not in panel.problem_text():
+                raise RuntimeError('The actual discovered-run warnings are incomplete')
+            evidence['discovered_runs'] = [{'name': name, 'run_id': identities[name],
+                                           'path': str(SOURCE / RUNS[name]),
+                                           'csv_rows': sum(len(v) for v in expected[name].values())}
+                                          for name in RUNS]
+            evidence['run_rows'] = panel.run_rows()
+            evidence['problem_text'] = panel.problem_text()
+            verify_visible_identifiers(list(RUNS), 'discovery')
+            capture_ui.point_at(capture, panel._runs_list, dwell=1.5)
 
-        select_runs(['baseline', 'tuned'])
-        capture('04_select_two_synthetic_runs')
-        choose_combo(panel._metric_combo, 'accuracy', '04b_actual_metric_choices')
-        choose_combo(panel._fold_combo, 'per fold')
-        click(panel._btn_overlay)
-        verify_comparison(['baseline', 'tuned'], 'per_fold', 'accuracy', '05_actual_synthetic_accuracy_overlay')
-        expose(panel._diff_table)
-        capture('06_actual_synthetic_settings_diff')
+        with capture_ui.clip(capture, '04_select_two_synthetic_runs'):
+            select_runs(['baseline', 'tuned'])
+        with (capture_ui.clip(capture, '04b_actual_metric_choices') if host else nullcontext()):
+            choose_combo(panel._metric_combo, 'accuracy', '04b_actual_metric_choices')
+        with capture_ui.clip(capture, '05_actual_synthetic_accuracy_overlay'):
+            choose_combo(panel._fold_combo, 'per fold')
+            click(panel._btn_overlay)
+            verify_comparison(['baseline', 'tuned'], 'per_fold', 'accuracy', '05_actual_synthetic_accuracy_overlay')
+        with capture_ui.clip(capture, '06_actual_synthetic_settings_diff'):
+            expose(panel._diff_table)
+            capture_ui.point_at(capture, panel._diff_table, dwell=2.0)
 
         # A real mouse pick is optional: never inject an event or call identify_series.
         series = next(s for s in panel.comparison().series
@@ -610,42 +634,49 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
         expose(canvas)
         rows = expected['baseline'][('val', '')]
         picked = False
-        for index in (len(rows) // 2, len(rows) // 3, len(rows) - 2):
-            x, y = axes.transData.transform((rows[index]['epoch'], rows[index]['accuracy']))
-            ratio = float(canvas.device_pixel_ratio)
-            point = QPoint(round(x / ratio), round((panel.figure().bbox.height - y) / ratio))
-            if not canvas.visibleRegion().contains(point):
-                continue
-            QTest.mouseClick(canvas, Qt.LeftButton, pos=point)
-            settle(.25)
-            tick()
-            if picked_events and picked_events[-1] == series.label and panel.picked_text().startswith(series.label):
-                best = max(rows, key=lambda row: row['accuracy'])
-                last = rows[-1]
-                text = panel.picked_text()
-                if (f"last accuracy {last['accuracy']:.4f} @ {int(last['epoch'])}" not in text
-                        or f"best accuracy {best['accuracy']:.4f} @ {int(best['epoch'])}" not in text
-                        or 'chosen on this same curve, so optimistic' not in text
-                        or str(SOURCE / RUNS['baseline']) not in text):
-                    raise RuntimeError('The picked synthetic series detail disagrees with its CSV')
-                picked = True
-                capture('07_actual_series_pick_best_and_last_epochs')
-                break
+        with capture_ui.clip(capture, '07_actual_series_pick_best_and_last_epochs'):
+            for index in (len(rows) // 2, len(rows) // 3, len(rows) - 2):
+                x, y = axes.transData.transform((rows[index]['epoch'], rows[index]['accuracy']))
+                ratio = float(canvas.device_pixel_ratio)
+                point = QPoint(round(x / ratio), round((panel.figure().bbox.height - y) / ratio))
+                if not canvas.visibleRegion().contains(point):
+                    continue
+                QTest.mouseClick(canvas, Qt.LeftButton, pos=point)
+                settle(.25)
+                tick()
+                if picked_events and picked_events[-1] == series.label and panel.picked_text().startswith(series.label):
+                    best = max(rows, key=lambda row: row['accuracy'])
+                    last = rows[-1]
+                    text = panel.picked_text()
+                    if (f"last accuracy {last['accuracy']:.4f} @ {int(last['epoch'])}" not in text
+                            or f"best accuracy {best['accuracy']:.4f} @ {int(best['epoch'])}" not in text
+                            or 'chosen on this same curve, so optimistic' not in text
+                            or str(SOURCE / RUNS['baseline']) not in text):
+                        raise RuntimeError('The picked synthetic series detail disagrees with its CSV')
+                    picked = True
+                    capture_ui.point_at(capture, panel._canvas, dwell=2.0)
+                    break
         evidence['series_pick'] = {'performed_and_verified': picked,
                                    'text': panel.picked_text() if picked else None,
                                    'limitation': None if picked else 'Actual mouse picking did not identify the requested series; no injected fallback or detail capture.'}
 
-        choose_combo(panel._metric_combo, 'loss')
-        verify_comparison(['baseline', 'tuned'], 'per_fold', 'loss', '08_actual_synthetic_loss_overlay')
-        select_runs(['tuned', 'cross_validated'])
-        choose_combo(panel._metric_combo, 'accuracy')
-        click(panel._btn_overlay)
-        choose_combo(panel._fold_combo, 'mean ± sd', '08b_actual_fold_choices')
-        verify_comparison(['tuned', 'cross_validated'], 'mean', 'accuracy', '09_actual_synthetic_fold_mean_sd')
-        choose_combo(panel._fold_combo, 'both')
-        verify_comparison(['tuned', 'cross_validated'], 'both', 'accuracy', '10_actual_synthetic_folds_and_mean')
-        choose_combo(panel._fold_combo, 'per fold')
-        verify_comparison(['tuned', 'cross_validated'], 'per_fold', 'accuracy', '11_actual_synthetic_per_fold_curves')
+        with capture_ui.clip(capture, '08_actual_synthetic_loss_overlay'):
+            choose_combo(panel._metric_combo, 'loss')
+            verify_comparison(['baseline', 'tuned'], 'per_fold', 'loss', '08_actual_synthetic_loss_overlay')
+        with capture_ui.clip(capture, '08a_select_cross_validated_runs'):
+            select_runs(['tuned', 'cross_validated'])
+            choose_combo(panel._metric_combo, 'accuracy')
+            click(panel._btn_overlay)
+        with (capture_ui.clip(capture, '08b_actual_fold_choices') if host else nullcontext()):
+            choose_combo(panel._fold_combo, 'mean ± sd', '08b_actual_fold_choices')
+        with capture_ui.clip(capture, '09_actual_synthetic_fold_mean_sd'):
+            verify_comparison(['tuned', 'cross_validated'], 'mean', 'accuracy', '09_actual_synthetic_fold_mean_sd')
+        with capture_ui.clip(capture, '10_actual_synthetic_folds_and_mean'):
+            choose_combo(panel._fold_combo, 'both')
+            verify_comparison(['tuned', 'cross_validated'], 'both', 'accuracy', '10_actual_synthetic_folds_and_mean')
+        with capture_ui.clip(capture, '11_actual_synthetic_per_fold_curves'):
+            choose_combo(panel._fold_combo, 'per fold')
+            verify_comparison(['tuned', 'cross_validated'], 'per_fold', 'accuracy', '11_actual_synthetic_per_fold_curves')
         wait_scan()
         preserve()
         evidence.update(accepted=True, reason='Actual current controls, returned curves, plotted values and settings match the disclosed existing synthetic inputs; originals unchanged',

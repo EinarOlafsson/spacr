@@ -8,29 +8,35 @@ import json
 import tempfile
 import time
 
+import capture_ui
+from capture_ui_drv_e import guarded
+from capture_ui_drv_a import Rec, modal_wait, table_into_view, type_text, watchdog_ms
 
+
+@guarded
 def record_design(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox
 
     def fill(widget, value):
-        widget.setFocus()
-        QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(widget, str(value))
-        QTest.keyClick(widget, Qt.Key_Tab)
+        type_text(capture, widget, value)
         settle(0.3)
 
     def choose(box, value, *, data=False):
         index = box.findData(value) if data else box.findText(value)
         if index < 0:
             raise RuntimeError(f'The actual selector has no {value!r}')
-        box.setFocus()
-        QTest.keyClick(box, Qt.Key_Home)
-        for _ in range(index):
-            QTest.keyClick(box, Qt.Key_Down)
-        QTest.keyClick(box, Qt.Key_Tab)
-        settle(0.4)
+        if capture_ui.live(capture):
+            capture_ui.select_combo(capture, box, index)       # the pointer opens the list and picks
+            settle(0.4)
+        else:
+            box.setFocus()
+            QTest.keyClick(box, Qt.Key_Home)
+            for _ in range(index):
+                QTest.keyClick(box, Qt.Key_Down)
+            QTest.keyClick(box, Qt.Key_Tab)
+            settle(0.4)
         if (box.currentData() if data else box.currentText()) != value:
             raise RuntimeError('The actual keyboard selection did not take effect')
 
@@ -49,7 +55,10 @@ def record_design(app, window, screen, stage, captures, capture, settle, write_j
         if len(rows) != 1:
             raise RuntimeError(f'Expected one actual condition named {name}')
         item = table.item(rows[0], 1)
-        table.scrollToItem(item)
+        if capture_ui.live(capture):
+            table_into_view(capture, table, rows[0], 1)
+        else:
+            table.scrollToItem(item)
         QTest.mouseClick(table.viewport(), Qt.LeftButton, pos=table.visualItemRect(item).center())
         QTest.keyClick(table, Qt.Key_F2)
         settle(0.2)
@@ -60,74 +69,93 @@ def record_design(app, window, screen, stage, captures, capture, settle, write_j
         if next(c.replicates for c in screen.conditions() if c.name == name) != value:
             raise RuntimeError('The actual replicate edit did not update the plan')
 
-    # Use the header's own fit-to-contents gesture, not a hidden resize API.
-    header = screen._table.horizontalHeader()
-    for section in (1, 2):
-        before = header.sectionSize(section)
-        edge = header.sectionViewportPosition(section) + before - 1
-        QTest.mouseDClick(header.viewport(), Qt.LeftButton,
-                         pos=QPoint(edge, header.height() // 2))
-        settle(0.3)
-        print(f'Actual header fit, section {section}: {before} -> {header.sectionSize(section)}', flush=True)
-    fill(screen._plate_id, 'tutorial_plan')
-    if screen.design().wells_requested != 24:
-        raise RuntimeError('The actual starting plan differs from the expected 6/6/12 example')
-    capture('02_named_draft')
-    choose(screen._format, 6, data=True)
-    if assignments() or not any('only 6 usable' in text for text in findings()):
-        raise RuntimeError('The actual capacity warning did not reject the overfull plan')
-    capture('03_capacity_warning')
-    choose(screen._format, 96, data=True)
-    if len(assignments()) != 24:
-        raise RuntimeError('Returning to 96 wells did not restore all planned replicates')
-    capture('04_capacity_restored')
-    edit_count('negative', 1)
-    if not any('one well' in text for text in findings()):
-        raise RuntimeError('The actual single-replicate warning did not appear')
-    capture('05_single_replicate_warning')
-    edit_count('negative', 6)
-    if any('has one well' in text for text in findings()):
-        raise RuntimeError('Restoring replicates did not clear its warning')
-    choose(screen._layout_box, 'block')
-    if not any('block layout' in text for text in findings()):
-        raise RuntimeError('The actual block-position warning did not appear')
-    capture('06_block_layout_warning')
-    choose(screen._layout_box, 'random')
-    choose(screen._edge, 'leave_empty', data=True)
-    fill(screen._seed.lineEdit(), 42)
-    original = assignments()
-    if len(original) != 24 or screen.design().wells_available != 60:
-        raise RuntimeError('The actual edge policy did not reserve the outer ring')
-    for well in screen._well_labels:
-        if well.property('wellCondition') and (well.row in {1, 8} or well.column in {1, 12}):
-            raise RuntimeError('The plan assigns a well on the supposedly unused outer ring')
-    capture('07_random_interior_seed42')
-    fill(screen._seed.lineEdit(), 43)
-    if assignments() == original:
-        raise RuntimeError('A different seed did not change this actual layout')
-    capture('08_seed43')
-    fill(screen._seed.lineEdit(), 42)
-    if assignments() != original:
-        raise RuntimeError('The original seed did not reproduce the same displayed assignments')
-    capture('09_seed42_restored')
+    # Each scene clip starts BEFORE its actions in the capture host, so the
+    # pointer is seen fitting the header, typing, choosing and dragging.
+    with capture_ui.clip(capture, '02_named_draft'):
+        # Use the header's own fit-to-contents gesture, not a hidden resize API.
+        header = screen._table.horizontalHeader()
+        for section in (1, 2):
+            before = header.sectionSize(section)
+            edge = header.sectionViewportPosition(section) + before - 1
+            QTest.mouseDClick(header.viewport(), Qt.LeftButton,
+                             pos=QPoint(edge, header.height() // 2))
+            settle(0.3)
+            print(f'Actual header fit, section {section}: {before} -> {header.sectionSize(section)}', flush=True)
+        fill(screen._plate_id, 'tutorial_plan')
+        if screen.design().wells_requested != 24:
+            raise RuntimeError('The actual starting plan differs from the expected 6/6/12 example')
+    with capture_ui.clip(capture, '03_capacity_warning'):
+        choose(screen._format, 6, data=True)
+        if assignments() or not any('only 6 usable' in text for text in findings()):
+            raise RuntimeError('The actual capacity warning did not reject the overfull plan')
+        capture_ui.point_at(capture, *screen._findings_labels[:2], dwell=1.5)
+    with capture_ui.clip(capture, '04_capacity_restored'):
+        choose(screen._format, 96, data=True)
+        if len(assignments()) != 24:
+            raise RuntimeError('Returning to 96 wells did not restore all planned replicates')
+    with capture_ui.clip(capture, '05_single_replicate_warning'):
+        edit_count('negative', 1)
+        if not any('one well' in text for text in findings()):
+            raise RuntimeError('The actual single-replicate warning did not appear')
+        capture_ui.point_at(capture, *screen._findings_labels[:2], dwell=1.5)
+    with capture_ui.clip(capture, '06_block_layout_warning'):
+        edit_count('negative', 6)
+        if any('has one well' in text for text in findings()):
+            raise RuntimeError('Restoring replicates did not clear its warning')
+        choose(screen._layout_box, 'block')
+        if not any('block layout' in text for text in findings()):
+            raise RuntimeError('The actual block-position warning did not appear')
+        capture_ui.point_at(capture, *screen._findings_labels[:2], dwell=1.5)
+    with capture_ui.clip(capture, '07_random_interior_seed42'):
+        choose(screen._layout_box, 'random')
+        choose(screen._edge, 'leave_empty', data=True)
+        fill(screen._seed.lineEdit(), 42)
+        original = assignments()
+        if len(original) != 24 or screen.design().wells_available != 60:
+            raise RuntimeError('The actual edge policy did not reserve the outer ring')
+        for well in screen._well_labels:
+            if well.property('wellCondition') and (well.row in {1, 8} or well.column in {1, 12}):
+                raise RuntimeError('The plan assigns a well on the supposedly unused outer ring')
+    with capture_ui.clip(capture, '08_seed43'):
+        fill(screen._seed.lineEdit(), 43)
+        if assignments() == original:
+            raise RuntimeError('A different seed did not change this actual layout')
+        capture_ui.wait(capture, 1.5, settle)
+    with capture_ui.clip(capture, '09_seed42_restored'):
+        fill(screen._seed.lineEdit(), 42)
+        if assignments() != original:
+            raise RuntimeError('The original seed did not reproduce the same displayed assignments')
+        capture_ui.wait(capture, 1.5, settle)
 
     wells = {(well.row, well.column): well for well in screen._well_labels}
     start, end = wells[(2, 2)], wells[(3, 4)]
-    QTest.mousePress(start, Qt.LeftButton, pos=start.rect().center())
-    # The pressed well retains the mouse grab while the pointer crosses peers.
-    QTest.mouseMove(start, start.mapFromGlobal(end.mapToGlobal(end.rect().center())), delay=100)
-    QTest.mouseRelease(start, Qt.LeftButton, pos=start.mapFromGlobal(end.mapToGlobal(end.rect().center())))
-    settle(0.5)
-    expected = {(row, col) for row in (2, 3) for col in (2, 3, 4)}
-    if screen.selected_wells() != expected or assignments() != original:
-        raise RuntimeError('Actual well selection must select exactly the rectangle without assigning treatments')
-    capture('10_selected_wells_not_reassigned')
+    with capture_ui.clip(capture, '10_selected_wells_not_reassigned'):
+        to_end = start.mapFromGlobal(end.mapToGlobal(end.rect().center()))
+        if capture_ui.live(capture):
+            # A real drag from the first well across the rectangle to the last.
+            centre = start.rect().center()
+            capture_ui._h().drag(capture, start, centre, (to_end.x() - centre.x(), to_end.y() - centre.y()))
+        else:
+            QTest.mousePress(start, Qt.LeftButton, pos=start.rect().center())
+            # The pressed well retains the mouse grab while the pointer crosses peers.
+            QTest.mouseMove(start, to_end, delay=100)
+            QTest.mouseRelease(start, Qt.LeftButton, pos=to_end)
+        settle(0.5)
+        expected = {(row, col) for row in (2, 3) for col in (2, 3, 4)}
+        if screen.selected_wells() != expected or assignments() != original:
+            raise RuntimeError('Actual well selection must select exactly the rectangle without assigning treatments')
+        capture_ui.wait(capture, 1.5, settle)
 
     destination_root = stage / 'design_runs'
     destination_root.mkdir(exist_ok=True)
     from pathlib import Path
     destination = Path(tempfile.mkdtemp(prefix='plan-', dir=destination_root))
     errors, accepted = [], []
+    # Host: the picker clip starts before the pointer clicks Export; the export
+    # clip starts inside the picker, before the folder is accepted.
+    picker_clip = Rec(capture, '11_export_folder', settle)
+    export_clip = Rec(capture, '12_real_export_complete', settle, lead=0.3)
+
     def pick():
         dialog = app.activeModalWidget()
         try:
@@ -136,18 +164,24 @@ def record_design(app, window, screen, stage, captures, capture, settle, write_j
             timer = QTimer(dialog)
             timer.setSingleShot(True)
             timer.timeout.connect(dialog.reject)
-            timer.start(12000)
+            timer.start(watchdog_ms(capture, 12000))
             dialog.accepted.connect(lambda: accepted.append(True))
             fill(dialog.findChild(QLineEdit, 'fileNameEdit'), destination)
-            capture('11_export_folder')
-            QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
+            picker_clip.stop()
+            export_clip.start()
+            capture_ui.accept_file_dialog(capture, dialog, dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
         except Exception as exc:
             errors.append(str(exc))
+            picker_clip.abort()
+            export_clip.abort()
             if dialog is not None:
                 dialog.reject()
-    QTimer.singleShot(400, pick)
+    picker_clip.start()
+    modal_wait(capture, 400, pick)
     QTest.mouseClick(screen._export, Qt.LeftButton)
     if errors or not accepted:
+        picker_clip.abort()
+        export_clip.abort()
         raise RuntimeError('; '.join(errors) or 'Export was cancelled')
     deadline = time.monotonic() + timeout
     while screen.is_busy() or screen.active_jobs():
@@ -168,7 +202,7 @@ def record_design(app, window, screen, stage, captures, capture, settle, write_j
     fragment = json.loads(files['plate_map_settings.json'].read_text(encoding="utf-8"))
     if design['seed'] != 42 or design['wells_available'] != 60 or fragment['expressible']:
         raise RuntimeError('The saved design or non-expressible random-layout warning changed')
-    capture('12_real_export_complete')
+    export_clip.stop()
     write_json(captures / 'scientific_acceptance.json', {
         'accepted': True, 'planned_not_acquired': True, 'design': asdict(screen.design()),
         'displayed_assignments': original, 'exported_well_count': len(rows),

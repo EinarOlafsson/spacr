@@ -124,6 +124,9 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.foreign import FOLDED_APPS
+    import capture_ui
+    from capture_ui_drv_c import Scenes
+    scenes = Scenes(capture, settle)
 
     run, images, masks, table, records, rows = prepare_inputs(stage)
     destination, mapping = run / 'imported_project', run / 'reviewed_mapping.csv'
@@ -135,7 +138,7 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
         'neutral_names_do_not_preserve_wells_without_provenance': True})
 
     def fill(widget, value):
-        widget.setFocus()
+        capture_ui.focus(capture, widget)
         QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(widget, str(value))
         QTest.keyClick(widget, Qt.Key_Tab)
@@ -157,7 +160,7 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
 
     def show_report_end():
         scrollbar = screen._report.verticalScrollBar()
-        QTest.keyClick(scrollbar, Qt.Key_End)
+        capture_ui.scroll_to_value(capture, screen._report, scrollbar.maximum())
         settle()
         if scrollbar.value() != scrollbar.maximum():
             raise RuntimeError('The actual report scrollbar did not reach the final lines')
@@ -170,11 +173,13 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
                 if not isinstance(dialog, QFileDialog):
                     raise RuntimeError('Expected the real Qt file picker')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                dialog.resize(1400, 950)
+                capture_ui.dialog_geometry(capture, dialog, (1400, 950))
                 fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
-                capture(frame)
+                if not capture_ui.live(capture):
+                    capture(frame)      # host: the clip opened before the click shows the typing
                 box = dialog.findChild(QDialogButtonBox)
-                QTest.mouseClick(box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open), Qt.LeftButton)
+                capture_ui.accept_file_dialog(
+                    capture, dialog, box.button(QDialogButtonBox.Save if save else QDialogButtonBox.Open))
             except Exception as exc:
                 errors.append(str(exc))
                 if dialog is not None:
@@ -184,11 +189,13 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
             if dialog is not None and not accepted:
                 errors.append('File picker never accepted the requested path')
                 dialog.reject()
-        QTimer.singleShot(500, handle)
-        QTimer.singleShot(12000, reject_stalled)
+        capture_ui.when_modal(capture, 500, handle)
+        QTimer.singleShot(60000 if capture_ui.live(capture) else 12000, reject_stalled)
         click(button)
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'File selection was cancelled')
+        if capture_ui.live(capture):
+            scenes.end(frame, button)
 
     def edit_target(target):
         row = screen._model.row_of('Area_px2')
@@ -221,39 +228,43 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
         buttons = [b for b in screen.findChildren(FoldButton) if b.app_key == key and b.isVisible()]
         if len(buttons) != 1:
             raise RuntimeError(f'Expected one visible Import fold: {key}')
+        scenes.begin('02_fold_' + key)
         QTest.mouseMove(buttons[0])
         settle(0.8)
-        capture('02_fold_' + key)
+        scenes.end('02_fold_' + key, buttons[0])
+    scenes.begin('03_choose_images')
     choose(screen._btn_pick_images, images, '03_choose_images')
+    scenes.begin('04_choose_masks')
     fill(screen._dst_edit, destination)
     choose(screen._btn_pick_mask, masks, '04_choose_masks')
     if screen._object_box.currentData() != 'cell':
         raise RuntimeError('The visible mask class is not Cell')
+    scenes.begin('05_choose_table')
     click(screen._btn_add_mask)
     choose(screen._btn_pick_table, table, '05_choose_table')
+    scenes.begin('06_inputs_unknown_calibration')
     fill(screen._scale_edit, '')
-    capture('06_inputs_unknown_calibration')
+    scenes.end('06_inputs_unknown_calibration', screen._scale_edit)
     if screen.on_conflict() != 'refuse':
         raise RuntimeError('Expected the default refusal policy for name collisions')
+    scenes.begin('06b_safe_inferred_names')
     click(screen._btn_preview)
     wait_job('Preview with conservative inferred names')
     if screen.plan() is None or not screen.plan().ok or destination.exists():
         raise RuntimeError('The real inferred proposal is not a non-writing valid plan')
-    capture('06b_safe_inferred_names')
+    scenes.end('06b_safe_inferred_names', screen._table.viewport())
     # Inference already prefixes foreign columns. Demonstrate a REAL refusal
     # by explicitly editing one target to a reserved spaCR measurement name.
+    scenes.begin('07_conflict_refused')
     edit_target('cell_area')
     initial = screen.plan()
     write_json(captures / 'preview_refused.json', {'report': screen.report_text(),
                'status': screen.status_text(), 'destination_exists': destination.exists()})
     if initial is None or initial.ok or screen.can_import() or destination.exists():
         raise RuntimeError('The real name conflict was not refused before writing')
-    capture('07_conflict_refused')
-    screen._conflict_box.setFocus()
-    QTest.keyClick(screen._conflict_box, Qt.Key_Home)
-    for _ in range(screen._conflict_box.findData('rename')):
-        QTest.keyClick(screen._conflict_box, Qt.Key_Down)
-    QTest.keyClick(screen._conflict_box, Qt.Key_Tab)
+    scenes.end('07_conflict_refused', screen._report)
+    scenes.begin('08_reviewed_joins')
+    capture_ui.select_combo(capture, screen._conflict_box, screen._conflict_box.findData('rename'))
     settle()
     plan = screen.plan()
     if plan is None or not plan.ok or destination.exists():
@@ -262,25 +273,32 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
         raise RuntimeError('Not every actual measured object matched its copied label')
     if plan.join.n_objects_unmeasured:
         raise RuntimeError('The demonstration unexpectedly omits labelled objects')
-    capture('08_reviewed_joins')
+    scenes.end('08_reviewed_joins', screen._conflict_box)
+    scenes.begin('08b_join_report')
     show_report_end()
-    capture('08b_join_report')
+    scenes.end('08b_join_report', screen._report)
+    scenes.begin('09_mapping_edited')
     edit_target('foreign_reviewed_area_px2')
     if screen.plan().target_for('Area_px2') != 'foreign_reviewed_area_px2':
         raise RuntimeError('The visible mapping edit did not update the actual plan')
-    capture('09_mapping_edited')
+    scenes.end('09_mapping_edited', screen._table.viewport())
+    scenes.begin('10_save_mapping')
     choose(screen._btn_save_map, mapping, '10_save_mapping', save=True)
     if not mapping.is_file():
         raise RuntimeError('The accepted Save mapping did not write a file')
     saved_hash = digest(mapping)
+    scenes.begin('10b_unsaved_mapping_change')
     edit_target('foreign_unsaved_area_px2')
     if screen.plan().target_for('Area_px2') != 'foreign_unsaved_area_px2':
         raise RuntimeError('The unsaved mapping change was not actually applied')
-    capture('10b_unsaved_mapping_change')
+    scenes.end('10b_unsaved_mapping_change', screen._table.viewport())
+    scenes.begin('11_load_mapping')
     choose(screen._btn_load_map, mapping, '11_load_mapping')
     if screen.plan().target_for('Area_px2') != 'foreign_reviewed_area_px2' or digest(mapping) != saved_hash:
         raise RuntimeError('Mapping reload changed the reviewed file or target')
-    capture('12_mapping_reloaded')
+    scenes.begin('12_mapping_reloaded')
+    scenes.end('12_mapping_reloaded', screen._table.viewport())
+    scenes.begin('13_imported')
     click(screen._btn_import)
     wait_job('Import')
     result = screen.result()
@@ -288,9 +306,10 @@ def record_foreign(app, window, screen, stage, captures, capture, settle, write_
                'status': screen.status_text(), 'destination': str(destination)})
     if result is None or not result.is_complete or result.n_fields != 2:
         raise RuntimeError('The actual two-field import did not complete')
-    capture('13_imported')
+    scenes.end('13_imported', screen._report)
+    scenes.begin('14_import_scope')
     show_report_end()
-    capture('14_import_scope')
+    scenes.end('14_import_scope', screen._report)
     db = Path(result.db_path)
     with sqlite3.connect(db.as_uri() + '?mode=ro', uri=True) as conn:
         names = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]

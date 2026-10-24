@@ -59,6 +59,8 @@ def schedule_picker(app, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from spacr.qt.widgets.sra_picker import SraPicker
+    from capture_ui_drv_a import Rec, modal_wait, pick_list_row, type_text
+    import capture_ui
 
     result = {}
 
@@ -68,6 +70,7 @@ def schedule_picker(app, captures, capture, settle, write_json, timeout):
             result['error'] = 'The actual archive picker did not open'
             return
         dialog = dialogs[0]
+        all_runs = Rec(capture, '02_archive_all_runs', settle).start()
         try:
             if not dialog._files:
                 raise RuntimeError(dialog._blurb.text())
@@ -75,23 +78,20 @@ def schedule_picker(app, captures, capture, settle, write_json, timeout):
             selected = [f for f in dialog._files if f.run == first_run]
             if len(selected) != 2 or {f.mate for f in selected} != {1, 2}:
                 raise RuntimeError('The first archive run does not have exactly two mates')
-            capture('02_archive_all_runs')
-            for row in range(dialog._list.count()):
-                item = dialog._list.item(row)
-                if item.data(Qt.UserRole).run != first_run and item.checkState() == Qt.Checked:
-                    dialog._list.scrollToItem(item)
-                    area = dialog._list.visualItemRect(item)
-                    QTest.mouseClick(dialog._list.viewport(), Qt.LeftButton,
-                                     pos=QPoint(area.left() + 10, area.center().y()))
-            dialog._reads.setFocus()
-            QTest.keyClick(dialog._reads, Qt.Key_A, Qt.ControlModifier)
-            QTest.keyClicks(dialog._reads, '10000')
-            QTest.keyClick(dialog._reads, Qt.Key_Tab)
-            if dialog.max_reads() != 10000 or dialog.chosen_files() != selected:
-                raise RuntimeError('The visible bounded archive choices were not retained')
-            dialog._list.scrollToTop()
-            settle()
-            capture('02_archive_bounded_choice')
+            # Host: the pointer rests on the list of runs, then unticks the
+            # other runs and types the read limit.
+            all_runs.point(dialog._list, dwell=2.0)
+            all_runs.stop()
+            with Rec(capture, '02_archive_bounded_choice', settle):
+                for row in range(dialog._list.count()):
+                    item = dialog._list.item(row)
+                    if item.data(Qt.UserRole).run != first_run and item.checkState() == Qt.Checked:
+                        pick_list_row(capture, dialog._list, row)
+                type_text(capture, dialog._reads, '10000')
+                if dialog.max_reads() != 10000 or dialog.chosen_files() != selected:
+                    raise RuntimeError('The visible bounded archive choices were not retained')
+                capture_ui.scroll_to_value(capture, dialog._list, 0)
+                settle()
             result.update(run=first_run, library=selected[0].library,
                           reads_per_file=10000, source_urls=[f.url for f in selected],
                           full_files_requested=False, estimate=dialog._estimate.text())
@@ -107,9 +107,11 @@ def schedule_picker(app, captures, capture, settle, write_json, timeout):
             result['paired_read_identities_match'] = True
         except Exception as error:
             result['error'] = str(error)
+            all_runs.abort()
             capture('02_archive_error')
             dialog.reject()
         write_json(captures / 'sequencing_download.json', result)
 
-    QTimer.singleShot(1200, choose)
+    # Host: the picker opens only once the pointer has clicked Load test data.
+    modal_wait(capture, 1200, choose)
     return result

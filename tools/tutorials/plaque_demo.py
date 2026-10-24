@@ -95,14 +95,22 @@ def prepare(stage):
         if areas != record['label_areas'] or len(areas) != record['expected_objects']:
             raise ValueError('The independently counted synthetic objects changed')
         references[name] = dict(areas=areas, summary=area_summary(areas))
-    if len(references) != 4 or sum(len(r['areas']) for r in references.values()) != 10:
-        raise ValueError('Expected exactly four teaching images and ten objects')
+    # The counts come from the manifest, which was itself checked object by object above, so the
+    # lesson can run on any four-field example (the synthetic one has ten objects, the real-well
+    # crops with v5 masks have their own total).
+    if len(references) != 4 or sum(len(r['areas']) for r in references.values()) != sum(
+            r['expected_objects'] for r in old['records']):
+        raise ValueError('Expected exactly four teaching images and the manifest object total')
     require_preserved(files)
     manifest = dict(source=str(source), root=str(root), files=files, references=references,
         synthetic=True, acquired_images=False, masks_precomputed=True,
         old_database_copied=False, calibration_available=False, biological_effect_claim=False)
     write(root/'manifest.json', manifest)
     return manifest
+
+
+#: the three tables the lesson checks, and the two per-object tables the analysis now also writes; any other table is refused
+OUTPUT_TABLES = {'summary', 'stats', 'details', 'per_image', 'per_plaque'}
 
 
 def _equal(got, wanted):
@@ -113,7 +121,7 @@ def _equal(got, wanted):
 
 def verify_tables(tables, reference):
     """Match exact identities, null calibration and independently counted pixel areas."""
-    if set(tables) != {'summary', 'stats', 'details'}:
+    if not {'summary', 'stats', 'details'} <= set(tables) or set(tables) - OUTPUT_TABLES:
         raise ValueError('Plaque output tables differ')
     checked = 0
     for name in ('summary', 'stats'):
@@ -143,7 +151,7 @@ def verify_database(path, reference):
     with sqlite3.connect(Path(path).resolve().as_uri()+'?mode=ro&immutable=1', uri=True) as db:
         db.row_factory = sqlite3.Row
         names = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-        if set(names) != {'summary', 'stats', 'details'}:
+        if not {'summary', 'stats', 'details'} <= set(names) or set(names) - OUTPUT_TABLES:
             raise ValueError('Unexpected actual plaque database tables')
         tables = {name: [dict(row) for row in db.execute('SELECT * FROM "'+name+'"')] for name in names}
     return verify_tables(tables, reference), tables

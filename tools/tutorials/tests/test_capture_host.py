@@ -1,0 +1,94 @@
+"""Pure parts of the headless GNOME capture host: pointer paths, refusals, sprites."""
+from pathlib import Path
+import math
+import sys
+
+import numpy as np
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import human_input  # noqa: E402
+from human_input import Human, min_jerk  # noqa: E402
+
+
+class FakeHost:
+    """Records warps instead of talking to mutter."""
+
+    def __init__(self, width=2560, height=1440):
+        self.width, self.height = width, height
+        self.pointer = (100.0, 100.0)
+        self.warps = []
+
+    def warp(self, x, y):
+        self.pointer = (float(x), float(y))
+        self.warps.append(self.pointer)
+
+
+def test_min_jerk_starts_and_stops_at_rest():
+    assert min_jerk(0.0) == 0.0 and min_jerk(1.0) == 1.0
+    eps = 1e-4
+    assert (min_jerk(eps) - min_jerk(0)) / eps < 1e-3          # zero start speed
+    assert (min_jerk(1) - min_jerk(1 - eps)) / eps < 1e-3      # zero end speed
+    samples = [min_jerk(i / 100) for i in range(101)]
+    assert all(b >= a for a, b in zip(samples, samples[1:]))  # never goes back
+
+
+@pytest.mark.parametrize('distance', [30, 300, 900, 2000])
+def test_durations_grow_with_distance_and_respect_the_bounds(distance):
+    human = Human(FakeHost())
+    seconds = human.duration_for(distance)
+    assert 0.25 <= seconds <= 3.6
+    assert human.duration_for(distance * 2) >= seconds * 0.9
+
+
+def steps_of(target, start=(100.0, 100.0)):
+    host = FakeHost()
+    host.pointer = start
+    Human(host, hz=60).move_to(*target)
+    assert host.warps[-1] == tuple(float(v) for v in target)
+    return host, [math.dist(a, b) for a, b in zip(host.warps, host.warps[1:])]
+
+
+def test_a_move_is_smooth_and_never_jumps():
+    host, steps = steps_of((1000, 500))          # ~1080 px
+    # Two 60 Hz steps make one 30 fps video frame: at most ~2 % of the width.
+    assert 2 * max(steps) <= Human.peak_per_frame * host.width * 1.1
+    # Smooth: no step more than twice its neighbours' mean during the glide.
+    middle = steps[2:-3]
+    assert all(s <= 2 * max(1.0, (a + b) / 2) for a, s, b in zip(middle, middle[1:], middle[2:]))
+
+
+def test_even_a_full_diagonal_stays_under_five_percent_per_frame():
+    host, steps = steps_of((2540, 1420), start=(10.0, 10.0))
+    assert 2 * max(steps) <= 0.05 * host.width
+
+
+def test_host_session_refuses_outside_the_private_host(monkeypatch):
+    monkeypatch.delenv('SPACR_CAPTURE_HOST', raising=False)
+    with pytest.raises(RuntimeError, match='gnome_capture_host'):
+        human_input.HostSession()
+
+
+def test_keysyms():
+    assert human_input._keysym('a') == ord('a')
+    assert human_input._keysym('\n') == 0xff0d
+    assert human_input._keysym('é') == 0xe9
+    assert human_input._keysym('→') == 0x01000000 + ord('→')
+
+
+def test_xcursor_reader_on_the_installed_theme():
+    measure = pytest.importorskip('measure_capture_host_proof')
+    path = Path('/usr/share/icons/Yaru/cursors/left_ptr')
+    if not path.exists():
+        pytest.skip('Yaru cursor theme not installed')
+    rgba, hotspot = measure.xcursor_image(path.resolve(), 32)
+    assert rgba.shape == (32, 32, 4) and rgba.dtype == np.uint8
+    assert 0 <= hotspot[0] < 32 and 0 <= hotspot[1] < 32
+    assert (rgba[..., 3] == 255).sum() > 20
+
+
+def test_a_glide_to_the_menu_bar_stays_under_the_gate_bound():
+    # The 2026-10-12 smoke: ~1760 px from mid-screen to the spaCR menu. With
+    # the old 1.5 s cap it peaked at ~73 px per 30 fps frame (2.9 %).
+    host, steps = steps_of((40, 15), start=(1587.0, 835.0))
+    assert 2 * max(steps) <= 0.03 * host.width

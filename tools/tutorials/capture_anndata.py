@@ -3,6 +3,8 @@ from pathlib import Path
 import sys
 import tempfile
 import time
+import capture_ui
+import capture_ui_drv_d as drv
 from capture_database import prepare_database_copy, require_unchanged_source, _digest
 from anndata_evidence import read_source, verify_file
 
@@ -60,8 +62,13 @@ def record_anndata(app, window, stage, captures, capture, settle, write_json, ti
         return w
 
     def set_value(key,value):
-        w=expose(key)
-        if isinstance(w,QComboBox):
+        if capture_ui.live(capture):
+            if not capture_ui.fill_setting(capture,screen,key,value):raise ValueError('No actual bound setting: '+key)
+            w=None
+        else:
+            w=expose(key)
+        if w is None:pass
+        elif isinstance(w,QComboBox):
             idx=w.findData(value)
             if idx<0:idx=w.findText(str(value))
             if idx<0:raise ValueError('Actual selector lacks '+str(value))
@@ -81,35 +88,48 @@ def record_anndata(app, window, stage, captures, capture, settle, write_json, ti
             raise ValueError(f'Visible setting {key}: {got!r} != {value!r}')
 
     def run(name,single,policy,expected_shape):
+        scene_settings=drv.begin(capture,settle,name+'_settings')
         set_value('anndata_single_table',single);set_value('anndata_nan_policy',policy)
         path=project/'results'/f'{name}.h5ad'
         if path.exists():raise FileExistsError(path)
-        set_value('anndata_out',str(path));capture(name+'_settings')
+        set_value('anndata_out',str(path))
+        capture_ui.point_at_settings(capture,screen,['anndata_single_table','anndata_nan_policy','anndata_out'],dwell=1.0)
+        drv.snap(capture,name+'_settings');drv.finish(capture,scene_settings)
         settings=screen._settings_model.collect()
         outcome=dict(finished=False,ok=False,errors=[]);lines=[]
         def reject_prompt():
             for box in app.topLevelWidgets():
                 if isinstance(box,QMessageBox) and box.isVisible():
-                    outcome['errors'].append(box.windowTitle()+': '+box.text());capture(name+'_prompt');box.reject()
+                    outcome['errors'].append(box.windowTitle()+': '+box.text())
+                    if not capture_ui.live(capture):capture(name+'_prompt')
+                    box.reject()
         timer=QTimer(window);timer.timeout.connect(reject_prompt);timer.start(300)
         try:
             if not screen._btn_run.isEnabled():raise ValueError('Run is disabled')
+            scene_running=drv.begin(capture,settle,name+'_running')
             QTest.mouseClick(screen._btn_run,Qt.LeftButton)
             worker=getattr(screen,'_worker',None)
             if worker is None:raise ValueError('Run did not start a worker')
             worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))
             worker.error.connect(lambda text:outcome['errors'].append(str(text)))
             worker.line_ready.connect(lambda text:lines.append(str(text)))
-            settle(.5);capture(name+'_running')
+            settle(.5);capture_ui.point_at(capture,screen._console)
+            drv.snap(capture,name+'_running');drv.finish(capture,scene_running)
             while not outcome['finished'] or screen._worker_thread_is_running():
                 tick();settle(.1)
             settle(1)
         finally:
             timer.stop();timer.deleteLater()
             write_json(Path(captures)/(name+'_worker.json'),dict(outcome=outcome,lines=lines,settings=settings))
-        for block,_,_ in screen._console._pipeline_console_blocks():
-            block.setFocus();QTest.keyClick(block,Qt.Key_End,Qt.ControlModifier)
-        screen._console.jump_to_the_end();settle(.3);capture(name+'_finished')
+        scene_finished=drv.begin(capture,settle,name+'_finished')
+        if capture_ui.live(capture):
+            capture_ui.console_end_all(capture,screen._console)
+        else:
+            for block,_,_ in screen._console._pipeline_console_blocks():
+                block.setFocus();QTest.keyClick(block,Qt.Key_End,Qt.ControlModifier)
+            screen._console.jump_to_the_end()
+        settle(.3);capture_ui.point_at(capture,screen._console)
+        drv.snap(capture,name+'_finished');drv.finish(capture,scene_finished)
         if not outcome['finished'] or not outcome['ok'] or outcome['errors']:
             raise ValueError('AnnData GUI export failed: '+str(outcome))
         if not path.is_file():raise ValueError('Successful worker wrote no requested file')
@@ -129,10 +149,13 @@ def record_anndata(app, window, stage, captures, capture, settle, write_json, ti
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='measure' or w.property('navKey')=='measure')]
         if not tiles:raise ValueError('No Home Measure route')
-        click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
-        host=window._screens['measure'];capture('01_measure_host')
-        folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='anndata_export']
-        if len(folds)!=1:raise ValueError('No unique Measure AnnData fold')
+        with capture_ui.clip(capture,'01_measure_host'):
+            click(max(tiles,key=lambda w:w.width()*w.height()));settle(.8)
+            host=window._screens['measure']
+            folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='anndata_export']
+            if len(folds)!=1:raise ValueError('No unique Measure AnnData fold')
+            capture_ui.point_at(capture,folds[0])
+        scene2=drv.begin(capture,settle,'02_current_anndata_form')
         click(folds[0]);settle(1)
         screens=[w for w in window.findChildren(AppScreen) if w.app_key=='anndata_export' and w.isVisible()]
         if len(screens)!=1:raise ValueError('Actual AnnData form did not open')
@@ -141,12 +164,14 @@ def record_anndata(app, window, stage, captures, capture, settle, write_json, ti
         end=start+QPoint(1950-handle.mapTo(window,start).x(),0)
         QTest.mousePress(handle,Qt.LeftButton,pos=start);QTest.mouseMove(handle,end,delay=150)
         QTest.mouseRelease(handle,Qt.LeftButton,pos=end);settle(.3)
-        capture('02_current_anndata_form')
-        set_value('src',str(project));capture('03_private_downloaded_project')
+        drv.snap(capture,'02_current_anndata_form');drv.finish(capture,scene2)
+        with capture_ui.clip(capture,'03_private_downloaded_project'):
+            set_value('src',str(project))
         for key,value in [('anndata_row_limit',0),('anndata_compute_umap',False),
                           ('anndata_dtype','float32'),('anndata_compression','gzip'),
                           ('anndata_register_artifact',True)]:
-            set_value(key,value);capture('04_setting_'+key)
+            with capture_ui.clip(capture,'04_setting_'+key):
+                set_value(key,value)
         proof['default_tables']=screen._settings_model.collect().get('anndata_tables')
         if proof['default_tables']!=['cell','cytoplasm','nucleus','pathogen','png_list']:
             raise ValueError('Unexpected requested default tables')

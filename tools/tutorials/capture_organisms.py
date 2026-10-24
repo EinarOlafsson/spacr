@@ -1,7 +1,12 @@
 """Record organism guides using the visible Home, diagram and assay controls."""
 from __future__ import annotations
 
+import capture_ui
+from capture_ui_drv_a import Rec, pick_list_row
+from capture_ui_drv_e import guarded
 
+
+@guarded
 def record_organism(app, window, stage, captures, capture, settle, write_json, key):
     """Capture a guide without installing external applications or starting analysis."""
     from PySide6.QtCore import QPoint, Qt
@@ -30,6 +35,9 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
 
     def open_guide():
         nonlocal initial_home_recorded
+        # Host: the 00_home clip starts on Home, before the pointer picks the tab,
+        # and ends after the tile click; Xvfb: the still before the tile click.
+        home_clip = None if initial_home_recorded else Rec(capture, '00_home', settle).start()
         home()
         tiles = [button for button in window._startup.findChildren(QAbstractButton)
                  if button.property('moduleAppKey') == key]
@@ -40,12 +48,19 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
                 QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
                                  pos=tabs.tabBar().tabRect(index).center())
                 settle(.4)
-                if not initial_home_recorded:
-                    capture('00_home')
-                    initial_home_recorded = True
-                click(max(choices, key=lambda tile: tile.width() * tile.height()))
+                tile = max(choices, key=lambda tile: tile.width() * tile.height())
+                if home_clip is not None:
+                    capture_ui.point_at(capture, tile, dwell=1.2)
+                    if not capture_ui.live(capture):
+                        home_clip.stop()
+                initial_home_recorded = True
+                click(tile)
+                if home_clip is not None and capture_ui.live(capture):
+                    home_clip.stop()
                 break
         else:
+            if home_clip is not None:
+                home_clip.abort()
             raise RuntimeError('The organism Home tile is absent')
         screen = window._screens.get(key)
         if screen is None or not screen.isVisible():
@@ -53,37 +68,44 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
         return screen
 
     screen = open_guide()
-    capture('01_organism')
     handle = screen._splitter.handle(1)
-    origin = handle.rect().center()
-    QTest.mousePress(handle, Qt.LeftButton, pos=origin)
-    QTest.mouseMove(handle, origin + QPoint(220, 0), delay=100)
-    QTest.mouseRelease(handle, Qt.LeftButton, pos=origin + QPoint(220, 0))
-    settle(.8)
+
+    def drag_divider():
+        origin = handle.rect().center()
+        QTest.mousePress(handle, Qt.LeftButton, pos=origin)
+        QTest.mouseMove(handle, origin + QPoint(220, 0), delay=100)
+        QTest.mouseRelease(handle, Qt.LeftButton, pos=origin + QPoint(220, 0))
+        settle(.8)
+
+    with capture_ui.clip(capture, '01_organism'):
+        # Host: the pointer reads the introduction, then drags the divider.
+        if capture_ui.live(capture):
+            capture_ui.point_at(capture, screen._intro, handle, dwell=1.5)
+            drag_divider()
+    if not capture_ui.live(capture):
+        drag_divider()
     diagram = screen._diagram
-    screen._scroll.ensureWidgetVisible(diagram)
-    settle(.5)
     selector = diagram.selector
     selected = []
-    for index in (0, 2):
-        item = selector.item(index)
-        selector.scrollToItem(item)
-        region = selector.visualItemRect(item)
-        QTest.mouseMove(selector.viewport(), region.center())
-        QTest.mouseClick(selector.viewport(), Qt.LeftButton,
-                         pos=QPoint(region.left() + 10, region.center().y()))
-        settle(.3)
-        if item.checkState() != Qt.Checked:
-            raise RuntimeError('The visible compartment checkbox did not select its component')
-        selected.append(item.text())
-    if len(diagram.artwork.selected) != 2:
-        raise RuntimeError('The diagram did not retain both selected components')
-    capture('02_diagram')
-    click(diagram.clear_button)
-    if diagram.artwork.selected:
-        raise RuntimeError('Clear components did not reset the diagram')
-    screen._module_scroll.verticalScrollBar().setValue(0)
-    capture('03_assays' if key == 'toxoplasma' else '03_modules')
+    with capture_ui.clip(capture, '02_diagram'):
+        capture_ui.scroll_to(capture, screen._scroll, diagram)
+        settle(.5)
+        for index in (0, 2):
+            item = selector.item(index)
+            pick_list_row(capture, selector, index)
+            settle(.3)
+            if item.checkState() != Qt.Checked:
+                raise RuntimeError('The visible compartment checkbox did not select its component')
+            selected.append(item.text())
+        if len(diagram.artwork.selected) != 2:
+            raise RuntimeError('The diagram did not retain both selected components')
+        capture_ui.point_at(capture, diagram.artwork, dwell=1.5)
+    with capture_ui.clip(capture, '03_assays' if key == 'toxoplasma' else '03_modules'):
+        click(diagram.clear_button)
+        if diagram.artwork.selected:
+            raise RuntimeError('Clear components did not reset the diagram')
+        capture_ui.scroll_to_value(capture, screen._module_scroll, 0)
+        capture_ui.point_at(capture, *[t for t in screen._tiles][:3], dwell=1.5)
     evidence = {'organism': key, 'home_tile_clicked': True,
                 'selected_components': selected, 'clear_components_verified': True,
                 'analysis_started': False, 'external_application_started': False,
@@ -92,27 +114,30 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
     if key == 'toxoplasma':
         tile = next(tile for tile in screen._tiles
                     if tile.property('organismModuleKey') == 'analyze_plaques')
-        screen._module_scroll.ensureWidgetVisible(tile)
-        settle(.4)
-        click(tile)
-        target = window._screens.get('analyze_plaques')
-        if target is None or not target.isVisible():
-            raise RuntimeError('The Plaque Assay tile did not open its module')
-        capture('04_plaque_assay')
+        with capture_ui.clip(capture, '04_plaque_assay'):
+            capture_ui.scroll_to(capture, screen._module_scroll, tile)
+            settle(.4)
+            click(tile)
+            target = window._screens.get('analyze_plaques')
+            if target is None or not target.isVisible():
+                raise RuntimeError('The Plaque Assay tile did not open its module')
+            capture_ui.point_at(capture, getattr(target, '_btn_run', None), dwell=1.5)
         evidence['plaque_assay_tile_clicked'] = True
-        screen = open_guide()
-        references = [label for label in screen._intro.findChildren(QLabel)
-                      if label.openExternalLinks() and 'toxodb.org' in label.text()]
-        if len(references) != 1:
-            raise RuntimeError('The ToxoDB organism reference link is absent')
-        external = [label for label in screen._intro.findChildren(QLabel)
-                    if label.openExternalLinks()]
-        screen._scroll.ensureWidgetVisible(external[-1])
-        settle(.4)
-        capture('05_references')
+        with capture_ui.clip(capture, '05_references'):
+            screen = open_guide()
+            references = [label for label in screen._intro.findChildren(QLabel)
+                          if label.openExternalLinks() and 'toxodb.org' in label.text()]
+            if len(references) != 1:
+                raise RuntimeError('The ToxoDB organism reference link is absent')
+            external = [label for label in screen._intro.findChildren(QLabel)
+                        if label.openExternalLinks()]
+            capture_ui.scroll_to(capture, screen._scroll, external[-1])
+            settle(.4)
+            capture_ui.point_at(capture, external[-1], dwell=1.5)
         evidence['reference_links_shown'] = True
-        home()
-        capture('06_home_return')
+        with capture_ui.clip(capture, '06_home_return'):
+            home()
+            capture_ui.wait(capture, 1.5, settle)
     else:
         if any(tile.isEnabled() for tile in screen._tiles):
             raise RuntimeError('The narration expects planned, disabled assay tiles')
@@ -120,8 +145,9 @@ def record_organism(app, window, stage, captures, capture, settle, write_json, k
         external = [label for label in labels if label.openExternalLinks()]
         if not external:
             raise RuntimeError('The organism reference links are absent')
-        screen._scroll.ensureWidgetVisible(external[-1])
-        settle(.5)
-        capture('04_references')
+        with capture_ui.clip(capture, '04_references'):
+            capture_ui.scroll_to(capture, screen._scroll, external[-1])
+            settle(.5)
+            capture_ui.point_at(capture, external[-1], dwell=1.5)
         evidence['reference_links'] = [label.text() for label in external]
     write_json(captures / 'organism_navigation.json', evidence)

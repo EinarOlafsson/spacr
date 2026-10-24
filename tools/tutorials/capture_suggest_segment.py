@@ -135,7 +135,7 @@ def main():
             active['clicked'] = True
             QTest.mouseClick(screen._btn_suggest_cancel, Qt.LeftButton)
 
-    observer = QTimer()
+    observer = QTimer(window)
     observer.timeout.connect(observe)
     observer.start(5)
     errors = []
@@ -216,6 +216,7 @@ def main():
         write_json(captures / 'receipt.json', receipt)
     finally:
         observer.stop()
+        observer.deleteLater()
         screen.close()
         window.close()
         settle(.2)

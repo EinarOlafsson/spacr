@@ -8,6 +8,8 @@ import time
 from build_evaluation_example import sha
 from run_compare_example import SOURCES,read_identity,require_same_identity
 from stage_lesson import read
+import capture_ui
+import capture_ui_drv_d as drv
 
 
 def record(app,window,stage,captures,capture,settle,write_json,timeout):
@@ -29,34 +31,44 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
     tabs=window._startup._tabs
     data=[i for i in range(tabs.count()) if tabs.tabText(i).split(' (',1)[0].strip().lower()=='data']
     if len(data)!=1:raise ValueError('The real Home Data category is absent')
-    QTest.mouseClick(tabs.tabBar(),Qt.LeftButton,pos=tabs.tabBar().tabRect(data[0]).center());settle(.4)
-    capture('01_home_data')
+    with capture_ui.clip(capture,'01_home_data'):
+        capture_ui.select_tab(capture,tabs,data[0]);settle(.4)
+        capture_ui.point_at(capture,tabs.tabBar())
     buttons=[b for b in window.findChildren(QAbstractButton) if b.isVisible() and
         (b.property('moduleAppKey')=='run_compare' or b.property('navKey')=='run_compare')]
     if not buttons:raise ValueError('The actual Run Compare Home tile is absent')
-    click(max(buttons,key=lambda b:b.width()*b.height()))
-    screen=window._screens['run_compare'];capture('02_actual_empty_compare')
+    with capture_ui.clip(capture,'02_actual_empty_compare'):
+        click(max(buttons,key=lambda b:b.width()*b.height()))
+        screen=window._screens['run_compare']
+        capture_ui.point_at(capture,screen._browse_button)
     accepted=[];errors=[]
     def pick():
         dialog=app.activeModalWidget()
         try:
             if not isinstance(dialog,QFileDialog):raise ValueError('The real directory picker did not open')
-            dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
+            dialog.accepted.connect(lambda:accepted.append(True));capture_ui.dialog_geometry(capture,dialog,(1500,1000))
             field=dialog.findChild(QLineEdit,'fileNameEdit');field.setFocus()
             QTest.keyClick(field,Qt.Key_A,Qt.ControlModifier);QTest.keyClicks(field,str(root));settle(.2)
-            capture('03_actual_snapshot_project_picker')
+            drv.snap(capture,'03_actual_snapshot_project_picker')
+            capture_ui.wait(capture,1.5,settle)
             click(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
         except Exception as error:
             errors.append(str(error))
             if dialog is not None:dialog.reject()
     timer=QTimer(window);timer.setSingleShot(True)
     timer.timeout.connect(lambda:app.activeModalWidget().reject() if app.activeModalWidget() else None)
-    QTimer.singleShot(300,pick);timer.start(15000);click(screen._browse_button);timer.stop()
+    picker_clip=drv.begin(capture,settle,'03_actual_snapshot_project_picker')
+    capture_ui.when_modal(capture,300,pick);timer.start(15000);click(screen._browse_button);timer.stop()
+    drv.finish(capture,picker_clip)
     if errors or not accepted or screen._project_edit.text()!=str(root):
         raise ValueError('Native project selection failed: '+str(errors))
+    until=time.monotonic()+60
+    while {r.run_id for r in screen.runs()}!={r for _,r in SOURCES} and time.monotonic()<until:
+        settle(.2)
     if {r.run_id for r in screen.runs()}!={r for _,r in SOURCES}:
-        raise ValueError('The two actual historical run IDs were not loaded')
-    capture('04_two_actual_runs_no_setting_change')
+        raise ValueError('The two actual historical run IDs were not loaded (found %r, busy=%s)'%(sorted(r.run_id for r in screen.runs()),screen.is_busy()))
+    with capture_ui.clip(capture,'04_two_actual_runs_no_setting_change'):
+        capture_ui.point_at(capture,screen._project_edit,screen._a_combo,screen._b_combo)
     def choose(combo,run):
         index=combo.findData(run)
         if index<0:raise ValueError('A real run is missing from the dropdown')
@@ -64,6 +76,7 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
         for _ in range(index):QTest.keyClick(view,Qt.Key_Down)
         QTest.keyClick(view,Qt.Key_Return);settle(.2)
         if combo.currentData()!=run:raise ValueError('The actual run dropdown selected the wrong item')
+    scene5=drv.begin(capture,settle,'05_actual_unchanged_settings')
     choose(screen._a_combo,SOURCES[0][1]);choose(screen._b_combo,SOURCES[1][1]);click(screen._compare_button)
     comparison=screen._comparison
     expected=dict(prepared['counts'],plates=1,wells=4,fields=16)
@@ -82,9 +95,11 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
     click(screen._show_all);screen._settings_tree.expandAll();settle(.4)
     if not screen._comparison.settings.include_same or not screen._comparison.settings.identical:
         raise ValueError('Show unchanged settings did not retain an identical comparison')
-    capture('05_actual_unchanged_settings')
+    drv.hover_rows(capture,screen._settings_tree,3)
+    drv.snap(capture,'05_actual_unchanged_settings');drv.finish(capture,scene5)
     tabbar=screen._tabs.tabBar()
-    QTest.mouseClick(tabbar,Qt.LeftButton,pos=tabbar.tabRect(1).center());settle(.3)
+    scene6=drv.begin(capture,settle,'06_actual_equal_object_counts')
+    capture_ui.select_tab(capture,screen._tabs,1);settle(.3)
     tree=screen._counts_tree;visible={}
     for i in range(tree.topLevelItemCount()):
         group=tree.topLevelItem(i)
@@ -93,20 +108,25 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
             row=group.child(j);visible[(scope,row.text(0))]=tuple(row.text(k) for k in range(1,5))
     wanted_text={key:(str(a),str(b),'+0','+0.0%') for key,(a,b) in wanted.items()}
     if visible!=wanted_text:raise ValueError('The rendered count table differs from independent expected cells')
-    capture('06_actual_equal_object_counts')
-    QTest.mouseClick(tabbar,Qt.LeftButton,pos=tabbar.tabRect(2).center());settle(.3)
+    drv.hover_rows(capture,tree,4)
+    drv.snap(capture,'06_actual_equal_object_counts');drv.finish(capture,scene6)
+    scene7=drv.begin(capture,settle,'07_actual_no_hit_list')
+    capture_ui.select_tab(capture,screen._tabs,2);settle(.3)
     if screen._hits_tree.topLevelItemCount()!=1 or 'no regression results' not in screen._hits_tree.topLevelItem(0).text(0):
         raise ValueError('The actual Hits tab does not disclose missing regression results')
-    capture('07_actual_no_hit_list')
-    choose(screen._b_combo,SOURCES[0][1]);settle(.2)
-    if not any(f.code=='same-run' for f in screen._comparison.comparability.findings):
-        raise ValueError('Selecting the same real run did not produce its warning')
-    capture('08_actual_same_run_warning')
-    choose(screen._b_combo,SOURCES[1][1]);click(screen._compare_button)
-    QTest.mouseClick(tabbar,Qt.LeftButton,pos=tabbar.tabRect(1).center());settle(.3)
-    if any(f.code=='same-run' for f in screen._comparison.comparability.findings):
-        raise ValueError('The warning did not clear after restoring distinct runs')
-    capture('09_actual_distinct_runs_restored')
+    drv.hover_rows(capture,screen._hits_tree,1)
+    drv.snap(capture,'07_actual_no_hit_list');drv.finish(capture,scene7)
+    with capture_ui.clip(capture,'08_actual_same_run_warning'):
+        choose(screen._b_combo,SOURCES[0][1]);settle(.2)
+        if not any(f.code=='same-run' for f in screen._comparison.comparability.findings):
+            raise ValueError('Selecting the same real run did not produce its warning')
+        capture_ui.point_at(capture,screen._b_combo)
+    with capture_ui.clip(capture,'09_actual_distinct_runs_restored'):
+        choose(screen._b_combo,SOURCES[1][1]);click(screen._compare_button)
+        capture_ui.select_tab(capture,screen._tabs,1);settle(.3)
+        if any(f.code=='same-run' for f in screen._comparison.comparability.findings):
+            raise ValueError('The warning did not clear after restoring distinct runs')
+        drv.hover_rows(capture,screen._counts_tree,3)
     if any(sha(path)!=digest for path,digest in {**before,**prepared['source_hashes']}.items()):
         raise ValueError('Comparison changed an original database or snapshot')
     with closing(sqlite3.connect((root/'artifacts.db').as_uri()+'?mode=ro',uri=True)) as con:

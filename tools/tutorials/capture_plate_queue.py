@@ -16,6 +16,9 @@ import shutil
 import sqlite3
 import tempfile
 import time
+from contextlib import nullcontext
+
+import capture_ui
 
 
 def digest(path):
@@ -99,6 +102,7 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
     from spacr.qt.plate_queue import PlateQueue
     from recruitment_evidence import inspect_results
 
+    host = capture_ui.live(capture)
     deadline = time.monotonic() + timeout
     proof = {'lesson': '30_plate_queue', 'accepted': False, 'published': False,
              'pipeline_replaced': False, 'app_source_modified': False,
@@ -131,15 +135,18 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         return [(item.id, item.app_key, item.settings['src'], item.status.value)
                 for item in queue.queue().items()]
 
-    def record(name):
-        expected = state()
-        # Wait for the real queued signal to update the displayed table.
-        def visible_state():
-            return [tuple(queue._table.item(row, col).text() for col in (0, 1, 2, 3))
-                    for row in range(queue._table.rowCount())]
-        wait_for(lambda: [tuple(row) for row in visible_state()] == expected)
-        proof.setdefault('states', {})[name] = expected
-        capture(name)
+    def record(name, action=None):
+        """The scene clip: ``action`` (the user's clicks) runs inside it, then the table is checked."""
+        with capture_ui.clip(capture, name):
+            if action is not None:
+                action()
+            expected = state()
+            # Wait for the real queued signal to update the displayed table.
+            def visible_state():
+                return [tuple(queue._table.item(row, col).text() for col in (0, 1, 2, 3))
+                        for row in range(queue._table.rowCount())]
+            wait_for(lambda: [tuple(row) for row in visible_state()] == expected)
+            proof.setdefault('states', {})[name] = expected
 
     def open_queue():
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
@@ -147,13 +154,15 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'plate queue']
         if len(choices) != 1:
             raise ValueError('No unique current Help -> Plate queue route')
-        QTest.mouseClick(window.menuBar(), Qt.LeftButton,
-                         pos=window.menuBar().actionGeometry(action).center())
-        settle(.2)
-        capture('01_help_queue')
-        QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
-        wait_for(lambda: window._screens.get('queue') is not None)
-        settle(.7)
+        with (capture_ui.clip(capture, '01_help_queue') if host else nullcontext()):
+            QTest.mouseClick(window.menuBar(), Qt.LeftButton,
+                             pos=window.menuBar().actionGeometry(action).center())
+            settle(.2)
+            if not host:
+                capture('01_help_queue')
+            QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
+            wait_for(lambda: window._screens.get('queue') is not None)
+            settle(.7)
         return window._screens['queue']
 
     def drop(project):
@@ -169,9 +178,24 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         if not event.isAccepted():
             raise ValueError('The actual queue drop event was refused')
 
-    def configure_current():
-        """Import the first replay's actual settings through the real picker."""
-        window._on_nav_selected('recruitment')
+    def configure_current(index=0):
+        """Import a replay's actual settings through the real picker."""
+        scene_name = '00a_import_recruitment_settings' if (host and index == 0) else None
+        with (capture_ui.clip(capture, scene_name) if scene_name else nullcontext()):
+            screen = import_settings(index)
+        actual = screen._settings_model.collect()
+        changes = {key: (value, actual.get(key)) for key, value in
+                   inputs['projects'][index]['settings'].items() if actual.get(key) != value}
+        proof['settings_import_differences'] = changes
+        if changes:
+            raise ValueError(f'The actual settings import changed requested values: {changes}')
+        inputs['projects'][index]['settings'] = actual
+        if index == 0:
+            with capture_ui.clip(capture, '00b_current_recruitment_settings'):
+                capture_ui.point_at(capture, screen._settings_model._widgets.get('src'), dwell=1.5)
+
+    def import_settings(index):
+        capture_ui.open_module(capture, window, 'recruitment', settle)
         wait_for(lambda: window._screens.get('recruitment') is not None)
         settle(.7)
         screen = window._screens['recruitment']
@@ -189,8 +213,9 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                 click(edit)
                 QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
-                QTest.keyClicks(edit, inputs['projects'][0]['settings_csv'])
-                capture('00a_import_recruitment_settings')
+                QTest.keyClicks(edit, inputs['projects'][index]['settings_csv'])
+                if not host:
+                    capture('00a_import_recruitment_settings')
                 click(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
             except Exception as error:
                 errors.append(str(error))
@@ -203,27 +228,18 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
             if dialog is not None:
                 dialog.reject()
 
-        timer.timeout.connect(handle)
         watchdog.timeout.connect(stalled)
-        timer.start(400)
-        watchdog.start(15000)
+        watchdog.start(90000 if host else 15000)
+        capture_ui.when_modal(capture, 400, handle)
         try:
             click(screen._btn_import)
         finally:
-            timer.stop()
             watchdog.stop()
             timer.deleteLater()
             watchdog.deleteLater()
         if errors or not accepted:
             raise ValueError('; '.join(errors) or 'Settings picker not accepted')
-        actual = screen._settings_model.collect()
-        changes = {key: (value, actual.get(key)) for key, value in
-                   inputs['projects'][0]['settings'].items() if actual.get(key) != value}
-        proof['settings_import_differences'] = changes
-        if changes:
-            raise ValueError(f'The actual settings import changed requested values: {changes}')
-        inputs['projects'][0]['settings'] = actual
-        capture('00b_current_recruitment_settings')
+        return screen
 
     try:
         configure_current()
@@ -246,46 +262,58 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
                                     if w.isVisible()]
         record('02_empty_queue')
         for number, project in enumerate(inputs['projects'], 1):
-            if number == 1:
-                click(queue._btn_add)
-            else:
-                drop(project['project'])
-            wait_for(lambda: len(queue.queue()) == number)
-            item = queue.queue().items()[-1]
-            if item.app_key != 'recruitment' or item.settings != project['settings']:
-                raise ValueError('The dropped snapshot changed its module or settings')
-            # Pin legibility of identifiers, module and complete status words.
-            from PySide6.QtGui import QFontMetrics
-            metrics = QFontMetrics(queue._table.font())
-            for col, text in ((0, item.id), (1, item.app_key), (3, 'success')):
-                if metrics.horizontalAdvance(text) + 20 > header.sectionSize(col):
-                    raise ValueError('The actual queue identity or status column is too narrow')
-            record(f'03_added_replay_{number}')
+            def add(number=number, project=project):
+                if number == 1:
+                    click(queue._btn_add)
+                elif host:
+                    # Import the second replay's settings in Recruitment, return, Add.
+                    configure_current(1)
+                    capture_ui.open_module(capture, window, 'queue', settle)
+                    wait_for(lambda: queue.isVisible())
+                    click(queue._btn_add)
+                else:
+                    drop(project['project'])
+                wait_for(lambda: len(queue.queue()) == number)
+                item = queue.queue().items()[-1]
+                if item.app_key != 'recruitment' or item.settings != project['settings']:
+                    raise ValueError('The dropped snapshot changed its module or settings')
+                # Pin legibility of identifiers, module and complete status words.
+                from PySide6.QtGui import QFontMetrics
+                metrics = QFontMetrics(queue._table.font())
+                for col, text in ((0, item.id), (1, item.app_key), (3, 'success')):
+                    if metrics.horizontalAdvance(text) + 20 > header.sectionSize(col):
+                        raise ValueError('The actual queue identity or status column is too narrow')
+            record(f'03_added_replay_{number}', add)
         expected = state()
         if [(i.id, i.app_key, i.settings['src'], i.status.value)
                 for i in PlateQueue(path=actual)] != expected:
             raise ValueError('The actual persisted queue did not reload both items')
         proof['persistence_before_run'] = True
-        click(queue._btn_run)
-        wait_for(lambda: any(i.status.value == 'running' for i in queue.queue()))
-        record('04_first_job_running')
-        click(queue._btn_stop)
-        record('05_stop_requested')
-        wait_for(lambda: queue._runner is None or not queue._runner.isRunning())
-        settle(.4)
-        if [i.status.value for i in queue.queue()] != ['success', 'queued']:
-            raise ValueError('Stop did not finish the current item and preserve the next queued item')
-        record('06_stopped_between_jobs')
+
+        def run_first():
+            click(queue._btn_run)
+            wait_for(lambda: any(i.status.value == 'running' for i in queue.queue()))
+        record('04_first_job_running', run_first)
+        record('05_stop_requested', lambda: click(queue._btn_stop))
+
+        def stopped():
+            wait_for(lambda: queue._runner is None or not queue._runner.isRunning())
+            settle(.4)
+            if [i.status.value for i in queue.queue()] != ['success', 'queued']:
+                raise ValueError('Stop did not finish the current item and preserve the next queued item')
+        record('06_stopped_between_jobs', stopped)
         first = queue.queue().items()[0]
         first_times = (first.start_ts, first.end_ts)
-        click(queue._btn_run)
-        wait_for(lambda: queue._runner is None or not queue._runner.isRunning())
-        settle(.4)
-        if [i.status.value for i in queue.queue()] != ['success', 'success']:
-            raise ValueError('Both real queue jobs did not finish successfully')
-        if (first.start_ts, first.end_ts) != first_times:
-            raise ValueError('Resuming repeated the already completed job')
-        record('07_both_jobs_finished')
+
+        def resume():
+            click(queue._btn_run)
+            wait_for(lambda: queue._runner is None or not queue._runner.isRunning())
+            settle(.4)
+            if [i.status.value for i in queue.queue()] != ['success', 'success']:
+                raise ValueError('Both real queue jobs did not finish successfully')
+            if (first.start_ts, first.end_ts) != first_times:
+                raise ValueError('Resuming repeated the already completed job')
+        record('07_both_jobs_finished', resume)
         proof['outputs'] = []
         for project in inputs['projects']:
             checked = inspect_results(Path(project['project']), project['settings'])
@@ -301,10 +329,11 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         proof['first_job_not_repeated'] = True
         # These are disposable replay queue records only, not source data.
         # Preserve their JSON evidence before exercising Clear finished.
-        click(queue._btn_clear)
-        if len(queue.queue()) or len(PlateQueue(path=actual)):
-            raise ValueError('Clear finished did not remove the private completed records')
-        record('08_finished_records_cleared')
+        def clear():
+            click(queue._btn_clear)
+            if len(queue.queue()) or len(PlateQueue(path=actual)):
+                raise ValueError('Clear finished did not remove the private completed records')
+        record('08_finished_records_cleared', clear)
         if any(not Path(item['project']).exists() for item in inputs['projects']):
             raise ValueError('Clear finished removed a replay project')
         proof['accepted'] = True

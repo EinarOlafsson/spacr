@@ -9,6 +9,8 @@ from pathlib import Path
 import shutil
 import tempfile
 import time
+import capture_ui
+from capture_ui_drv_c import Scenes
 from capture_database import _digest
 
 
@@ -35,6 +37,17 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
         if not export_picker_only or name == '08_export_unreviewed_markdown_picker':
             native_capture(name, **kwargs)
             recorded_frames.append(name)
+
+    def _begin(name):
+        if export_picker_only and name != '08_export_unreviewed_markdown_picker':
+            return False
+        recorded_frames.append(name)
+        return native_capture.begin(name)
+
+    capture.begin = _begin
+    capture.end = lambda: native_capture.end()
+    capture.host = getattr(native_capture, 'host', None)
+    scenes = Scenes(capture, settle)
 
     stage = Path(stage)
     sources = dict(project=stage/'regression_runs/example-9wut6lcv',
@@ -74,19 +87,21 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
         QTest.keyClick(widget, Qt.Key_Tab); settle(.2)
 
     def tab(index):
-        bar=screen._tabs.tabBar()
-        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(index).center()); settle(.4)
+        capture_ui.select_tab(capture, screen._tabs, index); settle(.4)
         if screen._tabs.currentIndex()!=index: raise ValueError('Native Methods tab did not change')
 
     try:
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')=='regression' or w.property('navKey')=='regression')]
         if not tiles: raise ValueError('No real Regression tile')
+        scenes.begin('01_regression_methods_host')
         click(max(tiles,key=lambda w:w.width()*w.height())); settle(.8)
         host=window._screens['regression']
         folds=[w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key=='methods_export']
         if len(folds)!=1: raise ValueError('No unique Methods fold')
-        capture('01_regression_methods_host'); click(folds[0]); settle(.8)
+        scenes.end('01_regression_methods_host', host)
+        scenes.begin('02_real_project_journal_and_result_sources')
+        click(folds[0]); settle(.8)
         found=[w for w in app.allWidgets() if isinstance(w,MethodsExportScreen) and w.isVisible()]
         if len(found)!=1: raise ValueError('No actual visible Methods screen')
         screen=found[0]
@@ -94,7 +109,8 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
                    results=work/'project/results/guide_permutation',model='')
         for key,path in paths.items(): fill(screen._fields[key],path)
         if screen.sources()!={k:str(v) for k,v in paths.items()}: raise ValueError('Wrong entered sources')
-        capture('02_real_project_journal_and_result_sources',desktop=True)
+        scenes.end('02_real_project_journal_and_result_sources', screen._fields['project'], screen._fields['results'], desktop=True)
+        scenes.begin('03_actual_deterministic_methods')
         click(screen._build_button)
         while screen.is_busy() or screen.active_jobs():
             if time.monotonic()>deadline: raise TimeoutError('Methods digest worker did not finish')
@@ -103,14 +119,18 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
         proof['digest']=screen.digest(); proof['methods']=screen._methods_view.toPlainText()
         proof['results']=screen._results_view.toPlainText(); proof['caveats']=screen._caveats_view.toPlainText()
         proof['status']=screen._provenance.text()
-        capture('03_actual_deterministic_methods',desktop=True)
-        tab(2); capture('04_actual_seed_caveat',desktop=True)
-        tab(3); capture('05_digest_run_record',desktop=True)
-        tab(1); capture('06_zero_significant_genes_and_ranked_candidates',desktop=True)
+        scenes.end('03_actual_deterministic_methods', screen._methods_view, desktop=True)
+        scenes.begin('04_actual_seed_caveat')
+        tab(2); scenes.end('04_actual_seed_caveat', screen._caveats_view, desktop=True)
+        scenes.begin('05_digest_run_record')
+        tab(3); scenes.end('05_digest_run_record', screen._tabs, desktop=True)
+        scenes.begin('06_zero_significant_genes_and_ranked_candidates')
+        tab(1); scenes.end('06_zero_significant_genes_and_ranked_candidates', screen._results_view, desktop=True)
+        scenes.begin('07_copy_sections_is_not_scientific_approval')
         click(screen._copy_button)
         proof['clipboard_matches_visible_sections']=app.clipboard().text()==screen.text()
         if not proof['clipboard_matches_visible_sections']: raise ValueError('Copied sections differ')
-        capture('07_copy_sections_is_not_scientific_approval',desktop=True)
+        scenes.end('07_copy_sections_is_not_scientific_approval', screen._copy_button, desktop=True)
         actual=proof['digest']['run'].get('seed')
         proof['resolved_seed']=actual; proof['seed_matches_run']=actual==declared
         if review_export:
@@ -125,12 +145,13 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
                     if not isinstance(dialog, QFileDialog):
                         raise ValueError('Expected the genuine native export picker')
                     fill(dialog.findChild(QLineEdit, 'fileNameEdit'), target)
-                    capture('08_export_unreviewed_markdown_picker', desktop=True)
+                    scenes.end('08_export_unreviewed_markdown_picker', dialog, desktop=True)
+                    scenes.begin('09_actual_export_completed_not_approved')
                     box = dialog.findChild(QDialogButtonBox)
                     buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
                     if len(buttons) != 1:
                         raise ValueError('No unique visible Save action')
-                    click(buttons[0]); chosen.append(str(target))
+                    capture_ui.accept_file_dialog(capture, dialog, buttons[0]); chosen.append(str(target))
                 except Exception as exc:
                     failures.append(str(exc))
                     if dialog is not None: dialog.reject()
@@ -140,14 +161,16 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
                 dialog = app.activeModalWidget()
                 if dialog is not None: dialog.reject()
             watch.timeout.connect(expired)
-            QTimer.singleShot(400, choose_export); watch.start(15000)
+            capture_ui.when_modal(capture, 400, choose_export)
+            watch.start(120000 if capture_ui.live(capture) else 15000)
+            scenes.begin('08_export_unreviewed_markdown_picker')
             click(screen._export_button); watch.stop(); settle(.5)
             if failures or chosen != [str(target)] or not target.is_file():
                 raise ValueError(f'Actual export did not finish: {failures}')
             proof['review'] = inspect_review(proof, target)
             proof['original_draft_scientifically_approved'] = False
             proof['scope'] = 'Recorded review and unchanged export, NOT a scientifically approved manuscript'
-            capture('09_actual_export_completed_not_approved', desktop=True)
+            scenes.end('09_actual_export_completed_not_approved', screen._export_button, desktop=True)
         else:
             check_recorded_seed(declared, proof['digest'], proof['methods'])
         proof['accepted']=True

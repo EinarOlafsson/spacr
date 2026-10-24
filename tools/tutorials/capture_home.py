@@ -461,66 +461,6 @@ def _open_preferences_tab(window, settle, object_name, height=1200):
     return dialog, page
 
 
-def record_spaceout_effects(window, capture, settle):
-    """Capture all eight actual Spaceout switches and their reversible Apply path."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QDialogButtonBox, QScrollArea, QWidget
-    from spacr.qt import preferences
-    from spacr.qt.widgets.section import Section
-
-    names = {"attractors": "SpaceoutFieldAttractors", "relaxation": "SpaceoutFieldRelaxation",
-             "elastic_release": "SpaceoutFieldElasticRelease", "vortex": "SpaceoutFieldVortex",
-             "density_pulses": "SpaceoutFieldDensityPulses", "density_waves": "SpaceoutFieldDensityWaves",
-             "color_waves": "SpaceoutFieldColorWaves", "spirals": "SpaceoutFieldSpirals"}
-    dialog, page = _open_preferences_tab(window, settle, "PreferencesTabAppearance", 1500)
-    proof = {"saved_defaults": preferences._spaceout_field_effects(), "independent_controls": {}}
-    try:
-        sections = {section.title().casefold(): section for section in page.findChildren(Section)}
-        section = sections["spacr field"]
-        QTest.mouseClick(section.header(), Qt.LeftButton)
-        settle(.5)
-        if not section.is_expanded():
-            raise RuntimeError("The Spaceout field section did not open through its header")
-        scroll = page.parentWidget()
-        while scroll is not None and not isinstance(scroll, QScrollArea):
-            scroll = scroll.parentWidget()
-        scroll.ensureWidgetVisible(section.header(), 0, 0)
-        settle(.5)
-        controls = {key: dialog.findChild(QWidget, name) for key, name in names.items()}
-        for key, control in controls.items():
-            if control is None or not control.isVisible() or not control.isChecked():
-                raise RuntimeError(f"The default Spaceout effect is not visible and on: {key}")
-            viewport = scroll.viewport()
-            if not viewport.rect().contains(control.mapTo(viewport, control.rect().bottomRight())):
-                raise RuntimeError(f"Spaceout effect leaves the actual viewport: {key}")
-        capture("02_spaceout_field_effects")
-        for key, control in controls.items():
-            QTest.mouseClick(control, Qt.LeftButton)
-            if control.isChecked() or any(not other.isChecked()
-                                         for other_key, other in controls.items() if other_key != key):
-                raise RuntimeError(f"Spaceout effect control is not independent: {key}")
-            proof["independent_controls"][key] = {"off": True, "other_seven_unchanged": True}
-            QTest.mouseClick(control, Qt.LeftButton)
-        QTest.mouseClick(controls["vortex"], Qt.LeftButton)
-        dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Apply).click()
-        settle(.6)
-        question = dialog._apply_confirmation
-        if question is None or not question.isVisible() or preferences._spaceout_field_effects()["vortex"]:
-            raise RuntimeError("Spaceout Vortices edit was not previewed through real Apply")
-        capture("03_spaceout_effect_apply_revert")
-        next(button for button in question.buttons() if button.text() == "Revert").click()
-        settle(.5)
-        if preferences._spaceout_field_effects() != proof["saved_defaults"] or not dialog.isVisible():
-            raise RuntimeError("Spaceout Revert failed to restore the exact eight-effect state")
-        proof["apply_revert_verified"] = True
-        proof["published"] = False
-        proof["scope"] = "Current Spaceout companion; ordinary Home lesson stays alpha-off"
-        return proof
-    finally:
-        dialog.reject()
-        dialog.deleteLater()
-        settle()
 
 
 def record_session_and_updates(window, capture, settle, name="13e_session_updates"):
@@ -678,3 +618,92 @@ def record_storage(window, capture, settle):
         dialog.deleteLater()
         settle()
     return proof
+
+
+def record_preferences_open_close(app, window, capture, settle, name="13_preferences_open_close"):
+    """Open Preferences the way a user does (spaCR menu -> Preferences...), look, then Cancel.
+
+    The dialog is the one the menu opens, run by the application itself
+    (``MainWindow.show_preferences_on`` -> ``exec()``), not one built here.
+    Its ``exec()`` starts inside the click on the menu item, so the steps
+    inside the dialog run from the dialog's own event loop: they are queued
+    when the dialog is shown and finish by pressing its Cancel button, which
+    ends ``exec()`` and returns control to the clicking action.
+    """
+    from PySide6.QtCore import QEvent, QObject, Qt, QTimer
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QMenu, QTabWidget)
+
+    bar = window.menuBar()
+    titles = [a.text().replace("&", "") for a in bar.actions()]
+    menu_action = next((a for a in bar.actions() if a.text().replace("&", "") == "spaCR"), None) or next(
+        (a for a in bar.actions() if "spaCR" in a.text().replace("&", "")), None)
+    if menu_action is None:
+        raise RuntimeError(f"No spaCR menu in the menu bar: {titles}")
+    done = {}
+
+    def preferences_dialog():
+        return next((w for w in QApplication.topLevelWidgets()
+                     if isinstance(w, QDialog) and w.isVisible()
+                     and w.findChild(QTabWidget, "PreferencesTabs")), None)
+
+    def inside_dialog():
+        dialog = preferences_dialog()
+        try:
+            if dialog is None:
+                raise RuntimeError("Preferences did not open from the spaCR menu")
+            done["opened"] = {"title": dialog.windowTitle(),
+                              "translucent": dialog.testAttribute(Qt.WA_TranslucentBackground),
+                              "frameless": bool(dialog.windowFlags() & Qt.FramelessWindowHint)}
+            settle(1.4)
+            tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+            bar_widget = tabs.tabBar()
+            # Look along the categories, as a reader does, without changing any.
+            for index in (min(2, tabs.count() - 1), min(5, tabs.count() - 1)):
+                QTest.mouseMove(bar_widget, bar_widget.tabRect(index).center())
+                settle(0.7)
+            cancel = next(b for b in dialog.findChildren(QAbstractButton)
+                          if b.isVisible() and b.text().replace("&", "").lower() == "cancel")
+            QTest.mouseClick(cancel, Qt.LeftButton)
+        except BaseException as error:              # noqa: BLE001 - re-raised after exec()
+            done["error"] = error
+            if dialog is not None:
+                dialog.reject()
+
+    class _OnShow(QObject):
+        def eventFilter(self, watched, event):
+            if (event.type() == QEvent.Show and isinstance(watched, QDialog)
+                    and watched.findChild(QTabWidget, "PreferencesTabs") and "queued" not in done):
+                done["queued"] = True
+                QTimer.singleShot(0, inside_dialog)
+            return False
+
+    watcher = _OnShow()
+
+    def open_menu():
+        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.actionGeometry(menu_action).center())
+        settle(0.3)
+
+    def choose_preferences():
+        menu = QApplication.activePopupWidget()
+        if not isinstance(menu, QMenu):
+            raise RuntimeError("The spaCR menu did not open")
+        item = next(a for a in menu.actions() if a.text().replace("&", "").startswith("Preferences"))
+        app.installEventFilter(watcher)
+        try:
+            QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(item).center())
+            deadline = time.monotonic() + 20
+            while "queued" not in done or preferences_dialog() is not None:
+                if time.monotonic() > deadline:
+                    raise TimeoutError("Preferences did not open and close")
+                settle(0.05)
+        finally:
+            app.removeEventFilter(watcher)
+        if "error" in done:
+            raise done["error"]
+
+    capture(name, actions=[(0.6, "open the spaCR menu", open_menu),
+                           (1.2, "choose Preferences...", choose_preferences)])
+    if preferences_dialog() is not None:
+        raise RuntimeError("Preferences is still open after the scene")
+    return done.get("opened")

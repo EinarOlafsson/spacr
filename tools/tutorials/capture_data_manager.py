@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import time
 
+import capture_ui
+from capture_ui_drv_c import Scenes
 from manager_data import (verify_bind, verify_crop_plan, verify_original, verify_pruned_files,
                           verify_pruned_registry, registry_rows, verify_archive_plan,
                           verify_archived_files)
@@ -18,6 +20,7 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtWidgets import QAbstractButton, QFileDialog, QDialogButtonBox, QLineEdit, QMessageBox
     from spacr.qt.screens.data_manager import ConfirmDeleteDialog
 
+    scenes = Scenes(capture, settle)
     inputs = json.loads((Path(stage)/'data_manager_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     source = verify_bind(inputs)
     deadline = time.monotonic() + timeout
@@ -70,13 +73,14 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
                 click(edit)
                 QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
                 QTest.keyClicks(edit, str(directory))
-                capture(frame)
+                if not capture_ui.live(capture):
+                    capture(frame)      # host: the open clip shows the typing
                 buttons = dialog.findChild(QDialogButtonBox)
                 choices = [b for b in buttons.buttons()
                            if buttons.buttonRole(b) == QDialogButtonBox.AcceptRole]
                 if len(choices) != 1:
                     raise ValueError('The folder dialog has no unique accept control')
-                click(choices[0])
+                capture_ui.accept_file_dialog(capture, dialog, choices[0])
             except Exception as error:
                 errors.append(str(error))
                 if dialog is not None:
@@ -90,8 +94,12 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
 
         timer.timeout.connect(handle)
         watchdog.timeout.connect(abort)
-        timer.start(300)
-        watchdog.start(15000)
+        if capture_ui.live(capture):
+            capture_ui.when_modal(capture, 300, handle)
+        else:
+            timer.start(300)
+        watchdog.start(120000 if capture_ui.live(capture) else 15000)
+        scenes.begin(frame)
         try:
             click(control)
         finally:
@@ -101,10 +109,11 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
             watchdog.deleteLater()
         if errors or not accepted:
             raise ValueError('; '.join(errors) or 'Folder picker did not accept the directory')
+        if capture_ui.live(capture):
+            scenes.end(frame, control)
 
     def tab(index):
-        bar = screen.tabs.tabBar()
-        QTest.mouseClick(bar, Qt.LeftButton, pos=bar.tabRect(index).center())
+        capture_ui.select_tab(capture, screen.tabs, index)
         settle(.2)
         if screen.tabs.currentIndex() != index:
             raise ValueError('Actual Data Manager tab selection failed')
@@ -133,8 +142,11 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
 
         timer.timeout.connect(handle)
         watchdog.timeout.connect(abort)
-        timer.start(300)
-        watchdog.start(30000)
+        if capture_ui.live(capture):
+            capture_ui.when_modal(capture, 300, handle)
+        else:
+            timer.start(300)
+        watchdog.start(120000 if capture_ui.live(capture) else 30000)
         try:
             click(control)
         finally:
@@ -158,30 +170,33 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
         if dialog.acknowledged.isChecked() or delete.isEnabled():
             raise ValueError('Delete is not initially gated by acknowledgment')
         # Resize the actual resizable dialog; no text or widget policy is patched.
-        dialog.resize(3300, 1700)
-        dialog.move(window.geometry().center() - dialog.rect().center())
+        capture_ui.dialog_geometry(capture, dialog, (3300, 1700),
+                                   window.geometry().center() - __import__('PySide6.QtCore', fromlist=['QPoint']).QPoint(1650, 850))
         settle(.3)
         if not window.screen().availableGeometry().contains(dialog.frameGeometry()):
             raise ValueError('The complete confirmation dialog must fit the recorded desktop')
         if not accept:
-            capture('09_confirmation_locked')
+            scenes.end('09_confirmation_locked', dialog.listing)
+            scenes.begin('10_complete_file_list_end')
             scroll = dialog.listing.verticalScrollBar()
-            scroll.setFocus()
-            QTest.keyClick(scroll, Qt.Key_End)
+            capture_ui.scroll_to_value(capture, dialog.listing, scroll.maximum())
             settle(.2)
-            capture('10_complete_file_list_end')
+            scenes.end('10_complete_file_list_end', dialog.listing)
+            scenes.begin('11_acknowledged_not_deleted')
         click(dialog.acknowledged)
         if not delete.isEnabled():
             raise ValueError('Acknowledgment did not enable the real Delete control')
         if not accept:
-            capture('11_acknowledged_not_deleted')
+            scenes.end('11_acknowledged_not_deleted', dialog.acknowledged)
+            scenes.begin('12_cancel_preserves_every_file')
             click(dialog.acknowledged)
             if delete.isEnabled():
                 raise ValueError('Removing acknowledgment did not disable Delete')
             click(dialog.buttons.button(QDialogButtonBox.Cancel))
         else:
             verify_crop_plan(screen.plan, inputs)
-            capture('13_confirm_only_private_crops')
+            scenes.end('13_confirm_only_private_crops', dialog.listing)
+            scenes.begin('14_actual_cleanup_result')
             click(delete)
         proof.setdefault('delete_dialogs', []).append({'accepted': accept, 'listed_files': len(shown_files),
                                                      'initially_locked': True, 'acknowledgment_enabled_delete': True})
@@ -193,7 +208,8 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
         if (str(source) not in dialog.text() or inputs['archive'] not in dialog.text() or
                 dialog.defaultButton() != dialog.button(QMessageBox.No)):
             raise ValueError('Archive question has different targets or an unsafe default')
-        capture('19_archive_confirm_yes' if accept else '17_archive_default_no')
+        scenes.end('19_archive_confirm_yes' if accept else '17_archive_default_no', dialog)
+        scenes.begin('20_actual_archive_result' if accept else '18_archive_cancel_keeps_project')
         click(dialog.button(QMessageBox.Yes if accept else QMessageBox.No))
         proof.setdefault('archive_dialogs', []).append({'accepted': accept, 'default_no': True})
 
@@ -205,10 +221,12 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
                    if a.text().replace('&', '').casefold() == 'data manager']
         if len(choices) != 1:
             raise ValueError('No unique Help -> Data manager route')
+        scenes.begin('01_help_data_manager')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
                          pos=window.menuBar().actionGeometry(action).center())
         settle(.2)
-        capture('01_help_data_manager')
+        scenes.end('01_help_data_manager', menu)
+        scenes.begin('02_choose_private_project')
         QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(choices[0]).center())
         wait_for(lambda: window._screens.get('data_manager') is not None)
         screen = window._screens['data_manager']
@@ -216,6 +234,7 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
         if not screen._threaded:
             raise ValueError('Expected the normal threaded Data Manager')
         choose_folder(button('Choose project…'), source, '02_choose_private_project')
+        scenes.begin('03_actual_usage')
         done()
         if screen.project != str(source):
             raise ValueError('Data Manager selected a different project')
@@ -223,38 +242,46 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
         proof['usage_table'] = [[screen.usage_table.item(r, c).text()
                                 for c in range(screen.usage_table.columnCount())]
                                for r in range(screen.usage_table.rowCount())]
-        capture('03_actual_usage')
+        scenes.end('03_actual_usage', screen.usage_table)
+        scenes.begin('04_prune_choices')
         tab(1)
-        capture('04_prune_choices')
+        scenes.end('04_prune_choices', screen.plan_button)
+        scenes.begin('05_real_prune_plan')
         click(screen.plan_button)
         done()
+        scenes.end('05_real_prune_plan', screen.plan_button)
         proof['prune_plan'] = asdict(screen.plan)
-        capture('05_real_prune_plan')
         # Resolve and verify targets read-only before any later recording is
         # permitted to demonstrate deletion. This first pass never deletes.
         proof['independent_crop_plan'] = verify_crop_plan(screen.plan, inputs)
         proof['kept_table'] = [[screen.kept_table.item(r, c).text()
                                for c in range(screen.kept_table.columnCount())]
                               for r in range(screen.kept_table.rowCount())]
-        capture('06_kept_reasons')
+        scenes.begin('06_kept_reasons')
+        scenes.end('06_kept_reasons', screen.kept_table)
+        scenes.begin('07_choose_archive_destination')
         tab(2)
         choose_folder(button('Choose destination…'), inputs['archive'], '07_choose_archive_destination')
+        scenes.begin('08_actual_archive_plan')
         click(screen.archive_plan_button)
         done()
+        scenes.end('08_actual_archive_plan', screen.archive_plan_button)
         proof['archive_plan'] = asdict(screen._archive_plan)
-        capture('08_actual_archive_plan')
         if execute:
             proof['scope'] = 'Real confirmation, cancellation, cleanup and archive of the independently bound private copy only'
+            scenes.begin('09_confirmation_locked')
             tab(1)
             before_cancel = snapshot_source(source)
             modal(screen.delete_button, lambda dialog: confirm_delete(dialog, False))
             done()
+            scenes.end('12_cancel_preserves_every_file', screen.delete_button)
             require_unchanged(before_cancel, snapshot_source(source))
-            capture('12_cancel_preserves_every_file')
             proof['cancel_preserves_every_file'] = True
             checked = verify_crop_plan(screen.plan, inputs)
+            scenes.begin('13_confirm_only_private_crops')
             modal(screen.delete_button, lambda dialog: confirm_delete(dialog, True))
             done()
+            scenes.end('14_actual_cleanup_result', screen.freed_label)
             after_prune = snapshot_source(source)
             proof['cleanup'] = verify_pruned_files(before_cancel, after_prune)
             proof['deleted_files'] = checked['file_list']
@@ -263,25 +290,29 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
             proof['freed_label'] = screen.freed_label.text()
             if '104' not in proof['freed_label'] or (source/'data').exists():
                 raise ValueError('GUI cleanup outcome differs from the scoped files')
-            capture('14_actual_cleanup_result')
+            scenes.begin('15_usage_after_cleanup')
             tab(0)
+            scenes.end('15_usage_after_cleanup', screen.usage_table)
             proof['usage_after_prune'] = asdict(screen.usage)
-            capture('15_usage_after_cleanup')
+            scenes.begin('16_updated_archive_plan')
             tab(2)
             click(screen.archive_plan_button)
             done()
+            scenes.end('16_updated_archive_plan', screen.archive_plan_button)
             before_archive = verify_archive_plan(screen._archive_plan, inputs)
             proof['post_cleanup_archive_plan'] = asdict(screen._archive_plan)
-            capture('16_updated_archive_plan')
+            scenes.begin('17_archive_default_no')
             modal(screen.archive_button, lambda dialog: confirm_archive(dialog, False))
             done()
+            scenes.end('18_archive_cancel_keeps_project', screen.archive_button)
             require_unchanged(before_archive, snapshot_source(source))
             if any(Path(inputs['archive']).iterdir()):
                 raise ValueError('Cancelled archive wrote destination files')
             proof['archive_cancel_preserves_every_file'] = True
-            capture('18_archive_cancel_keeps_project')
+            scenes.begin('19_archive_confirm_yes')
             modal(screen.archive_button, lambda dialog: confirm_archive(dialog, True))
             done()
+            scenes.end('20_actual_archive_result', screen.archive_button)
             destination = Path(inputs['archive'])
             proof['archive_files'] = verify_archived_files(before_archive, snapshot_source(destination),
                                                           snapshot_source(source))
@@ -297,12 +328,12 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
                                         'ledger': str(source/'spacr_archive_log.json'), **expected}
             proof['archived_registry_rows'] = registry_rows(destination)
             proof['archive_executed'] = True
-            capture('20_actual_archive_result')
             choose_folder(button('Choose project…'), destination, '21_choose_archived_project')
+            scenes.begin('22_rescan_archived_project')
             done()
             tab(0)
             proof['archived_usage'] = asdict(screen.usage)
-            capture('22_rescan_archived_project')
+            scenes.end('22_rescan_archived_project', screen.usage_table)
         proof['original_preservation'] = verify_original(inputs)
         proof['worker_outcomes'] = outcomes
         proof['remaining_workers'] = len(screen._jobs)
