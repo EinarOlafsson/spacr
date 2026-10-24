@@ -230,6 +230,215 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
             qapp.setPalette(palette)
 
 
+def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp, monkeypatch):
+    """Measure normal Home rebuilds, not a surrogate font or retained old panel."""
+    from math import ceil
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject, QPoint, QPointF, QSize, Qt
+    from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
+    from PySide6.QtWidgets import QScrollArea
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter
+
+    calls = []
+    original_fit = home._NewsTitleFit._fit
+
+    def observed_fit(owner):
+        calls.append(owner)
+        return original_fit(owner)
+
+    monkeypatch.setattr(home._NewsTitleFit, '_fit', observed_fit)
+    monkeypatch.setattr(home.HomePage, '_install_ambient', lambda self: None)
+    monkeypatch.setattr(home.HomePage, '_read_the_journal', lambda self: None)
+    monkeypatch.setattr(home.NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    window = None
+    retired = []
+    source_baseline = None
+    measurements = []
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(.9)
+        preferences.set_font_scale(.9)
+        gui_scale.set_gui_scale_live(.9)
+        preferences.apply_preferences_to_app()
+        window = app.MainWindow()
+        qtbot.addWidget(window)
+        gui_scale._resize_actual(window, QSize(1200, 640))
+        window.show()
+        qtbot.waitExposed(window)
+
+        def snapshot(page, panel, headings, require_idle=True):
+            fit_types = (home._NewsTitleFit, home._HomeBodyFit, home._HeroTextFit, home._AsideFloorFit)
+            for owner in page.findChildren(QObject):
+                if require_idle and isinstance(owner, fit_types) and (owner._busy or owner._timer.isActive()):
+                    return None
+                if require_idle and isinstance(owner, CollapsibleSplitter) and any(getattr(owner, name, False)
+                        for name in ('_rebalance_queued', '_limits_queued', '_refit_queued')):
+                    return None
+            widgets = [panel, panel._notes, panel._notes.viewport(), panel._notes.widget(), *headings]
+            result = []
+            for widget in widgets:
+                result.append((tuple(shiboken6.getCppPointer(widget)), widget.property('size').toTuple(),
+                    widget.mapTo(window, QPoint()).toTuple(), widget.contentsRect().getRect(),
+                    widget.property('minimumSize').toTuple(), widget.property('maximumSize').toTuple(),
+                    widget.font().toString()))
+            result.append((panel._notes.horizontalScrollBar().value(), panel._notes.verticalScrollBar().value()))
+            return tuple(result)
+
+        def wait_idle(page, panel, headings):
+            previous = [None]
+
+            def stable():
+                current = snapshot(page, panel, headings)
+                same = current is not None and current == previous[0]
+                previous[0] = current
+                return same
+
+            qtbot.waitUntil(stable)
+
+        def document_for(label):
+            assert label.margin() == label.frameWidth() == 0 and label.indent() < 0
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(label.font())
+            option = QTextOption()
+            option.setWrapMode(QTextOption.WordWrap)
+            option.setAlignment(label.alignment())
+            document.setDefaultTextOption(option)
+            document.setHtml(label.text())
+            document.setTextWidth(label.contentsRect().width())
+            document.size()
+            return document
+
+        for step, scale in enumerate((.9, 2., .9, 2.)):
+            if step:
+                old_page = window._startup
+                old_panel = old_page._news
+                old_timer = old_panel._news_title_fit._timer
+                retired.append((old_page, old_panel, old_timer))
+                gui_scale.change_scales(window, gui=scale, font=scale, ask=False)
+                assert window._startup is not old_page and window._startup._news is not old_panel
+                qtbot.waitUntil(lambda: not shiboken6.isValid(old_timer))
+            page, panel = window._startup, window._startup._news
+            blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
+                if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
+            assert len(blocks) == len(panel._releases) == 17
+            headings = [block.layout().itemAt(index).widget() for block in blocks for index in (0, 1)]
+            assert len(headings) == 34
+            wait_idle(page, panel, headings)
+            actual_sources = []
+            expected_fonts = (gui_scale.scale_int(theme.font_px(12, scale), scale),
+                              gui_scale.scale_int(theme.font_px(10, scale), scale))
+            metrics = []
+            for block, entry in zip(blocks, panel._releases):
+                widgets = [block.layout().itemAt(index).widget() for index in range(3)]
+                actual_sources.append((entry['tag'], tuple((widget.text(), widget.accessibleName(),
+                    widget.accessibleDescription(), widget.openExternalLinks(), widget.textInteractionFlags().value)
+                    for widget in widgets)))
+                for index, label in enumerate(widgets[:2]):
+                    assert QFontInfo(label.font()).family() == 'Open Sans'
+                    assert label.font().pixelSize() == expected_fonts[index]
+                title = widgets[0]
+                viewport_width = panel._notes.viewport().property('size').width()
+                document = document_for(title)
+                expected_height = ceil(document.size().height()
+                    + title.property('size').height()-title.contentsRect().height())
+                actual_min = title.property('minimumSize')
+                actual_max = title.property('maximumSize')
+                assert actual_min.width() == actual_max.width() == viewport_width
+                assert title._gs_geo_set['minw'] == title._gs_geo_set['maxw'] == viewport_width
+                assert actual_min.height() == title._gs_geo_set['minh'] == expected_height
+                metrics.append((entry['tag'], viewport_width, title.font().toString(), expected_height))
+            if source_baseline is None:
+                source_baseline = actual_sources
+            assert actual_sources == source_baseline
+            measurements.append(metrics)
+
+            for label in (blocks[-1].layout().itemAt(0).widget(), blocks[0].layout().itemAt(1).widget()):
+                wait_idle(page, panel, headings)
+                ancestor = label.parentWidget()
+                while ancestor is not None and ancestor is not window:
+                    if isinstance(ancestor, QScrollArea):
+                        ancestor.ensureWidgetVisible(label, 0, 0)
+                    ancestor = ancestor.parentWidget()
+                frozen = snapshot(page, panel, headings, require_idle=False)
+
+                def unchanged_then_idle():
+                    assert snapshot(page, panel, headings, require_idle=False) == frozen
+                    return snapshot(page, panel, headings) is not None
+
+                qapp.processEvents()
+                qtbot.waitUntil(unchanged_then_idle)
+                if label.wordWrap():
+                    document = document_for(label)
+                    area = label.contentsRect()
+                    origin = QPointF(area.x(), area.y()+max(0., (area.height()-document.size().height())/2))
+                    rects = []
+                    block = document.begin()
+                    while block.isValid():
+                        offset = document.documentLayout().blockBoundingRect(block).topLeft()+origin
+                        layout = block.layout()
+                        for index in range(layout.lineCount()):
+                            line = layout.lineAt(index)
+                            rects.append(line.naturalTextRect().translated(offset).toAlignedRect())
+                            rects.extend(run.boundingRect().translated(offset).toAlignedRect() for run in line.glyphRuns())
+                        block = block.next()
+                else:
+                    rects = [label.style().itemTextRect(label.fontMetrics(), label.contentsRect(),
+                        int(label.alignment() | Qt.TextSingleLine), label.isEnabled(), label.text())]
+                assert rects
+                for rect in rects:
+                    assert label.contentsRect().contains(rect), (step, label.text(), rect)
+                    assert QRegion(rect).subtracted(label.visibleRegion()).isEmpty(), (step, label.text(), rect)
+                    assert window.rect().contains(rect.translated(label.mapTo(window, QPoint())))
+            wait_idle(page, panel, headings)
+            count = len(calls)
+            frozen = snapshot(page, panel, headings)
+            for _ in range(8):
+                qapp.processEvents()
+            assert len(calls) == count and snapshot(page, panel, headings) == frozen
+            print('NEWS_NORMAL_LIVE_SCALE', {'step': step, 'scale': scale,
+                'background_only_isolation': ['ambient', 'journal', 'news-refresh'],
+                'viewport': panel._notes.viewport().property('size').toTuple(), 'title_metrics': metrics}, flush=True)
+
+        for before, after in ((measurements[0], measurements[2]), (measurements[1], measurements[3])):
+            for old, new in zip(before, after):
+                assert old[0] == new[0]
+                if old[1:3] == new[1:3]:
+                    assert old[3] == new[3]
+        assert any(small[3] < large[3] for small, large in zip(measurements[2], measurements[3]))
+        assert all(not shiboken6.isValid(timer) for _, _, timer in retired)
+        timer = window._startup._news._news_title_fit._timer
+        assert window.close()
+        timer.start(0)
+        window.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(timer)
+        count = len(calls)
+        qapp.processEvents()
+        assert len(calls) == count
+        window = None
+    finally:
+        try:
+            if window is not None:
+                window.close()
+                window.deleteLater()
+                QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 # -- the panel ---------------------------------------------------------------
 
 def _following_release(version: tuple) -> tuple:

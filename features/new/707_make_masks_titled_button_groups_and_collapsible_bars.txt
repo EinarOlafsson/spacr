@@ -12,6 +12,17 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News live-scale scope: real MainWindow normal .9/.9→2/2→.9/.9→2/2 rebuilds,
+fresh34 heading fonts/source/links/viewport/document floors and representative
+one-reveal full-text access. Verify native old-timer deletion/quiescence and
+normal close; compare equal-scale floors only at equal real width/font.
+No repeated width cycle or extra native/full-Home acceptance claim.
+Focused88277 PASS33.77s/0.447GiB: normal .9→2→.9→2 rebuilds retain all34
+sources/links/fonts and fresh floors; title10→48px, longest minheight28→198px
+and exact restoration at viewport201×81/546×380. Representative full-text
+access, retired native timers, quiescence, accepted close and state cleanup
+pass. Offscreen controlled integration only; prior native scopes retained.
+
 Five endpoint batches on02e991c63f PASS31.40/32.28/38.34/31.67/32.73s,
 RSS1.205..1.243GiB: bodies2..16 accepted30 endpoint lines via33 visible segments.
 Their369/399 middlelines remain untested; source/layout/doc/origin/line totals
