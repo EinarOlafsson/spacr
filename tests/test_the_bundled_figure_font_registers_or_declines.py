@@ -88,6 +88,139 @@ def test_native_discovery_keeps_coretext_directory_and_fontconfig_fonts(
     assert case.writes[0][1].name == 'fontlist-vtest.json'
 
 
+def test_native_aliases_keep_all_fresh_faces_without_reparsing(native_manager, monkeypatch, tmp_path):
+    """Fresh aliases retain every collection face and alternate-family entry."""
+    from dataclasses import asdict, dataclass
+
+    @dataclass(frozen=True)
+    class Entry:
+        fname: str = ''
+        index: int = 0
+        name: str = ''
+        style: str = 'normal'
+        variant: str = 'normal'
+        weight: str | int = 'normal'
+        stretch: str = 'normal'
+        size: str = 'medium'
+
+    first, second, third = (tmp_path / name for name in ('a.ttf', 'b.otf', 'c.ttc'))
+    first.write_bytes(b'portable parser fixture, not a real font')
+    os.link(first, second)
+    try:
+        third.symlink_to(first)
+    except OSError:
+        os.link(first, third)
+    paths = list(map(str, (first, second, third)))
+    case = native_manager
+    known = case.manager.ttflist[0]
+    calls, cleared = [], []
+    case.manager.__version__ = '3.11.0'
+    case.fonts.FontEntry = Entry
+    case.manager._findfont_cached = SimpleNamespace(cache_clear=lambda: cleared.append(True))
+
+    def group(path):
+        return [Entry(path, 0, 'Primary', weight=400),
+                Entry(path, 0, 'Primary alternate', weight=700),
+                Entry(path, 1, 'Second face', style='italic', weight=400),
+                Entry(path, 1, 'Second alternate', style='italic', weight=700)]
+
+    def parse(path):
+        calls.append(path)
+        case.manager.ttflist.extend(group(path))
+        case.manager._findfont_cached.cache_clear()
+
+    monkeypatch.setattr(case.manager, 'addfont', parse)
+    monkeypatch.setattr(case.fonts, '_get_fontconfig_fonts', lambda: [])
+    monkeypatch.setattr(case.fonts, 'findSystemFonts', lambda **kw: [])
+    monkeypatch.setattr(subprocess, 'check_output', lambda *a, **kw: json.dumps(paths))
+    assert case.module._figure_font_manager() is case.fonts
+    assert case.manager.ttflist[0] is known
+    assert [asdict(entry) for entry in case.manager.ttflist[1:]] == [
+        asdict(entry) for path in paths for entry in group(path)]
+    assert len(cleared) == len(paths)
+    assert len(case.writes) == 1 and case.writes[0][0] is case.manager
+    print('Fresh alias parser calls:', len(calls), 'for', len(paths), 'paths; full entries:', 12)
+    assert calls == paths[:1]
+
+
+@pytest.mark.parametrize('reason', ['cached', 'changed', 'during', 'missing', 'partial',
+                                   'version', 'schema', 'fname', 'afm'])
+def test_fresh_alias_reuse_declines_unsafe_groups(tmp_path, reason):
+    """Unsafe reuse preserves original parsing, including partial failures."""
+    from dataclasses import dataclass
+    from spacr import figure_font
+
+    @dataclass(frozen=True)
+    class Entry:
+        fname: str = ''
+        index: int = 0
+        name: str = ''
+        style: str = 'normal'
+        variant: str = 'normal'
+        weight: str | int = 'normal'
+        stretch: str = 'normal'
+        size: str = 'medium'
+
+    suffix = '.afm' if reason == 'afm' else '.ttf'
+    first, second = (tmp_path / (name + suffix) for name in ('a', 'b'))
+    first.write_text('fresh')
+    os.link(first, second)
+    paths = list(map(str, (first, second)))
+    calls, cleared = [], []
+    manager = SimpleNamespace(__version__='3.11.0', ttflist=[], afmlist=[],
+        _findfont_cached=SimpleNamespace(cache_clear=lambda: cleared.append(True)))
+    fonts = SimpleNamespace(FontEntry=Entry)
+    target = manager.afmlist if reason == 'afm' else manager.ttflist
+
+    def group(path, name):
+        return [Entry('canonical' if reason == 'fname' else path, 0, name),
+                Entry('canonical' if reason == 'fname' else path, 1, name + ' alternate')]
+
+    def parse(path):
+        calls.append(path)
+        with open(path) as stream:
+            name = stream.read()
+        if reason == 'partial' and len(calls) == 1:
+            target.append(Entry(path, 0, 'partial'))
+            raise RuntimeError('second collection face failed')
+        target.extend(group(path, name))
+        manager._findfont_cached.cache_clear()
+        if reason == 'during' and len(calls) == 1:
+            first.write_text('changed during parsing')
+
+    manager.addfont = parse
+    if reason == 'version':
+        manager.__version__ = 'unknown'
+    elif reason == 'schema':
+        fonts.FontEntry = SimpleNamespace
+    elif reason == 'cached':
+        target.extend(group(paths[0], 'old cached metadata'))
+    add = figure_font._fresh_figure_font_adder(manager, fonts)
+    if reason == 'cached':
+        add(paths[1])
+        assert calls == paths[1:]
+        assert target == group(paths[0], 'old cached metadata') + group(paths[1], 'fresh')
+        return
+    if reason == 'partial':
+        with pytest.raises(RuntimeError, match='second collection face'):
+            add(paths[0])
+    else:
+        add(paths[0])
+    if reason == 'changed':
+        first.write_text('changed after parsing')
+    if reason == 'missing':
+        second.unlink()
+        with pytest.raises(FileNotFoundError):
+            add(paths[1])
+        assert target == group(paths[0], 'fresh') and len(cleared) == 1
+    else:
+        add(paths[1])
+        prefix = [Entry(paths[0], 0, 'partial')] if reason == 'partial' else group(paths[0], 'fresh')
+        assert target == prefix + group(paths[1], first.read_text())
+        assert len(cleared) == (1 if reason == 'partial' else 2)
+    assert calls == paths
+
+
 @pytest.mark.parametrize('reason', ['missing_api', 'old_matplotlib', 'optout'])
 def test_native_discovery_falls_back_without_hiding_fonts(native_manager, monkeypatch, reason):
     case = native_manager

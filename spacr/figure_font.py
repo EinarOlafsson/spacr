@@ -62,6 +62,69 @@ def bundled_faces() -> List[str]:
             if name.lower().endswith((".ttf", ".otf"))]
 
 
+def _fresh_figure_font_adder(manager, fonts):
+    """Reuse only fresh, complete, unchanged physical-font parses in this call.
+
+    Every alias retains its own ordered entries and filename. Unsupported
+    schemas and all unsuccessful or changing files keep Matplotlib's parser.
+    Existing cached entries never seed this short-lived memo.
+    """
+    import dataclasses
+    import stat
+
+    entry_type = getattr(fonts, 'FontEntry', None)
+    fields = ('fname', 'index', 'name', 'style', 'variant', 'weight', 'stretch', 'size')
+    supported = (getattr(manager, '__version__', None) == '3.11.0'
+                 and dataclasses.is_dataclass(entry_type)
+                 and getattr(entry_type.__dataclass_params__, 'frozen', False)
+                 and tuple(field.name for field in dataclasses.fields(entry_type)) == fields
+                 and isinstance(getattr(manager, 'ttflist', None), list)
+                 and isinstance(getattr(manager, 'afmlist', None), list)
+                 and callable(getattr(getattr(manager, '_findfont_cached', None), 'cache_clear', None)))
+    if not supported:
+        return manager.addfont
+    parsed = {}
+
+    def stamp(path):
+        """Identify an existing regular file without trusting an old entry."""
+        try:
+            value = os.stat(path)
+        except OSError:
+            return None
+        if not stat.S_ISREG(value.st_mode):
+            return None
+        return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+
+    def add(path):
+        """Append every fresh face/alternate in normal order, clearing lookup cache."""
+        if type(path) is not str or os.path.splitext(path)[1].lower() not in ('.ttf', '.otf', '.ttc'):
+            return manager.addfont(path)
+        before = stamp(path)
+        group = parsed.get(before) if before is not None else None
+        if group is not None:
+            try:
+                copies = [dataclasses.replace(entry, fname=path) for entry in group]
+            except Exception:
+                copies = None
+            if copies is not None and stamp(path) == before:
+                manager.ttflist.extend(copies)
+                manager._findfont_cached.cache_clear()
+                return None
+        start, afm_start = len(manager.ttflist), len(manager.afmlist)
+        result = manager.addfont(path)
+        group = manager.ttflist[start:]
+        if (result is None and before is not None and stamp(path) == before and group
+                and len(manager.afmlist) == afm_start
+                and all(type(entry) is entry_type and type(entry.fname) is str
+                        and entry.fname == path and type(entry.index) is int
+                        and all(type(getattr(entry, field)) in (str, int, float) for field in fields[2:])
+                        for entry in group)):
+            parsed[before] = tuple(group)
+        return result
+
+    return add
+
+
 def _figure_font_manager():
     """Load the complete font list without macOS's slow system-profiler scan."""
     import json
@@ -111,11 +174,12 @@ def _figure_font_manager():
         manager = font_manager.fontManager
         known = {entry.fname for entry in [*manager.ttflist, *manager.afmlist]}
         added = False
+        add_font = _fresh_figure_font_adder(manager, font_manager)
         for path in sorted(native - known):
             if Path(path).suffix.lower() not in {'.ttf', '.ttc', '.otf', '.afm'}:
                 continue
             try:
-                manager.addfont(path)
+                add_font(path)
                 added = True
             except Exception:
                 continue
