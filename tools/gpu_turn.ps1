@@ -89,6 +89,16 @@ function Get-SpacrGpuActivity {
     Select-SpacrGpuActivity -Samples $samples -Processes $processes
 }
 
+# A GPU engine instance can vanish between the two samples when its process
+# exits, and Get-Counter then reports invalid data for that sample. That is
+# not a reading of idleness, so the waiting turn counts it as activity and
+# asks again; any other failure, or a run of these, still refuses the turn.
+function Test-SpacrGpuTransientSample {
+    param($ErrorRecord)
+    $text = [string]$ErrorRecord
+    $text.Contains('performance counter samples is not valid') -or $text.Contains('GPU engine counter returned an invalid sample')
+}
+
 function Get-SpacrGpuMutexName {
     param([string]$Directory)
     $canonical = [IO.Path]::GetFullPath($Directory).TrimEnd('\').ToLowerInvariant()
@@ -107,7 +117,8 @@ function Test-SpacrGpuAdmission {
 function Invoke-SpacrGpuTurn {
     param([string]$TurnLabel, [string[]]$TurnCommand,
         [string]$Directory = (Join-Path $env:ProgramData 'spaCR\gpu'),
-        [int]$IdleSeconds = 360, [int]$GapSeconds = 600, [int]$PollSeconds = 15)
+        [int]$IdleSeconds = 360, [int]$GapSeconds = 600, [int]$PollSeconds = 15,
+        [int]$TransientLimit = 40)
     if (-not $TurnLabel -or -not $TurnCommand.Count) { throw 'usage: gpu_turn.ps1 <label> <command...>' }
     if ($IdleSeconds -lt 0 -or $GapSeconds -lt 0 -or $PollSeconds -lt 1) { throw 'Invalid GPU queue timing' }
     [void][IO.Directory]::CreateDirectory($Directory)
@@ -131,8 +142,19 @@ function Invoke-SpacrGpuTurn {
         }
         Write-TurnLog "holds the queue; waiting for ${IdleSeconds}s idle and ${GapSeconds}s since the last turn"
         $idle = [Diagnostics.Stopwatch]::StartNew()
+        $unreadable = 0
         while ($true) {
-            $activity = Get-SpacrGpuActivity
+            try {
+                $activity = Get-SpacrGpuActivity
+                $unreadable = 0
+            }
+            catch {
+                if (-not (Test-SpacrGpuTransientSample $_) -or ++$unreadable -gt $TransientLimit) { throw }
+                if ($unreadable -eq 1) { Write-TurnLog 'a GPU counter sample was unreadable; counting it as activity and waiting' }
+                $idle.Restart()
+                Start-Sleep -Seconds $PollSeconds
+                continue
+            }
             if ($activity.BusyPids.Count) { $idle.Restart() }
             $last = 0L
             if ([IO.File]::Exists($release)) {

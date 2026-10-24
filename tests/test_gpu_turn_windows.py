@@ -137,6 +137,40 @@ $free = $LASTEXITCODE -eq 0
     assert not marker.exists()
 
 
+def test_a_transient_invalid_counter_sample_waits_instead_of_ending_the_turn(tmp_path):
+    marker = tmp_path / 'started'
+    command = tmp_path / 'payload.ps1'
+    command.write_text('[IO.File]::WriteAllText(' + _quote(marker) + ", 'ran')", encoding='utf-8-sig')
+    result = _run(tmp_path, r'''
+$script:calls = 0
+function Get-SpacrGpuActivity {
+    $script:calls++
+    if ($script:calls -le 2) { throw 'The data in one of the performance counter samples is not valid. View the Status property.' }
+    [pscustomobject]@{BusyPids=@();ExcludedPids=@()}
+}
+$exit = Invoke-SpacrGpuTurn -TurnLabel transient -Directory ''' + _quote(tmp_path / 'queue') + r''' -IdleSeconds 0 -GapSeconds 0 -PollSeconds 1 -TurnCommand @(''' + _quote(command) + r''')
+@{exit=$exit;calls=$script:calls} | ConvertTo-Json -Compress
+''')
+    assert result == {'exit': 0, 'calls': 3}
+    assert marker.read_text(encoding='utf-8-sig') == 'ran'
+    assert 'counting it as activity' in (tmp_path / 'queue' / 'log').read_text()
+
+
+def test_a_run_of_invalid_counter_samples_still_refuses_the_turn(tmp_path):
+    marker = tmp_path / 'must-not-start'
+    command = tmp_path / 'payload.ps1'
+    command.write_text('[IO.File]::WriteAllText(' + _quote(marker) + ", 'unsafe')", encoding='utf-8-sig')
+    result = _run(tmp_path, r'''
+function Get-SpacrGpuActivity { throw 'GPU engine counter returned an invalid sample' }
+$refused = $false
+try { Invoke-SpacrGpuTurn -TurnLabel stuck -Directory ''' + _quote(tmp_path / 'queue') + r''' -IdleSeconds 0 -GapSeconds 0 -PollSeconds 1 -TransientLimit 2 -TurnCommand @(''' + _quote(command) + r''') | Out-Null }
+catch { $refused = $_.ToString().Contains('invalid sample') }
+@{refused=$refused} | ConvertTo-Json -Compress
+''')
+    assert result['refused'] is True
+    assert not marker.exists()
+
+
 def test_native_browser_identity_and_actual_child_are_excluded(tmp_path):
     psutil = pytest.importorskip('psutil')
     candidates = [Path(os.environ.get('PROGRAMFILES', 'C:/Program Files')) / 'Google/Chrome/Application/chrome.exe',
