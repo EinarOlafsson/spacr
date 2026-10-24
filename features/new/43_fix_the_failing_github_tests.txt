@@ -52,6 +52,9 @@ Keep all existing ceilings, consent/privacy/provider choices, batching and
 original output behavior. CPU-only fake transports; no live AI or issue posts.
 Remove only the proven redundant native-session non-Mapping guard; retain the
 JSON-object parser, sanitizer, consent, acknowledgement and history checks.
+Check real logging-handler flush of an earlier non-logging ERROR fragment;
+preserve that fragment and structured-log deduplication. Remove only proven
+redundant timer cancellation while retaining lock/generation semantics.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4872,3 +4875,4 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.
 
 2026-10-24 — Release lane owns only Night C7's unreadable-driver-info recording-context failure: preserve the intentional info exception and unknown-renderer outcome while providing the actual requested context version to the current renderer. Run only that owning control, with no driver/GPU, runtime change or repetition of the six accepted engine cases. Root accepted the exact factory change; the sole unknown-renderer control passes (1.77s), preserving context identity and the real info exception. No runtime change or native-driver qualification.
+2026-10-24 — Preserve an independent terminal ERROR buffered before a real logging handler flush, restoring scoped provenance even when capture fails. Remove redundant error-batch timer cancellation after both locked callers establish no active timer. The real baseline failed; all 12 affected controls pass, with independent peer acceptance and no API/caption/consumer delta. Root publication and hosted aggregate qualification remain pending.

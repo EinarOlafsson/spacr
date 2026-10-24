@@ -1292,3 +1292,66 @@ def test_both_final_and_cleanup_delivery_failure_cannot_poison_the_next_report(c
     joined(cr._dispatch_error('RuntimeError: healthy later field'))
     assert len(relay.calls_to('/report')) == 2
     assert outcomes[-1]['status'] == cr.REPORT_SENT
+
+
+@pytest.mark.parametrize("prior", ["absent", None, "outer"])
+def test_logging_flush_cannot_drop_an_earlier_independent_terminal_error(configured, monkeypatch, prior):
+    relay, outcomes, ready = configured
+    cr._update_state(affirmed_policy=dict(cr._read_state()['affirmed_policy'], provider='none'))
+    local = cr._ERROR_DISPATCH_LOCAL
+    if prior == 'absent':
+        monkeypatch.delattr(local, 'terminal_buffer_flush', raising=False)
+    else:
+        monkeypatch.setattr(local, 'terminal_buffer_flush', prior, raising=False)
+    sink = io.StringIO()
+    stream = _ErrorStream(sink)
+    logger = logging.Logger('spacr.ordinary')
+    handler = logging.StreamHandler(stream)
+    logger.addHandler(handler)
+    try:
+        stream.write('ERROR independent terminal failure')
+        assert relay.calls == []
+        logger.info('ordinary log entry')
+        assert sink.getvalue() == 'ERROR independent terminal failureordinary log entry\n'
+        if prior == 'absent':
+            assert not hasattr(local, 'terminal_buffer_flush')
+        else:
+            assert local.terminal_buffer_flush is prior
+        assert ready.wait(5)
+        [report] = relay.calls_to('/report')
+        assert 'independent terminal failure' in report['body']['message']
+        assert relay.calls_to('/diagnose') == []
+        stream.flush()
+        assert len(relay.calls_to('/report')) == 1
+    finally:
+        logger.removeHandler(handler)
+        handler.close()
+
+
+@pytest.mark.parametrize("prior", ["absent", None, "outer"])
+def test_partial_error_flush_restores_provenance_before_original_flush_even_if_capture_fails(monkeypatch, prior):
+    local = cr._ERROR_DISPATCH_LOCAL
+    if prior == "absent":
+        monkeypatch.delattr(local, "terminal_buffer_flush", raising=False)
+    else:
+        monkeypatch.setattr(local, "terminal_buffer_flush", prior, raising=False)
+    flushed = []
+    class Sink(io.StringIO):
+        def flush(self):
+            if prior == "absent":
+                assert not hasattr(local, "terminal_buffer_flush")
+            else:
+                assert local.terminal_buffer_flush is prior
+            flushed.append(True)
+            return "original flush result"
+    def failed_capture(text):
+        assert text == "ERROR buffered user failure"
+        assert local.terminal_buffer_flush is True
+        raise RuntimeError("reporter hook failed")
+    sink = Sink()
+    stream = _ErrorStream(sink)
+    stream.write("ERROR buffered user failure")
+    monkeypatch.setattr(cr, "_capture_error_line", failed_capture)
+    assert stream.flush() == "original flush result"
+    assert sink.getvalue() == "ERROR buffered user failure"
+    assert flushed == [True]
