@@ -27,11 +27,11 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
-Remaining offered choices scope: separate native Image7states tests translucent,
-average and minip, each restoring mip; Masks5states tests glossy and metallic,
-each restoring matte. Real combos/20s pre-reveal actions, fresh Metal75/current
-paint/later serials, changed RGB/exact RGB+IDs restoration, only expected layer
-fields/finish preferences may vary; fixed siblings/data/pose and strict cleanup.
+2026-10-24 — Choices74743/11Endw:2PASS78.02s/1.498GiB onf40440c006.
+Image7states:translucent/average/minip each restore mip; Masks5:glossy/metallic
+each restore matte. All5 change RGB/exact RGB+IDs restoration, fresh Metal75.
+Siblings/data/history/pose/selection fixed, exact expected finish preferences;
+normalcleanup/parentguard0. No accepted-choice replay/FPS/whole673 claim.
 
 2026-10-24 — ImageColour83468/GFZo64 PASS37.49s/1.459GiB on1c63c342:
 gray→green→gray/Metal75 serial7→9→11, changed RGB/exact restore; IDs1..43
