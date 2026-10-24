@@ -28,6 +28,10 @@ from pathlib import Path
 
 import pytest
 
+# The coverage runner reads exit statuses of Linux CI workers, so the
+# POSIX number is meant even where the host has no SIGKILL (Windows).
+SIGKILL = getattr(signal, "SIGKILL", 9)
+
 from tests.test_module_coverage_ratchet import (
     RUNNER_SCRIPT,
     _load_coverage_runner,
@@ -139,7 +143,7 @@ def test_only_a_worker_whose_coverage_came_back_counts_as_measured():
     assert runner.lost_coverage(stopped, files)[0] == ["tests/test_e.py"]
 
     lost, reasons = runner.lost_coverage(
-        None, list(reversed(files)), -signal.SIGKILL,
+        None, list(reversed(files)), -SIGKILL,
     )
     assert lost == files
     assert "no readable ledger" in reasons[0]["error"]
@@ -152,7 +156,7 @@ def test_only_a_worker_whose_coverage_came_back_counts_as_measured():
     [
         (-signal.SIGSEGV, "segfault", "the crash family of item 43"),
         (3, "memory-guard", "SPACR_TEST_MEMORY_GB"),
-        (-signal.SIGKILL, "signal", "kernel OOM killer"),
+        (-SIGKILL, "signal", "kernel OOM killer"),
         (-signal.SIGABRT, "signal", "SIGABRT"),
         (1, "exit", "exited with status 1"),
         (None, "unknown", "could not be read"),
@@ -330,13 +334,13 @@ def test_a_batch_that_left_no_ledger_has_every_file_re_run(tmp_path, monkeypatch
     def fake_run(command, *, env, check, timeout=None):
         if runner.LEDGER_ENV in env:
             # The controller itself was killed: no ledger, no summary.
-            return subprocess.CompletedProcess(command, -signal.SIGKILL)
+            return subprocess.CompletedProcess(command, -SIGKILL)
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.chdir(project)
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
 
-    assert _main(runner, data_dir) == -signal.SIGKILL
+    assert _main(runner, data_dir) == -SIGKILL
     batch = _record(runner, data_dir)["batches"][0]
     assert batch["ledger"] is None
     assert batch["lost_files"] == ["tests/test_one.py", "tests/test_two.py"]
