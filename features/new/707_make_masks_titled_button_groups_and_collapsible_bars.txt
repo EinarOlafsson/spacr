@@ -17,6 +17,11 @@ policies and stored pane records before the1200x640 resize and at content-ready,
 plus HomeTabs scroll bounds and settled panels/scrollbar hints. The controlled
 real-Home33965 pass does not reproduce native host clipping; no fix is assumed.
 This is observation only: existing checks, waits and operation budgets remain.
+Native88937/HgpVSa fails35.66s/RSS1.222GiB: all5 checked/132 untested,
+Pipeline passes, four other captions clip; normal close/cleanup pass.
+After shrink, native splitter slots546/546 disagree with the616px aside;
+Apps minHint1486 follows a1482px tabbar with scroll buttons disabled. Its
+101px bar leaves the84px pane's page0px high; no causal repair is claimed.
 
 Real Home overcommit scope: retain the correct aside floor and construct
 the shipped Apps/categories with normal fonts and layout policies. At the
