@@ -1,8 +1,20 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: DONE (alpha) 2026-09-27 (evidence b5ccf4887)
+Status: IN PROGRESS (alpha) — calibrated registration/PSF and residual policy follow-up
 Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
+
+CURRENT SOFTWARE FOLLOW-UP (2026-10-23)
+Home owns the calibrated opt-in software extension with widgets_g4 as scientific
+and source peer; root owns final review/publication. Preserve the shipped default
+matrix, clipping, integer-Measure contract and all original raw data. Before
+changing model behavior, agree an explicit user-supplied registration/PSF
+calibration, traceable plan/provenance, finite-boundary/valid-region treatment,
+and signed versus nonnegative residual semantics with declared resolution and
+measurement consequences. Never infer microscope calibration or biological truth.
+Use CPU-only deterministic shifted/unequal-PSF and strong-spill controls plus the
+smallest affected integration cohort; normal artifacts and reviewed translations
+are required. Real known-amount double-stain biological acceptance stays OPEN.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
@@ -228,3 +240,5 @@ arrays unchanged. Prior 24 owning tests not repeated. Original collector
 and four source/tool/test file hashes unchanged across ordinary closure.
 No upper dimension limit, scientific algorithm, PSF, biological efficacy,
 whole-feature or final CI acceptance claim.
+
+2026-10-23 Home: explicit calibrated 2D Live Preview uses matched control/target PSFs and registration on a valid signed ROI, bounded control allocation, aligned display/canvas restoration and stale-generation protection; unsafe filters and unsupported routes refuse. Core/default controls 39 PASS, resource/extractor 2 PASS, affected GUI/alpha seven retained plus corrected real-channel driver 1 PASS, cumulative real-control budget 1 PASS; independent math/source peers accepted. Normal review pin 4ed25 (6,947 files), API pin 3d49f82803ff, nine-language catalogs, Help and caption arrivals are verified; 17 material source/catalog contracts pass with ten API files unchanged. Four affected notebook references were generated normally and their freshness control passes (15.99s). Root owns Night publication; calibrated batch/Measure and real known-amount double-stain acceptance remain OPEN.

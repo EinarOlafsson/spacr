@@ -1,0 +1,10 @@
+{
+  "spacr.metal_cellpose": "Keep Cellpose's CPU-only augmentation/AMP assumptions off the Metal path.",
+  "spacr.metal_cellpose.training_context": "Augment on CPU, train in float32 on Metal, and restore upstream globals.\n\nCellpose 4.2 builds float64 affine tensors and enters unsupported MPS\nautocast. Only its training-module references are adapted; the torch module\nand other application code are untouched. Network forward/backward stays\non the selected GPU. Older Cellpose releases lacking this seam are retained.",
+  "spacr.mps_reduce": "Opt-in Metal reducers with sklearn-shaped results and bounded working memory.\n\nCluster assignment, centroid updates and well-conditioned PCA projections run\non MPS. PCA fitting and numerically sensitive projections use CPU float64:\nforming a float32 covariance matrix can erase valid scientific components.",
+  "spacr.mps_reduce.MetalKMeans": "Lloyd KMeans with chunked Metal assignment and k-means++ initialization.",
+  "spacr.mps_reduce.MetalPCA": "Stable CPU PCA fitting with Metal projection where precision permits.",
+  "spacr.qt.widgets.live_preview._segment_multi._crop_labels": "Discard complete labels intersecting the calibrated crop's boundary.",
+  "spacr.torch_loader": "Transport macOS loader batches without PyTorch shared-memory daemons.\n\nOn Intel macOS, torch 2.2's file-system sharing helpers inherit Python's\nresource-tracker pipe. Python then waits for that tracker while the helpers\nwait for Python to exit. Default collation sends NumPy-backed records instead;\nthe parent restores the same CPU tensor shapes and dtypes before yielding.",
+  "spacr.torch_loader.ArrayDataLoader": "Default CPU batches cross process boundaries as NumPy, then restore.\n\nExplicit custom collators retain their existing behavior. Single-process\nloaders use ordinary PyTorch collation and iteration unchanged."
+}

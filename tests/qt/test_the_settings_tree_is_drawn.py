@@ -68,56 +68,52 @@ def _model_tree(qtbot, app_key: str = "mask"):
 
 
 def test_the_umbrella_draws_a_section_for_every_family_and_object(qtbot):
-    """Every ``children`` entry of the model becomes a heading on screen."""
-    screen = _screen(qtbot)
+    """Every current model child becomes a heading in its declared parent."""
+    screen = _screen(qtbot, "measure")
+    screen._open_every_waiting_heading()
     drawn = _sections_by_source(screen)
-    tree = {spec.title: spec for spec in _model_tree(qtbot)}
-    umbrella_spec = tree["Advanced settings"]
-    assert umbrella_spec.children, (
-        "the model no longer nests anything under Advanced settings")
-
-    umbrella = drawn["Advanced settings"]
+    tree = {spec.title: spec for spec in _model_tree(qtbot, "measure")}
+    umbrella_spec = tree["Image Preprocessing"]
+    assert umbrella_spec.children, "the current correction tree must be nested"
+    umbrella = drawn[umbrella_spec.title]
     families = {section.property("settingsCategorySource"): section
                 for section in _nested_sections(umbrella)}
     assert set(families) == {child.title for child in umbrella_spec.children}
-
+    assert [section.property("settingsCategorySource")
+            for section in _nested_sections(umbrella)] == [
+                child.title for child in umbrella_spec.children]
     for child_spec in umbrella_spec.children:
         family = families[child_spec.title]
         objects = {section.property("settingsCategorySource"): section
                    for section in _nested_sections(family)}
-        assert set(objects) == {
-            grandchild.title for grandchild in child_spec.children}, (
-            f"{child_spec.title} lost its per-object headings")
+        assert set(objects) == {child.title for child in child_spec.children}, (
+            f"{child_spec.title} lost its nested headings")
+        assert {field.property("settingKey") for _label, field in family._row_widgets} == {
+            field.property("settingKey") for _label, field in child_spec.own_rows}
 
 
 def test_a_family_holds_its_rows_under_the_object_they_belong_to(qtbot):
-    """The rows sit in the sub-heading that owns them, not in the umbrella.
-
-    A family heading itself holds only a setting that applies to every
-    object at once and so has no object sub-heading to sit under:
-    ``object_filters`` is one mapping carrying each object type's filter
-    list, filed once on "Object filtration" beside the per-object bounds it
-    extends (``spacr.settings._FAMILY_SHARED_KEYS``). Any other row on a
-    family is one a sub-heading should own.
-    """
-    from spacr.settings import _FAMILY_SHARED_KEYS
-
-    shared = {key for keys in _FAMILY_SHARED_KEYS.values() for key in keys}
-    screen = _screen(qtbot)
+    """Every row belongs to exactly the current model's declared heading."""
+    screen = _screen(qtbot, "measure")
+    screen._open_every_waiting_heading()
     drawn = _sections_by_source(screen)
-    umbrella = drawn["Advanced settings"]
-
-    assert umbrella._row_widgets == [], (
-        "the umbrella still holds rows itself; the tree is being flattened")
-    for family in _nested_sections(umbrella):
-        own = {field.property("settingKey")
-               for _label, field in family._row_widgets}
-        assert own <= shared, (
-            f"{family.title()} holds rows a sub-heading owns: "
-            f"{sorted(own - shared)}")
-        for objects in _nested_sections(family):
-            assert objects._row_widgets, (
-                f"{objects.title()} was drawn with nothing in it")
+    umbrella_spec = next(spec for spec in _model_tree(qtbot, "measure")
+                         if spec.title == "Input & Experiment")
+    assert umbrella_spec.own_rows and umbrella_spec.children
+    umbrella = drawn[umbrella_spec.title]
+    expected_own = {field.property("settingKey")
+                    for _label, field in umbrella_spec.own_rows}
+    assert {field.property("settingKey") for _label, field in umbrella._row_widgets} == expected_own
+    nested_keys = set()
+    for child_spec in umbrella_spec.children:
+        family = drawn[child_spec.title]
+        own = {field.property("settingKey") for _label, field in family._row_widgets}
+        expected = {field.property("settingKey") for _label, field in child_spec.own_rows}
+        assert own == expected and own, f"{child_spec.title} lost its own rows"
+        assert not own & expected_own, "the parent still holds a child's rows"
+        assert not own & nested_keys, "a row was drawn under two children"
+        nested_keys.update(own)
+        assert _closest_section(family.parentWidget()) is umbrella
 
 
 def test_drawing_the_tree_renders_every_key_exactly_once(qtbot):
@@ -138,68 +134,55 @@ def test_drawing_the_tree_renders_every_key_exactly_once(qtbot):
 
 
 def test_a_sub_heading_is_described_by_its_path_not_by_its_word(qtbot):
-    """"Cell" under a family is not the Cell segmentation category."""
-    screen = _screen(qtbot)
+    """A current nested heading receives its model path's exact guidance."""
+    screen = _screen(qtbot, "measure")
+    screen._open_every_waiting_heading()
     drawn = _sections_by_source(screen)
-    umbrella = drawn["Advanced settings"]
-    family = _nested_sections(umbrella)[0]
-    per_object = {section.property("settingsCategorySource"): section
-                  for section in _nested_sections(family)}
-    cell = per_object["Cell"]
-
-    spec = next(
-        grandchild
-        for child in next(spec for spec in _model_tree(qtbot)
-                          if spec.title == "Advanced settings").children
-        if child.title == family.property("settingsCategorySource")
-        for grandchild in child.children
-        if grandchild.title == "Cell"
-    )
+    umbrella_spec = next(spec for spec in _model_tree(qtbot, "measure")
+                         if spec.title == "Input & Experiment")
+    spec = next(child for child in umbrella_spec.children if child.title == "Cloud α")
+    child = drawn[spec.title]
+    assert _closest_section(child.parentWidget()) is drawn[umbrella_spec.title]
+    assert spec.path == (umbrella_spec.title, spec.title)
     expected = section_tooltip(screen.app_key, spec)
-    assert expected in cell.header().toolTip()
-    assert "Cellpose" not in cell.header().toolTip()
-
-    screen.show_category_hint("Cell")
+    assert expected and expected in child.header().toolTip()
+    assert "Cellpose" not in child.header().toolTip()
+    screen.show_category_hint(spec.title)
     assert expected in screen._category_hint.text().replace("&#x27;", "'")
 
 
 def test_opening_a_sub_heading_opens_the_umbrella_above_it(qtbot):
-    """An expanded section inside a collapsed one is a section nobody sees."""
-    screen = _screen(qtbot)
+    """An expanded child opens its real parent without flattening the tree."""
+    screen = _screen(qtbot, "measure")
+    screen._open_every_waiting_heading()
     drawn = _sections_by_source(screen)
-    umbrella = drawn["Advanced settings"]
-    family = _nested_sections(umbrella)[0]
-    per_object = _nested_sections(family)[0]
-
+    umbrella = drawn["Input & Experiment"]
+    family = drawn["Cloud α"]
+    assert _closest_section(family.parentWidget()) is umbrella
+    family.set_expanded(False)
+    umbrella.set_expanded(False)
     assert not umbrella.is_expanded()
-    per_object.set_expanded(True)
-    assert family.is_expanded(), "the family stayed shut over an open heading"
-    assert umbrella.is_expanded(), "the umbrella stayed shut over an open one"
-
-    # Closing the sub-heading leaves the group the user was reading open.
-    per_object.set_expanded(False)
+    family.set_expanded(True)
+    assert family.is_expanded(), "the requested child stayed shut"
+    assert umbrella.is_expanded(), "the umbrella stayed shut over an open child"
+    family.set_expanded(False)
     assert umbrella.is_expanded()
 
 
 def test_the_innermost_heading_is_the_one_a_consumer_finds(qtbot):
-    """`_settings_sections` is deepest-first, so `isAncestorOf` lands right.
-
-    The command palette reveals a setting by scanning that list for the
-    first section that is an ancestor of the widget and expanding it. The
-    umbrella is an ancestor of every advanced control, so a list that put it
-    before its own sub-headings would expand it and stop, leaving the
-    setting inside a heading that is still shut.
-    """
-    screen = _screen(qtbot)
+    """The real nested heading precedes its ancestors in consumer lookup."""
+    screen = _screen(qtbot, "measure")
+    screen._open_every_waiting_heading()
     drawn = _sections_by_source(screen)
-    umbrella = drawn["Advanced settings"]
-    family = _nested_sections(umbrella)[0]
-    per_object = _nested_sections(family)[0]
-    _label, field = per_object._row_widgets[0]
-
-    found = next(section for section in screen._settings_sections
-                 if section.isAncestorOf(field))
-    assert found is per_object
+    umbrella = drawn["Input & Experiment"]
+    per_object = drawn["Cloud α"]
+    assert _closest_section(per_object.parentWidget()) is umbrella
+    assert per_object._row_widgets
+    for _label, field in per_object._row_widgets:
+        found = next(section for section in screen._settings_sections
+                     if section.isAncestorOf(field))
+        assert found is per_object
+        assert screen._settings_sections.index(found) < screen._settings_sections.index(umbrella)
 
 
 @pytest.mark.parametrize(

@@ -361,6 +361,7 @@ def apply_chain(image, chain, *, cancel=None):
 
 _UNMIX_RECORD_KEY = '_unmix_record'
 _UNMIX_MAX_FIELDS = 24
+_UNMIX_CALIBRATED_CONTROL_VALUES = 64 * 1024 ** 2
 _UNMIX_MAX_CONDITION = 1e6
 
 
@@ -379,6 +380,7 @@ class _UnmixPlan:
     :param background_percentile: per-plane percentile taken as background.
     :param controls: ``{dye channel: (well, ...)}`` as the settings named them.
     :param fields: ``{dye channel: (field stem, ...)}`` the estimate read.
+    :param calibration: optional captured optical calibration for ROI-aware preview.
     """
 
     channels: tuple
@@ -386,10 +388,11 @@ class _UnmixPlan:
     background_percentile: float
     controls: dict
     fields: dict
+    calibration: object = None
 
     def provenance(self):
         """The plan as a JSON-safe record for the run's provenance."""
-        return {
+        record = {
             'method': 'single-stain linear unmixing',
             'channels': [int(channel) for channel in self.channels],
             'matrix': [[float(value) for value in row] for row in self.matrix],
@@ -399,6 +402,9 @@ class _UnmixPlan:
             'fields': {str(dye): list(stems)
                        for dye, stems in sorted(self.fields.items())},
         }
+        if self.calibration is not None:
+            record['calibration'] = self.calibration.provenance()
+        return record
 
     def apply(self, image):
         """Unmix the plan's channels of one field, the other planes untouched.
@@ -406,6 +412,10 @@ class _UnmixPlan:
         :param image: YXC or ZYXC intensities holding every plan channel.
         :returns: float32 copy with the plan's channels unmixed.
         """
+        if self.calibration is not None:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Calibrated unmixing requires an explicit valid-region result; use the supported 2D live preview."))
         array = np.asarray(image)
         if array.ndim < 3:
             from .qt.i18n import tr
@@ -416,6 +426,167 @@ class _UnmixPlan:
         out[..., channels] = _unmix(array[..., channels], self.matrix,
                                     self.background_percentile)
         return out
+
+    def apply_calibrated(self, image):
+        """Return a signed calibrated crop with its original-canvas bounds."""
+        if self.calibration is None:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("No spectral calibration was supplied."))
+        matched, region = self.calibration.apply(image)
+        signed = _unmix(matched, self.matrix, self.background_percentile,
+                        clip_negative=False)
+        record = self.provenance()
+        record.update(mode='calibrated_live_preview',
+                      valid_roi_yx=[[part.start, part.stop] for part in region],
+                      source_origin_px=[part.start for part in region],
+                      source_shape=list(np.shape(image)),
+                      quantitative_output='signed float32 linear residuals with background restored',
+                      negative_fraction_per_channel={str(channel): float(np.mean(signed[..., index] < 0))
+                          for index, channel in enumerate(self.channels)})
+        return _CalibratedUnmixResult(signed, region,
+                                      tuple(part.start for part in region), record)
+
+
+@dataclass(frozen=True)
+class _CalibratedUnmixResult:
+    """Signed valid-region intensities and their original image coordinates."""
+
+    image: np.ndarray
+    valid_slices: tuple
+    source_origin_px: tuple
+    record: dict
+
+
+@dataclass(frozen=True)
+class _UnmixCalibration:
+    """Explicit, captured same-grid optical calibration for a 2D preview."""
+
+    channels: tuple
+    shifts: tuple
+    matching_kernels: tuple
+    record: dict
+
+    def provenance(self):
+        """Return an independent JSON-safe copy of the captured calibration."""
+        return json.loads(json.dumps(self.record))
+
+    def apply(self, image):
+        """Match only real acquired patches within a common valid rectangle."""
+        from scipy.signal import fftconvolve
+        from .qt.i18n import tr
+
+        array = np.asarray(image)
+        if (array.ndim != 3 or array.shape[-1] != len(self.channels)
+                or not all(array.shape) or np.iscomplexobj(array)
+                or array.size > 16 * 1024 ** 2):
+            raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
+        if not np.isfinite(array).all():
+            raise ValueError(tr("Calibrated unmixing requires finite source pixels."))
+        height, width = array.shape[:2]
+        top, left, bottom, right = 0, 0, height, width
+        for shift, kernel in zip(self.shifts, self.matching_kernels):
+            dy, dx = shift
+            ry, rx = (size // 2 for size in kernel.shape)
+            top, left = max(top, dy + ry), max(left, dx + rx)
+            bottom, right = min(bottom, height + dy - ry), min(right, width + dx - rx)
+        if bottom <= top or right <= left:
+            raise ValueError(tr("The calibrated shifts and PSF support leave no common valid image region."))
+        matched = np.empty((bottom - top, right - left, len(self.channels)), dtype=np.float64)
+        for index, (shift, kernel) in enumerate(zip(self.shifts, self.matching_kernels)):
+            checkpoint()
+            dy, dx = shift
+            ry, rx = (size // 2 for size in kernel.shape)
+            patch = array[top - dy - ry:bottom - dy + ry,
+                          left - dx - rx:right - dx + rx, index]
+            matched[..., index] = fftconvolve(patch, kernel, mode='valid')
+        return matched, (slice(top, bottom), slice(left, right))
+
+
+def _load_unmix_calibration(settings, channels):
+    """Capture and validate explicitly supplied 2D registration and PSF samples."""
+    from scipy.signal import convolve2d
+    from .qt.i18n import tr
+
+    path = Path(settings['unmix_calibration']).expanduser()
+    with path.open('rb') as stream:
+        raw = stream.read(1024 ** 2 + 1)
+    if len(raw) > 1024 ** 2:
+        raise ValueError(tr("The spectral calibration file must not exceed 1 MiB."))
+    payload = json.loads(raw)
+    def spacing(value):
+        """Read an explicitly positive finite YX pixel spacing."""
+        result = np.asarray(value, dtype=float)
+        if result.shape != (2,) or not np.isfinite(result).all() or np.any(result <= 0):
+            raise ValueError(tr("Spectral calibration requires explicit positive finite YX pixel sizes."))
+        return result
+    actual_spacing = spacing(settings.get('unmix_pixel_size_um'))
+    if (not isinstance(payload, dict) or type(payload.get('version')) is not int
+            or payload.get('version') != 1 or payload.get('axes') != 'YX'
+            or not np.allclose(spacing(payload.get('pixel_size_um')), actual_spacing, rtol=1e-6, atol=0)):
+        raise ValueError(tr("Spectral calibration axes, version and pixel sampling must match the 2D source; no resampling is performed."))
+    entries = payload.get('channels')
+    if not isinstance(entries, list) or not 1 <= len(entries) <= 16:
+        raise ValueError(tr("Spectral calibration must name between 1 and 16 physical channels exactly once."))
+    by_channel = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError(tr("Spectral calibration must name between 1 and 16 physical channels exactly once."))
+        channel = entry.get('channel')
+        if isinstance(channel, bool) or not isinstance(channel, int) or channel in by_channel:
+            raise ValueError(tr("Spectral calibration must name between 1 and 16 physical channels exactly once."))
+        by_channel[channel] = entry
+    if set(by_channel) != set(channels):
+        raise ValueError(tr("The spectral calibration channels must exactly match the selected physical channels."))
+    reference = payload.get('reference_channel')
+    if type(reference) is not int or reference not in by_channel:
+        raise ValueError(tr("The spectral calibration must name a selected reference channel with zero shift."))
+    kernels, shifts, records = [], [], []
+    for channel in channels:
+        entry = by_channel[channel]
+        shift = entry.get('shift_to_reference_px')
+        if (not isinstance(shift, list) or len(shift) != 2
+                or any(isinstance(value, bool) or not isinstance(value, int) or abs(value) > 4096 for value in shift)):
+            raise ValueError(tr("Spectral registration requires integer YX shifts between -4096 and 4096 pixels."))
+        if channel == reference and shift != [0, 0]:
+            raise ValueError(tr("The spectral calibration must name a selected reference channel with zero shift."))
+        kernel = np.asarray(entry.get('psf'), dtype=np.float64)
+        if (kernel.ndim != 2 or not all(0 < size <= 31 and size % 2 for size in kernel.shape)
+                or not np.isfinite(kernel).all() or np.any(kernel < 0)
+                or not 0 < kernel.sum() < np.inf):
+            raise ValueError(tr("Each calibrated PSF must be a finite nonnegative odd 2D kernel, at most 31 pixels per side, with positive mass."))
+        if (entry.get('psf_origin_px') != [size // 2 for size in kernel.shape]
+                or not np.allclose(spacing(entry.get('psf_pixel_size_um')), actual_spacing, rtol=1e-6, atol=0)):
+            raise ValueError(tr("Calibrated PSF origins must be their declared centers and their sampling must match the source."))
+        kernel = kernel / kernel.sum()
+        kernels.append(kernel)
+        shifts.append(tuple(shift))
+        records.append({'channel': channel, 'shift_to_reference_px': shift,
+                        'psf': kernel.tolist(), 'psf_origin_px': entry['psf_origin_px'],
+                        'psf_pixel_size_um': actual_spacing.tolist(),
+                        'normalized_psf_sha256': hashlib.sha256(kernel.tobytes()).hexdigest()})
+    common_shape = tuple(1 + sum(kernel.shape[axis] - 1 for kernel in kernels) for axis in (0, 1))
+    if max(common_shape) > 127:
+        raise ValueError(tr("The combined calibrated PSF support must not exceed 127 pixels per side."))
+    common = np.ones((1, 1))
+    for kernel in kernels:
+        common = convolve2d(common, kernel, mode='full')
+    matching = []
+    for own in range(len(kernels)):
+        combined = np.ones((1, 1))
+        for other, kernel in enumerate(kernels):
+            if other != own:
+                combined = convolve2d(combined, kernel, mode='full')
+        matching.append(combined)
+    record = {'version': 1, 'axes': 'YX', 'pixel_size_um': actual_spacing.tolist(),
+              'reference_channel': reference, 'channels': records,
+              'source': str(path.resolve()), 'source_sha256': hashlib.sha256(raw).hexdigest(),
+              'shift_convention': 'aligned[y,x] = acquired[y-dy,x-dx]',
+              'matching': 'cross-convolution to the product of all supplied channel PSFs',
+              'common_psf': common.tolist(), 'common_psf_support_yx': list(common.shape),
+              'resolution': 'broadened to the common product PSF; no deconvolution',
+              'boundary': 'intersection of acquired support; valid convolution only'}
+    return _UnmixCalibration(tuple(channels), tuple(shifts), tuple(matching), record)
 
 
 def _parse_unmix_controls(value):
@@ -506,7 +677,7 @@ def _estimate_bleed_through(fields_by_dye, channels):
     return matrix
 
 
-def _unmix(image, matrix, background_percentile):
+def _unmix(image, matrix, background_percentile, *, clip_negative=True):
     """Solve every pixel of ``image`` for its dye amounts with ``matrix``.
 
     :param image: array whose last axis holds the matrix's channels in order.
@@ -514,6 +685,8 @@ def _unmix(image, matrix, background_percentile):
     :param background_percentile: per-plane percentile taken as background;
         it is removed before solving and added back after, and the result is
         clipped at zero.
+    :param clip_negative: preserve the legacy zero floor by default; False
+        retains signed calibrated-preview residuals.
     :returns: float32 unmixed intensities of the same shape.
     """
     matrix = np.asarray(matrix, dtype=np.float64)
@@ -525,10 +698,12 @@ def _unmix(image, matrix, background_percentile):
     pixels = array.reshape(-1, count)
     background = _unmix_background(pixels, background_percentile)
     solved = (pixels - background) @ np.linalg.inv(matrix).T + background
-    return np.clip(solved, 0.0, None).reshape(array.shape).astype(np.float32)
+    if clip_negative:
+        solved = np.clip(solved, 0.0, None)
+    return solved.reshape(array.shape).astype(np.float32)
 
 
-def _prepare_unmixing(settings, source_dir, channels=None, load=None):
+def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_calibrated=False):
     """Estimate the run's unmixing plan from its single-stain control wells.
 
     :param settings: ``unmix``, ``unmix_controls`` and
@@ -537,11 +712,17 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
     :param channels: channel indices to unmix; None means every channel of
         the fields, as Make Masks unmixes whole stacks.
     :param load: reads one field into a channel-last array; ``np.load``.
+    :param allow_calibrated: allow the ROI-aware 2D live-preview route only.
     :returns: a :class:`_UnmixPlan`, or None when ``unmix`` is off.
     :raises ValueError: for missing or unreadable controls or settings.
     """
     from .schema import parse_field_stem, parse_well
 
+    requested_calibration = bool(settings.get('unmix_calibration'))
+    if requested_calibration and (not allow_calibrated or not settings.get('unmix', False)):
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Calibrated spectral unmixing is supported only by the explicit 2D live preview; batch segmentation and Measure are not supported."))
     if not settings.get('unmix', False):
         return None
     if channels is not None:
@@ -578,7 +759,12 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
     if not 0.0 <= percentile < 100.0:
         raise ValueError('unmix_background_percentile must be at least 0 '
                          'and below 100')
-    load = load or np.load
+    if requested_calibration and load is None:
+        from functools import partial
+
+        load = partial(np.load, mmap_mode='r', allow_pickle=False)
+    else:
+        load = load or np.load
     wanted = {dye: {parse_well(well, strict=True) for well in wells}
               for dye, wells in controls.items()}
     source = Path(source_dir)
@@ -600,11 +786,18 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
             f'no field in {source} comes from the single-stain control wells '
             f'of channel {missing[0]}: {", ".join(controls[missing[0]])}')
     fields_by_dye = {}
+    calibration = None
+    calibrated_values = 0
     for dye, found in stems.items():
         fields_by_dye[dye] = []
         for name in found:
             checkpoint()
             field = np.asarray(load(source / name))
+            if requested_calibration and (field.ndim != 3 or not all(field.shape)
+                    or field.shape[-1] > 16):
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
             if field.ndim < 3:
                 from .qt.i18n import tr
 
@@ -620,14 +813,29 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None):
                 raise ValueError(
                     f'unmix_controls names channel {dye}, which is not among '
                     f'the unmixed channels {list(channels)}')
-            fields_by_dye[dye].append(field[..., list(channels)])
+            if requested_calibration and field.shape[0] * field.shape[1] * len(channels) > 16 * 1024 ** 2:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
+            if requested_calibration:
+                calibrated_values += field.shape[0] * field.shape[1] * len(channels)
+                if calibrated_values > _UNMIX_CALIBRATED_CONTROL_VALUES:
+                    from .qt.i18n import tr
+
+                    raise ValueError(tr("The selected spectral controls exceed the calibrated control-pixel budget; choose fewer or smaller control fields."))
+            selected_field = field[..., list(channels)]
+            if requested_calibration:
+                if calibration is None:
+                    calibration = _load_unmix_calibration(settings, channels)
+                selected_field, _ = calibration.apply(selected_field)
+            fields_by_dye[dye].append(selected_field)
     matrix = _estimate_bleed_through(fields_by_dye, channels)
     return _UnmixPlan(
         channels=tuple(int(channel) for channel in channels),
         matrix=tuple(tuple(float(value) for value in row) for row in matrix),
         background_percentile=percentile, controls=controls,
         fields={dye: tuple(Path(name).stem for name in found)
-                for dye, found in stems.items()})
+                for dye, found in stems.items()}, calibration=calibration)
 
 
 def _describe_unmixing(plan):
@@ -650,6 +858,10 @@ def _prepare_measure_unmixing(settings):
     :param settings: Measure settings, updated in place.
     :returns: the plan, or None when ``unmix`` is off.
     """
+    if settings.get('unmix_calibration'):
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Calibrated spectral unmixing is supported only by the explicit 2D live preview; batch segmentation and Measure are not supported."))
     settings.pop(_UNMIX_RECORD_KEY, None)
     if not settings.get('unmix', False):
         return None

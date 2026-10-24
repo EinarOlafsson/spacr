@@ -2134,12 +2134,14 @@ def test_train_requested_navigates_to_the_screen_that_carries_the_key(win):
     assert "classify" not in win._screens, "an orphan screen was built"
     screen = win._screens["classify_merged"]
     assert win._stack.currentWidget() is screen
-    # `src` is a list on the merged screen, so the value is read back
-    # through `collect()` rather than off a line edit.
-    assert screen._settings_model.collect()["src"] == ["/data/plate1"]
+    assert screen._settings_model.collect()["src"] == "/data/plate1"
     widgets = screen._settings_model._widgets
     if "epochs" in widgets:
         assert widgets["epochs"].value() == 7
+    paths = ["/data/plate1", "/data/plate2"]
+    win._on_train_requested("classify", {"src": paths})
+    assert win._stack.currentWidget() is screen
+    assert screen._settings_model.collect()["src"] == paths
 
 
 def test_train_requested_ignores_keys_the_target_does_not_have(win):
@@ -2151,7 +2153,7 @@ def test_train_requested_survives_a_value_the_widget_rejects(win):
     """A bad seed must not take the navigation down with it."""
     win._on_train_requested("classify", {"src": "/ok", "epochs": "not-a-number"})
     screen = win._screens["classify_merged"]
-    assert screen._settings_model.collect()["src"] == ["/ok"]
+    assert screen._settings_model.collect()["src"] == "/ok"
 
 
 def test_train_requested_to_home_is_a_no_op(win):

@@ -977,6 +977,8 @@ def _set_unmix_defaults(settings):
     settings.setdefault('unmix', False)
     settings.setdefault('unmix_controls', '')
     settings.setdefault('unmix_background_percentile', 5.0)
+    settings.setdefault('unmix_calibration', '')
+    settings.setdefault('unmix_pixel_size_um', None)
 
 
 def _set_n2v_defaults(settings):
@@ -3349,6 +3351,8 @@ expected_types = {
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
     "unmix": bool, "unmix_controls": str,
     "unmix_background_percentile": (float, int),
+    "unmix_calibration": str,
+    "unmix_pixel_size_um": (list, tuple, type(None)),
     "n2v_denoise": bool, "n2v_model": str, "n2v_epochs": int,
     "enhance_background": str, "enhance_background_radius": int,
     "enhance_background_scale": float,
@@ -4409,6 +4413,8 @@ tooltips = {
     'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
     'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
     'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+    'unmix_calibration': "(str) - Optional explicit spectral-calibration JSON for organized 2D live previews only. Supply measured per-channel PSFs, integer registration shifts, reference channel and pixel sampling. Cross-convolution broadens all channels to one common PSF and uses only their valid overlap. Signed float residuals are retained in calibration diagnostics; segmentation uses a separate nonnegative view and restores masks to the original canvas, excluding complete labels touching the valid-region boundary. Batch segmentation, Measure, volumes and additional PSF/enhancement processing refuse this option. No calibration or biological truth is inferred. Default blank preserves legacy unmixing.",
+    'unmix_pixel_size_um': "(list or None) - Explicit source pixel size [Y, X] in micrometers for calibrated spectral live previews. Both values must be positive and match the supplied image and PSF calibration; no resampling is performed. Required when unmix_calibration is set. Default None.",
     'n2v_denoise': "(bool) - Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
     'n2v_model': "(str) - Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
     'n2v_epochs': "(int) - Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
@@ -5594,7 +5600,8 @@ categories = {
                               "psf_fwhm_um", "psf_iterations"],
 
     "Spectral Unmixing α": ["unmix", "unmix_controls",
-                                  "unmix_background_percentile"],
+                                  "unmix_background_percentile", "unmix_calibration",
+                                  "unmix_pixel_size_um"],
 
     "Self-Supervised Denoising α": ["n2v_denoise", "n2v_model",
                                           "n2v_epochs"],
@@ -7615,7 +7622,8 @@ ALPHA_FEATURES = {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
     },
     538: {
-        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile',
+                     'unmix_calibration', 'unmix_pixel_size_um'),
     },
     557: {
         'settings': ('n2v_denoise', 'n2v_model', 'n2v_epochs'),

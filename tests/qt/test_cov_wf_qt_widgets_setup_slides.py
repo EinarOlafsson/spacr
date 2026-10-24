@@ -329,9 +329,15 @@ def test_the_gpu_note_is_placed_whatever_the_greeting_is_doing(slides):
     # The band needs (1 - GPU_NOTE_BAND) of the card to hold the note plus
     # the nav row, so size the card from the note instead of from a number.
     note = slides._gpu_note
+    card.layout().removeWidget(note)
+    slides._gpu_note_in_layout = False
+    assert card.layout().indexOf(note) == -1
+    note.show()
+    assert not note.isHidden()
     tall = note.heightForWidth(max(note.width(), 1)) or note.sizeHint().height()
     needed = int((max(tall, 1) + 200) / (1.0 - GPU_NOTE_BAND)) + 1
     card.resize(max(card.width(), 600), max(1000, needed))
+    card.layout().activate()
     slides._greeting = None
     slides._place_the_greeting()
     assert slides._gpu_note.y() == int(card.height() * GPU_NOTE_BAND)

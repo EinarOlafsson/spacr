@@ -91,6 +91,21 @@ if str(TOOLS) not in sys.path:
 
 
 
+def _current_718_mitonet_api(entries, docs):
+    """Bind only the selected-accelerator device paragraph in the original N691 contract."""
+    assert len(entries) == 4
+    active = dict(entries)
+    key = "spacr.model_zoo.segment_mitonet"
+    assert hashlib.sha256(active[key].encode()).hexdigest() == '04182dc98518d6d754b1fb63d27e8c43766e7f64342426d0707b872f2588e718'
+    before = ':param device: a torch device; None uses CUDA when torch sees it and\n    the CPU otherwise.'
+    after = ":param device: a torch device; None uses spaCR's selected accelerator."
+    assert active[key].count(before) == 1
+    active[key] = active[key].replace(before, after)
+    assert hashlib.sha256(active[key].encode()).hexdigest() == 'b92360dc02cfe8863fbbeb2bc1a38c9e5c85cd648b954dae2270b1d1e17adfcd'
+    assert docs[key] == active[key]
+    return active
+
+
 def _current_700_client_api(entries, docs):
     """Apply only the consented dispatch replacement to the original client contract."""
     assert len(entries) == 55
@@ -3216,6 +3231,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_arrivals) == 4
+    mitonet_arrivals = _current_718_mitonet_api(mitonet_arrivals, docs)
     assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
     assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
@@ -3393,6 +3409,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
         ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
+        ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

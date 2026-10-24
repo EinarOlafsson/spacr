@@ -2271,10 +2271,12 @@ def _overview_measurements_export(fields, source, channels, workers=1,
         return dict(time_index=time_index, z_mode=z_mode, z_index=z_index) | dict((field_options or {}).get(repr(field.identity), {}))
 
     def check_cancelled():
+        """Raise cancellation when the measurement export is stopped."""
         if cancelled is not None and cancelled.is_set():
             raise CancelledError()
 
     def record_result(field, row, stage):
+        """Record one field result or diagnostic in the staged export."""
         check_cancelled()
         report["attempted"] += 1
         if row.get("status") != "ok":
@@ -2325,7 +2327,7 @@ def _overview_measurements_export(fields, source, channels, workers=1,
     try:
         check_cancelled()
         with tempfile.TemporaryDirectory(prefix="spacr-fov-") as temporary:
-            stage = sqlite3.connect(str(Path(temporary) / "stage.db"), timeout=60)
+            stage = sqlite3.connect(str(Path(temporary) / "stage.db"), timeout=30)
             try:
                 stage.execute("CREATE TABLE records (record TEXT NOT NULL)")
                 if workers == 1:
@@ -2857,6 +2859,7 @@ def _fit_overview_action_width(button, width, context):
     selected_px = QFontInfo(state["selected"]).pixelSize()
 
     def apply(pixels):
+        """Apply a font size and return the refreshed native minimum width."""
         sheet = state["base"] if pixels == selected_px else (
             state["base"] + f"\nQPushButton {{ font-size: {pixels}px; }}")
         if getter(button) != sheet:

@@ -1549,6 +1549,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_arrivals) == 4
+    from tests.test_documentation_i18n import _current_718_mitonet_api
+    mitonet_arrivals = _current_718_mitonet_api(mitonet_arrivals, docs)
     assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
     assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
@@ -1867,6 +1869,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in embedding_mil_arrivals} == embedding_mil_arrivals
     assert not embedding_mil_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **embedding_mil_arrivals}
+    calibrated_metal_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json").read_text(encoding="utf-8"))
+    assert set(calibrated_metal_arrivals) == {
+        "spacr.metal_cellpose",
+        "spacr.metal_cellpose.training_context",
+        "spacr.mps_reduce",
+        "spacr.mps_reduce.MetalKMeans",
+        "spacr.mps_reduce.MetalPCA",
+        "spacr.qt.widgets.live_preview._segment_multi._crop_labels",
+        "spacr.torch_loader",
+        "spacr.torch_loader.ArrayDataLoader",
+    }
+    assert {key: docs[key] for key in calibrated_metal_arrivals} == calibrated_metal_arrivals
+    assert not calibrated_metal_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **calibrated_metal_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]

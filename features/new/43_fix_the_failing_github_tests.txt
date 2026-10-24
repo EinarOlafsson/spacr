@@ -1,4 +1,24 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
+Home owns concise missing docs for measurement-export check_cancelled/record_result
+and native action-width apply; root publishes. Preserve behavior and existing
+reviewed catalogs. Normal scoped extraction proves API/runtime zero delta;
+keep the existing QC nested-helper rollout disabled. Main receives only the
+two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
+Preserve the immutable N691 arrival bodies while binding only the documented
+Metal-era MitoNet device paragraph to its exact current source hash.
+CURRENT HEADLESS WGPU BUFFER PROTOCOL — 2026-10-23
+widgets_g4 owns the five Main minimum2 recording-renderer failures. Complete
+the fake queue's buffer-write protocol for reused uniform buffers and isolate
+independent refusal cases after a failed frame quarantines its renderer. Retain
+all render, dispatch, reuse, resize and release assertions. Production stays
+unchanged. Validate only the five CPU/offscreen cases; root publishes.
+CURRENT SETUP GPU-NOTE FLOATING PLACEMENT FIXTURE — 2026-10-23
+G4 owns the exact Main CI geometry failure; preserve native floating-band,
+missing-greeting/card/note assertions and layout-owned opening behavior.
+Update only the fixture after explicitly removing native layout ownership;
+run the single owning CPU/offscreen test, with G1 peer and root publication.
+
 CURRENT NATIVE CRASH DUMP PATH FALLBACKS — 2026-10-23
 widgets_g2 owns the three Main221 Coverage11 crash-dump failures; root reviews
 and publishes. Guard optional logging-helper resolution and accept string or
@@ -4572,3 +4592,13 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Restore native crash-dump fallback for string log directories and unavailable optional logging helpers; directory lookup failures remain local and fail closed. Missing reporting state skips replay/ack writes while preserving bounded marked rotation and capture. Four focused cases PASS (two retained plus two corrected-fixture reruns); independent review accepted. Root publication pending; no native crash cause claim.
 
 2026-10-23 — Restore the explicit no-provider console notice and actionable local CLI failure diagnostics without treating failed output as advice, caching it or attaching it to reports. Issue117 fixtures now affirm real isolated consent and show the actual screen required by central delivery; all original assertions and budgets remain. Seven affected checks pass (three retained plus four final in 6.60s); bounded normal extraction proves unchanged 102 API entries and 59 caption identities, no active removed-helper target and no owning consumer rows. Root owns publication; broader CI/release acceptance remains open.
+
+2026-10-23 — obsolete_repo_cleanup owns the source-bound notebook freshness failure from Main69 minimum2: regenerate the maintained classifier notebook and mask/classifier reference pages against the current release candidate with the existing producer; retain compact controls and all settings, then validate the owning freshness assertion without a notebook redesign. The headless wgpu queue now records real uniform-buffer writes, and independent refusal fixtures close quarantined renderers before continuing. All five affected cases pass (four retained from the 0.93s cohort; the corrected refusal case passes in 0.69s). Independent peer accepted; production rendering and all original assertions are unchanged. No GPU was used.
+
+2026-10-23 — Reconcile three actual Main69 C0 source-field contracts with the approved editable source control: saved lists remain lists, scalar folder seeds remain exact strings, and Train navigation/rejected unrelated values still preserve source paths. Bind the list fixture to its actual model default and assert both scalar and multiple-path handoffs without changing supported pipeline shapes, browse/overview/AWS actions or production UI. Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
+
+2026-10-23 — Repair the setup GPU-note floating fixture by removing actual layout ownership, showing the note and activating the resized native card layout. The unchanged exact band and missing-widget assertions pass (1 test, 3.17s); production and generated outputs are unchanged. G1 independently reviewed the fixture; root publication remains pending. Retained public-data worker owns the two actual Main SV/FR runtime-review CI failures: validate the exact preserved automatic-report caption archive and account for its two retirements without changing translations, pins, historical totals or ratchets. Require full original-record/hash equality and current English-source absence, then run only the two failed nodes under the CPU/offscreen 8 GiB cap. Root reviews and publishes; broader CI acceptance remains open.
+
+2026-10-23 — The exact SV/FR failed nodes pass (2 tests, 66.38s) with unchanged review pin 2c69 and all historical totals retained. Independent review accepted the test-only helper; root owns integration/publication and normal item-index refresh. No translation, runtime catalog or pin changed; whole CI acceptance remains open. Restore AIChatPanel’s explicit no-provider notice and align manual explanation fixtures with named providers, the real batcher’s quiet clock and owned timer cleanup. Preserve the required None choice and exact provider ordering; two report-body controls now use explicit preview → Send with FakeGitHub instead of the retired automatic GitHub route. All original pairing/privacy/body assertions pass (13 checks, 9.13s); normal source extraction is unchanged at 8 API entries/34 caption identities and consumer rows are zero. The process exited successfully with a finite ambient-compiler diagnostic; hosted qualification and publication remain with root.
+
+2026-10-23 — Three QC callback docstrings close the source-only callable gaps (255 scoped callables, zero omissions; API/runtime zero delta). Exact Metal-era MitoNet device prose and the eight named API arrivals now bind all source-derived guards without altering immutable fixtures or historical baselines; all 17 material API/Help/runtime checks pass (five retained, three strict and nine corrected locale parameters), preserving all ten approved API catalog bytes. Normal final consumer generation retains every access identity and record order with 34 final AppScreen line offsets refreshed; whole hosted CI/release acceptance remains open.
