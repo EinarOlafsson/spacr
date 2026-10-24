@@ -3811,15 +3811,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Home에서 Make Masks를 연 뒤 Cellpose Workbench를 여세요. 기존 모델로 이미지를 분할하려면 Apply를 고르세요. 검토한 이미지와 마스크 쌍으로 새 가중치를 학습하려면 Train을 쓰세요.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "연결된 예제의 압축을 풀고 Source를 그 images 폴더로 지정하세요. 각각 512 × 512픽셀인 단일 채널 세포 이미지 3개가 들어 있습니다. 기록된 설정 파일을 참고로 쓴다면 그 원본 경로를 압축을 푼 폴더로 바꾸세요.",
+          "narration": "연결된 예제의 압축을 풀고 Source를 그 images 폴더로 지정하세요. 각각 512 × 512픽셀인 단일 채널 세포 이미지 3개가 들어 있습니다. 제공된 설정 참고 자료를 쓴다면 그 원본 경로를 압축을 푼 폴더로 바꾸세요.",
           "hold_after": 0.7
         },
         {
@@ -3895,11 +3895,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
