@@ -44,6 +44,8 @@ def test_mac_dissolve_captures_the_window_without_the_cover(qtbot, monkeypatch):
     from spacr.qt.widgets import loading_screen as ls
 
     host = QWidget()
+    host.setObjectName("DissolveCaptureHost")
+    host.setStyleSheet("QWidget#DissolveCaptureHost { background-color: #c02917; }")
     host.resize(400, 300)
     palette = host.palette()
     palette.setColor(QPalette.ColorRole.Window, QColor("#c02917"))
@@ -51,6 +53,10 @@ def test_mac_dissolve_captures_the_window_without_the_cover(qtbot, monkeypatch):
     host.setAutoFillBackground(True)
     qtbot.addWidget(host)
     host.show()
+    background = host.grab().toImage()
+    assert background.pixelColor(
+        background.width() // 2, background.height() // 2
+    ) == QColor("#c02917")
     screen = ls.LoadingScreen(parent=host)
     assert screen.show_mosaic()
     screen.show()
