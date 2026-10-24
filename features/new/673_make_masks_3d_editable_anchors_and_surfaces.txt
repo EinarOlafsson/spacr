@@ -26,6 +26,14 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Checklist8 same-build restart scope: two sequential owned Cocoa processes share
+one isolated profile/runtime/unchanged retained FIB-SEM fixture. A saves actual
+Metal/75% through real controls; B must restore prefs/UI/request/state/context
+before any backend/scale mutation. Require genuine fresh paint and inside-frame
+background-only pick; positive selection is not exercised (known positive IDs
+remain in the fresh buffer). Keep30s initial/20s current idle/normal cleanup;
+no75%-scale FPS, positive-picking, cold-anchor or whole-item claim.
+
 Failure-only visibility repair: invalidate the failed GPU frame/picks and hide
 its owned image; restore visibility only for an accepted fresh frame. The new
 blocked-CPU regression fails before repair and passes afterward (13.43s,

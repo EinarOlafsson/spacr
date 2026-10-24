@@ -155,6 +155,316 @@ def test_backends_offered_and_the_choice_is_remembered(view, qtbot):
     assert mm._volume_view_settings()[0] == "cpu"
 
 
+def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
+    """Check two real Cocoa processes sharing only their owned portable profile."""
+    import ast
+    import hashlib
+    import json
+    import os
+    from pathlib import Path
+    import shutil
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
+        pytest.skip('Requires the owned native Cocoa acceptance runner')
+    root = Path(__file__).resolve().parents[2]
+    retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
+        '/Users/olafsson/Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
+    required = ('hela_fibsem.tif', 'manifest.csv', 'ground_truth_masks/hela_fibsem.tif',
+                'corrected_masks/hela_fibsem.tif')
+    assert all((retained / name).is_file() for name in required), retained
+    fixture = tmp_path / 'fibsem'
+    fixture.mkdir()
+    for name in required:
+        target = fixture / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(retained / name, target)
+    checksums = {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required}
+    source = ast.parse((root / 'tests/qt/test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in source.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == '_OWNED_SETTINGS_PROBE'
+                for target in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import hashlib, subprocess, time, traceback
+        from pathlib import Path
+        import numpy as np
+        import shiboken6
+        from PySide6.QtCore import QTimer
+        from spacr import layers
+        from spacr.qt import preferences, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.bridge import registry, thread_has_stopped
+        from spacr.qt.first_run import _TourOverlay
+        from spacr.qt.make_masks_demo import load_the_fibsem_test_data
+        from spacr.qt.screens import make_masks as mm
+
+        root = Path(os.environ['SPACR_RESTART_ROOT'])
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == root
+        assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() == os.environ['SPACR_RESTART_HEAD']
+        assert timing.ENABLED and not layers.gpu_render_refusal()
+        phase = os.environ['SPACR_RESTART_PHASE']
+        folder = Path(os.environ['SPACR_RESTART_FIXTURE'])
+        output = Path(os.environ['SPACR_RESTART_OUTPUT'])
+        report = {'phase': phase, 'errors': [], 'initial_saved': preferences.get_volume_view(),
+                  'source_head': os.environ['SPACR_RESTART_HEAD'], 'runtime': sys.executable,
+                  'settings_file': preferences._settings().fileName(),
+                  'pick_scope': 'inside-frame background only; positive selection not exercised'}
+        if phase == 'B':
+            assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
+        else:
+            assert phase == 'A' and not report['initial_saved']
+        preferences.set_ai_on_by_default(False)
+        state = {}
+
+        def digest(array):
+            return hashlib.sha256(np.ascontiguousarray(array).tobytes()).hexdigest()
+
+        def save():
+            output.write_text(json.dumps(report, indent=2))
+
+        def idle(stage):
+            return stage.render_idle() and all(worker.idle() for worker in
+                (stage._worker, stage._mesher, stage._renderer))
+
+        def close():
+            state['timer'].stop()
+            report['closing_phase'] = state['operation']
+            report['closing_elapsed'] = time.perf_counter()-state['started']
+            state['threads'] = [handle.thread for handle in registry().active()]
+            report['normal_close_accepted'] = state['window'].close()
+            save()
+
+        def advance(operation):
+            elapsed = time.perf_counter()-state['started']
+            assert elapsed < (30 if state['operation'] in ('startup', 'initial') else 20)
+            report[state['operation']+'_seconds'] = elapsed
+            state.update(operation=operation, started=time.perf_counter())
+            save()
+
+        def dismiss_owned_tour(window):
+            modal = QApplication.activeModalWidget()
+            assert modal is None, 'No consent/provider dialog may be dismissed'
+            if window._startup_sequence_running():
+                return False
+            tours = [tour for tour in window.findChildren(_TourOverlay) if tour.isVisible()]
+            if tours:
+                assert len(tours) == 1
+                tour = tours[0]
+                assert tour.parentWidget() is window and tour._skip_btn.isVisible() and tour._skip_btn.isEnabled()
+                if state['operation'] == 'startup':
+                    assert getattr(tour, '_walkthrough_app_key', None) is None
+                else:
+                    assert getattr(tour, '_walkthrough_app_key', None) == 'make_masks'
+                    assert window._module_walkthroughs == [tour]
+                    assert window._stack.currentWidget() is state['screen']
+                report.setdefault('owned_tour_skips', []).append(tour._skip_btn.text())
+                tour._skip_btn.click()
+                return False
+            return True
+
+        def install_paint_observer(stage):
+            canvas = stage._panel.canvas._canvas
+            cls, original = type(canvas), type(canvas).paintEvent
+            state.update(canvas=canvas, paint_class=cls, original_paint=original, painted=[])
+
+            def paint(widget, event):
+                original(widget, event)
+                if widget is canvas and stage._render_state is not None:
+                    rendered, artist = stage._render_state, stage._render_artist
+                    state['painted'].append({'serial': stage._shown_serial, 'state_id': id(rendered),
+                        'artist_visible': artist is not None and artist.get_visible(),
+                        'image_exact': artist is not None and np.array_equal(np.asarray(artist.get_array()), rendered.rgb),
+                        'offset_exact': artist is not None and (artist.ox, artist.oy) ==
+                            (int(rendered.rect[0]), int(rendered.rect[2])),
+                        'rect': list(rendered.rect), 'backend': rendered.backend, 'scale': rendered.scale.percent})
+            cls.paintEvent = paint
+
+        def tick():
+            try:
+                elapsed = time.perf_counter()-state['started']
+                assert elapsed < (30 if state['operation'] in ('startup', 'initial') else 20), state['operation']
+                window = state['window']
+                if not dismiss_owned_tour(window):
+                    return
+                if state['operation'] == 'startup':
+                    assert window.open_module('make_masks') == 'make_masks'
+                    screen = window._screens['make_masks']
+                    state['screen'] = screen
+                    assert load_the_fibsem_test_data(screen, with_masks=True, folder=folder,
+                        ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
+                    stage = screen._mask_stage
+                    session = stage.session
+                    assert session.image.shape == (128, 256, 256) and session.axes == 'ZYX'
+                    assert set(np.unique(session.mask)) == set(range(44))
+                    state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
+                        history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
+                    assert 'metal' in mm.volume_render_backends()
+                    report['before_true3d_saved'] = preferences.get_volume_view()
+                    if phase == 'B':
+                        assert report['before_true3d_saved']['backend'] == 'metal' and report['before_true3d_saved']['scale'] == 75
+                    assert stage.set_view('true3d')
+                    install_paint_observer(stage)
+                    if phase == 'A':
+                        index = stage._backend_box.findData('metal')
+                        assert index >= 0 and stage._backend_box.currentData() != 'metal'
+                        stage._backend_box.setCurrentIndex(index)
+                        assert stage._scale_slider.value() != 75
+                        stage._scale_slider.setValue(75)
+                    advance('initial')
+                    return
+                stage = state['stage']
+                if state['operation'] == 'initial':
+                    if not idle(stage) or stage._render_state is None:
+                        return
+                    assert stage._backend_box.currentData() == stage._backend_choice == 'metal'
+                    assert stage._scale_slider.value() == stage._scale == stage._render_percent() == 75
+                    assert preferences.get_volume_view()['backend'] == 'metal' and preferences.get_volume_view()['scale'] == 75
+                    context, rendered = stage._gl, stage._render_state
+                    assert context is not None and context.backend == rendered.backend == 'metal'
+                    assert rendered.scale.percent == 75 and np.any(rendered.rgb) and np.any(rendered.picked > 0)
+                    if state['canvas']._draw_pending:
+                        return
+                    matching = [row for row in state['painted'] if row['state_id'] == id(rendered)
+                        and row['serial'] == stage._shown_serial and row['image_exact'] and row['offset_exact']
+                        and row['artist_visible']]
+                    if not matching:
+                        state['canvas'].draw_idle()
+                        return
+                    bookkeeping = (stage._render_serial, stage._render_floor, stage._render_turning)
+                    try:
+                        request = stage._render_request(rendered.quality)
+                    finally:
+                        stage._render_serial, stage._render_floor, stage._render_turning = bookkeeping
+                    rgb, picked = context.render(request)
+                    assert tuple(request.rect) == tuple(rendered.rect) and request.scale.percent == 75
+                    assert np.array_equal(rgb, rendered.rgb) and np.array_equal(picked, rendered.picked)
+                    report['current_frame'] = {'serial': stage._shown_serial, 'rgb': digest(rgb), 'picked': digest(picked),
+                        'backend': context.backend, 'context_name': context.name(), 'scale': stage._scale,
+                        'positive_original_ids': sorted(map(int, np.unique(picked[picked > 0]))),
+                        'fresh_request_exact': True, 'paint': matching[-1]}
+                    assert set(report['current_frame']['positive_original_ids']) <= set(range(1, 44))
+                    row, column = map(int, np.argwhere(picked == 0)[0])
+                    x0, x1, y0, y1 = rendered.rect
+                    rows, columns = picked.shape
+                    x, y = x0+(column+.5)*(x1-x0)/columns, y1-(row+.5)*(y1-y0)/rows
+                    assert x0 < x < x1 and y0 < y < y1
+                    returned = int(stage.pick_at(x, y))
+                    report['pick'] = {'row': row, 'column': column, 'expected': 0, 'returned': returned,
+                        'x': x, 'y': y, 'shown_serial': stage._shown_serial}
+                    assert returned == 0
+                    state['context'] = context
+                    advance('current_idle')
+                    return
+                if not idle(stage):
+                    return
+                session = stage.session
+                assert digest(session.image) == state['image'] and digest(session.mask) == state['mask']
+                assert (tuple(map(id, session._undo)), tuple(map(id, session._redo))) == state['history']
+                assert stage.dirty == state['dirty']
+                report.update(data_history_unchanged=True, saved=preferences.get_volume_view(),
+                    current_idle_seconds=time.perf_counter()-state['started'])
+                preferences._settings().sync()
+                close()
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                save()
+                close()
+
+        def prepare(entry):
+            if entry.get('detail') != '__home__' or state:
+                return
+            windows = [window for window in QApplication.instance().topLevelWidgets() if isinstance(window, MainWindow)]
+            assert len(windows) == 1
+            window = windows[0]
+            report['native'] = {'platform': QApplication.instance().platformName(),
+                'exposed': window.windowHandle().isExposed(),
+                'dpr': window.windowHandle().devicePixelRatio(), 'work': window.screen().availableGeometry().getRect()}
+            save()
+            assert report['native']['platform'] == 'cocoa' and report['native']['dpr'] == 2. and report['native']['exposed']
+            state.update(window=window, operation='startup', started=time.perf_counter())
+            timer = QTimer(window)
+            timer.setInterval(50)
+            timer.timeout.connect(tick)
+            state['timer'] = timer
+            timer.start()
+            save()
+
+        def ready(entry):
+            try:
+                prepare(entry)
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                windows = [window for window in QApplication.instance().topLevelWidgets() if isinstance(window, MainWindow)]
+                assert len(windows) == 1
+                state.setdefault('window', windows[0])
+                state.setdefault('operation', 'startup')
+                state.setdefault('started', time.perf_counter())
+                state.setdefault('timer', QTimer(windows[0]))
+                close()
+
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result = run(['--no-setup', '--fresh'])
+        timing.unsubscribe_readiness(ready)
+        if 'paint_class' in state:
+            state['paint_class'].paintEvent = state['original_paint']
+        from spacr.qt.widgets import ambient
+        context = state.get('context')
+        renderer = context.renderer if context is not None else None
+        report.update(normal_return=result, remaining_jobs=len(registry().active()),
+            owned_threads_alive=sum(not thread_has_stopped(thread) for thread in state.get('threads', [])),
+            compiler_threads=[thread.name for thread in ambient._COMPILER_THREADS if thread.is_alive()],
+            compiler_helper_present=ambient._PRIME_PROCESS is not None,
+            gpu_resources_released=renderer is not None and not any((renderer._textures, renderer._buffers,
+                renderer._pipelines, renderer._luts, renderer._dispatch_slots)))
+        save()
+        assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
+        assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
+        assert report.get('data_history_unchanged') and report['current_frame']['fresh_request_exact']
+        assert report['gpu_resources_released'] and report['remaining_jobs'] == report['owned_threads_alive'] == 0
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+    ''')
+    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    env = os.environ.copy()
+    for name in ('CUDA_VISIBLE_DEVICES', 'SPACR_NO_GPU_RENDER', 'SPACR_GPU_RENDER',
+                 'SPACR_ISOLATED_PROFILE', 'SPACR_HOME'):
+        env.pop(name, None)
+    env.update(QT_QPA_PLATFORM='cocoa', SPACR_ISOLATED_PROFILE='1', SPACR_HOME=str(tmp_path / 'profile'),
+        SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_RESTART_ROOT=str(root), SPACR_RESTART_HEAD=head,
+        SPACR_RESTART_FIXTURE=str(fixture), SPACR_NO_NETWORK='1', SPACR_TIMING='1',
+        XDG_CONFIG_HOME=str(tmp_path / 'settings'), XDG_CACHE_HOME=str(tmp_path / 'cache'),
+        MPLCONFIGDIR=str(tmp_path / 'cache' / 'matplotlib'), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
+    reports = []
+    for phase in ('A', 'B'):
+        output = tmp_path / ('restart-'+phase+'.json')
+        env.update(SPACR_RESTART_PHASE=phase, SPACR_RESTART_OUTPUT=str(output),
+                   SPACR_TIMING_LOG=str(tmp_path / ('timing-'+phase+'.txt')))
+        completed = subprocess.run([sys.executable, '-c', child], cwd=root, env=env,
+                                   capture_output=True, text=True, timeout=180)
+        (tmp_path / ('restart-'+phase+'-stdout.txt')).write_text(completed.stdout+completed.stderr)
+        assert completed.returncode == 0, completed.stdout+completed.stderr
+        report = json.loads(output.read_text())
+        assert report['phase'] == phase and report['normal_return'] == 0 and report['normal_close_accepted']
+        assert report['native']['platform'] == 'cocoa' and report['native']['dpr'] == 2. and report['native']['exposed']
+        assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
+        assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
+        assert report['saved']['backend'] == 'metal' and report['saved']['scale'] == 75
+        assert report['current_frame']['backend'] == 'metal' and report['current_frame']['scale'] == 75
+        assert report['current_frame']['fresh_request_exact'] and report['pick']['returned'] == report['pick']['expected'] == 0
+        assert report['data_history_unchanged'] and report['gpu_resources_released']
+        assert report['remaining_jobs'] == report['owned_threads_alive'] == 0
+        assert not report['errors'] and not report['compiler_threads'] and not report['compiler_helper_present']
+        reports.append(report)
+        assert {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required} == checksums
+    assert reports[0]['settings_file'] == reports[1]['settings_file']
+    assert reports[0]['source_head'] == reports[1]['source_head'] == head
+    assert reports[0]['runtime'] == reports[1]['runtime'] == sys.executable
+    assert reports[1]['initial_saved'] == reports[0]['saved']
+
+
 def test_auto_falls_back_to_the_cpu_with_a_one_line_note(view, qtbot, monkeypatch, caplog):
     stage = view
 
