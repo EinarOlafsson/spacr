@@ -3648,10 +3648,16 @@ def _otsu_separation(values):
         the class means over the pooled within-class standard deviation.
         A single Gaussian split this way gives about 2.6, two real classes
         give well above :data:`_CONFLUENCY_SEPARATION_MIN`.
+        Values that differ only by rounding, a span Otsu's 256-bin histogram
+        cannot divide, are flat: there is one class, not two.
     """
     values = np.asarray(values, dtype=np.float64)
-    if values.size < 4 or np.ptp(values) == 0:
+    if values.size < 4:
         return float(values.mean()) if values.size else 0.0, 0.0
+    span = float(np.ptp(values))
+    scale = float(np.max(np.abs(values)))
+    if span <= 256 * np.finfo(np.float64).eps * scale:
+        return float(values.mean()), 0.0
     threshold = float(filters.threshold_otsu(values))
     low = values[values <= threshold]
     high = values[values > threshold]
