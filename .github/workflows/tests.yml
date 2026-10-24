@@ -275,10 +275,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2]
+        shard: [0, 1, 2, 3, 4, 5]
     uses: ./.github/workflows/_pytest-suite.yml
     with:
-      suite_name: Qt shard ${{ matrix.shard }} of 3
+      suite_name: Qt shard ${{ matrix.shard }} of 6
       python_version: "3.12"
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
@@ -296,19 +296,12 @@ jobs:
       batch_size: 16
       xdist_workers: 2
       file_shard_index: ${{ matrix.shard }}
-      # THREE SHARDS, NOT TWO (items 43 and 288, 2026-09-15). The MEMORY lines
-      # of dispatched run 35012948690 (nightly 783a8d2f3) put Qt shard 0 of 2
-      # at used=14,939 MiB of the runner's 15,989 at 97% of the shard, 1,050
-      # MiB available and 2,035 of 3,071 MiB swapped; it finished, but shard 0
-      # had lost its runner at 83% and at 96% earlier that day. Shard 1 peaked
-      # near 10 GB, and shard 0's command peaked at 15,091 MiB PSS locally.
-      # Each of the four long-lived workers grows over its shard, so a third
-      # shard cuts the tests per worker, and with it the peak, by a third.
-      file_shard_count: 3
-      # The serial tail runs after the batched workers exit, so it costs time,
-      # not peak memory, and it goes to the lightest shard. Shard 0 of 2's
-      # per-file times from run 35012948690, rebucketed three ways: 4,045,
-      # 4,854 and 3,372 worker-seconds for shards 0, 1 and 2.
+      file_shard_count: 6
+      # Six file shards keep the existing per-worker memory shape. On be67,
+      # Qt1 was still advancing at batch 285/290 when its 180-minute job ended;
+      # setup took 23 minutes and empty collections another 31.7 minutes.
+      # More shards reduce selected work without extending that budget.
+      # The measurement tail remains serial and runs only on shard 2.
       run_serial_tail: ${{ matrix.shard == 2 }}
       # A wedged Qt test used the whole 120 minutes and printed nothing: the
       # shard reached 99%, then sat in silence until the runner killed it, so

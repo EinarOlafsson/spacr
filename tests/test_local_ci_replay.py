@@ -38,7 +38,7 @@ def test_pytest_plugin_inventory_accepts_python39_and_selectable_metadata(monkey
 
 @pytest.mark.parametrize("suite,count,size,timeout,ignored", [
     ("fast", 3, 32, 300, 0),
-    ("qt", 3, 16, 1200, 7),
+    ("qt", 6, 16, 1200, 7),
     ("coverage", 12, 32, 600, 5),
 ])
 def test_profile_comes_from_the_actual_workflow(suite, count, size, timeout, ignored, tmp_path):
