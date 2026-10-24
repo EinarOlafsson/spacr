@@ -561,3 +561,122 @@ def test_an_unreadable_driver_info_names_the_renderer_unknown(monkeypatch):
         assert graphics._context is context
     finally:
         graphics._close()
+
+
+@pytest.mark.parametrize("kind", ["packed", "satin", "helper"])
+def test_shutdown_refuses_compiler_admission_that_was_already_waiting(
+        monkeypatch, tmp_path, kind):
+    """Real shutdown wins a race after readiness but before work admission."""
+    admission = threading.RLock()
+    arrived, stopped = threading.Event(), threading.Event()
+    results, failures, started = [], [], []
+    request = None
+
+    class AdmissionLock:
+        def __enter__(self):
+            if threading.current_thread() is request:
+                arrived.set()
+            admission.acquire()
+            return self
+
+        def __exit__(self, *exc):
+            admission.release()
+
+    monkeypatch.setattr(ambient, "_COMPILER_LIFECYCLE_LOCK", AdmissionLock())
+    monkeypatch.setattr(ambient, "_COMPILER_STOP", stopped)
+    monkeypatch.setattr(ambient, "_COMPILER_THREADS", set())
+    monkeypatch.setattr(ambient, "_PRIME_PROCESS", None)
+    ready = threading.Event()
+    ready.set()
+    monkeypatch.setattr(ambient, "_AMBIENT_STARTUP_READY", ready)
+    monkeypatch.setattr(ambient, "_PACKED_SCATTER", None)
+    monkeypatch.setattr(ambient, "_PACKED_SCATTER_STARTED", False)
+    monkeypatch.setattr(ambient, "_PACKED_SCATTER_FAILED", False)
+    monkeypatch.setattr(ambient, "_PACKED_SCATTER_LOCK", threading.RLock())
+    monkeypatch.setattr(ambient, "_PRIME_LOCK", threading.Lock())
+    monkeypatch.setattr(ambient, "_numba_cache_directory", lambda: tmp_path)
+    monkeypatch.setattr(ambient, "_primed_marker", lambda folder: folder / "not-primed")
+    monkeypatch.setattr(ambient, "_priming_allowed", lambda: True)
+    monkeypatch.setattr(ambient, "_warm_packed_scatter", lambda: started.append("packed"))
+    satin = ambient._SatinCompiler()
+    monkeypatch.setattr(satin, "_warm", lambda: started.append("satin"))
+
+    def spawn(*args, **kwargs):
+        started.append("helper")
+        raise AssertionError("A helper started after shutdown")
+
+    monkeypatch.setattr(subprocess, "Popen", spawn)
+    call = {"packed": ambient._ready_packed_scatter,
+            "satin": satin.ready, "helper": ambient._prime_in_helper_process}[kind]
+
+    def ask():
+        try:
+            results.append(call())
+        except BaseException as error:
+            failures.append(error)
+
+    request = threading.Thread(target=ask, name="owned-admission-request")
+    try:
+        with admission:
+            request.start()
+            assert arrived.wait(5)
+            assert ambient._retire_compiler_threads(timeout_s=0) == 0
+            assert stopped.is_set()
+    finally:
+        stopped.set()
+        if request.ident is not None:
+            request.join(5)
+    assert not request.is_alive() and failures == []
+    assert results == ([False] if kind == "helper" else [None])
+    assert started == [] and ambient._PRIME_PROCESS is None
+    assert not ambient._PACKED_SCATTER_STARTED and not ambient._PACKED_SCATTER_FAILED
+    assert not satin.started and not satin.failed
+
+
+def test_prime_cleanup_failure_retains_the_live_helper_and_refuses_later_work(
+        monkeypatch, tmp_path, caplog):
+    """An unreaped owned child stays visible and blocks another compiler start."""
+    children, cleanup = [], []
+    real_popen = subprocess.Popen
+
+    def spawn(argv, **options):
+        child = real_popen([sys.executable, "-c", "import time; time.sleep(30)"], **options)
+        children.append(child)
+        return child
+
+    def unavailable(child, deadline):
+        cleanup.append(child)
+        raise PermissionError("owned helper cleanup unavailable")
+
+    stopped = threading.Event()
+    monkeypatch.setattr(ambient, "_COMPILER_STOP", stopped)
+    monkeypatch.setattr(ambient, "_PRIME_PROCESS", None)
+    monkeypatch.setattr(ambient, "_PRIME_LOCK", threading.Lock())
+    monkeypatch.setattr(ambient, "_priming_allowed", lambda: True)
+    monkeypatch.setattr(ambient, "_numba_cache_directory", lambda: tmp_path)
+    marker = tmp_path / "not-primed"
+    monkeypatch.setattr(ambient, "_primed_marker", lambda folder: marker)
+    monkeypatch.setattr(ambient, "_PRIME_TIMEOUT_S", .01)
+    monkeypatch.setattr(ambient, "_stop_prime_helper", unavailable)
+    monkeypatch.setattr(subprocess, "Popen", spawn)
+    try:
+        with caplog.at_level(logging.WARNING, logger=ambient.LOG.name):
+            assert not ambient._prime_in_helper_process()
+        child, = children
+        assert child.poll() is None and cleanup == [child]
+        assert ambient._PRIME_PROCESS is child and stopped.is_set()
+        assert not marker.exists()
+        assert any("ambient compiler helper did not stop" in record.getMessage()
+                   for record in caplog.records)
+        assert not ambient._prime_in_helper_process()
+        assert children == [child]
+    finally:
+        for child in children:
+            if child.poll() is None:
+                child.terminate()
+            try:
+                child.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=5)
+        assert all(child.poll() is not None for child in children)
