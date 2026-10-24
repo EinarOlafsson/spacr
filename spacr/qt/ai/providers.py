@@ -578,6 +578,24 @@ def terminate_all_streams() -> int:
     return ended
 
 
+def _batch_shim(name: str) -> str:
+    """The Windows ``.cmd``/``.bat`` launcher npm installed for ``name``.
+
+    CreateProcess finds only ``.exe`` files for a bare name, so an npm CLI
+    has to be started through the full path of its shim. cmd.exe then
+    parses the command line again and ends it at the first newline, so a
+    multi-line prompt must travel on stdin rather than in argv.
+
+    :param name: the CLI's command name.
+    :returns: the shim's full path, or ``""`` off Windows or when ``name``
+        resolves to anything else.
+    """
+    if os.name != "nt":
+        return ""
+    found = shutil.which(name) or ""
+    return found if found.lower().endswith((".cmd", ".bat")) else ""
+
+
 def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                      env_extra: Optional[Dict[str, str]] = None,
                      provider: Optional["ChatProvider"] = None,
@@ -621,6 +639,8 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             bufsize=1,
             env=env,
         )
@@ -733,22 +753,29 @@ class ClaudeCliProvider(ChatProvider):
         self._approved_resume, self._approved_tools = "", []
         self.last_permission_denials = []
         self.last_session_id = ""
+        shim = _batch_shim("claude")
         if resume and messages:
-            argv = ["claude", "-p", str(messages[-1].get("content", "")),
-                    "--resume", resume]
+            prompt = str(messages[-1].get("content", ""))
+            if shim and system:
+                prompt = _format_conversation(messages[-1:], system=system)
+            argv = ["claude", "-p", prompt, "--resume", resume]
             if allowed:
                 argv += ["--allowedTools", *allowed]
         else:
             prompt = _format_conversation(messages, system=system)
             argv = ["claude", "-p", prompt]
-        if system:
+        stdin_text = None
+        if shim:
+            argv, stdin_text = [shim, "-p", *argv[3:]], prompt
+        elif system:
             argv += ["--append-system-prompt", system]
         if model:
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
         argv += ["--output-format", "json"]
-        yield from self._read_result(_stream_process(argv, provider=self))
+        yield from self._read_result(
+            _stream_process(argv, stdin_text=stdin_text, provider=self))
 
     def _read_result(self, lines: Iterator[str]) -> Iterator[str]:
         """Yield the reply from ``claude --output-format json`` output.
@@ -883,12 +910,14 @@ class CodexCliProvider(ChatProvider):
         :returns: iterator yielding stdout text chunks.
         """
         prompt = _format_conversation(messages, system=system)
-        argv = ["codex", "exec", prompt]
+        shim = _batch_shim("codex")
+        argv = [shim, "exec", "-"] if shim else ["codex", "exec", prompt]
         if model:
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
-        yield from _stream_process(argv, provider=self)
+        yield from _stream_process(argv, stdin_text=prompt if shim else None,
+                                   provider=self)
 
 
 
@@ -913,7 +942,8 @@ class GeminiCliProvider(ChatProvider):
         :returns: iterator yielding stdout text chunks.
         """
         prompt = _format_conversation(messages, system=system)
-        argv = ["gemini", "-p", prompt]
+        shim = _batch_shim("gemini")
+        argv = [shim] if shim else ["gemini", "-p", prompt]
         if model:
             argv += ["-m", model]
         else:
@@ -922,7 +952,8 @@ class GeminiCliProvider(ChatProvider):
                 argv += ["-m", args[1]]
             elif args:
                 argv += args
-        yield from _stream_process(argv, provider=self)
+        yield from _stream_process(argv, stdin_text=prompt if shim else None,
+                                   provider=self)
 
 
 

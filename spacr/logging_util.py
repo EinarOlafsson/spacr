@@ -83,6 +83,8 @@ def _quicken(handler):
         return handler
     handler.shouldRollover = functools.partial(
         _quick_should_rollover, handler, full_check)
+    handler.doRollover = functools.partial(
+        _rollover_or_keep_writing, handler, handler.doRollover)
     real_flush = handler.flush
     handler._spacr_flushed_at = 0.0
     handler._spacr_late_flush_pid = 0
@@ -253,6 +255,30 @@ def _emit_flushing_the_loud(handler, real_emit, real_flush, record) -> None:
             handler.handleError(record)
 
 
+_ROLLOVER_RETRY_S = 60.0
+
+
+def _rollover_or_keep_writing(handler, real_rollover) -> None:
+    """Rotate the log, or keep appending while another process holds it.
+
+    Windows cannot rename a file another process has open, and every spaCR
+    process shares ``spacr.log``. Without this each later record retried
+    the rename and printed a "Logging error" traceback to stderr. The file
+    instead grows past ``maxBytes`` until a retry
+    :data:`_ROLLOVER_RETRY_S` later finds it free.
+
+    :param handler: the rotating file handler.
+    :param real_rollover: the handler's own ``doRollover``.
+    """
+    try:
+        real_rollover()
+    except PermissionError:
+        handler._spacr_rollover_blocked_until = (
+            time.monotonic() + _ROLLOVER_RETRY_S)
+        if handler.stream is None:
+            handler.stream = handler._open()
+
+
 def _quick_should_rollover(handler, full_check, record) -> bool:
     """Whether ``record`` would take ``handler``'s file past ``maxBytes``.
 
@@ -269,6 +295,8 @@ def _quick_should_rollover(handler, full_check, record) -> bool:
         return False
     if handler.stream is None:
         handler.stream = handler._open()
+    if time.monotonic() < getattr(handler, "_spacr_rollover_blocked_until", 0.0):
+        return False
     stream = handler.stream
     try:
         position = stream.buffer.tell()

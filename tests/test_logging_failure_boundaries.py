@@ -318,3 +318,30 @@ def test_portable_mode_still_exports_paths_when_data_cannot_be_created(
     finally:
         for name in names:
             os.environ.pop(name, None)
+
+
+def test_a_log_another_process_holds_open_keeps_growing_quietly(tmp_path):
+    """Windows cannot rename a log another spaCR process has open; rotation
+    must wait rather than print a logging error for every later record."""
+    path = tmp_path / "spacr.log"
+    handler = lu._quicken(logging.handlers.RotatingFileHandler(
+        path, maxBytes=200, backupCount=20, encoding="utf-8"))
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    errors = []
+    handler.handleError = errors.append
+    holder = open(path, "a", encoding="utf-8")
+    try:
+        for index in range(40):
+            handler.handle(logging.LogRecord(
+                "spacr", logging.INFO, __file__, 1,
+                f"record {index:02d} " + "x" * 20, (), None))
+        handler.flush()
+    finally:
+        holder.close()
+        lu._drain_package_logs()
+        handler.close()
+
+    assert errors == []
+    written = "".join(p.read_text(encoding="utf-8")
+                      for p in tmp_path.glob("spacr.log*"))
+    assert all(f"record {index:02d} " in written for index in range(40))

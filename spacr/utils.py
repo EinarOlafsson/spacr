@@ -5038,9 +5038,10 @@ def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> t
         for i, cls in enumerate(classes):
             cls_dir = os.path.join(src, cls)
             if os.path.isdir(cls_dir):
-                n = sum(1 for f in os.listdir(cls_dir)
-                        if not f.startswith('.')
-                        and os.path.isfile(os.path.join(cls_dir, f)))
+                with os.scandir(cls_dir) as entries:
+                    n = sum(1 for entry in entries
+                            if not entry.name.startswith('.')
+                            and entry.is_file())
                 counts[i] = n
         print(f"Class counts (from folders): {dict(zip(classes, counts.tolist()))}")
         return counts

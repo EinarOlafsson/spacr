@@ -250,12 +250,44 @@ def test_free_memory_is_infinite_where_meminfo_cannot_be_read(monkeypatch):
             raise PermissionError("no /proc on this host")
         return real_open(path, *args, **kwargs)
 
+    def blind():
+        raise RuntimeError("psutil cannot read this host either")
+
     monkeypatch.setattr(builtins, "open", deny)
+    monkeypatch.setattr("psutil.virtual_memory", blind)
 
     free = ps.free_memory_gb()
 
     assert free == float("inf")
     assert free > ps.FREE_MEMORY_FLOOR_GB, "an unreadable host still schedules"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows has no /proc or nice")
+def test_windows_reads_free_memory_without_proc(monkeypatch):
+    """No /proc on Windows must not switch the memory floor off."""
+    monkeypatch.setattr(
+        "psutil.virtual_memory",
+        lambda: types.SimpleNamespace(available=3 * 10 ** 9))
+    assert ps.free_memory_gb() == pytest.approx(3.0)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows has no /proc or nice")
+def test_windows_trial_starts_python_itself_at_idle_priority(
+        monkeypatch, tmp_path):
+    """There is no `nice` executable on Windows to start the trial through."""
+    monkeypatch.setattr(ps, "containment_available", lambda: False)
+    seen = {}
+
+    def record(command, **kwargs):
+        seen.update(command=command, **kwargs)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(subprocess, "run", record)
+    ps.run_trial_contained({"src": str(tmp_path)}, trial_id=1, timeout=5)
+
+    assert seen["command"][0] == sys.executable
+    assert "nice" not in seen["command"]
+    assert seen["creationflags"] == subprocess.IDLE_PRIORITY_CLASS
 
 
 # ---------------------------------------------------------------------------

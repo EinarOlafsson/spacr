@@ -10,6 +10,8 @@ be asked again on the way out.
 """
 from __future__ import annotations
 
+import os
+
 from PySide6.QtWidgets import QMessageBox
 
 from spacr.qt import shutdown
@@ -77,6 +79,11 @@ def test_the_default_launcher_starts_a_detached_process(monkeypatch,
     assert restart_spacr("regression", {"a": 1}, exiter=exited.append) is True
     assert started["command"] == ["python", "-m", "spacr.qt"]
     assert started["kwargs"]["start_new_session"] is True
+    if os.name == "nt":
+        # start_new_session is ignored on Windows; the console's Ctrl+C and
+        # close would otherwise still reach the replacement.
+        assert started["kwargs"]["creationflags"] == (
+            subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
     assert exited == [0]
 
 

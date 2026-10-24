@@ -102,6 +102,8 @@ def _run_command(
             list(argv),
             input=input_text,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             timeout=waited,
             check=False,
@@ -310,7 +312,7 @@ class ExecutionProfile:
             if self.scheduler_options:
                 _split_template(
                     self.scheduler_options, "Slurm options",
-                    require_program=False,
+                    require_program=False, posix=True,
                 )
 
         if self.backend == "command":
@@ -728,21 +730,34 @@ def _split_template(
     label: str,
     *,
     require_program: bool = True,
+    posix: Optional[bool] = None,
 ) -> List[str]:
     """Split a command template into argv, the way a shell would.
+
+    Windows paths keep their backslashes, so a local template is split
+    without POSIX escapes there; quotes around a token such as
+    ``"C:\\Program Files\\gcloud\\gcloud.cmd"`` are then removed, as a
+    shell would.
 
     :param command: the template.
     :param label: its name, used in the errors.
     :param require_program: reject a template whose first token is an option
         rather than a program.
+    :param posix: POSIX rules; by default only off Windows. Options read by
+        a remote POSIX program pass ``True``.
     :returns: the argument vector.
     :raises RemoteExecutionError: if the template cannot be parsed, is
         empty, or begins with an option.
     """
+    if posix is None:
+        posix = os.name != "nt"
     try:
-        argv = shlex.split(command, posix=os.name != "nt")
+        argv = shlex.split(command, posix=posix)
     except ValueError as exc:
         raise RemoteExecutionError(f"{label} cannot be parsed: {exc}") from exc
+    if not posix:
+        argv = [token[1:-1] if len(token) > 1 and token[0] == token[-1]
+                and token[0] in "\"'" else token for token in argv]
     if not argv:
         raise RemoteExecutionError(f"{label} is empty.")
     if require_program and argv[0].startswith("-"):
@@ -1648,7 +1663,7 @@ class _SlurmBackend(_Backend):
         if profile.scheduler_options:
             argv.extend(_split_template(
                 profile.scheduler_options, "Slurm options",
-                require_program=False,
+                require_program=False, posix=True,
             ))
         output = _require_ok(
             self.runner(

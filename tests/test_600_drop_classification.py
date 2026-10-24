@@ -496,6 +496,18 @@ def test_original_names_come_from_the_consolidation_manifest(tmp_path):
     assert cs._original_names(str(tmp_path)) == {}
 
 
+def test_original_names_survive_originals_with_no_common_root(tmp_path):
+    """Windows commonpath refuses C: beside D:; keep each full path instead."""
+    manifest = tmp_path / cs.CONSOLIDATION_MANIFEST
+    first, second = (("C:\\e\\A\\1.tif", "D:\\f\\B\\1c.tif") if os.name == "nt"
+                     else ("/e/A/1.tif", "f/B/1c.tif"))
+    manifest.write_text(
+        "original_path,new_filename,status,error\n"
+        f"{first},a.tif,copied,\n{second},b.tif,copied,\n", encoding="utf-8")
+    assert cs._original_names(str(tmp_path)) == {
+        "a.tif": "e_A_1.tif", "b.tif": "f_B_1c.tif"}
+
+
 def test_organelle_is_a_mask_role_and_puncta_suggest_it():
     assert "organelle" in cs.MASK_ROLES
     assert cs.default_mask_roles({1: ["cyst_1.tif"], 2: ["puncta_1.tif"]},

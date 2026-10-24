@@ -49,12 +49,20 @@ def usable_cores() -> int:
 
 
 def total_memory_gib() -> Optional[float]:
-    """Physical memory in GiB, or None when it cannot be read."""
+    """Physical memory in GiB, or None when it cannot be read.
+
+    Windows has no ``os.sysconf``; psutil reads the same figure there.
+    """
     try:
         pages = os.sysconf("SC_PHYS_PAGES")
         size = os.sysconf("SC_PAGE_SIZE")
         return (pages * size) / (1024 ** 3)
     except (AttributeError, ValueError, OSError):
+        pass
+    try:
+        import psutil
+        return psutil.virtual_memory().total / (1024 ** 3)
+    except Exception:
         return None
 
 

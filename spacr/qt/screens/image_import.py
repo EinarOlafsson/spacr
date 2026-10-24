@@ -1151,11 +1151,12 @@ class ImageImportScreen(QWidget):
         if not destination or not root:
             return False
         try:
-            dst = os.path.realpath(destination)
-            src = os.path.realpath(root)
+            dst = os.path.normcase(os.path.realpath(destination))
+            src = os.path.normcase(os.path.realpath(root))
         except OSError:                                  # pragma: no cover
             return False
-        return dst == src or dst.startswith(src + os.sep)
+        prefix = src if src.endswith(os.sep) else src + os.sep
+        return dst == src or dst.startswith(prefix)
 
     def _on_result_ready(self, result: Optional["imp.ImportResult"]) -> None:
         """Show the import summary. Always on the GUI thread."""

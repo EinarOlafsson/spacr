@@ -392,6 +392,24 @@ def test_options_may_start_with_a_flag_because_they_are_not_a_program():
                               require_program=False) == ["--partition", "gpu"]
 
 
+def test_slurm_options_are_split_for_the_remote_posix_sbatch():
+    """A Windows client must not leave quote characters in remote options."""
+    assert rx._split_template("--job-name 'my run' --comment=\"a b\"",
+                              "Slurm options", require_program=False,
+                              posix=True) == [
+        "--job-name", "my run", "--comment=a b"]
+
+
+def test_a_windows_template_unquotes_a_program_path_with_spaces():
+    """Non-POSIX splitting keeps backslashes, and must also drop the quotes
+    around ``C:\\Program Files\\...`` or the program cannot be found."""
+    argv = rx._split_template(
+        '"C:\\Program Files\\gcloud\\gcloud.cmd" batch jobs describe {job_id}',
+        "Status command", posix=False)
+    assert argv == ["C:\\Program Files\\gcloud\\gcloud.cmd", "batch", "jobs",
+                    "describe", "{job_id}"]
+
+
 def test_an_unknown_placeholder_is_named_in_braces():
     with pytest.raises(RemoteExecutionError,
                        match=r"unknown placeholder \{queue\}"):

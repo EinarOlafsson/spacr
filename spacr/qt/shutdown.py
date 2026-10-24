@@ -131,6 +131,10 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
             import subprocess
 
             launch_options = {"start_new_session": True, "close_fds": True}
+            if os.name == "nt":
+                launch_options["creationflags"] = (
+                    subprocess.DETACHED_PROCESS
+                    | subprocess.CREATE_NEW_PROCESS_GROUP)
             if getattr(sys, "frozen", False):
                 environment = dict(os.environ)
                 environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
