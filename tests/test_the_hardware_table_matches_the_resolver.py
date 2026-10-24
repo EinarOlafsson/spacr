@@ -98,16 +98,24 @@ def test_the_new_backends_are_purple_not_green(table):
         assert cells[1] == f"{PURPLE} GPU", label
 
 
-def test_umap_is_red_on_every_gpu_that_is_not_cuda(table):
-    """cuML ships for CUDA only, so there is nothing to wait for.
+def test_reduction_cells_distinguish_metal_algorithms_from_cpu_only_backends(table, monkeypatch):
+    """Metal accelerates KMeans and some PCA projection, but not UMAP."""
+    from spacr import accelerator, gpu_reduce
+    from tools.readme_i18n import METAL_REDUCTION_CELL
 
-    RED, not "CPU in green": on a machine that HAS a GPU, a task that
-    cannot use it is unsupported on that hardware. This is the cell the
-    table exists for.
-    """
-    for label in ("AMD on Linux (ROCm)", "AMD in an Intel Mac (Metal)",
-                  "Apple Silicon (Metal)", "Intel Arc/Xe (XPU)"):
+    for label in ("AMD on Linux (ROCm)", "Intel Arc/Xe (XPU)"):
         assert _row(table, label)[2] == f"{RED} CPU", label
+    for label in ("AMD in an Intel Mac (Metal)", "Apple Silicon (Metal)"):
+        assert _row(table, label)[2] == METAL_REDUCTION_CELL, label
+    monkeypatch.setattr(gpu_reduce, "rapids_available", lambda: False)
+    monkeypatch.setenv(gpu_reduce.ENV_FLAG, "1")
+    monkeypatch.setattr(accelerator, "resolve", lambda: accelerator.Accelerator(
+        kind="mps", device="mps", label="Metal", float64=False))
+    for method in ("umap", "tsne", "dbscan"):
+        assert gpu_reduce.backend_for(method, prefer_gpu=True) == "cpu", method
+    for method in ("pca", "kmeans"):
+        assert gpu_reduce.backend_for(method, prefer_gpu=True) == "mps", method
+        assert gpu_reduce.backend_for(method, prefer_gpu=False) == "cpu", method
 
 
 def test_the_no_gpu_row_is_green_everywhere(table):

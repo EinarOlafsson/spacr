@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from tools.readme_i18n import (  # noqa: E402
-    localize_hardware_markup, localize_model_zoo_label,
+    METAL_REDUCTION_CELL, localize_hardware_markup, localize_model_zoo_label,
     localize_workflow_markup,
 )
 from tools import build_model_cards  # noqa: E402
@@ -697,7 +697,10 @@ def _hardware_table() -> str:
                 raise ValueError(
                     f"no capability row starts with {prefix!r}; the table "
                     "and spacr.accelerator.capabilities() have diverged")
-            cells.append(_cell(matched[0], maturity, has_gpu))
+            if prefix == "UMAP" and kwargs.get("kind") == "mps" and matched[0]:
+                cells.append(METAL_REDUCTION_CELL)
+            else:
+                cells.append(_cell(matched[0], maturity, has_gpu))
         cells.append(_cell(has_gpu, "beta", has_gpu))
         rows.append([label] + cells)
 

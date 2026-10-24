@@ -2,8 +2,8 @@
 | --- | --- | --- | --- | --- |
 | NVIDIA (CUDA) | 🟢 GPU | 🟢 GPU | 🟢 GPU | 🟣 GPU |
 | AMD on Linux (ROCm) | 🟣 GPU | 🟣 GPU | 🔴 CPU | 🟣 GPU |
-| AMD in an Intel Mac (Metal) | 🟣 GPU | 🟣 GPU | 🔴 CPU | 🟣 GPU |
-| Apple Silicon (Metal) | 🟣 GPU | 🟣 GPU | 🔴 CPU | 🟣 GPU |
+| AMD in an Intel Mac (Metal) | 🟣 GPU | 🟣 GPU | 🟣 KMeans GPU; PCA aðlögun CPU, vörpun GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU | 🟣 GPU |
+| Apple Silicon (Metal) | 🟣 GPU | 🟣 GPU | 🟣 KMeans GPU; PCA aðlögun CPU, vörpun GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU | 🟣 GPU |
 | Intel Arc/Xe (XPU) | 🟣 GPU | 🟣 GPU | 🔴 CPU | 🟣 GPU |
 | No GPU | 🟢 CPU | 🟢 CPU | 🟢 CPU | 🟢 CPU |
 
