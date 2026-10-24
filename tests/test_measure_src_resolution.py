@@ -221,3 +221,53 @@ def test_raw_measurement_keeps_original_statistics_with_or_without_legacy_record
     assert len(means) == 4
     assert all(row[0] == 1100 for row in means)
     assert source.read_bytes() == original
+
+
+def test_oversized_coordinate_record_refuses_before_reading_or_starting_measure(plate, monkeypatch):
+    from pathlib import Path
+    import spacr.measure as measure
+
+    path = _segmentation_coordinate_record(plate)
+    with path.open('r+b') as handle:
+        handle.truncate(32 * 1024 ** 2 + 1)
+    before = path.stat()
+    original_open = Path.open
+
+    class UnreadRecord:
+        """Delegate the real descriptor while rejecting an unbounded read."""
+        def __init__(self, handle):
+            """Own this actual sparse metadata file for its context lifetime."""
+            self.handle = handle
+
+        def __enter__(self):
+            """Expose only the actual descriptor and guarded read protocol."""
+            return self
+
+        def __exit__(self, *exc):
+            """Close only this test-owned descriptor."""
+            self.handle.close()
+
+        def fileno(self):
+            """Return the real descriptor for the production size preflight."""
+            return self.handle.fileno()
+
+        def read(self, *args):
+            """An already oversized record must never be allocated."""
+            pytest.fail('Oversized provenance was read before size validation')
+
+    def opened(candidate, *args, **kwargs):
+        """Observe only the actual coordinate record, keeping all other I/O real."""
+        handle = original_open(candidate, *args, **kwargs)
+        return UnreadRecord(handle) if candidate == path else handle
+
+    def forbidden(*args, **kwargs):
+        """No run or database may start after a failed metadata preflight."""
+        pytest.fail('Measure started despite oversized coordinate provenance')
+
+    monkeypatch.setattr(Path, 'open', opened)
+    monkeypatch.setattr(measure, 'run_context', forbidden)
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        measure.measure_crop(dict(src=str(plate), timelapse=False, unmix=False))
+    after = path.stat()
+    assert (after.st_size, after.st_mtime_ns) == (before.st_size, before.st_mtime_ns)
+    assert not (plate / 'measurements').exists()

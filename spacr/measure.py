@@ -9427,8 +9427,14 @@ def _validate_measurement_coordinate_source(merged_folder):
 
     path = Path(merged_folder).parent / 'psf' / 'segmentation_application.json'
     try:
-        with path.open(encoding='utf-8') as handle:
-            record = json.load(handle)
+        limit = 32 * 1024 ** 2
+        with path.open('rb') as handle:
+            if os.fstat(handle.fileno()).st_size > limit:
+                raise ValueError
+            payload = handle.read(limit + 1)
+        if len(payload) > limit:
+            raise ValueError
+        record = json.loads(payload.decode('utf-8'))
     except FileNotFoundError as exc:
         if not os.path.lexists(path):
             return
