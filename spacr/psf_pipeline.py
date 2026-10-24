@@ -35,6 +35,7 @@ join the same provenance record.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 import hashlib
 import json
@@ -1335,7 +1336,7 @@ class _SegmentationPSFSession:
             return apply_chain(image, self.chain)
         return self.plan.apply(image) if self.plan else image
 
-    def mark_completed(self, field_id, *, output_path=None, signed_path=None):
+    def mark_completed(self, field_id, *, output_path=None, signed_path=None, mask_role=None):
         """Record a field only after its archive or combined stack is durable."""
         if self.calibrated:
             from .qt.i18n import tr
@@ -1347,6 +1348,18 @@ class _SegmentationPSFSession:
                 path = Path(path)
                 relative = path.resolve().relative_to(self.root.resolve())
                 row[key] = {'path': str(relative), 'sha256': _digest(path)}
+            if mask_role is not None:
+                if mask_role != 'cell':
+                    raise _cell_record_error()
+                identity = dict(row['source_identity'])
+                if identity.get('source_dataset', self.configuration['source_dataset']) != self.configuration['source_dataset']:
+                    raise _cell_record_error()
+                identity.setdefault('source_dataset', self.configuration['source_dataset'])
+                row['source_identity'] = identity
+                row.update(measurement_schema_version=1, mask_role='cell',
+                           mask_channel_position=len(self.unmixing.channels))
+                row['binding_sha256'] = _cell_record_hash({
+                    key: value for key, value in row.items() if key != 'binding_sha256'})
         self.fields.add(str(field_id))
         if self.calibrated:
             self._write(False)
@@ -1458,3 +1471,416 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
         return None
     return _SegmentationPSFSession(plan, root, channels, pipeline_style, chain,
                                    unmix, n2v)
+
+
+
+def _cell_record_error():
+    """Return one headless localized refusal for unsupported or inconsistent records."""
+    from .qt.i18n import tr
+
+    return ValueError(tr(
+        "Signed cell measurements require a completed cell-role dataset with matching signed float32 pixels, masks and calibration provenance. Regenerate older or inconsistent outputs.",
+        language=os.environ.get('SPACR_LANGUAGE', 'en')))
+
+
+def _cell_record_checkpoint(cancelled):
+    """Honor process cancellation and the optional headless caller predicate."""
+    checkpoint()
+    if cancelled is not None and cancelled():
+        from .cancellation import PipelineCancelled
+        raise PipelineCancelled()
+
+
+def _cell_record_hash(value):
+    """Bind JSON metadata without including mutable cache or pixel objects."""
+    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
+def _cell_record_open(root_fd, relative):
+    """Open a regular descendant through descriptor-relative nonsymlink components."""
+    import stat
+
+    if (not isinstance(relative, str) or not relative or Path(relative).is_absolute()
+            or any(part in ('', '.', '..') for part in relative.split('/'))):
+        raise _cell_record_error()
+    directory = os.dup(root_fd)
+    try:
+        parts = relative.split('/')
+        for part in parts[:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
+            os.close(directory)
+            directory = child
+        descriptor = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            raise _cell_record_error()
+        return os.fdopen(descriptor, 'rb')
+    finally:
+        os.close(directory)
+
+
+def _cell_record_stream_hash(stream, cancelled):
+    """Stream exact bytes with bounded buffers and detect concurrent replacement writes."""
+    before = os.fstat(stream.fileno())
+    stream.seek(0)
+    result = hashlib.sha256()
+    while True:
+        _cell_record_checkpoint(cancelled)
+        block = stream.read(1024 ** 2)
+        if not block:
+            break
+        result.update(block)
+    after = os.fstat(stream.fileno())
+    identity = lambda value: (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+    if identity(before) != identity(after):
+        raise _cell_record_error()
+    return result.hexdigest(), identity(after)
+
+
+def _cell_record_snapshot(stream, cancelled):
+    """Capture at most 16 MiB of exact stable metadata before decoding JSON."""
+    _cell_record_checkpoint(cancelled)
+    before = os.fstat(stream.fileno())
+    stream.seek(0)
+    raw = stream.read(16 * 1024 ** 2 + 1)
+    after = os.fstat(stream.fileno())
+    identity = lambda value: (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+    if len(raw) > 16 * 1024 ** 2 or identity(before) != identity(after):
+        raise _cell_record_error()
+    return json.loads(raw), hashlib.sha256(raw).hexdigest(), identity(after)
+
+
+def _cell_record_map(stream, expected_shape):
+    """Validate a bounded native float32 NPY header before mapping its payload read-only."""
+    stream.seek(0)
+    version = np.lib.format.read_magic(stream)
+    readers = {(1, 0): np.lib.format.read_array_header_1_0,
+               (2, 0): np.lib.format.read_array_header_2_0}
+    if version not in readers:
+        raise _cell_record_error()
+    shape, fortran, dtype = readers[version](stream, max_header_size=16384)
+    if (shape != tuple(expected_shape) or fortran or dtype != np.dtype(np.float32)
+            or dtype.hasobject or any(type(size) is not int or size <= 0 for size in shape)
+            or np.prod(shape, dtype=object) * dtype.itemsize > 128 * 1024 ** 2
+            or os.fstat(stream.fileno()).st_size != stream.tell() + int(np.prod(shape, dtype=object)) * dtype.itemsize):
+        raise _cell_record_error()
+    return np.memmap(stream, dtype=dtype, mode='r', offset=stream.tell(), shape=shape, order='C')
+
+
+class _CalibratedCellDataset:
+    """Own bounded one-field maps and exact completed-record provenance for a reader."""
+
+    def __init__(self, source, channels, cancelled):
+        """Capture metadata and validate every field before exposing any measurements."""
+        if (not hasattr(os, 'O_DIRECTORY') or not hasattr(os, 'O_NOFOLLOW')
+                or os.open not in os.supports_dir_fd):
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "Signed cell measurement loading requires POSIX descriptor-relative file access without symbolic links; this platform is not supported.",
+                language=os.environ.get('SPACR_LANGUAGE', 'en')))
+        self._root = Path(source).expanduser().resolve(strict=True)
+        self._root_fd = os.open(self._root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        self._cancelled = cancelled
+        self._active = None
+        self._iterator = None
+        self._closed = False
+        try:
+            with _cell_record_open(self._root_fd, 'psf/segmentation_application.json') as stream:
+                self._record, self.record_sha256, self._record_identity = _cell_record_snapshot(stream, cancelled)
+            record = self._record
+            if (not isinstance(record, dict) or record.get('complete') is not True
+                    or not isinstance(record.get('fields'), list) or not 1 <= len(record['fields']) <= 8192
+                    or any(not isinstance(key, str) or not key for key in record['fields'])
+                    or len(set(record['fields'])) != len(record['fields'])
+                    or not isinstance(record.get('calibrated_fields'), dict)
+                    or set(record['fields']) != record['calibrated_fields'].keys()):
+                raise _cell_record_error()
+            self._configuration = record['configuration']
+            config = self._configuration
+            unmixing = config['unmixing']
+            calibration = unmixing['calibration']
+            physical = config['physical_channel_order']
+            if (type(config.get('version')) is not int or config.get('version') != 1 or config.get('pipeline_style') != 'v2'
+                    or config.get('coordinate_system') != 'calibrated_reference_canvas'
+                    or not isinstance(physical, list) or not 1 <= len(physical) <= 16
+                    or any(type(channel) is not int or channel < 0 for channel in physical)
+                    or len(set(physical)) != len(physical) or unmixing.get('channels') != physical
+                    or type(calibration.get('version')) is not int or calibration.get('version') != 1
+                    or calibration.get('axes') != 'YX'):
+                raise _cell_record_error()
+            self.physical_channel_order = tuple(physical)
+            self.channels = tuple(physical if channels is None else channels)
+            if (not self.channels or len(set(self.channels)) != len(self.channels)
+                    or any(type(channel) is not int or channel not in physical for channel in self.channels)):
+                raise _cell_record_error()
+            spacing = calibration['pixel_size_um']
+            if (not isinstance(spacing, list) or len(spacing) != 2
+                    or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                           or not np.isfinite(value) or value <= 0 for value in spacing)):
+                raise _cell_record_error()
+            self.pixel_size_um = tuple(float(value) for value in spacing)
+            entries = calibration['channels']
+            if (not isinstance(entries, list) or len(entries) != len(physical)
+                    or [entry['channel'] for entry in entries] != physical
+                    or type(calibration['reference_channel']) is not int
+                    or calibration['reference_channel'] not in physical):
+                raise _cell_record_error()
+            self._matching_shapes = []
+            shapes = []
+            for entry in entries:
+                shape = np.shape(entry['psf'])
+                if (len(shape) != 2 or any(size <= 0 or size > 31 or size % 2 != 1 for size in shape)
+                        or entry['psf_origin_px'] != [size // 2 for size in shape]
+                        or entry['psf_pixel_size_um'] != spacing):
+                    raise _cell_record_error()
+                kernel = np.asarray(entry['psf'], dtype=np.float64)
+                shift = entry['shift_to_reference_px']
+                if (not np.isfinite(kernel).all() or np.any(kernel < 0)
+                        or not np.isclose(kernel.sum(), 1, rtol=1e-6, atol=1e-12)
+                        or hashlib.sha256(kernel.tobytes()).hexdigest() != entry['normalized_psf_sha256']
+                        or not isinstance(shift, list) or len(shift) != 2
+                        or any(type(value) is not int or abs(value) > 4096 for value in shift)
+                        or (entry['channel'] == calibration['reference_channel'] and shift != [0, 0])):
+                    raise _cell_record_error()
+                shapes.append(shape)
+            from scipy.signal import convolve2d
+
+            common_shape = tuple(1 + sum(shape[axis] - 1 for shape in shapes) for axis in (0, 1))
+            if (max(common_shape) > 127 or calibration.get('common_psf_support_yx') != list(common_shape)
+                    or np.shape(calibration.get('common_psf')) != common_shape):
+                raise _cell_record_error()
+            common = np.ones((1, 1), dtype=np.float64)
+            for entry in entries:
+                common = convolve2d(common, np.asarray(entry['psf'], dtype=np.float64), mode='full')
+            if not np.array_equal(common, np.asarray(calibration['common_psf'], dtype=np.float64)):
+                raise _cell_record_error()
+            self._matching_shapes = [tuple(1 + sum(shape[axis] - 1 for j, shape in enumerate(shapes) if j != i)
+                                                 for axis in (0, 1)) for i in range(len(shapes))]
+            matrix = np.asarray(unmixing['matrix'], dtype=np.float64)
+            if (matrix.shape != (len(physical), len(physical)) or not np.isfinite(matrix).all()
+                    or np.any(matrix < 0) or not np.all(np.diag(matrix) == 1)
+                    or not np.isfinite(np.linalg.cond(matrix))):
+                raise _cell_record_error()
+            self._configuration_sha256 = _cell_record_hash(config)
+            identities, physical_fields, paths = set(), set(), set()
+            self._artifact_owners = {}
+            if not isinstance(config.get('source_dataset'), str) or not config['source_dataset']:
+                raise _cell_record_error()
+            for field_id in record['fields']:
+                row = record['calibrated_fields'][field_id]
+                identity = row['source_identity']
+                if (identity.get('source_dataset') != config['source_dataset']
+                        or any(not isinstance(identity.get(key), str) for key in ('plate', 'well', 'field', 'time', 'z'))):
+                    raise _cell_record_error()
+                physical_identity = tuple(identity[key] for key in ('source_dataset', 'plate', 'well', 'field', 'time', 'z'))
+                if physical_identity in physical_fields:
+                    raise _cell_record_error()
+                physical_fields.add(physical_identity)
+                for key in ('signed_crop', 'display_mask'):
+                    path = row[key]['path']
+                    if not isinstance(path, str) or path in paths:
+                        raise _cell_record_error()
+                    paths.add(path)
+                with self._field(field_id):
+                    identities.add((identity['plate'], identity['time'], identity['z']))
+            if len(identities) != 1:
+                raise _cell_record_error()
+            self._metadata_current(full=True)
+        except BaseException:
+            self.close()
+            raise
+
+    def provenance(self):
+        """Return an independent JSON-safe snapshot of the validated complete record."""
+        return json.loads(json.dumps(self._record))
+
+    def _metadata_current(self, *, full=False):
+        """Check descriptor identity per field and exact metadata bytes at final publication."""
+        with _cell_record_open(self._root_fd, 'psf/segmentation_application.json') as stream:
+            stat = os.fstat(stream.fileno())
+            identity = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+            if identity != self._record_identity:
+                raise _cell_record_error()
+            if full:
+                digest, identity = _cell_record_stream_hash(stream, self._cancelled)
+                if digest != self.record_sha256 or identity != self._record_identity:
+                    raise _cell_record_error()
+
+    @contextmanager
+    def _field(self, field_id):
+        """Validate a single matching signed crop and cell canvas, closing every mapping."""
+        _cell_record_checkpoint(self._cancelled)
+        row = self._record['calibrated_fields'][field_id]
+        source_shape = row['source_shape']
+        roi = row['valid_roi_yx']
+        identity = row['source_identity']
+        count = len(self.physical_channel_order)
+        if (row.get('measurement_schema_version') != 1 or type(row.get('measurement_schema_version')) is not int
+                or row.get('mask_role') != 'cell' or type(row.get('mask_channel_position')) is not int
+                or row.get('mask_channel_position') != count
+                or row.get('field_id') != field_id or row.get('mode') != 'calibrated_batch_2d'
+                or row.get('coordinate_system') != 'calibrated_reference_canvas'
+                or row.get('configuration_sha256') != self._configuration_sha256
+                or row.get('binding_sha256') != _cell_record_hash({key: value for key, value in row.items() if key != 'binding_sha256'})
+                or not isinstance(source_shape, list) or len(source_shape) != 3
+                or any(type(size) is not int or size <= 0 for size in source_shape)
+                or source_shape[2] != count or np.prod(source_shape, dtype=object) > 16 * 1024 ** 2
+                or not isinstance(roi, list) or len(roi) != 2
+                or any(not isinstance(part, list) or len(part) != 2 or any(type(v) is not int for v in part)
+                       or not 0 <= part[0] < part[1] <= source_shape[axis] for axis, part in enumerate(roi))
+                or not isinstance(row.get('source_origin_px'), list)
+                or any(type(value) is not int for value in row['source_origin_px'])
+                or row['source_origin_px'] != [roi[0][0], roi[1][0]]
+                or not isinstance(identity, dict) or any(not isinstance(identity.get(key), str) for key in ('plate', 'well', 'field', 'time', 'z'))
+                or any(not identity[key] for key in ('plate', 'well', 'field'))):
+            raise _cell_record_error()
+        height, width = source_shape[:2]
+        top, left, bottom, right = 0, 0, height, width
+        calibration = self._configuration['unmixing']['calibration']
+        for entry, shape in zip(calibration['channels'], self._matching_shapes):
+            dy, dx = entry['shift_to_reference_px']
+            ry, rx = (size // 2 for size in shape)
+            top, left = max(top, dy + ry), max(left, dx + rx)
+            bottom, right = min(bottom, height + dy - ry), min(right, width + dx - rx)
+        if roi != [[top, bottom], [left, right]]:
+            raise _cell_record_error()
+        excluded = row['excluded_boundary_label_ids']
+        if (not isinstance(excluded, list) or any(type(value) is not int or not 0 < value <= 65535 for value in excluded)
+                or excluded != sorted(set(excluded))):
+            raise _cell_record_error()
+        streams, maps = [], []
+        self._active = (streams, maps)
+        try:
+            crop_shape = (bottom - top, right - left, count)
+            for key, shape in (('signed_crop', crop_shape), ('display_mask', (height, width, count + 1))):
+                artifact = row[key]
+                stream = _cell_record_open(self._root_fd, artifact['path'])
+                streams.append((stream, key, None))
+                stat = os.fstat(stream.fileno())
+                artifact_id = (stat.st_dev, stat.st_ino)
+                owner = (field_id, key)
+                if artifact_id in self._artifact_owners and self._artifact_owners[artifact_id] != owner:
+                    raise _cell_record_error()
+                self._artifact_owners[artifact_id] = owner
+                if os.fstat(stream.fileno()).st_size > 128 * 1024 ** 2 + 16384:
+                    raise _cell_record_error()
+                digest, original = _cell_record_stream_hash(stream, self._cancelled)
+                if digest != artifact['sha256']:
+                    raise _cell_record_error()
+                streams[-1] = (stream, key, original)
+                maps.append(_cell_record_map(stream, shape))
+            signed, canvas = maps
+            labels = canvas[..., -1]
+            for start in range(0, height, 64):
+                _cell_record_checkpoint(self._cancelled)
+                block = canvas[start:start + 64]
+                values = labels[start:start + 64]
+                if (not np.isfinite(block).all() or np.any(block[..., :-1] < 0)
+                        or np.any(values < 0) or np.any(values > 65535)
+                        or not np.equal(values, np.floor(values)).all()
+                        or np.isin(values, excluded).any()):
+                    raise _cell_record_error()
+                global_rows = np.arange(start, min(start + 64, height))
+                outside = (global_rows < top) | (global_rows >= bottom)
+                if (np.any(block[outside]) or np.any(block[:, :left]) or np.any(block[:, right:])):
+                    raise _cell_record_error()
+            for start in range(0, bottom - top, 64):
+                _cell_record_checkpoint(self._cancelled)
+                pixels = signed[start:start + 64]
+                if (not np.isfinite(pixels).all() or not np.array_equal(
+                        canvas[top + start:min(top + start + 64, bottom), left:right, :-1], np.maximum(pixels, 0))):
+                    raise _cell_record_error()
+            region_labels = labels[top:bottom, left:right]
+            if any(np.any(edge) for edge in (region_labels[0], region_labels[-1], region_labels[:, 0], region_labels[:, -1])):
+                raise _cell_record_error()
+            fractions = row['negative_fraction_per_channel']
+            if not isinstance(fractions, dict) or fractions.keys() != {str(channel) for channel in self.physical_channel_order}:
+                raise _cell_record_error()
+            for index, channel in enumerate(self.physical_channel_order):
+                value = fractions[str(channel)]
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise _cell_record_error()
+                expected = float(value)
+                actual = sum(np.count_nonzero(signed[start:start + 64, :, index] < 0)
+                             for start in range(0, bottom - top, 64)) / ((bottom - top) * (right - left))
+                if not np.isfinite(expected) or expected != actual:
+                    raise _cell_record_error()
+            cell_labels = np.array(region_labels, dtype=np.uint16, copy=True)
+            cell_labels.flags.writeable = False
+            try:
+                yield dict(field_id=field_id, signed=signed, labels=cell_labels,
+                           physical_channel_order=self.physical_channel_order,
+                           channel_positions={channel: index for index, channel in enumerate(self.physical_channel_order)},
+                           source_origin_px=tuple(row['source_origin_px']), source_shape=tuple(source_shape),
+                           pixel_size_um=self.pixel_size_um, source_identity=dict(identity),
+                           provenance=json.loads(json.dumps(row)))
+            finally:
+                for stream, key, original in streams:
+                    digest, current = _cell_record_stream_hash(stream, self._cancelled)
+                    with _cell_record_open(self._root_fd, row[key]['path']) as replacement:
+                        stat = os.fstat(replacement.fileno())
+                        identity_now = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+                    if current != original or identity_now != original or digest != row[key]['sha256']:
+                        raise _cell_record_error()
+        finally:
+            for array in maps:
+                array._mmap.close()
+            for stream, _, _ in streams:
+                stream.close()
+            self._active = None
+
+    @property
+    def configuration(self):
+        """Return captured configuration without exposing mutable validation state."""
+        return json.loads(json.dumps(self._configuration))
+
+    def fields(self):
+        """Borrow one iterator whose maps remain owned by the dataset context."""
+        if self._closed or self._iterator is not None:
+            raise _cell_record_error()
+        self._iterator = self._iter_fields()
+        return self._iterator
+
+    def _iter_fields(self):
+        """Recheck each borrowed field and metadata before advancing or early closure."""
+        try:
+            for field_id in self._record['fields']:
+                self._metadata_current()
+                with self._field(field_id) as field:
+                    yield field
+                self._metadata_current()
+        finally:
+            self._metadata_current(full=True)
+
+    def close(self):
+        """Drain the borrowed iterator and close maps even after failure or cancellation."""
+        if self._closed:
+            return
+        try:
+            if self._iterator is not None:
+                self._iterator.close()
+        finally:
+            self._closed = True
+            if self._active is not None:
+                streams, maps = self._active
+                for array in maps:
+                    array._mmap.close()
+                for stream, _, _ in streams:
+                    stream.close()
+                self._active = None
+            os.close(self._root_fd)
+
+
+@contextmanager
+def _open_calibrated_cell_dataset(source, *, channels=None, cancelled=None):
+    """Open completed cell-role records on POSIX with borrowed read-only field maps."""
+    dataset = None
+    try:
+        dataset = _CalibratedCellDataset(source, channels, cancelled)
+        yield dataset
+    except (KeyError, TypeError, OSError, json.JSONDecodeError, OverflowError) as error:
+        raise _cell_record_error() from error
+    finally:
+        if dataset is not None:
+            dataset.close()
