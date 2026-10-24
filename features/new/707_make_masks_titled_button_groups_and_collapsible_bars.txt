@@ -17,6 +17,11 @@ regression/foreign/run_compare; power/align; graph_builder/toxoplasma. Run each
 once, sequentially on one source pin under unchanged exact-key/role/manifest
 visibility rules and20s content budget; stop further batches on failure.
 AW8oik records42 tile members/97 non-tile targets; no whole-Home coverage sum.
+Native22713/44813/82728/83478 on ec31c8fb3 all pass31.95/30.80/30.48/30.66s;
+peak RSS1.191/1.213/1.211/1.201GiB. Exact ten keys/30 tile-icon-name roles pass,
+including native source/DPR2/text/hidden-H0. Per-run coverage9/9/6/6 of139 leaves
+130/130/133/133 untested; content≤7.556s/tour≤10.092s, errors[] and normal
+close/worker cleanup pass. All14 tile roles now covered, not full139 acceptance.
 
 Next tile_batch operation requests two or three real visible module keys through
 explicit JSON and checks each tile plus all its current-manifest descendants.
