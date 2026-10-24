@@ -7214,14 +7214,14 @@ def _windows_pip_tree_acl(path, *, system_owner=False):
     count = 0
     while pending:
         current = pending.pop()
-        details = os.lstat(current)
+        details = os.lstat(_windows_native_path(current))
         if (stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400
                 or not (stat.S_ISDIR(details.st_mode) or stat.S_ISREG(details.st_mode))):
             raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
         _windows_pip_private_access(current, system_owner=system_owner)
         if stat.S_ISDIR(details.st_mode):
-            with os.scandir(current) as entries:
-                pending.extend(entry.path for entry in entries)
+            with os.scandir(_windows_native_path(current)) as entries:
+                pending.extend(os.path.join(current, entry.name) for entry in entries)
         count += 1
     return {"verified": True, "entries": count}
 

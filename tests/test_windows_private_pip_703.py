@@ -672,13 +672,40 @@ def test_descendant_proof_is_not_cached(runtime, monkeypatch):
         cleanup._windows_pip_tree_acl(str(runtime.prefix))
 
 
+@pytest.mark.skipif(os.name != 'nt', reason='native Windows extended paths and ACLs')
+def test_native_deep_file_acl_walk_keeps_public_paths_and_every_payload(tmp_path, monkeypatch):
+    root = tmp_path / 'private-runtime'
+    deep = root
+    for index in range(4):
+        deep = deep / (str(index) + '-qml-resources-' + 'x' * 35)
+    payload = deep / 'qrc_qmake_Qt_labs_assetdownloader_init.cpp.obj'
+    assert len(str(payload)) > 274
+    os.makedirs(cleanup._windows_native_path(deep), mode=0o700)
+    content = b'complete genuine-layout deep payload\x00\xff'
+    with open(cleanup._windows_native_path(payload), 'xb') as stream:
+        stream.write(content)
+    seen = []
+    native_acl = cleanup._windows_pip_acl
+
+    def observe(path):
+        assert not os.fspath(path).startswith('\\\\?\\')
+        seen.append(os.fspath(path))
+        return native_acl(path)
+
+    monkeypatch.setattr(cleanup, '_windows_pip_acl', observe)
+    assert cleanup._windows_pip_tree_acl(str(root)) == {'verified': True, 'entries': 6}
+    assert str(payload) in seen and len(seen) == 6
+    with open(cleanup._windows_native_path(payload), 'rb') as stream:
+        assert stream.read() == content
+
+
 def test_descendant_reparse_attribute_is_refused_without_following_it(runtime, monkeypatch):
     original = cleanup.os.lstat
     target = runtime.package
 
     def reparse(path, **kwargs):
         result = original(path, **kwargs)
-        if Path(path) == target:
+        if os.fspath(path) == cleanup._windows_native_path(target):
             return types.SimpleNamespace(st_mode=result.st_mode, st_file_attributes=0x400)
         return result
 
