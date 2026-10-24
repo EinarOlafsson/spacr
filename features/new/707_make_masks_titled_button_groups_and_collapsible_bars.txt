@@ -16,7 +16,13 @@ Hero logo requirement: fit the actual masthead allocation from original source
 pixels, preserving aspect/DPR and selected preferred size on growth, without
 fixed floors. Controlled99256 reproduces the invisible logo in1104x84; focused
 89523 passes3/4.79s/RSS0.317GiB for shrink/grow, mockedDPR1/2/change, unchanged
-source and retained text-fit restoration/quiescence. Native retake remains due.
+source and retained text-fit restoration/quiescence. Native17820/11zgAs on
+f40c66490 confirms full52x52 logo/DPR2, both text fields and all four Chrome
+marks. The case fails naturally1/50.72s/RSS1.305GiB:37/137 inspected,100 untested
+at content20.080s (tour8.712s). Pipeline overviews loses135px of styled text;
+Clear is outside the1200px client. News needs actual scroll-policy attribution.
+Normal close/worker cleanup pass. This accepts the bounded logo repair only;
+full Home minimum-content acceptance remains open, not a startup-speed failure.
 
 Chrome icon scope: current font200 paints a36px source while GUI200 uses a
 native72px icon slot; returned36px pixels cannot retain the same relative
