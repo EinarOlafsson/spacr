@@ -177,6 +177,10 @@ IMPORT_TO_DIST = {
     # different, unrelated package.
     "omero": "omero-py",
     "pynvml": "nvidia-ml-py",
+    # iconset._try_qta initialises QtPy just before QtAwesome, which requires
+    # it, to skip one alias import; like shiboken6 under PySide6, it arrives
+    # with the declared distribution that needs it.
+    "qtpy": "qtawesome",
     "scikit_posthocs": "scikit-posthocs",
     "shiboken6": "PySide6",
     "skimage": "scikit-image",
