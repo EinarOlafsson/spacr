@@ -1746,6 +1746,23 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
 
 _TOP_LEVEL_CACHE: dict = {}
 
+#: Bumped when the kept node types or the cached text format change.
+_TOP_LEVEL_DISK_VERSION = 1
+
+
+def _top_level_disk_path(module_name: str, raw: bytes):
+    """Where the kept declarations of one exact source text are stored.
+
+    Keyed by the source bytes and the running Python, so an edited module or
+    an interpreter with a different grammar never reads another's entry.
+    """
+    import hashlib
+
+    key = hashlib.sha1(raw)
+    key.update(f"|{sys.version_info[:2]}|v{_TOP_LEVEL_DISK_VERSION}".encode())
+    return (_spacr_home() / "cache" / "top-level"
+            / f"{module_name.rpartition('.')[2]}-{key.hexdigest()[:20]}.py")
+
 
 def _top_level_nodes(module_name: str):
     """A module's top-level assignments and relative imports, from its source.
@@ -1756,6 +1773,12 @@ def _top_level_nodes(module_name: str):
     ``AnnAssign`` and ``ImportFrom`` nodes are kept, so the function bodies
     of a large screen module are not held in memory.
 
+    The kept nodes are also written back as source text under the spaCR
+    cache. Parsing the whole of the fold hosts took about 0.5 s of every
+    launch on an Intel Mac (``make_masks`` alone is over 1 MB); parsing the
+    few kilobytes of kept declarations takes about 10 ms. The entry is
+    plain Python text read with ``ast.parse``, never executed.
+
     :param module_name: dotted name of the module to read.
     :returns: a tuple of nodes, or ``None`` when the source cannot be read.
     """
@@ -1765,17 +1788,54 @@ def _top_level_nodes(module_name: str):
     import importlib.util
     import pathlib
 
+    kept = (ast.Assign, ast.AnnAssign, ast.ImportFrom)
     try:
         spec = importlib.util.find_spec(module_name)
-        tree = ast.parse(
-            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
+        raw = pathlib.Path(spec.origin).read_bytes()
     except Exception:                                   # noqa: BLE001
         _TOP_LEVEL_CACHE[module_name] = None
         return None
-    nodes = tuple(node for node in tree.body if isinstance(
-        node, (ast.Assign, ast.AnnAssign, ast.ImportFrom)))
+    stored = None
+    try:
+        stored = _top_level_disk_path(module_name, raw)
+        nodes = tuple(node for node in ast.parse(
+            stored.read_text(encoding="utf-8")).body
+            if isinstance(node, kept))
+    except Exception:                                   # noqa: BLE001
+        nodes = None
+    if nodes is None:
+        try:
+            tree = ast.parse(raw.decode("utf-8"))
+        except Exception:                               # noqa: BLE001
+            _TOP_LEVEL_CACHE[module_name] = None
+            return None
+        nodes = tuple(node for node in tree.body if isinstance(node, kept))
+        if stored is not None:
+            _store_top_level_nodes(stored, nodes)
     _TOP_LEVEL_CACHE[module_name] = nodes
     return nodes
+
+
+def _store_top_level_nodes(path, nodes) -> None:
+    """Write kept declarations as source text, atomically; failure is silent."""
+    import ast
+
+    tmp = None
+    try:
+        text = ast.unparse(ast.Module(body=list(nodes), type_ignores=[]))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
+        tmp.write_text(text, encoding="utf-8")
+        os.replace(tmp, path)
+        tmp = None
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        if tmp is not None:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def _declared_constant(module_name: str, name: str):

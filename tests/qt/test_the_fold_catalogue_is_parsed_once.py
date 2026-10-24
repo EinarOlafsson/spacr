@@ -95,3 +95,68 @@ def test_the_answer_is_the_same_one_the_uncached_reader_gave(parse_counter):
 
     assert warm == cold
     assert warm, "the catalogue is empty, so agreement proves nothing"
+
+
+def test_a_new_process_reads_the_kept_declarations_not_the_whole_host(
+        parse_counter, monkeypatch, tmp_path):
+    """The next launch parses kilobytes, not the megabyte-sized hosts.
+
+    Parsing every fold host in full cost about 0.5 s of each Home startup on
+    an Intel Mac. The kept top-level declarations are stored under the spaCR
+    cache, so a later process (here: an emptied in-process cache) parses only
+    those. Counted in characters handed to `ast.parse`, not timed.
+    """
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "home"))
+    sizes = []
+    counted = ast.parse
+
+    def sized(source, *args, **kwargs):
+        sizes.append(len(source))
+        return counted(source, *args, **kwargs)
+
+    monkeypatch.setattr(ast, "parse", sized)
+    fold_strip._forget_host_declarations()
+    cold = fold_strip.folded_modules()
+    cold_chars = sum(sizes)
+    assert list((tmp_path / "home" / "cache" / "top-level").glob("*.py"))
+
+    sizes.clear()
+    fold_strip._forget_host_declarations()
+    warm = fold_strip.folded_modules()
+
+    assert warm == cold and warm
+    assert sum(sizes) * 20 < cold_chars, (
+        f"the second process parsed {sum(sizes)} characters against "
+        f"{cold_chars} cold; the stored declarations were not used")
+
+
+def test_an_edited_host_is_read_again_and_a_broken_entry_is_ignored(
+        monkeypatch, tmp_path):
+    """The entry is keyed by the source bytes and is never trusted blindly."""
+    import spacr.qt.app as app
+
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "home"))
+    package = tmp_path / "pkg"
+    package.mkdir()
+    host = package / "fold_host_probe.py"
+    host.write_text('APP_KEY = "probe"\nFOLDED_APPS = ("a", "b")\n'
+                    "def body():\n    return 1\n", encoding="utf-8")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    name = "pkg.fold_host_probe"
+
+    app._TOP_LEVEL_CACHE.pop(name, None)
+    assert app._declared_folds(name) == ("probe", ("a", "b"))
+    stored = app._top_level_disk_path(name, host.read_bytes())
+    assert stored.is_file() and "def body" not in stored.read_text()
+
+    host.write_text('APP_KEY = "probe"\nFOLDED_APPS = ("c",)\n',
+                    encoding="utf-8")
+    app._TOP_LEVEL_CACHE.pop(name, None)
+    assert app._declared_folds(name) == ("probe", ("c",))
+
+    app._top_level_disk_path(name, host.read_bytes()).write_text(
+        "FOLDED_APPS = (", encoding="utf-8")
+    app._TOP_LEVEL_CACHE.pop(name, None)
+    assert app._declared_folds(name) == ("probe", ("c",))
+    app._TOP_LEVEL_CACHE.pop(name, None)
