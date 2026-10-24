@@ -793,15 +793,15 @@ def test_native_protocol_capability_is_required_before_sending_optional_field(co
     assert all(call['method'] == 'GET' for call in relay.calls_to('/health'))
 
 
-def test_native_session_rejects_arbitrary_paths_keys_and_digest_values(configured):
+def test_native_session_rejects_arbitrary_paths_keys_and_digest_values(configured, tmp_path):
     source = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
               'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
               'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
     assert cr._validated_summary({'native_session': source})['native_session'] == source
     for malformed in (dict(source, hostname='private-host'),
-                      dict(source, source_sha256={'/home/private/app.py': 'a' * 64}),
+                      dict(source, source_sha256={str(tmp_path / 'app.py'): 'a' * 64}),
                       dict(source, source_sha256={'app': 'sk-abcdefghijklmnopqrstuv'}),
-                      dict(source, python='/home/private/python'),
+                      dict(source, python=str(tmp_path / 'python')),
                       dict(source, started_at='2026-02-31T00:00:00Z')):
         assert cr._validated_summary({'native_session': malformed})['native_session'] == {'known': False}
 
