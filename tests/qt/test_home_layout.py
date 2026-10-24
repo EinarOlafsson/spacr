@@ -505,6 +505,92 @@ def _check_real_home_compressed_access(qtbot, qapp, monkeypatch, *, header_only=
             qapp.setPalette(old_palette)
 
 
+@pytest.mark.parametrize('gui', [2., .9])
+def test_mainwindow_status_tracks_styled_glyph_height(qtbot, qapp, monkeypatch, gui):
+    import json
+    from PySide6.QtCore import QPoint, QSize, Qt
+    from PySide6.QtGui import QFontInfo, QRegion
+    from PySide6.QtWidgets import QStyle
+    from spacr.qt import app, gui_scale, preferences
+    from spacr.qt.widgets import home as home_widgets
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    window = None
+    monkeypatch.setattr(HomePage, '_install_ambient', lambda self: None)
+    monkeypatch.setattr(HomePage, '_read_the_journal', lambda self: None)
+    monkeypatch.setattr(home_widgets.NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(gui)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(gui)
+        preferences.apply_preferences_to_app()
+        window = app.MainWindow()
+        qtbot.addWidget(window)
+        gui_scale._resize_actual(window, QSize(1200, 640))
+        window.show()
+        bar = window.statusBar()
+        labels = [window._status_app_label, window._status_version_label]
+        previous = [None]
+        rows = []
+
+        def snapshot():
+            return tuple((widget.property('size').toTuple(), widget.pos().toTuple(),
+                          widget.font().toString(), widget.property('minimumSize').toTuple(),
+                          widget.property('maximumSize').toTuple()) for widget in [bar, *labels])
+
+        def settled():
+            now = snapshot()
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        for font in (2., .9, 2.):
+            gui_scale.change_scales(window, gui=gui, font=font, ask=False)
+            for width in (1200, 1240, 1200):
+                gui_scale._resize_actual(window, QSize(width, 640))
+                previous[0] = None
+                qtbot.waitUntil(settled)
+                for label in labels:
+                    assert QFontInfo(label.font()).family() == 'Open Sans'
+                    text = label.style().itemTextRect(label.fontMetrics(), label.contentsRect(),
+                        int(label.alignment() | Qt.TextSingleLine), label.isEnabled(), label.text())
+                    row = {'gui': gui, 'font_scale': font, 'window': window.property('size').toTuple(),
+                        'role': label.objectName(), 'font': label.font().toString(),
+                        'label': label.property('size').toTuple(), 'contents': label.contentsRect().getRect(),
+                        'text': text.getRect(), 'visible': label.visibleRegion().boundingRect().getRect(),
+                        'bar': bar.property('size').toTuple(), 'bar_hint': bar.sizeHint().toTuple(),
+                        'bar_minimum': bar.property('minimumSize').toTuple(),
+                        'bar_maximum': bar.property('maximumSize').toTuple(),
+                        'logical': dict(getattr(bar, '_gs_geo', {})),
+                        'applied': dict(getattr(bar, '_gs_geo_set', {}))}
+                    rows.append(row)
+                    print('STATUS_GLYPH_HEIGHT', json.dumps(row), flush=True)
+                    assert label.contentsRect().contains(text), row
+                    assert QRegion(text).subtracted(label.visibleRegion()).isEmpty(), row
+                    assert window.rect().contains(text.translated(label.mapTo(window, QPoint()))), row
+        assert len(rows) == 18
+        before = snapshot()
+        for _ in range(8):
+            qapp.processEvents()
+        assert snapshot() == before
+    finally:
+        try:
+            if window is not None:
+                window.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 def _aside_builder():
     """Use the actual aside factory without unrelated Home background jobs."""
     from PySide6.QtCore import Signal

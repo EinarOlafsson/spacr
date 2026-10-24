@@ -12,11 +12,37 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Status-height repair scope: native44719 exposes two real footer glyph clips
+inside fixed46px status bar; preserve29 ordinary-label passes. Real normal-font
+MainWindow regression covers GUI200/90, font grow/shrink, native resize and
+full styled label slots before trying natural Qt height instead of the early
+fixed-height snapshot. No global font/window floor or ordinary-text waiver.
+Focused57413 reproduces both cases in21.18s/RSS0.587GiB: GUI200 freezes44px
+against native71px hint, GUI90 freezes20px against35px hint; glyph slots clip.
+Try removing only the early fixed height so native Qt follows polished hints.
+Removing that snapshot passes focused10088: two cases35.13s/RSS0.452GiB,
+natural71/35px bars at GUI200/90 with font200; full native glyph containment,
+font/width grow-shrink and idle checks pass without imposed min/max records.
+Combined14 native status plus affected Home-access acceptance remains pending.
+Caught GUI-scale listener RuntimeError remains observed/unattributed during
+focused cross-window scale cleanup: gui_scale.py1124 callback→app.py2224
+_queue_icon_paint→_icon_timer.start(0), "QTimer already deleted"; not repaired.
+
+Next status_home_access cohort combines two actual MainWindow status refs with
+the affected12 Home-access targets, retaining exact identities/full ledger and
+one20s strict content budget. Revalidate header/tile/aside/hint access as taller
+status takes body room; retain29 ordinary passes without broad-label replay.
+
 Next ordinary_labels cohort selects31 actual owned labels: recent placeholder1,
 totals8, system6, text-size2, current Home bands8, panel headers4 and status2.
 Require exact semantic counts/identities within the full manifest and original
 20s strict text/reveal contract. Only the explicit News header is included;
 its51 title/date/body labels remain separately unaccepted, not waived.
+Native44719/LXNzg7 on56342d601 fails45.71s/RSS1.296GiB: all31 checked of139,
+108 untested;29 non-status labels pass. Home/version labels have41px slots
+but full native text needs67/61px; the fixed46px status bar clips both vertically.
+Content15.921s/tour9.360s, normal close/worker cleanup pass, no deadline/overlay
+failure. Status-height repair requires causal review; no full Home acceptance.
 
 Remaining tile scope is four disjoint batches: measure/annotate/map_barcodes;
 regression/foreign/run_compare; power/align; graph_builder/toxoplasma. Run each

@@ -3279,7 +3279,6 @@ class MainWindow(QMainWindow):
         status.addPermanentWidget(self._status_version_label)
         status.showMessage(tr("Ready"))
         status.setSizeGripEnabled(False)
-        status.setFixedHeight(status.sizeHint().height())
         self.setStatusBar(status)
 
         try:

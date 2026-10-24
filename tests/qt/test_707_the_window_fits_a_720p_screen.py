@@ -93,7 +93,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access"), cohort
     tile_keys = json.loads(os.environ["SPACR_HOME_TEST_TILE_KEYS"]) if cohort == "tile_batch" else []
     if cohort == "tile_batch":
         assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -124,7 +124,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access'), cohort
         tile_keys = json.loads(os.environ['SPACR_HOME_TEST_TILE_KEYS']) if cohort == 'tile_batch' else []
         if cohort == 'tile_batch':
             assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -318,6 +318,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 row['module_coverage'] = {key: report['target_manifest'][manifest_index][key]
                     for key in ('module_key', 'tile_role', 'full_caption')}
                 row['ordinary_label_role'] = report['target_manifest'][manifest_index]['ordinary_label_role']
+                row['status_label_role'] = report['target_manifest'][manifest_index]['status_label_role']
             row['ancestors'] = []
             ancestor = widget
             while ancestor is not None:
@@ -329,7 +330,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     break
                 ancestor = ancestor.parentWidget()
             (report['checks'] if destination is None else destination).append(row)
-            if (cohort == 'home_access' and widget in state['access_tile_widgets']) or cohort == 'tile_batch':
+            if (cohort in ('home_access', 'status_home_access') and widget in state['access_tile_widgets']) or cohort == 'tile_batch':
                 scroll = state['batch_scroll'] if cohort == 'tile_batch' else state['access_tile_scroll']
                 row['tile_scroll'] = {'horizontal_policy': scroll.horizontalScrollBarPolicy().value,
                     'horizontal_range': (scroll.horizontalScrollBar().minimum(), scroll.horizontalScrollBar().maximum()),
@@ -704,6 +705,11 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         report['tile_batch'] = {'requested_keys': tile_keys, 'observed_keys': sorted(observed_keys),
                             'scope': 'All currently visible manifest members of the requested actual tiles'}
                     ordinary_roles = {}
+                    status_roles = {}
+                    if cohort == 'status_home_access':
+                        status_roles = {window._status_app_label: 'app', window._status_version_label: 'version'}
+                        assert len(status_roles) == 2 and all(isinstance(w, QLabel) and w in all_widgets for w in status_roles)
+                        report['status_label_owners'] = {role: shiboken6.getCppPointer(w) for w, role in status_roles.items()}
                     if cohort == 'ordinary_labels':
                         home = window._startup
                         expected = {'recent_placeholder': 1, 'totals': 8, 'system': 6,
@@ -739,7 +745,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         report['tab_arrow_owner'] = {'class': type(tab_bar).__name__, 'name': tab_bar.objectName(),
                             'native_cpp_pointer': shiboken6.getCppPointer(tab_bar)}
                     access_roles = {}
-                    if cohort == 'home_access':
+                    if cohort in ('home_access', 'status_home_access'):
                         home = window._startup
                         for name in ('HeroMark', 'HeroTitle', 'HeroSubtitle'):
                             widget = home.findChild(QLabel, name)
@@ -766,12 +772,14 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         'tab_arrows': w in tab_arrow_roles, 'tab_arrow_role': tab_arrow_roles.get(w),
                         'tile_batch': w in tile_coverage and tile_coverage[w]['module_key'] in tile_keys,
                         'ordinary_labels': w in ordinary_roles, 'ordinary_label_role': ordinary_roles.get(w),
+                        'status_labels': w in status_roles, 'status_label_role': status_roles.get(w),
+                        'status_home_access': w in status_roles or w in access_roles,
                         **tile_coverage.get(w, {'module_key': None, 'tile_role': None, 'full_caption': w.text()}),
                         'home_access': w in access_roles, 'home_access_role': access_roles.get(w)}
                         for index, w in enumerate(all_widgets)]
                     state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
                     report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
-                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows', 'tile_batch': 'tile_batch', 'ordinary_labels': 'ordinary_labels'}[cohort]]]
+                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows', 'tile_batch': 'tile_batch', 'ordinary_labels': 'ordinary_labels', 'status_home_access': 'status_home_access'}[cohort]]]
                     state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
                     assert state['widgets'], ('No actual targets in selected cohort', cohort)
                     state['index'] = 0
@@ -779,8 +787,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     report['selected_target_count'] = len(state['widgets'])
                     if cohort in ('tab_arrows', 'tab_navigation'):
                         assert len(state['widgets']) == 2
-                    if cohort == 'home_access':
-                        assert len(state['widgets']) == 12
+                    if cohort in ('home_access', 'status_home_access'):
+                        assert len(state['widgets']) == (14 if cohort == 'status_home_access' else 12)
                     if cohort == 'hint_bar':
                         assert state['widgets'] == [window._startup._hint_bar]
                         state['hint_phase'] = 'initial_default'
@@ -943,6 +951,13 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
         assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
+        if cohort == 'status_home_access':
+            assert report['selected_target_count'] == 14 and set(report['status_label_owners']) == {'app', 'version'}, report
+            status_indices = [i for i in report['selected_indices'] if report['target_manifest'][i]['status_labels']]
+            assert len(status_indices) == 2 and {report['target_manifest'][i]['status_label_role'] for i in status_indices} == {'app', 'version'}, report
+            for i in status_indices:
+                entry = report['target_manifest'][i]
+                assert list(entry['native_cpp_pointer']) == list(report['status_label_owners'][entry['status_label_role']]), report
         if cohort == 'ordinary_labels':
             expected = {'recent_placeholder': 1, 'totals': 8, 'system': 6, 'text_size': 2, 'bands': 8, 'headers': 4, 'status': 2}
             assert report['selected_target_count'] == 31, report
@@ -972,9 +987,10 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             arrows = [row for row in nav['actions'] if row['kind'] == 'arrow_click']
             assert {row['direction'] for row in arrows} == {'left', 'right'}, report
             assert all(row['after_index'] == row['before_index'] and row['after_rects'] != row['before_rects'] for row in arrows), report
-        if cohort == 'home_access':
-            assert report['selected_target_count'] == 12, report
-            assert sorted(report['target_manifest'][i]['home_access_role'] for i in report['selected_indices']) == sorted(
+        if cohort in ('home_access', 'status_home_access'):
+            assert report['selected_target_count'] == (14 if cohort == 'status_home_access' else 12), report
+            assert sorted(report['target_manifest'][i]['home_access_role'] for i in report['selected_indices']
+                          if report['target_manifest'][i]['home_access']) == sorted(
                 ['HeroMark', 'HeroTitle', 'HeroSubtitle', 'tile', 'tile_icon', 'tile_name', 'hint_bar'] + ['aside_button'] * 5), report
         if cohort == 'hint_bar':
             assert [row['state'] for row in report['hint_states']] == ['initial_default', 'held_mask', 'released_default'], report
@@ -1012,9 +1028,16 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert not report["errors"] and report["normal_close_accepted"]
     assert report["cohort"] == cohort and report["selected_inspection_complete"]
     expected_indices = [entry["index"] for entry in report["target_manifest"]
-                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows", "tile_batch": "tile_batch", "ordinary_labels": "ordinary_labels"}[cohort]]]
+                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows", "tile_batch": "tile_batch", "ordinary_labels": "ordinary_labels", "status_home_access": "status_home_access"}[cohort]]]
     assert expected_indices and report["selected_indices"] == expected_indices
     assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
+    if cohort == "status_home_access":
+        assert len(expected_indices) == 14 and set(report["status_label_owners"]) == {"app", "version"}
+        status_indices = [i for i in expected_indices if report["target_manifest"][i]["status_labels"]]
+        assert len(status_indices) == 2 and {report["target_manifest"][i]["status_label_role"] for i in status_indices} == {"app", "version"}
+        for i in status_indices:
+            entry = report["target_manifest"][i]
+            assert entry["native_cpp_pointer"] == report["status_label_owners"][entry["status_label_role"]]
     if cohort == "ordinary_labels":
         expected = {"recent_placeholder": 1, "totals": 8, "system": 6, "text_size": 2, "bands": 8, "headers": 4, "status": 2}
         assert len(expected_indices) == 31
@@ -1045,9 +1068,10 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         arrows = [row for row in nav["actions"] if row["kind"] == "arrow_click"]
         assert {row["direction"] for row in arrows} == {"left", "right"}
         assert all(row["after_index"] == row["before_index"] and row["after_rects"] != row["before_rects"] for row in arrows)
-    if cohort == "home_access":
-        assert len(expected_indices) == 12
-        assert sorted(report["target_manifest"][i]["home_access_role"] for i in expected_indices) == sorted(
+    if cohort in ("home_access", "status_home_access"):
+        assert len(expected_indices) == (14 if cohort == "status_home_access" else 12)
+        assert sorted(report["target_manifest"][i]["home_access_role"] for i in expected_indices
+                      if report["target_manifest"][i]["home_access"]) == sorted(
             ["HeroMark", "HeroTitle", "HeroSubtitle", "tile", "tile_icon", "tile_name", "hint_bar"] + ["aside_button"] * 5)
     if cohort == "hint_bar":
         assert len(expected_indices) == 1
