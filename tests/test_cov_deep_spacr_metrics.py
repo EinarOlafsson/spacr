@@ -318,11 +318,13 @@ def test_evaluate_multiclass_one_hot_targets_produce_finite_ce_loss():
     idx_target = torch.tensor([2, 0, 1, 2, 0])
     one_hot = torch.nn.functional.one_hot(idx_target, num_classes=3).float()
 
-    metrics, (probs, labels) = evaluate_model_performance(
-        model, [(data, one_hot, ["x"] * 5)], epoch=0)
-
+    # Before evaluating: it moves the model to the accelerator, where a CPU
+    # batch would not reach it on a GPU or Metal machine.
     with torch.no_grad():
         expected = F.cross_entropy(model(data), idx_target).item()
+
+    metrics, (probs, labels) = evaluate_model_performance(
+        model, [(data, one_hot, ["x"] * 5)], epoch=0)
 
     assert np.isfinite(metrics["loss"])
     assert metrics["loss"] == pytest.approx(expected, rel=1e-5)
@@ -484,11 +486,12 @@ def test_model_core_multiclass_emits_one_column_per_class():
     target = torch.tensor([0, 1, 2, 2])
     names = ["a.png", "b.png", "c.png", "d.png"]
 
-    metrics, probs, labels, df = test_model_core(
-        model, [(data, target, names)], "test", epoch=5, loss_type="auto")
-
+    # Before test_model_core moves the model to the accelerator.
     with torch.no_grad():
         expected = torch.softmax(model(data), dim=1).numpy()
+
+    metrics, probs, labels, df = test_model_core(
+        model, [(data, target, names)], "test", epoch=5, loss_type="auto")
 
     assert probs.shape == (4, 3)
     np.testing.assert_allclose(probs, expected, rtol=1e-6)

@@ -102,3 +102,14 @@ def test_test_and_apply_model_use_cpu_precision(tmp_path, monkeypatch, contract_
     monkeypatch.setattr(submodules.cp_models, 'CellposeModel', construct)
     with pytest.raises(ConstructionReached):
         getattr(submodules, entry)({'src': str(tmp_path), 'model_path': 'cpsam'})
+
+
+@pytest.mark.parametrize('memory, bfloat16', [(16 * 1024 ** 3, False), (8 * 1024 ** 3, None)])
+def test_metal_runs_cellpose_in_float32_when_the_mac_has_the_memory(monkeypatch, memory, bfloat16):
+    """bfloat16 weights were 1.3x slower on an M2's Metal for the same masks;
+    a Mac under 16 GB keeps them for the 1.4 GB they save."""
+    monkeypatch.setattr(acc, '_CACHED', acc.Accelerator(
+        kind='mps', device='mps', label='Apple M2 (Apple Metal)', bfloat16=True))
+    monkeypatch.setattr(acc, '_keep_cellpose_flows_off_metal', lambda: None)
+    monkeypatch.setattr(acc, '_physical_memory', lambda: memory)
+    assert acc.cellpose_kwargs().get('use_bfloat16') is bfloat16
