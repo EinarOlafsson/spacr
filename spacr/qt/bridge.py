@@ -14,6 +14,7 @@ pause protocol, but pipeline entries that do not call ``checkpoint`` report
 from __future__ import annotations
 
 import atexit
+import contextlib
 import gc
 import importlib
 import io
@@ -2178,6 +2179,205 @@ def _module_is_imported(name: str) -> bool:
     return not getattr(spec, "_initializing", False)
 
 
+#: Top-level packages no two threads may start importing at once. torchvision
+#: is circular (``torchvision.ops`` and ``torchvision.models`` import each
+#: other through the package), and a second thread entering it while the
+#: first is still inside gets a partially initialised module: ``cannot import
+#: name 'batched_nms'`` (coverage shard 1, 2026-10-20). torch, Cellpose and
+#: segment-anything are the packages that bring it in.
+_GATED_IMPORT_ROOTS = frozenset({"torch", "torchvision", "cellpose",
+                                 "segment_anything"})
+#: spaCR modules that import a gated package at module level, directly or
+#: through one another. A thread is held at these too, before it holds the
+#: lock of anything the background import may need next: arriving at
+#: torchvision while another thread is inside it is what breaks, and waiting
+#: at ``spacr.object`` is waiting before that.
+_GATED_SPACR_MODULES = frozenset({
+    "spacr.attribution", "spacr.core", "spacr.deep_spacr", "spacr.io",
+    "spacr.ml", "spacr.object", "spacr.plot", "spacr.sequencing", "spacr.sim",
+    "spacr.spacr_cellpose", "spacr.submodules", "spacr.timelapse",
+    "spacr.torch_artifacts", "spacr.torch_loader", "spacr.toxo", "spacr.utils",
+})
+#: The longest a thread waits for a background import before importing
+#: anyway, the behaviour before the gate existed.
+_GATE_WAIT_S = 60.0
+_BACKGROUND_IMPORTERS: Dict[int, threading.Event] = {}
+_BACKGROUND_IMPORTERS_LOCK = threading.Lock()
+
+
+def _held_module_lock_blocks(waiters, tid: int, blocking=None) -> bool:
+    """Whether a thread in ``waiters`` waits, directly or not, on ``tid``.
+
+    Read from the import system's own record of which thread is blocked on
+    which module lock, the record it uses to detect its own deadlocks. When
+    that record cannot be read the answer is ``True``, so the caller stops
+    waiting rather than risk a wait that never ends.
+
+    :param waiters: identifiers of the threads that might be waiting.
+    :param tid: the identifier of the thread that would wait for them.
+    :param blocking: the thread-to-module-locks record; the import system's
+        own by default.
+    :returns: True when waiting for ``waiters`` could deadlock.
+    """
+    try:
+        if blocking is None:
+            from importlib import _bootstrap
+
+            blocking = _bootstrap._blocking_on
+        frontier, seen = list(waiters), set()
+        while frontier:
+            waiter = frontier.pop()
+            if waiter in seen:
+                continue
+            seen.add(waiter)
+            entry = blocking.get(waiter)
+            if entry is None:
+                continue
+            for lock in (list(entry) if isinstance(entry, list) else [entry]):
+                owner = getattr(lock, "owner", None)
+                if owner == tid:
+                    return True
+                if owner is not None:
+                    frontier.append(owner)
+    except Exception:                                        # noqa: BLE001
+        return True
+    return False
+
+
+def _wait_for_background_imports() -> bool:
+    """Wait until no other thread is in a registered background import.
+
+    Called by :class:`_WaitingLoader` before this thread runs a gated
+    module. The wait ends early when the background thread is blocked
+    on a module lock this thread holds, which is the one way waiting could
+    deadlock, and after :data:`_GATE_WAIT_S` in any case.
+
+    :returns: True when every background import had finished.
+    """
+    tid = threading.get_ident()
+    deadline = time.monotonic() + _GATE_WAIT_S
+    while True:
+        with _BACKGROUND_IMPORTERS_LOCK:
+            others = {other: done for other, done in _BACKGROUND_IMPORTERS.items()
+                      if other != tid}
+        if not others:
+            return True
+        if _held_module_lock_blocks(others, tid):
+            return False
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            LOG.warning("a background import is still running after %.0f s; "
+                        "importing beside it", _GATE_WAIT_S)
+            return False
+        next(iter(others.values())).wait(min(0.02, remaining))
+
+
+class _WaitingLoader:
+    """Stands in for a gated module's loader until the module is created.
+
+    The wait cannot happen in ``find_spec``: the import system holds its
+    global lock around every finder, so a finder that waits stops every
+    other thread's imports, the background one included. ``create_module``
+    runs under this module's own lock only, which the deadlock check in
+    :func:`_wait_for_background_imports` can see. The real loader is put back
+    on the spec before the module is created, so the module never sees this
+    one.
+    """
+
+    def __init__(self, loader):
+        """:param loader: the loader the ordinary finders found."""
+        self._loader = loader
+
+    def create_module(self, spec):
+        """Wait for background imports, then create the module as usual.
+
+        :param spec: the module's spec; its loader is restored here.
+        :returns: what the real loader creates, or ``None`` for the default.
+        """
+        _wait_for_background_imports()
+        spec.loader = self._loader
+        create = getattr(self._loader, "create_module", None)
+        return create(spec) if create is not None else None
+
+    def exec_module(self, module):
+        """Run the module with the real loader.
+
+        :param module: the module to execute.
+        """
+        self._loader.exec_module(module)
+
+
+class _HeavyImportGate:
+    """A ``sys.meta_path`` entry that keeps a thread out of a busy import.
+
+    While another thread is in a registered background import, a module
+    under :data:`_GATED_IMPORT_ROOTS` or in :data:`_GATED_SPACR_MODULES` is
+    found by the ordinary finders and handed back with a
+    :class:`_WaitingLoader`, so this thread waits before it runs the module.
+    With no background import running, or for any other module, it finds
+    nothing and costs nothing.
+    """
+
+    @staticmethod
+    def find_spec(name, path=None, target=None):
+        """The ordinary spec with a waiting loader, or ``None``.
+
+        :param name: the module being imported.
+        :param path: the parent package's search path.
+        :param target: the module being reloaded, if any.
+        :returns: a spec whose loader waits, or ``None`` when nothing waits.
+        """
+        if not (name.partition(".")[0] in _GATED_IMPORT_ROOTS
+                or name in _GATED_SPACR_MODULES):
+            return None
+        tid = threading.get_ident()
+        with _BACKGROUND_IMPORTERS_LOCK:
+            busy = any(other != tid for other in _BACKGROUND_IMPORTERS)
+        if not busy:
+            return None
+        for finder in list(sys.meta_path):
+            find = getattr(finder, "find_spec", None)
+            if finder is _HeavyImportGate or find is None:
+                continue
+            spec = find(name, path, target)
+            if spec is None:
+                continue
+            loader = getattr(spec, "loader", None)
+            if loader is not None and hasattr(loader, "exec_module"):
+                spec.loader = _WaitingLoader(loader)
+            return spec
+        return None
+
+
+def _install_the_import_gate() -> None:
+    """Put :class:`_HeavyImportGate` first in ``sys.meta_path``, once."""
+    if not any(finder is _HeavyImportGate for finder in sys.meta_path):
+        sys.meta_path.insert(0, _HeavyImportGate)
+
+
+@contextlib.contextmanager
+def _importing_in_the_background():
+    """Register the calling thread as a background importer while it runs.
+
+    Taken inside :data:`spacr.qt.app.HEAVY_IMPORT_LOCK` by every background
+    import of the deep-learning stack. Any other thread that starts importing
+    a gated package meanwhile waits for it in :class:`_HeavyImportGate`, so
+    two threads never initialise the same package at once.
+    """
+    _install_the_import_gate()
+    tid = threading.get_ident()
+    done = threading.Event()
+    with _BACKGROUND_IMPORTERS_LOCK:
+        _BACKGROUND_IMPORTERS[tid] = done
+    try:
+        yield
+    finally:
+        with _BACKGROUND_IMPORTERS_LOCK:
+            if _BACKGROUND_IMPORTERS.get(tid) is done:
+                del _BACKGROUND_IMPORTERS[tid]
+        done.set()
+
+
 def _import_the_entry_module(name: str) -> None:
     """Import ``name`` on the calling thread, never raising.
 
@@ -2210,11 +2410,12 @@ def _import_the_entry_module(name: str) -> None:
         if lock is not None:
             lock.acquire()
         try:
-            _open_torch_libraries()
-            importlib.import_module(name)
-            torch = sys.modules.get("torch")
-            if torch is not None:
-                torch.cuda.is_available()
+            with _importing_in_the_background():
+                _open_torch_libraries()
+                importlib.import_module(name)
+                torch = sys.modules.get("torch")
+                if torch is not None:
+                    torch.cuda.is_available()
         except Exception:
             LOG.debug("could not import %s off the GUI thread", name,
                       exc_info=True)
