@@ -1155,6 +1155,54 @@ def _defer_sheet(obj, text: str, raw_set) -> None:
     _post_sheet_flush()
 
 
+def _widgets_a_restyle_walks(obj) -> list:
+    """Every widget Qt will visit while it restyles ``obj``.
+
+    ``QApplication::setStyle`` (which an application sheet goes through)
+    walks a COPY of ``allWidgets()``, and
+    ``QWidget::setStyleSheet`` walks copies of each child list. Each step
+    sends a ``StyleChange`` into Python, and a
+    handler that lets go of a parentless widget -- or allocates enough for
+    the cyclic collector to free one -- deletes a widget the copy still
+    lists; Qt then reads it and the process dies in ``QApplication::setStyle``
+    (reproduced; the hosted Qt shard 0 core of 2026-10-24 and
+    ``tests/qt/test_stylesheets_reach_only_live_widgets_between_events_n709``).
+
+    :param obj: a widget, or the application.
+    :returns: the widgets, as wrappers, so none can be freed meanwhile.
+    """
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    try:
+        if isinstance(obj, QApplication) or obj is None:
+            app = QApplication.instance()
+            return list(app.allWidgets()) if app is not None else []
+        return [obj] + list(obj.findChildren(QWidget))
+    except (RuntimeError, TypeError):
+        return []
+
+
+def _restyle_holding_every_widget(obj, call, *args):
+    """Run ``call(*args)``, a Qt restyle, with nothing it walks freeable.
+
+    The widgets it will visit are held by Python references and automatic
+    cyclic collection is paused for its length, so no Python handler it
+    reaches can delete one; they are let go afterwards, outside Qt's walk.
+
+    :param obj: the widget, or the application, being restyled.
+    :param call: the Qt setter below the guard.
+    :returns: what ``call`` returns.
+    """
+    from .gc_policy import _automatic_collection_paused
+
+    held = _widgets_a_restyle_walks(obj)
+    try:
+        with _automatic_collection_paused():
+            return call(*args)
+    finally:
+        del held
+
+
 def _apply_now(obj, text: str, raw_set) -> None:
     """Hand ``text`` to Qt, counting the call as a guarded application.
 
@@ -1164,7 +1212,7 @@ def _apply_now(obj, text: str, raw_set) -> None:
     """
     _SHEET_GUARD["depth"] += 1
     try:
-        raw_set(obj, text)
+        _restyle_holding_every_widget(obj, raw_set, obj, text)
     finally:
         _SHEET_GUARD["depth"] -= 1
 
@@ -1321,6 +1369,29 @@ def _watch_for_teardown() -> bool:
                                      {QEvent.Type.DeferredDelete})
 
 
+def _hold_widgets_through(cls, name: str) -> None:
+    """Make ``cls.name``, an application-wide restyle, hold every widget.
+
+    ``QApplication.setStyle`` walks a copy of ``allWidgets()`` and calls
+    into Python for each widget, exactly as an application sheet does; see
+    :func:`_widgets_a_restyle_walks`. ``setPalette`` and ``setFont`` are not
+    wrapped: Qt posts their per-widget change events instead of sending
+    them from inside a walk.
+
+    :param cls: ``QApplication``.
+    :param name: the static setter to wrap.
+    """
+    raw = getattr(cls, name)
+    _ORIGINAL[(cls, "raw_" + name)] = raw
+
+    def held_setter(*args):
+        """The Qt setter, run with every widget it walks held alive."""
+        return _restyle_holding_every_widget(None, raw, *args)
+
+    held_setter.__name__ = name
+    setattr(cls, name, staticmethod(held_setter))
+
+
 def _install_sheet_guard() -> bool:
     """Route every ``setStyleSheet`` in the process through the guard.
 
@@ -1371,6 +1442,7 @@ def _install_sheet_guard() -> bool:
     QWidget.styleSheet = styleSheet
     QApplication.setStyleSheet = app_setStyleSheet
     QApplication.styleSheet = app_styleSheet
+    _hold_widgets_through(QApplication, "setStyle")
     _SHEET_GUARD["installed"] = True
     return True
 
