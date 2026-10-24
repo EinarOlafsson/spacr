@@ -393,3 +393,112 @@ def test_a_restyle_from_inside_a_polish_waits_for_the_event_loop(applied):
     assert _texts_for(applied, label) == ["QLabel { color: #440044; }"]
     assert not any(r["in_handler"] or r["nested"] for r in applied)
     label.deleteLater()
+
+
+class _DropsAWidgetOnRestyle(QLabel):
+    """Lets go of a parentless widget from inside an application restyle.
+
+    The pattern behind the hosted Qt shard 0 core of 2026-10-24
+    (``test_ai_error_storm_prompt`` crashed in ``set_gui_scale_live``):
+    ``QApplication::setStyle`` walks a copy of ``allWidgets()`` and sends
+    each one a ``StyleChange``, and a Python handler that
+    frees a widget the copy still lists makes Qt read freed memory.
+    """
+
+    def __init__(self, victim):
+        super().__init__("dropper")
+        self.victim = victim
+        self.victim_alive_after_drop = []
+
+    def _drop(self):
+        if self.victim is None:
+            return
+        import weakref
+
+        ref = weakref.ref(self.victim)
+        self.victim = None
+        self.victim_alive_after_drop.append(ref() is not None)
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.StyleChange:
+            self._drop()
+        super().changeEvent(event)
+
+
+@pytest.mark.parametrize("restyle", ["sheet", "style"])
+def test_no_widget_an_application_restyle_walks_can_be_freed_during_it(
+        applied, restyle):
+    app = QApplication.instance()
+    victim = QWidget()
+    victim.ensurePolished()
+    dropper = _DropsAWidgetOnRestyle(victim)
+    dropper.ensurePolished()
+    del victim
+    saved_sheet, saved_style = app.styleSheet(), app.style().name()
+    try:
+        if restyle == "sheet":
+            app.setStyleSheet(saved_sheet + "\nQLabel#n709 { margin: 0px; }")
+        else:
+            QApplication.setStyle("Fusion")
+        assert dropper.victim_alive_after_drop == [True]
+    finally:
+        app.setStyleSheet(saved_sheet)
+        QApplication.setStyle(saved_style)
+        dropper.deleteLater()
+        QCoreApplication.processEvents()
+
+
+_WALK_STRESS = r'''
+import gc, sys
+from PySide6.QtCore import QEvent
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
+
+app = QApplication(sys.argv[:1])
+if sys.argv[1] == "guarded":
+    from spacr.qt import gui_scale
+    gui_scale._install_sheet_guard()
+
+
+class Collector(QLabel):
+    def changeEvent(self, event):
+        if event.type() == QEvent.StyleChange:
+            gc.collect()
+        super().changeEvent(event)
+
+
+keep = [Collector("c") for _ in range(20)]
+for widget in keep:
+    widget.ensurePolished()
+for round_ in range(int(sys.argv[2])):
+    for _ in range(40):
+        widget = QWidget()
+        widget.ensurePolished()
+        widget.cycle = widget
+        del widget
+    app.setStyleSheet("QWidget { margin: %dpx; }" % (round_ % 3))
+    gc.collect()
+print("survived")
+'''
+
+
+def test_an_application_sheet_survives_widgets_freed_inside_its_walk(tmp_path):
+    """The crash itself, in a child process: unguarded it dies, guarded not.
+
+    Every ``StyleChange`` the walk sends runs a collection that frees
+    parentless widgets the walk's copy of ``allWidgets()`` still lists.
+    """
+    import os
+    import subprocess
+    import sys
+
+    script = tmp_path / "walk_stress.py"
+    script.write_text(_WALK_STRESS)
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
+    guarded = subprocess.run([sys.executable, str(script), "guarded", "25"],
+                             env=env, capture_output=True, text=True,
+                             timeout=240)
+    assert guarded.returncode == 0, guarded.stderr[-2000:]
+    assert "survived" in guarded.stdout
+    raw = subprocess.run([sys.executable, str(script), "raw", "25"],
+                         env=env, capture_output=True, text=True, timeout=240)
+    assert raw.returncode != 0, "the unguarded walk no longer crashes"
