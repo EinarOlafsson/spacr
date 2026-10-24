@@ -26,6 +26,38 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+2026-10-24 — Native43648/nODMll onab0d95acc124 PASS44.31s/RSS1.486GiB:
+7 Image states (eye off/on, high192→126→192/low60, mip/attenuated_mip/mip),
+Metal75 serials7..19; changedRGB differs, all3restores/freshRGB+IDs/paints exact.
+Pose/siblings/data/history/selection/prefs/files unchanged; normalcleanup passes.
+Startup18.311s,initial.865s,maxoperation2.713s; no picks/FPS/whole-item claim.
+
+Checklist5 Image-controls scope: one seven-state native run (baseline, eye off/
+restore, valid contrast-high126/192 restore, mip/attenuated_mip restore).
+Reveal each real enabled/visible control once inside its original20s operation;
+preserve canvas/request pose, all non-target layer/UI fields and data/prefs.
+Every changed frame must differ, every restore must match baseline RGB/IDs;
+fresh Metal75/completed paints/new serials and normal cleanup stay strict.
+No opacity replay, picking, FPS, axes/lens or whole-item acceptance claim.
+
+2026-10-24 — Native63357/bm7W28 onb3e92d2f21 PASS35.81s/RSS1.465GiB:
+real Image100→37→100, Masks60/other fields unchanged; Metal75 newserials7/9/11.
+Fresh RGB/IDs/completed paints match; changedRGB differs and baseline restores
+exactly with unchanged pose/data/history/selection/prefs/files; normalcleanup passes.
+Startup16.783s,initial.885/change.487/restore.702s; no picking/FPS/whole-item claim.
+
+Checklist5 opacity scope: normal owned FIB-SEM/Metal controls, one real Image
+slider37→original after visible/enabled one-pass reveal before baseline.
+Require only Image opacity changes, exact current-request/completed-paint RGB
+and IDs with stable rays/quality/camera/session/cache/selection; RGB must change
+and restore exactly. All sibling model/UI fields, prefs/data/history/files and
+normal cleanup stay unchanged;30s initial/20s per operation, no pick/FPS claim.
+2026-10-24: opacity74815/sPOlVE on956e240809 FAIL32.63s/1.261GiB before
+rendering: immediate _screens['make_masks'] raises after open_module returns.
+Actual deferred branch was not observed; source permits queued publication.
+Home Skip/seen, normalclose/run0/jobs/threads/compiler pass; no opacity/frame
+acceptance. Observer must await real publication within the original30s.
+
 2026-10-24 — Native83585/vVwAFy on75cf7a4711 PASS69.47s/RSS1.341GiB:
 two same-build/profile Cocoa processes retain real Metal/explicit75% (B no reseed).
 Fresh RGB/IDs/current paint exact; IDs1..43 present, inside-frame background0/0;
