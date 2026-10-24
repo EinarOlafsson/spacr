@@ -16,11 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-CoreText scratch prototype scope: one original JXA versus isolated Python
-ctypes subprocess pair, timeout3 unchanged. SDK bindings must preserve URL
-resolution/Unicode, release owned CF copies and retain every path/duplicate.
-Require exact Counter parity; record raw order separately before any run
-because production immediately sets/sorts paths. No product adoption yet.
+2026-10-24 — CoreText scratch Rasb5S exits1/0.038GiB on63d090e8: parityFAIL.
+JXA.281177s/562paths/219unique; ctypes.312042s/2915paths/384unique, both succeed.
+Predeclared Counter and raworder differ;165 extra unique/2353extra entries,
+so even production's path set differs. Reject adoption; no source fix/repeat.
+One exploratory sequential pair, no speed claim; Home5s/Mask10s/30FPS OPEN.
 
 2026-10-24 — CoreText13962/4we67n diagnostic0/0.061GiB/zero missed on2a4a8e6:
 one successful osascript call.526220s wall/.003866callerCPU, timeout3/562paths.
