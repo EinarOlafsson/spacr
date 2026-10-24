@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native25645/Qqn93W on878b600914 PASS48.07s/RSS1.322GiB: body0 lines[0,16)
+accepted via24/24 fully visible, frozen segments with full original-line union.
+Open Sans44/doc696×21480/origin0/source+allocation unchanged; capacity544×274.
+Startup9.983s/content15.488s and normal cleanup pass;342/358 lines remain
+untested,17 whole bodies and all139 whole-manifest targets remain uncertified.
+
 News line-segment scope: preserve each full natural/run rectangle and partition
 against the smallest real ancestor viewport, reserving2px for exclusive-edge
 ensureVisible margins. Reveal each chunk once; frozen/idle strict visibility
