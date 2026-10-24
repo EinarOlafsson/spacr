@@ -5,8 +5,8 @@
 
 1. the capture profile is written into the private profile by an offscreen
    child process (:func:`prepare_profile`): Dark theme, the spaCR field
-   ``data_art_impulse_lens`` at density 0.25 on the ``spacr`` palette,
-   settings-window backdrop Blobs at density 0.1 and darkness 0.85, page
+   ``data_art_impulse_lens`` at its shipped density on the ``spacr`` palette,
+   the shipped settings-window backdrop with its default motion, page
    opacity 60 %, BOTH alpha gates off (Feature maturity "Show alpha" and
    Show alpha features/species), ``--fresh``, What's new and tours seen,
    font scale 1.5 x width / 3840;
@@ -64,11 +64,12 @@ PAINT_COUNTER_SEMANTICS = 'observed_per_widget_deltas'
 CAPTURE_PROFILE = {
     'theme': 'dark',
     'field': 'data_art_impulse_lens',
-    'field_density': 0.25,
+    # Maintainer 2026-10-24: record the app's CURRENT defaults -- the field at its shipped density
+    # (_default_density_for, 0.1 since nightly 0b36236f31) and the shipped settings-window backdrop
+    # (drift) with its own default motion and darkness. Both are resolved from the app in prepare_profile.
+    'field_density': None,
     'field_palette': 'spacr',
-    'popup_backdrop': 'off',            # plain glass behind settings windows (2026-10-13)
-    'popup_density': 0.1,
-    'popup_backdrop_darkness': 0.85,
+    'popup_backdrop': None,
     'pane_opacity_pct': 60,
     # Feature maturity -> Show alpha: off, except for a lesson whose SUBJECT module is alpha-stage (Home and the Help
     # index hide those otherwise): its job sets SPACR_TUTORIAL_SHOW_ALPHA=1 (only SPACR_TUTORIAL_* names reach the app).
@@ -174,9 +175,8 @@ def prepare_profile(font_scale: float) -> dict:
     # module maturity: they stay off even when a lesson turns alpha modules on (SPACR_TUTORIAL_SHOW_ALPHA=1).
     for setter, key in (('_set_show_alpha_species', 'show_alpha_species'), ('_set_show_alpha_features', 'show_alpha_features')):
         getattr(prefs, setter, lambda _on: None)(CAPTURE_PROFILE[key])
-    prefs.set_popup_backdrop(CAPTURE_PROFILE['popup_backdrop'])
-    prefs._set_popup_backdrop_motion('density', CAPTURE_PROFILE['popup_density'])
-    prefs._set_popup_backdrop_darkness(CAPTURE_PROFILE['popup_backdrop_darkness'])
+    CAPTURE_PROFILE['field_density'] = float(_default_density_for(CAPTURE_PROFILE['field']))
+    CAPTURE_PROFILE['popup_backdrop'] = prefs.DEFAULT_POPUP_BACKDROP
     prefs.set_pane_opacity(CAPTURE_PROFILE['pane_opacity_pct'] / 100.0)
     prefs.set_font_scale(font_scale)
     prefs._note_running_version(_installed_version())
