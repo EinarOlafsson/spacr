@@ -27,7 +27,10 @@ def finish(stage, identity, *, retain_visual_from=None):
     published_reuse = (root / 'published-native-reuse.json').exists()
     published_edit = (root / 'published-native-edit.json').exists()
     published_mix = (root / 'published-native-mix.json').exists()
-    published_legacy = (root / 'published-legacy-picture-mix.json').exists()
+    published_legacy_header = (root / 'published-hit-list-picture-refresh.json').exists()
+    published_legacy = (root / 'published-legacy-picture-mix.json').exists() or published_legacy_header
+    if published_legacy_header and (identity != '48_hit_list' or (root / 'published-legacy-picture-mix.json').exists()):
+        raise ValueError('Choose the explicit48 legacy header record only')
     if sum([published_reuse, published_edit, published_mix, published_legacy]) > 1:
         raise ValueError('Choose unchanged reuse or explicit published edit, not both')
     if (published_reuse or published_edit or published_mix or published_legacy) and retain_visual_from is not None:
@@ -92,10 +95,13 @@ def finish(stage, identity, *, retain_visual_from=None):
         'poster_sha256': hashlib.sha256((root / 'poster.jpg').read_bytes()).hexdigest(),
         'web_rendition': rendition, 'browser_verified': False, 'published': False}
     if published_legacy:
-        receipt['published_legacy_picture_references'] = True
+        receipt['published_legacy_hit_list_header' if published_legacy_header else 'published_legacy_picture_references'] = True
         receipt['fresh_capture'] = False
         receipt['raw_capture_revalidated'] = False
-        receipt['retained_narration_offerings'] = 27
+        if published_legacy_header:
+            receipt['audio_validated'] = False  # Separate mixed-audio checker is required.
+        else:
+            receipt['retained_narration_offerings'] = 27
     if published_mix:
         receipt['published_native_reference_mix'] = True
         receipt['fresh_capture'] = False

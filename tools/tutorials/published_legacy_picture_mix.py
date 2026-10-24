@@ -172,6 +172,9 @@ def render(stage,lesson=LESSON):
  return checked_legacy_picture_timing(stage,lesson)
 
 def checked_legacy_picture_timing(stage,identity):
+ if identity=='48_hit_list':
+  from hit_list_picture_refresh import checked_picture_timing
+  return checked_picture_timing(stage)
  contract(identity);lesson=identity
  source,clock,rows,spec=_inputs(stage,lesson);root=Path(stage)/'production'/lesson
  if any((root/name).exists() for name in ('published-native-reuse.json','published-native-edit.json','published-native-mix.json')):raise ValueError('Legacy record cannot coexist with native claims')
