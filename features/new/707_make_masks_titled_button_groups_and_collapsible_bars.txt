@@ -16,6 +16,10 @@ Next tab_arrows cohort selects exactly the two real HomeTabs overflow buttons,
 including disabled controls, from the actual tab bar. Preserve full manifest,
 explicit untested counts and original20s content/reveal/native-field visibility
 rules; this observes arrow access only, not all tabs or physical input.
+Native69948/B2LxJ0 onbc4d4fed1 passes30.54s/RSS1.211GiB: disabled left and
+enabled right Home-tab arrows both expose their full16x101 native fields.
+Two of139 targets checked,137 untested; content5.656s/tour8.483s, errors[] and
+normal close/worker cleanup pass. No tab click or physical-input claim.
 
 Next home_access cohort checks three real Hero objects, the first current-page
 icon-bearing tile/icon/name, five aside buttons and the pinned hint (12 targets).
