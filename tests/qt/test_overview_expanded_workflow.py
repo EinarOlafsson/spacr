@@ -2009,10 +2009,45 @@ window.resize(1180, 820)
 window.show()
 install_the_dialog_filters(app)
 state = {}
+def finish(code):
+ """Stop this workflow's owned jobs and close the real window before exit."""
+ if state.get('finishing'):
+  return
+ state['finishing'] = True
+ timer.stop()
+ host = state.get('host')
+ owners = [state.get('wizard'), state.get('body'), state.get('replacement')]
+ workspace = getattr(host, '_field_overview_workspace', None)
+ runners = []
+ for owner in owners:
+  if owner is None:
+   continue
+  for name in ('_visual_timer', '_native_timer', '_readout_timer', '_startup_timer', '_rescan_timer', '_action_fit_timer'):
+   owned_timer = getattr(owner, name, None)
+   if owned_timer is not None:
+    owned_timer.stop()
+  cancelled = getattr(owner, '_cancelled', None)
+  if cancelled is not None:
+   cancelled.set()
+  cancel = getattr(owner, '_cancel', None)
+  if callable(cancel):
+   cancel()
+  for name in ('_runner', '_index_jobs', '_image_jobs', '_export_jobs', '_thumbnail_jobs',
+    '_montage_jobs', '_field_thumbnail_jobs', '_metadata_jobs', '_native_jobs', '_measurement_jobs'):
+   runner = getattr(owner, name, None)
+   if runner is not None:
+    runner.cancel()
+    runners.append(runner)
+ for runner in runners:
+  runner.shutdown(timeout_ms=3000)
+ if workspace is not None:
+  workspace.close()
+ window.close()
+ app.exit(code)
 def fail():
  import traceback
  traceback.print_exc()
- app.exit(1)
+ finish(1)
 def open_empty():
  try:
   window.open_module(sys.argv[1])
@@ -2050,8 +2085,8 @@ def tick():
     assert not host._btn_run.isVisible() and wizard.next.isVisible()
     assert not host._settings_search.isVisible()
    if not state.get('cancelled_initial'):
-    wizard.reject()
     wizard._runner.shutdown(timeout_ms=3000)
+    wizard.reject()
     assert host._settings_scroll.widget() is state['original_settings']
     state['wizard'] = _open_field_overview(host, state['settings'])
     assert state['wizard'] is not wizard
@@ -2071,11 +2106,14 @@ def tick():
    assert gray != wizard.palette().color(QPalette.ColorGroup.Active, QPalette.ColorRole.Text)
    image = wizard.preview.viewport().grab().toImage()
    rect = wizard.preview.visualItemRect(wizard.preview.item(row, 0)).intersected(image.rect())
-   assert any(image.pixelColor(x, y) == gray for y in range(rect.top(), rect.bottom()) for x in range(rect.left(), rect.right()))
+   assert any(pixel.alpha() > 0 and pixel.getRgb()[:3] == gray.getRgb()[:3]
+    for pixel in (image.pixelColor(x, y) for y in range(rect.top(), rect.bottom())
+     for x in range(rect.left(), rect.right())))
    QTest.mouseClick(wizard.next, Qt.LeftButton)
    state['stage'] = 2
   elif state['stage'] == 2:
    body = host._field_overview
+   state['body'] = body
    if not body._normalization_ready:
     return
    assert body.isVisible() and not body.isWindow() and not isinstance(body, QDialog)
@@ -2097,9 +2135,10 @@ def tick():
    body._options_window.close()
    assert host._settings_scroll.widget() is body._settings_content
    replacement = _open_field_overview(host, {'source': sys.argv[2] + '/missing'})
+   state['replacement'] = replacement
    assert host._field_overview_workspace.stack.currentWidget() is replacement
-   replacement.reject()
    replacement._runner.shutdown(timeout_ms=3000)
+   replacement.reject()
    assert host._field_overview_workspace.stack.currentWidget() is body
    assert host._settings_scroll.widget() is body._settings_content
    host._field_overview_workspace._back()
@@ -2109,20 +2148,15 @@ def tick():
     assert host._btn_run.isVisible() and host._settings_search.isVisible()
    assert _open_field_overview(host, {}) is wizard
    assert body.isVisible() and host._settings_scroll.widget() is body._settings_content
-   host._field_overview_workspace.close()
-   for runner in (body._index_jobs, body._image_jobs, body._export_jobs, body._thumbnail_jobs,
-     body._montage_jobs, body._field_thumbnail_jobs, body._metadata_jobs, body._native_jobs, body._measurement_jobs):
-    runner.shutdown(timeout_ms=3000)
-   wizard._runner.shutdown(timeout_ms=3000)
+   finish(0)
    print('embedded widgets survive actual application dialog filters', flush=True)
-   app.exit(0)
  except Exception:
   fail()
 QTimer.singleShot(0, open_empty)
 timer = QTimer()
 timer.timeout.connect(tick)
 timer.start(50)
-QTimer.singleShot(20000, lambda: app.exit(2))
+QTimer.singleShot(20000, lambda: finish(2))
 sys.exit(app.exec())
 '''
     environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
