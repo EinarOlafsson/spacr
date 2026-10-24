@@ -150,6 +150,13 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 capture('api_search_' + key, desktop=True)
             else:
                 capture_ui.wait(capture, 1.2, settle)
+            if browser is None:
+                # The capture host has no web browser: once the docs probe has answered "reachable" the app would
+                # hand the page to webbrowser.open, which shows nothing here. Return the probe to its first-use
+                # state so the app opens its own offline reference, as it does on any first API search.
+                from spacr.qt.help_search import docs_reach
+                if docs_reach().state() == 'reachable':
+                    docs_reach().set_state('unknown')
             QTest.keyClick(field, Qt.Key_Return)
             deadline = time.monotonic() + 15
             dialog = None
