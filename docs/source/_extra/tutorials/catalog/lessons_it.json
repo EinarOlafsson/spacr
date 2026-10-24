@@ -4144,18 +4144,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Da Home, apri Make Masks e poi il suo Cellpose Workbench. Scegli Apply per segmentare immagini con un modello esistente. Usa Train quando vuoi apprendere nuovi pesi da coppie immagine-maschera verificate.",
-          "hold_after": 0.7,
-          "speech_text": "Da Home, apri Make Masks e poi il suo sel pòus Workbench. Scegli Apply per segmentare immagini con un modello esistente. Usa Train quando vuoi apprendere nuovi pesi da coppie immagine-maschera verificate.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Da Home, apri Make Masks e poi il suo sel pòus Workbench. Scegli Apply per segmentare immagini con un modello esistente. Usa Train quando vuoi apprendere nuovi pesi da coppie immagine-maschera verificate."
         },
         {
           "visual": "04_setting_src",
-          "narration": "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il file di impostazioni registrato come riferimento, sostituisci il suo percorso di origine con la cartella che hai estratto.",
+          "narration": "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il riferimento alle impostazioni fornito, sostituisci il suo percorso di origine con la cartella che hai estratto.",
           "hold_after": 0.7,
-          "speech_text": "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il file di impostazioni registrato come riferimento, sostituisci il suo percorso di origine con la cartella che hai estratto."
+          "speech_text": "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il riferimento alle impostazioni fornito, sostituisci il suo percorso di origine con la cartella che hai estratto."
         },
         {
           "visual": "05_setting_model_name",
@@ -4238,12 +4238,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Riporta Minimum cell area a zero per ripristinare l’anteprima non filtrata. Tieni insieme le immagini di input, l’identità del modello, le impostazioni e le maschere salvate. Usa Make Masks per le correzioni oppure Measure per estrarre le caratteristiche degli oggetti dalle maschere verificate.",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Riporta Minimum cell area a zero per ripristinare l’anteprima non filtrata. Tieni insieme le immagini di input, l’identità del modello, le impostazioni e le maschere salvate. Usa Make Masks per le correzioni oppure Measure per estrarre le caratteristiche degli oggetti dalle maschere verificate."
         }
       ],
       "narration_voices": {

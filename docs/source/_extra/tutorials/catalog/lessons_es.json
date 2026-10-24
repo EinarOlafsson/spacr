@@ -4144,18 +4144,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Desde Home, abre Make Masks y luego su Cellpose Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
-          "hold_after": 0.7,
-          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados."
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas el archivo de ajustes grabado como referencia, sustituye su ruta de origen por tu carpeta extraída.",
+          "narration": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas la referencia de ajustes proporcionada, sustituye su ruta de origen por tu carpeta extraída.",
           "hold_after": 0.7,
-          "speech_text": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas el archivo de ajustes grabado como referencia, sustituye su ruta de origen por tu carpeta extraída."
+          "speech_text": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas la referencia de ajustes proporcionada, sustituye su ruta de origen por tu carpeta extraída."
         },
         {
           "visual": "05_setting_model_name",
@@ -4238,12 +4238,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas.",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas."
         }
       ],
       "narration_voices": {

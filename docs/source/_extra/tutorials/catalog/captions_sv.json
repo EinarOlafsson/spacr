@@ -3811,15 +3811,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Från Home öppnar du Make Masks och sedan dess Cellpose Workbench. Välj Apply för att segmentera bilder med en befintlig modell. Använd Train när du vill lära nya vikter från granskade par av bild och mask.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Packa upp det länkade exemplet och ställ Source på dess mapp images. Den innehåller tre enkanaliga cellbilder, var och en 512 × 512 pixlar. Om du använder den inspelade inställningsfilen som referens byter du ut dess källsökväg mot din uppackade mapp.",
+          "narration": "Packa upp det länkade exemplet och ställ Source på dess mapp images. Den innehåller tre enkanaliga cellbilder, var och en 512 × 512 pixlar. Om du använder den medföljande inställningsreferensen byter du ut dess källsökväg mot din uppackade mapp.",
           "hold_after": 0.7
         },
         {
@@ -3895,11 +3895,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

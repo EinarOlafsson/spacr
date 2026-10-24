@@ -1,10 +1,10 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "english_sha256": "ab0837359e26a864539d5b7388c6b9f5ab14f9d120bd72335ab2baa2ec1c5c99",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); scene2 phrase proposal; scenes5–8 copied unchanged from current published catalogs",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,13 +20,13 @@
   "prerequisite": "Dragðu tengda Apply Cellpose-dæmið út í nýja möppu. Það inniheldur þrjár einrása frumumyndir og tilvísun í stillingar. Veldu möppuna images sem Source. Þessi yfirferð notar staðlaða líkanið cpsam; fyrir eigið líkan velurðu vigta og stillingar sem henta myndunum þínum.",
   "scenes": [
     "Frá Home opnarðu Make Masks og svo Cellpose Workbench þess. Veldu Apply til að aðgreina myndir með fyrirliggjandi líkani. Notaðu Train þegar þú vilt læra nýja vigta af yfirförnum pörum mynda og grímna.",
-    "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar skráðu stillingaskrána sem tilvísun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
+    "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar meðfylgjandi stillingaviðmiðun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
     "Veldu cpsam og hafðu Custom model tómt í þessu dæmi. Stilltu Channels á 0, hundraðshluta stöðlunar á 2 og 99, Diameter á 30, Flow threshold á 0,4 og Cell probability á 0. Aðlagaðu þessar stillingar eftir að hafa skoðað nokkur dæmigerð sjónsvið úr þinni eigin tilraun.",
     "Virkjaðu Save og Verbose, veldu runustærð 1 og smelltu á Run í Apply. Fylgstu með stjórnborðinu meðan unnið er úr hverri mynd. Farðu yfir villur áður en þú heldur áfram í mælingar.",
-    "Opnaðu undirmöppuna masks í Source. Hver mynd hefur TIFF-grímu með sama stofni skráarheitis. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
-    "Kveiktu á Live preview og veldu mynd með myndavalinu. Opnaðu Live settings og athugaðu stýringar fyrir rás og stöðlun. Leggðu saman Console og System til að gefa forskoðuninni meira pláss ef þörf er á.",
-    "Berðu forskoðunina saman við vistuðu grímuna úr rununni. Forskoðunin og Apply nota ólíkar vinnsluleiðir í þessu dæmi, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
-    "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk og þysjaðu svo út til að athuga allt sjónsviðið.",
+    "Undirmappan masks í Source inniheldur TIFF-grímu með sama stofni skráarheitis fyrir hverja mynd. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
+    "Leggðu saman hin niðurstöðuspjöldin til að gefa forskoðuninni meira pláss. Kveiktu á Live preview og veldu mynd með myndavalinu. Flettu að meðfylgjandi dæmamynd.",
+    "Athugaðu rás og stöðlun í Live settings og keyrðu síðan forskoðunina. Forskoðunin og Apply vinna þessar myndir á ólíkan hátt, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
+    "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk í stækkuðu myndinni.",
     "Opnaðu Live settings og hækkaðu Minimum cell area til að fjarlægja litla hluti úr forskoðuninni. Mörkin eru í dílum; veldu þau eftir stærð hlutanna. Lokaðu glugganum til að skoða síuðu niðurstöðuna.",
     "Berðu síuðu útlínurnar saman við upprunalegu myndina. Breyting á þessari rauntímasíu uppfærir forskoðunina án þess að skrifa yfir grímur sem Apply hefur þegar vistað. Keyrðu rununa aftur með réttu stillingunum þegar þú þarft nýtt vistað úttak.",
     "Settu Minimum cell area aftur á 0 til að fá ósíuðu forskoðunina aftur. Haltu inntaksmyndunum, auðkenni líkansins, stillingunum og vistuðu grímunum saman. Notaðu Make Masks til leiðréttinga eða Measure til að draga út eiginleika hluta úr yfirförnum grímum."

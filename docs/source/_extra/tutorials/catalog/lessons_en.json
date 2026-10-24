@@ -3832,15 +3832,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the supplied settings reference, replace its source path with your extracted folder.",
           "hold_after": 0.7
         },
         {
@@ -3916,11 +3916,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
