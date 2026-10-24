@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Native Measure30854/2GDv9Y on c605ee362748: 2 PASS16.25s,
+process18.56s/0.782GiB; Cocoa exposed/DPR2/client1200×800/work1440×870.
+Pending471ms QC close has no late registration; real hidden/shown source refresh remains live.
+Both accepted-close latches true; registry/owned threads/compiler/helper cleanup zero.
+Window/pytest integration only, not public-run return, Metal/FPS or old native-fault attribution.
+
 2026-10-24 — Queued-close RED18102: pending432ms, empty registry before/after
 accepted close, then actual QC→bare Measure and separate chaining registrations.
 Local accepted-host guards: 5 GREEN87771/22.73s (process25.30s/0.534GiB), including
