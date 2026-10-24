@@ -1644,12 +1644,8 @@ def _rendered_sections(app_key):
             # 503, 2026-09-25: the legacy Cellpose 3 settings, shown only
             # once an object's model setting names a Cellpose 3 model.
             "Cellpose 3",
-            # The two advanced families, in the order the layout writes
-            # them. They nest under one "Advanced settings" umbrella in
-            # `build_sections`; this mirror is the FLAT category map, which
-            # is where they are declared.
-            "Image Preprocessing (per object)",
-            "Object Filtration (all objects)",
+            # Mask keeps the two shared filters in its per-object alpha group.
+            "Object filtration α",
             "Quality Control",
             # Item 578, 2026-09-27: the robustness report re-segments after
             # the masks and their QC exist.
@@ -1659,6 +1655,7 @@ def _rendered_sections(app_key):
             # Reliability merged into Quality Control, which also holds the
             # robustness report as a nested alpha sub-category.
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
+            "Additional Settings",
         ]),
         # "Illumination Correction" joined the Measure panel when the
         # illumination settings were folded into the measure defaults. The
@@ -1791,6 +1788,9 @@ def test_requested_modules_use_workflow_ordered_categories(app_key, expected):
     expected_keys = set(resolve_default_settings(app_key)).difference(
         _APP_HIDDEN_KEYS.get(app_key, frozenset()))
     assert set(rendered_keys) == expected_keys
+    if app_key == "mask":
+        assert dict(sections)["Additional Settings"] == [
+            key for key in S.categories[S.PER_OBJECT_PREPROCESSING] if key in expected_keys]
 
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))
