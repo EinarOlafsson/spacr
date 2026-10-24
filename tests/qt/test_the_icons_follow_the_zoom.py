@@ -365,6 +365,75 @@ def test_the_rebuild_is_what_carries_the_icons(icon_screen):
         assert after[widget][0] > was[0]
 
 
+@pytest.mark.parametrize("dpr", (1., 2.))
+def test_chrome_actual_slot_and_glyph_proportion_follow_gui_scale(qtbot, qapp, monkeypatch, dpr):
+    import numpy as np
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QImage
+    from spacr.qt import app, gui_scale, hidpi
+
+    previous = gui_scale.current_scale()
+    previous_font = prefs.get_font_scale()
+    ratio = [dpr]
+    monkeypatch.setattr(hidpi, "device_ratio", lambda widget=None: ratio[0])
+    monkeypatch.setattr(app, "device_ratio", lambda widget=None: ratio[0], raising=False)
+    painted = []
+
+    def painter(size=18, colour=None):
+        painted.append((size, colour))
+        return app.MainWindow._close_icon(size=size, colour=colour)
+
+    parent = QWidget()
+    button = None
+    try:
+        gui_scale.install_scaling_layer()
+        prefs.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(.9)
+        button = app._ChromeButton(parent, painter, app.CHROME_HOVER["CloseWindow"])
+        qtbot.addWidget(parent)
+        fraction = None
+        for scale in (.9, 2., .9):
+            gui_scale.set_gui_scale_live(scale)
+            expected = QSize(gui_scale.scale_int(36, scale), gui_scale.scale_int(36, scale))
+            qtbot.waitUntil(lambda: button.property("iconSize") == expected)
+
+            def ready():
+                pixmap = button.icon().pixmap(expected, ratio[0])
+                timer = getattr(button, '_icon_timer', None)
+                return ((timer is None or not timer.isActive())
+                        and pixmap.devicePixelRatio() == ratio[0]
+                        and pixmap.deviceIndependentSize().toSize() == expected)
+
+            qtbot.waitUntil(ready)
+            pixmap = button.icon().pixmap(expected, ratio[0])
+            image = pixmap.toImage().convertToFormat(QImage.Format_RGBA8888)
+            alpha = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(
+                image.height(), image.bytesPerLine())[:, :image.width()*4].reshape(
+                    image.height(), image.width(), 4)[:, :, 3]
+            ys, xs = np.nonzero(alpha)
+            assert len(xs)
+            actual = ((xs.max()-xs.min()+1)/image.width(), (ys.max()-ys.min()+1)/image.height())
+            if fraction is None:
+                fraction = actual
+            else:
+                assert max(abs(a-b) for a, b in zip(actual, fraction)) <= 2/min(image.width(), round(32*dpr))
+            count = len(painted)
+            for _ in range(8):
+                qapp.processEvents()
+            assert len(painted) == count
+        watcher = button.findChild(hidpi._RatioWatcher)
+        assert watcher is not None
+        ratio[0] = 3. - dpr
+        watcher.eventFilter(button, QEvent(QEvent.DevicePixelRatioChange))
+        qtbot.waitUntil(ready)
+    finally:
+        try:
+            parent.close()
+        finally:
+            prefs.set_font_scale(previous_font)
+            gui_scale.set_gui_scale_live(previous)
+
+
 def test_the_window_chrome_is_repainted_rather_than_stretched(qt_theme_applied):
     """The three marks in the corner of the window follow the scale too.
 
