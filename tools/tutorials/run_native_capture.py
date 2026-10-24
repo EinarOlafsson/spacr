@@ -272,7 +272,7 @@ def main():
         # app under gdb in batch mode so a native crash prints bt and py-bt
         # into the job output.
         debugger = (['gdb', '-batch', '-ex', 'set pagination off', '-ex', 'run',
-                     '-ex', 'bt', '-ex', 'py-bt', '--args']
+                     '-ex', 'bt 40', '-ex', 'py-bt', '-ex', 'info threads', '--args']
                     if os.environ.get('SPACR_TUTORIAL_CAPTURE_GDB') == '1' else [])
         result = subprocess.run([
             *sandbox(cache_source, manager_binds),
