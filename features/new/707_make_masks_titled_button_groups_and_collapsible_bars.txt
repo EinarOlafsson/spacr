@@ -19,6 +19,11 @@ untested counts and unchanged20s native visibility/source-DPR rules. Prior Mask
 tile/icon/name acceptance does not exclude any untested description/stage rows.
 First requested keys are make_masks, umap and classify_merged; these are real
 registry tiles, not a claim about per-module Live/3D/AI controls.
+Native72323/AW8oik on54c3de73c passes32.60s/RSS1.213GiB: exact three keys,
+all nine tile/icon/name members pass;139 full targets/130 untested. Native
+DPR2/source/name fit and736px content/viewport with hidden-H0 pass throughout.
+Selected groups contain no description/stage manifest rows. Content6.870s/
+tour8.332s, errors[] and normal close/worker cleanup pass; full Home stays open.
 
 Tab-navigation scope: normal owned Home→last nonempty category→Home through
 actual QTest arrow/tab clicks, distinguishing strip scrolling from selection.
