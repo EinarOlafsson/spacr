@@ -14831,7 +14831,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst.",
+          "narration": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home til að skoða úrklipp hlutanna sem tengjast verkefninu þínu með mælingum. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

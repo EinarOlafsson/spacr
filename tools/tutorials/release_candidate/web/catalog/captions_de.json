@@ -14831,7 +14831,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus; es zeigt Ihnen die Objekt-Bildausschnitte, die Measure gespeichert hat oder streamt. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
+          "narration": "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus, um die Objekt-Bildausschnitte zu sehen, die zu Ihrem vermessenen Projekt gehören. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

@@ -14826,7 +14826,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Før en klassifikator kan lære noget, har den brug for eksempler. Åbn Annotate fra Home, så viser det de objektudsnit, som Measure har gemt eller streamer. Gennemgå repræsentative celler, og mærk dem. Hver label skrives til en annotationskolonne i tabellen png_list, knyttet til objektets identitet. Brug en separat kolonne til hvert spørgsmål, og læg nogle mærkede objekter til side til evaluering. Det er den annotationskolonne, Classify træner på bagefter.",
+          "narration": "Før en klassifikator kan lære noget, har den brug for eksempler. Åbn Annotate fra Home for at se de objektudsnit, der er knyttet til dit målte projekt. Gennemgå repræsentative celler, og mærk dem. Hver label skrives til en annotationskolonne i tabellen png_list, knyttet til objektets identitet. Brug en separat kolonne til hvert spørgsmål, og læg nogle mærkede objekter til side til evaluering. Det er den annotationskolonne, Classify træner på bagefter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

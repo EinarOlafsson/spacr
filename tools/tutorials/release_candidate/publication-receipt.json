@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-prose-74-reviewed-import-workflow-20261024",
-  "base_commit": "2c88c606231dba8a6d3bde4e97e887326a91675c",
-  "commit": "12234bb4d5687a99830c723315026f6ae82d20f1",
-  "tag": "n676-prose-74-reviewed-import-workflow-20261024-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/12234bb4d5687a99830c723315026f6ae82d20f1",
-  "manifest_sha256": "7bd3fbd8c36c9d56e296724ce865cb4ef639037e839bbd46a590ede7518efa0b",
+  "branch": "n676-prose-78-reviewed-screen-features-20261024",
+  "base_commit": "3a7a1e33001ae8e82acf73e9134879c21d3f6902",
+  "commit": "14199d081c7728ec194d948b5a1053ec88f09099",
+  "tag": "n676-prose-78-reviewed-screen-features-20261024-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/14199d081c7728ec194d948b5a1053ec88f09099",
+  "manifest_sha256": "2ed7d2cd211464349bf2f091dcba68840f47d6e21ed3007e674ce37ea3f19d5a",
   "media_files": 6450,
-  "media_bytes": 12579846690,
+  "media_bytes": 12579312827,
   "readback": {
-    "commit": "12234bb4d5687a99830c723315026f6ae82d20f1",
+    "commit": "14199d081c7728ec194d948b5a1053ec88f09099",
     "files_expected": 6450,
     "metadata_matched": 6450,
     "metadata_failures": [],
-    "bytes_read_back": 12579846690,
+    "bytes_read_back": 12579312827,
     "downloaded_sha256_matched": 6450,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,33 +1982,32 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 480.0,
+    "seconds": 365.2,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "767844925a17dcd8eea7db0933dec1ad95b9c26a6a47c6f42a78f2de2d45c648",
+    "index_sha256": "45055381cc8baebcc6cfd3b95047c16a23a5d3c441c51ac7fdd8d9374b76d1cf",
     "candidate_index_sha256": "489e4e72e78c2565e3fc6e49d168c0236869e0416344c975ee44628a03ffcafc",
-    "cache_key": "n676-prose-74-reviewed-import-workflow-20261024-verified",
+    "cache_key": "n676-prose-78-reviewed-screen-features-20261024-verified",
     "unchanged_versioned_assets": [
-      "app_v2.js",
       "module_navigation.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "versioned_assets": {
-      "app_v2.js": "n676-player-short-gap-20261023",
+      "app_v2.js": "n676-prose-78-reviewed-screen-features-20261024-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-prose-74-reviewed-import-workflow-20261024-verified",
+      "lesson_catalog.js": "n676-prose-78-reviewed-screen-features-20261024-verified",
       "module_navigation.js": "n676-04-platform-maintenance-references-20261023-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/t17-prep/narration-priority1/prose74-reviewed1/release-candidate-prose-bx059b0l/retired-pages",
+      "directory": "/media/carruthers/mnt1/t17-prep/narration-priority1/prose78-reviewed1/release-candidate-player-repair-ckepv_g2/retired-pages",
       "files": []
     },
     "ready": 84,

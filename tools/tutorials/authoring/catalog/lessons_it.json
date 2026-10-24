@@ -15909,14 +15909,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Prima che un classificatore possa imparare qualcosa, servono esempi. Apri Annotate da Home e ti mostrerà i ritagli degli oggetti che Measure ha salvato o fornisce al volo. Scorri cellule rappresentative ed etichettale. Ogni etichetta viene scritta in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Usa una colonna diversa per ogni domanda e metti da parte alcuni oggetti etichettati per la valutazione. È su questa colonna di annotazione che Classify si addestra dopo.",
+          "narration": "Prima che un classificatore possa imparare qualcosa, servono esempi. Apri Annotate da Home per vedere i ritagli degli oggetti associati al tuo progetto con le misure. Scorri cellule rappresentative ed etichettale. Ogni etichetta viene scritta in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Usa una colonna diversa per ogni domanda e metti da parte alcuni oggetti etichettati per la valutazione. È su questa colonna di annotazione che Classify si addestra dopo.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Prima che un classificatore possa imparare qualcosa, servono esempi. Apri Annotate da Home e ti mostrerà i ritagli degli oggetti che Measure ha salvato o fornisce al volo. Scorri cellule rappresentative ed etichettale. Ogni etichetta viene scritta in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Usa una colonna diversa per ogni domanda e metti da parte alcuni oggetti etichettati per la valutazione. È su questa colonna di annotazione che Classify si addestra dopo."
+          "speech_text": "Prima che un classificatore possa imparare qualcosa, servono esempi. Apri Annotate da Home per vedere i ritagli degli oggetti associati al tuo progetto con le misure. Scorri cellule rappresentative ed etichettale. Ogni etichetta viene scritta in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Usa una colonna diversa per ogni domanda e metti da parte alcuni oggetti etichettati per la valutazione. È su questa colonna di annotazione che Classify si addestra dopo."
         },
         {
           "visual": "module_classify_merged",

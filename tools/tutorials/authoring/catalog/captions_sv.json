@@ -14826,7 +14826,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Innan en klassificerare kan lära sig något behöver den exempel. Öppna Annotate från Home så visar den objektutsnitten som Measure sparat eller strömmar. Gå igenom representativa celler och märk dem. Varje etikett skrivs till en annoteringskolumn i tabellen png_list, kopplad till objektets identitet. Använd en separat kolumn för varje fråga och lägg undan några märkta objekt för utvärdering. Det är den annoteringskolumnen som Classify tränar på därefter.",
+          "narration": "Innan en klassificerare kan lära sig något behöver den exempel. Öppna Annotate från Home för att se objektutsnitten som hör till ditt uppmätta projekt. Gå igenom representativa celler och märk dem. Varje etikett skrivs till en annoteringskolumn i tabellen png_list, kopplad till objektets identitet. Använd en separat kolumn för varje fråga och lägg undan några märkta objekt för utvärdering. Det är den annoteringskolumnen som Classify tränar på därefter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

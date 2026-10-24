@@ -15914,14 +15914,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Antes que um classificador aprenda qualquer coisa, ele precisa de exemplos. Abra Annotate em Home e ele mostra os recortes de objetos que o Measure salvou ou transmite. Percorra células representativas e rotule-as. Cada rótulo é gravado em uma coluna de anotação da tabela png_list, ligado à identidade daquele objeto. Use uma coluna separada para cada pergunta e reserve alguns objetos rotulados para a avaliação. Essa coluna de anotação é a que o Classify usa para treinar em seguida.",
+          "narration": "Antes que um classificador aprenda qualquer coisa, ele precisa de exemplos. Abra Annotate em Home para ver os recortes de objetos associados ao seu projeto com medições. Percorra células representativas e rotule-as. Cada rótulo é gravado em uma coluna de anotação da tabela png_list, ligado à identidade daquele objeto. Use uma coluna separada para cada pergunta e reserve alguns objetos rotulados para a avaliação. Essa coluna de anotação é a que o Classify usa para treinar em seguida.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Antes que um classificador aprenda qualquer coisa, ele precisa de exemplos. Abra Annotate em Home e ele mostra os recortes de objetos que o Measure salvou ou transmite. Percorra células representativas e rotule-as. Cada rótulo é gravado em uma coluna de anotação da tabela png_list, ligado à identidade daquele objeto. Use uma coluna separada para cada pergunta e reserve alguns objetos rotulados para a avaliação. Essa coluna de anotação é a que o Classify usa para treinar em seguida."
+          "speech_text": "Antes que um classificador aprenda qualquer coisa, ele precisa de exemplos. Abra Annotate em Home para ver os recortes de objetos associados ao seu projeto com medições. Percorra células representativas e rotule-as. Cada rótulo é gravado em uma coluna de anotação da tabela png_list, ligado à identidade daquele objeto. Use uma coluna separada para cada pergunta e reserve alguns objetos rotulados para a avaliação. Essa coluna de anotação é a que o Classify usa para treinar em seguida."
         },
         {
           "visual": "module_classify_merged",

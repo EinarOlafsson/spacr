@@ -14852,7 +14852,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+          "narration": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

@@ -14831,7 +14831,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home, så viser den objektutsnittene som Measure har lagret eller strømmer. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter.",
+          "narration": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home for å se objektutsnittene som er knyttet til prosjektet ditt med målinger. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
