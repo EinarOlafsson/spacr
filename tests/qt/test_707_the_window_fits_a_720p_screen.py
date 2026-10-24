@@ -107,6 +107,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
         from spacr.qt.app import MainWindow
         from spacr.qt.bridge import registry, thread_has_stopped
         from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        from spacr.qt import walkthrough
         from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
 
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_WORD_ROOT'])
@@ -123,12 +124,28 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
         def save():
             output.write_text(json.dumps(report, indent=2))
 
+        def jobs():
+            rows = []
+            for handle in registry().active():
+                thread = handle.thread
+                valid = thread is not None and shiboken6.isValid(thread)
+                rows.append({'app_key': handle.app_key, 'kind': handle.kind,
+                    'blocks_shutdown': handle.blocks_shutdown, 'user_visible': handle.user_visible,
+                    'is_running': handle.is_running(), 'stop_on_quit': getattr(handle, 'stop_on_quit', True),
+                    'worker_class': type(handle.worker).__name__, 'handle_valid': shiboken6.isValid(handle),
+                    'handle_pointer': shiboken6.getCppPointer(handle) if shiboken6.isValid(handle) else None,
+                    'thread_pointer': shiboken6.getCppPointer(thread) if valid else None,
+                    'thread_valid': valid, 'thread_running': bool(valid and thread.isRunning()),
+                    'thread_finished': bool(valid and thread.isFinished())})
+            return rows
+
         def close():
             state['timer'].stop()
             report['closing_phase'] = state['phase']
             report['closing_elapsed'] = time.perf_counter()-state['started']
             state['threads'] = [handle.thread for handle in registry().active()]
             report['captured_threads'] = len(state['threads'])
+            report['registry_before_close'] = jobs()
             report['normal_close_accepted'] = state['window'].close()
             save()
 
@@ -193,11 +210,47 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                     advance('module')
                     window.open_module('mask')
                     return
-                assert not any(w.isVisible() for w in window.findChildren(_TourOverlay))
+                tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                report['post_home_tours'] = [{'pointer': shiboken6.getCppPointer(w),
+                    'key': getattr(w, '_walkthrough_app_key', None),
+                    'owned_by_window': w.parentWidget() is window,
+                    'in_module_owner_list': w in getattr(window, '_module_walkthroughs', ())}
+                    for w in tours]
+                save()
                 if state['phase'] == 'module':
                     host = window._screens.get('mask')
                     if host is None or not host.isVisible():
                         return
+                    assert window._stack.currentWidget() is host
+                    if not state.get('mask_tour'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1
+                        tour = tours[0]
+                        assert tour.parentWidget() is window and getattr(tour, '_walkthrough_app_key', None) == 'mask'
+                        assert getattr(window, '_module_walkthroughs', ()) == [tour]
+                        skip = tour._skip_btn
+                        report['mask_tour'] = {'pointer': shiboken6.getCppPointer(tour),
+                            'key': tour._walkthrough_app_key, 'seen_before': walkthrough.was_seen('mask'),
+                            'skip_enabled': skip.isEnabled(), 'skip_visible': skip.isVisible(),
+                            'skip_visible_region': skip.visibleRegion().boundingRect().getRect(),
+                            'skip_in_window': skip.rect().translated(skip.mapTo(window, QPoint())).getRect()}
+                        save()
+                        assert not walkthrough.was_seen('mask')
+                        assert skip.window() is window and skip.isVisible() and skip.isEnabled()
+                        assert not skip.visibleRegion().isEmpty()
+                        state['mask_tour'] = tour
+                        skip.click()
+                        report['mask_tour']['clicked'] = True
+                        save()
+                        return
+                    tour = state['mask_tour']
+                    hidden = not shiboken6.isValid(tour) or not tour.isVisible()
+                    report['mask_tour'].update(hidden_after_click=hidden, seen_after=walkthrough.was_seen('mask'))
+                    save()
+                    if not hidden:
+                        return
+                    assert not tours and walkthrough.was_seen('mask')
                     refs = [('Live', getattr(host, '_preview_switch', None)),
                             ('3D', getattr(host, '_dimension_switches', {}).get('z')),
                             ('AI', getattr(host, '_ai_switch', None))]
@@ -212,6 +265,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                     state.update(host=host, refs=refs, index=0)
                     advance('controls')
                     return
+                assert not tours, ('Unexpected tour during word inspection', report['post_home_tours'])
                 expected, widget = state['refs'][state['index']]
                 current = signature(widget)
                 if 'revealed' not in state:
@@ -294,13 +348,14 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
         result = run(['--no-setup', '--fresh'])
         timing.unsubscribe_readiness(ready)
         from spacr.qt.widgets import ambient
-        report.update(normal_return=result, remaining_jobs=len(registry().active()),
+        report.update(normal_return=result, remaining_jobs=len(registry().active()), registry_after_return=jobs(),
             owned_threads_alive=sum(not thread_has_stopped(t) for t in state.get('threads', [])),
             compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
             compiler_helper_present=ambient._PRIME_PROCESS is not None)
         save()
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert [r['role'] for r in report['checks']] == ['Live', '3D', 'AI'], report
+        assert report['mask_tour']['clicked'] and report['mask_tour']['hidden_after_click'] and report['mask_tour']['seen_after'], report
         assert not report['remaining_jobs'] and not report['owned_threads_alive'], report
         assert not report['compiler_threads'] and not report['compiler_helper_present'], report
     ''')
@@ -323,6 +378,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
     assert not report['errors'] and report['normal_return'] == 0 and report['normal_close_accepted']
     assert [row['role'] for row in report['checks']] == ['Live', '3D', 'AI']
     assert report['ai_default_off_before_run'] and report['owned_tour_skipped']
+    assert report['mask_tour']['clicked'] and report['mask_tour']['hidden_after_click'] and report['mask_tour']['seen_after']
     assert not report['remaining_jobs'] and not report['owned_threads_alive']
     assert not report['compiler_threads'] and not report['compiler_helper_present']
 

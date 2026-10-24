@@ -17,6 +17,15 @@ Native Mask word-toggle scope: normal owned startup at GUI/font200 and native
 AI-default-off before prewarm; no on-state click/provider/model/inference.
 Separate20s startup/module/control stages retain full displayed-text/native
 slot/one-reveal bounds and normal cleanup; no 64110s or whole-Home claim.
+Native19131 stops before word checks on an unidentified post-open tour;
+source offers a Mask-owned walkthrough. Verify that exact live owner/key and
+normal Skip/seen lifecycle inside the same module20s before inspecting words.
+Record registry identities at close/return; the prior count1 is unclassified.
+Native19131/EVUagm on7d2814613 fails34.49s/RSS1.206GiB: after owned Home
+Skip/startup9.511s and Mask1.572s, a visible tour aborts controls at0.717s;
+all three refs exist but zero words are certified. AI remains default-off.
+Normal close/run0 and compiler cleanup pass; post-run registry count1 with
+zero pre-close captured threads remains unclassified, not a text-layout bug.
 
 Chrome lifetime scope: retain an actual button Python wrapper after its native
 parent is deferred-deleted, then change live GUI scale once alongside a live
