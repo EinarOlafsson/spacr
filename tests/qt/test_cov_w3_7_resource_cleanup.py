@@ -159,6 +159,36 @@ def test_a_hidden_gpu_is_not_an_error(monkeypatch):
     assert rc.cuda_reserved() is None
 
 
+def test_mps_reservation_readings_never_query_cuda(monkeypatch):
+    """Read the available backend; a failed reading is not a measured zero."""
+    readings = iter([4096, 0])
+    seen = []
+
+    def driver_allocated_memory():
+        seen.append("mps")
+        try:
+            return next(readings)
+        except StopIteration:
+            raise RuntimeError("the MPS context stopped answering") from None
+
+    def forbidden_cuda_query():
+        seen.append("cuda")
+        raise AssertionError("the available MPS backend must not query CUDA")
+
+    torch = types.ModuleType("torch")
+    torch.backends = types.SimpleNamespace(mps=types.SimpleNamespace(is_available=lambda: True))
+    torch.mps = types.SimpleNamespace(driver_allocated_memory=driver_allocated_memory)
+    torch.cuda = types.SimpleNamespace(is_available=forbidden_cuda_query,
+                                      is_initialized=forbidden_cuda_query,
+                                      memory_reserved=forbidden_cuda_query)
+    monkeypatch.setitem(sys.modules, "torch", torch)
+
+    assert rc.cuda_reserved() == 4096
+    assert rc.cuda_reserved() == 0
+    assert rc.cuda_reserved() is None
+    assert seen == ["mps", "mps", "mps"]
+
+
 # ---------------------------------------------------------------------------
 # RAM
 # ---------------------------------------------------------------------------
