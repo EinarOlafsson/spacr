@@ -79,6 +79,35 @@ def test_a_path_that_is_not_there_fingerprints_as_nothing(tmp_path):
     assert not print_.digest
 
 
+def test_a_folder_fingerprint_matches_the_ones_already_recorded(tmp_path):
+    """One lstat per file must give the digest a stat per file gave, or every
+    recorded output folder would read as changed after an update."""
+    import hashlib
+    import json
+
+    from spacr.artifacts import content_fingerprint
+
+    folder = tmp_path / "masks"
+    (folder / "plate1" / "deep").mkdir(parents=True)
+    for index, rel in enumerate(["a.npy", "plate1/b.npy", "plate1/deep/c.npy"]):
+        (folder / rel).write_bytes(b"x" * (index + 3))
+    records = []
+    for root, dirnames, filenames in os.walk(folder):
+        dirnames.sort()
+        for name in sorted(filenames):
+            candidate = os.path.join(root, name)
+            details = os.stat(candidate)
+            records.append((os.path.relpath(candidate, folder),
+                            details.st_size, details.st_mtime_ns))
+    expected = hashlib.sha256(
+        json.dumps(records, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+    print_ = content_fingerprint(folder)
+
+    assert print_.digest == expected
+    assert (print_.method, print_.size_bytes) == ("tree", 3 + 4 + 5)
+
+
 # ---------------------------------------------------------------------------
 # The one-line summaries
 # ---------------------------------------------------------------------------
