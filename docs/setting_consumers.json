@@ -5580,7 +5580,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_perimeter_fraction",
-    "line": 1179,
+    "line": 1180,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -7734,7 +7734,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 902,
+    "line": 903,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -7743,7 +7743,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 903,
+    "line": 904,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -14017,7 +14017,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_background",
-    "line": 177,
+    "line": 178,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14037,7 +14037,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_background_radius",
-    "line": 178,
+    "line": 179,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14057,7 +14057,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_background_scale",
-    "line": 180,
+    "line": 181,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14077,7 +14077,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_clahe",
-    "line": 195,
+    "line": 196,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14097,7 +14097,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_clahe_clip",
-    "line": 197,
+    "line": 198,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14117,7 +14117,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_clahe_tile",
-    "line": 196,
+    "line": 197,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14137,7 +14137,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_denoise",
-    "line": 182,
+    "line": 183,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14157,7 +14157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_denoise_strength",
-    "line": 183,
+    "line": 184,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14177,7 +14177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_equalize",
-    "line": 198,
+    "line": 199,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14197,7 +14197,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_gamma",
-    "line": 191,
+    "line": 192,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14217,7 +14217,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_log",
-    "line": 192,
+    "line": 193,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14237,7 +14237,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_log_gain",
-    "line": 193,
+    "line": 194,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14257,7 +14257,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_percentile_clip",
-    "line": 185,
+    "line": 186,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14277,7 +14277,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_percentile_high",
-    "line": 189,
+    "line": 190,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14297,7 +14297,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_percentile_low",
-    "line": 187,
+    "line": 188,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14317,7 +14317,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_sharpen",
-    "line": 199,
+    "line": 200,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14337,7 +14337,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_sharpen_amount",
-    "line": 202,
+    "line": 203,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14357,7 +14357,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_sharpen_radius",
-    "line": 200,
+    "line": 201,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -14377,7 +14377,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "enhance_sqrt",
-    "line": 194,
+    "line": 195,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_read_chain_settings"
@@ -19003,7 +19003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 1163,
+    "line": 1164,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -19646,7 +19646,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "image_qc_mode",
-    "line": 1167,
+    "line": 1168,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -26638,7 +26638,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n2v_denoise",
-    "line": 330,
+    "line": 331,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "processing_requested"
@@ -26647,7 +26647,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n2v_denoise",
-    "line": 1038,
+    "line": 1039,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_n2v"
@@ -26656,7 +26656,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n2v_denoise",
-    "line": 1163,
+    "line": 1164,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -26676,7 +26676,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n2v_epochs",
-    "line": 1040,
+    "line": 1041,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_n2v"
@@ -26696,7 +26696,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n2v_model",
-    "line": 1043,
+    "line": 1044,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_n2v"
@@ -30789,7 +30789,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 1169,
+    "line": 1170,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -40222,6 +40222,15 @@
     "form": "get",
     "function_depth": 1,
     "key": "pipeline_style",
+    "line": 1620,
+    "module": "spacr.psf_pipeline",
+    "nested": false,
+    "qualname": "_CalibratedCellDataset.__init__"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "pipeline_style",
     "line": 1032,
     "module": "spacr.settings",
     "nested": false,
@@ -42969,7 +42978,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "psf_fwhm_um",
-    "line": 133,
+    "line": 134,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -42978,7 +42987,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_fwhm_um",
-    "line": 134,
+    "line": 135,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43034,7 +43043,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_image_sampling_um",
-    "line": 125,
+    "line": 126,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43054,7 +43063,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_iterations",
-    "line": 127,
+    "line": 128,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43074,7 +43083,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "psf_kernel_sampling_um",
-    "line": 139,
+    "line": 140,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43083,7 +43092,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_kernel_sampling_um",
-    "line": 140,
+    "line": 141,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43170,7 +43179,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_operation",
-    "line": 120,
+    "line": 121,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43179,7 +43188,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_operation",
-    "line": 326,
+    "line": 327,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "processing_requested"
@@ -43208,7 +43217,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_path",
-    "line": 136,
+    "line": 137,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -43237,7 +43246,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_source",
-    "line": 131,
+    "line": 132,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "prepare_psf"
@@ -51077,7 +51086,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 902,
+    "line": 903,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -51086,7 +51095,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 908,
+    "line": 909,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -56352,7 +56361,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1164,
+    "line": 1165,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_validate_calibrated_batch_settings"
@@ -59234,7 +59243,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 328,
+    "line": 329,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "processing_requested"
@@ -59243,7 +59252,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 736,
+    "line": 737,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_unmixing"
@@ -59252,7 +59261,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 740,
+    "line": 741,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_unmixing"
@@ -59261,7 +59270,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 900,
+    "line": 901,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -59270,7 +59279,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 1144,
+    "line": 1145,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_initialize_calibrated_output"
@@ -59279,7 +59288,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix",
-    "line": 1406,
+    "line": 1419,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_segmentation_psf"
@@ -59299,7 +59308,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_background_percentile",
-    "line": 772,
+    "line": 773,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_unmixing"
@@ -59328,7 +59337,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "unmix_calibration",
-    "line": 522,
+    "line": 523,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_load_unmix_calibration"
@@ -59337,7 +59346,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_calibration",
-    "line": 735,
+    "line": 736,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_unmixing"
@@ -59346,7 +59355,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_calibration",
-    "line": 895,
+    "line": 896,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
@@ -59355,7 +59364,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_calibration",
-    "line": 1144,
+    "line": 1145,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_initialize_calibrated_output"
@@ -59364,7 +59373,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_calibration",
-    "line": 1402,
+    "line": 1415,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_segmentation_psf"
@@ -59384,7 +59393,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_controls",
-    "line": 767,
+    "line": 768,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_unmixing"
@@ -59404,7 +59413,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_pixel_size_um",
-    "line": 534,
+    "line": 535,
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_load_unmix_calibration"

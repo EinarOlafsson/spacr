@@ -1884,6 +1884,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in calibrated_metal_arrivals} == calibrated_metal_arrivals
     assert not calibrated_metal_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **calibrated_metal_arrivals}
+    metal_method_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "718_metal_reducer_method_api_arrivals_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(metal_method_arrivals) == {
+        *("spacr.mps_reduce.MetalPCA." + name for name in (
+            "fit", "transform", "fit_transform", "inverse_transform")),
+        *("spacr.mps_reduce.MetalKMeans." + name for name in (
+            "fit", "predict", "fit_predict", "fit_transform")),
+    }
+    assert {key: docs[key] for key in metal_method_arrivals} == metal_method_arrivals
+    assert not metal_method_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **metal_method_arrivals}
     home_masthead_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "707_home_masthead_fit_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
     assert set(home_masthead_arrivals) == {
@@ -1892,6 +1906,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in home_masthead_arrivals} == home_masthead_arrivals
     assert not home_masthead_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **home_masthead_arrivals}
+    signed_cell_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "538_signed_cell_measurement_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(signed_cell_arrivals) == {"spacr.measure.measure_calibrated_cells"}
+    assert {key: docs[key] for key in signed_cell_arrivals} == signed_cell_arrivals
+    assert not signed_cell_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **signed_cell_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]

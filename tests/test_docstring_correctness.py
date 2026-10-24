@@ -2591,6 +2591,43 @@ def _validated_prior_weighted_preview_callables(callables):
             if item.symbol in contracts else item for item in callables]
 
 
+def _validated_signed_cell_measurement_arrival(callables):
+    """Bind the one signed-cell API's complete source boundary before historical replay."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    arrivals = json.loads((root / "tests/data/release_contracts"
+        / "538_signed_cell_measurement_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    symbol = "spacr.measure.measure_calibrated_cells"
+    assert arrivals.keys() == {symbol}
+    item = next(row for row in callables if row.symbol == symbol)
+    parameters = {"src", "dst", "channels", "cancelled"}
+    assert item.parameters == item.accepted_documented_parameters == parameters
+    assert item.required_parameters == {"src", "dst"}
+    assert item.category == "function" and item.exposure == "autoapi"
+    assert item.variant_count == 1
+    assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+    assert not item.accepts_arbitrary_keywords
+    assert item.docstring == arrivals[symbol]
+    assert hashlib.sha256(item.docstring.encode()).hexdigest() == "33ccf9911ea4d8d4e03931535c71f9392870258bc008a32a676602ece361f2f3"
+    assert _documented_parameter_names(item.docstring) == parameters
+    tree = ast.parse((root / "spacr/measure.py").read_text(encoding="utf-8"))
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "measure_calibrated_cells")
+    assert _clean_doc(declaration) == item.docstring
+    assert not declaration.decorator_list and declaration.returns is None
+    assert not declaration.args.posonlyargs and not declaration.args.defaults
+    assert not declaration.args.vararg and not declaration.args.kwarg
+    assert [argument.arg for argument in declaration.args.args] == ["src"]
+    assert [argument.arg for argument in declaration.args.kwonlyargs] == ["dst", "channels", "cancelled"]
+    assert all(argument.annotation is None for argument in (
+        declaration.args.args + declaration.args.kwonlyargs))
+    assert declaration.args.kw_defaults[0] is None
+    assert all(isinstance(value, ast.Constant) and value.value is None
+               for value in declaration.args.kw_defaults[1:])
+    return callables
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2611,6 +2648,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_prior_152_callables(callables)
     callables = _validated_prior_weighted_preview_callables(callables)
     callables = _validated_calibrated_batch_inventory(callables)
+    callables = _validated_signed_cell_measurement_arrival(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3039,7 +3077,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
-                     "718_metal_reducer_method_api_arrivals_2026-10-24.json"):
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4994,6 +5033,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
         ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
         ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5514,7 +5554,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
-                     "718_metal_reducer_method_api_arrivals_2026-10-24.json"):
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5598,7 +5639,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
-                     "718_metal_reducer_method_api_arrivals_2026-10-24.json"):
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

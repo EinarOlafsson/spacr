@@ -4742,6 +4742,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_volume_measure_spacing", "_volume_measure_input",
                              "_write_volume_measurements", "measure_volume_rows",
                              "_validate_measurement_coordinate_source",
+                             "_calibrated_measurement_checkpoint",
+                             "_publish_calibrated_measurement_directory",
+                             "_calibrated_cell_statistics", "measure_calibrated_cells",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body
@@ -4774,7 +4777,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                            "_load_unmix_calibration", "_UnmixCalibration",
                                            "_UnmixPlan", "_initialize_calibrated_output",
                                            "_validate_calibrated_batch_settings",
-                                           "_prepare_segmentation_psf", "_SegmentationPSFSession"}]
+                                           "_prepare_segmentation_psf", "_SegmentationPSFSession",
+                                           "_cell_record_error", "_CalibratedCellDataset"}]
         if path == source_root / "_lineage_trees.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

@@ -567,3 +567,211 @@ def test_calibrated_output_marker_precedes_images_and_refuses_prior_output(calib
         _initialize_calibrated_output(inputs['output'], inputs['settings'])
     assert path.read_bytes() == marker_bytes
     assert all(file.read_bytes() == content for file, content in before.items())
+
+
+@pytest.fixture
+def completed_calibrated_cells(calibrated_batch_inputs):
+    """Persist a real signed session with an explicit cell role and matching canvas."""
+    inputs = calibrated_batch_inputs
+    session = _calibrated_batch_session(inputs)
+    result = session.prepare_calibrated(inputs['target'], '000002')
+    labels = np.zeros(result.image.shape[:2], dtype=np.uint16)
+    labels[0:3, 2:5] = 7
+    labels[12:17, 14:20] = 11
+    mask = session.restore_calibrated(labels, result, '000002')
+    display = session.calibrated_display(inputs['target'], result)
+    output = inputs['output'] / 'merged' / 'stack_000002.npy'
+    signed = inputs['output'] / 'signed' / 'stack_000002.npy'
+    output.parent.mkdir(); signed.parent.mkdir()
+    np.save(output, np.concatenate((display, mask[..., None]), axis=-1).astype(np.float32))
+    np.save(signed, result.image)
+    session.mark_completed('000002', output_path=output, signed_path=signed, mask_role='cell')
+    session.finish({'000002'})
+    return dict(inputs=inputs, session=session, result=result, mask=mask,
+                output=output, signed=signed,
+                record=inputs['output'] / 'psf/segmentation_application.json')
+
+
+def _rewrite_calibrated_cell_record(path, record):
+    """Rebind deliberate metadata changes so semantic refusals cannot rely on stale hashes."""
+    from spacr.psf_pipeline import _cell_record_hash
+
+    configuration_sha = _cell_record_hash(record['configuration'])
+    for row in record['calibrated_fields'].values():
+        row['configuration_sha256'] = configuration_sha
+        row['binding_sha256'] = _cell_record_hash({key: value for key, value in row.items()
+                                                 if key != 'binding_sha256'})
+    path.write_text(json.dumps(record, allow_nan=False))
+
+
+def test_signed_cell_record_serializes_role_and_streams_matching_readonly_maps(completed_calibrated_cells):
+    """Consume signed pixels, explicit physical positions and exact ROI cell labels."""
+    from spacr.psf_pipeline import _cell_record_hash, _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    record = json.loads(sample['record'].read_text())
+    row = record['calibrated_fields']['000002']
+    assert record['complete'] is True
+    assert row['measurement_schema_version'] == 1 and row['mask_role'] == 'cell'
+    assert row['mask_channel_position'] == 2
+    assert row['binding_sha256'] == _cell_record_hash({key: value for key, value in row.items()
+                                                     if key != 'binding_sha256'})
+    with _open_calibrated_cell_dataset(root, channels=(1,)) as dataset:
+        assert dataset.record_sha256 == hashlib.sha256(sample['record'].read_bytes()).hexdigest()
+        assert dataset.channels == (1,) and dataset.physical_channel_order == (3, 1)
+        assert dataset.pixel_size_um == tuple(record['configuration']['unmixing']['calibration']['pixel_size_um'])
+        assert dataset.provenance() == record
+        iterator = dataset.fields()
+        field = next(iterator)
+        signed = field['signed']
+        assert isinstance(signed, np.memmap) and not signed.flags.writeable
+        assert field['labels'].dtype == np.uint16 and not field['labels'].flags.writeable
+        np.testing.assert_array_equal(signed, sample['result'].image)
+        np.testing.assert_array_equal(field['labels'], sample['mask'][2:46, 1:53])
+        assert field['channel_positions'] == {3: 0, 1: 1}
+        assert field['source_origin_px'] == (2, 1) and field['source_shape'] == (48, 56, 2)
+        assert field['source_identity'] == dict(sample['inputs']['identities']['000002'],
+                                                source_dataset=record['configuration']['source_dataset'])
+        assert field['provenance'] == row and set(np.unique(field['labels'])) == {0, 11}
+        with pytest.raises(ValueError):
+            signed[0, 0, 0] = 5
+        with pytest.raises(StopIteration):
+            next(iterator)
+        assert signed._mmap.closed
+    assert all(path.read_bytes() == content for path, content in before.items())
+    import subprocess
+    import sys
+
+    headless = subprocess.run([sys.executable, '-c', """
+import sys
+from spacr.psf_pipeline import _open_calibrated_cell_dataset
+with _open_calibrated_cell_dataset(sys.argv[1]) as dataset:
+    for field in dataset.fields():
+        assert not field['signed'].flags.writeable
+try:
+    with _open_calibrated_cell_dataset(sys.argv[1], channels=(999,)):
+        raise AssertionError('unknown physical channel accepted')
+except ValueError:
+    pass
+assert not any(name == 'PySide6' or name.startswith('PySide6.') for name in sys.modules)
+print('headless signed cell loader passed')
+""", str(root)], capture_output=True, text=True, timeout=30)
+    assert headless.returncode == 0, headless.stdout + headless.stderr
+    assert headless.stdout.strip() == 'headless signed cell loader passed'
+
+
+@pytest.mark.parametrize('defect', ['role', 'old-record', 'stale-hash', 'shape', 'origin',
+                                  'spacing', 'symlink', 'common-psf', 'source-identity',
+                                  'duplicate-field', 'duplicate-artifact', 'high-label'])
+def test_signed_cell_loader_refuses_real_inconsistent_producer_outputs(completed_calibrated_cells, defect):
+    """Reject actual incompatible records and artifacts before exposing any field."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    record = json.loads(sample['record'].read_text())
+    row = record['calibrated_fields']['000002']
+    if defect == 'role':
+        row['mask_role'] = 'nucleus'
+    elif defect == 'old-record':
+        row.pop('measurement_schema_version'); row.pop('mask_role')
+    elif defect == 'stale-hash':
+        pixels = np.load(sample['signed'], allow_pickle=False)
+        pixels[0, 0, 0] += 1
+        np.save(sample['signed'], pixels)
+    elif defect == 'shape':
+        pixels = np.load(sample['signed'], allow_pickle=False)
+        np.save(sample['signed'], pixels[:-1])
+        row['signed_crop']['sha256'] = hashlib.sha256(sample['signed'].read_bytes()).hexdigest()
+    elif defect == 'origin':
+        row['source_origin_px'][0] += 1
+    elif defect == 'spacing':
+        record['configuration']['unmixing']['calibration']['pixel_size_um'][0] *= 2
+    elif defect == 'common-psf':
+        record['configuration']['unmixing']['calibration']['common_psf'][0][0] += .1
+    elif defect == 'source-identity':
+        row['source_identity']['source_dataset'] += '-other'
+    elif defect in ('duplicate-field', 'duplicate-artifact'):
+        duplicate = json.loads(json.dumps(row))
+        duplicate['field_id'] = '000003'
+        if defect == 'duplicate-artifact':
+            duplicate['source_identity']['field'] = 'different-field'
+        record['fields'].append('000003')
+        record['calibrated_fields']['000003'] = duplicate
+    elif defect == 'high-label':
+        canvas = np.load(sample['output'], allow_pickle=False)
+        canvas[20, 20, -1] = 65536
+        np.save(sample['output'], canvas)
+        row['display_mask']['sha256'] = hashlib.sha256(sample['output'].read_bytes()).hexdigest()
+    else:
+        outside = sample['inputs']['stack'].parent / 'outside-signed.npy'
+        outside.write_bytes(sample['signed'].read_bytes())
+        sample['signed'].unlink(); sample['signed'].symlink_to(outside)
+    _rewrite_calibrated_cell_record(sample['record'], record)
+    before = {path: path.read_bytes() for path in sample['inputs']['output'].rglob('*') if path.is_file()}
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(sample['inputs']['output'], channels=(1,)):
+            pytest.fail('inconsistent data reached the consumer')
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_signed_cell_loader_closes_maps_and_refuses_postyield_mutation(completed_calibrated_cells):
+    """Reject changed durable pixels after a real borrowed view has been consumed."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(sample['inputs']['output']) as dataset:
+            field = next(dataset.fields())
+            mapped = field['signed']
+            assert float(mapped[0, 0, 0]) == float(sample['result'].image[0, 0, 0])
+            with sample['signed'].open('r+b') as stream:
+                stream.seek(-4, 2)
+                stream.write(np.float32(123).tobytes())
+    assert mapped._mmap.closed
+
+
+def test_signed_cell_loader_cancellation_closes_borrowed_maps(completed_calibrated_cells):
+    """Cancel a real open field without leaking its mappings or modifying source bytes."""
+    import threading
+    from spacr.cancellation import PipelineCancelled
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    event = threading.Event()
+    before = sample['signed'].read_bytes()
+    with pytest.raises(PipelineCancelled):
+        with _open_calibrated_cell_dataset(sample['inputs']['output'], cancelled=event.is_set) as dataset:
+            mapped = next(dataset.fields())['signed']
+            event.set()
+    assert mapped._mmap.closed
+    assert sample['signed'].read_bytes() == before
+
+
+def test_signed_cell_record_snapshot_caps_a_concurrent_append(completed_calibrated_cells):
+    """Bound the actual JSON read even when the real metadata file grows during capture."""
+    from spacr.psf_pipeline import _cell_record_snapshot
+
+    path = completed_calibrated_cells['record']
+    with path.open('rb') as stream:
+        class GrowingStream:
+            """Append to the real descriptor's file immediately before its bounded read."""
+
+            def fileno(self):
+                """Expose the actual metadata descriptor to identity validation."""
+                return stream.fileno()
+
+            def seek(self, offset):
+                """Keep the genuine metadata stream positioned by the loader."""
+                return stream.seek(offset)
+
+            def read(self, size):
+                """Grow real durable metadata without allowing an unbounded allocation."""
+                assert 0 < size <= 16 * 1024 ** 2 + 1
+                with path.open('ab') as writer:
+                    writer.write(b' ' * (16 * 1024 ** 2 + 1))
+                return stream.read(size)
+
+        with pytest.raises(ValueError):
+            _cell_record_snapshot(GrowingStream(), None)

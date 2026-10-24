@@ -13135,3 +13135,253 @@ def measure_volume_rows(rows, *, object_type='cell', progress=None):
         report(tr('Measurements saved: {path}', path=target))
     return {'db_paths': tuple(grouped), 'images': len(rows),
             'objects': sum(len(frame) for frames in grouped.values() for frame in frames)}
+
+
+def _calibrated_measurement_checkpoint(cancelled):
+    """Stop a signed measurement before publishing when its callback cancels."""
+    if cancelled is not None and cancelled():
+        from .qt.i18n import tr
+
+        raise InterruptedError(tr('Calibrated cell measurement was cancelled; no result was published.'))
+
+
+def _publish_calibrated_measurement_directory(staging, destination):
+    """Atomically publish a directory without replacing even an empty destination."""
+    import ctypes
+    import sys
+    from .qt.i18n import tr
+
+    if os.name == 'nt':
+        os.rename(staging, destination)
+        return
+    library = ctypes.CDLL(None, use_errno=True)
+    left, right = os.fsencode(staging), os.fsencode(destination)
+    try:
+        if sys.platform.startswith('linux'):
+            operation = library.renameat2
+            operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                                  ctypes.c_char_p, ctypes.c_uint]
+            arguments = (-100, left, -100, right, 1)
+        elif sys.platform == 'darwin':
+            operation = library.renamex_np
+            operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+            arguments = (left, right, 4)
+        else:
+            raise AttributeError
+    except AttributeError:
+        raise OSError(tr('This platform cannot atomically publish a new calibrated measurement directory without replacing existing results.')) from None
+    operation.restype = ctypes.c_int
+    if operation(*arguments) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), os.fspath(destination))
+
+
+def _calibrated_cell_statistics(field, channels, cancelled):
+    """Yield bounded signed first-order rows with geometric source-canvas coordinates."""
+    labels = field['labels']
+    flat_labels = labels.reshape(-1)
+    groups = int(labels.max()) + 1
+    counts = np.bincount(flat_labels, minlength=groups)
+    identifiers = np.flatnonzero(counts[1:]) + 1
+    y_sums = np.zeros(groups, dtype=np.float64)
+    x_sums = np.zeros(groups, dtype=np.float64)
+    width = labels.shape[1]
+    chunk_size = 262144
+    for start in range(0, flat_labels.size, chunk_size):
+        _calibrated_measurement_checkpoint(cancelled)
+        selected = flat_labels[start:start + chunk_size]
+        indices = np.arange(start, start + selected.size, dtype=np.int64)
+        y_sums += np.bincount(selected, weights=indices // width, minlength=groups)
+        x_sums += np.bincount(selected, weights=indices % width, minlength=groups)
+    boxes = find_objects(labels, max_label=groups - 1)
+    origin_y, origin_x = field['source_origin_px'][:2]
+    dy, dx = field['pixel_size_um']
+    if dy * dx <= 0 or not np.isfinite((float(field['source_shape'][0]) * dy,
+                        float(field['source_shape'][1]) * dx,
+                        float(labels.size) * dy * dx)).all():
+        from .qt.i18n import tr
+
+        raise ValueError(tr('Recorded pixel spacing cannot represent positive finite pixel areas and finite measurement coordinates.'))
+    identity = field['source_identity']
+    for channel in channels:
+        _calibrated_measurement_checkpoint(cancelled)
+        position = field['channel_positions'][channel]
+        values = np.asarray(field['signed'][..., position]).ravel()
+        totals = np.zeros(groups, dtype=np.float64)
+        minima = np.full(groups, np.inf, dtype=np.float64)
+        maxima = np.full(groups, -np.inf, dtype=np.float64)
+        for start in range(0, flat_labels.size, chunk_size):
+            _calibrated_measurement_checkpoint(cancelled)
+            selected = flat_labels[start:start + chunk_size]
+            chunk = values[start:start + chunk_size].astype(np.float64)
+            totals += np.bincount(selected, weights=chunk, minlength=groups)
+            np.minimum.at(minima, selected, chunk)
+            np.maximum.at(maxima, selected, chunk)
+        means = np.divide(totals, counts, out=np.zeros(groups), where=counts > 0)
+        squared_deviations = np.zeros(groups, dtype=np.float64)
+        for start in range(0, flat_labels.size, chunk_size):
+            _calibrated_measurement_checkpoint(cancelled)
+            selected = flat_labels[start:start + chunk_size]
+            centered = values[start:start + chunk_size].astype(np.float64) - means[selected]
+            squared_deviations += np.bincount(selected, weights=centered * centered,
+                                             minlength=groups)
+        for identifier in identifiers:
+            _calibrated_measurement_checkpoint(cancelled)
+            identifier = int(identifier)
+            count = int(counts[identifier])
+            centroid_y = float(y_sums[identifier] / count + origin_y)
+            centroid_x = float(x_sums[identifier] / count + origin_x)
+            bounds = boxes[identifier - 1]
+            low_y, low_x = bounds[0].start + origin_y, bounds[1].start + origin_x
+            high_y, high_x = bounds[0].stop + origin_y, bounds[1].stop + origin_x
+            yield {
+                'source_dataset': identity['source_dataset'],
+                'plateID': identity['plate'], 'wellID': identity['well'],
+                'fieldID': identity['field'], 'timeID': identity['time'],
+                'sliceID': identity['z'], 'measurement_field_id': field['field_id'],
+                'label_id': identifier, 'physical_channel_id': int(channel),
+                'area_px': count, 'area_um2': float(count * dy * dx),
+                'centroid_y_px': centroid_y, 'centroid_x_px': centroid_x,
+                'centroid_y_um': float(centroid_y * dy),
+                'centroid_x_um': float(centroid_x * dx),
+                'bbox_min_y_px': int(low_y), 'bbox_min_x_px': int(low_x),
+                'bbox_max_y_px': int(high_y), 'bbox_max_x_px': int(high_x),
+                'bbox_min_y_um': float(low_y * dy), 'bbox_min_x_um': float(low_x * dx),
+                'bbox_max_y_um': float(high_y * dy), 'bbox_max_x_um': float(high_x * dx),
+                'intensity_mean': float(means[identifier]),
+                'intensity_min': float(minima[identifier]),
+                'intensity_max': float(maxima[identifier]),
+                'intensity_sum': float(totals[identifier]),
+                'intensity_std': float(np.sqrt(squared_deviations[identifier] / count)),
+            }
+
+
+def measure_calibrated_cells(src, *, dst, channels=None, cancelled=None):
+    """Export signed first-order cell statistics from a calibrated V2 dataset.
+
+    Only complete, explicitly versioned cell-mask records with matching signed
+    crop and mask hashes are accepted. Ordinary Measure and its previews retain
+    their refusal of nonquantitative display arrays. Inputs are read only.
+
+    Rows describe signed camera-linear estimates at the recorded broadened
+    common PSF, not concentrations or original-resolution dye amounts. Negative
+    values remain signed. Sum is the sum of cell pixel values without pixel-area
+    scaling or additional background subtraction; standard deviation uses ddof
+    zero. Centroids are geometric rather than intensity weighted. Coordinates
+    use zero-based full-reference pixel indices and exclusive upper bounding-box
+    indices; micrometre coordinates multiply those indices by recorded Y/X
+    spacing and do not claim an absolute microscope stage position.
+
+    This route writes only cells.csv and provenance.json in a new directory.
+    Cell labels are preserved from 1 to 65535; zero is background and larger
+    labels are refused under the current calibrated producer contract.
+    POSIX descriptor-relative path safeguards and an atomic exclusive-directory
+    rename must be available; unsupported platforms or filesystems refuse.
+    It performs no crop export, texture or relative statistics, reprocessing,
+    normalization, raw-database append or uint16 conversion. Boundary-excluded
+    cells remain excluded and are recorded in provenance.
+
+    :param src: calibrated dataset root with a completed versioned cell record.
+    :param dst: new output directory whose parent already exists, outside src.
+    :param channels: unique physical channel IDs in output order, or None for all.
+    :param cancelled: optional zero-argument callback; a true result cancels
+        before publication and raises InterruptedError.
+    :returns: output_dir, csv_path, provenance_path, fields and rows; paths are
+        strings and counts are integers.
+    :raises ValueError: for unsupported, incomplete or inconsistent source data.
+    :raises FileExistsError: if the destination already exists, even if empty.
+    :raises InterruptedError: if cancellation is requested before publication.
+    """
+    from pathlib import Path
+    import hashlib
+    import tempfile
+    from . import tabular
+    from .cancellation import PipelineCancelled
+    from .psf_pipeline import _open_calibrated_cell_dataset
+    from .qt.i18n import tr
+
+    if cancelled is not None and not callable(cancelled):
+        raise ValueError(tr('The calibrated measurement cancellation check must be callable.'))
+    _calibrated_measurement_checkpoint(cancelled)
+    source = Path(tabular.resolve_path(src)).resolve(strict=True)
+    requested = Path(tabular.resolve_path(dst))
+    parent = requested.parent.resolve(strict=True)
+    destination = parent / requested.name
+    if os.path.lexists(destination):
+        raise FileExistsError(tr('Choose a new destination directory; existing results are never replaced.'))
+    if destination.is_relative_to(source):
+        raise ValueError(tr('Save calibrated measurements outside the input dataset.'))
+    columns = (
+        'source_dataset', 'plateID', 'wellID', 'fieldID', 'timeID', 'sliceID',
+        'measurement_field_id', 'label_id', 'physical_channel_id', 'area_px',
+        'area_um2', 'centroid_y_px', 'centroid_x_px', 'centroid_y_um',
+        'centroid_x_um', 'bbox_min_y_px', 'bbox_min_x_px', 'bbox_max_y_px',
+        'bbox_max_x_px', 'bbox_min_y_um', 'bbox_min_x_um', 'bbox_max_y_um',
+        'bbox_max_x_um', 'intensity_mean', 'intensity_min', 'intensity_max',
+        'intensity_sum', 'intensity_std',
+    )
+    staging = None
+    try:
+        with _open_calibrated_cell_dataset(source, channels=channels,
+                                           cancelled=cancelled) as dataset:
+            staging = Path(tempfile.mkdtemp(prefix=f'.{destination.name}.', dir=parent))
+            csv_path = staging / 'cells.csv'
+            row_count = 0
+            field_count = 0
+            for field in dataset.fields():
+                field_count += 1
+                pending = []
+                for row in _calibrated_cell_statistics(field, dataset.channels, cancelled):
+                    pending.append(row)
+                    if len(pending) == 4096:
+                        tabular.write_table(pd.DataFrame(pending, columns=columns), csv_path,
+                                            canonicalise=False, mode='a', header=row_count == 0,
+                                            float_format='%.17g')
+                        row_count += len(pending)
+                        pending.clear()
+                if pending:
+                    tabular.write_table(pd.DataFrame(pending, columns=columns), csv_path,
+                                        canonicalise=False, mode='a', header=row_count == 0,
+                                        float_format='%.17g')
+                    row_count += len(pending)
+            if field_count == 0:
+                raise ValueError(tr('The calibrated dataset contains no completed fields to measure.'))
+            if row_count == 0:
+                tabular.write_table(pd.DataFrame(columns=columns), csv_path, canonicalise=False)
+            csv_digest = hashlib.sha256()
+            with csv_path.open('rb') as stream:
+                while chunk := stream.read(1024 * 1024):
+                    _calibrated_measurement_checkpoint(cancelled)
+                    csv_digest.update(chunk)
+            provenance = {
+                'schema_version': 1, 'alpha_feature': 538, 'object_type': 'cell',
+                'source_dataset': str(source), 'source_record_sha256': dataset.record_sha256,
+                'source_provenance': dataset.provenance(),
+                'physical_channel_order': [int(channel) for channel in dataset.channels],
+                'pixel_size_um': [float(value) for value in dataset.pixel_size_um],
+                'coordinate_system': 'calibrated_reference_canvas',
+                'coordinate_convention': tr('Zero-based pixel indices with exclusive upper bounding-box indices. Micrometre coordinates use recorded spacing, not an absolute microscope stage position.'),
+                'intensity_unit': 'camera_linear_common_psf',
+                'intensity_description': tr('Signed camera-linear estimates at the recorded common PSF; these are not concentrations or original-resolution dye amounts.'),
+                'sum_definition': tr('Sum of signed cell pixel values without pixel-area scaling or additional background subtraction.'),
+                'standard_deviation_ddof': 0, 'fields': field_count, 'rows': row_count,
+                'csv_sha256': csv_digest.hexdigest(),
+            }
+            manifest = staging / 'provenance.json'
+            with manifest.open('w', encoding='utf-8') as stream:
+                json.dump(provenance, stream, ensure_ascii=False, indent=2, allow_nan=False)
+                stream.flush()
+                os.fsync(stream.fileno())
+            with csv_path.open('rb') as stream:
+                os.fsync(stream.fileno())
+        _calibrated_measurement_checkpoint(cancelled)
+        _publish_calibrated_measurement_directory(staging, destination)
+        staging = None
+        return {'output_dir': str(destination), 'csv_path': str(destination / 'cells.csv'),
+                'provenance_path': str(destination / 'provenance.json'),
+                'fields': field_count, 'rows': row_count}
+    except PipelineCancelled as error:
+        raise InterruptedError(tr('Calibrated cell measurement was cancelled; no result was published.')) from error
+    finally:
+        if staging is not None:
+            shutil.rmtree(staging)

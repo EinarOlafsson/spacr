@@ -271,3 +271,299 @@ def test_oversized_coordinate_record_refuses_before_reading_or_starting_measure(
     after = path.stat()
     assert (after.st_size, after.st_mtime_ns) == (before.st_size, before.st_mtime_ns)
     assert not (plate / 'measurements').exists()
+
+
+@pytest.fixture
+def calibrated_signed_cells(tmp_path, request):
+    """Emit a genuine cell session with known signed camera residuals and axes."""
+    import json
+    from spacr.psf_pipeline import _initialize_calibrated_output, _prepare_segmentation_psf
+
+    spacing = getattr(request, 'param', (.4, .3))
+    original = tmp_path / 'original'
+    stack = original / 'assembled'
+    stack.mkdir(parents=True)
+    dataset = tmp_path / 'calibrated_segmentation'
+    calibration_path = tmp_path / 'optical_calibration.json'
+    calibration = dict(version=1, axes='YX', pixel_size_um=list(spacing), reference_channel=2,
+        channels=[dict(channel=channel, shift_to_reference_px=shift, psf=[[1.]],
+                       psf_origin_px=[0, 0], psf_pixel_size_um=list(spacing))
+                  for channel, shift in ((2, [0, 0]), (5, [1, 1]))])
+    calibration_path.write_text(json.dumps(calibration), encoding='utf-8')
+    signal = np.zeros((10, 12), np.float32)
+    signal[2:8, 2:10] = np.arange(48).reshape(6, 8) + 20
+    first = np.stack((signal, np.zeros_like(signal)), axis=-1)
+    second = np.stack((signal, np.zeros_like(signal)), axis=-1)
+    second[:-1, :-1, 1] = signal[1:, 1:]
+    camera = np.zeros((10, 12, 2), np.float32)
+    camera[3, 4:6, 0] = [8, 12]
+    camera[2, 3:5, 1] = 10
+    identities = {}
+    for ordinal, well, field in (('000000', 'A01', first), ('000001', 'B01', second),
+                                  ('000002', 'C02', camera)):
+        filename = 'stack_' + ordinal + '.npy'
+        np.save(stack / filename, field)
+        identity = dict(plate='plate9', well=well, field='10', time='2', z='1',
+                        source_dataset=str(original))
+        identities[filename] = identity
+        identities[ordinal] = identity
+    settings = dict(unmix=True, unmix_controls='2:A01; 5:B01',
+                    unmix_background_percentile=0., unmix_calibration=str(calibration_path),
+                    unmix_pixel_size_um=list(spacing))
+
+    def load(path):
+        """Read the actual control files through the supported mapped reader."""
+        return np.load(path, mmap_mode='r', allow_pickle=False)
+
+    _initialize_calibrated_output(dataset, settings)
+    session = _prepare_segmentation_psf(settings, dataset, [0], pipeline_style='v2',
+        stack_dir=stack, load=load, source_channels=(2, 5), field_identities=identities)
+    result = session.prepare_calibrated(camera, '000002')
+    assert result.source_origin_px == (1, 1)
+    assert result.valid_slices == (slice(1, 10), slice(1, 12))
+    np.testing.assert_array_equal(result.image[2, 3:5], [[-2., 10.], [2., 10.]])
+    labels = np.zeros(result.image.shape[:2], np.uint16)
+    labels[2, 3:5] = 42
+    mask = session.restore_calibrated(labels, result, '000002')
+    display = session.calibrated_display(camera, result)
+    output = dataset / 'merged' / 'stack_000002.npy'
+    signed = dataset / 'signed' / 'stack_000002.npy'
+    output.parent.mkdir()
+    signed.parent.mkdir()
+    np.save(output, np.concatenate((display, mask[..., None]), axis=-1).astype(np.float32))
+    np.save(signed, result.image)
+    session.mark_completed('000002', output_path=output, signed_path=signed, mask_role='cell')
+    session.finish({'000002'})
+    sources = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
+    return dict(root=dataset, sources=sources, original=original,
+                record=dataset / 'psf' / 'segmentation_application.json')
+
+
+def test_signed_cell_measurement_uses_original_signed_pixels_and_full_reference_geometry(
+        calibrated_signed_cells, tmp_path):
+    import csv
+    import hashlib
+    import json
+    from pathlib import Path
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'signed_measurements'
+    result = measure_calibrated_cells(sample['root'], dst=destination, channels=[5, 2])
+    assert result == dict(output_dir=str(destination), csv_path=str(destination / 'cells.csv'),
+                         provenance_path=str(destination / 'provenance.json'), fields=1, rows=2)
+    with (destination / 'cells.csv').open(newline='') as stream:
+        reader = csv.DictReader(stream)
+        assert reader.fieldnames == (
+            'source_dataset,plateID,wellID,fieldID,timeID,sliceID,measurement_field_id,label_id,'
+            'physical_channel_id,area_px,area_um2,centroid_y_px,centroid_x_px,centroid_y_um,centroid_x_um,'
+            'bbox_min_y_px,bbox_min_x_px,bbox_max_y_px,bbox_max_x_px,bbox_min_y_um,bbox_min_x_um,'
+            'bbox_max_y_um,bbox_max_x_um,intensity_mean,intensity_min,intensity_max,intensity_sum,intensity_std'
+        ).split(',')
+        rows = list(reader)
+    assert [row['physical_channel_id'] for row in rows] == ['5', '2']
+    assert len(rows) == 2
+    for row in rows:
+        assert {key: row[key] for key in ('source_dataset', 'plateID', 'wellID', 'fieldID',
+                                         'timeID', 'sliceID', 'measurement_field_id', 'label_id')} == dict(
+            source_dataset=str(sample['original']), plateID='plate9', wellID='C02', fieldID='10',
+            timeID='2', sliceID='1', measurement_field_id='000002', label_id='42')
+        assert int(row['area_px']) == 2
+        assert float(row['area_um2']) == pytest.approx(.24)
+        expected = dict(centroid_y_px=3., centroid_x_px=4.5, centroid_y_um=1.2, centroid_x_um=1.35,
+                        bbox_min_y_px=3., bbox_min_x_px=4., bbox_max_y_px=4., bbox_max_x_px=6.,
+                        bbox_min_y_um=1.2, bbox_min_x_um=1.2, bbox_max_y_um=1.6, bbox_max_x_um=1.8)
+        assert {key: float(row[key]) for key in expected} == pytest.approx(expected)
+    assert {key: float(rows[0][key]) for key in
+            ('intensity_mean', 'intensity_min', 'intensity_max', 'intensity_sum', 'intensity_std')} == dict(
+        intensity_mean=10., intensity_min=10., intensity_max=10., intensity_sum=20., intensity_std=0.)
+    assert {key: float(rows[1][key]) for key in
+            ('intensity_mean', 'intensity_min', 'intensity_max', 'intensity_sum', 'intensity_std')} == dict(
+        intensity_mean=0., intensity_min=-2., intensity_max=2., intensity_sum=0., intensity_std=2.)
+    assert set(path.name for path in destination.iterdir()) == {'cells.csv', 'provenance.json'}
+    assert all(path.read_bytes() == before for path, before in sample['sources'].items())
+    assert not (sample['root'] / 'measurements').exists()
+    metadata = json.loads(Path(result['provenance_path']).read_text(encoding='utf-8'))
+    assert {key: metadata[key] for key in ('schema_version', 'alpha_feature', 'object_type',
+            'source_dataset', 'physical_channel_order', 'pixel_size_um', 'coordinate_system',
+            'intensity_unit', 'standard_deviation_ddof', 'fields', 'rows')} == dict(
+        schema_version=1, alpha_feature=538, object_type='cell', source_dataset=str(sample['root']),
+        physical_channel_order=[5, 2], pixel_size_um=[.4, .3],
+        coordinate_system='calibrated_reference_canvas', intensity_unit='camera_linear_common_psf',
+        standard_deviation_ddof=0, fields=1, rows=2)
+    assert metadata['source_provenance'] == json.loads(sample['record'].read_text(encoding='utf-8'))
+    assert metadata['source_record_sha256'] == hashlib.sha256(sample['record'].read_bytes()).hexdigest()
+    assert metadata['csv_sha256'] == hashlib.sha256((destination / 'cells.csv').read_bytes()).hexdigest()
+    for key in ('coordinate_convention', 'intensity_description', 'sum_definition'):
+        assert isinstance(metadata[key], str) and metadata[key].strip()
+
+
+def test_signed_cell_measurement_cancel_after_actual_csv_write_publishes_nothing(
+        calibrated_signed_cells, tmp_path, monkeypatch):
+    import threading
+    from pathlib import Path
+    from spacr import tabular
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'cancelled_measurements'
+    before = set(tmp_path.iterdir())
+    cancelled = threading.Event()
+    written = []
+    write = tabular.write_table
+
+    def write_then_cancel(frame, path, **kwargs):
+        """Cancel only after the real CSV has been fully written in staging."""
+        result = write(frame, path, **kwargs)
+        assert Path(path).is_file()
+        written.append(Path(path))
+        cancelled.set()
+        return result
+
+    monkeypatch.setattr(tabular, 'write_table', write_then_cancel)
+    with pytest.raises(InterruptedError):
+        measure_calibrated_cells(sample['root'], dst=destination, cancelled=cancelled.is_set)
+    assert len(written) == 1
+    assert not destination.exists()
+    assert set(tmp_path.iterdir()) == before
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+def test_signed_cell_measurement_cancels_after_real_statistics_without_publication(
+        calibrated_signed_cells, tmp_path, monkeypatch):
+    import threading
+    import spacr.measure as measure
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'cancelled_statistics'
+    before = set(tmp_path.iterdir())
+    cancelled = threading.Event()
+    observed = []
+    statistics = measure._calibrated_cell_statistics
+
+    def statistics_then_cancel(*args):
+        """Request cancellation after the first actual signed cell statistic."""
+        for row in statistics(*args):
+            observed.append((row['label_id'], row['physical_channel_id'], row['intensity_sum']))
+            yield row
+            cancelled.set()
+
+    monkeypatch.setattr(measure, '_calibrated_cell_statistics', statistics_then_cancel)
+    with pytest.raises(InterruptedError):
+        measure.measure_calibrated_cells(sample['root'], dst=destination,
+                                         cancelled=cancelled.is_set)
+    assert observed == [(42, 2, 0.)]
+    assert set(tmp_path.iterdir()) == before
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+def test_signed_cell_measurement_preserves_actual_output_write_error(
+        calibrated_signed_cells, tmp_path, monkeypatch):
+    import errno
+    from pathlib import Path
+    from spacr import tabular
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'failed_csv'
+    before = set(tmp_path.iterdir())
+    write = tabular.write_table
+    failure = OSError(errno.ENOSPC, 'storage exhausted')
+    written = []
+
+    def write_then_fail(frame, path, **kwargs):
+        """Preserve the real storage exception after an actual staged write."""
+        write(frame, path, **kwargs)
+        assert Path(path).is_file()
+        written.append(path)
+        raise failure
+
+    monkeypatch.setattr(tabular, 'write_table', write_then_fail)
+    with pytest.raises(OSError) as caught:
+        measure_calibrated_cells(sample['root'], dst=destination)
+    assert caught.value is failure
+    assert len(written) == 1
+    assert set(tmp_path.iterdir()) == before
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+@pytest.mark.parametrize('kind', ['directory', 'symlink'])
+def test_signed_cell_measurement_never_replaces_an_existing_destination(
+        calibrated_signed_cells, tmp_path, kind):
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'existing_measurements'
+    target = tmp_path / 'existing_target'
+    if kind == 'directory':
+        destination.mkdir()
+    else:
+        target.mkdir()
+        destination.symlink_to(target, target_is_directory=True)
+    identity = destination.lstat()
+    before = set(tmp_path.iterdir())
+    with pytest.raises(FileExistsError):
+        measure_calibrated_cells(sample['root'], dst=destination)
+    current = destination.lstat()
+    assert (current.st_dev, current.st_ino, current.st_mode) == (
+        identity.st_dev, identity.st_ino, identity.st_mode)
+    assert not list(destination.iterdir())
+    assert destination.is_symlink() == (kind == 'symlink')
+    if kind == 'symlink':
+        assert destination.resolve() == target
+    assert set(tmp_path.iterdir()) == before
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+
+def test_signed_cell_measurement_preserves_a_destination_created_during_staging(
+        calibrated_signed_cells, tmp_path, monkeypatch):
+    from pathlib import Path
+    from spacr import tabular
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    destination = tmp_path / 'raced_measurements'
+    before = set(tmp_path.iterdir())
+    write = tabular.write_table
+    created = []
+
+    def write_then_create_destination(frame, path, **kwargs):
+        """Let another writer claim the destination after the real staged CSV."""
+        result = write(frame, path, **kwargs)
+        assert Path(path).is_file()
+        assert not destination.exists()
+        destination.mkdir()
+        created.append(destination.stat())
+        return result
+
+    monkeypatch.setattr(tabular, 'write_table', write_then_create_destination)
+    with pytest.raises(FileExistsError):
+        measure_calibrated_cells(sample['root'], dst=destination)
+    assert len(created) == 1
+    current = destination.stat()
+    assert (current.st_dev, current.st_ino, current.st_mode) == (
+        created[0].st_dev, created[0].st_ino, created[0].st_mode)
+    assert destination.is_dir() and not destination.is_symlink()
+    assert not list(destination.iterdir())
+    assert set(tmp_path.iterdir()) == before | {destination}
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+@pytest.mark.parametrize('calibrated_signed_cells', [(1e-200, 1e-200), (1e308, 1e308)],
+                         indirect=True, ids=['underflow-area', 'overflow-geometry'])
+def test_signed_cell_measurement_refuses_unrepresentable_physical_geometry(
+        calibrated_signed_cells, tmp_path):
+    import json
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    spacing = json.loads(sample['record'].read_text())['configuration']['unmixing']['calibration']['pixel_size_um']
+    assert len(spacing) == 2 and all(np.isfinite(value) and value > 0 for value in spacing)
+    destination = tmp_path / 'unrepresentable_measurements'
+    before = set(tmp_path.iterdir())
+    with pytest.raises(ValueError, match='positive finite pixel areas and finite measurement coordinates'):
+        measure_calibrated_cells(sample['root'], dst=destination)
+    assert not destination.exists()
+    assert set(tmp_path.iterdir()) == before
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
