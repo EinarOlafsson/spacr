@@ -191,7 +191,7 @@ def test_cell_is_never_gated(mask):
         "cell settings were hidden; the form a user just opened is empty")
 
 
-def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
+def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, qtbot, monkeypatch):
     """Typing stays quick and cannot launch the full visibility pass.
 
     Process queued events between edits, but measure only the edit itself:
@@ -206,6 +206,10 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
         pytest.skip("nucleus_channel is not on this panel")
 
     qapp.processEvents()
+    builder = mask._idle_prebuild
+    qtbot.waitUntil(lambda: not builder._work_left(), timeout=10000)
+    assert not any("_spacr_opening" in section.__dict__
+                   for section in mask._settings_sections)
     visibility_checks = []
     phase = "before editing"
     original = model._object_visibility_settings
