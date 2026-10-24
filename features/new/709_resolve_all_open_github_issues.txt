@@ -2,7 +2,7 @@
 RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
 ================================================================================
 
-Status:    OPEN — 3 open GitHub issues
+Status:    OPEN — 2 open GitHub issues
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
@@ -137,7 +137,6 @@ running the tool twice changes nothing.
 
 --- OPEN ISSUES (auto) ---
 #161 [user-report] NativeCrash in native: Native process termination: Segmentation fault (spacr-first-responder[bot], 2026-10-23)
-#163 [user-report] NativeCrash in native: Native process termination: Segmentation fault (spacr-first-responder[bot], 2026-10-23)
 #164 [user-report] NativeCrash in native: Native process termination: Segmentation fault (spacr-first-responder[bot], 2026-10-24)
 --- END OPEN ISSUES ---
 
