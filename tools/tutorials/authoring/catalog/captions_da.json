@@ -14166,7 +14166,7 @@
         "Vælge destination, pladenavn og om filer skal kopieres eller linkes.",
         "Gemme en genbrugelig plan og importere billeder til Mask."
       ],
-      "prerequisite": "Hent først Mask-eksemplet. Gennemgangen bruger kopier af synsfelterne E01/F001 og L01/F009 med fire kanaler hver. De forberedte kopier udelader det overflødige token A lige før Z, men bevarer identiteterne for brønd, synsfelt og kanal. Behold originalerne, og brug optagelsesprotokollerne, når du fortolker ukendte tokens.",
+      "prerequisite": "Hent først Mask-eksemplet. Brug arbejdskopier af synsfelterne E01/F001 og L01/F009 med fire kanaler hver. Fjern kun i disse kopier det overflødige token A lige før Z, og bevar alle tokens for brønd, synsfelt og kanal. Behold originalerne, og brug optagelsesprotokollerne, når du fortolker ukendte tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14199,7 +14199,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Scan de forberedte eksempelkopier. Det overflødige optagelsestoken er fjernet, mens tokens for brønd, synsfelt og kanal er bevaret. Kontrollér, at forslaget viser otte billeder, to brønde, to synsfeltnumre og fire kanaler.",
+          "narration": "Scan disse arbejdskopier. Det overflødige optagelsestoken er fjernet, mens tokens for brønd, synsfelt og kanal er bevaret. Kontrollér, at forslaget viser otte billeder, to brønde, to synsfeltnumre og fire kanaler.",
           "hold_after": 0.7
         },
         {

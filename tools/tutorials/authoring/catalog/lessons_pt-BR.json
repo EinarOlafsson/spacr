@@ -15204,7 +15204,7 @@
         "Escolher um destino, um nome de placa e se vai copiar ou vincular.",
         "Salvar um plano reutilizável e importar imagens para o Mask."
       ],
-      "prerequisite": "Baixe primeiro o exemplo do Mask. Este passo a passo usa cópias dos campos E01/F001 e L01/F009, com quatro canais cada. As cópias preparadas omitem o elemento A redundante logo antes de Z e mantêm a identidade de poço, campo e canal. Guarde os originais e use os registros de aquisição para interpretar elementos desconhecidos.",
+      "prerequisite": "Baixe primeiro o exemplo do Mask. Use cópias de trabalho dos campos E01/F001 e L01/F009, com quatro canais cada. Somente nessas cópias, remova o elemento A redundante logo antes de Z, preservando todos os elementos de poço, campo e canal. Guarde os originais e use os registros de aquisição para interpretar elementos desconhecidos.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15241,9 +15241,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Analise as cópias de exemplo preparadas. O elemento de aquisição redundante foi removido, e os de poço, campo e canal foram mantidos. Confira se a proposta lista oito imagens, dois poços, dois números de campo e quatro canais.",
+          "narration": "Analise essas cópias de trabalho. O elemento de aquisição redundante foi removido, e os de poço, campo e canal foram mantidos. Confira se a proposta lista oito imagens, dois poços, dois números de campo e quatro canais.",
           "hold_after": 0.7,
-          "speech_text": "Analise as cópias de exemplo preparadas. O elemento de aquisição redundante foi removido, e os de poço, campo e canal foram mantidos. Confira se a proposta lista oito imagens, dois poços, dois números de campo e quatro canais."
+          "speech_text": "Analise essas cópias de trabalho. O elemento de aquisição redundante foi removido, e os de poço, campo e canal foram mantidos. Confira se a proposta lista oito imagens, dois poços, dois números de campo e quatro canais."
         },
         {
           "visual": "06_check_filename",

@@ -14171,7 +14171,7 @@
         "Velja áfangastað, heiti plötu og hvort afritað sé eða tengt.",
         "Vista endurnýtanlega áætlun og flytja inn myndir fyrir Mask."
       ],
-      "prerequisite": "Sæktu fyrst Mask-dæmið. Yfirferðin notar afrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Undirbúnu afritin sleppa óþarfa tákninu A beint á undan Z en halda auðkennum brunns, sjónsviðs og rásar. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
+      "prerequisite": "Sæktu fyrst Mask-dæmið. Notaðu vinnuafrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Fjarlægðu óþarfa táknið A beint á undan Z aðeins í þessum afritum og varðveittu hvert tákn fyrir brunn, sjónsvið og rás. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14204,7 +14204,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Skannaðu undirbúnu dæmaafritin. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
+          "narration": "Skannaðu þessi vinnuafrit. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
           "hold_after": 0.7
         },
         {

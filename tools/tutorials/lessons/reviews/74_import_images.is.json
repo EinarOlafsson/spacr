@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+  "english_sha256": "617bf9166de22735ed6d88c416851c82f5bbe413d4d9395b2551a1fde9c9c132",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); working-copy prerequisite span and scene5 first sentence only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,13 +17,13 @@
     "Velja áfangastað, heiti plötu og hvort afritað sé eða tengt.",
     "Vista endurnýtanlega áætlun og flytja inn myndir fyrir Mask."
   ],
-  "prerequisite": "Sæktu fyrst Mask-dæmið. Yfirferðin notar afrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Undirbúnu afritin sleppa óþarfa tákninu A beint á undan Z en halda auðkennum brunns, sjónsviðs og rásar. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
+  "prerequisite": "Sæktu fyrst Mask-dæmið. Notaðu vinnuafrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Fjarlægðu óþarfa táknið A beint á undan Z aðeins í þessum afritum og varðveittu hvert tákn fyrir brunn, sjónsvið og rás. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
   "scenes": [
     "Frá Home opnarðu Data, velur Import og svo Import Images. Byrjaðu á smásjármyndaskránum sem þú vilt skipuleggja í verkefni.",
     "Þegar þú ert líka með grímur smellirðu á Raða myndum og grímum við hlið myndamöppunnar. Dragðu hverja rásarmöppu og grímumöppuna í dálkana þeirra, stilltu hlutverk grímunnar og veldu Mask Generation eða Measure undir Skrifa fyrir. Skrám með mörgum rásum má fyrst skipta í einn dálk á hverja rás; Apply færir allt í skipulag þeirrar einingar og skráir hverja tilfærslu í færsluskrá.",
     "Notaðu Mask-dæmið í þessari yfirferð. Veldu afrit af einu sjónsviði úr hvorum tveggja brunna, með fjórum rásum á sjónsvið. Láttu upprunalega niðurhalið vera óbreytt.",
     "Smelltu á Scan. Ef spurt er hvað tákn í skráarheiti þýðir skaltu skoða myndatökuskrár áður en þú úthlutar því. Haltu aðeins áfram þegar tillögð auðkenni greina sjónsvið og rásir ótvírætt í sundur.",
-    "Skannaðu undirbúnu dæmaafritin. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
+    "Skannaðu þessi vinnuafrit. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
     "Berðu tillöguna saman við skráarheitin. Virkjaðu Read inside each file þegar þú þarft innbyggð lýsigögn ása. Stilltu Sample nógu hátt til að skoða skrárnar sem þú ætlar að flytja inn.",
     "Veldu áfangastað utan inntaksmöppunnar og sláðu inn heiti plötunnar. Slökktu á Link instead of copy til að fá sjálfstæð afrit. Tenglar spara diskpláss en krefjast þess að frumskrárnar séu áfram aðgengilegar.",
     "Fyrir myndatöku í reitum velurðu hvort reitirnir séu saumaðir saman, haldið aðskildum eða sleppt. Farðu yfir skipan sjónsviða sem af hlýst áður en þú mælir. Þessar dæmamyndir eru aðskilin sjónsvið og þarf ekki að sauma saman.",

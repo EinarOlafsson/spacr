@@ -14364,7 +14364,7 @@
         "Choose a destination, plate name and copy or link behavior.",
         "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
+      "prerequisite": "Download the Mask example first. Use working copies of fields E01/F001 and L01/F009, with four channels each. In those copies only, remove the redundant A token immediately before Z, preserving every well, field and channel token. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14397,8 +14397,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
-          "hold_after": 0.7
+          "narration": "Scan those working copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+          "hold_after": 0.7,
+          "speech_text": "Scan those working copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels."
         },
         {
           "visual": "06_check_filename",

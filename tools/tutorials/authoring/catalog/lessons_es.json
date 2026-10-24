@@ -15204,7 +15204,7 @@
         "Elegir un destino, un nombre de placa y si copiar o enlazar.",
         "Guardar un plan reutilizable e importar imágenes para Mask."
       ],
-      "prerequisite": "Descarga primero el ejemplo de Mask. Este recorrido usa copias de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Sus copias preparadas omiten el elemento A redundante justo antes de Z y conservan la identidad de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
+      "prerequisite": "Descarga primero el ejemplo de Mask. Usa copias de trabajo de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Solo en esas copias, elimina el elemento A redundante justo antes de Z y conserva todos los elementos de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15241,9 +15241,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",
+          "narration": "Analiza esas copias de trabajo. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",
           "hold_after": 0.7,
-          "speech_text": "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales."
+          "speech_text": "Analiza esas copias de trabajo. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales."
         },
         {
           "visual": "06_check_filename",
