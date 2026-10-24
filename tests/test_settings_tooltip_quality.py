@@ -1117,7 +1117,8 @@ if app_key == "mask":
     for app, key in plate_control_arrivals:
         assert resolve_default_settings(app)[key] is False
     from spacr.settings import ALPHA_FEATURES
-    scoped_defaults = {**published_calibration_defaults, "unmix_per_plate": False}
+    scoped_defaults = {**published_calibration_defaults, "unmix_per_plate": False,
+                       "unmix_matrix_file": ""}
     assert scoped_defaults.keys() <= set(ALPHA_FEATURES[538]["settings"])
     settings_tree = ast.parse((Path(__file__).resolve().parents[1]
                               / "spacr/settings.py").read_text(encoding="utf-8"))
@@ -1132,6 +1133,20 @@ if app_key == "mask":
     }
     assert {key: owned_defaults[key] for key in scoped_defaults} == scoped_defaults
     recognized_arrivals |= plate_control_arrivals
+    supplied_matrix_arrivals = {(app, "unmix_matrix_file")
+                                for app in ("mask", "measure", "external_masks")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "unmix_matrix_file"} == supplied_matrix_arrivals
+    assert not supplied_matrix_arrivals & (recognized_arrivals | variants.keys())
+    assert expected_types["unmix_matrix_file"] is str
+    assert hashlib.sha256(tooltips["unmix_matrix_file"].encode()).hexdigest() == (
+        "48a0d83a77166991cefb3dd7fa61bcd085a0d26cb00b07584ec592a921fed804")
+    supplied_matrix_claims = list(DEFAULT_LITERAL.finditer(tooltips["unmix_matrix_file"]))
+    assert len(supplied_matrix_claims) == 1
+    assert supplied_matrix_claims[0].group("value").lower() == "blank"
+    for app, key in supplied_matrix_arrivals:
+        assert resolve_default_settings(app)[key] == ""
+    recognized_arrivals |= supplied_matrix_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

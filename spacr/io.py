@@ -4125,9 +4125,11 @@ def preprocess_img_data(settings):
         :func:`spacr.core.preprocess_generate_masks` — full pipeline
         wrapper that calls this then generates masks.
     """
-    from .psf_pipeline import _validate_unmix_plate_scope
+    from .psf_pipeline import (_validate_unmix_plate_scope,
+                               _validate_unmix_matrix_scope)
 
     _validate_unmix_plate_scope(settings)
+    _validate_unmix_matrix_scope(settings)
     if (settings.get('z_stack') and settings.get('t_stack')
             and settings.get('z_segmentation_mode') == 'volumetric'):
         return _preprocess_mapped_volume_series(settings)

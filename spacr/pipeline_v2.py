@@ -1071,6 +1071,41 @@ def run_v2(
         display intensities are aligned and nonquantitative, never Measure inputs.
         Signed valid-ROI float32 diagnostics live under ``output_root/signed``;
         its application record binds both artifacts and remains incomplete on error.
+    A nonempty ``unmix_matrix_file`` in ``postprocess_settings`` supplies a
+    version-1 JSON matrix instead of estimating one. This requires calibrated
+    organized 2D cell V2 processing, no control wells, and ``unmix_per_plate=False``.
+    Its physical channels must match the packed order exactly; no transpose,
+    channel reordering or diagonal renormalization is inferred. ``matrix[i][j]``
+    is the camera reading in row-channel ``i`` per unit of the dye measured in
+    its own column-channel ``j``. The diagonal is exactly one; outputs retain
+    camera-linear units and signed residuals, not calibrated concentrations.
+    For physical order ``[3, 1]``, the file has exactly these keys::
+
+        {
+          "artifact": "spacr_spectral_matrix",
+          "version": 1,
+          "source_context": {"plate": "plate1", "time": "", "z": ""},
+          "channels": [3, 1],
+          "orientation": "rows_readings_columns_dyes",
+          "matrix": [[1, 0.4], [0.7, 1]],
+          "background_percentile": 0,
+          "background_operator": "per_field_percentile_subtract_solve_restore",
+          "calibration_source_sha256": "<SHA256 of the exact calibration-file bytes>",
+          "acquisition_compatibility": "user_asserts_same_channel_gains_exposures_and_linear_response"
+        }
+
+    Replace the example calibration hash with 64 lowercase hexadecimal digits.
+    Background percentile must equal ``unmix_background_percentile``. Plate,
+    time and Z must equal every mapped field's exact acquisition IDs, including
+    their string or integer types; an absent time or Z uses the empty string.
+    This supplied-file route requires POSIX descriptor-relative access without
+    symbolic links; unsupported platforms refuse before creating outputs.
+    The acquisition-compatibility token is an unverified user assertion: unknown
+    gains, exposures and response remain unknown. The file is captured before
+    outputs and copied byte-for-byte into ``psf/spectral_matrix_input.json``.
+    Signed-cell readers validate that copied bundle and never depend on the
+    original external path. An empty path preserves control-estimation behavior.
+
     :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
         holds no images, when ``metadata_type="custom"`` has no
         ``custom_regex``, or from ``batch_fields=0``.
@@ -1081,8 +1116,13 @@ def run_v2(
 
     per_plate = _validate_unmix_plate_scope(
         postprocess_settings or {}, allow_per_plate=calibrated)
+    from .psf_pipeline import _validate_unmix_matrix_scope
+
+    supplied_matrix = _validate_unmix_matrix_scope(
+        postprocess_settings or {}, allow_matrix=calibrated)
+    prepared_unmix = None
     prepared_mapper = None
-    if per_plate:
+    if per_plate or supplied_matrix:
         from .psf_pipeline import _plate_unmix_controls
 
         prepared_mapper = FilenameMapper.discover(
@@ -1091,7 +1131,12 @@ def run_v2(
             plate=record.plate, well=record.well, field=record.field,
             time=record.time, z=record.z, source_dataset=str(src.resolve()))
             for record in prepared_mapper.records}
-        _plate_unmix_controls(postprocess_settings, channels, identities)
+        if per_plate:
+            _plate_unmix_controls(postprocess_settings, channels, identities)
+        if supplied_matrix:
+            from .psf_pipeline import _prepare_supplied_matrix
+
+            prepared_unmix = _prepare_supplied_matrix(postprocess_settings, channels, identities)
     output_root = src
     if calibrated:
         from .qt.i18n import tr
@@ -1180,7 +1225,7 @@ def run_v2(
             pipeline_style="v2", stack_dir=stacks[0].path.parent,
             load=partial(np.load, mmap_mode="r", allow_pickle=False),
             source_channels=tuple(int(channel) for channel in channels),
-            field_identities=field_identities)
+            field_identities=field_identities, prepared_unmix=prepared_unmix)
     else:
         psf_session = _prepare_segmentation_psf(
             postprocess_settings or {}, src,

@@ -368,7 +368,7 @@ _UNMIX_MAX_CONDITION = 1e6
 
 @dataclass(frozen=True)
 class _UnmixPlan:
-    """A bleed-through matrix estimated from single-stain control wells.
+    """A bleed-through matrix estimated from controls or explicitly supplied.
 
     ``matrix[i][j]`` is the signal read in ``channels[i]`` per unit of the
     dye whose own channel is ``channels[j]``, so the diagonal is one.
@@ -383,6 +383,8 @@ class _UnmixPlan:
     :param fields: ``{dye channel: (field stem, ...)}`` the estimate read.
     :param calibration: optional captured optical calibration for ROI-aware preview.
     :param control_selection: immutable JSON plate-control evidence, absent for global plans.
+    :param matrix_source: immutable supplied-matrix bundle evidence, when explicitly enabled.
+    :param matrix_input_bytes: exact bounded matrix-file bytes retained for the output bundle.
     """
 
     channels: tuple
@@ -392,6 +394,8 @@ class _UnmixPlan:
     fields: dict
     calibration: object = None
     control_selection: object = None
+    matrix_source: object = None
+    matrix_input_bytes: object = None
 
     def provenance(self):
         """The plan as a JSON-safe record for the run's provenance."""
@@ -409,6 +413,9 @@ class _UnmixPlan:
             record['calibration'] = self.calibration.provenance()
         if self.control_selection is not None:
             record['control_selection'] = json.loads(self.control_selection)
+        if self.matrix_source is not None:
+            record['method'] = 'supplied_matrix'
+            record['matrix_source'] = json.loads(self.matrix_source)
         return record
 
     def apply(self, image):
@@ -897,9 +904,210 @@ def _plate_control_input(path, remaining_bytes):
             mapped._mmap.close()
 
 
+def _validate_unmix_matrix_scope(settings, *, allow_matrix=False):
+    """Refuse supplied matrices outside the explicitly supported calibrated V2 route.
+
+    :param settings: spectral settings including the optional matrix-file path.
+    :param allow_matrix: this caller transports calibrated physical identities.
+    :returns: whether a supplied matrix was requested on an admitted route.
+    """
+    path = settings.get('unmix_matrix_file')
+    if path is None or isinstance(path, str) and not path.strip():
+        return False
+    from .qt.i18n import tr
+
+    message = tr("A supplied spectral matrix requires calibrated organized 2D cell V2 segmentation, without control wells or per-plate estimation; this processing path is not supported.")
+    controls = settings.get('unmix_controls')
+    if isinstance(controls, str):
+        controls = controls.strip()
+    try:
+        if (not isinstance(path, (str, os.PathLike)) or not allow_matrix
+                or not _bool(settings.get('unmix', False))
+                or not settings.get('unmix_calibration') or controls
+                or _bool(settings.get('unmix_per_plate', False))
+                or not hasattr(os, 'O_DIRECTORY') or not hasattr(os, 'O_NOFOLLOW')
+                or not hasattr(os, 'O_NONBLOCK')
+                or os.open not in os.supports_dir_fd or os.mkdir not in os.supports_dir_fd):
+            raise ValueError
+    except (TypeError, ValueError):
+        raise ValueError(message) from None
+    return True
+
+
+def _matrix_input_error():
+    """Return the localized refusal for inconsistent supplied-matrix evidence."""
+    from .qt.i18n import tr
+
+    return ValueError(tr("The supplied spectral matrix must be a stable version-1 JSON file of at most 1 MiB, with matching physical channel order, acquisition context, calibration and background policy; acquisition compatibility remains an unverified user assertion."))
+
+
+def _matrix_json_constant(value):
+    """Reject nonfinite JSON extensions before numeric conversion.
+
+    :param value: the unsupported JSON numeric constant.
+    """
+    raise ValueError(value)
+
+
+def _matrix_input_snapshot(stream):
+    """Capture bounded exact bytes from a stable regular-file descriptor.
+
+    :param stream: binary stream for the supplied matrix or its copied bundle.
+    :returns: raw bytes, parsed artifact, SHA256 and native file identity.
+    """
+    import stat
+
+    before = os.fstat(stream.fileno())
+    identity = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+    if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 1024 ** 2:
+        raise _matrix_input_error()
+    raw = stream.read(1024 ** 2 + 1)
+    after = os.fstat(stream.fileno())
+    if (len(raw) != before.st_size or identity !=
+            (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)):
+        raise _matrix_input_error()
+    payload = json.loads(raw, object_pairs_hook=_plate_control_pairs,
+                         parse_constant=_matrix_json_constant)
+    return raw, payload, hashlib.sha256(raw).hexdigest(), identity
+
+
+def _validate_matrix_artifact(payload, channels, calibration, percentile, contexts):
+    """Bind a supplied matrix to the actual selected operator and acquisition IDs.
+
+    :param payload: parsed version-1 matrix artifact.
+    :param channels: physical channel IDs in persisted order.
+    :param calibration: existing captured optical-calibration provenance.
+    :param percentile: configured per-field background percentile.
+    :param contexts: exact actual plate, time and Z identity tuples.
+    :returns: the finite, unit-diagonal float64 mixing matrix.
+    """
+    keys = {'artifact', 'version', 'source_context', 'channels', 'orientation',
+            'matrix', 'background_percentile', 'background_operator',
+            'calibration_source_sha256', 'acquisition_compatibility'}
+    if (not isinstance(payload, dict) or set(payload) != keys
+            or payload['artifact'] != 'spacr_spectral_matrix'
+            or type(payload['version']) is not int or payload['version'] != 1
+            or payload['orientation'] != 'rows_readings_columns_dyes'
+            or payload['background_operator'] != 'per_field_percentile_subtract_solve_restore'
+            or payload['acquisition_compatibility'] != 'user_asserts_same_channel_gains_exposures_and_linear_response'):
+        raise _matrix_input_error()
+    physical = payload['channels']
+    context = payload['source_context']
+    if (not isinstance(physical, list) or not 1 <= len(physical) <= 16
+            or any(type(channel) is not int or channel < 0 for channel in physical)
+            or len(set(physical)) != len(physical) or physical != list(channels)
+            or not isinstance(context, dict) or set(context) != {'plate', 'time', 'z'}
+            or not isinstance(context['plate'], str) or not context['plate']
+            or any(not (type(context[key]) is int and context[key] >= 0
+                        or isinstance(context[key], str)) for key in ('time', 'z'))
+            or contexts != {(context['plate'], context['time'], context['z'])}):
+        raise _matrix_input_error()
+    background = payload['background_percentile']
+    digest = payload['calibration_source_sha256']
+    if (type(background) not in (int, float) or not np.isfinite(background)
+            or not 0 <= background < 100 or background != percentile
+            or not isinstance(digest, str) or len(digest) != 64
+            or any(character not in '0123456789abcdef' for character in digest)
+            or digest != calibration['source_sha256']):
+        raise _matrix_input_error()
+    rows = payload['matrix']
+    count = len(physical)
+    if (not isinstance(rows, list) or len(rows) != count
+            or any(not isinstance(row, list) or len(row) != count
+                   or any(type(value) not in (int, float) for value in row) for row in rows)):
+        raise _matrix_input_error()
+    matrix = np.asarray(rows, dtype=np.float64)
+    if (not np.isfinite(matrix).all() or np.any(matrix < 0)
+            or not np.all(np.diag(matrix) == 1)
+            or not np.linalg.cond(matrix) < _UNMIX_MAX_CONDITION):
+        raise _matrix_input_error()
+    return matrix
+
+
+def _prepare_supplied_matrix(settings, channels, field_identities):
+    """Capture one supplied matrix before creating outputs or opening source pixels.
+
+    :param settings: admitted matrix-file, calibration and background settings.
+    :param channels: physical IDs in packed order.
+    :param field_identities: actual mapper identities from one source context.
+    :returns: immutable numeric plan carrying the exact input bundle bytes.
+    """
+    try:
+        if (not channels or len(channels) > 16 or len(set(channels)) != len(channels)
+                or any(isinstance(channel, (bool, np.bool_))
+                       or not isinstance(channel, (int, np.integer)) or channel < 0 for channel in channels)):
+            raise _matrix_input_error()
+        channels = tuple(int(channel) for channel in channels)
+        if (not field_identities or any(not _cell_record_identity_valid(identity)
+                                       for identity in field_identities.values())):
+            raise _matrix_input_error()
+        roots = {identity['source_dataset'] for identity in field_identities.values()}
+        if len(roots) != 1:
+            raise _matrix_input_error()
+        contexts = {(identity['plate'], identity['time'], identity['z'])
+                    for identity in field_identities.values()}
+        path = Path(settings['unmix_matrix_file']).expanduser()
+        descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+        with os.fdopen(descriptor, 'rb') as stream:
+            raw, payload, digest, identity = _matrix_input_snapshot(stream)
+            current = path.lstat()
+            if identity != (current.st_dev, current.st_ino, current.st_size,
+                            current.st_mtime_ns, current.st_ctime_ns):
+                raise _matrix_input_error()
+        calibration = _load_unmix_calibration(settings, channels)
+        background = settings.get('unmix_background_percentile', 5.0)
+        if isinstance(background, (bool, np.bool_)):
+            raise _matrix_input_error()
+        percentile = float(background)
+        matrix = _validate_matrix_artifact(payload, channels, calibration.provenance(),
+                                           percentile, contexts)
+        source = dict(kind='supplied_matrix', version=1, path='psf/spectral_matrix_input.json',
+                      sha256=digest, size_bytes=len(raw), artifact=payload,
+                      acquisition_compatibility_verified=False)
+        return _UnmixPlan(tuple(channels), tuple(tuple(float(value) for value in row)
+                                                for row in matrix), percentile, {}, {},
+                          calibration=calibration, matrix_source=json.dumps(source, allow_nan=False),
+                          matrix_input_bytes=raw)
+    except (OSError, KeyError, TypeError, ValueError, OverflowError, RecursionError, np.linalg.LinAlgError):
+        raise _matrix_input_error() from None
+
+
+def _persist_supplied_matrix(root, plan):
+    """Copy captured bytes once without consulting the original matrix path again.
+
+    :param root: fresh calibrated output directory.
+    :param plan: captured supplied-matrix plan.
+    """
+    source = json.loads(plan.matrix_source)
+    raw = plan.matrix_input_bytes
+    if (not isinstance(raw, bytes) or len(raw) != source['size_bytes']
+            or hashlib.sha256(raw).hexdigest() != source['sha256']):
+        raise _matrix_input_error()
+    root = Path(root)
+    root.mkdir(parents=True, exist_ok=True)
+    root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        try:
+            os.mkdir('psf', dir_fd=root_fd)
+        except FileExistsError:
+            pass
+        directory_fd = os.open('psf', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
+        try:
+            descriptor = os.open('spectral_matrix_input.json',
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=directory_fd)
+            with os.fdopen(descriptor, 'wb') as stream:
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+        finally:
+            os.close(directory_fd)
+    finally:
+        os.close(root_fd)
+
+
 def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_calibrated=False,
                      channel_positions=None, field_identities=None):
-    """Estimate the run's unmixing plan from its single-stain control wells.
+    """Capture the run's supplied matrix or estimate it from single-stain controls.
 
     :param settings: ``unmix``, ``unmix_controls`` and
         ``unmix_background_percentile``. Optional ``unmix_per_plate`` requires
@@ -910,7 +1118,8 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
         the fields, as Make Masks unmixes whole stacks.
     :param load: reads one field into a channel-last array; ``np.load``.
         Plate-qualified controls instead use a bounded read-only NPY descriptor
-        shared with their captured input hashes.
+        shared with their captured input hashes. A supplied ``unmix_matrix_file``
+        bypasses control estimation on the explicitly supported calibrated route.
     :param allow_calibrated: allow an explicit ROI-aware 2D processing route.
     :param channel_positions: physical channel IDs mapped to packed positions.
     :param field_identities: captured source identities keyed by packed filename.
@@ -922,6 +1131,9 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     per_plate = _validate_unmix_plate_scope(
         settings, allow_per_plate=bool(allow_calibrated and channel_positions is not None
                                       and field_identities is not None and channels is not None))
+    supplied_matrix = _validate_unmix_matrix_scope(
+        settings, allow_matrix=bool(allow_calibrated and channel_positions is not None
+                                   and field_identities is not None and channels is not None))
     requested_calibration = bool(settings.get('unmix_calibration'))
     if requested_calibration and (not allow_calibrated or not settings.get('unmix', False)):
         from .qt.i18n import tr
@@ -954,6 +1166,8 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
 
             raise ValueError(tr("Spectral unmixing requires distinct nonnegative integer channel indices.")) from None
         channels = tuple(selected)
+    if supplied_matrix:
+        return _prepare_supplied_matrix(settings, channels, field_identities)
     control_selection = None
     if per_plate:
         controls, control_selection = _plate_unmix_controls(settings, channels, field_identities)
@@ -1443,6 +1657,8 @@ class _SegmentationPSFSession:
         self.n2v = n2v
         self.root = Path(root)
         self.pipeline_style = pipeline_style
+        if unmix is not None and unmix.matrix_source is not None:
+            _persist_supplied_matrix(self.root, unmix)
         self.configuration = _configuration(plan, channels, pipeline_style,
                                             chain, unmix, n2v)
         self.fields = set()
@@ -1600,7 +1816,7 @@ class _SegmentationPSFSession:
 
 def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
                               stack_dir=None, load=None, source_channels=None,
-                              field_identities=None):
+                              field_identities=None, prepared_unmix=None):
     """Capture a kernel and start provenance, including a prior run's off switch.
 
     :param settings: PSF configuration accepted by :func:`prepare_psf` and
@@ -1613,12 +1829,16 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
     :param load: reads one raw field channel-last; ``np.load`` when None.
     :param source_channels: physical IDs in packed order for calibrated V2 fields.
     :param field_identities: captured physical identities for packed V2 filenames.
+    :param prepared_unmix: supplied-matrix plan captured before output creation.
     :returns: a new session, or None for an untracked run with the PSF, the
         chain, unmixing and Noise2Void all off.
     """
     _validate_unmix_plate_scope(
         settings, allow_per_plate=bool(pipeline_style == 'v2' and source_channels is not None
                                       and field_identities is not None))
+    supplied_matrix = _validate_unmix_matrix_scope(
+        settings, allow_matrix=bool(pipeline_style == 'v2' and source_channels is not None
+                                   and field_identities is not None))
     if settings.get('unmix_calibration'):
         from .qt.i18n import tr
 
@@ -1635,12 +1855,24 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
                 or any(isinstance(value, (bool, np.bool_)) or value != channel or channel < 0
                        for value, channel in zip(raw_channels, physical))):
             raise ValueError(tr("Calibrated batch inputs require distinct nonnegative integer physical channel IDs."))
-        unmix = _prepare_unmixing(
-            settings, stack_dir if stack_dir is not None else Path(root) / 'merged',
-            channels=physical, load=load, allow_calibrated=True,
-            channel_positions={channel: index for index, channel in enumerate(physical)},
-            field_identities=field_identities,
-        )
+        if prepared_unmix is not None:
+            if (not supplied_matrix or prepared_unmix.matrix_source is None
+                    or prepared_unmix.channels != physical):
+                raise _matrix_input_error()
+            source = json.loads(prepared_unmix.matrix_source)
+            contexts = {(identity['plate'], identity['time'], identity['z'])
+                        for identity in field_identities.values()}
+            _validate_matrix_artifact(source['artifact'], physical,
+                prepared_unmix.calibration.provenance(),
+                float(settings.get('unmix_background_percentile', 5.0)), contexts)
+            unmix = prepared_unmix
+        else:
+            unmix = _prepare_unmixing(
+                settings, stack_dir if stack_dir is not None else Path(root) / 'merged',
+                channels=physical, load=load, allow_calibrated=True,
+                channel_positions={channel: index for index, channel in enumerate(physical)},
+                field_identities=field_identities,
+            )
         session = _SegmentationPSFSession(None, root, channels, pipeline_style, unmix=unmix)
         session.field_identities = dict(field_identities)
         source_roots = {str(Path(identity['source_dataset']).resolve())
@@ -1860,6 +2092,47 @@ def _validate_plate_control_record(config, rows):
         raise _cell_record_error() from None
 
 
+def _validate_supplied_matrix_record(root_fd, config, rows):
+    """Validate the copied artifact instead of reopening its historical external path.
+
+    :param root_fd: owned descriptor for the calibrated output directory.
+    :param config: existing version-1 calibrated application configuration.
+    :param rows: bound target field records.
+    :returns: copied bundle identity, or None for unchanged historical records.
+    """
+    unmixing = config['unmixing']
+    if 'matrix_source' not in unmixing:
+        if unmixing.get('method') == 'supplied_matrix':
+            raise _cell_record_error()
+        return None
+    try:
+        source = unmixing['matrix_source']
+        if (not isinstance(source, dict) or set(source) != {
+                'kind', 'version', 'path', 'sha256', 'size_bytes', 'artifact',
+                'acquisition_compatibility_verified'}
+                or source['kind'] != 'supplied_matrix' or type(source['version']) is not int
+                or source['version'] != 1 or source['path'] != 'psf/spectral_matrix_input.json'
+                or source['acquisition_compatibility_verified'] is not False
+                or unmixing['method'] != 'supplied_matrix' or unmixing['controls'] != {}
+                or unmixing['fields'] != {} or 'control_selection' in unmixing
+                or type(source['size_bytes']) is not int):
+            raise _cell_record_error()
+        contexts = {(row['source_identity']['plate'], row['source_identity']['time'],
+                     row['source_identity']['z']) for row in rows.values()}
+        with _cell_record_open(root_fd, source['path']) as stream:
+            raw, payload, digest, identity = _matrix_input_snapshot(stream)
+        if (len(raw) != source['size_bytes'] or digest != source['sha256']
+                or payload != source['artifact']):
+            raise _cell_record_error()
+        matrix = _validate_matrix_artifact(payload, config['physical_channel_order'],
+            unmixing['calibration'], unmixing['background_percentile'], contexts)
+        if not np.array_equal(matrix, np.asarray(unmixing['matrix'], dtype=np.float64)):
+            raise _cell_record_error()
+        return identity
+    except (OSError, KeyError, TypeError, ValueError, OverflowError, RecursionError, np.linalg.LinAlgError):
+        raise _cell_record_error() from None
+
+
 class _CalibratedCellDataset:
     """Own bounded one-field maps and exact completed-record provenance for a reader."""
 
@@ -1980,6 +2253,8 @@ class _CalibratedCellDataset:
             if len(identities) != 1:
                 raise _cell_record_error()
             _validate_plate_control_record(config, record['calibrated_fields'])
+            self._matrix_identity = _validate_supplied_matrix_record(
+                self._root_fd, config, record['calibrated_fields'])
             self._metadata_current(full=True)
         except BaseException:
             self.close()
@@ -1991,6 +2266,16 @@ class _CalibratedCellDataset:
 
     def _metadata_current(self, *, full=False):
         """Check descriptor identity per field and exact metadata bytes at final publication."""
+        if self._matrix_identity is not None:
+            source = self._configuration['unmixing']['matrix_source']
+            with _cell_record_open(self._root_fd, source['path']) as stream:
+                stat = os.fstat(stream.fileno())
+                if self._matrix_identity != (stat.st_dev, stat.st_ino, stat.st_size,
+                                             stat.st_mtime_ns, stat.st_ctime_ns):
+                    raise _cell_record_error()
+            if full and self._matrix_identity != _validate_supplied_matrix_record(
+                    self._root_fd, self._configuration, self._record['calibrated_fields']):
+                raise _cell_record_error()
         with _cell_record_open(self._root_fd, 'psf/segmentation_application.json') as stream:
             stat = os.fstat(stream.fileno())
             identity = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)

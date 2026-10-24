@@ -655,9 +655,11 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
 def _unmixed_crop_source(data, path, settings, cancelled, plans):
     """Make a display copy using Measure's ordered intensity-channel plan."""
     from spacr.psf_pipeline import (_prepare_unmixing, _apply_recorded_unmixing,
-                                    _UNMIX_RECORD_KEY, _validate_unmix_plate_scope)
+                                    _UNMIX_RECORD_KEY, _validate_unmix_plate_scope,
+                                    _validate_unmix_matrix_scope)
 
     _validate_unmix_plate_scope(settings)
+    _validate_unmix_matrix_scope(settings)
     from spacr.cancellation import PipelineCancelled
 
     def checkpoint():
@@ -2243,13 +2245,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         self._cancel_crop_export()
         settings = dict(settings or {})
-        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile', 'unmix_per_plate'):
+        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile', 'unmix_per_plate', 'unmix_matrix_file'):
             if key in settings:
                 self._unmix_settings[key] = deepcopy(settings[key])
-        from ...psf_pipeline import _validate_unmix_plate_scope
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
 
         try:
             _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
         except ValueError:
             self.refresh()
             return
@@ -2432,10 +2436,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _preview_blocked_reason(self) -> str:
         """Why this panel cannot crop right now, or ``""``."""
-        from ...psf_pipeline import _validate_unmix_plate_scope
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
 
         try:
             _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
         except ValueError as error:
             return str(error)
         if self._data is None:
@@ -2591,10 +2597,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._render_plan.clear()
         self._selected.clear()
         self.set_preview_busy(False)
-        from ...psf_pipeline import _validate_unmix_plate_scope
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
 
         try:
             _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
         except ValueError as error:
             self._render_grid()
             self.set_preview_status(str(error))
