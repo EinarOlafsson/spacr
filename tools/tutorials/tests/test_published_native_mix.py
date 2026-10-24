@@ -243,3 +243,97 @@ def test_canonical_flag_does_not_change_legacy_defaults_or_explicit_file(tmp_pat
         assert calls[-1][3:]==(expected,lesson)
     monkeypatch.setattr(sys,'argv',argv[:-1]+['21_model_compare','--source-idle-policy',str(custom)]);mix.main()
     assert calls[-1][3:]==(custom_policy,'21_model_compare')
+
+
+@pytest.fixture
+def installation_plan():
+    from render_installation_reference_cards import VISUALS, CARDS, BOUNDS, MASTER_SHA, TIMING_SHA
+    original=dict(lesson='02_install_spacr',kind='native_visual_timing',fps=30,native_live_video=True,
+        playback_speed=1,looped_or_stretched=False,total_duration=16614/30,coverage=dict(accepted=True,gaps=[]),
+        scenes=[dict(scene=i,visual=v,speech_start=a/30,speech_end=b/30,scene_end=b/30,duration=(b-a)/30,
+            native_live_video=i==16) for i,(v,(a,b)) in enumerate(zip(VISUALS,BOUNDS),1)])
+    english=dict(id='02_install_spacr',scenes=[dict(visual=v,narration='Feature '+v) for v in VISUALS])
+    tracks=[dict(scenes=[dict(speech_start=i*2,speech_end=i*2+1.48,duration=2) for i in range(21)]) for _ in range(50)]
+    cards={v:dict(visual=v,kind='authored_reference_card',narration_sha256=mix.identity(english['scenes'][VISUALS.index(v)]['narration'])) for v in CARDS}
+    bindings=dict(master=dict(sha256=MASTER_SHA),timing=dict(sha256=TIMING_SHA))
+    edit=dict(schema=1,lesson=english['id'],master_sha256=MASTER_SHA,visual_timing_sha256=TIMING_SHA,scenes=[])
+    return english,original,tracks,cards,edit,bindings,{v:0 for v in VISUALS}
+
+
+def test_installation_refresh_preserves_twenty_one_clocks_and_eighteen_complete_source_intervals(installation_plan):
+    original=deepcopy(installation_plan)
+    rows=mix.plan_mix(*installation_plan)
+    assert installation_plan==original
+    assert [r['scene'] for r in rows]==list(range(1,22))
+    assert [i for i,r in enumerate(rows,1) if 'reference_card' in r]==[2,3,6]
+    assert [i for i,r in enumerate(rows,1) if r['native_live_video']]==[16]
+    for row,source in zip(rows,original[1]['scenes']):
+        assert all(row[k]==source[k] for k in ('speech_start','speech_end','scene_end','duration'))
+        assert row['edited'] is False
+        if 'reference_card' not in row:
+            assert row['source_keep_frames']==[[0,round(source['duration']*30)]]
+            assert row['final_frame_hold_frames']==0
+
+
+@pytest.mark.parametrize('fault',['extra_card','missing_card','order','native_flag','index','clock','master','timing',
+    'source_edit','missing_voice','card_text','card_kind','missing_fence','card_fence','card_overflow','retained_overflow'])
+def test_installation_refresh_rejects_changed_contracts(installation_plan,fault):
+    a=deepcopy(installation_plan);english,source,tracks,cards,edit,bindings,fences=a
+    if fault=='extra_card':cards['unknown']=next(iter(cards.values()))
+    elif fault=='missing_card':cards.pop(next(iter(cards)))
+    elif fault=='order':english['scenes'][0],english['scenes'][1]=english['scenes'][1],english['scenes'][0]
+    elif fault=='native_flag':source['scenes'][0]['native_live_video']=True
+    elif fault=='index':source['scenes'][0]['scene']=2
+    elif fault=='clock':source['scenes'][1]['speech_start']+=1/30
+    elif fault=='master':edit['master_sha256']=bindings['master']['sha256']='c'*64
+    elif fault=='timing':edit['visual_timing_sha256']=bindings['timing']['sha256']='c'*64
+    elif fault=='source_edit':edit['scenes']=[dict(visual=english['scenes'][0]['visual'])]
+    elif fault=='missing_voice':tracks.pop()
+    elif fault=='card_text':next(iter(cards.values()))['narration_sha256']='c'*64
+    elif fault=='card_kind':next(iter(cards.values()))['kind']='gui_capture'
+    elif fault=='missing_fence':fences.pop(next(iter(fences)))
+    elif fault=='card_fence':fences[next(iter(cards))]=.1
+    else:
+        index=1 if fault=='card_overflow' else 0
+        tracks[0]['scenes'][index].update(speech_end=10000,duration=10000)
+    with pytest.raises(ValueError):mix.plan_mix(*a)
+
+
+def test_installation_card_definitions_change_only_reviewed_labels():
+    import render_pip_instruction_cards as renderer
+    from render_installation_reference_cards import CARDS
+    definitions={name:(title,rows,note) for name,title,rows,note in renderer.instruction_cards('1.5.1.3')}
+    assert set(CARDS.values())=={'07_create_environment','08_activate_environment','10_launch_commands'}
+    assert definitions['10_launch_commands'][1]==[
+        ('Normal launch — first-run questions may appear','spacr'),
+        ('Optional: skip first-run setup','spacr --no-setup')]
+    assert definitions['07_create_environment'][1][0][1]=='python3.12 -m venv .venv'
+    assert definitions['08_activate_environment'][1][0][1]=='source .venv/bin/activate'
+
+
+@pytest.mark.parametrize('fault',['pixels','source_clock','definition','narration','extra_file'])
+def test_installation_generated_card_contract_rejects_tampering(installation_plan,tmp_path,monkeypatch,fault):
+    import render_installation_reference_cards as generator
+    import published_native_reuse as reuse
+    from stage_lesson import REPO
+    english,original,*_=installation_plan
+    # Unit-only published-input boundary: no real candidate, media decode or capture receipt.
+    baseline=tmp_path/'baseline';baseline.mkdir()
+    source=baseline/'clock.json';source.write_text(json.dumps(original))
+    monkeypatch.setattr(generator,'TIMING_SHA',generator.digest(source))
+    bindings=dict(master=dict(sha256=generator.MASTER_SHA),timing=dict(sha256=generator.TIMING_SHA,path='clock.json'))
+    monkeypatch.setattr(reuse,'_published_inputs',lambda *_:(baseline,original,bindings,{}))
+    folder=tmp_path/'cards';generator.render(REPO,english,baseline,folder)
+    assert set(generator.validate_cards(folder,english,REPO))==set(generator.CARDS)
+    if fault=='pixels':
+        image=folder/(next(iter(generator.CARDS))+'.png');image.write_bytes(image.read_bytes()+b'changed')
+    elif fault=='source_clock':source=folder/'source-native-timings.json';source.write_bytes(source.read_bytes()+b' ')
+    elif fault=='definition':
+        previous=generator.definitions
+        def changed(repo):
+            renderer,rows=previous(repo);rows=deepcopy(rows);visual=next(iter(rows));title,lines,note=rows[visual]
+            rows[visual]=(title+' changed',lines,note);return renderer,rows
+        monkeypatch.setattr(generator,'definitions',changed)
+    elif fault=='narration':english['scenes'][1]['narration']+=' changed'
+    else:(folder/'unexpected.png').write_bytes(b'not a reviewed card')
+    with pytest.raises(ValueError):generator.validate_cards(folder,english,REPO)

@@ -95,6 +95,8 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
                 return False
             if page._aside_panels._floor_timer.isActive():
                 return False
+            if page._body_fit._timer.isActive() or page._body_fit._busy:
+                return False
             hero = page.findChild(QWidget, 'Hero')
             if hero._text_fit._timer.isActive() or hero._text_fit._busy:
                 return False
@@ -107,15 +109,14 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
 
         qtbot.waitUntil(settled)
         assert page._sample_project_button.font().pixelSize() == 52
-        if split.property('size') != QSize(1104, 84):
-            gui_scale._resize_actual(split, QSize(1104, 84))
-            previous[0] = None
-            qtbot.waitUntil(settled)
         current_page = page._tabs.currentWidget()
         report = {'background_only_isolation': ['ambient', 'journal', 'news-refresh'],
                   'normal_app_acceptance': False, 'split': widget_record(split),
                   'native_sizes': gui_scale._actual_sizes(split),
                   'native_handle': split.handle(1).property('size').toTuple(),
+                  'outer_viewport': page._body_scroll.viewport().property('size').toTuple(),
+                  'body': page._body_scroll.widget().property('size').toTuple(),
+                  'apps_native_floor': page._tabs.property('minimumSize').toTuple(),
                   'panes': [{**widget_record(pane.widget), 'pane': pane.name,
                              'logical_minimum': pane.minimum, 'logical_extent': pane.extent,
                              'stored_geometry': getattr(pane.widget, '_gs_geo', {})}
@@ -125,9 +126,14 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
                   'current_page': widget_record(current_page),
                   'page_scrolls': [widget_record(scroll) for scroll in page._tabs.findChildren(QScrollArea)]}
         print('HOME_SPLIT_DIAGNOSTIC', json.dumps(report), flush=True)
-        assert split.property('size') == QSize(1104, 84), report
+        assert page.property('size') == QSize(1200, 496), report
+        assert page.rect().contains(page._body_scroll.geometry()), report
+        assert split.property('size').width() >= (
+            page._tabs.property('minimumSize').width()
+            + page._aside.property('minimumSize').width()
+            + split.handle(1).property('size').width()), report
         assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), report
-        app._apply_home_tab_scroll_policy(host, page)
+        assert app._apply_home_tab_scroll_policy(host, page) == 2
         assert page._tabs.usesScrollButtons()
         assert not other_tabs.usesScrollButtons()
         previous[0] = None
@@ -143,7 +149,11 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
         assert {button.text() for button in buttons} == {
             'Pipeline overviews', 'Clear', 'Check for updates…', 'Reset', 'Refresh'}
         for button in buttons:
-            page._aside_scroll.ensureWidgetVisible(button, 0, 0)
+            ancestor = button.parentWidget()
+            while ancestor is not None and ancestor is not host:
+                if isinstance(ancestor, QScrollArea):
+                    ancestor.ensureWidgetVisible(button, 0, 0)
+                ancestor = ancestor.parentWidget()
             previous[0] = None
             qtbot.waitUntil(settled)
             option = QStyleOptionButton()
@@ -160,6 +170,326 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
                 int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
             assert field.contains(text) and QRegion(text).subtracted(button.visibleRegion()).isEmpty()
             assert host.rect().contains(text.translated(button.mapTo(host, QPoint())))
+    finally:
+        try:
+            if page is not None:
+                page.close()
+            if host is not None:
+                host.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+def test_real_home_compressed_apps_icon_and_name_are_scroll_reachable(qtbot, qapp, monkeypatch):
+    _check_real_home_compressed_access(qtbot, qapp, monkeypatch)
+
+
+def test_real_home_compressed_header_is_scroll_reachable(qtbot, qapp, monkeypatch):
+    _check_real_home_compressed_access(qtbot, qapp, monkeypatch, header_only=True)
+
+
+def _check_real_home_compressed_access(qtbot, qapp, monkeypatch, *, header_only=False):
+    import json
+    from PySide6.QtCore import QPoint, QSize, Qt, QTimer
+    from PySide6.QtGui import QFontInfo, QRegion
+    from PySide6.QtWidgets import QScrollArea, QStyle, QWidget
+    from spacr.qt import app, gui_scale, preferences
+    from spacr.qt.widgets import home as home_widgets
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    host = page = None
+    monkeypatch.setattr(HomePage, '_install_ambient', lambda self: None)
+    monkeypatch.setattr(HomePage, '_read_the_journal', lambda self: None)
+    monkeypatch.setattr(home_widgets.NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        host = QWidget()
+        qtbot.addWidget(host)
+        page = make_home_page(parent=host)
+        app._apply_home_tab_scroll_policy(host, page)
+        gui_scale._resize_actual(host, QSize(1200, 496))
+        gui_scale._resize_actual(page, QSize(1200, 496))
+        host.show()
+        current_page = page._tabs.currentWidget()
+        tiles = current_page.findChildren(AppTile)
+        assert tiles
+        tile = next(tile for tile in tiles if tile.findChildren(home_widgets._AppTileIcon))
+        glyph = tile.findChild(home_widgets._AppTileIcon)
+        name = tile.name_label
+        source_key = glyph._icon.cacheKey()
+        source_sizes = [size.toTuple() for size in glyph._icon.availableSizes()]
+        previous = [None]
+
+        def signature():
+            widgets = [page, page._body_scroll, page._body_scroll.viewport(),
+                       page._body_scroll.widget(), page._aside_split, page._tabs,
+                       current_page, tile, glyph, name]
+            ancestor = tile.parentWidget()
+            while ancestor is not None:
+                if ancestor not in widgets:
+                    widgets.append(ancestor)
+                if ancestor is host:
+                    break
+                ancestor = ancestor.parentWidget()
+            return tuple((widget.property('size').toTuple(), widget.pos().toTuple(),
+                          widget.font().toString()) for widget in widgets)
+
+        def settled():
+            split = page._aside_split
+            hero = page.findChild(QWidget, 'Hero')
+            if (any(getattr(split, attr, False) for attr in
+                    ('_rebalance_queued', '_limits_queued', '_refit_queued'))
+                    or page._aside_panels._floor_timer.isActive()
+                    or hero._text_fit._timer.isActive() or hero._text_fit._busy
+                    or page._body_fit._timer.isActive() or page._body_fit._busy):
+                return False
+            now = signature()
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        qtbot.waitUntil(settled)
+        callbacks = []
+        page._body_fit._timer.timeout.connect(lambda: callbacks.append(None))
+        assert QFontInfo(name.font()).family() == 'Open Sans'
+        assert page._sample_project_button.font().pixelSize() == 52
+        assert page.property('size') == QSize(1200, 496)
+        assert page._body_scroll.widget().isAncestorOf(page._aside_split)
+        assert not page._body_scroll.isAncestorOf(page._hint_bar)
+        if header_only:
+            import math
+            from PySide6.QtGui import QTextDocument, QTextOption
+
+            hero = page.findChild(QWidget, 'Hero')
+            mark = page._hero_mark
+            original_key, original_size = mark._source.cacheKey(), mark._source.size()
+            rows = []
+            title, subtitle = hero.findChild(QLabel, 'HeroTitle'), hero.findChild(QLabel, 'HeroSubtitle')
+            selected = {label: (hero._text_fit._selected[label]['font'].toString(),
+                                hero._text_fit._selected[label]['base']) for label in (title, subtitle)}
+            calls = []
+            page._body_fit._timer.timeout.connect(lambda: calls.append('body'))
+            hero._text_fit._timer.timeout.connect(lambda: calls.append('text'))
+            full_subtitle = QTextDocument()
+            full_subtitle.setDocumentMargin(0)
+            full_subtitle.setDefaultFont(hero._text_fit._selected[subtitle]['font'])
+            full_subtitle.setPlainText(subtitle.text())
+            full_subtitle.setTextWidth(subtitle.contentsRect().width())
+            _left, top, _right, bottom = hero.layout().getContentsMargins()
+            grow = QSize(1200, math.ceil(full_subtitle.size().height()) + top + bottom
+                         + page._hint_bar.property('size').height() + 40)
+
+            def header_signature():
+                widgets = [page, page._body_scroll.viewport(), page._body_scroll.widget(),
+                           hero, mark, hero.findChild(QLabel, 'HeroTitle'),
+                           hero.findChild(QLabel, 'HeroSubtitle')]
+                return tuple((widget.property('size').toTuple(), widget.pos().toTuple(),
+                              widget.font().toString()) for widget in widgets)
+
+            targets = [(phase, size, target) for phase, size in
+                       (('narrow', QSize(1200, 496)), ('grow', grow),
+                        ('narrow_again', QSize(1200, 496))) for target in (mark, title, subtitle)]
+            for phase, size, target in targets:
+                gui_scale._resize_actual(host, size)
+                gui_scale._resize_actual(page, size)
+                previous[0] = None
+                qtbot.waitUntil(settled)
+                page._body_scroll.ensureWidgetVisible(target, 0, 0)
+                frozen = header_signature()
+
+                def observe_header(target=target, frozen=frozen, phase=phase):
+                    row = {'phase': phase, 'target': target.objectName(), 'size': target.property('size').toTuple(),
+                           'contents': target.contentsRect().getRect(),
+                           'font': target.font().toString(),
+                           'hero': hero.property('size').toTuple(),
+                           'hero_native_maximum': hero.property('maximumSize').height(),
+                           'outer_viewport': page._body_scroll.viewport().property('size').toTuple(),
+                           'visible_region': target.visibleRegion().boundingRect().getRect(),
+                           'stable': header_signature() == frozen}
+                    if target is mark:
+                        pixmap = mark.pixmap()
+                        logical = pixmap.deviceIndependentSize()
+                        rect = QStyle.alignedRect(mark.layoutDirection(), mark.alignment(),
+                            logical.toSize(), mark.contentsRect())
+                        row.update(source_unchanged=mark._source.cacheKey() == original_key,
+                            aspect_preserved=abs(logical.width() * original_size.height()
+                                - logical.height() * original_size.width()) <= max(original_size.width(), original_size.height()),
+                            source_size=original_size.toTuple(), icon_logical=logical.toTuple(),
+                            icon_dpr=pixmap.devicePixelRatio(), actual_dpr=mark.devicePixelRatioF())
+                    else:
+                        document = QTextDocument()
+                        document.setDocumentMargin(0)
+                        document.setDefaultFont(target.font())
+                        option = QTextOption()
+                        option.setWrapMode(QTextOption.WordWrap if target.wordWrap() else QTextOption.NoWrap)
+                        document.setDefaultTextOption(option)
+                        document.setPlainText(target.text())
+                        document.setTextWidth(target.contentsRect().width() if target.wordWrap() else -1)
+                        size = document.size()
+                        rect = QStyle.alignedRect(target.layoutDirection(), target.alignment(),
+                            QSize(math.ceil(size.width()), math.ceil(size.height())), target.contentsRect())
+                        state = hero._text_fit._selected[target]
+                        original_get = gui_scale._ORIGINAL.get((QWidget, 'styleSheet'), QWidget.styleSheet)
+                        row.update(text=target.text(), document=size.toTuple(), wrapped=target.wordWrap(),
+                            selected_unchanged=(state['font'].toString(), state['base']) == selected[target],
+                            selected_restored=(target.font().toString() == selected[target][0]
+                                               and original_get(target) == selected[target][1]))
+                    row.update(drawing=rect.getRect(), reachable=(not rect.isEmpty()
+                        and target.contentsRect().contains(rect)
+                        and QRegion(rect).subtracted(target.visibleRegion()).isEmpty()
+                        and host.rect().contains(rect.translated(target.mapTo(host, QPoint())))))
+                    rows.append(row)
+
+                count = len(rows) + 1
+                QTimer.singleShot(0, observe_header)
+                qtbot.waitUntil(lambda: len(rows) == count)
+            print('HOME_HEADER_ACCESS', json.dumps({'normal_app_acceptance': False, 'rows': rows}), flush=True)
+            assert len(rows) == 9 and all(row['stable'] for row in rows), rows
+            assert all(row['source_unchanged'] and row['aspect_preserved']
+                       and row['icon_dpr'] == row['actual_dpr']
+                       for row in rows if row['target'] == 'HeroMark'), rows
+            assert all(row['selected_unchanged'] and (row['phase'] != 'grow' or row['selected_restored'])
+                       for row in rows if row['target'] != 'HeroMark'), rows
+            assert all(row['reachable'] for row in rows), rows
+            before, count_before = header_signature(), len(calls)
+            for _ in range(8):
+                qapp.processEvents()
+            assert header_signature() == before and len(calls) == count_before
+            assert not page._body_fit._timer.isActive() and not hero._text_fit._timer.isActive()
+            return
+        rows = []
+
+        def drawing_rect(widget):
+            if widget is glyph:
+                pixmap = glyph.pixmap()
+                return QStyle.alignedRect(glyph.layoutDirection(), glyph.alignment(),
+                    pixmap.deviceIndependentSize().toSize(), glyph.contentsRect())
+            return name.style().itemTextRect(name.fontMetrics(), name.contentsRect(),
+                int(name.alignment() | Qt.TextSingleLine), name.isEnabled(), name.text())
+
+        def visible(widget):
+            rect = drawing_rect(widget)
+            return (not rect.isEmpty() and widget.contentsRect().contains(rect)
+                    and QRegion(rect).subtracted(widget.visibleRegion()).isEmpty()
+                    and host.rect().contains(rect.translated(widget.mapTo(host, QPoint()))))
+
+        body_floor = page._body_scroll.widget().minimumSizeHint()
+        grow = QSize(max(1200, body_floor.width()) + 40,
+                     body_floor.height() + page._hint_bar.property('size').height() + 40)
+        targets = [(phase, size, target) for phase, size in
+                   (('narrow', QSize(1200, 496)), ('grow', grow),
+                    ('narrow_again', QSize(1200, 496))) for target in (glyph, name)]
+        for phase, size, target in targets:
+            gui_scale._resize_actual(host, size)
+            gui_scale._resize_actual(page, size)
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            ancestry = []
+            ancestor = target.parentWidget()
+            while ancestor is not None and ancestor is not host:
+                if isinstance(ancestor, QScrollArea):
+                    ancestry.append({'viewport': ancestor.viewport().property('size').toTuple(),
+                        'content': ancestor.widget().property('size').toTuple(),
+                        'minimum_hint': ancestor.minimumSizeHint().toTuple(),
+                        'horizontal_policy': ancestor.horizontalScrollBarPolicy().value,
+                        'vertical_policy': ancestor.verticalScrollBarPolicy().value,
+                        'horizontal_range': (ancestor.horizontalScrollBar().minimum(), ancestor.horizontalScrollBar().maximum()),
+                        'vertical_range': (ancestor.verticalScrollBar().minimum(), ancestor.verticalScrollBar().maximum())})
+                    ancestor.ensureWidgetVisible(target, 0, 0)
+                ancestor = ancestor.parentWidget()
+            frozen = signature()
+
+            def observe(target=target, ancestry=ancestry, frozen=frozen, phase=phase):
+                pixmap = glyph.pixmap()
+                logical = pixmap.deviceIndependentSize()
+                source = max(glyph._icon.availableSizes(), key=lambda size: size.width() * size.height())
+                rows.append({'phase': phase, 'target': 'icon' if target is glyph else 'name',
+                    'tile': tile.geometry().getRect(), 'glyph': glyph.geometry().getRect(),
+                    'name': name.geometry().getRect(), 'drawing': drawing_rect(target).getRect(),
+                    'visible_region': target.visibleRegion().boundingRect().getRect(),
+                    'stable': signature() == frozen, 'reachable': visible(target),
+                    'simultaneous_icon_and_name': visible(glyph) and visible(name),
+                    'current_page_content_width': current_page.widget().property('size').width(),
+                    'current_page_viewport_width': current_page.viewport().property('size').width(),
+                    'hidden_horizontal_maximum': current_page.horizontalScrollBar().maximum(),
+                    'scrolls': ancestry, 'icon_dpr': pixmap.devicePixelRatio(),
+                    'actual_dpr': glyph.devicePixelRatioF(), 'icon_logical': logical.toTuple(),
+                    'source_sizes': source_sizes, 'source_unchanged': glyph._icon.cacheKey() == source_key,
+                    'aspect_preserved': abs(logical.width() * source.height() - logical.height() * source.width()) <= max(source.width(), source.height()),
+                    'displayed_name': name.text(), 'full_name': name.full_text(),
+                    'intentional_elision': name.is_elided(), 'tooltip': name.toolTip(),
+                    'tile_accessible_name': tile.accessibleName()})
+
+            QTimer.singleShot(0, observe)
+            count = len(rows) + 1
+            qtbot.waitUntil(lambda: len(rows) == count)
+            previous[0] = None
+            qtbot.waitUntil(settled)
+        print('HOME_APPS_ACCESS', json.dumps({'normal_app_acceptance': False,
+            'background_only_isolation': ['ambient', 'journal', 'news-refresh'],
+            'split': page._aside_split.property('size').toTuple(),
+            'native_sizes': gui_scale._actual_sizes(page._aside_split),
+            'tabs': page._tabs.property('size').toTuple(),
+            'tile_minimum': tile.property('minimumSize').toTuple(),
+            'tile_hint': tile.minimumSizeHint().toTuple(),
+            'tile_layout_minimum': tile.layout().totalMinimumSize().toTuple(),
+            'glyph_minimum': glyph.property('minimumSize').toTuple(),
+            'name_hint': name.sizeHint().toTuple(), 'rows': rows}), flush=True)
+        assert all(row['stable'] for row in rows), rows
+        assert all(row['source_unchanged'] and row['aspect_preserved']
+                   and row['icon_dpr'] == row['actual_dpr'] for row in rows), rows
+        assert all(not row['intentional_elision'] or
+                   (row['tooltip'] == row['full_name'] == row['tile_accessible_name']
+                    and '…' in row['displayed_name']) for row in rows), rows
+        assert all(row['reachable'] for row in rows), rows
+        assert all(row['current_page_content_width'] <= row['current_page_viewport_width']
+                   and row['hidden_horizontal_maximum'] == 0 for row in rows), rows
+        assert len(rows) == 6
+        before = signature()
+        count_before = len(callbacks)
+        for _ in range(8):
+            qapp.processEvents()
+        assert signature() == before and not page._body_fit._timer.isActive()
+        assert len(callbacks) == count_before
+        pending = page._body_fit._timer
+        pending.start(0)
+        page.close()
+        page.deleteLater()
+        from PySide6.QtCore import QCoreApplication, QEvent
+        import shiboken6
+        QCoreApplication.sendPostedEvents(page, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(pending)
+        page = None
+        preferences.set_gui_scale(.9)
+        preferences.set_font_scale(.9)
+        gui_scale.set_gui_scale_live(.9)
+        preferences.apply_preferences_to_app()
+        page = make_home_page(parent=host)
+        app._apply_home_tab_scroll_policy(host, page)
+        current_page = page._tabs.currentWidget()
+        tile = next(tile for tile in current_page.findChildren(AppTile)
+                    if tile.findChildren(home_widgets._AppTileIcon))
+        glyph, name = tile.findChild(home_widgets._AppTileIcon), tile.name_label
+        gui_scale._resize_actual(host, QSize(1440, 870))
+        gui_scale._resize_actual(page, QSize(1440, 870))
+        page.show()
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        assert page._body_scroll.horizontalScrollBar().maximum() == 0
+        assert page._body_scroll.verticalScrollBar().maximum() == 0
     finally:
         try:
             if page is not None:
