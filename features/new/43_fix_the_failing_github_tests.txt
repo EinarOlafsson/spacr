@@ -1,4 +1,8 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT SETUP METAL CAPABILITY CONTRACT — 2026-10-24
+widgets_g5 owns the stale Setup-slide Metal CPU assertion on current source. Bind the existing PCA/KMeans row and visible CPU fitting/precision/UMAP/t-SNE/DBSCAN qualification, preserving exact CUDA and segmentation expectations. This is a test-only correction with one owning check; no backend, UI, translation or native/scientific claim changes. Root reviews and publishes.
+2026-10-24: Exact CUDA/MPS libraries and visible CPU/precision qualification pass the owning check (4.15s), with root and independent source review. Root publication remains pending.
+
 CURRENT WEB CAPTION FIXTURE SOURCE INVENTORY — 2026-10-24
 The retained CI owner seeds mandatory pipeline_v2.py in the isolated web
 caption production-inventory fixture, preserving every exact caption and
