@@ -12,6 +12,28 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next native attribution records both splitter panes' actual geometry, minima,
+policies and stored pane records before the1200x640 resize and at content-ready,
+plus HomeTabs scroll bounds and settled panels/scrollbar hints. The controlled
+real-Home33965 pass does not reproduce native host clipping; no fix is assumed.
+This is observation only: existing checks, waits and operation budgets remain.
+
+Real Home overcommit scope: retain the correct aside floor and construct
+the shipped Apps/categories with normal fonts and layout policies. At the
+measured1104x84 child splitter allocation, record both pane minima/hints,
+policies, native sizes/handle and tab/page scroll constraints before requiring
+containment and actual aside-button text access. Isolate only unrelated
+ambient/journal/news background work; this is not normal-app acceptance.
+Require causal RED before any local left-pane or splitter-policy repair.
+Controlled33965 passes1/9.32s/RSS0.324GiB: direct-small real Home contains
+both panes and all five aside captions. This does not reproduce the native
+already-shown-window shrink failure; no product repair is justified yet.
+Launch applies preferences before MainWindow, matching this fixture; native
+style and resize chronology need actual before/after constraint observations.
+Non-vacuous99402 passes1/9.66s/RSS0.326GiB with exactly five visible controls:
+native pane sizes476/616,12px handle and Apps minimum hint127px. The current
+Apps page is0px high at this allocation; no Apps-content usability is claimed.
+
 Automatic aside-floor scope: after real Show/polish and settled52px controls,
 compare the native minimum to actual totalMinimumSize plus scrollbar hint
 without a manual fit call. Verify automatic local heading/style growth and
