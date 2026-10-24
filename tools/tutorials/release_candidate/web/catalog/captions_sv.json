@@ -13689,7 +13689,7 @@
         "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
         "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
       ],
-      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. För att hålla nedladdningen liten innehåller databasen 52 brunnar: alla analyserade brunnar med en guide för gen 225160 och, för var och en, tre brunnar utan den från samma platta. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. Exempeldatabasen innehåller 52 brunnar: alla analyserade brunnar med en guide för gen 225160 samt tre brunnar från samma platta utan den guiden för varje målbrunn. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Cellerna stöder inte kandidaten.",
+          "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Den här analysen ger inga tydliga belägg för en skillnad för den här kandidaten.",
           "hold_after": 0.7
         },
         {

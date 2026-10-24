@@ -13689,7 +13689,7 @@
         "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
         "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
       ],
-      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Til að halda niðurhalinu litlu inniheldur gagnagrunnurinn 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og, fyrir hvern þeirra, þrjá brunna án þess af sömu plötu. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Dæmisgagnagrunnurinn inniheldur 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og þrjá brunna af sömu plötu án þess fyrir hvern markbrunn. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Frumurnar styðja ekki þennan kandídat.",
+          "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Þessi greining gefur engar skýrar vísbendingar um mun fyrir þennan kandídat.",
           "hold_after": 0.7
         },
         {

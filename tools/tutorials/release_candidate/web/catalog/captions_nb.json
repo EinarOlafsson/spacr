@@ -13689,7 +13689,7 @@
         "Velge måledatabase, celleprediksjoner, guideandeler og poengkolonne.",
         "Lese fanene for bevis, brønner, guider og terskel og finne de lagrede tabellene."
       ],
-      "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. For å holde nedlastingen liten inneholder databasen 52 brønner: alle analyserte brønner med en guide for gen 225160 og, for hver av dem, tre brønner uten den fra samme plate. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
+      "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. Eksempeldatabasen inneholder 52 brønner: alle analyserte brønner med en guide for gen 225160, pluss tre brønner fra samme plate uten denne guiden for hver målbrønn. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Cellene støtter ikke denne kandidaten.",
+          "narration": "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Denne analysen gir ingen klare holdepunkter for en forskjell for denne kandidaten.",
           "hold_after": 0.7
         },
         {
