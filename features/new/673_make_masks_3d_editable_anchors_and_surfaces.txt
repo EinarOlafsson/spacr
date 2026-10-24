@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Masks visibility scope: one native Metal75 baseline→eye off→eye on sequence
+through the unique LabelsLayer's real control, with each20s action clock before
+reveal. Require changed RGB/all-zero hidden pick buffer and exact frame/IDs
+restoration, unchanged siblings/pose/data/history/selection/preferences and
+normal cleanup. No pick_at, FPS, physical claim or earlier-control replay.
+
 2026-10-24 — Gate41716/A9IBin PASS40.19s/1.277GiB ona1a85c633e:
 native1200×640/Metal75, exact counts0/64/512/64/512/512/512 through real
 Undo/Redo/Save/new-session reopen, exact geometry/hash/axes/spacing/unit.
