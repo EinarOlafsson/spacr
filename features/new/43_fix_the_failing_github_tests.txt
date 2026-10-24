@@ -17,6 +17,14 @@ review, catalog or generator changes; root reviews and publishes.
 The exact singleton is independently reviewed; the sole owning case passes
 (1.08s). Root publication remains pending; product defaults are unchanged.
 
+CURRENT WINDOWS OFFLINE PROFILE FIXTURE — 2026-10-24
+The retained installer/dependency worker owns the exact Main be67895 profile
+writer/distributable fixture failure. Supply both current Windows CRT payloads
+in its disposable online source tree and retain every profile/cleanup writer
+assertion; verify the packaged CRT bytes too. Run only the owning CPU case,
+independently peer the test-only change, and deliver to root for publication.
+No installer runtime, dependency graph, package build or hosted job changes.
+
 CURRENT MASK TIME-AXIS CATEGORY HELP — 2026-10-23
 widgets_g3 owns the shared Mask help gap for Time Axes & Tracking (Beta).
 Resolve the renamed group to the existing curated 4D Settings (Beta) guidance
@@ -4747,3 +4755,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Mask’s renamed Time Axes & Tracking (Beta) heading now resolves the existing curated 4D guidance; no prose, translations or tracking semantics changed. The original full-slot tree help gate passes on the exact source (1 test, 17.84s), with G1’s existing Qt/process finalization diagnostics qualified rather than treated as a lifecycle fix. Normal scoped extraction preserves 80 API entries and 2,013 caption identities; the normal Main consumer refresh changes only three downstream settings_model line offsets by +2, independently reviewed. Root owns publication and the separate normal Night consumer refresh.
 
 2026-10-24 — The Qt severity-band control now observes the actual stdout/error display seams after the capture/display split, retaining real warning routing and the unchanged four-band exact-order assertion. Independent peer accepted; the owning case passes (1 test, 2.29s). No product/generated changes; root publication pending.
+
+2026-10-24 — Complete the Windows profile/distributable fixture with both genuine current CRT payloads and verify their packaged bytes, retaining every existing profile, cleanup and writer-order assertion. The owning case passes (1 test, 1.15s); independent source peer accepted. No runtime or installer behavior changed; root owns Main publication.
