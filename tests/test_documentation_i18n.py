@@ -91,6 +91,22 @@ if str(TOOLS) not in sys.path:
 
 
 
+def _retired_707_home_api(docs):
+    """Restore the exact removed Home helper only for historical inventory replay."""
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_home_draw_mark_api_retirement_2026-10-24.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "aa3e482ea210afa58855bde1b223657d18d0d0c4"
+    assert retirement["source_blob"] == "ae0714b828ada80f471c7ed94f12f1febe729290"
+    assert retirement["source_path"] == "spacr/qt/widgets/home.py"
+    retired = retirement["retired"]
+    assert set(retired) == {"spacr.qt.widgets.home.HomePage._build_hero._draw_mark"}
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "b92674d13d7b9eedf9d25de0e397b086b662c14591f3200d1104c1cfa65b1228"
+    assert not retired.keys() & docs.keys()
+    return retired
+
+
 def _current_718_mitonet_api(entries, docs):
     """Bind only the selected-accelerator device paragraph in the original N691 contract."""
     assert len(entries) == 4
@@ -3478,7 +3494,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
     assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()
+                | _retired_707_home_api(docs).keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Symbols in the source "
         f"but not in the English API catalog: {uncataloged}. A new documented "
         "callable needs, in the same commit, a dated arrival contract in "

@@ -1,0 +1,8 @@
+{
+  "source_commit": "aa3e482ea210afa58855bde1b223657d18d0d0c4",
+  "source_blob": "ae0714b828ada80f471c7ed94f12f1febe729290",
+  "source_path": "spacr/qt/widgets/home.py",
+  "retired": {
+    "spacr.qt.widgets.home.HomePage._build_hero._draw_mark": "Redraw the mark at the ratio of the screen it is on.\n\nAlways from the 3334 px master. Re-scaling whatever is\nalready on the label would compound one resample for every\nscreen the window has been dragged across."
+  }
+}

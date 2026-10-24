@@ -4963,12 +4963,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
-    assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    from tests.test_documentation_i18n import _retired_707_home_api
+    retired_home = _retired_707_home_api(docs)
+    assert len((docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13138
+               - zoo_additions.keys()) | retired_home.keys()) == 13138
     # 2026-10-20: 13,139 -> 13,138, item 127: the spacr.regression_search
     # shim module left in 1.5.1.6.
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native

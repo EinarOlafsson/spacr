@@ -9999,7 +9999,6 @@ API_ENTRIES = (
     ('spacr.qt.widgets.home.AppTile.stage', '``stable`` / ``beta`` / ``alpha`` — what the hover colour says.'),
     ('spacr.qt.widgets.home.AppTile.text_label', "The tile's app name, matching ``HTile.text_label``."),
     ('spacr.qt.widgets.home.HomePage', 'Home. ``tile_clicked(str key)`` fires when a tile is pressed.'),
-    ('spacr.qt.widgets.home.HomePage._build_hero._draw_mark', 'Redraw the mark at the ratio of the screen it is on.'),
     ('spacr.qt.widgets.home.HomePage.active_jobs', 'How many journal-reading threads are still winding down.'),
     ('spacr.qt.widgets.home.HomePage.apply_release_news', 'Hand a fetched release list to the News panel.'),
     ('spacr.qt.widgets.home.HomePage.closeEvent', 'Stop Home-page background activity before closing.'),
