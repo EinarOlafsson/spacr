@@ -530,13 +530,13 @@ def _best_shade_ms(engine, width, height, rounds=9):
     Measured on the 5950X: thread time is within 0.1 ms of wall time on a
     quiet machine, so the budgets below mean what they meant before.
     """
+    from tests._thread_clock import thread_ms
+
     engine.shade(width, height)                 # allocate the buffer first
     best = float("inf")
     for _round in range(rounds):
-        engine.advance(1.0 / 24.0)
-        started = time.thread_time()
-        engine.shade(width, height)
-        best = min(best, (time.thread_time() - started) * 1000.0)
+        best = min(best, thread_ms(lambda: engine.shade(width, height),
+                                   between=lambda: engine.advance(1.0 / 24.0)))
     return best
 
 
@@ -594,32 +594,39 @@ def _reference_loop_ms(height=180, width=320, iterations=111):
     engine moves the measured pass and never this yardstick; the same NumPy
     operations on the same array sizes, so a busy CPU slows both alike.
     """
+    from tests._thread_clock import thread_ms
+
     rows, cols = np.mgrid[-1:1:height * 1j, -1.6:1.6:width * 1j]
-    zr = cols.astype(np.float32)
-    zi = rows.astype(np.float32)
-    survived = np.zeros((height, width), np.float32)
-    share = np.empty_like(zr)
-    cross = np.empty_like(zr)
     c_re, c_im = np.float32(-0.4), np.float32(0.6)
     reach = np.float32(4.0)
-    started = time.thread_time()
-    for _ in range(iterations):
-        zr2 = zr * zr
-        zi2 = zi * zi
-        np.add(zr2, zi2, out=share)
-        np.subtract(np.float32(16.0), share, out=share)
-        share *= np.float32(1.0 / 12.0)
-        np.clip(share, 0.0, 1.0, out=share)
-        survived += share
-        np.multiply(zr, zi, out=cross)
-        cross *= np.float32(2.0)
-        cross += c_im
-        np.subtract(zr2, zi2, out=zr)
-        zr += c_re
-        zi, cross = cross, zi
-        np.clip(zr, -reach, reach, out=zr)
-        np.clip(zi, -reach, reach, out=zi)
-    return (time.thread_time() - started) * 1000.0
+    arrays = {}
+
+    def reset():
+        arrays.update(zr=cols.astype(np.float32), zi=rows.astype(np.float32),
+                      survived=np.zeros((height, width), np.float32))
+        arrays.update(share=np.empty_like(arrays['zr']), cross=np.empty_like(arrays['zr']))
+
+    def loop():
+        zr, zi, survived = arrays['zr'], arrays['zi'], arrays['survived']
+        share, cross = arrays['share'], arrays['cross']
+        for _ in range(iterations):
+            zr2 = zr * zr
+            zi2 = zi * zi
+            np.add(zr2, zi2, out=share)
+            np.subtract(np.float32(16.0), share, out=share)
+            share *= np.float32(1.0 / 12.0)
+            np.clip(share, 0.0, 1.0, out=share)
+            survived += share
+            np.multiply(zr, zi, out=cross)
+            cross *= np.float32(2.0)
+            cross += c_im
+            np.subtract(zr2, zi2, out=zr)
+            zr += c_re
+            zi, cross = cross, zi
+            np.clip(zr, -reach, reach, out=zr)
+            np.clip(zi, -reach, reach, out=zi)
+
+    return thread_ms(loop, between=reset)
 
 
 def _best_shade_and_probe_ms(engine, width, height, rounds=9):
@@ -633,11 +640,11 @@ def _best_shade_and_probe_ms(engine, width, height, rounds=9):
     best = float("inf")
     ratios = []
     before = _reference_loop_ms()
+    from tests._thread_clock import thread_ms
+
     for _round in range(rounds):
-        engine.advance(1.0 / 24.0)
-        started = time.thread_time()
-        engine.shade(width, height)
-        spent = (time.thread_time() - started) * 1000.0
+        spent = thread_ms(lambda: engine.shade(width, height),
+                          between=lambda: engine.advance(1.0 / 24.0))
         after = _reference_loop_ms()
         best = min(best, spent)
         ratios.append(2.0 * spent / (before + after))

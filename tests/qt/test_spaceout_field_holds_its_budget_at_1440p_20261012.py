@@ -288,12 +288,10 @@ def test_a_mixer_the_compiler_cannot_build_leaves_the_numpy_mix(
 def _shade_ms(engine, clock):
     engine.set_time(clock)
     engine.shade(W, H)
-    spent = []
-    for _frame in range(5):
-        engine.advance(1.0 / 60.0)
-        started = time.thread_time()
-        engine.shade(W, H)
-        spent.append((time.thread_time() - started) * 1000.0)
+    from tests._thread_clock import thread_ms
+
+    spent = [thread_ms(lambda: engine.shade(W, H), between=lambda: engine.advance(1.0 / 60.0))
+             for _frame in range(5)]
     return statistics.median(spent)
 
 
