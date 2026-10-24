@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-02-installation-reference-cards-20261023",
+  "branch": "n676-04-platform-maintenance-references-20261023",
   "base_commit": "833dedfe6a96c15e278d677492a7b086096fcac1",
-  "commit": "ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
-  "tag": "n676-02-installation-reference-cards-20261023-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
-  "manifest_sha256": "d88f4bb121c5b7b8d17e2dbe2bd9fac54c75d8102f7eb05267e856fa8630349e",
+  "commit": "9a712e47612ebdb1774c9de1bda5667a4b7e6846",
+  "tag": "n676-04-platform-maintenance-references-20261023-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9a712e47612ebdb1774c9de1bda5667a4b7e6846",
+  "manifest_sha256": "f744c3409b8cbc917b5a85587ce5ccbe8c70401e9f98f12dc793c44339ad2fcd",
   "media_files": 6448,
-  "media_bytes": 12585998967,
+  "media_bytes": 12582804634,
   "readback": {
-    "commit": "ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
+    "commit": "9a712e47612ebdb1774c9de1bda5667a4b7e6846",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 12585998967,
+    "bytes_read_back": 12582804634,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,16 +1982,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 455.1,
+    "seconds": 429.0,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "8eb6ede4ff6afdb495ff3810d5a68d7c8daf00496b020b59a1149f72ea92ac52",
-    "candidate_index_sha256": "f8df2ca51408944cbe2642ec2e865b305eea42b4f04aa81bb0f2b2c3b1190650",
-    "cache_key": "n676-02-installation-reference-cards-20261023-verified",
+    "index_sha256": "52e710919501ec237eaa2e05e682402e6ae5e455442804828ed552ed3ffa11c4",
+    "candidate_index_sha256": "489e4e72e78c2565e3fc6e49d168c0236869e0416344c975ee44628a03ffcafc",
+    "cache_key": "n676-04-platform-maintenance-references-20261023-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -2000,14 +2000,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-02-installation-reference-cards-20261023-verified",
-      "module_navigation.js": "n676-02-installation-reference-cards-20261023-verified",
+      "lesson_catalog.js": "n676-04-platform-maintenance-references-20261023-verified",
+      "module_navigation.js": "n676-04-platform-maintenance-references-20261023-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/release-candidate-append-rdm8xoam/retired-pages",
+      "directory": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/release-candidate-append-8cioenhk/retired-pages",
       "files": []
     },
     "ready": 84,

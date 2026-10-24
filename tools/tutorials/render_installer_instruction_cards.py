@@ -11,32 +11,8 @@ import shutil
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--capture-name', required=True)
-    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
-    parser.add_argument('--version', default='1.5.0.5',
-                        help='Release the verified installation and the cards describe')
-    parser.add_argument('--cards', default='09_windows_guidance,10_macos_guidance,'
-                        '11_linux_commands,12_logs_and_versions',
-                        help='Comma-separated subset of cards to render')
-    parser.add_argument('--release-capture', default='installation_sources_centred_elements',
-                        help='Capture folder holding the genuine 04_github_current_assets frame')
-    parser.add_argument('--skip-release-frame', action='store_true',
-                        help='Append reference cards while retaining an already verified release frame')
-    args = parser.parse_args()
-    if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:
-        parser.error('Choose one private capture directory name')
-    stage = args.stage.resolve()
-    version = args.version
-    capture = stage / 'captures' / args.capture_name
-    provenance = read(capture / 'provenance.json')
-    if not provenance.get('completed_capture') or provenance['installed_identity']['version'] != version:
-        raise ValueError('The real public-installer verification must finish first')
-    style_path = Path(__file__).resolve().parent / 'authoring/tools/render_install_keyframes.py'
-    spec = importlib.util.spec_from_file_location('existing_installer_style', style_path)
-    style = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(style)
+def installer_cards(version):
+    """Return established installer references without running capture guards."""
     cards = [
         ('09_windows_guidance', 'Windows: select the online setup executable', [
             ('Official release asset — source-reviewed guidance, not a Windows recording',
@@ -89,6 +65,36 @@ def main():
              'Keep microscopy projects and analysis results separately')],
          'Reference guidance from installer source; this card does not claim an executed removal.'),
     ]
+    return cards
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--capture-name', required=True)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--version', default='1.5.0.5',
+                        help='Release the verified installation and the cards describe')
+    parser.add_argument('--cards', default='09_windows_guidance,10_macos_guidance,'
+                        '11_linux_commands,12_logs_and_versions',
+                        help='Comma-separated subset of cards to render')
+    parser.add_argument('--release-capture', default='installation_sources_centred_elements',
+                        help='Capture folder holding the genuine 04_github_current_assets frame')
+    parser.add_argument('--skip-release-frame', action='store_true',
+                        help='Append reference cards while retaining an already verified release frame')
+    args = parser.parse_args()
+    if Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}:
+        parser.error('Choose one private capture directory name')
+    stage = args.stage.resolve()
+    version = args.version
+    capture = stage / 'captures' / args.capture_name
+    provenance = read(capture / 'provenance.json')
+    if not provenance.get('completed_capture') or provenance['installed_identity']['version'] != version:
+        raise ValueError('The real public-installer verification must finish first')
+    style_path = Path(__file__).resolve().parent / 'authoring/tools/render_install_keyframes.py'
+    spec = importlib.util.spec_from_file_location('existing_installer_style', style_path)
+    style = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(style)
+    cards = installer_cards(version)
     selected = set(args.cards.split(','))
     if not selected or selected - {card[0] for card in cards}:
         parser.error('Unknown card name')
