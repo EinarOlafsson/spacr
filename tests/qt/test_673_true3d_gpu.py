@@ -32,7 +32,7 @@ from spacr.layers import (CUBE_EDGES, GPU_MAX_VOXELS, RENDER_DRAG_VOXELS,
 from spacr.qt import preferences
 from spacr.qt.screens import make_masks as mm
 
-from .test_673_napari_true3d import _settle, _spheres, _wait_render, screen, view
+from .test_673_napari_true3d import _settle, _spheres, _two_channel, _wait_render, screen, view
 
 __all__ = ["screen", "view"]
 
@@ -195,6 +195,11 @@ def test_native_remaining_masks_finishes_each_restore_matte(tmp_path):
     _run_native_volume_probe(tmp_path, scenario='mask_finishes')
 
 
+def test_native_second_channel_visibility_restores_the_additive_frame(tmp_path):
+    """Load the actual CZYX fixture and toggle only its second channel's eye."""
+    _run_native_volume_probe(tmp_path, scenario='channels')
+
+
 def _run_native_volume_probe(tmp_path, *, scenario):
     """Share only normal startup, owned data and current-frame verification."""
     import ast
@@ -208,21 +213,27 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     import textwrap
 
     assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-        'image_colour', 'image_renderings', 'mask_finishes')
+        'image_colour', 'image_renderings', 'mask_finishes', 'channels')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
-    retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
-        '/Users/olafsson/Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
-    required = ('hela_fibsem.tif', 'manifest.csv', 'ground_truth_masks/hela_fibsem.tif',
-                'corrected_masks/hela_fibsem.tif')
-    assert all((retained / name).is_file() for name in required), retained
-    fixture = tmp_path / 'fibsem'
-    fixture.mkdir()
-    for name in required:
-        target = fixture / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(retained / name, target)
+    if scenario == 'channels':
+        fixture = tmp_path / 'channels'
+        fixture.mkdir()
+        _two_channel(fixture)
+        required = ('cells.tif', 'masks/cells.tif')
+    else:
+        retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
+            '/Users/olafsson/Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
+        required = ('hela_fibsem.tif', 'manifest.csv', 'ground_truth_masks/hela_fibsem.tif',
+                    'corrected_masks/hela_fibsem.tif')
+        assert all((retained / name).is_file() for name in required), retained
+        fixture = tmp_path / 'fibsem'
+        fixture.mkdir()
+        for name in required:
+            target = fixture / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(retained / name, target)
     checksums = {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required}
     source = ast.parse((root / 'tests/qt/test_the_macos_application_menu.py').read_text())
     bootstrap = next(node.value.args[0] for node in source.body if isinstance(node, ast.Assign)
@@ -250,7 +261,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         phase = os.environ['SPACR_RESTART_PHASE']
         scenario = os.environ['SPACR_VOLUME_SCENARIO']
         assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-            'image_colour', 'image_renderings', 'mask_finishes')
+            'image_colour', 'image_renderings', 'mask_finishes', 'channels')
         control_operations = ['initial', 'visibility_hidden', 'visibility_restored',
             'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
         if scenario == 'image_colour':
@@ -258,6 +269,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         elif scenario == 'image_renderings':
             control_operations = ['initial', 'translucent_changed', 'translucent_restored',
                 'average_changed', 'average_restored', 'minip_changed', 'minip_restored']
+        elif scenario == 'channels':
+            control_operations = ['initial', 'visibility_hidden', 'visibility_restored']
         mask_operations = ['initial', 'mask_opacity_changed', 'mask_opacity_restored',
             'mask_rendering_changed', 'mask_rendering_restored', 'mask_finish_changed', 'mask_finish_restored']
         if scenario == 'mask_visibility':
@@ -273,7 +286,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                   'pick_scope': 'inside-frame background only; positive selection not exercised'}
         if scenario == 'image_opacity':
             report.update(scenario=scenario, pick_scope='not exercised', opacity_states=[])
-        elif scenario in ('image_controls', 'image_colour', 'image_renderings'):
+        elif scenario in ('image_controls', 'image_colour', 'image_renderings', 'channels'):
             report.update(scenario=scenario, pick_scope='not exercised', image_control_states=[], image_control_actions=[])
         elif scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             report.update(scenario=scenario, pick_scope='not exercised', mask_control_states=[], mask_control_actions=[])
@@ -445,7 +458,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
 
         def image_state(stage, context, request):
             session = stage.session
-            return {'operation': state['operation'], 'pose': request_pose(stage, request),
+            row = {'operation': state['operation'], 'pose': request_pose(stage, request),
                 'layers': layer_snapshot(stage), 'frame': dict(report['current_frame']),
                 'preferences': preferences.get_volume_view(), 'selected': stage._selected,
                 'selected_ui': stage._labels.currentData(), 'context': id(context),
@@ -454,6 +467,15 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     and digest(session.image) == state['image'] and digest(session.mask) == state['mask']
                     and (tuple(map(id, session._undo)), tuple(map(id, session._redo))) == state['history']
                     and stage.dirty == state['dirty'])}
+            if scenario == 'channels':
+                row['channels'] = [{'identity': id(plane), 'shape': plane.shape,
+                    'dtype': str(plane.dtype), 'sha256': digest(plane),
+                    'data_pointer': int(plane.__array_interface__['data'][0]), 'strides': plane.strides}
+                    for plane in session.channels]
+                row['files'] = {name: hashlib.sha256((folder / name).read_bytes()).hexdigest()
+                    for name in ('cells.tif', 'masks/cells.tif')}
+                assert row['channels'] == state['channel_arrays'] and row['files'] == state['channel_files']
+            return row
 
         def begin_control_action(stage, operation, target, baseline, ledger):
             advance(operation)
@@ -573,16 +595,46 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         assert report['module_request']['returned'] == 'make_masks'
                         return
                     screen = state['screen']
-                    assert load_the_fibsem_test_data(screen, with_masks=True, folder=folder,
-                        ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
+                    if scenario == 'channels':
+                        assert screen.open_volume(str(folder / 'cells.tif')) is screen._mask_stage
+                    else:
+                        assert load_the_fibsem_test_data(screen, with_masks=True, folder=folder,
+                            ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
                     stage = screen._mask_stage
                     session = stage.session
-                    assert session.image.shape == (128, 256, 256) and session.axes == 'ZYX'
-                    assert set(np.unique(session.mask)) == set(range(44))
+                    if scenario == 'channels':
+                        import tifffile
+                        with tifffile.TiffFile(folder / 'cells.tif') as source:
+                            assert source.series[0].axes == 'CZYX' and source.series[0].shape == (2, 12, 24, 28)
+                            assert source.series[0].dtype == np.dtype('uint16')
+                        z, y, x = np.indices((12, 24, 28))
+                        expected_mask = np.zeros((12, 24, 28), np.uint16)
+                        expected_mask[(z-6)**2+(y-8)**2+(x-8)**2 <= 16] = 1
+                        expected_mask[(z-6)**2+(y-16)**2+(x-20)**2 <= 9] = 2
+                        expected = [(expected_mask == 1).astype(np.uint16)*900+50,
+                            (expected_mask == 2).astype(np.uint16)*400+20]
+                        assert session.image.shape == (12, 24, 28) and session.axes == 'ZYX'
+                        assert len(session.channels) == 2 and np.shares_memory(session.image, session.channels[0])
+                        assert session.image.__array_interface__['data'][0] == session.channels[0].__array_interface__['data'][0]
+                        assert session.mask.dtype == np.uint16 and np.array_equal(session.mask, expected_mask)
+                        assert all(plane.dtype == np.uint16 and np.array_equal(plane, wanted)
+                            for plane, wanted in zip(session.channels, expected))
+                        state['channel_arrays'] = [{'identity': id(plane), 'shape': plane.shape,
+                            'dtype': str(plane.dtype), 'sha256': digest(plane),
+                            'data_pointer': int(plane.__array_interface__['data'][0]), 'strides': plane.strides}
+                            for plane in session.channels]
+                        state['channel_files'] = {name: hashlib.sha256((folder / name).read_bytes()).hexdigest()
+                            for name in ('cells.tif', 'masks/cells.tif')}
+                        report['channel_fixture'] = {'source_axes': 'CZYX', 'source_shape': [2, 12, 24, 28],
+                            'session_axes': session.axes, 'mask_ids': sorted(map(int, np.unique(session.mask))),
+                            'mask_dtype': str(session.mask.dtype)}
+                    else:
+                        assert session.image.shape == (128, 256, 256) and session.axes == 'ZYX'
+                        assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
                     if scenario in ('image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-                            'image_colour', 'image_renderings', 'mask_finishes'):
+                            'image_colour', 'image_renderings', 'mask_finishes', 'channels'):
                         state['session_arrays'] = (id(session.image), id(session.mask))
                     assert 'metal' in mm.volume_render_backends()
                     report['before_true3d_saved'] = preferences.get_volume_view()
@@ -654,7 +706,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         'backend': context.backend, 'context_name': context.name(), 'scale': stage._scale,
                         'positive_original_ids': sorted(map(int, np.unique(picked[picked > 0]))),
                         'fresh_request_exact': True, 'paint': matching[-1]}
-                    assert set(report['current_frame']['positive_original_ids']) <= set(range(1, 44))
+                    assert set(report['current_frame']['positive_original_ids']) <= (
+                        {1, 2} if scenario == 'channels' else set(range(1, 44)))
                     if scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
                         assert request.quality == 'preview'
                         row = image_state(stage, context, request)
@@ -715,7 +768,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         else:
                             act_on_mask_control(stage, mask_operations[index+1])
                         return
-                    if scenario in ('image_controls', 'image_colour', 'image_renderings'):
+                    if scenario in ('image_controls', 'image_colour', 'image_renderings', 'channels'):
                         assert request.quality == 'preview'
                         row = image_state(stage, context, request)
                         report['image_control_states'].append(row)
@@ -725,14 +778,23 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         if state['operation'] == 'initial':
                             images = [layer for layer in stage._layers if isinstance(layer, layers.ImageLayer)]
                             masks = [layer for layer in stage._layers if isinstance(layer, layers.LabelsLayer)]
-                            assert len(images) == len(masks) == 1
-                            image = images[0]
+                            if scenario == 'channels':
+                                assert len(images) == 2 and len(masks) == 1
+                                assert [layer.name for layer in stage._layers] == ['Channel 1', 'Channel 2', 'Masks']
+                                assert [layer.colormap.name for layer in images] == ['green', 'magenta']
+                                assert all(layer.data is plane and layer.blending == 'additive'
+                                    for layer, plane in zip(images, stage.session.channels))
+                                image = images[1]
+                            else:
+                                assert len(images) == len(masks) == 1
+                                image = images[0]
                             controls = stage._layer_rows[image.name]
                             low, high = image.contrast_limits(0)
                             assert image.visible and controls.eye.isChecked()
                             assert image.metadata['rendering'] == controls.rendering.currentData() == 'mip'
-                            assert controls.low.value() == low == 60 and controls.high.value() == high == 192
-                            assert controls.high.minimum() <= 126 <= controls.high.maximum() and low < 126 < high
+                            if scenario != 'channels':
+                                assert controls.low.value() == low == 60 and controls.high.value() == high == 192
+                                assert controls.high.minimum() <= 126 <= controls.high.maximum() and low < 126 < high
                             if scenario == 'image_colour':
                                 assert image.colormap.name == controls.colour.currentData() == 'gray'
                             state.update(controls_baseline=row, controls_rgb=rgb.copy(), controls_picked=picked.copy(),
@@ -900,17 +962,24 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
             assert all(row['data_history_unchanged'] for row in report['opacity_states'])
             assert 'pick' not in report
-        elif scenario in ('image_controls', 'image_colour', 'image_renderings'):
+        elif scenario in ('image_controls', 'image_colour', 'image_renderings', 'channels'):
             assert report['image_controls_restored'] and 'pick' not in report
             assert [row['operation'] for row in report['image_control_states']] == control_operations
             assert [row['operation'] for row in report['image_control_actions']] == control_operations[1:]
             baseline = report['image_control_states'][0]
+            if scenario == 'channels':
+                assert report['channel_fixture'] == {'source_axes': 'CZYX', 'source_shape': [2, 12, 24, 28],
+                    'session_axes': 'ZYX', 'mask_ids': [0, 1, 2], 'mask_dtype': 'uint16'}
+                assert len(baseline['channels']) == 2 and len(baseline['files']) == 2
             for i, row in enumerate(report['image_control_states']):
                 assert report[row['operation']+'_seconds'] < (30 if i == 0 else 20)
                 assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
                 assert row['pose'] == baseline['pose'] and row['preferences'] == baseline['preferences']
                 if scenario == 'image_colour':
                     assert row['frame']['picked'] == baseline['frame']['picked']
+                if scenario == 'channels':
+                    assert row['channels'] == baseline['channels'] and row['files'] == baseline['files']
+                    assert set(row['frame']['positive_original_ids']) <= {1, 2}
                 if i:
                     assert row['frame']['serial'] > report['image_control_states'][i-1]['frame']['serial']
                     if row['operation'].endswith('_restored'):
@@ -1046,15 +1115,24 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             elif scenario == 'image_renderings':
                 operations = ['initial', 'translucent_changed', 'translucent_restored',
                     'average_changed', 'average_restored', 'minip_changed', 'minip_restored']
+            elif scenario == 'channels':
+                operations = ['initial', 'visibility_hidden', 'visibility_restored']
             assert [row['operation'] for row in report['image_control_states']] == operations
             assert [row['operation'] for row in report['image_control_actions']] == operations[1:]
             baseline = report['image_control_states'][0]
+            if scenario == 'channels':
+                assert report['channel_fixture'] == {'source_axes': 'CZYX', 'source_shape': [2, 12, 24, 28],
+                    'session_axes': 'ZYX', 'mask_ids': [0, 1, 2], 'mask_dtype': 'uint16'}
+                assert len(baseline['channels']) == 2 and len(baseline['files']) == 2
             for i, row in enumerate(report['image_control_states']):
                 assert report[row['operation']+'_seconds'] < (30 if i == 0 else 20)
                 assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
                 assert row['pose'] == baseline['pose'] and row['preferences'] == baseline['preferences']
                 if scenario == 'image_colour':
                     assert row['frame']['picked'] == baseline['frame']['picked']
+                if scenario == 'channels':
+                    assert row['channels'] == baseline['channels'] and row['files'] == baseline['files']
+                    assert set(row['frame']['positive_original_ids']) <= {1, 2}
                 if i:
                     assert row['frame']['serial'] > report['image_control_states'][i-1]['frame']['serial']
                     if row['operation'].endswith('_restored'):

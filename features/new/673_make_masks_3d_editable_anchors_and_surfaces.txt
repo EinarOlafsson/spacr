@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Channel visibility scope: actual public open_volume on the existing tiny CZYX
+two-channel fixture; Channel2 eye off→on via real row, fresh Metal75/current
+paint/later serials/RGBchange+exactRGBIDsrestore. Freeze both channel arrays,
+Channel1/Masks/seed/pose/data/history/selection/preferences/files and cleanup.
+This tests the implemented channel path, not the stale public refusal prose.
+
 2026-10-24 — Choices74743/11Endw:2PASS78.02s/1.498GiB onf40440c006.
 Image7states:translucent/average/minip each restore mip; Masks5:glossy/metallic
 each restore matte. All5 change RGB/exact RGB+IDs restoration, fresh Metal75.
