@@ -840,7 +840,7 @@ _SHEET_GUARD = {"installed": False, "depth": 0, "posted": False,
 _PENDING_SHEETS: dict = {}
 _PENDING_LOCK = threading.RLock()
 
-_TORN_DOWN: set = set()
+_TORN_DOWN: dict = {}
 
 _HANDLER_FRAME_DEPTH = 14
 
@@ -861,15 +861,22 @@ def _delicate_event_types() -> frozenset:
     widget's style proxy and sends a ``StyleChange`` of its own, so a sheet
     put on from such a handler frees what the outer call is still using.
 
+    Font and palette changes are not among them either. Qt posts the
+    application-wide ones, and sends a widget's own ``FontChange`` or
+    ``PaletteChange`` after it has propagated the change to the children;
+    one sent by a style sheet's polish arrives inside a guarded call and
+    waits through the guard's depth anyway. Deferring them broke a widget
+    that resizes from a child's font sheet in its ``FontChange``: the
+    Preferences help strip measured four rows before the sheet that sets
+    their size had landed (main 1ea138ca7, Qt shard 0).
+
     :returns: the ``QEvent.Type`` values, read once.
     """
     kinds = _SHEET_GUARD["kinds"]
     if kinds is None:
         from PySide6.QtCore import QEvent
 
-        names = ("Polish", "StyleChange", "PaletteChange",
-                 "ApplicationPaletteChange", "FontChange",
-                 "ApplicationFontChange", "Paint", "UpdateRequest",
+        names = ("Polish", "StyleChange", "Paint", "UpdateRequest",
                  "StyleAnimationUpdate", "ThemeChange", "DeferredDelete",
                  "ParentAboutToChange", "ParentChange")
         kinds = frozenset(getattr(QEvent.Type, name) for name in names
@@ -997,31 +1004,40 @@ def _address_of(obj):
         return None
 
 
-def _forget_teardown(address) -> None:
-    """Drop ``address`` from the torn-down set once its object is gone.
+def _prune_torn_down() -> int:
+    """Forget every torn-down mark whose object Qt has since destroyed.
 
-    :param address: the C++ address recorded by :func:`_mark_torn_down`.
+    A mark holds the object's wrapper, and a wrapper answers
+    ``shiboken6.isValid`` false once the C++ object is gone, so a new
+    object at the same address is never mistaken for the old one.
+
+    :returns: how many marks are still standing.
     """
-    _TORN_DOWN.discard(address)
+    for address, wrapper in list(_TORN_DOWN.items()):
+        if not _is_alive(wrapper):
+            _TORN_DOWN.pop(address, None)
+    return len(_TORN_DOWN)
 
 
 def _mark_torn_down(obj) -> None:
     """Never put a sheet on ``obj`` or anything inside it again.
 
-    For an object whose deletion is under way or whose window has accepted
-    its last close. The mark is dropped when Qt destroys the object, so a
-    new object at the same address is styled normally.
+    For a widget whose deletion is under way or whose window has accepted
+    its last close. Nothing is connected to the object: a slot attached to
+    ``destroyed`` while its ``DeferredDelete`` is being delivered runs
+    inside ``~QObject`` and crashed there (main 1ea138ca7, Qt shard 3).
+    The mark is pruned once the object is gone, see
+    :func:`_prune_torn_down`.
 
     :param obj: the object being torn down.
     """
     address = _address_of(obj)
-    if address is None or address in _TORN_DOWN:
+    if address is None:
         return
-    _TORN_DOWN.add(address)
-    try:
-        obj.destroyed.connect(lambda *_args, a=address: _forget_teardown(a))
-    except Exception:
-        pass
+    _prune_torn_down()
+    if address in _TORN_DOWN:
+        return
+    _TORN_DOWN[address] = obj
     _drop_pending_sheets_inside(obj)
 
 
@@ -1039,7 +1055,7 @@ def _is_torn_down(obj) -> bool:
             return True
     except Exception:
         pass
-    if not _TORN_DOWN:
+    if not _TORN_DOWN or not _prune_torn_down():
         return False
     node = obj
     for _ in range(256):
@@ -1079,6 +1095,51 @@ def _top_level_of(obj):
         return window() or obj
     except RuntimeError:
         return obj
+
+
+_QT_POPUP_CONTAINERS = frozenset({"QComboBoxPrivateContainer"})
+
+
+def _inside_a_hidden_popup(obj) -> bool:
+    """Is ``obj`` a hidden Qt popup, or inside one?
+
+    A combo box keeps its list in a parentless, hidden popup frame
+    (``QComboBoxPrivateContainer``) from the moment the list is first
+    asked for. Every theme pass and every change of scale used to restyle
+    each of them while hidden, 1,603 times in one Windows run, and that
+    restyle crashed intermittently with an access violation (nightly
+    4f723c7d8). Nothing can see a hidden popup, so its sheet waits for its
+    ``Show``, where the theme puts it on before the popup paints.
+
+    :param obj: a widget, or the application.
+    :returns: ``True`` for a hidden popup window or a widget inside one.
+    """
+    from PySide6.QtCore import Qt
+
+    top = _top_level_of(obj)
+    try:
+        if not top.isWindow() or top.isVisible():
+            return False
+        if top.windowType() == Qt.WindowType.Popup:
+            return True
+        return top.metaObject().className() in _QT_POPUP_CONTAINERS
+    except (AttributeError, RuntimeError, TypeError):
+        return False
+
+
+def _hold_for_the_show(obj, text: str, raw_set) -> None:
+    """Keep ``text`` for ``obj`` until its popup window is shown.
+
+    Unlike :func:`_defer_sheet` nothing is posted: the event loop must not
+    apply it while the popup is still hidden. The theme's ``Show`` handler
+    applies it through :func:`_flush_pending_sheets`.
+
+    :param obj: a widget in a hidden popup.
+    :param text: the sheet text Qt is to be given.
+    :param raw_set: the setter below the guard.
+    """
+    with _PENDING_LOCK:
+        _PENDING_SHEETS[id(obj)] = (obj, text, raw_set)
 
 
 def _pending_sheet_for(obj):
@@ -1210,11 +1271,39 @@ def _apply_now(obj, text: str, raw_set) -> None:
     :param text: the sheet text.
     :param raw_set: the setter below the guard.
     """
+    if _the_sheet_is_already_on(obj, text, raw_set):
+        return
     _SHEET_GUARD["depth"] += 1
     try:
         _restyle_holding_every_widget(obj, raw_set, obj, text)
     finally:
         _SHEET_GUARD["depth"] -= 1
+
+
+def _the_sheet_is_already_on(obj, text: str, raw_set) -> bool:
+    """Does Qt already hold exactly ``text`` for ``obj``?
+
+    Qt repolishes the whole subtree on every ``setStyleSheet``, even for the
+    text it already has, and each repolish relays every height-for-width
+    layout inside it: the 0.3-1 s GUI-thread stalls of lessons 70 and 85
+    opening a module were mostly restyles to an unchanged sheet. The text
+    compared is the scaled one, so a change of scale is never skipped.
+
+    :param obj: a widget, or the application.
+    :param text: the sheet text about to be handed to Qt.
+    :param raw_set: the setter below the guard.
+    :returns: ``True`` when the call would change nothing.
+    """
+    if raw_set is _ORIGINAL.get("guard_raw_widget_set"):
+        getter = _ORIGINAL.get("guard_raw_widget_get")
+    elif raw_set is _ORIGINAL.get("guard_raw_app_set"):
+        getter = _ORIGINAL.get("guard_raw_app_get")
+    else:
+        return False
+    try:
+        return getter is not None and getter(obj) == text
+    except (RuntimeError, TypeError):
+        return False
 
 
 def _set_sheet_guarded(obj, text: str, raw_set) -> bool:
@@ -1243,6 +1332,9 @@ def _set_sheet_guarded(obj, text: str, raw_set) -> bool:
     if _is_torn_down(obj):
         with _PENDING_LOCK:
             _PENDING_SHEETS.pop(id(obj), None)
+        return False
+    if _inside_a_hidden_popup(obj):
+        _hold_for_the_show(obj, text, raw_set)
         return False
     if _inside_a_delicate_moment(obj):
         _defer_sheet(obj, text, raw_set)
@@ -1285,6 +1377,8 @@ def _flush_pending_sheets(window=None) -> int:
             top = _top_level_of(target)
             if window is not None and top is not window:
                 continue
+            if window is None and _inside_a_hidden_popup(target):
+                continue
             _PENDING_SHEETS.pop(key, None)
             batches.setdefault(id(top), (top, []))[1].append(entry)
     applied = 0
@@ -1300,7 +1394,9 @@ def _flush_pending_sheets(window=None) -> int:
 
 
 def _note_sheet_lifecycle(watched, kind) -> None:
-    """Record an object whose deletion Qt is delivering now.
+    """Record a widget whose deletion Qt is delivering now.
+
+    Only widgets carry sheets, so no other object's deletion is touched.
 
     :param watched: the object the event is for.
     :param kind: the event type.
@@ -1308,7 +1404,10 @@ def _note_sheet_lifecycle(watched, kind) -> None:
     from PySide6.QtCore import QEvent
 
     if kind == QEvent.Type.DeferredDelete:
-        _mark_torn_down(watched)
+        from PySide6.QtWidgets import QWidget
+
+        if isinstance(watched, QWidget):
+            _mark_torn_down(watched)
 
 
 def _sheet_guard_watcher_init(watcher, parent=None) -> None:
@@ -1501,7 +1600,7 @@ def _close_without_restyling(window, closing: bool = True) -> None:
         return
     address = _address_of(window)
     if address is not None:
-        _TORN_DOWN.discard(address)
+        _TORN_DOWN.pop(address, None)
 
 
 def install_scaling_layer() -> bool:

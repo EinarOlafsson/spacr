@@ -28,10 +28,19 @@ def _sha256(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+_NO_GIT = ("git was not found on PATH. The translation reviews are fetched with "
+           "Git: install Git (https://git-scm.com/downloads; on Windows also tick "
+           "'Git from the command line'), open a new terminal so PATH is "
+           "refreshed, and run this command again.")
+
+
 def _git(repository, *args, check=True):
-    result = subprocess.run(
-        ["git", "-C", str(repository), *args], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository), *args], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
+    except FileNotFoundError as exc:
+        raise ReviewInputsError(_NO_GIT) from exc
     if check and result.returncode:
         raise ReviewInputsError(result.stderr.decode("utf-8", "replace").strip())
     return result
@@ -201,10 +210,13 @@ def _existing(root, files):
 
 def _restore(root, pin, files, missing, cache, offline):
     repository = _repository(pin, cache, offline)
-    process = subprocess.Popen(
-        ["git", "-C", str(repository), "archive", pin["revision"],
-         "--", "docs/i18n/reviewed", "docs/i18n/retired"], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+    try:
+        process = subprocess.Popen(
+            ["git", "-C", str(repository), "archive", pin["revision"],
+             "--", "docs/i18n/reviewed", "docs/i18n/retired"], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+    except FileNotFoundError as exc:
+        raise ReviewInputsError(_NO_GIT) from exc
     restored = set()
     try:
         with tarfile.open(fileobj=process.stdout, mode="r|") as archive:

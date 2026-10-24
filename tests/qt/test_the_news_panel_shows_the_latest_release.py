@@ -635,6 +635,7 @@ def test_the_refresh_runs_off_the_gui_thread(monkeypatch, fake_worker):
     from spacr.qt import app as app_mod
     from spacr.qt import preferences as prefs
 
+    monkeypatch.delenv("SPACR_NO_NETWORK", raising=False)
     monkeypatch.setattr(prefs, "get_refresh_news", lambda: True)
     app_mod.MainWindow._refresh_news(_FakeWindow())
     assert len(fake_worker) == 1
@@ -652,6 +653,27 @@ def test_the_preference_switches_the_refresh_off(monkeypatch, fake_worker):
     monkeypatch.setattr(prefs, "get_refresh_news", lambda: False)
     app_mod.MainWindow._refresh_news(_FakeWindow())
     assert not fake_worker
+
+
+@pytest.mark.parametrize("flag, starts", [
+    ("1", False), ("yes", False), (" TRUE ", False),
+    ("", True), ("0", True), ("false", True), ("no", True), ("OFF", True)])
+def test_the_no_network_switch_starts_no_news_fetch(monkeypatch, fake_worker, flag, starts):
+    """SPACR_NO_NETWORK forbids the fetch thread, read as crash reports read it.
+
+    A lookup that cannot resolve has no deadline, so a fetch started anyway
+    holds a closing window for the updater wait and parks its thread.
+    """
+    from spacr import crashreport, logging_util
+    from spacr.qt import app as app_mod
+    from spacr.qt import preferences as prefs
+
+    monkeypatch.setattr(prefs, "get_refresh_news", lambda: True)
+    monkeypatch.setattr(logging_util, "_in_safe_mode", lambda: False)
+    monkeypatch.setenv("SPACR_NO_NETWORK", flag)
+    app_mod.MainWindow._refresh_news(_FakeWindow())
+    assert len(fake_worker) == (1 if starts else 0)
+    assert crashreport.network_allowed() is starts
 
 
 def test_the_preference_is_on_by_default_and_remembered(monkeypatch):
