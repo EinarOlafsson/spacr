@@ -2586,7 +2586,62 @@ def _watch_load_ledger(path, src):
         ledger = None
     if not isinstance(ledger, dict) or not isinstance(ledger.get('fields'), dict):
         ledger = {'src': src, 'fields': {}}
+    if os.name == 'nt':
+        for entry in ledger['fields'].values():
+            if isinstance(entry, dict):
+                _watch_migrate_windows_entry(entry, src)
     return ledger
+
+
+def _watch_portable_keys(mapping):
+    """``mapping`` with ``\\``-separated relative-path keys as ``/``-separated ones.
+
+    :param mapping: a ledger mapping keyed by relative paths, or anything else.
+    :returns: the mapping with portable keys; anything that is not a dict, unchanged.
+    """
+    if not isinstance(mapping, dict):
+        return mapping
+    return {key.replace('\\', '/') if isinstance(key, str) else key: value
+            for key, value in mapping.items()}
+
+
+def _watch_migrate_windows_entry(entry, src):
+    """Bring one field written by an older Windows build to today's ledger form.
+
+    Older Windows builds keyed files by native ``\\`` relative paths and
+    recorded ``st_ctime``, which Windows reports as the creation time, where
+    the watcher now records the NTFS change time. Each done field then read
+    as changed on every run and was never analysed again. A key is respelled
+    with ``/``, and an identity whose device, inode, size and modification
+    time still match, and whose change time is the file's creation time, takes
+    the file's present identity. A file that really changed still differs.
+
+    :param entry: one field of the ledger, updated in place.
+    :param src: the watched folder the keys are relative to.
+    """
+    for key in ('files', 'snapshot_sha256', 'source_identity'):
+        if key in entry:
+            entry[key] = _watch_portable_keys(entry[key])
+    checkpoint = entry.get('collection_checkpoint')
+    if isinstance(checkpoint, dict):
+        for key, value in list(checkpoint.items()):
+            checkpoint[key] = _watch_portable_keys(value)
+    identities = entry.get('source_identity')
+    if not isinstance(identities, dict):
+        return
+    for name, recorded in list(identities.items()):
+        if not (isinstance(recorded, list) and len(recorded) == 5):
+            continue
+        path = os.path.join(src, *name.split('/'))
+        try:
+            info = os.stat(path, follow_symlinks=False)
+        except OSError:
+            continue
+        if (recorded[:4] == [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns]
+                and recorded[4] == info.st_ctime_ns):
+            current = _watch_file_identity(path)
+            if current is not None:
+                identities[name] = current
 
 
 def _watch_save_ledger(path, ledger):
