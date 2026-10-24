@@ -5305,6 +5305,51 @@ def _complete_ambient_startup() -> None:
     _AMBIENT_STARTUP_READY.set()
 
 
+_WARM_BEFORE_PAINT_S = 3.0
+
+
+def _start_kernel_warmup_before_first_paint() -> bool:
+    """Begin importing numba and building the backdrop kernels now.
+
+    Importing numba and loading or compiling a kernel holds the interpreter
+    lock for 20-130 ms at a time. Done after the window was on screen, those
+    holds starved the GUI thread while the shading thread drew the first
+    frames (tutorial captures, 2026-10-24). Started before the main window is
+    built, they overlap its construction instead; the frozen and smoke rules
+    of :func:`_priming_allowed` still decide whether a helper process primes
+    the disk cache.
+
+    :returns: False when compilation has been stopped for shutdown.
+    """
+    if _COMPILER_STOP.is_set():
+        return False
+    _AMBIENT_STARTUP_READY.set()
+    _ready_packed_scatter()
+    _SATIN_COMPILER.ready()
+    return True
+
+
+def _finish_kernel_warmup_before_first_paint(timeout_s: float = _WARM_BEFORE_PAINT_S) -> bool:
+    """Wait, bounded, for the warmup begun by :func:`_start_kernel_warmup_before_first_paint`.
+
+    Joining releases the interpreter lock, so the wait costs the compilers
+    nothing. A cold cache whose helper compile outlasts ``timeout_s`` keeps
+    warming in the background; the first frames then use the exact NumPy path.
+
+    :param timeout_s: longest wait before the window is shown.
+    :returns: True when every startup kernel is ready.
+    """
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    with _COMPILER_LIFECYCLE_LOCK:
+        workers = list(_COMPILER_THREADS)
+    current = threading.current_thread()
+    for worker in workers:
+        if worker is not current:
+            worker.join(max(0.0, deadline - time.monotonic()))
+    return (_PACKED_SCATTER is not None and _SUBPIXEL_SCATTER is not None
+            and (_SATIN_COMPILER.kernel is not None or _SATIN_COMPILER.failed))
+
+
 def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
                            width, height, dark):
     """Combine nine round-grain samples with duplicate-safe integer max/min.
