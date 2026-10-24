@@ -205,6 +205,11 @@ def test_native_volume_chooser_opens_a_unicode_and_spaces_channel_path(tmp_path)
     _run_native_volume_probe(tmp_path, scenario='chooser')
 
 
+def test_native_volume_chooser_cancel_preserves_the_loaded_session(tmp_path):
+    """Cancel the real owned picker without leaving or changing the loaded volume."""
+    _run_native_volume_probe(tmp_path, scenario='chooser_cancel')
+
+
 def _run_native_volume_probe(tmp_path, *, scenario):
     """Share only normal startup, owned data and current-frame verification."""
     import ast
@@ -218,16 +223,16 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     import textwrap
 
     assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-        'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser')
+        'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser', 'chooser_cancel')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
-    volume_name = 'café cells 空间.tif' if scenario == 'chooser' else 'cells.tif'
-    if scenario in ('channels', 'chooser'):
-        fixture = tmp_path / ('données 案件 espace' if scenario == 'chooser' else 'channels')
+    volume_name = 'café cells 空间.tif' if scenario in ('chooser', 'chooser_cancel') else 'cells.tif'
+    if scenario in ('channels', 'chooser', 'chooser_cancel'):
+        fixture = tmp_path / ('channels' if scenario == 'channels' else 'données 案件 espace')
         fixture.mkdir()
         _two_channel(fixture)
-        if scenario == 'chooser':
+        if scenario in ('chooser', 'chooser_cancel'):
             (fixture / 'cells.tif').rename(fixture / volume_name)
             (fixture / 'masks/cells.tif').rename(fixture / 'masks' / volume_name)
         required = (volume_name, 'masks/'+volume_name)
@@ -270,8 +275,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         phase = os.environ['SPACR_RESTART_PHASE']
         scenario = os.environ['SPACR_VOLUME_SCENARIO']
         assert scenario in ('restart', 'image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
-            'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser')
-        if scenario != 'chooser':
+            'image_colour', 'image_renderings', 'mask_finishes', 'channels', 'chooser', 'chooser_cancel')
+        if scenario not in ('chooser', 'chooser_cancel'):
             assert not layers.gpu_render_refusal()
         volume_name = os.environ['SPACR_RESTART_VOLUME_NAME']
         channel_files = (volume_name, 'masks/'+volume_name)
@@ -303,7 +308,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             report.update(scenario=scenario, pick_scope='not exercised', image_control_states=[], image_control_actions=[])
         elif scenario in ('mask_controls', 'mask_visibility', 'mask_finishes'):
             report.update(scenario=scenario, pick_scope='not exercised', mask_control_states=[], mask_control_actions=[])
-        elif scenario == 'chooser':
+        elif scenario in ('chooser', 'chooser_cancel'):
             report.update(scenario=scenario, pick_scope='not exercised', chooser={})
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
@@ -569,6 +574,19 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             save()
             assert action['elapsed_after_action'] < 20
 
+        def loaded_volume_snapshot(screen):
+            stage, session = screen._mask_stage, screen._mask_stage.session
+            arrays = [session.image, session.mask, *session.channels]
+            return {'stage_cpp': shiboken6.getCppPointer(stage), 'session_id': id(session),
+                'arrays': [{'identity': id(array), 'shape': array.shape, 'dtype': str(array.dtype),
+                    'sha256': digest(array), 'data_pointer': int(array.__array_interface__['data'][0]),
+                    'strides': array.strides} for array in arrays],
+                'undo_ids': list(map(id, session._undo)), 'redo_ids': list(map(id, session._redo)),
+                'dirty': stage.dirty, 'source_path': session.source_path,
+                'source_label': screen._src_label.text(), 'folder': screen._folder,
+                'index': screen._current_index, 'image_files': list(screen._image_files),
+                'files': {name: hashlib.sha256((folder / name).read_bytes()).hexdigest() for name in channel_files}}
+
         def open_with_real_chooser(screen):
             from PySide6.QtCore import Qt
             from PySide6.QtTest import QTest
@@ -576,6 +594,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
 
             source = folder / volume_name
             record = report['chooser']
+            if scenario == 'chooser_cancel':
+                record['before_cancel'] = loaded_volume_snapshot(screen)
             assert QApplication.testAttribute(Qt.AA_DontUseNativeDialogs)
             timer = QTimer(screen)
             timer.setInterval(50)
@@ -600,6 +620,18 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     box = modal.findChild(QDialogButtonBox)
                     assert edit is not None and box is not None
                     assert edit.isEnabled() and edit.isVisible() and not edit.visibleRegion().isEmpty()
+                    if scenario == 'chooser_cancel':
+                        button = box.button(QDialogButtonBox.Cancel)
+                        assert button is not None
+                        record.update(cancel_text=button.text(), cancel_enabled=button.isEnabled(),
+                            cancel_visible=button.isVisible(), cancel_region=button.visibleRegion().boundingRect().getRect())
+                        save()
+                        assert button.isEnabled() and button.isVisible() and not button.visibleRegion().isEmpty()
+                        modal.finished.connect(lambda value: (record.update(finished_code=int(value)), save()))
+                        timer.stop()
+                        record['cancel_clicked'] = True
+                        QTest.mouseClick(button, Qt.LeftButton)
+                        return
                     if not state.get('chooser_filename_set'):
                         modal.finished.connect(lambda value: (record.update(finished_code=int(value)), save()))
                         edit.setText(str(source))
@@ -639,21 +671,27 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 state['chooser_active'] = False
                 timer.stop()
             record.update(public_return_is_stage=opened is screen._mask_stage,
-                public_stage_cpp=shiboken6.getCppPointer(opened) if opened is not None else None,
-                returned_at_startup_seconds=time.perf_counter()-state['started'])
+                public_stage_cpp=shiboken6.getCppPointer(opened) if opened is not None else None)
+            record['returned_at_'+state['operation']+'_seconds'] = time.perf_counter()-state['started']
             save()
-            assert opened is screen._mask_stage and record.get('open_clicked') and record.get('finished_code') == 1
-            assert os.path.samefile(opened.session.source_path, source)
+            if scenario == 'chooser_cancel':
+                record.update(public_return_is_none=opened is None, after_cancel=loaded_volume_snapshot(screen))
+                assert opened is None and record.get('cancel_clicked') and record.get('finished_code') == 0
+                assert record['before_cancel'] == record['after_cancel']
+            else:
+                assert opened is screen._mask_stage and record.get('open_clicked') and record.get('finished_code') == 1
+            stage = screen._mask_stage
+            assert os.path.samefile(stage.session.source_path, source)
             assert os.path.samefile(screen._src_label.text(), source)
-            record.update(source_samefile=True, loaded_path=opened.session.source_path,
-                no_true3d=opened._panel is None and opened._gl is None)
+            record.update(source_samefile=True, loaded_path=stage.session.source_path,
+                no_true3d=stage._panel is None and stage._gl is None)
             assert record['no_true3d'] and QApplication.activeModalWidget() is None
 
         def tick():
             try:
                 elapsed = time.perf_counter()-state['started']
                 assert elapsed < (30 if state['operation'] in ('startup', 'initial') else 20), state['operation']
-                if scenario == 'chooser' and state.get('chooser_active'):
+                if scenario in ('chooser', 'chooser_cancel') and state.get('chooser_active'):
                     return
                 window = state['window']
                 assert QApplication.activeModalWidget() is None, 'No consent/provider dialog may be dismissed'
@@ -692,7 +730,11 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         assert report['module_request']['returned'] == 'make_masks'
                         return
                     screen = state['screen']
-                    if scenario == 'chooser':
+                    if scenario == 'chooser_cancel':
+                        assert screen.open_volume(str(folder / volume_name)) is screen._mask_stage
+                        advance('initial')
+                        open_with_real_chooser(screen)
+                    elif scenario == 'chooser':
                         open_with_real_chooser(screen)
                     elif scenario == 'channels':
                         assert screen.open_volume(str(folder / volume_name)) is screen._mask_stage
@@ -701,7 +743,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                             ask=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError('No download allowed')))
                     stage = screen._mask_stage
                     session = stage.session
-                    if scenario in ('channels', 'chooser'):
+                    if scenario in ('channels', 'chooser', 'chooser_cancel'):
                         import tifffile
                         with tifffile.TiffFile(folder / volume_name) as source:
                             assert source.series[0].axes == 'CZYX' and source.series[0].shape == (2, 12, 24, 28)
@@ -732,9 +774,10 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
-                    if scenario == 'chooser':
+                    if scenario in ('chooser', 'chooser_cancel'):
                         report['chooser'].update(channels=state['channel_arrays'], files=state['channel_files'])
-                        advance('initial')
+                        if scenario == 'chooser':
+                            advance('initial')
                         return
                     if scenario in ('image_opacity', 'image_controls', 'mask_controls', 'mask_visibility',
                             'image_colour', 'image_renderings', 'mask_finishes', 'channels'):
@@ -754,7 +797,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     advance('initial')
                     return
                 stage = state['stage']
-                if scenario == 'chooser' and state['operation'] == 'initial':
+                if scenario in ('chooser', 'chooser_cancel') and state['operation'] == 'initial':
                     if not idle(stage):
                         return
                     assert stage._panel is None and stage._gl is None
@@ -1067,11 +1110,16 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
-        if scenario == 'chooser':
+        if scenario in ('chooser', 'chooser_cancel'):
             chosen = report['chooser']
             assert chosen['owned'] and chosen['owner_cpp'] == chosen['screen_cpp']
-            assert chosen['app_qt_dialog_policy'] and chosen['open_clicked'] and chosen['finished_code'] == 1
-            assert chosen['public_return_is_stage'] and chosen['source_samefile'] and chosen['no_true3d']
+            assert chosen['app_qt_dialog_policy'] and chosen['source_samefile'] and chosen['no_true3d']
+            if scenario == 'chooser_cancel':
+                assert chosen['cancel_clicked'] and chosen['finished_code'] == 0 and chosen['public_return_is_none']
+                assert chosen['before_cancel'] == chosen['after_cancel']
+                assert chosen['before_cancel']['session_id'] and len(chosen['before_cancel']['arrays']) == 4
+            else:
+                assert chosen['open_clicked'] and chosen['finished_code'] == 1 and chosen['public_return_is_stage']
             assert len(chosen['channels']) == 2 and len(chosen['files']) == 2
             assert report['channel_fixture']['mask_ids'] == [0, 1, 2]
             assert report['data_history_unchanged'] and context is None and renderer is None
@@ -1183,13 +1231,20 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert report['home_tour_hidden_and_seen_before_module']
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
-        if scenario == 'chooser':
+        if scenario in ('chooser', 'chooser_cancel'):
             chosen = report['chooser']
-            assert report['scenario'] == 'chooser' and report['data_history_unchanged']
+            assert report['scenario'] == scenario and report['data_history_unchanged']
             assert chosen['owned'] and chosen['owner_cpp'] == chosen['screen_cpp']
-            assert chosen['app_qt_dialog_policy'] and chosen['open_clicked'] and chosen['finished_code'] == 1
-            assert chosen['open_enabled'] and chosen['open_visible'] and min(chosen['open_region'][2:]) > 0
-            assert chosen['public_return_is_stage'] and chosen['public_stage_cpp']
+            assert chosen['app_qt_dialog_policy']
+            if scenario == 'chooser_cancel':
+                assert chosen['cancel_clicked'] and chosen['finished_code'] == 0 and chosen['public_return_is_none']
+                assert chosen['cancel_enabled'] and chosen['cancel_visible'] and min(chosen['cancel_region'][2:]) > 0
+                assert chosen['before_cancel'] == chosen['after_cancel']
+                assert chosen['before_cancel']['session_id'] and len(chosen['before_cancel']['arrays']) == 4
+            else:
+                assert chosen['open_clicked'] and chosen['finished_code'] == 1
+                assert chosen['open_enabled'] and chosen['open_visible'] and min(chosen['open_region'][2:]) > 0
+                assert chosen['public_return_is_stage'] and chosen['public_stage_cpp']
             assert chosen['source_samefile'] and os.path.samefile(chosen['loaded_path'], fixture / volume_name)
             assert chosen['no_true3d'] and 'current_frame' not in report and 'pick' not in report
             assert len(chosen['channels']) == 2 and len(chosen['files']) == 2

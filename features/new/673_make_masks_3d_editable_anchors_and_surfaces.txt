@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Loaded Cancel scope: load the owned CZYX fixture, snapshot actual stage/session,
+arrays/channels/history/dirty/source label/folder/index/files, then invoke the
+public no-path loader and click its real owned visible enabled Cancel. Require
+None and exact unchanged live state plus normal cleanup; no chooser patch,
+history manufacture, Save/True3D/backend/layer/FPS or physical-input claim.
+
 2026-10-24 — Chooser30963/S07fI0 PASS36.23s/1.285GiB on17954df6:
 real owned Qt QFileDialog/fileNameEdit/Open66×36 selects Unicode+spaces path;
 public return/source samefile, exact CZYX uint16 channels/ZYX masks0,1,2/files.
