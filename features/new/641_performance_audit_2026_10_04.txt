@@ -16,6 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Measure lifecycle scope: reuse the real prewarm constructor-breath/accepted
+close regression with the normal Measure factory and register call-through
+stacks plus exact before/after handle identities. Add an open-host control;
+no fake jobs, registry pruning, source repair or native retry before cause.
+
 2026-10-24 — CoreText scratch Rasb5S exits1/0.038GiB on63d090e8: parityFAIL.
 JXA.281177s/562paths/219unique; ctypes.312042s/2915paths/384unique, both succeed.
 Predeclared Counter and raworder differ;165 extra unique/2353extra entries,

@@ -96,17 +96,31 @@ def test_real_chained_construction_keeps_its_job_for_an_open_host(
 def test_close_during_real_constructor_starts_no_late_chaining_job(
         window, qapp, qtbot, monkeypatch):
     """An accepted re-entrant close must stop unpublished construction work."""
+    _close_during_real_constructor(window, qapp, qtbot, monkeypatch, "classify_merged")
+
+
+def test_close_during_real_measure_constructor_registers_no_late_work(
+        window, qapp, qtbot, monkeypatch):
+    """Capture the real Measure factory's registrations after accepted close."""
+    _close_during_real_constructor(window, qapp, qtbot, monkeypatch, "measure")
+
+
+def _close_during_real_constructor(window, qapp, qtbot, monkeypatch, key):
+    """Observe the same real constructor/prewarm shutdown route for one key."""
     import traceback
-    from shiboken6 import isValid
+    from shiboken6 import getCppPointer, isValid
     from PySide6.QtCore import QTimer
     from spacr.qt import app as app_module
     from spacr.qt import chaining as qt_chaining
+    from spacr.qt import prerun
     from spacr.qt.bridge import registry
     from spacr.qt.job_runner import shutdown_all
 
-    key = "classify_merged"
     previous_factories = dict(app_module.APP_FACTORIES)
+    previous_inner = dict(prerun._INNER)
     qt_chaining.register()
+    if key == "measure":
+        prerun.register()
     original_factory = app_module.APP_FACTORIES[key]
     runs = registry()
     registrations = []
@@ -117,16 +131,20 @@ def test_close_during_real_constructor_starts_no_late_chaining_job(
     def register(handle):
         registrations.append({
             "name": handle.app_key,
+            "handle_id": id(handle), "handle_cpp": getCppPointer(handle),
+            "worker_type": type(handle.worker).__name__,
+            "thread_id": id(handle.thread), "kind": handle.kind,
+            "owner_id": id(handle.parent()),
             "after_accepted_close": close_record.get("accepted", False),
             "stack": "".join(traceback.format_stack()),
         })
         return original_register(handle)
 
     def close_window():
-        close_record["before"] = [h.app_key for h in runs.active()]
+        close_record["before"] = [(id(h), h.app_key) for h in runs.active()]
         close_record["stack"] = "".join(traceback.format_stack())
         close_record["accepted"] = window.close()
-        close_record["after"] = [h.app_key for h in runs.active()]
+        close_record["after"] = [(id(h), h.app_key) for h in runs.active()]
 
     close_timer = QTimer(window)
     close_timer.setSingleShot(True)
@@ -159,6 +177,8 @@ def test_close_during_real_constructor_starts_no_late_chaining_job(
     finally:
         app_module.APP_FACTORIES.clear()
         app_module.APP_FACTORIES.update(previous_factories)
+        prerun._INNER.clear()
+        prerun._INNER.update(previous_inner)
         prewarm.stop()
         close_timer.stop()
         shutdown_all()
@@ -167,6 +187,47 @@ def test_close_during_real_constructor_starts_no_late_chaining_job(
             if isValid(screen):
                 screen.close()
                 screen.deleteLater()
+        qapp.processEvents()
+
+
+def test_real_measure_factory_keeps_ordinary_open_host_construction(
+        window, qapp, qtbot, monkeypatch):
+    """The real registered Measure factory still installs its ordinary UI."""
+    from shiboken6 import isValid
+    from spacr.qt import app as app_module, chaining, prerun
+    from spacr.qt.bridge import registry
+    from spacr.qt.job_runner import shutdown_all
+
+    previous_factories, previous_inner = dict(app_module.APP_FACTORIES), dict(prerun._INNER)
+    runs, registered = registry(), []
+    original_register = runs.register
+
+    def register(handle):
+        registered.append(handle.app_key)
+        return original_register(handle)
+
+    monkeypatch.setattr(runs, "register", register)
+    screen = None
+    try:
+        chaining.register()
+        prerun.register()
+        assert not window._closing
+        screen = window._build_screen("measure")
+        assert screen.app_key == "measure"
+        bar = chaining.chaining_bar(screen)
+        assert bar is not None and "measure chaining" in registered
+        assert prerun.qc_banner(screen) is not None
+        qtbot.waitUntil(lambda: not bar._resolver.is_busy(), timeout=5000)
+    finally:
+        app_module.APP_FACTORIES.clear()
+        app_module.APP_FACTORIES.update(previous_factories)
+        prerun._INNER.clear()
+        prerun._INNER.update(previous_inner)
+        shutdown_all()
+        qtbot.waitUntil(lambda: not registry().active(), timeout=5000)
+        if screen is not None and isValid(screen):
+            assert screen.close()
+            screen.deleteLater()
         qapp.processEvents()
 
 
