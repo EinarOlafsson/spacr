@@ -18,12 +18,13 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
-from PySide6.QtCore import QEvent, QPointF, Qt
+from PySide6.QtCore import QEvent, QPointF, QSize, Qt
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QTabBar
 
 from spacr import model_zoo as zoo
 from spacr.qt import mask_engine as engine
+from spacr.qt.gui_scale import _resize_actual
 from spacr.qt.screens.make_masks import MODE_BRUSH, MODE_DIVIDE, MakeMasksScreen
 
 CANVAS_W, CANVAS_H = 600, 400
@@ -92,7 +93,7 @@ def screen(qtbot, qt_theme_applied, folder):
     widget._canvas.set_image_and_mask(field_image(), merged_mask())
     widget._history.clear()
     widget._history.push(widget._canvas.mask)
-    widget._canvas.resize(CANVAS_W, CANVAS_H)
+    _resize_actual(widget._canvas, QSize(CANVAS_W, CANVAS_H))
     widget._canvas.refresh()
     assert widget._canvas.pixmap().width() == PIXMAP_N
     widget._magnifier.segment = lambda request: np.zeros(
