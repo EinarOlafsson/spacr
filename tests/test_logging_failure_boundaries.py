@@ -318,3 +318,67 @@ def test_portable_mode_still_exports_paths_when_data_cannot_be_created(
     finally:
         for name in names:
             os.environ.pop(name, None)
+
+
+def test_missing_reporter_import_keeps_terminal_writes_flushes_and_recovery(monkeypatch):
+    """An unavailable optional capture module cannot suppress the real stream."""
+    import builtins
+    import io
+    from spacr import crashreport
+
+    flushed, captured = [], []
+
+    class Sink(io.StringIO):
+        def flush(self):
+            flushed.append(self.getvalue())
+            return super().flush()
+
+    original_import = builtins.__import__
+
+    def unavailable(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "crashreport" and level == 1 and (globals or {}).get("__name__") == "spacr.logging_util":
+            raise ImportError("reporter unavailable")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(crashreport, "_capture_error_line", captured.append)
+    sink = Sink()
+    stream = lu._ErrorStream(sink)
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", unavailable)
+        assert stream.write("ERROR original terminal failure\n") == len("ERROR original terminal failure\n")
+        stream.flush()
+    assert sink.getvalue() == "ERROR original terminal failure\n"
+    assert flushed == [sink.getvalue()] and captured == []
+    stream.write("ERROR later terminal failure\n")
+    stream.flush()
+    assert sink.getvalue() == "ERROR original terminal failure\nERROR later terminal failure\n"
+    assert captured == ["ERROR later terminal failure\n"]
+    assert flushed[-1] == sink.getvalue()
+
+
+def test_a_failed_automatic_report_handler_keeps_the_original_error_log(monkeypatch):
+    """The standard log handler still receives an error after reporting fails."""
+    import io
+    from spacr import crashreport
+
+    attempted = []
+
+    def unavailable(record):
+        attempted.append(record.getMessage())
+        raise OSError("reporting storage unavailable")
+
+    monkeypatch.setattr(crashreport, "_capture_error_record", unavailable)
+    sink = io.StringIO()
+    logger = logging.Logger("spacr.owned.reporter.failure", logging.ERROR)
+    reporter, ordinary = lu._AutomaticErrorHandler(logging.ERROR), logging.StreamHandler(sink)
+    logger.addHandler(reporter)
+    logger.addHandler(ordinary)
+    try:
+        logger.error("measurement failed: %s", "invalid channel")
+        assert attempted == ["measurement failed: invalid channel"]
+        assert sink.getvalue() == "measurement failed: invalid channel\n"
+    finally:
+        logger.removeHandler(reporter)
+        logger.removeHandler(ordinary)
+        reporter.close()
+        ordinary.close()
