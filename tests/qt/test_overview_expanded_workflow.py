@@ -1422,10 +1422,18 @@ def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_ho
     tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
     tifffile.imwrite(tmp_path / "OTF_DC_DCAM#1_CAM1.tif", np.zeros((4, 4), np.uint16))
     code = r'''
-import sys
+import sys, time, faulthandler
+started = time.monotonic()
+def progress(message):
+ """Flush a bounded workflow-stage breadcrumb to the captured child stream."""
+ print('overview-host-stage %.3fs %s' % (time.monotonic() - started, message),
+  file=sys.stderr, flush=True)
+faulthandler.dump_traceback_later(25, file=sys.stderr)
+progress('import Qt')
 from PySide6.QtWidgets import QApplication, QDialog, QSpacerItem, QSizePolicy
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtTest import QTest
+progress('import application')
 from spacr.qt.app import MainWindow, install_the_dialog_filters
 from spacr.qt import preferences
 from spacr.qt.first_run import mark_tour_seen
@@ -1433,12 +1441,15 @@ from spacr.qt.theme import active_palette
 from PySide6.QtGui import QColor, QPalette
 from spacr.qt.widgets.qc_field_browser import _open_field_overview
 from spacr.qt.screens.map_barcodes import host_pages
+progress('create QApplication')
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 mark_tour_seen()
 preferences.set_theme('dark' if sys.argv[1] == 'mask' else 'light')
 preferences.apply_preferences_to_app(app)
+progress('create MainWindow')
 window = MainWindow()
+progress('MainWindow created')
 window.resize(1180, 820)
 window.show()
 install_the_dialog_filters(app)
@@ -1448,6 +1459,7 @@ def finish(code):
  if state.get('finishing'):
   return
  state['finishing'] = True
+ progress('finish %s: cancel owned jobs' % code)
  timer.stop()
  host = state.get('host')
  owners = [state.get('wizard'), state.get('body'), state.get('replacement')]
@@ -1472,11 +1484,14 @@ def finish(code):
    if runner is not None:
     runner.cancel()
     runners.append(runner)
+ progress('finish: drain %s owned runners' % len(runners))
  for runner in runners:
   runner.shutdown(timeout_ms=3000)
+ progress('finish: close workspace and window')
  if workspace is not None:
   workspace.close()
  window.close()
+ progress('finish: leave event loop')
  app.exit(code)
 def fail():
  import traceback
@@ -1519,6 +1534,7 @@ def tick():
     assert not host._btn_run.isVisible() and wizard.next.isVisible()
     assert not host._settings_search.isVisible()
    if not state.get('cancelled_initial'):
+    progress('cancel initial metadata wizard')
     wizard._runner.shutdown(timeout_ms=3000)
     wizard.reject()
     assert host._settings_scroll.widget() is state['original_settings']
@@ -1596,8 +1612,18 @@ sys.exit(app.exec())
     environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
         XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0",
         SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"))
-    result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
-        env=environment, capture_output=True, text=True, timeout=30)
+    try:
+        result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
+            env=environment, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired as error:
+        stdout = error.output or ""
+        stderr = error.stderr or ""
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode(errors="replace")
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode(errors="replace")
+        pytest.fail(f"Embedded {host_key} exceeded the unchanged {error.timeout}s budget."
+                    f"\nCaptured stdout:\n{stdout}\nCaptured stderr:\n{stderr}", pytrace=False)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "embedded widgets survive actual application dialog filters" in result.stdout
 
