@@ -198,3 +198,5 @@ Evidence: features/data/580_session_gui_2026-10-15/,
 580_session_review_inputs_2026-10-15/,580_backend_census_2026-10-15/,
 580_session_runtime_catalogs_2026-10-15/,580_session_api_catalogs_2026-10-15/,
 580_generated_setting_links_2026-10-15/ and580_session_help_consumer_2026-10-15/.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

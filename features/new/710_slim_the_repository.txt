@@ -219,3 +219,5 @@ Coordination checklist:
 
 2026-10-21 — Maintainer requests removal of obsolete unused files/folders, including rtd_trigger.txt and .virtual_documents; obsolete-cleanup owns this ready cleanup before remaining external phases. Trace current consumers/packaging/docs first; delete confirmed leftovers without moving or archiving assets, changing live runtime inputs, or taking over root-owned AI instruction consolidation. Acceptance: related checks, normal index, commit and nightly publication.
 2026-10-21 — Removed the empty RTD trigger, two unreferenced Jupyter-LSP shadow exports and the superseded docs bootstrap that overwrote maintained Sphinx inputs; virtual exports are ignored. Preserved consumed example data/settings, CSS fonts and the host Syncthing marker. Normal index regenerated unchanged; 50 focused index/docs-logo/container checks pass. Nightly publication remains pending; broader tutorial/history phases remain open.
+
+2026-10-24 — Maintainer decision: the history rewrite and force-push are pre-approved, to run as soon as the tutorial media (311 MB) is on Hugging Face behind a pin; every machine then re-clones.

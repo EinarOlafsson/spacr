@@ -202,3 +202,5 @@ Original targets: scorecard_64px.csv / scorecard_32px.csv, bench.py, original tr
 The full-root filename query reached its 900-second bound while waiting on NFS RPCs; coverage was incomplete, so it does not establish absence or deletion.
 A separate complete .stversions query including timestamped filename variants returned no matches or errors; no NAS writes, model loading, training or GPU use occurred.
 Numerical acceptance remains blocked on reliable NAS traversal or the actual original records; software acceptance is retained and no surrogate result or new human-label requirement is introduced.
+
+2026-10-24 — Maintainer decision: re-run the DINO pretraining on current data on the workstation GPU (via tools/gpu_turn.sh), since the original records cannot be recovered.

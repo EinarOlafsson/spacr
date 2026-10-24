@@ -296,3 +296,5 @@ original source collector stay exact. Proper helper documentation remains,
 with no absent API target reviews invented. No biological calibration,
 whole-feature or final CI claim. Shared evidence remains in
 features/data/535_540_channel_identity_2026-10-15/.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

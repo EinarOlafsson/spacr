@@ -415,3 +415,5 @@ tests/qt/test_alpha_features_gate.py and joined the alpha deck slide (61).
 Cellpose-DINO (cellpose_dino_v1, item 525) is a separate, done feature and is
 not registered.
 2026-10-21 — ON HOLD by maintainer: do not pursue the curated PV holdout, scorecard or remaining platform acceptance until the maintainer explicitly resumes DINOCell work.
+
+2026-10-24 — Maintainer decision: DinoCell resumes after the 1.5.1.6 release; the 2026-10-21 hold ends then.

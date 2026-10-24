@@ -287,3 +287,5 @@ software identity boundary; native CSV-loader parity, biological event accuracy,
 whole F567, final global CI and release acceptance remain separate.
 
 2026-10-23 — Native CSV loading preserves nullable signed64 parent IDs through event correction and actual lineage/Newick export; nine round-trip/policy controls pass (6.29 s), including the signed64 maximum. The normal consumer generator changes only98 existing timelapse line offsets by+5; API/runtime/target bodies remain unchanged. Root owns publication; annotated biological accuracy and whole F567 remain OPEN.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

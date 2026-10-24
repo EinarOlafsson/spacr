@@ -258,3 +258,5 @@ existing geometry/physical-unit/dish-selection checks pass in4.79s. Existing
 unrelated morphology/axis/NumPy warnings remain visible in the raw log.
 Evidence: features/data/542_canonical_diameter_2026-10-15/. This does not
 claim new biological accuracy, native-platform acceptance or tutorial output.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).
