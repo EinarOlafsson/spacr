@@ -128,33 +128,104 @@ class TestLockingAPanelToTheLeader:
 
 class TestBuildingTheFoldStrip:
 
-    def test_a_strip_that_will_not_build_leaves_the_header_alone(self):
-        """THE UNCOVERED ARC: ``build_strip`` answered None.
-
-        The strip is a convenience -- the folded modules are reachable
-        from the menu either way -- so a header with no strip is a
-        working screen. ``add_trailing(None)`` is not: it is an
-        AttributeError while the screen is being built, which is a
-        module that will not open at all.
-        """
+    def test_a_strip_that_will_not_build_leaves_the_header_alone(
+            self, qtbot, monkeypatch):
+        """A real empty category mount leaves the native header untouched."""
         pytest.importorskip("PySide6")
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QCheckBox, QLabel, QPushButton, QVBoxLayout, QWidget
         from spacr.qt.screens import mask as M
+        from spacr.qt.widgets.fold_strip import FoldStrip
 
-        source = inspect.getsource(M)
-        assert "strip = folds.build_strip(header)" in source
-        assert "if strip is None:" in source
-        strip = source.index("strip = folds.build_strip(header)")
-        assert source.index("header.add_trailing(strip)") > \
-            source.index("if strip is None:", strip), (
-            "the strip is added before it is checked")
+        screen = QWidget()
+        qtbot.addWidget(screen)
+        screen.app_key = "mask"
+        layout = QVBoxLayout(screen)
+        header = QWidget(screen)
+        header_layout = QVBoxLayout(header)
+        title = QLabel("Mask Generation", header)
+        header_layout.addWidget(title)
+        layout.addWidget(header)
+        screen._header = header
+        switch = QCheckBox("Time", screen)
+        screen.dimension_switch = lambda axis: switch if axis == "t" else None
+        layout.addWidget(switch)
+        ordinary = QPushButton("Continue", screen)
+        layout.addWidget(ordinary)
+        clicks = []
+        ordinary.clicked.connect(lambda: clicks.append(True))
+        mounted = []
+        original_mount = M.CategoryFoldSet.mount
 
-    def test_the_whole_build_is_wrapped_so_a_module_still_opens(self):
+        def observe_mount(folds):
+            result = original_mount(folds)
+            mounted.append((folds.screen, result))
+            return result
+
+        monkeypatch.setattr(M.CategoryFoldSet, "mount", observe_mount)
+        before = tuple(header.findChildren(QWidget))
+        screen.show()
+        qtbot.waitExposed(screen)
+        assert M.install_folds(screen) is None
+        assert mounted == [(screen, ())]
+        assert M.fold_set(screen) is None
+        assert screen._header is header and title.text() == "Mask Generation"
+        assert tuple(header.findChildren(QWidget)) == before
+        assert header_layout.count() == 1
+        assert not screen.findChildren(FoldStrip)
+        assert switch.isVisibleTo(screen) and header.isVisibleTo(screen)
+        qtbot.mouseClick(ordinary, Qt.MouseButton.LeftButton)
+        assert clicks == [True]
+
+    def test_the_whole_build_is_wrapped_so_a_module_still_opens(
+            self, qtbot, monkeypatch, caplog):
+        """A failed Time mount cannot prevent a real Mask screen from opening."""
         pytest.importorskip("PySide6")
+        import logging
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QWidget
         from spacr.qt.screens import mask as M
+        from spacr.qt.screens.app_screen import AppScreen
+        from spacr.qt.widgets.fold_strip import FoldStrip
 
-        source = inspect.getsource(M)
-        assert "Could not build the fold strip for" in source
-        assert "LOG.debug(" in source
+        attempted = []
+
+        def failed_mount(folds):
+            attempted.append(folds.screen)
+            raise RuntimeError("Time category construction failed")
+
+        monkeypatch.setattr(M.CategoryFoldSet, "mount", failed_mount)
+        with caplog.at_level(logging.DEBUG, logger=M.__name__):
+            screen = AppScreen(app_key="mask")
+            qtbot.addWidget(screen)
+            screen.show()
+            qtbot.waitExposed(screen)
+            header = screen._header
+            before = tuple(header.findChildren(QWidget))
+            assert M.install_folds(screen) is None
+        assert attempted and all(host is screen for host in attempted)
+        assert M.fold_set(screen) is None
+        assert screen.isVisible() and header.isVisibleTo(screen)
+        assert tuple(header.findChildren(QWidget)) == before
+        assert not screen.findChildren(FoldStrip)
+        records = [record for record in caplog.records
+                   if record.name == M.__name__
+                   and record.getMessage() == "Could not mount Time controls for mask"]
+        assert records and all(record.levelno == logging.DEBUG for record in records)
+        assert all(record.exc_info and isinstance(record.exc_info[1], RuntimeError)
+                   and str(record.exc_info[1]) == "Time category construction failed"
+                   for record in records)
+        model = screen._settings_model
+        before_tracking = model.collect()["timelapse"]
+        assert model.set_value_for_key("batch_size", 3)
+        assert model.collect()["batch_size"] == 3
+        switch = screen.dimension_switch("t")
+        assert switch is not None and switch.isVisibleTo(screen)
+        before_checked = switch.isChecked()
+        qtbot.mouseClick(switch, Qt.MouseButton.LeftButton)
+        assert switch.isChecked() is not before_checked
+        assert model.collect()["timelapse"] == before_tracking
+        assert model.collect()["batch_size"] == 3
 
 
 # ---------------------------------------------------------------------------
