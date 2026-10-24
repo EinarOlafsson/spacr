@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Integrated native78935/oBEKLG PASS36.87s (process39.82s/1.450GiB)
+on6051efec438: real FIBSEM Masks eye off/on, Metal75 fresh paint serial7→9→11,
+IDs43→0→43 and exact baseline RGB/IDs restore; siblings/pose/data/history/prefs fixed.
+Normal startup/tours/navigation/close/run0, registry0/threads0/resources/compiler cleanup PASS.
+This accepts affected integration only; no in-flight cancellation, FPS, or whole-641 claim.
+
 2026-10-24 — Home-only prewarm RED97071 (Queue consumed a Mask step), then
 10 affected GREEN27005/32.68s (process34.83s/0.580GiB): actual-page gate preserves
 order/generator and resumes on Home; input/opening/normal/half-built/close/animation pass.
