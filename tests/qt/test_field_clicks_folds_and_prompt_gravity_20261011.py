@@ -151,7 +151,7 @@ def test_folding_a_section_sends_several_rings_that_gather_the_dots(qtbot):
     qtbot.waitUntil(lambda: bool(field.engine._fold_waves), timeout=2000)
     rings = field.engine._fold_waves
     assert len(rings) == ambient.FOLD_RINGS
-    starts = sorted(started for started, _origin in rings)
+    starts = sorted(ring[0] for ring in rings)
     assert starts[1] - starts[0] == pytest.approx(ambient.FOLD_RING_GAP_S)
     centre = field.mapFromGlobal(section.mapToGlobal(section.rect().center()))
     assert rings[0][1] == pytest.approx(((centre.x() + .5) / field.width(),

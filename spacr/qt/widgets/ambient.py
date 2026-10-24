@@ -1106,6 +1106,7 @@ FOLD_LIFETIME_S = 2.6
 FOLD_PACKET_WIDTH = 0.10
 FOLD_GATHER = 0.92
 FOLD_GLOW = 0.12
+CATEGORY_RIPPLE_STRENGTH = 0.3
 
 
 
@@ -7343,15 +7344,17 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         """Emit a bounded field wave independently of pointer gravity."""
         if not self.ripples_enabled or self.family != "impulse_lens" or point is None:
             return
-        if len(point) == 3 and point[0] == "rings":
+        if len(point) in (3, 4) and point[0] == "rings":
             try:
                 x, y = float(point[1]), float(point[2])
+                strength = float(point[3]) if len(point) == 4 else 1.0
             except (TypeError, ValueError):
                 return
-            if math.isfinite(x) and math.isfinite(y):
+            if (math.isfinite(x) and math.isfinite(y) and math.isfinite(strength)
+                    and strength > 0.0):
                 origin = (max(0.0, min(1.0, x)), max(0.0, min(1.0, y)))
                 self._fold_waves = (self._fold_waves + [
-                    (self.time + ring * FOLD_RING_GAP_S, origin)
+                    (self.time + ring * FOLD_RING_GAP_S, origin, min(1.0, strength))
                     for ring in range(FOLD_RINGS)])[-3 * FOLD_RINGS:]
             return
         if len(point) == 2 and not isinstance(point[0], (tuple, list)):
@@ -7369,22 +7372,27 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
     def _add_column_wave(self, column) -> None:
         """Emit a wave that travels only up and down a settings column.
 
-        :param column: ``(left, right, edge)`` in normalised units: the
-            column's horizontal extent and the row the wave starts from.
+        :param column: ``(left, right, edge)`` or ``(left, right, edge,
+            strength)`` in normalised units: the column's horizontal extent,
+            the row the wave starts from and an optional wave scale in (0, 1].
         """
         if not self.ripples_enabled or self.family != "impulse_lens" or column is None:
             return
         try:
-            left, right, edge = (float(value) for value in column)
+            values = tuple(float(value) for value in column)
+            left, right, edge = values[:3]
+            strength = values[3] if len(values) == 4 else 1.0
         except (TypeError, ValueError):
             return
-        if not all(math.isfinite(value) for value in (left, right, edge)):
+        if len(values) not in (3, 4):
+            return
+        if not all(math.isfinite(value) for value in values) or strength <= 0.0:
             return
         left, right = sorted((max(0.0, min(1.0, left)), max(0.0, min(1.0, right))))
         if right <= left:
             return
         self._column_waves = (self._column_waves + [
-            (self.time, (left, right, max(0.0, min(1.0, edge))))])[-6:]
+            (self.time, (left, right, max(0.0, min(1.0, edge))), min(1.0, strength))])[-6:]
 
     def _ripple_wave(self, distance, age, strength=1.0):
         """Shape one travelling wave as a gentle refraction of the field.
@@ -8255,19 +8263,19 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             px += ex / distance * shift
             py += ey / distance * shift
             energy += glow
-        for started, (left, right, edge) in (self._column_waves
-                                             if self.ripples_enabled else ()):
+        for started, (left, right, edge), scale in (self._column_waves
+                                                    if self.ripples_enabled else ()):
             age = self.time - started
             if not 0.0 <= age < RIPPLE_LIFETIME_S:
                 continue
             across = np.minimum(x - left, right - x) * aspect_x
             weight = _smoothstep(np, -RIPPLE_COLUMN_SOFTNESS, RIPPLE_COLUMN_SOFTNESS, across)
             offset = (y - edge) * aspect_y
-            shift, glow = self._ripple_wave(np.abs(offset) + 1e-6, age)
+            shift, glow = self._ripple_wave(np.abs(offset) + 1e-6, age, scale)
             py += np.sign(offset) * shift * weight / aspect_y
             energy += glow * weight
-        for started, (fold_x, fold_y) in (getattr(self, "_fold_waves", ())
-                                          if self.ripples_enabled else ()):
+        for started, (fold_x, fold_y), scale in (getattr(self, "_fold_waves", ())
+                                                 if self.ripples_enabled else ()):
             age = self.time - started
             if not 0.0 <= age < FOLD_LIFETIME_S:
                 continue
@@ -8278,7 +8286,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                          * (1.0 - _smoothstep(np, 0.45 * FOLD_LIFETIME_S,
                                               FOLD_LIFETIME_S, age)))
             intensity = self._ripple_intensity
-            gain = intensity * ease / math.sqrt(1.0 + travelled / 1.2)
+            gain = intensity * scale * ease / math.sqrt(1.0 + travelled / 1.2)
             front = distance - travelled
             reach = FOLD_PACKET_WIDTH * math.sqrt(max(1.0, intensity))
             packet = (np.exp(-(front / reach) ** 2)
@@ -11912,8 +11920,8 @@ class AmbientWidget(QWidget):
         width, height = max(1, self.width()), max(1, self.height())
         left = max(rect.left(), bounds.left()) / width
         right = min(rect.right(), bounds.right()) / width
-        self._publish_boundary_ripples((("column", left, right, row / height),),
-                                       strength, wrapped=True)
+        self._publish_boundary_ripples((("column", left, right, row / height,
+                                         min(1.0, strength)),), strength, wrapped=True)
 
     def _publish_boundary_ripples(self, segments, strength, *, wrapped=False) -> None:
         """Queue release feedback even with mouse gravity disabled.
@@ -13290,7 +13298,8 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
                 if backdrop.rect().contains(centre):
                     backdrop._publish_boundary_ripples((
                         ("rings", (centre.x() + 0.5) / max(1, backdrop.width()),
-                         (centre.y() + 0.5) / max(1, backdrop.height())),),
+                         (centre.y() + 0.5) / max(1, backdrop.height()),
+                         min(1.0, strength)),),
                         strength, wrapped=True)
                 continue
             if edge is not None and widget is window and not vertical:

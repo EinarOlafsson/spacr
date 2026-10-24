@@ -893,14 +893,15 @@ class Section(QFrame):
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
             try:
+                from .ambient import CATEGORY_RIPPLE_STRENGTH
                 if self._expanded:
                     from .ambient import _field_column_ripple_for_widget
                     ripple = partial(_field_column_ripple_for_widget, self,
-                                     edge="bottom")
+                                     edge="bottom", strength=CATEGORY_RIPPLE_STRENGTH)
                 else:
                     from .ambient import _publish_widget_ripple
-                    ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
-                                     vertical=False, rings=True)
+                    ripple = partial(_publish_widget_ripple, self, None, None,
+                                     CATEGORY_RIPPLE_STRENGTH, vertical=False, rings=True)
             except ImportError:
                 return
 
@@ -931,14 +932,15 @@ class Section(QFrame):
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
         try:
+            from .ambient import CATEGORY_RIPPLE_STRENGTH
             if self._expanded:
                 from .ambient import _field_column_ripple_for_widget
                 ripple = partial(_field_column_ripple_for_widget, self,
-                                 edge="bottom")
+                                 edge="bottom", strength=CATEGORY_RIPPLE_STRENGTH)
             else:
                 from .ambient import _publish_widget_ripple
-                ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
-                                 vertical=False, rings=True)
+                ripple = partial(_publish_widget_ripple, self, None, None,
+                                 CATEGORY_RIPPLE_STRENGTH, vertical=False, rings=True)
         except ImportError:
             return
 
