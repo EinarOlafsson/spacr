@@ -528,16 +528,22 @@ def test_console_text_obeys_ten_percent_and_recovers(qtbot, qt_theme_applied):
 @pytest.mark.parametrize("start", [REQUESTED_FLOOR, 2.0])
 def test_setting_chips_and_the_group_button_follow_each_zoom(
         qtbot, qt_theme_applied, start):
+    from spacr.qt import gui_scale
     from spacr.qt.screens.settings_model import _ListEditor
     from spacr.qt.theme import font_px
 
     original_scale = prefs.get_font_scale()
-    prefs.set_font_scale(start)
-    prefs.apply_preferences_to_app(qt_theme_applied)
-    editor = _ListEditor(default=[["one", "two"]], nested_capable=True)
-    qtbot.addWidget(editor)
-    editor.show()
+    original_gui_scale = gui_scale.current_scale()
+    editor = None
     try:
+        gui_scale.apply_saved_gui_scale()
+        prefs.set_font_scale(start)
+        prefs.apply_preferences_to_app(qt_theme_applied)
+        native_gui_scale = gui_scale.current_scale()
+        assert native_gui_scale == prefs.get_gui_scale()
+        editor = _ListEditor(default=[["one", "two"]], nested_capable=True)
+        qtbot.addWidget(editor)
+        editor.show()
         for scale in (start, 1.0, REQUESTED_FLOOR, 2.0, 1.0):
             prefs.set_font_scale(scale)
             prefs.apply_preferences_to_app(qt_theme_applied)
@@ -545,10 +551,18 @@ def test_setting_chips_and_the_group_button_follow_each_zoom(
             chips = editor.findChildren(QLabel, "SettingChipText")
             assert len(chips) == 2
             assert editor._footer.isVisible()
+            assert gui_scale.current_scale() == native_gui_scale
+            expected_pixels = max(1, round(font_px(12, scale) * native_gui_scale))
             for widget in [*chips, editor._footer]:
-                assert _rendered_px(widget) == font_px(12, scale), (
-                    widget.objectName(), scale, _rendered_px(widget))
+                assert _rendered_px(widget) == expected_pixels, (
+                    widget.objectName(), scale, native_gui_scale, _rendered_px(widget))
     finally:
-        prefs.set_font_scale(original_scale)
-        prefs.apply_preferences_to_app(qt_theme_applied)
-        editor.close()
+        try:
+            prefs.set_font_scale(original_scale)
+            prefs.apply_preferences_to_app(qt_theme_applied)
+        finally:
+            try:
+                gui_scale.set_gui_scale_live(original_gui_scale)
+            finally:
+                if editor is not None:
+                    editor.close()
