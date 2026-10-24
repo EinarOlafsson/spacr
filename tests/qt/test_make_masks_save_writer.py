@@ -147,6 +147,40 @@ def test_logged_brush_saves_keep_the_mask_and_ledger_artifact_together(
         assert screen._log.artifact == path
 
 
+
+def test_save_binds_a_caller_supplied_unbound_ledger_to_the_written_mask(opened, qtbot):
+    """Defensive caller state, not the already-bound normal folder-open path."""
+    screen, folder = opened
+    screen.resize(1000, 800)
+    screen.show()
+    qtbot.waitUntil(lambda: screen._canvas.pixmap() is not None)
+    ledger = mm.CurationLog(source=engine.CURATION_SOURCE)
+    assert ledger.artifact == "" and not ledger.edits
+    screen._log = ledger
+    qtbot.mouseClick(screen._btn_brush, Qt.LeftButton)
+    before = screen._canvas.mask.copy()
+    point = screen._canvas._image_to_canvas(14, 14)
+    assert point is not None
+    qtbot.mouseClick(screen._canvas, Qt.LeftButton, pos=point)
+    changed = int(np.count_nonzero(screen._canvas.mask != before))
+    assert changed > 0
+    assert ledger.artifact == "" and len(ledger.edits) == 1
+    edit = ledger.edits[0]
+    assert edit.kind == "paint" and edit.n_changed == changed
+    expected = engine.canonical_labels(screen._canvas.mask)
+    path = _saved(folder, 0)
+
+    qtbot.mouseClick(screen._btn_save, Qt.LeftButton)
+    assert mm._wait_for_mask_writes(path, timeout=10)
+    qtbot.waitUntil(lambda: screen._status_label.text().startswith("Saved"), timeout=10000)
+    np.testing.assert_array_equal(tifffile.imread(path), expected)
+    persisted = mm.CurationLog.read(path + ".curation.json")
+    assert screen._log is ledger and ledger.artifact == path
+    assert persisted.artifact == path and persisted.source == engine.CURATION_SOURCE
+    assert len(persisted.edits) == 1
+    assert persisted.edits[0].to_dict() == edit.to_dict()
+
+
 def test_a_slow_save_returns_at_once_and_reports_when_it_lands(opened, monkeypatch, qtbot):
     screen, folder = opened
     release, threads = _held_save(monkeypatch)
