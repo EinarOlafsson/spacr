@@ -4139,18 +4139,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "从Home打开Make Masks，再打开其中的Cellpose Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。",
-          "hold_after": 0.7,
-          "speech_text": "从主页打开Make Masks，再打开其中的塞尔波斯 Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Make Masks，再打开其中的塞尔波斯 Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。"
         },
         {
           "visual": "04_setting_src",
-          "narration": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果把记录的设置文件作为参考，请把其中的源路径替换为您解压的文件夹。",
+          "narration": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果使用随附的设置参考，请把其中的源路径替换为您解压的文件夹。",
           "hold_after": 0.7,
-          "speech_text": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果把记录的设置文件作为参考，请把其中的源路径替换为您解压的文件夹。"
+          "speech_text": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果使用随附的设置参考，请把其中的源路径替换为您解压的文件夹。"
         },
         {
           "visual": "05_setting_model_name",
@@ -4233,12 +4233,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "把Minimum cell area改回零，恢复未过滤的预览。把输入图像、模型标识、设置和保存的掩膜放在一起。需要修正时使用Make Masks，或使用Measure从审核过的掩膜中提取对象特征。",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把Minimum cell area改回零，恢复未过滤的预览。把输入图像、模型标识、设置和保存的掩膜放在一起。需要修正时使用Make Masks，或使用Measure从审核过的掩膜中提取对象特征。"
         }
       ],
       "narration_voices": {

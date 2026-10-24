@@ -16,6 +16,17 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 narrow shutdown attribution: retain the 673 late finished
+classify_merged chaining registration failure. A portable real-MainWindow
+prewarm test delivers one normal close through an actual constructor breath,
+records registration stacks, and requires no new work/publication after
+accepted close. No fake chaining job, registry prune, or native timing claim.
+2026-10-24 — Proper RED1207 proves resumed real SettingsModel construction
+starts classify_merged chaining after accepted close; guard only that closed
+host before connecting/installing chaining. GREEN3854:4PASS/16.44s/0.447GiB,
+including real open-host job and normal/half-built prewarm; generator56536
+completed once. Native late-handle repair acceptance remains pending.
+
 Current narrow scope (2026-10-23, 193eda852c): normal MainWindow starts4.995s,
 event loop9.882s, Home10.605s>5s; later prewarm cannot explain the constructor.
 Profile only that constructor, disabling before prewarm/event-loop work;

@@ -59,6 +59,117 @@ def _idle(prewarm, monkeypatch, seconds=60.0):
     prewarm._last_input = now - seconds
 
 
+def test_real_chained_construction_keeps_its_job_for_an_open_host(
+        window, qapp, qtbot, monkeypatch):
+    """The shutdown guard leaves ordinary owned construction unchanged."""
+    from shiboken6 import isValid
+    from spacr.qt import chaining as qt_chaining
+    from spacr.qt.bridge import registry
+    from spacr.qt.job_runner import shutdown_all
+
+    runs = registry()
+    registered = []
+    original_register = runs.register
+
+    def register(handle):
+        registered.append(handle.app_key)
+        return original_register(handle)
+
+    monkeypatch.setattr(runs, "register", register)
+    screen = None
+    try:
+        assert not window._closing
+        screen = qt_chaining._chained_app_screen("classify_merged", window)
+        bar = qt_chaining.chaining_bar(screen)
+        assert bar is not None
+        assert "classify_merged chaining" in registered
+        qtbot.waitUntil(lambda: not bar._resolver.is_busy(), timeout=5000)
+    finally:
+        shutdown_all()
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        if screen is not None and isValid(screen):
+            assert screen.close()
+            screen.deleteLater()
+        qapp.processEvents()
+
+
+def test_close_during_real_constructor_starts_no_late_chaining_job(
+        window, qapp, qtbot, monkeypatch):
+    """An accepted re-entrant close must stop unpublished construction work."""
+    import traceback
+    from shiboken6 import isValid
+    from PySide6.QtCore import QTimer
+    from spacr.qt import app as app_module
+    from spacr.qt import chaining as qt_chaining
+    from spacr.qt.bridge import registry
+    from spacr.qt.job_runner import shutdown_all
+
+    key = "classify_merged"
+    previous_factories = dict(app_module.APP_FACTORIES)
+    qt_chaining.register()
+    original_factory = app_module.APP_FACTORIES[key]
+    runs = registry()
+    registrations = []
+    close_record = {}
+    built = []
+    original_register = runs.register
+
+    def register(handle):
+        registrations.append({
+            "name": handle.app_key,
+            "after_accepted_close": close_record.get("accepted", False),
+            "stack": "".join(traceback.format_stack()),
+        })
+        return original_register(handle)
+
+    def close_window():
+        close_record["before"] = [h.app_key for h in runs.active()]
+        close_record["stack"] = "".join(traceback.format_stack())
+        close_record["accepted"] = window.close()
+        close_record["after"] = [h.app_key for h in runs.active()]
+
+    close_timer = QTimer(window)
+    close_timer.setSingleShot(True)
+    close_timer.timeout.connect(close_window)
+
+    def factory(*args, **kwargs):
+        close_timer.start(0)
+        screen = original_factory(*args, **kwargs)
+        built.append(screen)
+        return screen
+
+    monkeypatch.setattr(runs, "register", register)
+    monkeypatch.setitem(app_module.APP_FACTORIES, key, factory)
+    prewarm = _prewarm(window, [key], monkeypatch)
+    _idle(prewarm, monkeypatch)
+    try:
+        prewarm._slice()
+        evidence = {"close": close_record, "registrations": registrations,
+                    "prewarm_finished": prewarm.finished,
+                    "published": key in window._screens,
+                    "constructed": len(built)}
+        print("Re-entrant real prewarm evidence:", evidence)
+        assert close_record.get("accepted") is True, evidence
+        assert "_prewarm_steps" in close_record["stack"], evidence
+        assert "settings_model.py" in close_record["stack"], evidence
+        assert "QCoreApplication.processEvents" in close_record["stack"], evidence
+        assert prewarm.finished, evidence
+        assert key not in window._screens, evidence
+        assert not [r for r in registrations if r["after_accepted_close"]], evidence
+    finally:
+        app_module.APP_FACTORIES.clear()
+        app_module.APP_FACTORIES.update(previous_factories)
+        prewarm.stop()
+        close_timer.stop()
+        shutdown_all()
+        qtbot.waitUntil(lambda: not runs.active(), timeout=5000)
+        for screen in built:
+            if isValid(screen):
+                screen.close()
+                screen.deleteLater()
+        qapp.processEvents()
+
+
 def test_no_step_runs_while_input_is_recent(window, qapp, monkeypatch):
     prewarm = _prewarm(window, ["queue"], monkeypatch)
     ran = []

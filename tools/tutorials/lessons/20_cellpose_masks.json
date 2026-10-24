@@ -29,7 +29,7 @@
     },
     {
       "visual": "04_setting_src",
-      "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+      "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the supplied settings reference, replace its source path with your extracted folder.",
       "hold_after": 0.7
     },
     {

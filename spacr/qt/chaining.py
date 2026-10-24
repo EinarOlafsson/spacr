@@ -959,6 +959,8 @@ def _chained_app_screen(app_key: str, host=None):
     from .screens.app_screen import AppScreen
 
     screen = AppScreen(app_key=app_key)
+    if host is not None and getattr(host, "_closing", False):
+        return screen
     _connect_host(screen, host)
     install_chaining(screen)
     return screen

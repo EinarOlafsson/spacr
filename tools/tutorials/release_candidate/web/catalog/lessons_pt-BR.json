@@ -4144,18 +4144,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Na tela Home, abra Make Masks e depois o Cellpose Workbench. Escolha Apply para segmentar imagens com um modelo existente. Use Train quando quiser aprender pesos novos a partir de pares de imagem e máscara revisados.",
-          "hold_after": 0.7,
-          "speech_text": "Na tela Home, abra Make Masks e depois o cél pouz Workbench. Escolha Apply para segmentar imagens com um modelo existente. Use Train quando quiser aprender pesos novos a partir de pares de imagem e máscara revisados.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Na tela Home, abra Make Masks e depois o cél pouz Workbench. Escolha Apply para segmentar imagens com um modelo existente. Use Train quando quiser aprender pesos novos a partir de pares de imagem e máscara revisados."
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar o arquivo de configurações gravado como referência, troque o caminho de origem dele pela pasta que você extraiu.",
+          "narration": "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar a referência de configurações fornecida, troque o caminho de origem dela pela pasta que você extraiu.",
           "hold_after": 0.7,
-          "speech_text": "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar o arquivo de configurações gravado como referência, troque o caminho de origem dele pela pasta que você extraiu."
+          "speech_text": "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar a referência de configurações fornecida, troque o caminho de origem dela pela pasta que você extraiu."
         },
         {
           "visual": "05_setting_model_name",
@@ -4238,12 +4238,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Volte Minimum cell area para zero para restaurar a pré-visualização sem filtro. Mantenha juntos as imagens de entrada, a identidade do modelo, as configurações e as máscaras salvas. Use o Make Masks para correções ou o Measure para extrair características dos objetos a partir das máscaras revisadas.",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Volte Minimum cell area para zero para restaurar a pré-visualização sem filtro. Mantenha juntos as imagens de entrada, a identidade do modelo, as configurações e as máscaras salvas. Use o Make Masks para correções ou o Measure para extrair características dos objetos a partir das máscaras revisadas."
         }
       ],
       "narration_voices": {

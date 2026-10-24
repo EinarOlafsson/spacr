@@ -3811,15 +3811,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Frá Home opnarðu Make Masks og svo Cellpose Workbench þess. Veldu Apply til að aðgreina myndir með fyrirliggjandi líkani. Notaðu Train þegar þú vilt læra nýja vigta af yfirförnum pörum mynda og grímna.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar skráðu stillingaskrána sem tilvísun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
+          "narration": "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar meðfylgjandi stillingaviðmiðun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
           "hold_after": 0.7
         },
         {
@@ -3895,11 +3895,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

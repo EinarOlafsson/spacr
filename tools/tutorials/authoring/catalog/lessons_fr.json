@@ -4139,18 +4139,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Depuis Home, ouvrez Make Masks, puis son Cellpose Workbench. Choisissez Apply pour segmenter des images avec un modèle existant. Utilisez Train lorsque vous voulez apprendre de nouveaux poids à partir de paires image-masque vérifiées.",
-          "hold_after": 0.7,
-          "speech_text": "Depuis Home, ouvrez Make Masks, puis son celle pose Workbench. Choisissez Apply pour segmenter des images avec un modèle existant. Utilisez Train lorsque vous voulez apprendre de nouveaux poids à partir de paires image-masque vérifiées.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Depuis Home, ouvrez Make Masks, puis son celle pose Workbench. Choisissez Apply pour segmenter des images avec un modèle existant. Utilisez Train lorsque vous voulez apprendre de nouveaux poids à partir de paires image-masque vérifiées."
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extrayez l’exemple associé et réglez Source sur son dossier images. Il contient trois images de cellules à un seul canal, de cinq cent douze pixels de côté chacune. Si vous utilisez le fichier de paramètres enregistré comme référence, remplacez son chemin source par votre dossier extrait.",
+          "narration": "Extrayez l’exemple associé et réglez Source sur son dossier images. Il contient trois images de cellules à un seul canal, de cinq cent douze pixels de côté chacune. Si vous utilisez la référence de paramètres fournie, remplacez son chemin source par votre dossier extrait.",
           "hold_after": 0.7,
-          "speech_text": "Extrayez l’exemple associé et réglez Source sur son dossier images. Il contient trois images de cellules à un seul canal, de cinq cent douze pixels de côté chacune. Si vous utilisez le fichier de paramètres enregistré comme référence, remplacez son chemin source par votre dossier extrait."
+          "speech_text": "Extrayez l’exemple associé et réglez Source sur son dossier images. Il contient trois images de cellules à un seul canal, de cinq cent douze pixels de côté chacune. Si vous utilisez la référence de paramètres fournie, remplacez son chemin source par votre dossier extrait."
         },
         {
           "visual": "05_setting_model_name",
@@ -4233,12 +4233,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Remettez Minimum cell area à zéro pour retrouver l’aperçu non filtré. Gardez ensemble les images d’entrée, l’identité du modèle, les paramètres et les masques enregistrés. Utilisez Make Masks pour les corrections, ou Measure pour extraire les caractéristiques des objets à partir des masques vérifiés.",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Remettez Minimum cell area à zéro pour retrouver l’aperçu non filtré. Gardez ensemble les images d’entrée, l’identité du modèle, les paramètres et les masques enregistrés. Utilisez Make Masks pour les corrections, ou Measure pour extraire les caractéristiques des objets à partir des masques vérifiés."
         }
       ],
       "narration_voices": {

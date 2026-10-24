@@ -26,6 +26,32 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+
+2026-10-24 — Masks38675/jz9LF9 PASS40.66s/1.474GiB on669fb7fb:
+Metal75, seven real-control states, exact RGB/ID restorations and finish prefs;
+registry0/threads0/GPUrelease/normalclose/run0/compiler cleanup all pass.
+Portable late-constructor guard is causal; native original stack stays unproven.
+Request endpoints485..803/0..244 give318×244; no FPS/physical/pick claim.
+
+2026-10-24 — Diagnostic80755/4SxKwy onbfb3a33f3a FAIL46.51s/1.494GiB:
+registry empty before/after close, then new 'classify_merged chaining' RunHandle
+after run; housekeeping/nonblocking, thread finished/stopped, not captured.
+All7 frames/restores/GPUrelease/normalclose/run0 pass; zero-registry still fails.
+Late-work scheduling needs attribution; no global prune, grace or fix claim.
+
+2026-10-24 — Masks91836/VNE5nx on3a9fef33e2 FAIL50.11s/RSS1.548GiB:
+all7 controls/freshframes/restores/finish-prefs pass, but final registry count1
+is unclassified. Captured threads0alive/GPUreleased/normalclose/run0 pass;
+no full-case acceptance. Startup21.919s,maxoperation1.479s; metadata is needed
+to distinguish a live job from registered stopped work; no cleanup waiver.
+
+Checklist5 Masks scope: seven real Labels-layer states (opacity60/37/60,
+surface/translucent/surface, matte/satin/matte), fresh Metal75/paint/new serials
+with changedRGB and exact baseline restores. Preserve all sibling/UI/data/
+history/pose/selection fields; finish alone also changes stage._finish and
+prefs.finish to satin then matte (retain the restored key, never reseed/delete).
+Original30s initial/20s before each reveal/action, normal cleanup; no picks/FPS.
+
 2026-10-24 — Native43648/nODMll onab0d95acc124 PASS44.31s/RSS1.486GiB:
 7 Image states (eye off/on, high192→126→192/low60, mip/attenuated_mip/mip),
 Metal75 serials7..19; changedRGB differs, all3restores/freshRGB+IDs/paints exact.
