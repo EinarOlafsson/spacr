@@ -28,6 +28,15 @@ Failed-node52946 passes11.75s/RSS0.558GiB: selected52px Live/3D/AI full slots,
 3D/Time floors148x103/204x103, exact font shrink/restore, settings width reach,
 callback quiescence and queued deletion pass. Two prior settings cases retained;
 strict normal-app native word acceptance is still pending.
+Native50317/He74Jy on74a85f2d6 fails34.92s/RSS1.302GiB before word checks:
+all12 frozen/actual widget signatures match, but RuntimeViewport's owned floor
+timer remains queued, making strict readiness None. Controls2.422s after
+startup8.879s/module1.322s; tours and empty registry/compiler cleanup pass.
+No new glyph failure or fix acceptance; the actual pending work is attributed.
+Queued-floor observer scope: after one reveal, require exact frozen raw widget
+geometry on every tick while owned work finishes within the original20s;
+accept text only once the same frozen state is strictly idle. No re-reveal,
+baseline replacement, grace or idle/glyph waiver is permitted.
 
 Native Mask word-toggle scope: normal owned startup at GUI/font200 and native
 1200x640 inspects exact Live/3D/AI controls, not Home tiles. Set owned normal

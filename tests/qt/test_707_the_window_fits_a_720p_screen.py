@@ -303,13 +303,17 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                     return
                 text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
                     int(widget.alignment() | Qt.TextSingleLine), widget.isEnabled(), widget.displayed_text())
+                actual = signature(widget, require_idle=False)
                 report.setdefault('post_reveal_observations', []).append({
                     'role': expected, 'logical': widget.text(), 'displayed': widget.displayed_text(),
                     'font': widget.font().toString(), 'contents': widget.contentsRect().getRect(),
                     'text': text.getRect(), 'expected_signature': state['revealed'],
-                    'actual_signature': signature(widget, require_idle=False),
+                    'actual_signature': actual,
                     'strict_idle_signature': current, 'readiness': readiness_flags(widget)})
                 save()
+                assert actual == state['revealed'], 'Post-reveal geometry changed'
+                if current is None:
+                    return
                 assert current is not None and current == state['revealed'], 'Post-reveal geometry changed'
                 handle = window.windowHandle()
                 row = {'role': expected, 'pointer': shiboken6.getCppPointer(widget),
