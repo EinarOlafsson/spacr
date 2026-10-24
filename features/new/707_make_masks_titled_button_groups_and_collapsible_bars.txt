@@ -12,6 +12,50 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
+17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;
+all title shaped lines/runs (long titles198px high) and209×55 dates visible.
+Wall46.25/37.26s,RSS1.240/1.208GiB; content14.302/12.015s,startup8.841/9.155s.
+Both normalclose/run0/compiler cleanup pass;17 bodies remain unaccepted.
+
+News viewport repair scope: native22421 proves real title shaped lines clipped
+inside hidden-horizontal546px viewport, not merely blank696px document columns.
+First reproduce with real NewsPanel/bundled HTML/normal selected fonts and
+measure child minimum-width sources. Preserve title/date HTML/fonts/links and
+real access to wide bodies; no global font/window or whitespace waiver.
+Focused89569 reproduces native left74px clip and attributes696px minimum to
+the v1.5.0.5 body. First bounded repair28597 exposes a long-title393px width
+with132px allocation but198px document height; reserve the actual viewport
+width consistently for wrapped headings before considering any height floor.
+Width-only15319 still allocates546x132 for a198px rich title. Its local owned
+fitter now derives a fresh document minimum height from original HTML/current
+font/actual width and insets, with no prior-minimum feedback or height maximum.
+Focused2844 passes11.25s/RSS0.292GiB: all34 heading glyphs after real horizontal
+scroll and566→900→566; original HTML/links/fonts/body text retained. Long-title
+height shrinks/restores, current-ref rebuild/quiescence/pending deletion pass.
+Normal-app title/date and separate body-line native acceptance remain pending.
+
+News title attribution scope: native85931 rejects all17 full document columns,
+but allocated696px wrap width alone does not prove clipped title glyphs.
+Before the unchanged assertion, record actual rich line/run bounds and native
+QLabel origin/insets/visible/global mapping; same17 roles/reveal/20s, no waiver.
+Native22421/KAGCV0 on2a41f6522 fails45.57s/RSS1.240GiB: all17 shaped title
+runs start at0 while visible x74..620 clips the left74px; last two titles also
+have668px lines extending48px past the right. This is not blank-column-only
+overflow. Content13.031s/tour9.475s,17/139 checked/122 untested and normal
+cleanup pass; dates remain unrun and17 bodies separately unaccepted.
+
+Next News operations separately inspect17 titles and17 dates using actual
+release-block layout positions paired with owned bundled release records/tags.
+Require exact role/count/manifest membership and unchanged20s strict rich/plain
+text, one-reveal/global visibility checks. The17 body labels remain separately
+unaccepted; no regex, HTML-category selection or whole-document waiver.
+Native85931/R1TJIy on b1df5779d fails43.13s/RSS1.225GiB:17/139 titles
+checked,122 untested; all696px rich-document bounds exceed546px visible width
+after reveal. Hidden-horizontal News content is696px; actual glyph/blank-line
+attribution remains needed, not17 proven ink cuts. Content11.723s/tour9.941s
+and normal cleanup pass; dates were not run, and17 bodies remain unaccepted.
+
 Dimension-word repair scope: native91273 proves stable3D48px allocation cannot
 contain selected52px word68px plus80px real horizontal padding. Live passes;
 AI remains untested. Add real normal-font Mask caller regression for fresh

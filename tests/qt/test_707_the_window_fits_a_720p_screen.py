@@ -423,7 +423,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access", "news_titles", "news_dates"), cohort
     tile_keys = json.loads(os.environ["SPACR_HOME_TEST_TILE_KEYS"]) if cohort == "tile_batch" else []
     if cohort == "tile_batch":
         assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -438,7 +438,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
         import subprocess, time, traceback
         from pathlib import Path
-        from PySide6.QtCore import QPoint, QRect, QSize, Qt, QTimer
+        from PySide6.QtCore import QPoint, QPointF, QRect, QSize, Qt, QTimer
         from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
         from PySide6.QtWidgets import (QAbstractButton, QLabel, QMenuBar, QPushButton, QScrollArea,
             QStyle, QStyleOptionButton, QStyleOptionToolButton, QStyleOptionTab, QToolButton)
@@ -454,7 +454,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access', 'news_titles', 'news_dates'), cohort
         tile_keys = json.loads(os.environ['SPACR_HOME_TEST_TILE_KEYS']) if cohort == 'tile_batch' else []
         if cohort == 'tile_batch':
             assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -570,6 +570,9 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 body_fitter = getattr(w, '_body_fit', None)
                 if body_fitter is not None and (body_fitter._timer.isActive() or body_fitter._busy):
                     return None
+                news_fitter = getattr(w, '_news_title_fit', None)
+                if news_fitter is not None and (news_fitter._timer.isActive() or news_fitter._busy):
+                    return None
                 if any(getattr(w, key, False) for key in
                         ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
                     return None
@@ -649,6 +652,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     for key in ('module_key', 'tile_role', 'full_caption')}
                 row['ordinary_label_role'] = report['target_manifest'][manifest_index]['ordinary_label_role']
                 row['status_label_role'] = report['target_manifest'][manifest_index]['status_label_role']
+                row['news_coverage'] = {key: report['target_manifest'][manifest_index][key]
+                    for key in ('news_role', 'release_tag', 'release_index')}
             row['ancestors'] = []
             ancestor = widget
             while ancestor is not None:
@@ -706,6 +711,70 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         document.setTextWidth(widget.contentsRect().width() if widget.wordWrap() else -1)
                         needed = document.size().toSize()
                         text = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(), needed, widget.contentsRect())
+                        if cohort == 'news_titles' and row['news_coverage']['news_role'] == 'title':
+                            attributed = document.clone()
+                            area = widget.contentsRect().adjusted(widget.margin(), widget.margin(),
+                                -widget.margin(), -widget.margin())
+                            alignment = QStyle.visualAlignment(widget.layoutDirection(), widget.alignment())
+                            indent = widget.indent()
+                            if indent < 0 and widget.frameWidth():
+                                indent = widget.fontMetrics().horizontalAdvance('x') // 2-widget.margin()
+                            if indent > 0:
+                                if alignment & Qt.AlignLeft:
+                                    area.setLeft(area.left()+indent)
+                                if alignment & Qt.AlignRight:
+                                    area.setRight(area.right()-indent)
+                                if alignment & Qt.AlignTop:
+                                    area.setTop(area.top()+indent)
+                                if alignment & Qt.AlignBottom:
+                                    area.setBottom(area.bottom()-indent)
+                            rich_option = attributed.defaultTextOption()
+                            rich_option.setAlignment(widget.alignment())
+                            attributed.setDefaultTextOption(rich_option)
+                            attributed.setTextWidth(area.width())
+                            height = attributed.size().height()
+                            offset = (max(0., (area.height()-height)/2) if alignment & Qt.AlignVCenter
+                                      else max(0., area.height()-height) if alignment & Qt.AlignBottom else 0.)
+                            origin = QPointF(area.x(), area.y()+offset)
+                            diagnostic = {'font': widget.font().toString(), 'sheet': widget.styleSheet(),
+                                'contents': widget.contentsRect().getRect(), 'document_area': area.getRect(),
+                                'margin': widget.margin(), 'indent': widget.indent(), 'frame_width': widget.frameWidth(),
+                                'alignment': widget.alignment().value, 'layout_direction': widget.layoutDirection().value,
+                                'document_origin': (origin.x(), origin.y()),
+                                'document_size': (attributed.size().width(), height),
+                                'visible_region': {'bounding_rect': widget.visibleRegion().boundingRect().getRect(),
+                                                   'rect_count': widget.visibleRegion().rectCount()},
+                                'label_in_window': widget.rect().translated(widget.mapTo(window, QPoint())).getRect(),
+                                'window_client': window.rect().getRect(), 'lines': []}
+
+                            def bounds(rect):
+                                native = rect.toAlignedRect()
+                                return {'label_rect': rect.getRect(),
+                                    'window_rect': native.translated(widget.mapTo(window, QPoint())).getRect(),
+                                    'contents_contains': widget.contentsRect().contains(native),
+                                    'whole_visible': visible(native)}
+
+                            block = attributed.begin()
+                            while block.isValid():
+                                layout = block.layout()
+                                block_rect = attributed.documentLayout().blockBoundingRect(block)
+                                for index in range(layout.lineCount()):
+                                    line = layout.lineAt(index)
+                                    runs = line.glyphRuns()
+                                    line_row = {'block_position': block.position(), 'block_text': block.text(),
+                                        'block_rect': block_rect.getRect(),
+                                        'layout_position': (layout.position().x(), layout.position().y()),
+                                        'line_position': (line.position().x(), line.position().y()),
+                                        'text_start': line.textStart(), 'text_length': line.textLength(),
+                                        'natural_raw': line.naturalTextRect().getRect(),
+                                        'natural': bounds(line.naturalTextRect().translated(block_rect.topLeft()+origin)),
+                                        'glyph_runs': [dict(bounds(run.boundingRect().translated(block_rect.topLeft()+origin)),
+                                            raw_rect=run.boundingRect().getRect(), glyph_count=len(run.glyphIndexes()),
+                                            font_family=run.rawFont().familyName(), font_pixels=run.rawFont().pixelSize())
+                                            for run in runs]}
+                                    diagnostic['lines'].append(line_row)
+                                block = block.next()
+                            row['rich_title_attribution'] = diagnostic
                     row.update(text=widget.text(), text_rect=text.getRect())
                     if isinstance(widget, ElidingLabel) and widget.is_elided():
                         row['intentional_elision'] = widget.full_text()
@@ -1036,6 +1105,36 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             'scope': 'All currently visible manifest members of the requested actual tiles'}
                     ordinary_roles = {}
                     status_roles = {}
+                    news_roles = {}
+                    if cohort in ('news_titles', 'news_dates'):
+                        news = window._startup._news
+                        blocks = [news._notes_column.itemAt(i).widget() for i in range(news._notes_column.count())
+                                  if news._notes_column.itemAt(i).widget() is not None
+                                  and news._notes_column.itemAt(i).widget() is not news._placeholder]
+                        assert len(blocks) == len(news._releases) == 17
+                        tags, bodies = [], []
+                        for index, (block, entry) in enumerate(zip(blocks, news._releases)):
+                            tag = str(entry.get('tag') or '')
+                            assert tag and tag not in tags
+                            tags.append(tag)
+                            layout = block.layout()
+                            title, stamp = layout.itemAt(0).widget(), layout.itemAt(1).widget()
+                            assert str(entry.get('published') or '')
+                            assert all(isinstance(w, QLabel) and w in all_widgets and w.parentWidget() is block
+                                       for w in (title, stamp))
+                            assert title.accessibleName() == str(entry.get('name') or tag or 'spaCR')
+                            assert stamp.text() == str(entry['published'])
+                            news_roles[title] = {'news_role': 'title', 'release_tag': tag, 'release_index': index}
+                            news_roles[stamp] = {'news_role': 'date', 'release_tag': tag, 'release_index': index}
+                            body = layout.itemAt(2).widget() if layout.count() > 2 else None
+                            assert isinstance(body, QLabel) and body in all_widgets and body not in (title, stamp)
+                            bodies.append(body)
+                        assert len(news_roles) == 34 and len(set(bodies)) == 17 and not set(bodies).intersection(news_roles)
+                        report['news_selection'] = {'release_tags': tags,
+                            'title_count': sum(row['news_role'] == 'title' for row in news_roles.values()),
+                            'date_count': sum(row['news_role'] == 'date' for row in news_roles.values()),
+                            'excluded_body_indices': [all_widgets.index(w) for w in bodies],
+                            'scope': 'Structural title/date roles only; body text is not certified'}
                     if cohort == 'status_home_access':
                         status_roles = {window._status_app_label: 'app', window._status_version_label: 'version'}
                         assert len(status_roles) == 2 and all(isinstance(w, QLabel) and w in all_widgets for w in status_roles)
@@ -1104,12 +1203,15 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         'ordinary_labels': w in ordinary_roles, 'ordinary_label_role': ordinary_roles.get(w),
                         'status_labels': w in status_roles, 'status_label_role': status_roles.get(w),
                         'status_home_access': w in status_roles or w in access_roles,
+                        'news_titles': news_roles.get(w, {}).get('news_role') == 'title',
+                        'news_dates': news_roles.get(w, {}).get('news_role') == 'date',
+                        **news_roles.get(w, {'news_role': None, 'release_tag': None, 'release_index': None}),
                         **tile_coverage.get(w, {'module_key': None, 'tile_role': None, 'full_caption': w.text()}),
                         'home_access': w in access_roles, 'home_access_role': access_roles.get(w)}
                         for index, w in enumerate(all_widgets)]
                     state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
                     report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
-                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows', 'tile_batch': 'tile_batch', 'ordinary_labels': 'ordinary_labels', 'status_home_access': 'status_home_access'}[cohort]]]
+                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows', 'tile_batch': 'tile_batch', 'ordinary_labels': 'ordinary_labels', 'status_home_access': 'status_home_access', 'news_titles': 'news_titles', 'news_dates': 'news_dates'}[cohort]]]
                     state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
                     assert state['widgets'], ('No actual targets in selected cohort', cohort)
                     state['index'] = 0
@@ -1281,6 +1383,14 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
         assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
+        if cohort in ('news_titles', 'news_dates'):
+            role = 'title' if cohort == 'news_titles' else 'date'
+            assert report['news_selection']['title_count'] == report['news_selection']['date_count'] == len(set(report['news_selection']['release_tags'])) == 17, report
+            assert report['selected_target_count'] == 17, report
+            assert [report['target_manifest'][i]['release_index'] for i in report['selected_indices']] == list(range(17)), report
+            assert [report['target_manifest'][i]['release_tag'] for i in report['selected_indices']] == report['news_selection']['release_tags'], report
+            assert all(report['target_manifest'][i]['news_role'] == role for i in report['selected_indices']), report
+            assert len(report['news_selection']['excluded_body_indices']) == 17 and not set(report['selected_indices']).intersection(report['news_selection']['excluded_body_indices']), report
         if cohort == 'status_home_access':
             assert report['selected_target_count'] == 14 and set(report['status_label_owners']) == {'app', 'version'}, report
             status_indices = [i for i in report['selected_indices'] if report['target_manifest'][i]['status_labels']]
@@ -1358,9 +1468,18 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert not report["errors"] and report["normal_close_accepted"]
     assert report["cohort"] == cohort and report["selected_inspection_complete"]
     expected_indices = [entry["index"] for entry in report["target_manifest"]
-                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows", "tile_batch": "tile_batch", "ordinary_labels": "ordinary_labels", "status_home_access": "status_home_access"}[cohort]]]
+                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows", "tile_batch": "tile_batch", "ordinary_labels": "ordinary_labels", "status_home_access": "status_home_access", "news_titles": "news_titles", "news_dates": "news_dates"}[cohort]]]
     assert expected_indices and report["selected_indices"] == expected_indices
     assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
+    if cohort in ("news_titles", "news_dates"):
+        role = "title" if cohort == "news_titles" else "date"
+        assert report["news_selection"]["title_count"] == report["news_selection"]["date_count"] == len(set(report["news_selection"]["release_tags"])) == 17
+        assert len(expected_indices) == 17
+        assert [report["target_manifest"][i]["release_index"] for i in expected_indices] == list(range(17))
+        assert [report["target_manifest"][i]["release_tag"] for i in expected_indices] == report["news_selection"]["release_tags"]
+        assert all(report["target_manifest"][i]["news_role"] == role for i in expected_indices)
+        assert len(report["news_selection"]["excluded_body_indices"]) == 17
+        assert not set(expected_indices).intersection(report["news_selection"]["excluded_body_indices"])
     if cohort == "status_home_access":
         assert len(expected_indices) == 14 and set(report["status_label_owners"]) == {"app", "version"}
         status_indices = [i for i in expected_indices if report["target_manifest"][i]["status_labels"]]

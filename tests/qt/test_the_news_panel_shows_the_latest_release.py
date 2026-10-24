@@ -66,6 +66,170 @@ def _titles(panel) -> list:
     return [lbl.text() for lbl in panel.findChildren(QLabel)]
 
 
+def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent, QPoint, Qt
+    from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home
+
+    calls = []
+    original_fit = home._NewsTitleFit._fit
+
+    def observed_fit(owner):
+        calls.append(1)
+        return original_fit(owner)
+
+    monkeypatch.setattr(home._NewsTitleFit, '_fit', observed_fit)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    sheet, font, palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    panel = None
+    monkeypatch.setattr(NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        panel = NewsPanel('1.5.1.0')
+        qtbot.addWidget(panel)
+        scroll = panel._notes
+        # The observed allocation, not a fake font or replacement release body.
+        for key, value in (('minw', 566), ('maxw', 566), ('minh', 400), ('maxh', 400)):
+            gui_scale._set_actual_dim(scroll, key, value)
+        panel.show()
+        qtbot.waitExposed(panel)
+        blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
+                  if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
+        assert len(blocks) == len(panel._releases) == 17
+        title = blocks[0].layout().itemAt(0).widget()
+        qtbot.waitUntil(lambda: title.font().pixelSize() == gui_scale.scale_int(theme.font_px(12, 2.), 2.))
+        previous = [None]
+
+        def settled():
+            if panel._news_title_fit._busy or panel._news_title_fit._timer.isActive():
+                return False
+            now = (scroll.viewport().property('size').toTuple(), scroll.widget().property('size').toTuple(),
+                   title.property('geometry').getRect(), title.font().toString(),
+                   scroll.horizontalScrollBar().value(), scroll.verticalScrollBar().value())
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        qtbot.waitUntil(settled)
+        scroll.ensureWidgetVisible(title, 0, 0)
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        sources = []
+        for block, entry in zip(blocks, panel._releases):
+            for index, role in enumerate(('title', 'date', 'body')):
+                widget = block.layout().itemAt(index).widget()
+                sources.append({'tag': entry['tag'], 'role': role,
+                    'hint': widget.minimumSizeHint().toTuple(), 'actual_min': widget.property('minimumSize').toTuple(),
+                    'font': widget.font().toString(), 'wrap': widget.wordWrap()})
+        print('NEWS_WIDTH_SOURCE', {'viewport': scroll.viewport().property('size').toTuple(),
+            'content': scroll.widget().property('size').toTuple(),
+            'content_min_hint': scroll.widget().minimumSizeHint().toTuple(),
+            'horizontal_policy': scroll.horizontalScrollBarPolicy().value,
+            'horizontal_range': (scroll.horizontalScrollBar().minimum(), scroll.horizontalScrollBar().maximum()),
+            'horizontal_value': scroll.horizontalScrollBar().value(),
+            'largest_children': sorted(sources, key=lambda row: row['hint'][0], reverse=True)[:3]}, flush=True)
+        originals = [(w, w.text(), w.accessibleName(), w.openExternalLinks(), w.font().toString())
+                     for block in blocks for w in (block.layout().itemAt(0).widget(), block.layout().itemAt(1).widget())]
+        body_html = [block.layout().itemAt(2).widget().text() for block in blocks]
+        long_title = blocks[-1].layout().itemAt(0).widget()
+        heights = []
+        for width in (566, 900, 566):
+            for key in ('minw', 'maxw'):
+                gui_scale._set_actual_dim(scroll, key, width)
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            assert scroll.horizontalScrollBarPolicy() == Qt.ScrollBarAsNeeded
+            bar = scroll.horizontalScrollBar()
+            if bar.maximum():
+                assert bar.isVisible()
+                bar.setValue(bar.maximum())
+                assert bar.value() > 0
+            for widget, html, name, external, selected_font in originals:
+                previous[0] = None
+                qtbot.waitUntil(settled)
+                scroll.ensureWidgetVisible(widget, 0, 0)
+                frozen = (widget.property('geometry').getRect(), widget.mapTo(panel, QPoint()).toTuple(),
+                          widget.font().toString(), bar.value(), scroll.verticalScrollBar().value())
+                qapp.processEvents()
+                assert frozen == (widget.property('geometry').getRect(), widget.mapTo(panel, QPoint()).toTuple(),
+                                  widget.font().toString(), bar.value(), scroll.verticalScrollBar().value())
+                assert not panel._news_title_fit._timer.isActive()
+                assert (widget.text(), widget.accessibleName(), widget.openExternalLinks(), widget.font().toString()) == (html, name, external, selected_font)
+                assert QFontInfo(widget.font()).family() == 'Open Sans'
+                if widget.wordWrap():
+                    document = QTextDocument()
+                    document.setDocumentMargin(0)
+                    document.setDefaultFont(widget.font())
+                    option = QTextOption()
+                    option.setWrapMode(QTextOption.WordWrap)
+                    option.setAlignment(widget.alignment())
+                    document.setDefaultTextOption(option)
+                    document.setHtml(widget.text())
+                    document.setTextWidth(widget.contentsRect().width())
+                    document.size()
+                    assert widget.margin() == widget.frameWidth() == 0 and widget.indent() < 0
+                    block = document.begin()
+                    layout = block.layout()
+                    assert layout.lineCount() > 0
+                    origin = widget.contentsRect().topLeft()
+                    dy = max(0., (widget.contentsRect().height()-document.size().height())/2)
+                    rects = [layout.lineAt(i).naturalTextRect().translated(
+                        document.documentLayout().blockBoundingRect(block).topLeft()).translated(origin.x(), origin.y()+dy).toAlignedRect()
+                        for i in range(layout.lineCount())]
+                else:
+                    rects = [widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
+                        int(widget.alignment() | Qt.TextSingleLine), widget.isEnabled(), widget.text())]
+                for rect in rects:
+                    assert widget.contentsRect().contains(rect), (width, name, rect)
+                    assert QRegion(rect).subtracted(widget.visibleRegion()).isEmpty(), (width, name, rect, widget.visibleRegion())
+                    assert panel.rect().contains(rect.translated(widget.mapTo(panel, QPoint()))), (width, name, rect)
+            assert [block.layout().itemAt(2).widget().text() for block in blocks] == body_html
+            heights.append(long_title.property('minimumSize').height())
+        assert heights[0] == heights[2] and heights[0] > heights[1], heights
+        before = len(calls)
+        for _ in range(8):
+            qapp.processEvents()
+        assert len(calls) == before
+        old_headlines = list(panel._headline_labels)
+        panel._fill()
+        title = panel._notes_column.itemAt(1).widget().layout().itemAt(0).widget()
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        assert len(panel._headline_labels) == 34 and not set(old_headlines).intersection(panel._headline_labels)
+        assert all(w.property('maximumSize').width() <= scroll.viewport().property('size').width()
+                   for w in panel._headline_labels if w.wordWrap())
+        timer = panel._news_title_fit._timer
+        timer.start(0)
+        before = len(calls)
+        panel.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(timer)
+        qapp.processEvents()
+        assert len(calls) == before
+        panel = None
+    finally:
+        try:
+            if panel is not None:
+                panel.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(sheet)
+            qapp.setFont(font)
+            qapp.setPalette(palette)
+
+
 # -- the panel ---------------------------------------------------------------
 
 def _following_release(version: tuple) -> tuple:
