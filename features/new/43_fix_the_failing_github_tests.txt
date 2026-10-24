@@ -43,6 +43,15 @@ contracts. Preserve production behavior, native controls and all coverage limits
 use bounded CPU-only lifecycle and real Qt controls, then root review/publication.
 Three controls pass (4.25s); corrected missing-screen fixture passes alone (0.87s).
 Production/generated files are unchanged; root owns final publication.
+CURRENT REPORTING COVERAGE CONTRACTS — 2026-10-24
+widgets_g2 owns Main aggregate120781472369 gaps in crashreport, AI providers,
+ConsolePanel and AIChatPanel; root reviews and publishes. Bind exact missing
+statements/arcs to current source, reuse accepted Night controls first, then
+exercise only remaining real policy, lifetime and error-delivery boundaries.
+Keep all existing ceilings, consent/privacy/provider choices, batching and
+original output behavior. CPU-only fake transports; no live AI or issue posts.
+Remove only the proven redundant native-session non-Mapping guard; retain the
+JSON-object parser, sanitizer, consent, acknowledgement and history checks.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4860,3 +4869,4 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Release lane owns only Night C0's stale Darwin context-options assertion after the approved Mac Radeon OpenGL4.1 adapter. Pin explicit platform/version expectations while preserving Linux EGL4.3, Windows4.3 and all fallback/ownership controls; no renderer, driver, source or Main change, and run only the failed Darwin case. Root accepted the exact source-bound fixture diff; the sole Darwin node passes (3.15s), without creating a graphics context or running GPU work. Other platform expectations and all fallback/ownership assertions remain unchanged.
 
 2026-10-24 — Release lane owns only six actual Night C2 ambient-engine failures caused by the recording GL context omitting the current version_code protocol. Supply the requested context version in that CPU-only double; preserve every frame/material/pixel/resource-ownership assertion and runtime/platform behavior, then run only the six reported cases without a graphics driver. Root accepted the exact protocol-field repair; all six reported engine controls pass (2.94s) on the CPU-only recording context. Frame/material/pixel and release/ownership assertions are unchanged; no driver or GPU qualification is claimed.
+2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.
