@@ -6492,12 +6492,15 @@ class AppScreen(QWidget):
         import importlib
         from contextlib import nullcontext
 
+        from ..bridge import _importing_in_the_background
+
         app = sys.modules.get("spacr.qt.app")
         lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
         imported = 0
         for name in names:
             try:
-                with lock if lock is not None else nullcontext():
+                with (lock if lock is not None else nullcontext()), \
+                        _importing_in_the_background():
                     importlib.import_module(name)
                 imported += 1
             except Exception:                                # noqa: BLE001

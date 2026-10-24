@@ -261,7 +261,8 @@ def test_failed_second_rename_rolls_back_without_deleting_old_runtime(runtime, m
 
     def fail_stage(source, target):
         calls.append((source, target))
-        if Path(source).name == 'staged' and Path(target) == runtime.prefix:
+        public = os.fspath(target).removeprefix('\\\\?\\')
+        if Path(source).name == 'staged' and Path(public) == runtime.prefix:
             raise PermissionError('modeled Windows file lock')
         return rename(source, target)
 
@@ -672,13 +673,40 @@ def test_descendant_proof_is_not_cached(runtime, monkeypatch):
         cleanup._windows_pip_tree_acl(str(runtime.prefix))
 
 
+@pytest.mark.skipif(os.name != 'nt', reason='native Windows extended paths and ACLs')
+def test_native_deep_file_acl_walk_keeps_public_paths_and_every_payload(tmp_path, monkeypatch):
+    root = tmp_path / 'private-runtime'
+    deep = root
+    for index in range(4):
+        deep = deep / (str(index) + '-qml-resources-' + 'x' * 35)
+    payload = deep / 'qrc_qmake_Qt_labs_assetdownloader_init.cpp.obj'
+    assert len(str(payload)) > 274
+    os.makedirs(cleanup._windows_native_path(deep), mode=0o700)
+    content = b'complete genuine-layout deep payload\x00\xff'
+    with open(cleanup._windows_native_path(payload), 'xb') as stream:
+        stream.write(content)
+    seen = []
+    native_acl = cleanup._windows_pip_acl
+
+    def observe(path):
+        assert not os.fspath(path).startswith('\\\\?\\')
+        seen.append(os.fspath(path))
+        return native_acl(path)
+
+    monkeypatch.setattr(cleanup, '_windows_pip_acl', observe)
+    assert cleanup._windows_pip_tree_acl(str(root)) == {'verified': True, 'entries': 6}
+    assert str(payload) in seen and len(seen) == 6
+    with open(cleanup._windows_native_path(payload), 'rb') as stream:
+        assert stream.read() == content
+
+
 def test_descendant_reparse_attribute_is_refused_without_following_it(runtime, monkeypatch):
     original = cleanup.os.lstat
     target = runtime.package
 
     def reparse(path, **kwargs):
         result = original(path, **kwargs)
-        if Path(path) == target:
+        if os.fspath(path) == cleanup._windows_native_path(target):
             return types.SimpleNamespace(st_mode=result.st_mode, st_file_attributes=0x400)
         return result
 
@@ -844,3 +872,69 @@ def test_actual_offline_wheel_and_original_identity_probe_in_disposable_layout(r
         assert snapshot(next(runtime.prefix.parent.glob('.spacr-windows-update-*')) / 'previous') == old
         assert (runtime.package / '_version.py').read_text(encoding="utf-8") == '__version__ = "1.5.1.5"\n'
     assert len(package_commands) == 1
+
+
+def test_a_tree_walk_trusts_its_verified_volume_only_below_its_root(tmp_path, monkeypatch):
+    root = tmp_path / 'runtime'
+    (root / 'Lib' / 'site-packages').mkdir(parents=True)
+    (root / 'Lib' / 'site-packages' / 'module.py').write_text('x = 1\n', encoding='utf-8')
+    seen = {}
+    monkeypatch.setattr(cleanup, '_windows_pip_private_access',
+                        lambda path, **kwargs: seen.setdefault(
+                            os.fspath(path), cleanup._WINDOWS_VERIFIED_VOLUME_TREE.get()))
+
+    assert cleanup._windows_pip_tree_acl(str(root)) == {'verified': True, 'entries': 4}
+
+    trusted = os.path.normcase(os.path.abspath(str(root))).rstrip(os.sep) + os.sep
+    assert seen.pop(os.path.abspath(str(root))) is None
+    assert set(seen.values()) == {trusted}
+    assert all(os.path.normcase(path).startswith(trusted) for path in seen)
+    assert cleanup._WINDOWS_VERIFIED_VOLUME_TREE.get() is None
+
+
+def test_a_refused_tree_walk_forgets_its_verified_volume(tmp_path, monkeypatch):
+    root = tmp_path / 'runtime'
+    (root / 'Lib').mkdir(parents=True)
+
+    def refuse_child(path, **kwargs):
+        if os.path.basename(os.fspath(path)) == 'Lib':
+            raise ValueError('foreign writer')
+
+    monkeypatch.setattr(cleanup, '_windows_pip_private_access', refuse_child)
+    with pytest.raises(ValueError, match='foreign writer'):
+        cleanup._windows_pip_tree_acl(str(root))
+    assert cleanup._WINDOWS_VERIFIED_VOLUME_TREE.get() is None
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='native Windows volume queries')
+def test_native_tree_walk_queries_the_volume_once(tmp_path, monkeypatch):
+    import ctypes
+
+    root = tmp_path / 'runtime'
+    for index in range(3):
+        (root / str(index)).mkdir(parents=True)
+        (root / str(index) / 'payload.bin').write_bytes(b'x')
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    real_volume = kernel.GetVolumePathNameW
+    called = []
+
+    def counting_volume(*args):
+        called.append(args[0])
+        return real_volume(*args)
+
+    class Counting:
+        GetVolumePathNameW = staticmethod(counting_volume)
+
+        def __getattr__(self, name):
+            return getattr(kernel, name)
+
+    real_windll = ctypes.WinDLL
+    monkeypatch.setattr(ctypes, 'WinDLL', lambda name, **kwargs: Counting() if name == 'kernel32'
+                        else real_windll(name, **kwargs))
+    monkeypatch.setattr(cleanup, '_windows_pip_private_access',
+                        lambda path, **kwargs: cleanup._windows_pip_acl(path))
+
+    assert cleanup._windows_pip_tree_acl(str(root))['entries'] == 7
+    assert len(called) == 1, called
+    assert cleanup._windows_pip_acl(str(root / '0' / 'payload.bin'))['user'].startswith('S-1-')
+    assert len(called) == 2, 'outside a walk every path is still checked'

@@ -9806,12 +9806,14 @@ def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
         import importlib
         from contextlib import nullcontext
 
+        from ..bridge import _importing_in_the_background
         from ..gil_priority import responsive_gui
 
         app = sys.modules.get("spacr.qt.app")
         lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
         with responsive_gui(), (lock if lock is not None
-                                else nullcontext()):
+                                else nullcontext()), \
+                _importing_in_the_background():
             try:
                 importlib.import_module(_ATTRIBUTION_MODULE)
             except Exception:                                # noqa: BLE001

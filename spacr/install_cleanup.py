@@ -48,6 +48,7 @@ runs on its own; ``remove --purge`` runs it after the removal succeeded.
 from __future__ import annotations
 
 import argparse
+import contextvars
 import errno
 import glob
 import hashlib
@@ -7094,8 +7095,17 @@ def _windows_native_path(path):
     return absolute if absolute.startswith("\\\\") else "\\\\?\\" + absolute
 
 
+_WINDOWS_VERIFIED_VOLUME_TREE = contextvars.ContextVar(
+    "_WINDOWS_VERIFIED_VOLUME_TREE", default=None)
+
+
 def _windows_pip_acl(path):
-    """Read local fixed-volume ownership and ordinary DACL entries through native Windows APIs."""
+    """Read local fixed-volume ownership and ordinary DACL entries through native Windows APIs.
+
+    ``GetVolumePathNameW`` costs about 3 ms a path. Below a root whose volume
+    :func:`_windows_pip_tree_acl` has verified it is skipped: that walk refuses
+    every reparse point, so no descendant can sit on another volume.
+    """
     import ctypes
 
     if os.name != "nt":
@@ -7115,14 +7125,16 @@ def _windows_pip_acl(path):
         absolute = absolute[4:]
     if absolute.startswith("\\\\") or drive_type(os.path.splitdrive(absolute)[0] + os.sep) != 3:
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
-    root = ctypes.create_unicode_buffer(32768)
-    if not volume(_windows_native_path(absolute), root, len(root)):
-        raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
-    volume_root = root.value
-    if volume_root.startswith("\\\\?\\") and volume_root[5:7] == ":\\":
-        volume_root = volume_root[4:]
-    if volume_root.startswith("\\\\") or drive_type(volume_root) != 3:
-        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    verified_tree = _WINDOWS_VERIFIED_VOLUME_TREE.get()
+    if verified_tree is None or not os.path.normcase(absolute).startswith(verified_tree):
+        root = ctypes.create_unicode_buffer(32768)
+        if not volume(_windows_native_path(absolute), root, len(root)):
+            raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
+        volume_root = root.value
+        if volume_root.startswith("\\\\?\\") and volume_root[5:7] == ":\\":
+            volume_root = volume_root[4:]
+        if volume_root.startswith("\\\\") or drive_type(volume_root) != 3:
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     read_security = security.GetNamedSecurityInfoW
     read_security.argtypes = [ctypes.c_wchar_p, dword, dword,
                               ctypes.POINTER(pointer), ctypes.POINTER(pointer),
@@ -7210,19 +7222,29 @@ def _windows_pip_acl(path):
 
 def _windows_pip_tree_acl(path, *, system_owner=False):
     """Validate every descendant with native ACL checks in the background preparation worker."""
-    pending = [os.path.abspath(path)]
+    top = os.path.abspath(path)
+    plain = top[4:] if top.startswith("\\\\?\\") and top[5:7] == ":\\" else top
+    pending = [top]
     count = 0
-    while pending:
-        current = pending.pop()
-        details = os.lstat(current)
-        if (stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400
-                or not (stat.S_ISDIR(details.st_mode) or stat.S_ISREG(details.st_mode))):
-            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
-        _windows_pip_private_access(current, system_owner=system_owner)
-        if stat.S_ISDIR(details.st_mode):
-            with os.scandir(current) as entries:
-                pending.extend(entry.path for entry in entries)
-        count += 1
+    verified = None
+    try:
+        while pending:
+            current = pending.pop()
+            details = os.lstat(_windows_native_path(current))
+            if (stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400
+                    or not (stat.S_ISDIR(details.st_mode) or stat.S_ISREG(details.st_mode))):
+                raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+            _windows_pip_private_access(current, system_owner=system_owner)
+            if verified is None:
+                verified = _WINDOWS_VERIFIED_VOLUME_TREE.set(
+                    os.path.normcase(plain).rstrip(os.sep) + os.sep)
+            if stat.S_ISDIR(details.st_mode):
+                with os.scandir(_windows_native_path(current)) as entries:
+                    pending.extend(os.path.join(current, entry.name) for entry in entries)
+            count += 1
+    finally:
+        if verified is not None:
+            _WINDOWS_VERIFIED_VOLUME_TREE.reset(verified)
     return {"verified": True, "entries": count}
 
 
