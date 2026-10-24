@@ -16,6 +16,24 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Corrected90629/jslqL8 diagnostic0/0.472GiB/zero missed:
+756 addfont calls/721 success cost.929s wall/.811CPU; valid JSON write.233s.
+Cache1828TTF/61AFM; class/instance/loader restored, normal cleanup0.
+35 original caught font errors retained; no font/cache-policy optimization.
+Home9.482s>5s; Home5s/Mask10s/30FPS remain OPEN, no acceptance claim.
+
+2026-10-24 — Font-entry69403/mc343d diagnostic0/0.507GiB/zero missed:
+default params1.770s wall/1.433CPU; nested manager1.592s/1.259CPU, once each.
+Post-import manager work1.094s measured; only4.8ms then earlylaunch/crashreport.
+Exact observer restoration/normal cleanup0; Home9.514s remains over5s.
+Internal cause unmeasured; inclusive times not additive, no fix/speedup claim.
+
+2026-10-24 — Operations67574/t4t9Zb returned0/0.495GiB/cleanup0 but INVALID:
+instance addfont observer entered manager.__dict__; JSON cache ends at addfont,
+not a product serialization failure or normal-cache/timing acceptance.
+Correct observer at class descriptor, counting only actual manager calls;
+preserve class/instance identity state and report exception types, not paths.
+
 2026-10-24 — Bootstrap49903/ZmrKd5 diagnostic0/0.532GiB/zero missed:
 no Qt/app/Mask preload; MainWindow3.857s/Home9.332s, normal close/registry0.
 126 pre-MainWindow import finishes: inclusive VisPy.340s/app.328/fontmanager.301;
