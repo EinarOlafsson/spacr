@@ -2136,7 +2136,8 @@ def tick():
   elif state['stage'] == 2:
    body = host._field_overview
    state['body'] = body
-   if not body._normalization_ready:
+   if (not body._normalization_ready or body._module_action_fit_timer.isActive()
+     or body._fitting_module_actions):
     return
    assert body.isVisible() and not body.isWindow() and not isinstance(body, QDialog)
    assert not body.property('spacrGlassed') and body.window() is window
