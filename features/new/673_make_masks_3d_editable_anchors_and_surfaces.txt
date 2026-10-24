@@ -26,6 +26,12 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+2026-10-24 — Diagnostic80755/4SxKwy onbfb3a33f3a FAIL46.51s/1.494GiB:
+registry empty before/after close, then new 'classify_merged chaining' RunHandle
+after run; housekeeping/nonblocking, thread finished/stopped, not captured.
+All7 frames/restores/GPUrelease/normalclose/run0 pass; zero-registry still fails.
+Late-work scheduling needs attribution; no global prune, grace or fix claim.
+
 2026-10-24 — Masks91836/VNE5nx on3a9fef33e2 FAIL50.11s/RSS1.548GiB:
 all7 controls/freshframes/restores/finish-prefs pass, but final registry count1
 is unclassified. Captured threads0alive/GPUreleased/normalclose/run0 pass;
