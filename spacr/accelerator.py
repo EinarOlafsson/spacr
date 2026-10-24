@@ -309,6 +309,14 @@ def _metal_gpu_name() -> str:
     """
     if platform.system() != "Darwin":
         return "Metal GPU"
+    # On Apple Silicon the GPU is the chip, and the kernel names it in
+    # microseconds; system_profiler took 0.75 s on an M2, on the launch path
+    # through the backdrop's graphics probe. Its "Chipset Model" is the same
+    # string ("Apple M2"), natively and under Rosetta.
+    if _apple_silicon():
+        chip = _sysctl_string(b"machdep.cpu.brand_string")
+        if chip.startswith("Apple "):
+            return chip
     try:
         import subprocess
 
@@ -344,9 +352,8 @@ def _rosetta_translated() -> bool:
         return False
     try:
         import ctypes
-        import ctypes.util
 
-        libc = ctypes.CDLL(ctypes.util.find_library("c"))
+        libc = _libc()
         value = ctypes.c_int(0)
         size = ctypes.c_size_t(ctypes.sizeof(value))
         if libc.sysctlbyname(b"sysctl.proc_translated", ctypes.byref(value),
@@ -355,6 +362,42 @@ def _rosetta_translated() -> bool:
         return value.value == 1
     except Exception:                                        # noqa: BLE001
         return False
+
+
+@lru_cache(maxsize=1)
+def _libc():
+    """The C library, for ``sysctlbyname``.
+
+    ``CDLL(None)`` is the process's own symbol table, which on macOS already
+    holds libSystem; ``find_library("c")`` scans dyld paths for ~30 ms first.
+    """
+    import ctypes
+
+    try:
+        libc = ctypes.CDLL(None)
+        libc.sysctlbyname
+        return libc
+    except (OSError, AttributeError):
+        import ctypes.util
+
+        return ctypes.CDLL(ctypes.util.find_library("c"))
+
+
+def _sysctl_string(name: bytes) -> str:
+    """A string sysctl read through ``sysctlbyname``, or ``""``. Never raises."""
+    try:
+        import ctypes
+
+        libc = _libc()
+        size = ctypes.c_size_t(0)
+        if libc.sysctlbyname(name, None, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        buffer = ctypes.create_string_buffer(size.value)
+        if libc.sysctlbyname(name, buffer, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        return buffer.value.decode("utf-8", "replace").strip()
+    except Exception:                                        # noqa: BLE001
+        return ""
 
 
 def _apple_silicon() -> bool:

@@ -114,3 +114,36 @@ def test_the_app_says_it_at_launch(monkeypatch, capsys):
     _translated(monkeypatch, False)
     qt._say_when_running_translated()
     assert capsys.readouterr().err == ""
+
+
+def _forget_gpu_name():
+    clear = getattr(A._metal_gpu_name, "cache_clear", None)
+    if clear is not None:
+        clear()
+
+
+def test_apple_silicon_names_its_gpu_without_system_profiler(monkeypatch):
+    """The chip is the GPU; system_profiler cost 0.75 s on the launch path."""
+    _forget_gpu_name()
+    monkeypatch.setattr(A.platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(A, "_apple_silicon", lambda: True)
+    monkeypatch.setattr(A, "_sysctl_string", lambda name: "Apple M3 Pro")
+
+    def no_subprocess(*args, **kwargs):
+        raise AssertionError("system_profiler was spawned")
+
+    monkeypatch.setattr("subprocess.run", no_subprocess)
+    try:
+        assert A._metal_gpu_name() == "Apple M3 Pro"
+    finally:
+        _forget_gpu_name()
+
+
+@pytest.mark.skipif(sys.platform != "darwin" or not A._apple_silicon(),
+                    reason="needs an Apple Silicon Mac")
+def test_the_kernels_chip_name_is_system_profilers_gpu_name():
+    out = subprocess.run(["system_profiler", "SPDisplaysDataType"],
+                         capture_output=True, text=True, timeout=60).stdout
+    chipset = next(line.split(":", 1)[1].strip() for line in out.splitlines()
+                   if "Chipset Model:" in line)
+    assert A._sysctl_string(b"machdep.cpu.brand_string") == chipset
