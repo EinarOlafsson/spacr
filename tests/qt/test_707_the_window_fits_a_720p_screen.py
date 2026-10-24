@@ -82,6 +82,369 @@ def test_the_main_window_minimum_fits_the_smallest_work_area(qtbot):
     assert (window.width(), window.height()) == app_mod._MAIN_WINDOW_OPENING
 
 
+def test_native_home_content_fits_new_desktop_minimum(tmp_path):
+    """Check real Home text and icons at the newly legal native desktop floor."""
+    import ast
+    import json
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
+        pytest.skip("Requires the owned native Cocoa acceptance runner")
+    root = Path(app_mod.__file__).resolve().parents[2]
+    source = ast.parse((root / "tests/qt/test_the_macos_application_menu.py").read_text())
+    bootstrap = next(node.value.args[0] for node in source.body
+                     if isinstance(node, ast.Assign) and any(
+                         isinstance(target, ast.Name) and target.id == "_OWNED_SETTINGS_PROBE"
+                         for target in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import subprocess, time, traceback
+        from pathlib import Path
+        from PySide6.QtCore import QPoint, QRect, QSize, Qt, QTimer
+        from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
+        from PySide6.QtWidgets import (QAbstractButton, QLabel, QMenuBar, QPushButton, QScrollArea,
+            QStyle, QStyleOptionButton, QStyleOptionToolButton, QToolButton)
+        from spacr.qt import gui_scale, preferences, theme, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.widgets.home import AppTile, _AppTileIcon, _find_logo_pixmap
+        from spacr.qt.widgets.eliding import ElidingLabel
+
+        assert timing.ENABLED, 'Readiness requires explicit SPACR_TIMING=1'
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
+        assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        report = {'errors': [], 'checks': [], 'programmatic_not_physical': True}
+        output = Path(os.environ['SPACR_HOME_TEST_OUTPUT'])
+        state = {}
+
+        def persist():
+            """Persist actual partial evidence before any strict assertion."""
+            output.write_text(json.dumps(report, indent=2))
+
+        def close():
+            """Use the real owned MainWindow close route even on failure."""
+            if 'timer' in state:
+                state['timer'].stop()
+            report['normal_close_accepted'] = state['window'].close()
+            persist()
+
+        def signature(window, target):
+            """Observe only the target subtree and its actual layout ancestors."""
+            snapshot = []
+            widgets = [target, *target.findChildren(QWidget)]
+            ancestor = target.parentWidget()
+            while ancestor is not None:
+                if ancestor not in widgets:
+                    widgets.append(ancestor)
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            for w in widgets:
+                if not w.isVisible():
+                    continue
+                fitter = getattr(w, '_text_fit', None)
+                if fitter is not None and (fitter._timer.isActive() or fitter._busy):
+                    return None
+                if any(getattr(w, key, False) for key in
+                        ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
+                    return None
+                for key in ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer'):
+                    timer = getattr(w, key, None)
+                    if timer is not None and timer.isActive():
+                        return None
+                layout = w.layout()
+                snapshot.append((id(w), w.property('size').toTuple(), w.pos().toTuple(),
+                    w.property('minimumSize').toTuple(), w.property('maximumSize').toTuple(),
+                    layout.geometry().getRect() if layout else None, w.font().toString()))
+            return snapshot
+
+        def native_menu_child(widget):
+            """Keep external macOS menu-bar objects out of in-window claims."""
+            parent = widget.parentWidget()
+            while parent is not None:
+                if isinstance(parent, QMenuBar) and parent.isNativeMenuBar():
+                    return True
+                parent = parent.parentWidget()
+            return False
+
+        def check(widget):
+            """Check the current native text or icon after one scroll reveal."""
+            window = state['window']
+            row = {'class': type(widget).__name__, 'name': widget.objectName(),
+                   'rect': widget.rect().getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
+                   'font': widget.font().toString()}
+            row['ancestors'] = []
+            ancestor = widget
+            while ancestor is not None:
+                row['ancestors'].append({'class': type(ancestor).__name__, 'name': ancestor.objectName(),
+                    'actual_size': ancestor.property('size').toTuple(),
+                    'in_window': ancestor.rect().translated(ancestor.mapTo(window, QPoint())).getRect(),
+                    'minimum_hint': ancestor.minimumSizeHint().toTuple()})
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            report['checks'].append(row)
+            def visible(rect):
+                return (QRegion(rect).subtracted(widget.visibleRegion()).isEmpty()
+                        and window.rect().contains(rect.translated(widget.mapTo(window, QPoint()))))
+            if isinstance(widget, QLabel):
+                pixmap = widget.pixmap()
+                if pixmap is not None and not pixmap.isNull():
+                    shown = pixmap.deviceIndependentSize()
+                    placed = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(),
+                        QSize(round(shown.width()), round(shown.height())), widget.contentsRect())
+                    row.update(icon_size=(shown.width(), shown.height()), dpr=pixmap.devicePixelRatio(),
+                               placed=placed.getRect())
+                    source_size = None
+                    if isinstance(widget, _AppTileIcon):
+                        sizes = widget._icon.availableSizes()
+                        assert sizes, row
+                        source_size = max(sizes, key=lambda s: s.width()*s.height())
+                    elif widget.objectName() == 'HeroMark':
+                        source_size = _find_logo_pixmap().size()
+                    if source_size is not None:
+                        assert abs(shown.width()*source_size.height()-shown.height()*source_size.width()) <= max(source_size.width(), source_size.height()), row
+                    assert pixmap.devicePixelRatio() == 2. and not placed.isEmpty(), row
+                    assert widget.contentsRect().contains(placed) and visible(placed), row
+                if widget.text():
+                    flags = int(widget.alignment() | (Qt.TextWordWrap if widget.wordWrap() else Qt.TextSingleLine))
+                    text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
+                        flags, widget.isEnabled(), widget.text())
+                    if widget.textFormat() == Qt.RichText or (widget.textFormat() == Qt.AutoText and '<' in widget.text()):
+                        document = QTextDocument()
+                        document.setDocumentMargin(0)
+                        document.setDefaultFont(widget.font())
+                        option = QTextOption()
+                        option.setWrapMode(QTextOption.WordWrap if widget.wordWrap() else QTextOption.NoWrap)
+                        document.setDefaultTextOption(option)
+                        document.setHtml(widget.text())
+                        document.setTextWidth(widget.contentsRect().width() if widget.wordWrap() else -1)
+                        needed = document.size().toSize()
+                        text = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(), needed, widget.contentsRect())
+                    row.update(text=widget.text(), text_rect=text.getRect())
+                    if isinstance(widget, ElidingLabel) and widget.is_elided():
+                        row['intentional_elision'] = widget.full_text()
+                        assert widget.toolTip() == widget.full_text() and '…' in widget.text(), row
+                    persist()
+                    assert widget.contentsRect().contains(text) and visible(text), row
+            elif isinstance(widget, AppTile):
+                glyphs = widget.findChildren(_AppTileIcon)
+                for glyph in glyphs:
+                    assert not glyph.geometry().intersects(widget.name_label.geometry()), row
+            elif isinstance(widget, QPushButton):
+                option = QStyleOptionButton()
+                option.initFrom(widget)
+                option.rect, option.text = widget.rect(), widget.text()
+                option.icon, option.iconSize = widget.icon(), widget.property('iconSize')
+                for active, feature in ((widget.isDefault(), QStyleOptionButton.DefaultButton),
+                        (widget.autoDefault(), QStyleOptionButton.AutoDefaultButton),
+                        (widget.isFlat(), QStyleOptionButton.Flat)):
+                    if active:
+                        option.features |= feature
+                field = widget.style().subElementRect(QStyle.SE_PushButtonContents, option, widget)
+                text = widget.style().itemTextRect(widget.fontMetrics(), field,
+                    int(Qt.AlignCenter | Qt.TextSingleLine), widget.isEnabled(), widget.text())
+                row.update(text=widget.text(), field=field.getRect(), text_rect=text.getRect())
+                row['icon_scope'] = 'Child QLabel and native QToolButton icons checked separately'
+                persist()
+                assert widget.icon().isNull(), ('Additional QPushButton icon placement requires native proof', row)
+                assert field.contains(text) and visible(text), row
+            elif isinstance(widget, QToolButton):
+                row['tool_button_style'] = widget.toolButtonStyle().value
+                assert not widget.text() or widget.toolButtonStyle() == Qt.ToolButtonIconOnly, ('Unmeasured displayed tool-button caption', row)
+                option = QStyleOptionToolButton()
+                option.initFrom(widget)
+                option.rect, option.icon, option.iconSize = widget.rect(), widget.icon(), widget.property('iconSize')
+                option.toolButtonStyle = widget.toolButtonStyle()
+                option.text, option.arrowType = widget.text(), widget.arrowType()
+                field = widget.style().subControlRect(QStyle.CC_ToolButton, option, QStyle.SC_ToolButton, widget)
+                if widget.arrowType() != Qt.NoArrow:
+                    row.update(native_arrow=widget.arrowType().value, field=field.getRect())
+                    persist()
+                    assert not field.isEmpty() and widget.rect().contains(field) and visible(field), row
+                    return
+                pixmap = widget.icon().pixmap(widget.property('iconSize'), 2.)
+                shown = pixmap.deviceIndependentSize()
+                placed = QStyle.alignedRect(widget.layoutDirection(), Qt.AlignCenter,
+                    QSize(round(shown.width()), round(shown.height())), field)
+                row.update(field=field.getRect(), placed=placed.getRect(), dpr=pixmap.devicePixelRatio(),
+                           actual_icon_size=widget.property('iconSize').toTuple(),
+                           source_sizes=[size.toTuple() for size in widget.icon().availableSizes()])
+                persist()
+                assert not pixmap.isNull() and pixmap.devicePixelRatio() == 2., row
+                assert field.contains(placed) and visible(placed), row
+            else:
+                assert False, ('Unmeasured native button type', row)
+            persist()
+
+        def tick():
+            """Keep inspection inside its original single twenty-second budget."""
+            try:
+                assert time.perf_counter()-state['started'] < 20, 'Home inspection exceeded20s'
+                window = state['window']
+                handle = window.windowHandle()
+                assert handle.size() == QSize(1200, 640), handle.size()
+                if not state.get('font_witness_checked'):
+                    witness = state['font_witness']
+                    fitter = witness.parentWidget()._text_fit
+                    if fitter._timer.isActive() or fitter._busy:
+                        return
+                    selected = fitter._selected.get(witness)
+                    assert selected is not None, 'Missing actual selected Hero subtitle font'
+                    selected_font = selected['font']
+                    report['startup_witness'].update(
+                        selected_subtitle_font=selected_font.toString(),
+                        selected_subtitle_pixels=selected_font.pixelSize(),
+                        selected_subtitle_base_sheet=selected['base'],
+                        actual_subtitle_font=witness.font().toString(),
+                        actual_subtitle_pixels=witness.font().pixelSize())
+                    persist()
+                    assert selected_font.pixelSize() == report['startup_witness']['expected_subtitle_pixels']
+                    assert QFontInfo(selected_font).family() == QFontInfo(witness.font()).family() == 'Open Sans'
+                    assert 0 < witness.font().pixelSize() <= selected_font.pixelSize()
+                    state['font_witness_checked'] = True
+                if 'widgets' not in state:
+                    report['external_native_menu_objects'] = [w.objectName() for w in window.findChildren(QWidget)
+                        if w.isVisible() and native_menu_child(w) and isinstance(w, (QLabel, QAbstractButton))]
+                    state['widgets'] = [w for w in window.findChildren(QWidget)
+                        if w.isVisible() and w.window() is window and not native_menu_child(w)
+                            and (isinstance(w, QLabel) and (w.text() or (w.pixmap() is not None and not w.pixmap().isNull()))
+                            or isinstance(w, QAbstractButton))]
+                    state['index'] = 0
+                    report['target_count'] = len(state['widgets'])
+                if state['index'] == len(state['widgets']):
+                    assert report['checks'] and any(row.get('icon_size') for row in report['checks'])
+                    close()
+                    return
+                widget = state['widgets'][state['index']]
+                current = signature(window, widget)
+                if current is None:
+                    state['previous'] = None
+                    return
+                if not state.get('revealed'):
+                    if state.get('previous') != current:
+                        state['previous'] = current
+                        return
+                    parent = widget.parentWidget()
+                    while parent is not None and parent is not window:
+                        if isinstance(parent, QScrollArea):
+                            parent.ensureWidgetVisible(widget, 0, 0)
+                        parent = parent.parentWidget()
+                    state['revealed'] = True
+                    state['after_reveal'] = signature(window, widget)
+                    return
+                assert state['after_reveal'] is not None and current == state['after_reveal'], 'Layout changed after the single reveal'
+                try:
+                    check(widget)
+                except AssertionError:
+                    report['errors'].append(traceback.format_exc())
+                    persist()
+                state['index'] += 1
+                state['revealed'] = False
+                if state['index'] < len(state['widgets']):
+                    state['previous'] = signature(window, state['widgets'][state['index']])
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                persist()
+                close()
+
+        def prepare(entry):
+            """Set the real client minimum only after normal Home readiness."""
+            if entry.get('detail') != '__home__' or state:
+                return
+            app = QApplication.instance()
+            windows = [w for w in app.topLevelWidgets() if isinstance(w, MainWindow)]
+            assert len(windows) == 1
+            window = windows[0]
+            handle = window.windowHandle()
+            state.update(window=window, started=time.perf_counter())
+            witness = window._startup.findChild(QLabel, 'HeroSubtitle')
+            expected_subtitle = gui_scale.scale_int(theme.font_px('subtitle', 2.), 2.)
+            report['startup_witness'] = {
+                'platform': app.platformName(), 'exposed': handle.isExposed(),
+                'screen': handle.screen().geometry().getRect(),
+                'work': handle.screen().availableGeometry().getRect(), 'dpr': handle.devicePixelRatio(),
+                'live_gui': gui_scale.current_scale(), 'saved_gui': preferences.get_gui_scale(),
+                'saved_font': preferences.get_font_scale(), 'app_font': app.font().toString(),
+                'app_family': QFontInfo(app.font()).family(), 'declared_role': 'subtitle',
+                'expected_subtitle_pixels': expected_subtitle,
+                'actual_subtitle_font': witness.font().toString() if witness is not None else None,
+                'actual_subtitle_pixels': witness.font().pixelSize() if witness is not None else None}
+            persist()
+            assert app.platformName() == 'cocoa' and handle.isExposed()
+            assert handle.screen().geometry().size() == QSize(1440, 900)
+            assert handle.screen().availableGeometry().size() == QSize(1440, 870)
+            assert handle.devicePixelRatio() == 2.
+            assert gui_scale.current_scale() == preferences.get_gui_scale() == 2.
+            assert preferences.get_font_scale() == 2.
+            assert QFontInfo(app.font()).family() == 'Open Sans'
+            assert witness is not None
+            state['font_witness'] = witness
+            window.showNormal()
+            handle.resize(QSize(1200, 640))
+            report['native'] = {'client': handle.size().toTuple(), 'work': handle.screen().availableGeometry().getRect(),
+                                'dpr': handle.devicePixelRatio(), 'app_font': app.font().toString(),
+                                'styled_witness_font': witness.font().toString()}
+            assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+            timer = QTimer(window)
+            timer.setInterval(50)
+            timer.timeout.connect(tick)
+            state['timer'] = timer
+            timer.start()
+            persist()
+
+        def ready(entry):
+            """Record callback failures and close rather than silently timing out."""
+            try:
+                prepare(entry)
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                persist()
+                if 'window' in state:
+                    close()
+                else:
+                    windows = [w for w in QApplication.instance().topLevelWidgets() if isinstance(w, MainWindow)]
+                    assert len(windows) == 1
+                    state['window'] = windows[0]
+                    close()
+
+        from PySide6.QtWidgets import QWidget
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result = run(['--no-setup', '--fresh'])
+        timing.unsubscribe_readiness(ready)
+        from spacr.qt.widgets import ambient
+        report.update(normal_return=result, compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
+                      compiler_helper_present=ambient._PRIME_PROCESS is not None)
+        persist()
+        assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert not report['compiler_threads'] and not report['compiler_helper_present'], report
+    ''')
+    settings = (tmp_path / "settings").resolve()
+    settings.mkdir()
+    expected_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    env = os.environ.copy()
+    env.update(QT_QPA_PLATFORM="cocoa", SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"),
+               SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_HOME_TEST_ROOT=str(root),
+               SPACR_HOME_TEST_HEAD=expected_head,
+               SPACR_HOME_TEST_OUTPUT=str(tmp_path / "native-home.json"),
+               XDG_CONFIG_HOME=str(settings), XDG_CACHE_HOME=str(tmp_path / "cache"),
+               MPLCONFIGDIR=str(tmp_path / "cache" / "matplotlib"),
+               SPACR_TIMING_LOG=str(tmp_path / "timing.txt"),
+               NUMBA_CACHE_DIR=str(tmp_path / "numba"), SPACR_NO_NETWORK="1", SPACR_NO_SETUP="1", SPACR_TIMING="1")
+    for key in tuple(env):
+        if key.startswith("SPACR_BENCHMARK_"):
+            env.pop(key)
+    result = subprocess.run([sys.executable, "-c", child], cwd=root, env=env,
+                            capture_output=True, text=True, timeout=180)
+    (tmp_path / "native-home-stdout.txt").write_text(result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads((tmp_path / "native-home.json").read_text())
+    assert not report["errors"] and report["normal_close_accepted"]
+
+
 @pytest.mark.parametrize("font_scale", (2., .1))
 def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_baseline(qtbot, qapp, font_scale):
     from spacr.qt import gui_scale, preferences

@@ -44,7 +44,7 @@ from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import (QColor, QIcon, QPainter, QPixmap,
+from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap,
                            QTextDocumentFragment)
 from PySide6.QtWidgets import (
     QApplication,
@@ -55,6 +55,7 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QStyle,
     QSizePolicy,
     QTabWidget,
     QVBoxLayout,
@@ -75,6 +76,118 @@ from .height_grip import HeightGrip
 #: label's font size have to move together to stay optically balanced.
 HERO_LOGO_PX = 72
 HERO_TITLE_PX = 52
+
+
+class _HeroLabel(QLabel):
+    """Retain selected-font preferred space without imposing a minimum."""
+
+    def sizeHint(self):
+        """Let a larger hero restore the font instead of retaining fitted hints."""
+        return getattr(self, '_hero_preferred_hint', None) or super().sizeHint()
+
+
+class _HeroTextFit(QObject):
+    """Fit only the masthead text, retaining its selected styles for growth."""
+
+    def __init__(self, hero, labels):
+        """Coalesce actual slot and selected-font changes on the owned hero."""
+        super().__init__(hero)
+        self._labels = labels
+        self._selected = {}
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fit)
+        hero.installEventFilter(self)
+        for label in labels:
+            label.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, obj, event):
+        """Schedule one fit without recursing through our own style changes."""
+        if not self._busy and event.type() in (
+                QEvent.Resize, QEvent.FontChange, QEvent.StyleChange,
+                QEvent.Polish, QEvent.LayoutRequest):
+            self._timer.start(0)
+        return False
+
+    def _fit(self):
+        """Choose the largest fitting actual pixel size from the selected font."""
+        from .. import gui_scale, preferences, theme
+
+        if self._busy:
+            return
+        original_get = gui_scale._ORIGINAL.get((QWidget, "styleSheet"), QWidget.styleSheet)
+        original_set = gui_scale._ORIGINAL.get((QWidget, "setStyleSheet"), QWidget.setStyleSheet)
+        app = QApplication.instance()
+        window = self.parent().window()
+        context = (gui_scale.current_scale(), preferences.get_font_scale(),
+                   app.styleSheet(), app.font().toString(),
+                   window.property(theme._WINDOW_SHEET_SERIAL),
+                   window.property(theme._WINDOW_SHEET_DIGEST))
+        self._busy = True
+        try:
+            for label in self._labels:
+                label.ensurePolished()
+                sheet = original_get(label)
+                previous = self._selected.get(label)
+                if (previous is None or previous['context'] != context
+                        or sheet != previous['applied']
+                        or label.font().toString() != previous.get('applied_font')):
+                    base = previous['base'] if previous is not None and sheet == previous['applied'] else sheet
+                    if sheet != base:
+                        original_set(label, base)
+                        label.ensurePolished()
+                    previous = dict(base=base, font=QFont(label.font()),
+                                    context=context, applied=base)
+                    hint = QLabel.sizeHint(label)
+                    if getattr(label, '_hero_preferred_hint', None) != hint:
+                        label._hero_preferred_hint = hint
+                        label.updateGeometry()
+                    self._selected[label] = previous
+                selected = previous['font']
+                maximum = selected.pixelSize()
+                if maximum <= 0:
+                    maximum = QFontMetrics(selected).height()
+                bounds = label.contentsRect()
+                if bounds.isEmpty():
+                    continue
+                flags = int(label.alignment() | (
+                    Qt.TextWordWrap if label.wordWrap() else Qt.TextSingleLine))
+                signature = (bounds.getRect(), label.text(), flags,
+                             label.isEnabled(), selected.toString(), sheet)
+                if previous.get('signature') == signature:
+                    continue
+
+                def fits(size):
+                    font = QFont(selected)
+                    font.setPixelSize(size)
+                    text = label.style().itemTextRect(
+                        QFontMetrics(font), bounds, flags, label.isEnabled(), label.text())
+                    return bounds.contains(text)
+
+                size = maximum
+                if not fits(maximum):
+                    low, high, size = 1, maximum - 1, 1
+                    while low <= high:
+                        middle = (low + high) // 2
+                        if fits(middle):
+                            size, low = middle, middle + 1
+                        else:
+                            high = middle - 1
+                target = previous['base']
+                if size < maximum:
+                    if '{' in target:
+                        target += f'\nQLabel#{label.objectName()} {{ font-size: {size}px; }}'
+                    else:
+                        target = (target.rstrip().rstrip(';') + '; ' if target else '') + f'font-size: {size}px;'
+                if original_get(label) != target:
+                    original_set(label, target)
+                previous['applied'] = target
+                previous['applied_font'] = label.font().toString()
+                previous['signature'] = (*signature[:-1], target)
+        finally:
+            self._busy = False
 
 
 def active_palette() -> dict:
@@ -2376,7 +2489,8 @@ class HomePage(QWidget):
             self._hero_mark = label
             row.addWidget(label)
 
-        title = QLabel("spaCR")
+        title = _HeroLabel("spaCR")
+        title.setObjectName("HeroTitle")
         title.setStyleSheet(
             f"font-family: {QSS_FONT_FAMILY}; font-weight: 300;"
             f"font-size: {font_px(HERO_TITLE_PX)}px; color: {P['accent']};"
@@ -2384,10 +2498,11 @@ class HomePage(QWidget):
         row.addWidget(title)
 
         from .loading_screen import strap_line
-        subtitle = QLabel(strap_line())
+        subtitle = _HeroLabel(strap_line())
         subtitle.setObjectName("HeroSubtitle")
         subtitle.setWordWrap(True)
         row.addWidget(subtitle, 1)
+        hero._text_fit = _HeroTextFit(hero, (title, subtitle))
 
         return hero
 

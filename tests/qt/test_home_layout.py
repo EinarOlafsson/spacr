@@ -47,6 +47,115 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
+def test_hero_text_fits_constrained_slots_and_restores_selected_style(qtbot, qapp, monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QCoreApplication, QEvent, QSize, Qt
+    from PySide6.QtGui import QFontInfo
+    from PySide6.QtWidgets import QStyle
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home as home_widgets
+    import shiboken6
+
+    calls = []
+    original_fit = home_widgets._HeroTextFit._fit
+
+    def fit(owner):
+        calls.append(owner)
+        return original_fit(owner)
+
+    monkeypatch.setattr(home_widgets._HeroTextFit, "_fit", fit)
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    hero = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        builder = SimpleNamespace(_P=home_widgets.active_palette())
+        hero = HomePage._build_hero(builder)
+        qtbot.addWidget(hero)
+        gui_scale._resize_actual(hero, QSize(3000, 900))
+        hero.show()
+        title = next(label for label in hero.findChildren(QLabel) if label.text() == "spaCR")
+        subtitle = hero.findChild(QLabel, "HeroSubtitle")
+        qtbot.waitUntil(lambda: title.font().pixelSize() == 208 and subtitle.font().pixelSize() == 68)
+        assert QFontInfo(title.font()).family() == QFontInfo(subtitle.font()).family() == "Open Sans"
+        selected = [(label.font().toString(), label.styleSheet()) for label in (title, subtitle)]
+        for label in (title, subtitle):
+            for key, value in (("minw", 372), ("maxw", 372), ("minh", 52), ("maxh", 52)):
+                gui_scale._set_actual_dim(label, key, value)
+        qtbot.waitUntil(lambda: all(label.property("size") == QSize(372, 52) for label in (title, subtitle)))
+
+        def fits(label):
+            flags = int(label.alignment() | (Qt.TextWordWrap if label.wordWrap() else Qt.TextSingleLine))
+            text = label.style().itemTextRect(label.fontMetrics(), label.contentsRect(), flags,
+                                              label.isEnabled(), label.text())
+            return label.contentsRect().contains(text)
+
+        qtbot.waitUntil(lambda: fits(title) and fits(subtitle))
+        assert title.font().pixelSize() < 208 and subtitle.font().pixelSize() < 68
+        for label in (title, subtitle):
+            for key in ("minw", "minh"):
+                gui_scale._set_actual_dim(label, key, 0)
+            for key in ("maxw", "maxh"):
+                gui_scale._set_actual_dim(label, key, 16777215)
+        gui_scale._resize_actual(hero, QSize(3002, 902))
+        qtbot.waitUntil(lambda: [(label.font().toString(), label.styleSheet())
+                                for label in (title, subtitle)] == selected)
+        assert fits(title) and fits(subtitle)
+        title.setStyleSheet("QLabel#HeroTitle {font-family: 'Open Sans'; font-size:104px; font-weight:700;}")
+        qtbot.waitUntil(lambda: title.font().pixelSize() == 208 and title.font().bold())
+        custom = title.styleSheet()
+        for label in (title, subtitle):
+            for key, value in (("minw", 372), ("maxw", 372), ("minh", 52), ("maxh", 52)):
+                gui_scale._set_actual_dim(label, key, value)
+        qtbot.waitUntil(lambda: fits(title) and fits(subtitle) and title.font().pixelSize() < 208)
+        preferences.set_font_scale(.9)
+        preferences.apply_preferences_to_app()
+        qtbot.waitUntil(lambda: hero._text_fit._selected[subtitle]['font'].pixelSize()
+                        == gui_scale.scale_int(theme.font_px('subtitle', .9), 2.))
+        assert fits(title) and fits(subtitle)
+        preferences.set_font_scale(2.)
+        preferences.apply_preferences_to_app()
+        qtbot.waitUntil(lambda: hero._text_fit._selected[subtitle]['font'].pixelSize() == 68)
+        for label in (title, subtitle):
+            for key in ("minw", "minh"):
+                gui_scale._set_actual_dim(label, key, 0)
+            for key in ("maxw", "maxh"):
+                gui_scale._set_actual_dim(label, key, 16777215)
+        gui_scale._resize_actual(hero, QSize(3004, 904))
+        qtbot.waitUntil(lambda: title.font().pixelSize() == 208 and title.styleSheet() == custom
+                        and subtitle.font().pixelSize() == 68)
+        qtbot.waitUntil(lambda: not hero._text_fit._timer.isActive())
+        count = len(calls)
+        for _ in range(8):
+            qapp.processEvents()
+        assert len(calls) == count
+        hero._text_fit._timer.start(0)
+        hero.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(hero)
+        hero = None
+        qapp.processEvents()
+    finally:
+        try:
+            if hero is not None and shiboken6.isValid(hero):
+                hero.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 @pytest.mark.parametrize("shape", [(40, 40), (80, 40), (512, 512), (1024, 512)])
 @pytest.mark.parametrize("dpr", [1.0, 2.0])
 def test_app_tile_icon_tracks_live_bounds_and_dpr(qtbot, monkeypatch, shape, dpr):
