@@ -126,6 +126,7 @@ class _HomeBodyFit(QObject):
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._apply)
+        self._outer_viewport.destroyed.connect(self._timer.stop)
         for widget in (body, *self._viewports, tabs, tabs.tabBar(),
                        *(tabs.widget(index).widget() for index in range(tabs.count()))):
             widget.installEventFilter(self)
@@ -142,8 +143,11 @@ class _HomeBodyFit(QObject):
 
     def _apply(self):
         """Use fresh row minima and cap only the masthead to its real viewport."""
+        from shiboken6 import isValid
         from ..gui_scale import _set_actual_dim
 
+        if not isValid(self._outer_viewport):
+            return
         self._busy = True
         try:
             cap = max(1, self._outer_viewport.property('size').height())
@@ -1709,6 +1713,7 @@ class _NewsTitleFit(QObject):
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._fit)
+        self._viewport.destroyed.connect(self._timer.stop)
         panel.installEventFilter(self)
         self._viewport.installEventFilter(self)
         self._busy = False
@@ -1731,8 +1736,11 @@ class _NewsTitleFit(QObject):
         """Fit fresh wrapped-title documents; leave wide plain dates scrollable."""
         from math import ceil
         from PySide6.QtGui import QTextDocument, QTextOption
+        from shiboken6 import isValid
         from ..gui_scale import _set_actual_dim
 
+        if not isValid(self._viewport):
+            return
         width = self._viewport.property('size').width()
         if width <= 0:
             return
