@@ -6395,3 +6395,8 @@ class _OverviewWellMeanContext:
                 "max_pixels_per_field": 2048, "max_bounds_pixels_per_channel": 262144,
                 "bounds_sampling": "balanced wells; deterministic PCG64 priority reservoir",
                 "bounds_domain": "original reference pixels before gain", "nonreference_cache_wells": 128}
+
+
+from ..theme import register_widget_qss as _register_widget_qss
+
+_register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
