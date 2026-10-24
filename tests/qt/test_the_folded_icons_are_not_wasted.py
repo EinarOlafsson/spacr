@@ -227,8 +227,10 @@ def test_the_mark_sits_at_the_trailing_end_of_the_heading(qtbot):
     never been laid out is the widget's default, not its layout's answer.
     """
     screen = _screen(qtbot, "mask")
-    switch = screen._fold_strip.button_for("timelapse")
+    switch = screen.dimension_switch("t")
+    assert switch is not None
     switch.setChecked(True)
+    assert switch.isChecked()
     section = _by_title(screen)["TRACKING SETUP"]
     qtbot.waitUntil(lambda: section.isVisible())
     header, mark = section.header(), _mark(section)
