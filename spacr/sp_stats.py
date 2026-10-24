@@ -5181,3 +5181,474 @@ def _write_anomaly_report(result: _AnomalyResult, out_dir, *,
             figure, os.path.join(str(out_dir), "anomaly_review.png"),
             close=True, announce_colours=False)
     return written
+
+
+_IMAGE_IDENTITY_COLUMNS = ('plate', 'well', 'row', 'column', 'field', 'field_id', 'time_id',
+                           'z_id', 'time_index', 'z_index', 'height_px', 'width_px')
+_IMAGE_COMPARISON_UNITS = ('image', 'well')
+_REPRESENTATIVE_METHODS = ('median', 'medoid', 'pca_centroid', 'measurement', 'typical_in_focus')
+
+
+def _image_measurement_columns(frame: pd.DataFrame) -> List[str]:
+    """Numeric per-image measurement columns of an overview ``fov`` frame.
+
+    :param frame: rows from :func:`spacr.measure._image_measurement_frame`.
+    :returns: names starting with ``channel_``, ``channels_`` or a mask
+        role's ``_objects_`` prefix, excluding identity, provenance and
+        settings columns such as saturation levels and downsampling steps.
+    """
+    names = []
+    for name in frame.columns:
+        if name in _IMAGE_IDENTITY_COLUMNS or not pd.api.types.is_numeric_dtype(frame[name]):
+            continue
+        if pd.api.types.is_bool_dtype(frame[name]):
+            continue
+        if not (name.startswith('channel_') or name.startswith('channels_') or '_objects_' in name):
+            continue
+        if name.endswith(('_saturation_level', '_downsample', '_solidity_sampled', '_pixel_count')):
+            continue
+        names.append(name)
+    return names
+
+
+def _image_group_label(values: Sequence[Any]) -> str:
+    """Readable group label joining annotation values, for example ``HeLa + WT``."""
+    return ' + '.join(str(value) for value in values)
+
+
+def _image_groups(frame: pd.DataFrame, dimensions: Sequence[str], *,
+                  groups: Optional[Sequence[Dict[str, Any]]] = None,
+                  levels: Optional[Dict[str, Sequence[Any]]] = None,
+                  within: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+    """Split annotated images into the groups a comparison should test.
+
+    Without ``groups``, every observed combination of ``dimensions`` is a
+    group (``replicate`` alone gives 1 vs 2 vs 3; ``cell_type`` and
+    ``pathogen_type`` together give HeLa + WT, HeLa + Ku80, HFF + WT...).
+    ``levels`` keeps only chosen values per dimension. ``groups`` names
+    explicit combinations instead, each a ``{dimension: value}`` mapping; a
+    dimension left out of a mapping matches any value. ``within`` repeats the
+    comparison inside every stratum of other annotation columns, for example
+    HFF vs HeLa within each replicate.
+
+    :param frame: one row per image with annotation columns.
+    :param dimensions: annotation columns that define the groups.
+    :returns: list of strata, each ``dict(stratum={column: value},
+        groups={label: row index})``; images missing a needed annotation are
+        left out, never assigned to a group.
+    :raises ValueError: for an unknown column or an empty definition.
+    """
+    dimensions = list(dimensions or ())
+    within = list(within or ())
+    missing = [name for name in dimensions + within if name not in frame.columns]
+    if missing:
+        raise ValueError(f'Unknown annotation columns: {missing}')
+    if not dimensions and not groups:
+        raise ValueError('Choose at least one annotation dimension')
+    if set(dimensions) & set(within):
+        raise ValueError('A dimension cannot also stratify the comparison')
+    usable = frame
+    for name, allowed in dict(levels or {}).items():
+        if name not in frame.columns:
+            raise ValueError(f'Unknown annotation column: {name}')
+        usable = usable[usable[name].astype(str).isin([str(value) for value in allowed])]
+    needed = dimensions + within
+    if groups:
+        for definition in groups:
+            unknown = [name for name in definition if name not in frame.columns]
+            if unknown:
+                raise ValueError(f'Unknown annotation columns: {unknown}')
+        needed = sorted(set(within) | {name for definition in groups for name in definition})
+    usable = usable.dropna(subset=needed)
+    usable = usable[(usable[needed].astype(str) != '').all(axis=1)] if needed else usable
+    if within:
+        strata = [(dict(zip(within, key if isinstance(key, tuple) else (key,))), block)
+                  for key, block in usable.groupby(within, sort=True)]
+    else:
+        strata = [({}, usable)]
+    result = []
+    for stratum, block in strata:
+        members: Dict[str, Any] = {}
+        if groups:
+            for definition in groups:
+                mask = np.ones(len(block), dtype=bool)
+                for name, value in definition.items():
+                    mask &= (block[name].astype(str) == str(value)).to_numpy()
+                label = _image_group_label(definition.values())
+                if label in members:
+                    raise ValueError(f'Two groups share the label {label!r}')
+                members[label] = block.index[mask]
+        else:
+            for key, part in block.groupby(dimensions, sort=True):
+                members[_image_group_label(key if isinstance(key, tuple) else (key,))] = part.index
+        result.append(dict(stratum=stratum, groups=members))
+    return result
+
+
+def _image_unit_values(frame: pd.DataFrame, index, measurement: str, unit: str) -> np.ndarray:
+    """Finite values of one group, per image or averaged per well first."""
+    if unit not in _IMAGE_COMPARISON_UNITS:
+        raise ValueError(f'unit must be one of {_IMAGE_COMPARISON_UNITS}')
+    part = frame.loc[index]
+    if unit == 'well':
+        values = part.groupby(['plate', 'well'], sort=True)[measurement].mean()
+    else:
+        values = part[measurement]
+    values = pd.to_numeric(values, errors='coerce').to_numpy(dtype=float)
+    return values[np.isfinite(values)]
+
+
+def _compare_image_groups(frame: pd.DataFrame, measurements: Sequence[str],
+                          dimensions: Sequence[str], *,
+                          groups: Optional[Sequence[Dict[str, Any]]] = None,
+                          levels: Optional[Dict[str, Sequence[Any]]] = None,
+                          within: Optional[Sequence[str]] = None,
+                          unit: str = 'image', pairwise: bool = True,
+                          correction: str = 'holm', family: str = 'measurement'
+                          ) -> Dict[str, pd.DataFrame]:
+    """Summarise and test measurements across any combination of annotated groups.
+
+    Tests come from :func:`spacr.figures.stats.compare`, which chooses the
+    test from the data and reports n, effect size and assumption checks.
+    With more than two groups an omnibus test is followed by every pairwise
+    test. P-values are corrected with :mod:`spacr.multiple_testing` across
+    each family: all tests of one measurement (``family='measurement'``) or
+    every test returned (``family='all'``).
+
+    :param frame: one row per image with measurement and annotation columns.
+    :param measurements: measurement columns to compare.
+    :param dimensions: annotation columns defining the groups.
+    :param groups: explicit combinations, see :func:`_image_groups`.
+    :param levels: values kept per dimension.
+    :param within: annotation columns to stratify by.
+    :param unit: ``'image'`` or ``'well'``; ``'well'`` averages images per
+        well first so wells, not fields, are the replicates.
+    :param pairwise: add the pairwise tests after an omnibus test.
+    :param correction: multiple-testing method, for example ``holm`` or ``fdr_bh``.
+    :param family: ``'measurement'`` or ``'all'``.
+    :returns: ``dict(summary=..., tests=...)`` frames.
+    """
+    from itertools import combinations
+    from .figures.stats import compare, table
+    if family not in ('measurement', 'all'):
+        raise ValueError("family must be 'measurement' or 'all'")
+    unknown = [name for name in measurements if name not in frame.columns]
+    if unknown:
+        raise ValueError(f'Unknown measurement columns: {unknown}')
+    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
+    summary_rows, families = [], {}
+    for entry in strata:
+        stratum = entry['stratum']
+        label = ', '.join(f'{key}={value}' for key, value in stratum.items())
+        for measurement in measurements:
+            values = {name: _image_unit_values(frame, index, measurement, unit)
+                      for name, index in entry['groups'].items()}
+            for name, data in values.items():
+                summary_rows.append(dict(
+                    stratum=label, measurement=measurement, group=name, unit=unit,
+                    n=int(data.size), images=int(len(entry['groups'][name])),
+                    mean=float(np.mean(data)) if data.size else np.nan,
+                    std=float(np.std(data, ddof=1)) if data.size > 1 else np.nan,
+                    sem=float(np.std(data, ddof=1) / np.sqrt(data.size)) if data.size > 1 else np.nan,
+                    median=float(np.median(data)) if data.size else np.nan,
+                    q1=float(np.percentile(data, 25)) if data.size else np.nan,
+                    q3=float(np.percentile(data, 75)) if data.size else np.nan))
+            testable = {name: data for name, data in values.items() if data.size >= 2}
+            plans = []
+            if len(testable) > 2:
+                plans.append(('omnibus', testable))
+                if pairwise:
+                    plans += [('pairwise', {a: testable[a], b: testable[b]})
+                              for a, b in combinations(testable, 2)]
+            elif len(testable) == 2:
+                plans.append(('pairwise', testable))
+            key = 'all' if family == 'all' else measurement
+            for stage, chosen in plans:
+                families.setdefault(key, []).append(
+                    (label, measurement, stage, compare(chosen, unit=unit)))
+    tables = []
+    for key, entries in families.items():
+        tested = table([entry[3] for entry in entries], correction=correction)
+        tested.insert(0, 'stage', [entry[2] for entry in entries])
+        tested.insert(0, 'measurement', [entry[1] for entry in entries])
+        tested.insert(0, 'stratum', [entry[0] for entry in entries])
+        if len(entries) == 1:
+            tested['p_adjusted'] = tested['p_value']
+            tested['correction'] = 'none (single test)'
+        tables.append(tested)
+    tests = pd.concat(tables, ignore_index=True) if tables else pd.DataFrame(
+        columns=['stratum', 'measurement', 'stage', 'test', 'groups', 'p_value', 'p_adjusted'])
+    return dict(summary=pd.DataFrame(summary_rows), tests=tests)
+
+
+def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
+                             dimensions: Sequence[str], *,
+                             groups: Optional[Sequence[Dict[str, Any]]] = None,
+                             levels: Optional[Dict[str, Sequence[Any]]] = None,
+                             within: Optional[Sequence[str]] = None,
+                             kind: str = 'box', unit: str = 'image',
+                             correction: str = 'holm', path=None, tests=None):
+    """Draw one measurement per group as box, violin or strip panels.
+
+    Each stratum of ``within`` gets its own panel; points are the tested
+    units. Pairwise results with an adjusted p below 0.05 are marked with
+    brackets and stars, and the panel subtitle names the omnibus test. The
+    figure is styled by :func:`spacr.figures.style._apply_user_style` and,
+    with ``path``, written by :func:`spacr.plot.save_figure`.
+
+    :param kind: ``'box'``, ``'violin'`` or ``'strip'``.
+    :param tests: an earlier ``_compare_image_groups(...)['tests']`` frame; computed when omitted.
+    :returns: ``(figure, saved_path_or_None)``.
+    """
+    import matplotlib.pyplot as plt
+    from .figures.stats import stars
+    from .figures.style import _apply_user_style
+    if kind not in ('box', 'violin', 'strip'):
+        raise ValueError("kind must be 'box', 'violin' or 'strip'")
+    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
+    if tests is None:
+        tests = _compare_image_groups(frame, [measurement], dimensions, groups=groups,
+                                      levels=levels, within=within, unit=unit,
+                                      correction=correction)['tests']
+    count = max(1, len(strata))
+    figure, axes = plt.subplots(1, count, figsize=(max(3.2, 1.1 * max(
+        (len(entry['groups']) for entry in strata), default=1) + 1.4) * count, 3.6),
+        squeeze=False, sharey=True)
+    rng = np.random.default_rng(0)
+    for axis, entry in zip(axes[0], strata):
+        names = list(entry['groups'])
+        data = [_image_unit_values(frame, entry['groups'][name], measurement, unit) for name in names]
+        positions = np.arange(1, len(names) + 1)
+        filled = [values if values.size else np.array([np.nan]) for values in data]
+        if kind == 'box':
+            axis.boxplot(filled, positions=positions, widths=0.55, showfliers=False)
+        elif kind == 'violin':
+            drawable = [i for i, values in enumerate(data) if values.size > 1]
+            if drawable:
+                axis.violinplot([data[i] for i in drawable], positions=positions[drawable],
+                                showmedians=True, widths=0.7)
+        for position, values in zip(positions, data):
+            axis.scatter(position + rng.uniform(-0.12, 0.12, values.size), values, s=12,
+                         alpha=0.75, zorder=3)
+        axis.set_xticks(positions)
+        axis.set_xticklabels(names, rotation=30 if len(names) > 3 else 0,
+                             ha='right' if len(names) > 3 else 'center')
+        label = ', '.join(f'{key}={value}' for key, value in entry['stratum'].items())
+        mine = tests[(tests['stratum'] == label) & (tests['measurement'] == measurement)] if len(tests) else tests
+        omnibus = mine[mine['stage'] == 'omnibus'] if len(mine) else mine
+        subtitle = label
+        if len(omnibus):
+            first = omnibus.iloc[0]
+            subtitle = (label + '\n' if label else '') + f"{first['test']} p = {first['p_adjusted']:.3g}"
+        axis.set_title(subtitle)
+        finite = np.concatenate([values for values in data if values.size]) if any(v.size for v in data) else np.array([0.0])
+        top, span = float(np.nanmax(finite)), float(np.nanmax(finite) - np.nanmin(finite)) or 1.0
+        level = 0
+        for _, test in (mine[mine['stage'] == 'pairwise'].iterrows() if len(mine) else ()):
+            pair = str(test['groups']).split(' vs ')
+            if len(pair) != 2 or pair[0] not in names or pair[1] not in names:
+                continue
+            p_value = test['p_adjusted'] if np.isfinite(test['p_adjusted']) else test['p_value']
+            if not p_value < 0.05:
+                continue
+            a, b = names.index(pair[0]) + 1, names.index(pair[1]) + 1
+            level += 1
+            height = top + span * 0.08 * level
+            axis.plot([a, a, b, b], [height, height + span * 0.02, height + span * 0.02, height],
+                      color='0.25', linewidth=0.9)
+            axis.text((a + b) / 2, height + span * 0.025, stars(p_value), ha='center', va='bottom')
+    axes[0][0].set_ylabel(measurement)
+    figure._spacr_graph_kind = kind
+    figure.tight_layout()
+    _apply_user_style(figure, kind)
+    saved = None
+    if path is not None:
+        from .plot import save_figure
+        saved = save_figure(figure, str(path))
+    return figure, saved
+
+
+def _write_image_comparison(result: Dict[str, pd.DataFrame], folder, stem: str = 'image_comparison'):
+    """Write a comparison's summary and tests next to its figures.
+
+    :param result: output of :func:`_compare_image_groups`.
+    :param folder: destination folder, normally ``<source>/results``.
+    :returns: ``dict(summary=path, tests=path)``.
+    """
+    from pathlib import Path
+    from . import tabular
+    folder = Path(folder)
+    return dict(summary=tabular.write_table(result['summary'], folder / f'{stem}_summary.csv'),
+                tests=tabular.write_table(result['tests'], folder / f'{stem}_tests.csv'))
+
+
+def _standardised_measurements(frame: pd.DataFrame, measurements: Sequence[str]) -> pd.DataFrame:
+    """Robustly standardise measurements across all images.
+
+    Each column is centred on its median and divided by 1.4826 times its
+    median absolute deviation, falling back to the standard deviation for a
+    zero MAD. Columns that are constant or more than half missing are
+    dropped; remaining gaps take the column median (zero after scaling).
+    """
+    values = frame[list(measurements)].apply(pd.to_numeric, errors='coerce').astype(float)
+    values = values.replace([np.inf, -np.inf], np.nan)
+    keep = [name for name in values.columns if values[name].notna().mean() > 0.5]
+    values = values[keep]
+    centre = values.median()
+    spread = (values - centre).abs().median() * 1.4826
+    fallback = values.std(ddof=0)
+    spread = spread.where(spread > 0, fallback)
+    usable = [name for name in values.columns if np.isfinite(spread[name]) and spread[name] > 0]
+    scaled = (values[usable] - centre[usable]) / spread[usable]
+    return scaled.fillna(0.0)
+
+
+def _typical_in_focus(frame: pd.DataFrame, index, *, focus_column: Optional[str],
+                      saturation_columns: Sequence[str], outlier_z: float,
+                      max_saturation: float, scaled: pd.DataFrame) -> Tuple[List[Any], Dict[Any, str]]:
+    """Members of one class that pass QC, with the reason for each exclusion."""
+    excluded: Dict[Any, str] = {}
+    members = list(index)
+    if 'status' in frame.columns:
+        for item in members:
+            if str(frame.at[item, 'status']) not in ('ok', 'nan'):
+                excluded[item] = 'measurement failed'
+    for item in members:
+        if item in excluded:
+            continue
+        for name in saturation_columns:
+            value = frame.at[item, name]
+            if np.isfinite(value) and value > max_saturation:
+                excluded[item] = f'saturated ({name})'
+                break
+    if focus_column is not None:
+        focus = pd.to_numeric(frame.loc[members, focus_column], errors='coerce')
+        logged = np.log10(focus.where(focus > 0))
+        finite = logged.dropna()
+        if len(finite) >= 3:
+            median = float(finite.median())
+            mad = float((finite - median).abs().median()) * 1.4826
+            floor = median - (2.0 * mad if mad > 0 else 0.0)
+            for item, value in logged.items():
+                if item not in excluded and (not np.isfinite(value) or value < floor - 1e-12):
+                    excluded[item] = f'blurred ({focus_column})'
+    if scaled.shape[1] and len(members) >= 3:
+        block = scaled.loc[members]
+        centre = block.median()
+        spread = (block - centre).abs().median() * 1.4826
+        spread = spread.where(spread > 0, 1.0)
+        deviation = ((block - centre) / spread).abs().max(axis=1)
+        for item, value in deviation.items():
+            if item not in excluded and value > outlier_z:
+                excluded[item] = 'measurement outlier'
+    kept = [item for item in members if item not in excluded]
+    return kept, excluded
+
+
+def _representative_images(frame: pd.DataFrame, by: Sequence[str], *,
+                           method: str = 'median',
+                           measurements: Optional[Sequence[str]] = None,
+                           measurement: Optional[str] = None, top: int = 5,
+                           focus_column: Optional[str] = None,
+                           outlier_z: float = 3.5, max_saturation: float = 0.01,
+                           pca_variance: float = 0.9) -> pd.DataFrame:
+    """Rank the images that best represent each annotated class.
+
+    Methods, all on measurements robustly standardised across every image:
+
+    * ``median``: Euclidean distance to the class median vector.
+    * ``medoid``: mean distance to the other class members; the top image is
+      the class medoid.
+    * ``pca_centroid``: distance to the class centroid in the principal
+      components explaining ``pca_variance`` of the variance.
+    * ``measurement``: absolute difference from the class median of one
+      chosen ``measurement``, in its raw units.
+    * ``typical_in_focus``: ``median`` after excluding failed rows, saturated
+      images, images whose focus score is more than two robust deviations
+      below the class (log scale) and multivariate outliers (any robust
+      |z| above ``outlier_z`` within the class).
+
+    :param frame: one row per image with annotation and measurement columns.
+    :param by: annotation columns defining the classes.
+    :param measurements: columns to use; defaults to every measurement column.
+    :param top: candidates returned per class.
+    :param focus_column: focus score for ``typical_in_focus``; defaults to the
+        first ``*_focus_laplacian_variance`` column.
+    :returns: one row per candidate with the class values, ``rank``,
+        ``distance`` (smaller is more representative), ``method`` and the
+        image identity columns. ``frame.attrs['excluded']`` lists QC
+        exclusions as ``(row index, reason)`` pairs.
+    :raises ValueError: for an unknown method or column.
+    """
+    if method not in _REPRESENTATIVE_METHODS:
+        raise ValueError(f'method must be one of {_REPRESENTATIVE_METHODS}')
+    by = list(by)
+    missing = [name for name in by if name not in frame.columns]
+    if missing:
+        raise ValueError(f'Unknown annotation columns: {missing}')
+    measurements = list(measurements or _image_measurement_columns(frame))
+    if method == 'measurement':
+        if measurement is None or measurement not in frame.columns:
+            raise ValueError('Choose the measurement that defines the class median')
+    elif not measurements:
+        raise ValueError('No measurement columns to compare images by')
+    usable = frame.dropna(subset=by)
+    usable = usable[(usable[by].astype(str) != '').all(axis=1)]
+    scaled = _standardised_measurements(usable, measurements) if method != 'measurement' else None
+    if method in ('median', 'medoid', 'pca_centroid', 'typical_in_focus') and scaled.shape[1] == 0:
+        raise ValueError('The measurements do not vary across these images')
+    projected = None
+    if method == 'pca_centroid':
+        matrix = scaled.to_numpy(dtype=float)
+        centred = matrix - matrix.mean(axis=0)
+        _, singular, vt = np.linalg.svd(centred, full_matrices=False)
+        explained = singular ** 2 / max(float(np.sum(singular ** 2)), 1e-300)
+        components = int(np.searchsorted(np.cumsum(explained), pca_variance) + 1)
+        components = max(1, min(components, vt.shape[0]))
+        projected = pd.DataFrame(centred @ vt[:components].T, index=scaled.index)
+    if method == 'typical_in_focus' and focus_column is None:
+        focus_column = next((name for name in frame.columns
+                             if name.endswith('_focus_laplacian_variance')), None)
+    saturation = [name for name in frame.columns if name.endswith('_saturation_fraction')]
+    identity = [name for name in ('plate', 'well', 'field', 'field_id', 'time_id', 'z_id',
+                                  'source_files', 'field_uid', 'prcf') if name in frame.columns]
+    rows, excluded_all = [], []
+    for key, block in usable.groupby(by, sort=True):
+        key = key if isinstance(key, tuple) else (key,)
+        index = list(block.index)
+        if method == 'typical_in_focus':
+            index, excluded = _typical_in_focus(usable, index, focus_column=focus_column,
+                                                saturation_columns=saturation,
+                                                outlier_z=outlier_z, max_saturation=max_saturation,
+                                                scaled=scaled)
+            excluded_all += sorted(excluded.items(), key=lambda item: str(item[0]))
+            if not index:
+                continue
+        if method == 'measurement':
+            values = pd.to_numeric(usable.loc[index, measurement], errors='coerce')
+            distance = (values - values.median()).abs()
+        elif method == 'pca_centroid':
+            points = projected.loc[index]
+            distance = np.sqrt(((points - points.mean()) ** 2).sum(axis=1))
+        else:
+            points = scaled.loc[index]
+            if method == 'medoid':
+                matrix = points.to_numpy(dtype=float)
+                norms = np.einsum('ij,ij->i', matrix, matrix)
+                squared = norms[:, None] + norms[None, :] - 2.0 * (matrix @ matrix.T)
+                pairwise = np.sqrt(np.clip(squared, 0.0, None))
+                denominator = max(1, len(index) - 1)
+                distance = pd.Series(pairwise.sum(axis=1) / denominator, index=points.index)
+            else:
+                distance = np.sqrt(((points - points.median()) ** 2).sum(axis=1))
+        ordered = distance.dropna().sort_values(kind='mergesort')
+        for rank, (item, value) in enumerate(ordered.head(int(top)).items(), start=1):
+            row = dict(zip(by, key))
+            row.update(rank=rank, distance=float(value), method=method, row_index=item,
+                       class_size=len(block), candidates=len(index))
+            row.update({name: usable.at[item, name] for name in identity})
+            rows.append(row)
+    result = pd.DataFrame(rows)
+    result.attrs['excluded'] = excluded_all
+    result.attrs['measurements'] = list(scaled.columns) if scaled is not None else [measurement]
+    return result
