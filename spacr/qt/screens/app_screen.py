@@ -313,9 +313,13 @@ class _ActionWordFit(QObject):
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._fit)
-        switch.installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        _watch_object_events(switch, self, (QEvent.FontChange,
+            QEvent.ApplicationFontChange, QEvent.StyleChange, QEvent.Polish,
+            QEvent.Show, QEvent.LanguageChange))
         if self._row is not None:
-            self._row.installEventFilter(self)
+            _watch_object_events(self._row, self, (QEvent.LayoutRequest,))
         self._timer.start(0)
 
     def eventFilter(self, watched, event):
