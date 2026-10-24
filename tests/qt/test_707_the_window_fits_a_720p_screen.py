@@ -82,6 +82,251 @@ def test_the_main_window_minimum_fits_the_smallest_work_area(qtbot):
     assert (window.width(), window.height()) == app_mod._MAIN_WINDOW_OPENING
 
 
+def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
+    """Inspect the three real word switches without enabling any of them."""
+    import ast
+    import json
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
+        pytest.skip('Requires the owned native Cocoa acceptance runner')
+    root = Path(app_mod.__file__).resolve().parents[2]
+    source = ast.parse((root / 'tests/qt/test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in source.body if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == '_OWNED_SETTINGS_PROBE' for t in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import subprocess, time, traceback
+        from pathlib import Path
+        import shiboken6
+        from PySide6.QtCore import QPoint, QSize, Qt, QTimer
+        from PySide6.QtGui import QFontInfo, QRegion
+        from PySide6.QtWidgets import QWidget, QScrollArea
+        from spacr.qt import preferences, gui_scale, theme, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.bridge import registry, thread_has_stopped
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_WORD_ROOT'])
+        assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_WORD_HEAD']
+        # This is an owned profile opt-out, before run/prewarm; never a toggle click.
+        preferences.set_ai_on_by_default(False)
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        report = {'errors': [], 'checks': [], 'programmatic_not_physical': True,
+                  'ai_default_off_before_run': not preferences.get_ai_on_by_default()}
+        state = {}
+        output = Path(os.environ['SPACR_WORD_OUTPUT'])
+
+        def save():
+            output.write_text(json.dumps(report, indent=2))
+
+        def close():
+            state['timer'].stop()
+            report['closing_phase'] = state['phase']
+            report['closing_elapsed'] = time.perf_counter()-state['started']
+            state['threads'] = [handle.thread for handle in registry().active()]
+            report['captured_threads'] = len(state['threads'])
+            report['normal_close_accepted'] = state['window'].close()
+            save()
+
+        def advance(phase):
+            elapsed = time.perf_counter()-state['started']
+            assert elapsed < 20, (state['phase'], elapsed)
+            report[state['phase']+'_seconds'] = elapsed
+            state.update(phase=phase, started=time.perf_counter(), previous=None)
+            save()
+
+        def signature(target):
+            window = state['window']
+            widgets = [target]
+            ancestor = target.parentWidget()
+            while ancestor is not None:
+                widgets.append(ancestor)
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            rows = []
+            for widget in widgets:
+                for key in ('_text_fit', '_body_fit'):
+                    fitter = getattr(widget, key, None)
+                    if fitter is not None and (fitter._timer.isActive() or fitter._busy):
+                        return None
+                if any(getattr(widget, key, False) for key in
+                    ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
+                    return None
+                for key in ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer'):
+                    timer = getattr(widget, key, None)
+                    if timer is not None and timer.isActive():
+                        return None
+                rows.append((shiboken6.getCppPointer(widget), widget.property('geometry').getRect(),
+                    widget.property('minimumSize').toTuple(), widget.property('maximumSize').toTuple(),
+                    widget.font().toString()))
+            return rows
+
+        def tick():
+            try:
+                window = state['window']
+                assert time.perf_counter()-state['started'] < 20, (state['phase'], 'exceeded20s')
+                assert QApplication.activeModalWidget() is None, 'No modal/provider dismissal authorized'
+                if state['phase'] == 'startup':
+                    if window._startup_sequence_running():
+                        return
+                    tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                    if not state.get('tour'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1 and tours[0].parentWidget() is window
+                        tour = tours[0]
+                        skip = tour._skip_btn
+                        assert skip.isVisible() and skip.isEnabled() and not skip.visibleRegion().isEmpty()
+                        state['tour'] = tour
+                        skip.click()
+                        return
+                    tour = state['tour']
+                    if shiboken6.isValid(tour) and tour.isVisible():
+                        return
+                    assert was_tour_shown()
+                    report['owned_tour_skipped'] = True
+                    advance('module')
+                    window.open_module('mask')
+                    return
+                assert not any(w.isVisible() for w in window.findChildren(_TourOverlay))
+                if state['phase'] == 'module':
+                    host = window._screens.get('mask')
+                    if host is None or not host.isVisible():
+                        return
+                    refs = [('Live', getattr(host, '_preview_switch', None)),
+                            ('3D', getattr(host, '_dimension_switches', {}).get('z')),
+                            ('AI', getattr(host, '_ai_switch', None))]
+                    report['module_refs'] = {name: None if w is None else {
+                        'class': type(w).__name__, 'visible': w.isVisible(),
+                        'pointer': shiboken6.getCppPointer(w)} for name, w in refs}
+                    save()
+                    if any(w is None for _, w in refs):
+                        return
+                    assert refs[0][1] is host._lp_switch
+                    assert all(isinstance(w, AiToggleLabel) and w.window() is window for _, w in refs)
+                    state.update(host=host, refs=refs, index=0)
+                    advance('controls')
+                    return
+                expected, widget = state['refs'][state['index']]
+                current = signature(widget)
+                if 'revealed' not in state:
+                    if current is None or current != state.get('previous'):
+                        state['previous'] = current
+                        return
+                    scrolls = []
+                    ancestor = widget.parentWidget()
+                    while ancestor is not None and ancestor is not window:
+                        if isinstance(ancestor, QScrollArea):
+                            scrolls.append(ancestor)
+                        ancestor = ancestor.parentWidget()
+                    for scroll in scrolls:
+                        scroll.ensureWidgetVisible(widget, 0, 0)
+                    state['revealed'] = signature(widget)
+                    assert state['revealed'] is not None
+                    return
+                assert current is not None and current == state['revealed'], 'Post-reveal geometry changed'
+                text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
+                    int(widget.alignment() | Qt.TextSingleLine), widget.isEnabled(), widget.displayed_text())
+                handle = window.windowHandle()
+                row = {'role': expected, 'pointer': shiboken6.getCppPointer(widget),
+                    'logical': widget.text(), 'displayed': widget.displayed_text(),
+                    'source': widget.property('_spacr_i18n_text'), 'checked': widget.isChecked(),
+                    'font': widget.font().toString(), 'sheet': widget.styleSheet(),
+                    'rect': widget.property('geometry').getRect(), 'contents': widget.contentsRect().getRect(),
+                    'text': text.getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
+                    'text_in_window': text.translated(widget.mapTo(window, QPoint())).getRect(),
+                    'client': handle.size().toTuple(), 'frame': handle.frameGeometry().getRect(),
+                    'work': handle.screen().availableGeometry().getRect(), 'dpr': handle.devicePixelRatio(),
+                    'signature': current}
+                report['checks'].append(row)
+                save()
+                from spacr.qt.i18n import tr
+                assert widget.property('_spacr_i18n_text') == expected
+                assert widget.text() == widget.displayed_text() == tr(expected)
+                assert QFontInfo(widget.font()).family() == 'Open Sans'
+                assert widget.font().pixelSize() == gui_scale.scale_int(theme.font_px('body', 2.), 2.)
+                assert not widget.isChecked() and widget.isVisible() and widget.isEnabled()
+                assert widget.contentsRect().contains(text)
+                assert QRegion(text).subtracted(widget.visibleRegion()).isEmpty()
+                assert window.rect().contains(text.translated(widget.mapTo(window, QPoint())))
+                assert handle.size() == QSize(1200, 640) and handle.screen().availableGeometry().contains(handle.frameGeometry())
+                assert all(not w.isChecked() for _, w in state['refs'])
+                state['index'] += 1
+                state.pop('revealed')
+                state['previous'] = None
+                if state['index'] == 3:
+                    report['controls_seconds'] = time.perf_counter()-state['started']
+                    close()
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                close()
+
+        def ready(entry):
+            if entry.get('detail') != '__home__' or state:
+                return
+            windows = [w for w in QApplication.instance().topLevelWidgets() if isinstance(w, MainWindow)]
+            assert len(windows) == 1
+            window = windows[0]
+            timer = QTimer(window)
+            timer.setInterval(50)
+            state.update(window=window, timer=timer, phase='startup', started=time.perf_counter())
+            try:
+                assert QApplication.platformName() == 'cocoa' and window.windowHandle().isExposed()
+                assert window.windowHandle().screen().availableGeometry().size() == QSize(1440, 870)
+                assert window.windowHandle().devicePixelRatio() == 2.
+                assert not preferences.get_ai_on_by_default()
+                assert gui_scale.current_scale() == preferences.get_gui_scale() == preferences.get_font_scale() == 2.
+                window.showNormal()
+                window.windowHandle().resize(QSize(1200, 640))
+                timer.timeout.connect(tick)
+                timer.start()
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                close()
+
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result = run(['--no-setup', '--fresh'])
+        timing.unsubscribe_readiness(ready)
+        from spacr.qt.widgets import ambient
+        report.update(normal_return=result, remaining_jobs=len(registry().active()),
+            owned_threads_alive=sum(not thread_has_stopped(t) for t in state.get('threads', [])),
+            compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
+            compiler_helper_present=ambient._PRIME_PROCESS is not None)
+        save()
+        assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert [r['role'] for r in report['checks']] == ['Live', '3D', 'AI'], report
+        assert not report['remaining_jobs'] and not report['owned_threads_alive'], report
+        assert not report['compiler_threads'] and not report['compiler_helper_present'], report
+    ''')
+    env = os.environ.copy()
+    env.update(QT_QPA_PLATFORM='cocoa', SPACR_ISOLATED_PROFILE='1', SPACR_HOME=str(tmp_path / 'profile'),
+        SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_WORD_ROOT=str(root),
+        SPACR_WORD_HEAD=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
+        SPACR_WORD_OUTPUT=str(tmp_path / 'native-mask-words.json'), SPACR_TIMING='1',
+        SPACR_TIMING_LOG=str(tmp_path / 'timing.txt'), SPACR_NO_NETWORK='1', SPACR_NO_SETUP='1',
+        XDG_CONFIG_HOME=str(tmp_path / 'settings'), XDG_CACHE_HOME=str(tmp_path / 'cache'),
+        MPLCONFIGDIR=str(tmp_path / 'cache' / 'matplotlib'), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
+    for key in tuple(env):
+        if key.startswith('SPACR_BENCHMARK_'):
+            env.pop(key)
+    result = subprocess.run([sys.executable, '-c', child], cwd=root, env=env,
+        capture_output=True, text=True, timeout=180)
+    (tmp_path / 'native-mask-words-stdout.txt').write_text(result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads((tmp_path / 'native-mask-words.json').read_text())
+    assert not report['errors'] and report['normal_return'] == 0 and report['normal_close_accepted']
+    assert [row['role'] for row in report['checks']] == ['Live', '3D', 'AI']
+    assert report['ai_default_off_before_run'] and report['owned_tour_skipped']
+    assert not report['remaining_jobs'] and not report['owned_threads_alive']
+    assert not report['compiler_threads'] and not report['compiler_helper_present']
+
+
 def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     """Check real Home text and icons at the newly legal native desktop floor."""
     import ast

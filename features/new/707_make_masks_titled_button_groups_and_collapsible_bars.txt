@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native Mask word-toggle scope: normal owned startup at GUI/font200 and native
+1200x640 inspects exact Live/3D/AI controls, not Home tiles. Set owned normal
+AI-default-off before prewarm; no on-state click/provider/model/inference.
+Separate20s startup/module/control stages retain full displayed-text/native
+slot/one-reveal bounds and normal cleanup; no 64110s or whole-Home claim.
+
 Chrome lifetime scope: retain an actual button Python wrapper after its native
 parent is deferred-deleted, then change live GUI scale once alongside a live
 button. Require no listener exception and correct live repaint; this targets
