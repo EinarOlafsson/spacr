@@ -308,14 +308,14 @@ class _ActionWordFit(QObject):
         """
         super().__init__(switch)
         self._switch = switch
+        self._row = switch.parentWidget()
         self._busy = False
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._fit)
         switch.installEventFilter(self)
-        parent = switch.parentWidget()
-        if parent is not None:
-            parent.installEventFilter(self)
+        if self._row is not None:
+            self._row.installEventFilter(self)
         self._timer.start(0)
 
     def eventFilter(self, watched, event):
@@ -328,7 +328,7 @@ class _ActionWordFit(QObject):
         if not self._busy and ((watched is self._switch and event.type() in
                 (QEvent.FontChange, QEvent.ApplicationFontChange, QEvent.StyleChange,
                  QEvent.Polish, QEvent.Show, QEvent.LanguageChange))
-                or (watched is self._switch.parentWidget() and event.type() == QEvent.LayoutRequest)):
+                or (watched is self._row and event.type() == QEvent.LayoutRequest)):
             self._timer.start(0)
         return False
 

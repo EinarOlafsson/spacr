@@ -47,6 +47,53 @@ INSTALL_FOLDS = {"mask": mask_folds.install_folds,
                  "measure": measure_folds.install_folds}
 
 
+def test_action_word_observer_survives_native_switch_teardown(qtbot, qapp):
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QHBoxLayout, QWidget
+    from spacr.qt.screens.app_screen import _ActionWordFit
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+    row = QWidget()
+    qtbot.addWidget(row)
+    layout = QHBoxLayout(row)
+    switch = AiToggleLabel(row, text='3D')
+    live = AiToggleLabel(row, text='Time')
+    for widget in (switch, live):
+        layout.addWidget(widget)
+        widget._action_word_fit = _ActionWordFit(widget)
+    row.show()
+    qtbot.waitExposed(row)
+    qtbot.waitUntil(lambda: all(not widget._action_word_fit._timer.isActive()
+                              for widget in (switch, live)))
+    fitter, timer = switch._action_word_fit, switch._action_word_fit._timer
+    timer.start(0)
+    with qtbot.captureExceptions() as exceptions:
+        switch.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        qapp.processEvents()
+    assert not shiboken6.isValid(switch)
+    assert not shiboken6.isValid(fitter) and not shiboken6.isValid(timer)
+    assert not exceptions, exceptions
+    assert shiboken6.isValid(live._action_word_fit)
+    live.setText('Time axis')
+    previous = [None]
+
+    def settled():
+        if live._action_word_fit._busy or live._action_word_fit._timer.isActive():
+            return False
+        current = (live.property('size').toTuple(), live.contentsRect().getRect(),
+                   live.font().toString(), live.property('minimumSize').toTuple())
+        same = current == previous[0]
+        previous[0] = current
+        return same
+
+    qtbot.waitUntil(settled)
+    required = (live.fontMetrics().horizontalAdvance(live.text())
+                + live.property('size').width()-live.contentsRect().width())
+    assert live.property('minimumSize').width() >= required
+
+
 def test_dimension_word_native_floors_follow_selected_font(qtbot, qapp, monkeypatch):
     import shiboken6
     from PySide6.QtCore import QCoreApplication, QEvent, Qt

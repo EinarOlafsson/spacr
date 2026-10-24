@@ -12,6 +12,17 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Action-word teardown scope: restartMFMIsX logs app_screen.py331 querying
+parentWidget on an already native-deleted AiToggleLabel during normal close.
+Add a real switch/row deferred-deletion reproducer with retained wrappers,
+captured Qt exceptions and owned timer lifetime; preserve word-floor behavior.
+No tour/673 acceptance or broad callback-registry change is implied.
+2026-10-24:8064 reproduces the exact native-deleted-switch error (6.09s).
+Cached row identity removes the teardown dereference;23516 PASS5.14s/0.278GiB
+with native deletion/live-sibling floors. Selected-word case54065 remains PASS;
+its mixed cohort exposed only a corrected test readiness gate. Normal consumer
+generation50270 is byte-identical; no new native/whole-item acceptance claim.
+
 News live-scale scope: real MainWindow normal .9/.9→2/2→.9/.9→2/2 rebuilds,
 fresh34 heading fonts/source/links/viewport/document floors and representative
 one-reveal full-text access. Verify native old-timer deletion/quiescence and
