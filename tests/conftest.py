@@ -741,6 +741,51 @@ def qapp(qapp):
     gc_policy.uninstall()
 
 
+_PENDING_GUI_SCALE = None
+
+
+@pytest.fixture(autouse=True)
+def _the_gui_scale_is_left_as_it_was_found():
+    """Put the live GUI scale back the way the test found it, for every test.
+
+    A Preferences Save applies the GUI scale the dialog shows with
+    ``gui_scale.set_gui_scale_live``, which is process-wide and installs the
+    scaling layer. With a sandboxed preference store the dialog shows the
+    screen default, 90 % on the offscreen test screen, so
+    ``test_ten_night_themes::test_save_writes_what_the_dialog_shows`` left
+    every later test drawing at 0.9: ``test_one_close_mark`` then measured
+    20 px close targets against its 22 px floor.
+
+    It lives here rather than in ``tests/qt/conftest.py`` because the leak
+    crosses directories: the last ``tests/qt`` test in a worker left 0.9 for
+    ``tests/test_the_pane_heights_survive_a_restart.py``, whose restored
+    splitter sizes came back at exactly 0.9 times the saved ones.
+
+    Restored at the next test's SETUP, after delivering the deletions
+    earlier tests already requested, because a scale change visits every
+    live widget and at teardown some are part-way through being destroyed.
+    Free for tests that never touched Qt: nothing is imported unless
+    ``spacr.qt.gui_scale`` already is.
+    """
+    global _PENDING_GUI_SCALE
+
+    gui_scale = sys.modules.get("spacr.qt.gui_scale")
+    if gui_scale is not None and _PENDING_GUI_SCALE is not None:
+        widgets = sys.modules.get("PySide6.QtWidgets")
+        app = widgets.QApplication.instance() if widgets is not None else None
+        if app is not None:
+            from PySide6.QtCore import QEvent
+
+            widgets.QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        gui_scale.set_gui_scale_live(_PENDING_GUI_SCALE)
+        _PENDING_GUI_SCALE = None
+    original = gui_scale.current_scale() if gui_scale is not None else 1.0
+    yield
+    gui_scale = sys.modules.get("spacr.qt.gui_scale")
+    if gui_scale is not None and abs(gui_scale.current_scale() - original) > 1e-9:
+        _PENDING_GUI_SCALE = original
+
+
 @pytest.fixture(autouse=True)
 def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     """Deliver owner-requested Qt deletions for every Qt test boundary.
