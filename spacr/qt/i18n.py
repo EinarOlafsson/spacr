@@ -4086,18 +4086,72 @@ def _a11y_alive(obj) -> bool:
         return False
 
 
+def _a11y_system_dialog_types() -> tuple:
+    """Dialogs whose insides Qt builds, translates and names itself."""
+    from PySide6.QtWidgets import (
+        QColorDialog,
+        QFileDialog,
+        QFontDialog,
+        QMessageBox,
+    )
+
+    return (QFileDialog, QColorDialog, QFontDialog, QMessageBox)
+
+
+def _a11y_holds_a_system_dialog(root) -> bool:
+    """Whether ``root`` is, or has among its descendants, a system dialog."""
+    system = _a11y_system_dialog_types()
+    if isinstance(root, system):
+        return True
+    try:
+        from PySide6.QtWidgets import QDialog
+
+        return any(isinstance(d, system) for d in root.findChildren(QDialog))
+    except (AttributeError, RuntimeError):
+        return False
+
+
+def _a11y_spacr_tree(root, kind) -> list:
+    """``root`` and its descendants of ``kind``, never inside a system dialog.
+
+    A file, colour or font picker or a message box is built by Qt, which
+    creates and deletes its inner widgets as it likes; a wrapper kept for one
+    of them outlives it and points at freed memory. Those insides are never
+    wrapped here: the dialog itself is included, its descendants are not.
+    """
+    if not _a11y_alive(root):
+        return []
+    found = [root] if isinstance(root, kind) else []
+    system = _a11y_system_dialog_types()
+    if isinstance(root, system):
+        return found
+    try:
+        if not _a11y_holds_a_system_dialog(root):
+            found.extend(root.findChildren(kind))
+            return found
+        pending = list(root.children())
+    except (AttributeError, RuntimeError):
+        return found
+    while pending:
+        child = pending.pop()
+        if not _a11y_alive(child):
+            continue
+        if isinstance(child, kind):
+            found.append(child)
+        if isinstance(child, system):
+            continue
+        try:
+            pending.extend(child.children())
+        except (AttributeError, RuntimeError):
+            continue
+    return found
+
+
 def _a11y_live_tree(root) -> list:
     """``root`` and its descendant widgets, read fresh from Qt."""
     from PySide6.QtWidgets import QWidget
 
-    if not _a11y_alive(root):
-        return []
-    widgets = [root] if isinstance(root, QWidget) else []
-    try:
-        widgets.extend(root.findChildren(QWidget))
-    except (AttributeError, RuntimeError):
-        pass
-    return widgets
+    return _a11y_spacr_tree(root, QWidget)
 
 
 def _a11y_label_beside(widget):
@@ -4121,8 +4175,10 @@ def _a11y_label_beside(widget):
             return None
         layout = parent.layout() if parent is not None else None
         if layout is not None:
+            if not _a11y_alive(layout):
+                return None
             layout = _a11y_layout_holding(layout, current)
-        if layout is None:
+        if layout is None or not _a11y_alive(layout):
             return None
         found = None
         index = layout.indexOf(current)
@@ -4141,6 +4197,8 @@ def _a11y_label_beside(widget):
                 if item is not None and item.widget() is not None:
                     found = item.widget()
                     break
+        if found is not None and not _a11y_alive(found):
+            return None
         if isinstance(found, QLabel) and _a11y_plain(found.text()):
             return found
         if found is not None:
@@ -4495,6 +4553,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
             QGroupBox,
             QLabel,
             QLineEdit,
+            QMessageBox,
             QPlainTextEdit,
             QTableWidget,
             QTabWidget,
@@ -4588,6 +4647,16 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         if isinstance(widget, QGroupBox):
             _translate_qt_text(
                 widget, "title", "setTitle", "_spacr_i18n_title", code)
+        if isinstance(widget, QMessageBox):
+            _translate_qt_text(
+                widget, "text", "setText", "_spacr_i18n_text", code)
+            _translate_qt_text(
+                widget, "informativeText", "setInformativeText",
+                "_spacr_i18n_informative_text", code)
+            for button in widget.buttons():
+                if _a11y_alive(button):
+                    _translate_qt_text(
+                        button, "text", "setText", "_spacr_i18n_text", code)
         if isinstance(widget, (QLineEdit, QPlainTextEdit, QTextEdit)):
             _translate_qt_text(
                 widget, "placeholderText", "setPlaceholderText",
@@ -4658,12 +4727,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         except (AttributeError, RuntimeError):
             pass
 
-    actions = []
-    try:
-        actions = root.findChildren(QAction)
-    except (AttributeError, RuntimeError):
-        pass
-    for action in actions:
+    for action in _a11y_spacr_tree(root, QAction):
         if not _a11y_alive(action):
             continue
         _translate_qt_text(
@@ -4685,6 +4749,9 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         if only_new:
             settings_model._refresh_api_tooltips_of(
                 [w for w in unstamped if _a11y_alive(w)], code)
+        elif _a11y_holds_a_system_dialog(root):
+            settings_model._refresh_api_tooltips_of(
+                _a11y_live_tree(root), code)
         else:
             settings_model.refresh_api_tooltips(root, code)
     except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
