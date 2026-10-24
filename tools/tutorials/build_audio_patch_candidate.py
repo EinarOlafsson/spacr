@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from copy import deepcopy
 import json
+import math
 from pathlib import Path
 import re
 import sys
@@ -83,7 +84,180 @@ def verify_current_tracks(baseline, planned):
             raise ValueError(f"{track['lesson']}/{voice}: {errors}")
 
 
-def build(baseline, stage, identities, *, refresh_player=False):
+def _scripts_only(original, current):
+    """Allow spoken/display text only; preserve every indexed visual property."""
+    before, after = deepcopy(original), deepcopy(current)
+    for lesson in (before, after):
+        scenes = lesson.get('scenes')
+        if not isinstance(scenes, list) or not scenes:
+            raise ValueError('Expected nonempty ordered scenes')
+        for scene in scenes:
+            if (not isinstance(scene.get('visual'), str) or not scene['visual']
+                    or not isinstance(scene.get('narration'), str) or not scene['narration'].strip()):
+                raise ValueError('Expected indexed visual identities and narration')
+            scene.pop('narration', None)
+            scene.pop('speech_text', None)
+    if before != after:
+        raise ValueError('Script refresh cannot change metadata, voices, order or visual structure')
+
+
+def legacy_visual_source(baseline, identity, lesson):
+    """Bind the already-published legacy clock, never fabricate native timing."""
+    runtime = parse_javascript((baseline / 'web/lesson_catalog.js').read_text())
+    matches = [row for row in runtime['lessons'] if row['id'] == identity]
+    if len(matches) != 1:
+        raise ValueError('Expected exactly one published runtime lesson')
+    relative = matches[0].get('visual_timings', f'{identity}/audio/en/af_heart.json')
+    path = Path(relative)
+    if path.is_absolute() or '..' in path.parts or path.parts[0] != identity:
+        raise ValueError('Legacy visual clock must belong to the selected lesson')
+    source = baseline / 'media_host' / path
+    timing = read(source)
+    if (timing.get('schema') != 1 or timing.get('kind') or timing.get('native_live_video')
+            or len(timing.get('scenes', [])) != len(lesson['scenes'])):
+        raise ValueError('Script refresh supports only the existing non-native legacy clock')
+    end = 0.0
+    for index, scene in enumerate(timing['scenes'], 1):
+        values = [scene.get(key) for key in ('speech_start', 'speech_end', 'scene_end', 'duration')]
+        if (scene.get('scene') != index or scene.get('native_live_video')
+                or scene.get('text') != lesson['scenes'][index - 1]['narration']
+                or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
+            raise ValueError('Invalid indexed legacy visual clock')
+        start, speech_end, stop, duration = values
+        if (abs(start - end) > 1e-6 or not start < speech_end <= stop or duration <= 0
+                or abs(stop - start - duration) > 1e-6):
+            raise ValueError('Legacy visual clock has gaps or invalid scene bounds')
+        end = stop
+    total = timing.get('total_duration')
+    if type(total) not in (int, float) or not math.isfinite(total) or abs(total - end) > 1e-6:
+        raise ValueError('Legacy visual clock does not cover the published master')
+    records = {row['path']: row for row in read(baseline / 'release-manifest.json')['files']}
+    row = records.get('media_host/' + path.as_posix())
+    if not row or (digest(source), source.stat().st_size) != (row['sha256'], row['bytes']):
+        raise ValueError('Legacy visual clock differs from its published manifest')
+    for relative in (f'media_host/{identity}/video/{identity}_silent.mp4',
+                     f'media_host/{identity}/web/{identity}_silent.mp4',
+                     f'web/production/{identity}/poster.jpg'):
+        media = baseline / relative
+        original = records.get(relative)
+        if not original or not media.is_file() or media.stat().st_size != original['bytes']:
+            raise ValueError('Missing original master, web copy or poster')
+        # The owning build validates all manifest hashes before planning, and
+        # copy_checked revalidates them before writing the fresh candidate.
+    return source
+
+
+def script_patch_plan(baseline, stage, identities):
+    """Plan reviewed narration changes with exact published voice offerings."""
+    from apply_translation_review import translated_lesson
+    from audit_staged_catalogs import CATALOGS
+    if (not identities or len(set(identities)) != len(identities)
+            or any(not re.fullmatch(r'[0-9]+_[a-z0-9_]+', key) for key in identities)):
+        raise ValueError('Select unique existing lesson identities')
+    catalogs = {}
+    old_catalogs = {}
+    for name in CATALOGS:
+        before, after = read(baseline / 'web/catalog' / name), read(stage / 'catalog' / name)
+        if ([row['id'] for row in before['lessons']] != [row['id'] for row in after['lessons']]
+                or len({row['id'] for row in before['lessons']}) != len(before['lessons'])):
+            raise ValueError('Script refresh preserves every catalog identity and order')
+        expected = deepcopy(before)
+        for old, new, target in zip(before['lessons'], after['lessons'], expected['lessons']):
+            if old['id'] in identities:
+                _scripts_only(old, new)
+                target['scenes'] = deepcopy(new['scenes'])
+        if expected != after:
+            raise ValueError('Unselected objects or catalog metadata changed')
+        catalogs[name], old_catalogs[name] = after, before
+    english = {row['id']: row for row in catalogs['lessons_en.json']['lessons']}
+    previous = {row['id']: row for row in old_catalogs['lessons_en.json']['lessons']}
+    manifest = read(baseline / 'release-manifest.json')
+    records = {row['path']: row for row in manifest['files']}
+    if len(records) != len(manifest['files']):
+        raise ValueError('Duplicate baseline manifest paths')
+    planned = []
+    for identity in identities:
+        lesson = english.get(identity)
+        if not lesson or lesson.get('status') == 'coming_soon':
+            raise ValueError('Select an existing ready lesson')
+        canonical = read(REPO / 'tools/tutorials/lessons' / f'{identity}.json')
+        if ({k: v for k, v in lesson.items() if k != 'narration_voices'} != canonical
+                or read(stage / 'production' / identity / 'lesson.en.json') != canonical):
+            raise ValueError('Refreshed English must match the current canonical and staged source')
+        for name in CATALOGS:
+            if name == 'lessons_en.json':
+                continue
+            language = name.split('_', 1)[1].removesuffix('.json')
+            old = next(row for row in old_catalogs[name]['lessons'] if row['id'] == identity)
+            current = next(row for row in catalogs[name]['lessons'] if row['id'] == identity)
+            review = read(stage / 'production' / identity / f'review.{language}.json')
+            if (review.get('lesson') != identity or review.get('language') != language
+                    or not isinstance(review.get('review'), dict) or not review['review']
+                    or translated_lesson(review, lesson, old) != current):
+                raise ValueError('Every localized script needs its exact full source-bound review')
+        declared = previous[identity].get('narration_voices', {})
+        if (not isinstance(declared, dict) or not declared.get('en') or 'af_heart' not in declared['en']
+                or any(not isinstance(voices, list) or not voices
+                       or any(not isinstance(v, str) or not v for v in voices)
+                       or len(voices) != len(set(voices)) for voices in declared.values())):
+            raise ValueError('Expected exact original voice offerings')
+        expected_files = {f'{language}/{voice}{suffix}' for language, voices in declared.items()
+                          for voice in voices for suffix in ('.m4a', '.json')}
+        root = stage / 'production' / identity / 'audio'
+        actual_files = {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()}
+        prefix = f'media_host/{identity}/audio/'
+        if (actual_files != expected_files
+                or {name[len(prefix):] for name in records if name.startswith(prefix)} != expected_files):
+            raise ValueError('Staged or original tracks differ from the exact original offerings')
+        legacy_visual_source(baseline, identity, previous[identity])
+        for language, voices in declared.items():
+            localized = next(row for row in catalogs[f'lessons_{language}.json']['lessons'] if row['id'] == identity)
+            for voice in voices:
+                relative = f'{language}/{voice}.m4a'
+                audio, timing = root / relative, (root / relative).with_suffix('.json')
+                require_timing(read(timing), localized, language, voice, digest(audio))
+                planned.append(dict(lesson=identity, language=language, voice=voice, audio=str(audio),
+                    timing=str(timing), audio_sha256=digest(audio), timing_sha256=digest(timing),
+                    original_audio_sha256=records[prefix + relative]['sha256']))
+    return catalogs, planned
+
+
+def require_published_script_baseline(baseline, manifest):
+    """Reuse visual bytes only from a complete normally verified publication."""
+    from build_appended_candidate import require_baseline_receipt
+    receipt = read(baseline / 'publication-receipt.json')
+    require_baseline_receipt(manifest, receipt, digest(baseline / 'release-manifest.json'))
+    checks = read(baseline / 'checks/published-media-browser-checks.json')
+    pages = receipt.get('pages', {})
+    cases = checks.get('ready_playback_cases', [])
+    expected = {row['id'] for row in read(baseline / 'web/catalog/lessons_en.json')['lessons']
+                if row.get('status') != 'coming_soon'}
+    if (checks.get('passed') is not True or checks.get('manifest_sha256') != receipt['manifest_sha256']
+            or checks.get('media_root') != receipt['media_root']
+            or checks.get('index_sha256') != pages.get('index_sha256')
+            or checks.get('placeholder_cases') != []
+            or len(cases) != len(expected) or {row.get('lesson') for row in cases} != expected
+            or any(row.get('passed') is not True for row in cases)
+            or pages.get('ready') != manifest['ready_lessons'] or pages.get('routes') != manifest['routes']
+            or pages.get('hosted_web_copies') != len(manifest['hosted_web_lessons'])):
+        raise ValueError('Legacy visual reuse requires the exact complete published browser/Pages evidence')
+
+
+def verify_script_tracks(stage, identities, catalogs, planned):
+    """Use the existing complete current-source decoder for every old offering."""
+    from build_appended_candidate import verify_tracks
+    for identity in identities:
+        lesson = next(row for row in catalogs['lessons_en.json']['lessons'] if row['id'] == identity)
+        declared, tracks = verify_tracks(stage, lesson, catalogs)
+        expected = {(t['language'], t['voice'], t['audio_sha256'], t['timing_sha256'])
+                    for t in planned if t['lesson'] == identity}
+        actual = {(t['language'], t['voice'], t['audio_sha256'], t['timing_sha256']) for t in tracks}
+        if (actual != expected or {k: set(v) for k, v in declared.items()} !=
+                {k: set(v) for k, v in lesson['narration_voices'].items()}):
+            raise ValueError('Normal fresh verification differs from original voice inventory')
+
+
+def build(baseline, stage, identities, *, refresh_player=False, refresh_scripts=False):
     """Create a separate candidate without altering any baseline file."""
     baseline, stage = Path(baseline).resolve(), Path(stage).resolve()
     validate(baseline, include_hosted_media=True)
@@ -93,8 +267,13 @@ def build(baseline, stage, identities, *, refresh_player=False):
             or len(browser['ready_playback_cases']) != manifest['ready_lessons']
             or not all(row.get('passed') for row in browser['ready_playback_cases'])):
         raise ValueError('The complete baseline must have passing browser evidence')
-    planned = patch_plan(baseline, stage, identities)
-    verify_current_tracks(baseline, planned)
+    if refresh_scripts:
+        require_published_script_baseline(baseline, manifest)
+        catalogs, planned = script_patch_plan(baseline, stage, identities)
+        verify_script_tracks(stage, identities, catalogs, planned)
+    else:
+        planned = patch_plan(baseline, stage, identities)
+        verify_current_tracks(baseline, planned)
     target = Path(tempfile.mkdtemp(prefix='release-candidate-audio-', dir=stage))
     replacements = {}
     player_patch = None
@@ -105,9 +284,12 @@ def build(baseline, stage, identities, *, refresh_player=False):
                             sha256=digest(source))
         replacements['web/app_v2.js'] = (source, player_patch['sha256'])
     for track in planned:
-        prefix = f"media_host/{track['lesson']}/audio/en/{track['voice']}"
+        prefix = f"media_host/{track['lesson']}/audio/{track.get('language', 'en')}/{track['voice']}"
         replacements[prefix + '.m4a'] = (Path(track['audio']), track['audio_sha256'])
         replacements[prefix + '.json'] = (Path(track['timing']), track['timing_sha256'])
+    if refresh_scripts:
+        for name in CATALOGS:
+            replacements['web/catalog/' + name] = (stage / 'catalog' / name, digest(stage / 'catalog' / name))
     records = []
     for record in manifest['files']:
         source, expected = replacements.get(record['path'], (baseline / record['path'], record['sha256']))
@@ -118,6 +300,11 @@ def build(baseline, stage, identities, *, refresh_player=False):
         if lesson['id'] not in identities:
             continue
         identity = lesson['id']
+        if refresh_scripts:
+            replacement = next(row for row in catalogs['lessons_en.json']['lessons'] if row['id'] == identity)
+            for key in ('title', 'description', 'objectives', 'prerequisite', 'scenes'):
+                if key in replacement:
+                    lesson[key] = deepcopy(replacement[key])
         if lesson.get('visual_timings'):
             source = baseline / 'media_host' / lesson['visual_timings']
             if not source.is_file():
@@ -145,6 +332,9 @@ def build(baseline, stage, identities, *, refresh_player=False):
                   refreshed_lessons=list(identities), preserved_lessons=manifest['routes']-len(identities),
                   appended_lessons=[], withdrawn_lessons=[], retained_narration={},
                   new_lesson_tracks={}, release_hold=True, uploaded=False, published=False)
+    if refresh_scripts:
+        report.update(scope='Private reviewed script refresh; exact published visual media and voice offerings preserved',
+            script_refresh=True, fresh_capture=False, raw_capture_revalidated=False)
     report['web_bytes'] = sum(row['bytes'] for row in records if row['path'].startswith('web/'))
     report['media_host_bytes'] = sum(row['bytes'] for row in records if row['path'].startswith('media_host/'))
     if report['web_bytes'] > report['ceiling_bytes']:
@@ -162,8 +352,11 @@ def main():
     parser.add_argument('--lesson', action='append', required=True)
     parser.add_argument('--refresh-player', action='store_true',
                         help='Use the current normal authoring player; requires new browser acceptance')
+    parser.add_argument('--refresh-scripts', action='store_true',
+                        help='Refresh reviewed narration only; retain exact existing non-native visuals and voice offerings')
     args = parser.parse_args()
-    build(args.baseline, args.stage, args.lesson, refresh_player=args.refresh_player)
+    build(args.baseline, args.stage, args.lesson, refresh_player=args.refresh_player,
+          refresh_scripts=args.refresh_scripts)
 
 
 if __name__ == '__main__':
