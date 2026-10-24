@@ -3009,12 +3009,16 @@ class HomePage(QWidget):
         scroll = getattr(self, "_aside_scroll", None)
         if scroll is not None:
             floor += scroll.verticalScrollBar().sizeHint().width()
-        if aside.minimumWidth() != floor:
-            aside.setMinimumWidth(floor)
-            split = getattr(self, "_aside_split", None)
-            pane = split.pane(_ASIDE_PANE) if split is not None else None
-            if pane is not None:
-                pane.minimum = floor
+        from ..gui_scale import _actual_minimum_size, _set_actual_dim
+
+        changed = _actual_minimum_size(aside).width() != floor
+        if changed:
+            _set_actual_dim(aside, 'minw', floor)
+        split = getattr(self, "_aside_split", None)
+        pane = split.pane(_ASIDE_PANE) if split is not None else None
+        if pane is not None:
+            pane.minimum = getattr(aside, '_gs_geo', {}).get('minw', aside.minimumWidth())
+        if changed:
             self._rewrap_grids()
 
     def _rewrap_grids(self) -> None:

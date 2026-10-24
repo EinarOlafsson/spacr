@@ -12,6 +12,27 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next native operation explicitly selects aside_controls: actual buttons under
+HomeAside only, with the original20s content budget. Default all retains the
+complete runtime target manifest. Record all identities/text, selected indices
+and inspected/untested counts; selected success is not full Home acceptance.
+No retained Chrome/Hero/header or prose replay and no News-policy waiver.
+Source pinning, normal cover/tour, strict styled visibility and process guards
+remain unchanged.
+
+Aside unit-normalization scope: `_fit_aside_minimum` measures actual native
+layout pixels but sends them through a GUI-scaled minimum setter. First
+prove the doubled floor using the real aside builder/fonts at GUI200/font200,
+with GUI90/100 controls; preserve exact actual minimum plus ceiling-converted
+logical records/pane minima through growth and reopening. Repair only that
+unit boundary if RED confirms it; do not infer full splitter/content fit or
+change global splitter policy from the existing native overflow.
+Clean25518 RED: GUI2001232px versus required616; GUI90248 versus276;
+GUI100 passes. Normalize only the measured minimum and independently sync
+the pane's ceiling-converted logical record. GREEN73063 passes3/18.67s/
+RSS0.312GiB, including content growth, repeated fit and collapse/reopen;
+prior fixture-only cleanup/setup failures are not native acceptance.
+
 Hero logo requirement: fit the actual masthead allocation from original source
 pixels, preserving aspect/DPR and selected preferred size on growth, without
 fixed floors. Controlled99256 reproduces the invisible logo in1104x84; focused
