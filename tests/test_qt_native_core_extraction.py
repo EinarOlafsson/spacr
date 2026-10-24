@@ -734,8 +734,9 @@ def test_original_fault_diagnostic_selects_restored_frame_with_bounded_fallback(
                           SIGTRAMP_FRAME=1)
     monkeypatch.setitem(sys.modules, 'gdb', gdb)
     exec(collector._ORDINARY_FAULT_SCRIPT, {})
-    assert commands[:4] == ['set print elements 32', 'set print max-depth 4',
-                            'p $_siginfo', 'bt full 24']
+    assert commands[:5] == ['set print elements 32', 'set print max-depth 4',
+                            'set print frame-arguments none', 'p $_siginfo', 'bt 24']
+    assert not any('full' in command for command in commands)
     output = ''.join(messages)
     if mode == 'signal':
         assert selected == [2, 0]
@@ -887,3 +888,173 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
     assert os.environ == parent_environment
     assert core.exists()
     assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 ** 2
+
+
+@pytest.mark.parametrize('defect', [
+    'none', 'hash', 'size', 'wrong_executable', 'foreign_mapping', 'page_size',
+    'bias_disagreement', 'core_mapping', 'architecture', 'program_headers',
+    'relro', 'writable',
+])
+def test_stylesheet_binary_context_requires_real_elf_and_agreeing_mappings(
+        tmp_path, monkeypatch, defect):
+    """Real bounded notes and load headers must agree before register interpretation."""
+    executable = tmp_path / 'python'
+    library = tmp_path / 'libQt6Widgets.so.6'
+    bias = 0x70000000
+    header = bytearray(64)
+    header[:6] = b'\x7fELF\x02\x01'
+    struct.pack_into('<HH', header, 16, 3, 62)
+    struct.pack_into('<Q', header, 32, 64)
+    struct.pack_into('<HH', header, 54, 56, 3)
+    segment = struct.pack('<IIQQQQQQ', 1, 5, 0, 0, 0, 0x280000, 0x280000, 4096)
+    segment += struct.pack('<IIQQQQQQ', 1, 6 if defect in {'relro', 'writable'} else 4,
+                           0x280000, 0x280000, 0,
+                           0x80000, 0x80000, 4096)
+    segment += struct.pack('<IIQQQQQQ', 0x6474e552 if defect in {'relro', 'writable'} else 0,
+                           4, 0x280000, 0x280000, 0,
+                           0x80000, 0x80000, 1)
+    library.write_bytes((header + segment).ljust(0x300000, b'\0'))
+    monkeypatch.setattr(collector, 'QT_WIDGETS_BYTES', library.stat().st_size)
+    monkeypatch.setattr(collector, 'QT_WIDGETS_SHA256', collector._sha256(library))
+    if defect in {'hash', 'architecture', 'program_headers'}:
+        raw = bytearray(library.read_bytes())
+        if defect == 'hash':
+            raw[-1] = 1
+        elif defect == 'architecture':
+            struct.pack_into('<H', raw, 18, 183)
+        else:
+            struct.pack_into('<H', raw, 56, 6000)
+        library.write_bytes(raw)
+        if defect != 'hash':
+            monkeypatch.setattr(collector, 'QT_WIDGETS_SHA256', collector._sha256(library))
+    elif defect == 'size':
+        monkeypatch.setattr(collector, 'QT_WIDGETS_BYTES', library.stat().st_size + 1)
+
+    mappings = [(4096, 8192, 0), (bias, bias + 0x280000, 0),
+                (bias + 0x280000, bias + 0x300000, 0x280)]
+    names = [os.fsencode(executable), os.fsencode(library), os.fsencode(library)]
+    if defect == 'wrong_executable':
+        names[0] = b'/foreign/python'
+    elif defect == 'foreign_mapping':
+        names[-1] = os.fsencode(tmp_path / 'foreign/libQt6Widgets.so.6')
+    elif defect == 'bias_disagreement':
+        mappings[-1] = (bias + 0x281000, bias + 0x300000, 0x280)
+    payload = struct.pack('<QQ', 3, 3 if defect == 'page_size' else 4096)
+    payload += b''.join(struct.pack('<QQQ', *row) for row in mappings)
+    payload += b'\0'.join(names) + b'\0'
+    process = bytearray(136)
+    struct.pack_into('<i', process, 24, 3456)
+
+    def note(kind, body):
+        return (struct.pack('<III', 5, len(body), kind) + b'CORE\0\0\0\0'
+                + body + bytes((-len(body)) % 4))
+
+    notes = note(3, process) + note(0x46494C45, payload)
+    core_header = bytearray(header)
+    struct.pack_into('<H', core_header, 16, 4)
+    struct.pack_into('<H', core_header, 56, 3)
+    table = struct.pack('<IIQQQQQQ', 4, 0, 232, 0, 0, len(notes), len(notes), 4)
+    table += struct.pack('<IIQQQQQQ', 1, 5, 0,
+                         bias + 4096 if defect == 'core_mapping' else bias,
+                         0, 0, 0x27f000 if defect == 'core_mapping' else 0x280000, 4096)
+    table += struct.pack('<IIQQQQQQ', 1, 6 if defect == 'writable' else 4,
+                         0, bias + 0x280000, 0, 0, 0x80000, 4096)
+    core = tmp_path / 'core'
+    core.write_bytes(core_header + table + notes)
+    result = collector._stylesheet_context(core, executable)
+    if defect in {'none', 'relro', 'writable'}:
+        readonly = [(bias, bias + 0x280000)]
+        if defect != 'writable':
+            readonly.append((bias + 0x280000, bias + 0x300000))
+        assert result == {'library': str(library), 'bias': bias,
+                          'sha256': collector._sha256(library),
+                          'readonly': readonly}
+        assert (bias + 0x280010 < readonly[-1][1]) is (defect != 'writable')
+    else:
+        assert result == {}
+    assert core.exists() and library.exists()
+
+
+@pytest.mark.parametrize('defect', [
+    'none', 'no_context', 'architecture', 'fault_pc', 'caller', 'instructions',
+    'address', 'unreadable', 'unresolved_vtable', 'writable_vtable',
+    'foreign_vtable', 'vtable_offset', 'private_mismatch', 'iterator_mismatch',
+])
+def test_stylesheet_diagnostic_reads_only_gated_numeric_headers(monkeypatch, defect):
+    from types import SimpleNamespace
+
+    bias, entry, iterator, vtable = 0x70000000, 0x10000, 0x20000, 0x70004000
+    library = '/verified/Qt/lib/libQt6Widgets.so.6'
+    output, reads, commands = [], [], []
+    instructions = {
+        0x276657: b'\x49\x8b\x2e', 0x276663: b'\x48\x8b\x45\x08',
+        0x276667: b'\xf6\x40\x30\x01', 0x27667e: b'\xe8\x3d\x37\xf6\xff',
+        0x276c3b: b'\xe8\x30\xf8\xff\xff',
+    }
+    data = {entry: struct.pack('<QQ', vtable, 2),
+            iterator: struct.pack('<Q', entry + (8 if defect == 'iterator_mismatch' else 0))}
+
+    def memory(address, count):
+        reads.append((address, count))
+        if address in data:
+            if defect == 'unreadable':
+                raise RuntimeError('unreadable')
+            return data[address][:count]
+        code = instructions[address - bias]
+        return b'\0' * count if defect == 'instructions' else code
+
+    def execute(command, **kwargs):
+        commands.append(command)
+        if command.startswith('info symbol '):
+            offset = 24 if defect == 'vtable_offset' else 16
+            return ('sensitive object name/path' if defect == 'unresolved_vtable' else
+                    f'vtable for QWidget + {offset} in section .rodata of {library}')
+
+    class Frame:
+        def name(self):
+            return None
+
+        def architecture(self):
+            return SimpleNamespace(name=lambda: 'aarch64' if defect == 'architecture'
+                                   else 'i386:x86-64')
+
+        def pc(self):
+            return bias + 0x276667 + (1 if defect == 'fault_pc' else 0)
+
+        def older(self):
+            return SimpleNamespace(pc=lambda: bias + 0x276c40 + (1 if defect == 'caller' else 0))
+
+        def read_register(self, name):
+            return {'rbp': 2 if defect == 'address' else entry, 'r14': iterator,
+                    'rax': 3 if defect == 'private_mismatch' else 2}[name]
+
+    gdb = SimpleNamespace(
+        write=output.append, execute=execute,
+        solib_name=lambda address: '/foreign/library' if (
+            defect == 'foreign_vtable' and address == vtable) else library,
+        selected_inferior=lambda: SimpleNamespace(read_memory=memory),
+        newest_frame=lambda: None, SIGTRAMP_FRAME=1,
+    )
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+    context = {'library': library, 'bias': bias, 'sha256': collector.QT_WIDGETS_SHA256,
+               'readonly': [] if defect == 'writable_vtable' else [(vtable, vtable + 4096)]}
+    scope = {'_stylesheet_context': {} if defect == 'no_context' else context}
+    exec(collector._ORDINARY_FAULT_SCRIPT, scope)
+    output.clear()
+    scope['stylesheet_entry_at_fault'](Frame())
+    report = ''.join(output)
+    gated = defect in {'none', 'unreadable', 'unresolved_vtable', 'writable_vtable',
+                       'foreign_vtable', 'vtable_offset', 'private_mismatch', 'iterator_mismatch'}
+    assert bool([row for row in reads if row[0] in data]) is gated
+    assert sum(count for address, count in reads if address in data) <= 24
+    if gated and defect != 'unreadable':
+        assert f'entry={hex(entry)}' in report and f'private=0x2' in report
+        assert f'entry_matches_iterator={defect != "iterator_mismatch"}' in report
+        assert f'private_matches_fault_register={defect != "private_mismatch"}' in report
+        expected_type = 'QWidget' if defect in {'none', 'private_mismatch', 'iterator_mismatch'} else 'unknown'
+        assert f'native_vtable={expected_type}' in report
+    else:
+        assert 'unsupported' in report
+    assert len(report.encode()) <= 2048
+    assert 'sensitive' not in report and library not in report
+    assert not any('call ' in command or 'full' in command for command in commands)
