@@ -424,6 +424,11 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
     assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access", "news_titles", "news_dates", "news_body_lines"), cohort
+    body_parameters = {name: int(os.environ.get("SPACR_HOME_TEST_BODY_"+name.upper(), str(default)))
+                       for name, default in (("release_index", 0), ("start", 0), ("max_count", 16))} if cohort == "news_body_lines" else {}
+    if cohort == "news_body_lines":
+        assert 0 <= body_parameters["release_index"] < 17
+        assert body_parameters["start"] >= 0 and 1 <= body_parameters["max_count"] <= 16
     tile_keys = json.loads(os.environ["SPACR_HOME_TEST_TILE_KEYS"]) if cohort == "tile_batch" else []
     if cohort == "tile_batch":
         assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -456,6 +461,11 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
         assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access', 'news_titles', 'news_dates', 'news_body_lines'), cohort
+        body_parameters = {name: int(os.environ['SPACR_HOME_TEST_BODY_'+name.upper()])
+                           for name in ('release_index', 'start', 'max_count')} if cohort == 'news_body_lines' else {}
+        if cohort == 'news_body_lines':
+            assert 0 <= body_parameters['release_index'] < 17
+            assert body_parameters['start'] >= 0 and 1 <= body_parameters['max_count'] <= 16
         tile_keys = json.loads(os.environ['SPACR_HOME_TEST_TILE_KEYS']) if cohort == 'tile_batch' else []
         if cohort == 'tile_batch':
             assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
@@ -1048,12 +1058,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     'links': parsed.links, 'whole_body_certified': False})
             assert len(set(bodies)) == len(set(tags)) == 17
             assert tags[0] == 'v1.5.1.5'
-            body = bodies[0]
-            state['body_range'] = {'label': body, 'Format': Format, 'previous': None, 'next': 0}
+            release_index = body_parameters['release_index']
+            body = bodies[release_index]
+            state['body_range'] = {'label': body, 'Format': Format, 'previous': None, 'next': body_parameters['start']}
             report['body_range'] = {'scope': 'rendered line range only', 'whole_body_certified': False,
-                'structural_bodies': ledger, 'selected_body': ledger[0], 'requested_range': [0, 16],
-                'line_limit': 32, 'checks': [], 'complete': False}
-            assert 0 < 16 <= 32
+                'structural_bodies': ledger, 'selected_body': ledger[release_index],
+                'requested_parameters': dict(body_parameters), 'checks': [], 'complete': False}
             state['widgets'] = []
             persist()
 
@@ -1137,10 +1147,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             'source_text': source, 'source_positions': 'UTF-16 code units within block',
                             'text_length': line.textLength(), 'classification': 'text' if nonempty else 'whitespace'})
                     block = block.next()
-                assert len(lines) >= 16
+                assert body_parameters['start'] < len(lines)
+                stop = min(body_parameters['start']+body_parameters['max_count'], len(lines))
                 local.update(document=document, lines=lines, identity=body_source_identity(body),
-                             layout_identity=body_layout_identity(body), previous=None)
+                             layout_identity=body_layout_identity(body), previous=None, stop=stop)
                 result.update(rendered_line_count=len(lines), untested_line_count=len(lines),
+                    actual_range=[body_parameters['start'], stop],
                     attempted_line_count=0, accepted_line_count=0,
                     attempted_segment_count=0, accepted_segment_count=0, reveal_guard_px=2,
                     no_inline_objects=True, no_child_frames=True, no_object_replacement_character=True,
@@ -1176,7 +1188,6 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     segments=[], accepted=False, coverage_complete=False)
                 result['checks'].append(row)
                 result['attempted_line_count'] += 1
-                result['untested_line_count'] = result['rendered_line_count']-result['attempted_line_count']
                 local.update(segments=segments, segment_index=0, coverage=QRegion(), line_row=row)
             if 'frozen' not in local:
                 if current is None or local['previous'] != current:
@@ -1238,10 +1249,11 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             assert uncovered.isEmpty(), 'Verified segments do not cover the original full line'
             local['line_row']['accepted'] = True
             result['accepted_line_count'] += 1
+            result['untested_line_count'] = result['rendered_line_count']-result['accepted_line_count']
             local['next'] += 1
             for key in ('segments', 'segment_index', 'coverage', 'line_row'):
                 local.pop(key)
-            result['complete'] = local['next'] == 16
+            result['complete'] = local['next'] == local['stop']
             if result['complete']:
                 result['final_identity'] = body_source_identity(body)
                 result['final_layout_identity'] = body_layout_identity(body)
@@ -1659,18 +1671,21 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             for row in body['structural_bodies']:
                 assert not row['whole_body_certified']
                 assert list(row['pointer']) == list(report['target_manifest'][row['manifest_index']]['native_cpp_pointer'])
-            assert body['selected_body'] == body['structural_bodies'][0]
-            assert body['selected_body']['release_index'] == 0 and body['selected_body']['release_tag'] == 'v1.5.1.5'
-            assert body['requested_range'] == [0, 16] and body['complete']
-            assert [row['rendered_index'] for row in body['checks']] == list(range(16))
-            assert body['attempted_line_count'] == body['accepted_line_count'] == 16
+            assert body['requested_parameters'] == body_parameters
+            assert body['selected_body'] == body['structural_bodies'][body_parameters['release_index']]
+            assert body['selected_body']['release_index'] == body_parameters['release_index']
+            start = body_parameters['start']
+            stop = min(start+body_parameters['max_count'], body['rendered_line_count'])
+            assert start < stop and body['actual_range'] == [start, stop] and body['complete']
+            assert [row['rendered_index'] for row in body['checks']] == list(range(start, stop))
+            assert body['attempted_line_count'] == body['accepted_line_count'] == stop-start
             assert body['reveal_guard_px'] == 2
             assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
             for row in body['checks']:
                 assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
                 assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
                 assert all(segment['whole_visible'] for segment in row['segments'])
-            assert body['untested_line_count'] == body['rendered_line_count']-16
+            assert body['untested_line_count'] == body['rendered_line_count']-body['accepted_line_count']
             assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
             assert body['original_identity'] == body['final_identity']
             assert body['original_layout_identity'] == body['final_layout_identity']
@@ -1745,6 +1760,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_HOME_TEST_ROOT=str(root),
                SPACR_HOME_TEST_HEAD=expected_head,
                SPACR_HOME_TEST_COHORT=cohort,
+               **{"SPACR_HOME_TEST_BODY_"+name.upper(): str(value) for name, value in body_parameters.items()},
                SPACR_HOME_TEST_TILE_KEYS=json.dumps(tile_keys),
                SPACR_HOME_TEST_OUTPUT=str(tmp_path / "native-home.json"),
                XDG_CONFIG_HOME=str(settings), XDG_CACHE_HOME=str(tmp_path / "cache"),
@@ -1775,18 +1791,21 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         for row in body['structural_bodies']:
             assert not row['whole_body_certified']
             assert list(row['pointer']) == list(report['target_manifest'][row['manifest_index']]['native_cpp_pointer'])
-        assert body['selected_body'] == body['structural_bodies'][0]
-        assert body['selected_body']['release_index'] == 0 and body['selected_body']['release_tag'] == 'v1.5.1.5'
-        assert body['requested_range'] == [0, 16] and body['complete']
-        assert [row['rendered_index'] for row in body['checks']] == list(range(16))
-        assert body['attempted_line_count'] == body['accepted_line_count'] == 16
+        assert body['requested_parameters'] == body_parameters
+        assert body['selected_body'] == body['structural_bodies'][body_parameters['release_index']]
+        assert body['selected_body']['release_index'] == body_parameters['release_index']
+        start = body_parameters['start']
+        stop = min(start+body_parameters['max_count'], body['rendered_line_count'])
+        assert start < stop and body['actual_range'] == [start, stop] and body['complete']
+        assert [row['rendered_index'] for row in body['checks']] == list(range(start, stop))
+        assert body['attempted_line_count'] == body['accepted_line_count'] == stop-start
         assert body['reveal_guard_px'] == 2
         assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
         for row in body['checks']:
             assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
             assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
             assert all(segment['whole_visible'] for segment in row['segments'])
-        assert body['untested_line_count'] == body['rendered_line_count']-16
+        assert body['untested_line_count'] == body['rendered_line_count']-body['accepted_line_count']
         assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
         assert body['original_identity'] == body['final_identity']
         assert body['original_layout_identity'] == body['final_layout_identity']

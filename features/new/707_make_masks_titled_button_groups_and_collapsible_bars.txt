@@ -12,6 +12,13 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News range selection scope: validate and forward exact release index0..16,
+start>=0 and maxcount1..16; require start within actual rendered lines and
+stop at min(start+maxcount,total). Keep structural tag/source pairing, strict
+segment coverage and separate actual-range/accepted/untested accounting.
+Next release0 range[16,28) avoids replay; cross-run joining requires identical
+HTML/font/document size/layout/line count, never cross-process Qt pointers.
+
 Native25645/Qqn93W on878b600914 PASS48.07s/RSS1.322GiB: body0 lines[0,16)
 accepted via24/24 fully visible, frozen segments with full original-line union.
 Open Sans44/doc696×21480/origin0/source+allocation unchanged; capacity544×274.
