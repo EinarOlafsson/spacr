@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-prose-71-reviewed-inference-20261024",
+  "branch": "n676-prose-74-reviewed-import-workflow-20261024",
   "base_commit": "2c88c606231dba8a6d3bde4e97e887326a91675c",
-  "commit": "4e0eb5825e6c311b38beced26490b1c90bbefc32",
-  "tag": "n676-prose-71-reviewed-inference-20261024-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e0eb5825e6c311b38beced26490b1c90bbefc32",
-  "manifest_sha256": "c2533327d3b0d1496036625552d6dcfad4b8dd919a28feeead5ea52b9fd2788c",
+  "commit": "12234bb4d5687a99830c723315026f6ae82d20f1",
+  "tag": "n676-prose-74-reviewed-import-workflow-20261024-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/12234bb4d5687a99830c723315026f6ae82d20f1",
+  "manifest_sha256": "7bd3fbd8c36c9d56e296724ce865cb4ef639037e839bbd46a590ede7518efa0b",
   "media_files": 6450,
-  "media_bytes": 12580721967,
+  "media_bytes": 12579846690,
   "readback": {
-    "commit": "4e0eb5825e6c311b38beced26490b1c90bbefc32",
+    "commit": "12234bb4d5687a99830c723315026f6ae82d20f1",
     "files_expected": 6450,
     "metadata_matched": 6450,
     "metadata_failures": [],
-    "bytes_read_back": 12580721967,
+    "bytes_read_back": 12579846690,
     "downloaded_sha256_matched": 6450,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,16 +1982,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 487.2,
+    "seconds": 480.0,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "ec5500d414d326d02d7160e5eaece0d69fec4f45737f35bef8d54c01de0981e2",
+    "index_sha256": "767844925a17dcd8eea7db0933dec1ad95b9c26a6a47c6f42a78f2de2d45c648",
     "candidate_index_sha256": "489e4e72e78c2565e3fc6e49d168c0236869e0416344c975ee44628a03ffcafc",
-    "cache_key": "n676-prose-71-reviewed-inference-20261024-verified",
+    "cache_key": "n676-prose-74-reviewed-import-workflow-20261024-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "module_navigation.js",
@@ -2001,14 +2001,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-prose-71-reviewed-inference-20261024-verified",
+      "lesson_catalog.js": "n676-prose-74-reviewed-import-workflow-20261024-verified",
       "module_navigation.js": "n676-04-platform-maintenance-references-20261023-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/t17-prep/narration-priority1/prose71-reviewed1/release-candidate-prose-bzwwq04t/retired-pages",
+      "directory": "/media/carruthers/mnt1/t17-prep/narration-priority1/prose74-reviewed1/release-candidate-prose-bx059b0l/retired-pages",
       "files": []
     },
     "ready": 84,

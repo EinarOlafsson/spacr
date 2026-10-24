@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+  "english_sha256": "617bf9166de22735ed6d88c416851c82f5bbe413d4d9395b2551a1fde9c9c132",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); working-copy prerequisite span and scene5 first sentence only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,13 +17,13 @@
     "Välja mål, plattnamn och om filer ska kopieras eller länkas.",
     "Spara en återanvändbar plan och importera bilder för Mask."
   ],
-  "prerequisite": "Hämta först Mask-exemplet. Genomgången använder kopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. De förberedda kopiorna utelämnar den överflödiga token A direkt före Z men behåller brunns-, synfälts- och kanalidentiteterna. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
+  "prerequisite": "Hämta först Mask-exemplet. Använd arbetskopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. Ta bara i dessa kopior bort den överflödiga token A direkt före Z och bevara varje brunns-, synfälts- och kanaltoken. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
   "scenes": [
     "Från Home öppnar du Data, väljer Import och sedan Import Images. Börja med de mikroskopbildfiler du vill ordna i ett projekt.",
     "När du också har masker klickar du på Ordna bilder och masker bredvid bildmappen. Släpp varje kanalmapp och maskmappen i deras kolumner, ange maskens roll och välj Mask Generation eller Measure under Skriv för. Filer med flera kanaler kan först delas upp i en kolumn per kanal; Apply flyttar allt till den modulens struktur och registrerar varje flytt i ett manifest.",
     "Använd Mask-exemplet i den här genomgången. Välj kopior av ett synfält från var och en av två brunnar, med fyra kanaler per synfält. Låt den ursprungliga nedladdningen vara oförändrad.",
     "Klicka på Scan. Om du får frågan vad en token i filnamnet betyder, kontrollera avbildningsprotokollen innan du tilldelar den. Fortsätt först när de föreslagna identiteterna skiljer synfält och kanaler åt entydigt.",
-    "Skanna de förberedda exempelkopiorna. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
+    "Skanna dessa arbetskopior. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
     "Jämför förslaget med filnamnen. Aktivera Read inside each file när du behöver inbäddade axelmetadata. Ställ in Sample tillräckligt stort för att granska filerna du tänker importera.",
     "Välj ett mål utanför indatamappen och ange plattans namn. Stäng av Link instead of copy för att få oberoende kopior. Länkar sparar diskutrymme men kräver att originalfilerna förblir åtkomliga.",
     "För avbildningar i rutor väljer du om rutorna ska sys ihop, behållas separat eller hoppas över. Granska den resulterande synfältsorganisationen innan du mäter. Exempelbilderna är separata synfält och behöver inte sys ihop.",
