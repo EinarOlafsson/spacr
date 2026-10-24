@@ -221,7 +221,15 @@ def test_with_no_application_there_is_nothing_to_restyle(monkeypatch):
 
 def test_without_the_preference_module_the_sheet_is_left_alone(styled_app,
                                                                monkeypatch):
-    """Regenerating the sheet needs the preferences; without them, no change."""
+    """Regenerating the sheet needs the preferences; without them, no change.
+
+    The import block is lifted before ``styled_app`` puts the old sheet back.
+    Both share this test's ``monkeypatch``, which is undone after every
+    fixture has torn down, so a block set on it was still in force during
+    that restyle: any live widget left by an earlier file that imports
+    ``preferences`` from its ``changeEvent`` (``UsageBar`` does) raised
+    ``ImportError`` at teardown, in whichever order brought one along.
+    """
     real_import = builtins.__import__
 
     def block(name, globals=None, locals=None, fromlist=(), level=0):
@@ -229,9 +237,9 @@ def test_without_the_preference_module_the_sheet_is_left_alone(styled_app,
             raise ImportError("preferences are unavailable")
         return real_import(name, globals, locals, fromlist, level)
 
-    monkeypatch.setattr(builtins, "__import__", block)
-
-    assert theme.ensure_widget_qss_applied("SomeBlock") is False
+    with monkeypatch.context() as blocked:
+        blocked.setattr(builtins, "__import__", block)
+        assert theme.ensure_widget_qss_applied("SomeBlock") is False
 
 
 def test_a_restyle_that_fails_reports_failure_rather_than_raising(styled_app,

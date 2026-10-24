@@ -103,6 +103,7 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
             gui_scale._set_actual_dim(scroll, key, value)
         panel.show()
         qtbot.waitExposed(panel)
+        qtbot.waitUntil(lambda: not panel._pending_releases)
         blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                   if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
         assert len(blocks) == len(panel._releases) == 17
@@ -326,6 +327,7 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp,
                 assert window._startup is not old_page and window._startup._news is not old_panel
                 qtbot.waitUntil(lambda: not shiboken6.isValid(old_timer))
             page, panel = window._startup, window._startup._news
+            qtbot.waitUntil(lambda: not panel._pending_releases)
             blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                 if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
             assert len(blocks) == len(panel._releases) == 17
@@ -774,3 +776,33 @@ class _Response:
 
     def read(self):
         return self._body
+
+
+def test_older_releases_follow_the_first_paint(qtbot, monkeypatch):
+    """Only the newest releases are sized before Home paints; none is lost.
+
+    Sizing every wrapped release body cost about 0.4 s of Home's first paint
+    on an Intel Mac. The rest are appended one event-loop turn after the
+    panel paints, in order, and an explicit refill still draws them all.
+    """
+    monkeypatch.setattr(NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    panel = NewsPanel('1.5.1.0')
+    qtbot.addWidget(panel)
+
+    def drawn():
+        return [panel._notes_column.itemAt(i).widget()
+                for i in range(panel._notes_column.count())
+                if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
+
+    total = len(panel._releases)
+    assert total > NewsPanel.FIRST_RELEASES
+    assert len(drawn()) == NewsPanel.FIRST_RELEASES
+    panel.show()
+    qtbot.waitExposed(panel)
+    qtbot.waitUntil(lambda: len(drawn()) == total)
+    names = [block.layout().itemAt(0).widget().accessibleName() for block in drawn()]
+    assert names == [str(r.get('name') or r.get('tag') or 'spaCR') for r in panel._releases]
+    assert panel._notes_column.itemAt(panel._notes_column.count() - 1).spacerItem()
+
+    panel._fill()
+    assert len(drawn()) == total and not panel._pending_releases

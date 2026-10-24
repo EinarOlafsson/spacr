@@ -719,13 +719,14 @@ class _PipelinePreloader:
         """Import every module, one at a time, holding the heavy lock."""
         import importlib
 
+        from .bridge import _importing_in_the_background
         from .gil_priority import _open_torch_libraries
 
-        with HEAVY_IMPORT_LOCK:
+        with HEAVY_IMPORT_LOCK, _importing_in_the_background():
             _open_torch_libraries()
         for module in self._MODULES:
             try:
-                with HEAVY_IMPORT_LOCK:
+                with HEAVY_IMPORT_LOCK, _importing_in_the_background():
                     importlib.import_module(module)
             except Exception:                                # noqa: BLE001
                 LOG.debug("preloading %s failed", module, exc_info=True)
