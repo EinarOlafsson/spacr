@@ -15,6 +15,34 @@ import re
 from stage_lesson import DEFAULT_STAGE, read, write
 
 
+def instruction_cards(version):
+    """Return normal command-card definitions for capture or explicit reference composition."""
+    return [
+        ('07_create_environment', 'Create an isolated environment', [
+            ('Linux / macOS — Python 3.12 must already be installed', 'python3.12 -m venv .venv'),
+            ('Windows — with the Python launcher', 'py -3.12 -m venv .venv')],
+         'Choose a new environment folder. Do not overwrite an existing analysis environment.'),
+        ('08_activate_environment', 'Activate the environment in your shell', [
+            ('Linux / macOS — bash or zsh', 'source .venv/bin/activate'),
+            ('Windows — PowerShell', '.\\.venv\\Scripts\\Activate.ps1'),
+            ('Windows — Command Prompt', '.venv\\Scripts\\activate.bat')],
+         'PowerShell policy may block activation; use Command Prompt or the environment Python directly.'),
+        ('09_install_package', 'Install the public Python package', [
+            ('Inside the selected environment', 'python -m pip install --upgrade pip'),
+            ('Reproduce the release verified in this lesson', f'python -m pip install "spacr=={version}"')],
+         'Current base dependencies include Qt. Scientific packages can require several GB and minutes.'),
+        ('10_launch_commands', 'Launch the installed desktop application', [
+            ('Normal launch — first-run questions may appear', 'spacr'),
+            ('Optional: skip first-run setup', 'spacr --no-setup')],
+         'Use the same activated environment. Home and module tutorials cover the application workflows.'),
+        ('11_update_intentionally', 'Update deliberately, then verify again', [
+            ('Close spaCR and activate the environment you mean to update', 'python -m pip install --upgrade spacr'),
+            ('Check dependencies after the update', 'python -m pip check'),
+            ('Check the installation and your hardware', 'spacr-doctor')],
+         'Record the installed version with the analysis. An upgrade can change dependencies and results.'),
+    ]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
@@ -31,36 +59,13 @@ def main():
     spec = importlib.util.spec_from_file_location('existing_installation_style', style_path)
     style = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(style)
-    cards = [
-        ('07_create_environment', 'Create an isolated environment', [
-            ('Linux / macOS — Python 3.12 must already be installed', 'python3.12 -m venv .venv'),
-            ('Windows — with the Python launcher', 'py -3.12 -m venv .venv')],
-         'Choose a new environment folder. Do not overwrite an existing analysis environment.'),
-        ('08_activate_environment', 'Activate the environment in your shell', [
-            ('Linux / macOS — bash or zsh', 'source .venv/bin/activate'),
-            ('Windows — PowerShell', '.\\.venv\\Scripts\\Activate.ps1'),
-            ('Windows — Command Prompt', '.venv\\Scripts\\activate.bat')],
-         'PowerShell policy may block activation; use Command Prompt or the environment Python directly.'),
-        ('09_install_package', 'Install the public Python package', [
-            ('Inside the selected environment', 'python -m pip install --upgrade pip'),
-            ('Reproduce the release verified in this lesson', f'python -m pip install "spacr=={version}"')],
-         'Current base dependencies include Qt. Scientific packages can require several GB and minutes.'),
-        ('10_launch_commands', 'Launch the installed desktop application', [
-            ('Normal launch — first-run questions may appear', 'spacr'),
-            ('Explicit setup skip used only for this bounded verification', 'spacr --no-setup')],
-         'Use the same activated environment. Home and module tutorials cover the application workflows.'),
-        ('11_update_intentionally', 'Update deliberately, then verify again', [
-            ('Close spaCR and activate the environment you mean to update', 'python -m pip install --upgrade spacr'),
-            ('Check dependencies after the update', 'python -m pip check'),
-            ('Check the installation and your hardware', 'spacr-doctor')],
-         'Record the installed version with the analysis. An upgrade can change dependencies and results.'),
-    ]
+    cards = instruction_cards(version)
     frames = read(capture / 'frames.json')
     for name, title, rows, note in cards:
         target = capture / (name + '.png')
         if target.exists():
             raise FileExistsError('Instruction cards are not overwritten; use a new capture')
-        image, draw = style.canvas(title, 'Command reference — not recorded terminal output')
+        image, draw = style.canvas(title, 'Installation and environment commands')
         draw.rounded_rectangle(style.box((150, 190, 1770, 925)), radius=style.scaled(19),
                                fill=style.PANEL, outline=style.PANEL_LINE, width=2)
         for index, (label, command) in enumerate(rows):

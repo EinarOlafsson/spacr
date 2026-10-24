@@ -312,12 +312,8 @@ class JobRunner(QObject):
             entirely blank one still reports something rather than nothing.
         """
         self._spacr_error_occurrence = event_id
-        line = ""
-        for candidate in reversed(str(text).strip().splitlines()):
-            if candidate.strip():
-                line = candidate.strip()
-                break
-        self.job_failed.emit(line or "unknown error")
+        lines = str(text).strip().splitlines()
+        self.job_failed.emit(lines[-1].strip() if lines else "unknown error")
 
     def _fail(self, exc: Exception) -> None:
         """Log and report a failed job.

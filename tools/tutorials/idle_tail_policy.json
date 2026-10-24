@@ -3,8 +3,8 @@
   "lessons": [
     {
       "lesson": "02_install_spacr",
-      "master_sha256": "331e12e22e6118223af0310f75d8ceb32fc4ce45409d12756331d087f02c7dae",
-      "visual_timing_sha256": "714e5fe2c65e72dd1813ce123d4883354e0ab651c9caec95e0b547024916f847",
+      "master_sha256": "f0f9fb555ac880a49f1187a15bc2d9a669f8ee5568f55b1bb1a8b1467ebda5d3",
+      "visual_timing_sha256": "a139230b320351aae17684c981062d56b59d53ee0ddb93058b71215a62757966",
       "scenes": [
         {
           "visual": "00_install_routes",

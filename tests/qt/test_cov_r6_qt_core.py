@@ -26,10 +26,10 @@ outside. What is pinned:
   costs zero bytes rather than throwing out of the memory sweep.
 * :mod:`spacr.qt.command_palette` — Down at the last command stays put.
 
-Two guards reached from here are dead, and are proved rather than driven:
-``JobRunner._on_worker_error_text``'s loop can never take a second turn (see
-``test_the_last_non_blank_line_is_the_first_one_looked_at``) and
-``CommandPalette._render``'s auto-select loop can never run off the end (see
+The direct last-line summary in ``JobRunner._on_worker_error_text`` is justified
+by the Unicode boundary invariant in
+``test_the_last_non_blank_line_is_the_first_one_looked_at``.
+``CommandPalette._render``'s auto-select loop cannot run off the end (see
 ``test_a_rendered_list_always_holds_something_selectable``).
 
 :mod:`spacr.qt.annotate_engine`'s two remaining arcs — ``parse_image_type``'s
@@ -412,22 +412,14 @@ def test_an_unthreaded_job_without_a_callback_still_reports_finished(qtbot):
 
 
 def test_the_last_non_blank_line_is_the_first_one_looked_at(qtbot):
-    """Why ``_on_worker_error_text``'s loop can never take a second turn.
+    """Stripping makes the last split line the last nonblank summary.
 
-    The loop walks ``str(text).strip().splitlines()`` in reverse looking for a
-    non-blank line, and breaks on the first one it finds. But ``str.strip()``
-    has already removed every trailing whitespace character, and every
-    character ``str.splitlines()`` treats as a line boundary is whitespace
-    (asserted below over the whole code space), so the LAST element of
-    ``splitlines()`` — the first candidate visited — always ends in a
-    non-whitespace character. Its ``strip()`` is therefore always truthy and
-    the loop always breaks on iteration one; the arc back to the top of the
-    loop is dead. The only other case, an all-whitespace ``text``, strips to
-    ``""`` whose ``splitlines()`` is ``[]``, and the body never runs at all.
-
-    What is pinned is the invariant, not the guard: the traceback's last line
-    is the one the user is shown, and blank lines before it are skipped by
-    ``strip`` rather than by the loop.
+    Every boundary recognized by ``str.splitlines`` is whitespace, so a
+    stripped nonempty value ends with a nonblank final line. Directly taking
+    that line preserves the old reversed search without its unreachable
+    loop-back branch. An all-whitespace value produces no lines and the
+    original unknown-error message. Pin the invariant over Unicode, along
+    with the actual emitted multiline and whitespace-only summaries.
     """
     boundaries = "\n\r\v\f\x1c\x1d\x1e\x85  "
     assert all(ch.isspace() for ch in boundaries)
