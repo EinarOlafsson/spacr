@@ -7,6 +7,10 @@
 # 3.12 runtime, then resolves spaCR and the appropriate PyTorch backend.
 
 set -Eeuo pipefail
+# Expanded below as ${SPACR_ORIGINAL_ARGS[@]+"${SPACR_ORIGINAL_ARGS[@]}"}:
+# macOS ships bash 3.2, where `set -u` makes "${array[@]}" of an EMPTY array
+# an unbound-variable error. A plain `curl ... | bash` from a Terminal running
+# under Rosetta passes no arguments and died on the arm64 re-exec.
 SPACR_ORIGINAL_ARGS=("$@")
 GUI_REQUEST=0
 
@@ -201,7 +205,7 @@ fi
 # their explicitly selected architecture and never change process mode here.
 if [[ "$PLATFORM" == "macos" && -z "$OFFLINE_BUNDLE" && "$(uname -s)" == "Darwin" ]] && \
         [[ "$(sysctl -in sysctl.proc_translated 2>/dev/null || true)" == "1" ]]; then
-    exec /usr/bin/arch -arm64 /bin/bash "${BASH_SOURCE[0]}" "${SPACR_ORIGINAL_ARGS[@]}"
+    exec /usr/bin/arch -arm64 /bin/bash "${BASH_SOURCE[0]}" ${SPACR_ORIGINAL_ARGS[@]+"${SPACR_ORIGINAL_ARGS[@]}"}
 fi
 
 PYTHON_REQUEST="$PYTHON_VERSION"
@@ -455,7 +459,7 @@ spacr_linux_gui_install() {
     if [[ "$without_wgpu" == "1" ]]; then child_options+=(--without-wgpu); fi
     SPACR_INSTALL_GUI_CHILD=1 SPACR_GUI_LOG="$log" SPACR_GUI_FIFO="$fifo" \
         setsid bash -c 'set -o pipefail; trap "wait; exit 130" TERM INT; bash "$@" 2>&1 | tee "$SPACR_GUI_LOG" > "$SPACR_GUI_FIFO"' \
-        spacr-gui "$installer" "${child_args[@]}" "${child_options[@]}" < /dev/null &
+        spacr-gui "$installer" ${child_args[@]+"${child_args[@]}"} "${child_options[@]}" < /dev/null &
     backend=$!
     completed=""
     status=0
@@ -492,7 +496,7 @@ if [[ "$PLATFORM" == "linux" && "${SPACR_INSTALL_GUI_CHILD:-0}" != "1" ]]; then
     if [[ "$GUI_REQUEST" == "1" ]] || \
        [[ "$CONSENT_COLLECTED" == "0" && "$NO_LAUNCH" == "0" && ! -t 0 && \
           -n "${DISPLAY:-${WAYLAND_DISPLAY:-}}" ]]; then
-        spacr_linux_gui_install "$SPACR_SOURCE_DIR/$(basename -- "${BASH_SOURCE[0]}")" "${SPACR_ORIGINAL_ARGS[@]}"
+        spacr_linux_gui_install "$SPACR_SOURCE_DIR/$(basename -- "${BASH_SOURCE[0]}")" ${SPACR_ORIGINAL_ARGS[@]+"${SPACR_ORIGINAL_ARGS[@]}"}
         exit $?
     fi
 fi
