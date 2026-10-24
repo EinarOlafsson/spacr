@@ -12,12 +12,24 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News line-segment scope: preserve each full natural/run rectangle and partition
+against the smallest real ancestor viewport, reserving2px for exclusive-edge
+ensureVisible margins. Reveal each chunk once; frozen/idle strict visibility
+and accepted QRegion union must cover the original line before acceptance.
+Separate line/segment attempts and acceptance; retain16 lines/shared20s,
+original source/allocation and139 wholly unaccepted manifest targets.
+
 News body-range scope: release0/v1.5.1.5 rendered lines[0,16) only, one shared
 20s content clock. Structural17-body identity/renderer/object checks precede
 actual line/run inner-to-outer reveal and frozen/idle/full-visible proofs.
 Keep139 whole targets unaccepted, with separate requested/checked/untested
 line accounting; oversized single-position lines are unaccepted, not alone
 a product-defect verdict. No activation or whole-body certification.
+Native77490/HTJMX4 on22db5eb334 fails32.81s/RSS1.089GiB: line0 checked,
+0 accepted/357 untested of358;691px line exceeds546px viewport with real150px
+horizontal range. Stable actual geometry/source; the additional1px vertical
+miss is probe center/exclusive-bound math, not a product defect. Startup8.000s/
+content1.256s and normal cleanup pass; all139 whole targets remain unaccepted.
 
 Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
 17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;

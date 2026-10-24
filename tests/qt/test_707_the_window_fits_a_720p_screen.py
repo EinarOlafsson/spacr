@@ -1141,6 +1141,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 local.update(document=document, lines=lines, identity=body_source_identity(body),
                              layout_identity=body_layout_identity(body), previous=None)
                 result.update(rendered_line_count=len(lines), untested_line_count=len(lines),
+                    attempted_line_count=0, accepted_line_count=0,
+                    attempted_segment_count=0, accepted_segment_count=0, reveal_guard_px=2,
                     no_inline_objects=True, no_child_frames=True, no_object_replacement_character=True,
                     original_identity=local['identity'], document_origin=(origin.x(), origin.y()),
                     original_layout_identity=local['layout_identity'],
@@ -1149,56 +1151,96 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 return False
             assert body_source_identity(body) == local['identity']
             line = local['lines'][local['next']]
+            if 'segments' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                viewports = []
+                ancestor = body.parentWidget()
+                while ancestor is not None and ancestor is not window:
+                    if isinstance(ancestor, QScrollArea):
+                        viewports.append(ancestor.viewport().property('size').toTuple())
+                    ancestor = ancestor.parentWidget()
+                assert viewports
+                width = min(size[0] for size in viewports)-2
+                height = min(size[1] for size in viewports)-2
+                assert width > 0 and height > 0
+                required = line['rect']
+                segments = [QRect(x, y, min(width, required.right()+1-x), min(height, required.bottom()+1-y))
+                    for y in range(required.y(), required.bottom()+1, height)
+                    for x in range(required.x(), required.right()+1, width)]
+                row = {k: v for k, v in line.items() if k not in ('rect', 'natural', 'runs')}
+                row.update(rendered_index=local['next'], rect=required.getRect(), natural=line['natural'].getRect(),
+                    glyph_runs=[r.getRect() for r in line['runs']], ancestor_viewports=viewports,
+                    segment_capacity=(width, height), planned_segments=[r.getRect() for r in segments],
+                    segments=[], accepted=False, coverage_complete=False)
+                result['checks'].append(row)
+                result['attempted_line_count'] += 1
+                result['untested_line_count'] = result['rendered_line_count']-result['attempted_line_count']
+                local.update(segments=segments, segment_index=0, coverage=QRegion(), line_row=row)
             if 'frozen' not in local:
                 if current is None or local['previous'] != current:
                     local['previous'] = current
                     return False
-                rect = line['rect']
+                rect = local['segments'][local['segment_index']]
                 reveals = []
                 ancestor = body.parentWidget()
                 while ancestor is not None and ancestor is not window:
                     if isinstance(ancestor, QScrollArea):
-                        # Re-map the LINE after each inner scroll, never the oversized label.
+                        # Re-map this chunk after each inner scroll, never the oversized label.
                         mapped = rect.translated(body.mapTo(ancestor.widget(), QPoint()))
                         ancestor.ensureVisible(mapped.center().x(), mapped.center().y(),
-                            (mapped.width()+1)//2, (mapped.height()+1)//2)
+                            mapped.width()//2+1, mapped.height()//2+1)
                         reveals.append({'viewport': ancestor.viewport().property('size').toTuple(),
-                            'line_in_content': mapped.getRect(),
+                            'segment_in_content': mapped.getRect(),
+                            'margins': (mapped.width()//2+1, mapped.height()//2+1),
                             'horizontal': (ancestor.horizontalScrollBar().value(), ancestor.horizontalScrollBar().maximum()),
                             'vertical': (ancestor.verticalScrollBar().value(), ancestor.verticalScrollBar().maximum())})
                     ancestor = ancestor.parentWidget()
                 identities = []
                 local.update(frozen=signature(window, body, identities=identities, require_idle=False),
                              frozen_identities=identities, reveals=reveals)
+                result['attempted_segment_count'] += 1
                 persist()
                 return False
             identities = []
             actual = signature(window, body, identities=identities, require_idle=False)
-            assert actual == local['frozen'], 'Body geometry changed after one line reveal'
+            assert actual == local['frozen'], 'Body geometry changed after one segment reveal'
             assert [r['native_cpp_pointer'] for r in identities] == [r['native_cpp_pointer'] for r in local['frozen_identities']]
             if current is None:
                 return False
             assert current == local['frozen']
-            rect = line['rect']
+            rect = local['segments'][local['segment_index']]
             missing = QRegion(rect).subtracted(body.visibleRegion())
             mapped = rect.translated(body.mapTo(window, QPoint()))
-            oversized = any(rect.width() > row['viewport'][0] or rect.height() > row['viewport'][1]
-                            for row in local['reveals'])
-            row = {k: v for k, v in line.items() if k not in ('rect', 'natural', 'runs')}
-            row.update(rendered_index=local['next'], rect=rect.getRect(), natural=line['natural'].getRect(),
-                glyph_runs=[r.getRect() for r in line['runs']], reveals=local['reveals'],
+            row = dict(segment_index=local['segment_index'], rect=rect.getRect(), reveals=local['reveals'],
                 visible=body.visibleRegion().boundingRect().getRect(), in_window=mapped.getRect(),
-                frozen_signature=local['frozen'], actual_signature=actual, single_position_oversized=oversized,
+                frozen_signature=local['frozen'], actual_signature=actual,
                 frozen_identities=local['frozen_identities'], actual_identities=identities,
-                whole_visible=missing.isEmpty() and window.rect().contains(mapped))
-            result['checks'].append(row)
-            result['untested_line_count'] = result['rendered_line_count']-len(result['checks'])
+                whole_visible=missing.isEmpty() and window.rect().contains(mapped)
+                    and body.contentsRect().contains(rect))
+            local['line_row']['segments'].append(row)
             persist()
-            assert body.contentsRect().contains(rect)
-            assert row['whole_visible'], ('Single-position line unaccepted; oversized is not alone a product defect', row)
-            local['next'] += 1
+            assert row['whole_visible'], ('Required line segment is not fully reachable', row)
+            local['coverage'] = local['coverage'].united(QRegion(rect))
+            result['accepted_segment_count'] += 1
+            local['segment_index'] += 1
             local.pop('frozen')
             local['previous'] = None
+            if local['segment_index'] < len(local['segments']):
+                persist()
+                return False
+            uncovered = QRegion(line['rect']).subtracted(local['coverage'])
+            local['line_row'].update(coverage_complete=uncovered.isEmpty(),
+                uncovered_bounds=uncovered.boundingRect().getRect(),
+                accepted_area=sum(r.width()*r.height() for r in local['segments']),
+                required_area=line['rect'].width()*line['rect'].height())
+            assert uncovered.isEmpty(), 'Verified segments do not cover the original full line'
+            local['line_row']['accepted'] = True
+            result['accepted_line_count'] += 1
+            local['next'] += 1
+            for key in ('segments', 'segment_index', 'coverage', 'line_row'):
+                local.pop(key)
             result['complete'] = local['next'] == 16
             if result['complete']:
                 result['final_identity'] = body_source_identity(body)
@@ -1621,7 +1663,13 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             assert body['selected_body']['release_index'] == 0 and body['selected_body']['release_tag'] == 'v1.5.1.5'
             assert body['requested_range'] == [0, 16] and body['complete']
             assert [row['rendered_index'] for row in body['checks']] == list(range(16))
-            assert all(row['whole_visible'] for row in body['checks'])
+            assert body['attempted_line_count'] == body['accepted_line_count'] == 16
+            assert body['reveal_guard_px'] == 2
+            assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+            for row in body['checks']:
+                assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                assert all(segment['whole_visible'] for segment in row['segments'])
             assert body['untested_line_count'] == body['rendered_line_count']-16
             assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
             assert body['original_identity'] == body['final_identity']
@@ -1731,7 +1779,13 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert body['selected_body']['release_index'] == 0 and body['selected_body']['release_tag'] == 'v1.5.1.5'
         assert body['requested_range'] == [0, 16] and body['complete']
         assert [row['rendered_index'] for row in body['checks']] == list(range(16))
-        assert all(row['whole_visible'] for row in body['checks'])
+        assert body['attempted_line_count'] == body['accepted_line_count'] == 16
+        assert body['reveal_guard_px'] == 2
+        assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+        for row in body['checks']:
+            assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+            assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+            assert all(segment['whole_visible'] for segment in row['segments'])
         assert body['untested_line_count'] == body['rendered_line_count']-16
         assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
         assert body['original_identity'] == body['final_identity']
