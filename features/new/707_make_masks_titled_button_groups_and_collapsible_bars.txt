@@ -12,13 +12,18 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
-Next native operation explicitly selects aside_controls: actual buttons under
+The bounded native operation explicitly selects aside_controls: actual buttons under
 HomeAside only, with the original20s content budget. Default all retains the
 complete runtime target manifest. Record all identities/text, selected indices
 and inspected/untested counts; selected success is not full Home acceptance.
 No retained Chrome/Hero/header or prose replay and no News-policy waiver.
 Source pinning, normal cover/tour, strict styled visibility and process guards
 remain unchanged.
+Native69310 on b2fd77b41:5/5 selected checked in4.760s;132/137 untested.
+Clear/Reset/Refresh pass; Pipeline loses13/15px left/right, Updates29/31px.
+Aside458x84/viewport438x84 contains596px panels; both captions remain clipped.
+Natural failure34.69s/RSS1.211GiB, tour9.260s; normal close/cleanup pass,
+no deadline/overlay failure. Full Home and aside-controls acceptance stay open.
 
 Aside unit-normalization scope: `_fit_aside_minimum` measures actual native
 layout pixels but sends them through a GUI-scaled minimum setter. First
