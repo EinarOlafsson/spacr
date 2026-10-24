@@ -295,6 +295,24 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
         assert import_check < activate
 
 
+def test_windows_private_crt_is_prepared_offline_and_loaded_before_runtime_acceptance():
+    source = _text(WINDOWS)
+    prepared = source.index('$CrtHelper, "prepare"')
+    environment = source.index('venv $StageVenv --python')
+    private_stage = source.index('$CrtHelper, "verify-stage", "--runtime", $StageVenv')
+    packages = source.index("pip install --python $StagePython")
+    installed = source.index('$CrtHelper, "install"')
+    imported = source.index("import spacr, PySide6, torch")
+    assert prepared < environment < private_stage < packages < installed < imported
+    assert '(Join-Path $StageVenv "Lib\\site-packages\\torch\\lib")' in source
+    offline = source[source.index("    if ($OfflineBundle) {", source.index("$CrtPrepared =")):]
+    offline = offline[:offline.index("    } else {")]
+    assert '"windows-runtime"' in offline
+    assert "Invoke-WebRequest" not in offline
+    for name in ("windows_crt.py", "windows_crt.json"):
+        assert f'File "{name}"' in _text(NSIS)
+
+
 def test_bootstraps_persist_the_requested_and_actual_backend_for_doctor():
     unix = _text(UNIX)
     windows = _text(WINDOWS)

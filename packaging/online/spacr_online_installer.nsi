@@ -102,6 +102,8 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   ; module the in-app update uses.
   File "..\..\spacr\install_cleanup.py"
   File "..\..\spacr\install_profile.py"
+  File "windows_crt.py"
+  File "windows_crt.json"
 
   StrCpy $1 "cpu"
   SectionGetFlags ${SecGpu} $2
@@ -174,6 +176,8 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   Delete "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1"
   Delete "$PLUGINSDIR\spaCR-online-installer\install_cleanup.py"
   Delete "$PLUGINSDIR\spaCR-online-installer\install_profile.py"
+  Delete "$PLUGINSDIR\spaCR-online-installer\windows_crt.py"
+  Delete "$PLUGINSDIR\spaCR-online-installer\windows_crt.json"
   Delete "$PLUGINSDIR\spaCR-online-installer\generated\installer_messages.ps1"
   RMDir "$PLUGINSDIR\spaCR-online-installer\generated"
   RMDir "$PLUGINSDIR\spaCR-online-installer"

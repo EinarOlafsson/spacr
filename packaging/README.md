@@ -257,6 +257,14 @@ Linux installs the small Qt/OpenGL runtime libraries through apt, dnf, zypper,
 or pacman when available. Windows uses a per-user NSIS installer and does not
 require administrator access.
 
+Windows installers prepare the pinned Microsoft Visual C++ runtime privately
+alongside PyTorch before validating the staged installation. They verify the
+Microsoft package and extracted DLL hashes without executing the redistributable
+or changing System32. Windows offline bundles include that package, so this
+prerequisite requires no network access on the target machine.
+The staged environment must be private to its user or administrators; unsafe
+custom locations are rejected before installing application dependencies.
+
 The macOS online builder compiles an arm64/x86_64 native launcher, leaving the
 scientific stack in its private Python environment. Without signing configuration
 it produces an explicitly unsigned development package. U-M signing access is

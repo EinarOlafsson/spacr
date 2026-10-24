@@ -55,6 +55,13 @@ class Child {
    return 0;
   }
   if (args[0] == "quiet") return 7;
+  if (args[0] == "transcript") {
+   if (args[1] == "success") { Console.Error.WriteLine("successful native progress"); return 0; }
+   Console.Error.WriteLine("first failure line outside retained tail");
+   for (int i=0; i<128; i++) Console.Error.WriteLine("P" + new string('z',4096));
+   Console.Error.WriteLine("final traceback: " + (char)248 + (char)26085 + (char)26412);
+   return 7;
+  }
   if (args[0] == "stream") {
    Console.WriteLine("early");
    for (int i=0; i<100 && !File.Exists(args[1]); i++) Thread.Sleep(50);
@@ -121,6 +128,35 @@ if ($LASTEXITCODE -ne 7 -or $Lines.Count -ne 0) {{ throw 'Raw capture polluted o
 ''')
     assert result.returncode == 0, result.stdout + result.stderr
     assert output.read_bytes() == error.read_bytes() == b'\x00\xc3\xb8\n' * 65536
+
+
+def test_failed_native_stderr_tail_reaches_ps5_transcript_without_changing_streams(tmp_path, native_child):
+    failed, successful = tmp_path / 'failed.log', tmp_path / 'successful.log'
+    result = _run(tmp_path, f'''
+if ($PSVersionTable.PSVersion.Major -ne 5) {{ throw 'This regression requires Windows PowerShell 5' }}
+Start-Transcript -Path {_ps(failed)} | Out-Null
+try {{
+    $Lines=@(Invoke-SpacrNative -Command {_ps(native_child)} -Arguments @('transcript','failure'))
+    if ($LASTEXITCODE -ne 7 -or $Lines.Count -ne 0) {{ throw 'Failed native exit or stdout stream changed' }}
+    Write-Host 'continued after native stderr under Stop'
+}} finally {{ Stop-Transcript | Out-Null }}
+Start-Transcript -Path {_ps(successful)} | Out-Null
+try {{
+    $Lines=@(Invoke-SpacrNative -Command {_ps(native_child)} -Arguments @('transcript','success'))
+    if ($LASTEXITCODE -ne 0 -or $Lines.Count -ne 0) {{ throw 'Successful native stderr became an error' }}
+}} finally {{ Stop-Transcript | Out-Null }}
+''')
+    assert result.returncode == 0, result.stdout + result.stderr
+    marker = 'final traceback: \u00f8\u65e5\u672c'
+    transcript = failed.read_text(encoding='utf-8-sig')
+    assert transcript.count(marker) == 1
+    assert 'continued after native stderr under Stop' in transcript
+    assert 'first failure line outside retained tail' not in transcript
+    assert transcript.count('P' + 'z' * 4096) < 20
+    assert result.stderr.count(marker.encode('utf-8')) == 1
+    assert result.stderr.count(b'P' + b'z' * 4096) == 128
+    assert result.stderr.count(b'successful native progress') == 1
+    assert b'successful native progress' not in result.stdout
 
 
 def test_isolated_python_utf8_output_and_errors_are_decoded(tmp_path):
@@ -197,3 +233,61 @@ try {{
 [IO.File]::Delete($LeasePath)
 ''')
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize('rollback_fails', [False, True])
+def test_outer_catch_retains_primary_when_locked_stage_removal_fails(tmp_path, rollback_fails):
+    result = _run(tmp_path, f'''
+$Tokens=$null
+$ParseErrors=$null
+$Ast=[Management.Automation.Language.Parser]::ParseFile({_ps(INSTALLER)},[ref]$Tokens,[ref]$ParseErrors)
+if ($ParseErrors.Count) {{ throw 'Installer parse failed' }}
+$Catches=@($Ast.FindAll({{ param($Node)
+    $Node -is [Management.Automation.Language.CatchClauseAst] -and
+    $Node.Body.Extent.Text -match '^\{{\s*\$OriginalError\s*=\s*\$_'
+}},$true))
+if ($Catches.Count -ne 1) {{ throw 'Expected unique actual outer catch' }}
+$CatchText=$Catches[0].Body.Extent.Text
+$CatchBody=[scriptblock]::Create($CatchText.Substring(1,$CatchText.Length-2))
+function Get-SpacrInstallerMessage {{ param($Name) return $Name }}
+$InstallerStarted=$true
+$Committed=$false
+$MetadataTouched=$false
+$RetainWorkDir=$false
+$StageVenv=Join-Path {_ps(tmp_path)} 'owned-stage'
+$StageProfile=Join-Path {_ps(tmp_path)} 'owned-stage-profile.json'
+[IO.Directory]::CreateDirectory($StageVenv) | Out-Null
+[IO.File]::WriteAllText($StageProfile,'owned')
+$Locked=Join-Path $StageVenv 'locked.dll'
+$StageHandle=[IO.File]::Open($Locked,[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::Read)
+$OldVenv=$null
+$RollbackHandle=$null
+try {{
+    if ({'$true' if rollback_fails else '$false'}) {{
+        $OldVenv=Join-Path {_ps(tmp_path)} 'owned-previous'
+        $VenvDir=Join-Path {_ps(tmp_path)} 'owned-runtime'
+        [IO.Directory]::CreateDirectory($OldVenv) | Out-Null
+        [IO.Directory]::CreateDirectory($VenvDir) | Out-Null
+        [IO.File]::WriteAllText((Join-Path $OldVenv 'keep.txt'),'previous runtime')
+        $RollbackHandle=[IO.File]::Open((Join-Path $VenvDir 'busy.dll'),[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::Read)
+    }}
+    try {{
+        try {{ throw 'primary install failure' }} catch {{ . $CatchBody }}
+        throw 'Primary exception disappeared'
+    }} catch {{
+        if ($_.Exception.Message -ne 'primary install failure') {{ throw }}
+    }}
+    if (-not $RetainWorkDir) {{ throw 'Failed stage cleanup did not preserve diagnostics' }}
+    if (-not [IO.File]::Exists($Locked)) {{ throw 'Locked stage evidence disappeared' }}
+    if ($OldVenv -and [IO.File]::ReadAllText((Join-Path $OldVenv 'keep.txt')) -ne 'previous runtime') {{ throw 'Rollback evidence changed' }}
+}} finally {{
+    $StageHandle.Dispose()
+    if ($RollbackHandle) {{ $RollbackHandle.Dispose() }}
+}}
+''')
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert str(tmp_path / 'owned-stage').encode() in result.stdout
+    assert b'locked.dll' in result.stdout
+    if rollback_fails:
+        assert b'gui_failed' in result.stdout
+        assert str(tmp_path / 'owned-previous').encode() in result.stdout

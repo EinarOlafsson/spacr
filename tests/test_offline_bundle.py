@@ -80,6 +80,47 @@ def test_builder_defaults_to_core_package_and_accepts_explicit_extras(builder):
         "spacr[qt]==9.9.9")
 
 
+@pytest.mark.parametrize("wrong_size", [False, True])
+def test_windows_runtime_rejects_corrupt_vendor_artifact_before_publication(
+        builder, tmp_path, monkeypatch, wrong_size):
+    import hashlib
+
+    source = tmp_path / "download.exe"
+    source.write_bytes(b"bad")
+    metadata = {"version": "14.50.35719.0", "artifact": {
+        "filename": "VC_redist.x64.exe", "url": "https://download.visualstudio.microsoft.com/runtime",
+        "size": 4 if wrong_size else 3,
+        "sha256": hashlib.sha256(b"bad" if wrong_size else b"yes").hexdigest()}}
+    (tmp_path / "windows_crt.json").write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(builder, "ONLINE", tmp_path)
+    monkeypatch.setattr(builder, "download", lambda url, destination: source)
+    with pytest.raises(SystemExit, match="checksum mismatch"):
+        builder.fetch_windows_crt(tmp_path / "bundle", tmp_path / "cache")
+    assert not (tmp_path / "bundle" / "windows-runtime").exists()
+    assert source.read_bytes() == b"bad"
+
+
+def test_windows_runtime_payload_is_sealed_in_bundle_checksums(builder, tmp_path, monkeypatch):
+    import hashlib
+
+    source = tmp_path / "download.exe"
+    source.write_bytes(b"vendor payload fixture")
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    metadata = {"version": "14.50.35719.0", "artifact": {
+        "filename": "VC_redist.x64.exe", "url": "https://download.visualstudio.microsoft.com/runtime",
+        "size": source.stat().st_size, "sha256": digest}}
+    (tmp_path / "windows_crt.json").write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(builder, "ONLINE", tmp_path)
+    monkeypatch.setattr(builder, "download", lambda url, destination: source)
+    bundle = tmp_path / "bundle"
+    record = builder.fetch_windows_crt(bundle, tmp_path / "cache")
+    assert record == {"version": "14.50.35719.0", "path": "windows-runtime/VC_redist.x64.exe",
+                      "sha256": digest}
+    assert (bundle / record["path"]).read_bytes() == source.read_bytes()
+    assert builder.write_checksums(bundle).read_text(encoding="utf-8").strip() == (
+        f"{digest}  windows-runtime/VC_redist.x64.exe")
+
+
 def test_python_download_matches_the_target_and_its_mirror_path(builder):
     entries = [
         {"implementation": "cpython", "variant": "freethreaded", "os": "linux",
