@@ -198,6 +198,7 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
     unrelated queued jobs do not belong to this keystroke's response time.
     """
     import time
+    import traceback
 
     model = mask._settings_model
     widget = model._widgets.get("nucleus_channel")
@@ -206,23 +207,26 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
 
     qapp.processEvents()
     visibility_checks = []
+    phase = "before editing"
     original = model._object_visibility_settings
 
     def record_visibility_check():
-        visibility_checks.append(True)
+        visibility_checks.append(phase + "\n" + "".join(traceback.format_stack(limit=12)))
         return original()
 
     monkeypatch.setattr(model, "_object_visibility_settings", record_visibility_check)
     worst = 0.0
     for index in range(6):
+        phase = f"edit {index}"
         started = time.perf_counter()
         if hasattr(widget, "setText"):
             widget.setText(str(index % 3))
         else:
             widget.setValue(index % 3)
         worst = max(worst, time.perf_counter() - started)
+        phase = f"event delivery after edit {index}"
         qapp.processEvents()
-        assert not visibility_checks, "typing recomputed all object rows"
+        assert not visibility_checks, "typing recomputed all object rows: " + "\n".join(visibility_checks)
     assert worst < 0.20, f"{worst * 1000:.0f} ms a keystroke"
 
 
