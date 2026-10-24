@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Exploratory sample scope: one /usr/bin/sample of the exact owned child PID,
+3s/10ms, all-thread capture/main-thread analysis, no escalation or Python sampler.
+Record launch/gesture/completion/report brackets and own wait4 CPU; per-sample
+overlap/target pause cost remain unknown. Same20s includes nonblocking tool wait
+before oracle/pick; strict tool-ended/native cleanup, no performance acceptance.
+
 2026-10-24 — Render86588/GnvU2e PASS35.23s/1.204GiB onc6469571:
 14 disjoint main-thread interactive75 calls328.647ms wall/48.868ms CPU,0straddlers.
 FIBSEM626×122/DPR2/Metal75,14motions/3.056s; entry mask/prewarm notrunning,unfinished.
