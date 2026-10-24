@@ -1491,6 +1491,22 @@ def _cell_record_checkpoint(cancelled):
         raise PipelineCancelled()
 
 
+def _cell_record_identity_valid(identity):
+    """Preserve typed acquisition IDs and the existing absent time/Z sentinels."""
+    if (not isinstance(identity, dict)
+            or any(not isinstance(identity.get(key), str) or not identity[key]
+                   for key in ('source_dataset', 'plate', 'well'))):
+        return False
+    for key in ('field', 'time', 'z'):
+        value = identity.get(key)
+        if type(value) is int and value >= 0:
+            continue
+        if isinstance(value, str) and (value or key in ('time', 'z')):
+            continue
+        return False
+    return True
+
+
 def _cell_record_hash(value):
     """Bind JSON metadata without including mutable cache or pixel objects."""
     return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
@@ -1670,8 +1686,8 @@ class _CalibratedCellDataset:
             for field_id in record['fields']:
                 row = record['calibrated_fields'][field_id]
                 identity = row['source_identity']
-                if (identity.get('source_dataset') != config['source_dataset']
-                        or any(not isinstance(identity.get(key), str) for key in ('plate', 'well', 'field', 'time', 'z'))):
+                if (not _cell_record_identity_valid(identity)
+                        or identity['source_dataset'] != config['source_dataset']):
                     raise _cell_record_error()
                 physical_identity = tuple(identity[key] for key in ('source_dataset', 'plate', 'well', 'field', 'time', 'z'))
                 if physical_identity in physical_fields:
@@ -1732,8 +1748,7 @@ class _CalibratedCellDataset:
                 or not isinstance(row.get('source_origin_px'), list)
                 or any(type(value) is not int for value in row['source_origin_px'])
                 or row['source_origin_px'] != [roi[0][0], roi[1][0]]
-                or not isinstance(identity, dict) or any(not isinstance(identity.get(key), str) for key in ('plate', 'well', 'field', 'time', 'z'))
-                or any(not identity[key] for key in ('plate', 'well', 'field'))):
+                or not _cell_record_identity_valid(identity)):
             raise _cell_record_error()
         height, width = source_shape[:2]
         top, left, bottom, right = 0, 0, height, width
@@ -1875,12 +1890,17 @@ class _CalibratedCellDataset:
 @contextmanager
 def _open_calibrated_cell_dataset(source, *, channels=None, cancelled=None):
     """Open completed cell-role records on POSIX with borrowed read-only field maps."""
-    dataset = None
     try:
         dataset = _CalibratedCellDataset(source, channels, cancelled)
-        yield dataset
     except (KeyError, TypeError, OSError, json.JSONDecodeError, OverflowError) as error:
         raise _cell_record_error() from error
-    finally:
-        if dataset is not None:
+    try:
+        yield dataset
+    except BaseException as caller_error:
+        try:
             dataset.close()
+        except BaseException as cleanup_error:
+            raise caller_error from cleanup_error
+        raise
+    else:
+        dataset.close()
