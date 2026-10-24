@@ -38,6 +38,11 @@ def _splitter(qtbot, sizes=(420, 360, 300)):
     for _ in sizes:
         split.addWidget(QWidget())
     split.setChildrenCollapsible(False)
+    # Polished, as a splitter on screen is: under the theme sheet its handle
+    # is 1 px instead of the native 4, so an unpolished splitter saved here
+    # and a restore that polishes the next one compare two different
+    # handle widths (262 vs 266 px after any themed test in the worker).
+    split.ensurePolished()
     split.setSizes(list(sizes))
     return split
 

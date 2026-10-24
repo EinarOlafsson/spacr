@@ -17,7 +17,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 _PENDING_STYLESHEET = None
 _PENDING_FONT = None
-_PENDING_GUI_SCALE = None
 
 # Skipping while this conftest is imported aborts collection of the entire
 # repository on pytest 7, leaving pytest with exit code 5 ("no tests
@@ -218,34 +217,6 @@ def _restore_font_scale(deferred_deletions_flushed):
                     _PENDING_STYLESHEET = _canonical()
                 except Exception:                            # noqa: BLE001
                     _PENDING_STYLESHEET = None
-
-
-@pytest.fixture(autouse=True)
-def _the_gui_scale_is_left_as_it_was_found(deferred_deletions_flushed):
-    """Put the live GUI scale back the way the test found it.
-
-    A Preferences Save applies the GUI scale the dialog shows with
-    ``gui_scale.set_gui_scale_live``, which is process-wide and installs the
-    scaling layer. With a sandboxed preference store the dialog shows the
-    screen default, 90 % on the offscreen test screen, so
-    ``test_ten_night_themes::test_save_writes_what_the_dialog_shows`` left
-    every later test drawing at 0.9: ``test_one_close_mark`` then measured
-    20 px close targets against its 22 px floor (ten failures, 17 in the
-    hosted-order cohort). Restored at the next test's setup, after its
-    deleteLater queue has been flushed, for the reason
-    ``_the_application_font_is_left_as_it_was_found`` gives.
-    """
-    global _PENDING_GUI_SCALE
-
-    from spacr.qt import gui_scale
-
-    if _PENDING_GUI_SCALE is not None:
-        gui_scale.set_gui_scale_live(_PENDING_GUI_SCALE)
-        _PENDING_GUI_SCALE = None
-    original = gui_scale.current_scale()
-    yield
-    if abs(gui_scale.current_scale() - original) > 1e-9:
-        _PENDING_GUI_SCALE = original
 
 
 @pytest.fixture(autouse=True)
