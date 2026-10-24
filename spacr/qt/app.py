@@ -5862,6 +5862,8 @@ class MainWindow(QMainWindow):
                 event.ignore()
                 self._closing = False
                 return
+        from .gui_scale import _close_without_restyling
+        _close_without_restyling(self)
         self._end_session_cleanly()
         self._closing = True
         from .widgets.console_panel import ConsolePanel
@@ -5872,6 +5874,8 @@ class MainWindow(QMainWindow):
                 pass
         self._release_update_workers()
         super().closeEvent(event)
+        if not event.isAccepted():
+            _close_without_restyling(self, closing=False)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:

@@ -3987,6 +3987,10 @@ class _SheetsEveryWindowThatAppears(QObject):
         if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
+                    if kind == QEvent.Show:
+                        from .gui_scale import _flush_pending_sheets
+
+                        _flush_pending_sheets(watched)
                     if _a_decorator_sheets_it(watched):
                         return False
                     if kind == QEvent.Polish:
@@ -4059,9 +4063,19 @@ def _roots_for(window):
 
 
 def _sheet_one_window(window) -> bool:
-    """Put the live window sheet on ``window`` if it has not got it yet."""
+    """Put the live window sheet on ``window`` if it has not got it yet.
+
+    A window whose C++ object is gone, or that is being torn down, is left
+    alone; the ``setStyleSheet`` itself goes through the stylesheet guard in
+    :mod:`spacr.qt.gui_scale`, which waits for the event loop when this is
+    reached from inside a polish, a style change or a paint.
+    """
+    from .gui_scale import _is_alive, _is_torn_down
+
     app = QApplication.instance()
     if app is None:
+        return False
+    if not _is_alive(window) or _is_torn_down(window):
         return False
     sheet = getattr(app, _WINDOW_SHEET_ATTRIBUTE, None)
     if sheet is None:
@@ -4416,6 +4430,9 @@ def apply_stylesheet_per_window(app, sheet: str, *,
     if _WINDOW_SHEET_FILTER is None:
         _WINDOW_SHEET_FILTER = _SheetsEveryWindowThatAppears()
     from .gil_priority import _watch_application_events
+    from .gui_scale import _install_sheet_guard
+
+    _install_sheet_guard()
 
     _watch_application_events(app, _WINDOW_SHEET_FILTER, _SHEETING_MOMENTS)
 
