@@ -12,6 +12,33 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next home_access cohort checks three real Hero objects, the first current-page
+icon-bearing tile/icon/name, five aside buttons and the pinned hint (12 targets).
+Retain full manifest/untested ledger and original20s content budget, owned body
+fitter readiness and one-reveal strict glyph/source-DPR visibility. Reject hidden
+inner horizontal overflow; this is bounded access, not all Home targets tested.
+
+Compressed Home scope: real factory/launch policy, GUI/font200, Home1200x496;
+mark/title/full wrapped subtitle and first tile icon/name must be individually
+reachable after one reveal with frozen next-turn/global bounds/source/DPR.
+Keep five aside captions, pinned hint and exact launch policy/count; intentional
+name elision retains full tooltip/module accessibility, not full displayed text.
+RED37393 proves192px icon/77px name expose only21px bands. Body-only transparent
+scrolling reserves actual tile width688 plus native page/frame/bar insets and
+own row height317 plus tab insets, never the full9408px page or window floor.
+Growth exposed hidden horizontal range676: grids now use their real viewport,
+native tile minima/margins/spacing and changed-column guards; tested content
+must fit viewport with hidden horizontal range0. No per-tile event filters.
+RED49508 exposes816px subtitle beyond301px viewport; local actual Hero cap
+tracks that viewport. Growth13843 proves fitted-font HFW feedback; selected-font
+preferred HFW restores full fonts on growth without new minimum/global policy.
+GREEN24271 passes9.95s/.325GiB: nine header reveals, exact selected styles/font
+restoration and quiescence. Final affected70991 passes2nodes16.23s/.334GiB:
+six Apps reveals/grow-shrink/source/DPR/no hidden overflow/quiescence/deletion,
+roomy90% control and retained five-caption/pane/launch checks. Native Apps/header
+acceptance remains pending; these isolated-background checks are not full Home.
+
+
 Next bounded native hint_bar cohort selects only the exact visible Home strip.
 Check initial default, real MainWindow mask hint and public release using the
 same strict glyph/reveal/readiness rules within one original20s content budget.
