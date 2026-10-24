@@ -2781,6 +2781,7 @@ API_ENTRIES = (
     ('spacr.measure.get_object_counts', 'Return per-count-type totals and per-file averages from the measurements DB.'),
     ('spacr.measure.img_list_to_grid', 'Plot a grid of images with optional titles.'),
     ('spacr.measure.mask_role_of', 'Resolve what a user typed in a mask column to a spaCR object role.'),
+    ('spacr.measure.measure_calibrated_cells', 'Export signed first-order cell statistics from a calibrated V2 dataset.'),
     ('spacr.measure.measure_crop', 'Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.'),
     ('spacr.measure.measure_crop.job_callback', 'Save returned figures and report field computation progress.'),
     ('spacr.measure.measure_crop.make_error_callback', "Bind the filename into the pool's error callback."),

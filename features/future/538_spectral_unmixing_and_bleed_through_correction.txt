@@ -28,6 +28,24 @@ target correction, restored masks, provenance/resume and unsafe downstream
 refusal using CPU fakes; no model download or biological efficacy claim.
 The calibrated V2 cell-only route writes a separate calibrated_segmentation dataset: aligned nonquantitative float32 display planes and restored full-canvas masks, blank outside valid support, plus signed crop outputs and durable coordinate metadata. Original raw channels/files remain unchanged. Measure, its preview, checked crops and cached export must refuse that dataset independently of current unmix switches; V1, 3D, additional processing and unsupported exports remain refused. Default routes and the separate known-amount scientific gate remain unchanged.
 
+CALIBRATED CELL MEASUREMENT FOLLOW-UP (2026-10-24)
+Home owns an explicit measure_calibrated_cells API in the existing Measure
+module, with G1 implementing signed statistics, G5 binding producer records
+and input transport, and G4 independently reviewing mathematics and source.
+Require an explicit versioned cell-mask role and hash-bound complete signed
+crop/matching-mask records; refuse older ambiguous records. Preserve original
+data and the ordinary Measure/preview refusals. Export separate CSV/JSON to a
+new atomic destination without overwrite or raw measurement database mixing.
+Report signed float64 first-order camera-linear statistics at the recorded
+common PSF, geometric full-reference coordinates, physical channel identities,
+area and positive anisotropic pixel spacing. Preserve negative values; never
+use display planes, uint16 casts, clipping, weighted centroids, relative or
+texture statistics, crops, reprocessing or concentration claims in this slice.
+Validate known signed/zero-sum cells, ROI offsets and channel order, source
+immutability, wrong role/hash/shape/origin/spacing refusals and cancellation
+before publication. Existing defaults and the separate real known-amount
+double-stain scientific acceptance gate remain unchanged and open.
+
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
     measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
@@ -256,3 +274,5 @@ whole-feature or final CI acceptance claim.
 2026-10-23 Home: explicit calibrated 2D Live Preview uses matched control/target PSFs and registration on a valid signed ROI, bounded control allocation, aligned display/canvas restoration and stale-generation protection; unsafe filters and unsupported routes refuse. Core/default controls 39 PASS, resource/extractor 2 PASS, affected GUI/alpha seven retained plus corrected real-channel driver 1 PASS, cumulative real-control budget 1 PASS; independent math/source peers accepted. Normal review pin 4ed25 (6,947 files), API pin 3d49f82803ff, nine-language catalogs, Help and caption arrivals are verified; 17 material source/catalog contracts pass with ten API files unchanged. Four affected notebook references were generated normally and their freshness control passes (15.99s). Root owns Night publication; calibrated batch/Measure and real known-amount double-stain acceptance remain OPEN.
 
 2026-10-24 Home: calibrated cell-only V2 batch candidate writes a separate aligned nonquantitative display/mask dataset with signed crops, explicit physical identities and durable coordinate records; originals remain unchanged. Resource and path preflights refuse unsupported or unsafe inputs before model execution, while persisted-coordinate guards reject Measure, preview, checked crops and cached export regardless of current toggles. Thirty unique focused session, transport, default-path, measurement and runtime-extractor controls pass with independent mathematical/source peers. Normal nine-language API/runtime catalogs, Help, consumer map and caption arrivals are verified at review 19ca991 (6,984 files) and API pin dd8f34d8d0fc; all 16 final owning contracts pass with ten API files byte-identical. Four affected notebook references were regenerated normally and their freshness test passes; root owns Night publication. V1, broader calibrated measurement and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: explicit measure_calibrated_cells exports signed float64 first-order cell statistics and full-reference geometry through spacr.tabular to an atomic new CSV/provenance destination; ordinary Measure/preview refusals remain. Versioned cell-role records bind the signed crop and matching mask to calibration, physical channels and typed acquisition identities; old ambiguous records and labels above 65535 refuse. Twenty-seven focused producer/loader/API controls, three source contracts and all 15 final catalog/Help/runtime checks pass; independent source/math/output peers accepted, with ten API files unchanged by final checks. Normal 216-target nine-language closure is verified at review cc935d65 (7,002 files) and API pin b68b901493c6; consumer map, Help and caption arrivals were generated normally. Root owns Night publication; V1/3D, other object roles, ordinary database integration, unsupported platform capabilities and real known-amount double-stain acceptance remain OPEN.

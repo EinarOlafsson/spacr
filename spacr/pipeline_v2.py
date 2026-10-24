@@ -920,7 +920,8 @@ def stream_masks_from_stack(
                     signed_path.parent.mkdir(parents=True, exist_ok=True)
                     _save_array_atomic(str(signed_path), calibrated_results[index].image)
                     psf_session.mark_completed(sf.field_id, output_path=sf.path,
-                                               signed_path=signed_path)
+                                               signed_path=signed_path,
+                                               mask_role='cell' if object_type == 'cell' else None)
                 else:
                     psf_session.mark_completed(sf.field_id)
 

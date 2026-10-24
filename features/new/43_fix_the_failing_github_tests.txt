@@ -8,6 +8,15 @@ two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
 Preserve the immutable N691 arrival bodies while binding only the documented
 Metal-era MitoNet device paragraph to its exact current source hash.
 
+CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
+widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
+Use the real Mask Time switch to reveal its mounted tracking category;
+retain every original native mark size and trailing-edge geometry assertion.
+Independently peer and run only the owning CPU/offscreen case. No fabricated
+masthead strip, production or generated changes. The case passes (4.40s),
+with the known finite compiler finalization diagnostic and normal exit.
+Independent peer accepted; root publication remains pending.
+
 CURRENT MASK TRACKING IMPORT CONTRACTS — 2026-10-24
 widgets_g3 owns two Main be67895 Coverage 4 stale Mask category/import
 expectations. Preserve the approved native timelapse processing setting,
@@ -4801,3 +4810,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — The Windows CRT owner-acceptance fixture now also refuses the same current-user or Administrators owner when its DACL is missing, so a no-op validator cannot pass. Both owner cases and the assertion-free hygiene gate PASS (3 checks, 20.12s); independent source peer accepted. Runtime and security refusals are unchanged; root owns publication and broader CI acceptance remains open.
 
 2026-10-24 — The real-object classifier alpha fixture now follows the current Mask Object filtration α card: heading hidden/off, visible/on, hidden/off, retaining every row/search/hidden-value gate. The sole affected case PASS in 2.50s with independent source peer acceptance; production/generated outputs unchanged and root Main publication pending. The existing SpawnProcess exit diagnostic remains observed; no hosted runtime-cause claim.
+
+2026-10-24 — Mask typing diagnostics now include the actual unexpected visibility caller stack and edit/event-delivery phase while preserving the zero-count and 200ms assertions. Standalone qualification PASS (1 case, 5.22s) and the actual shared-state prerequisite sequence PASS (4 cases, 3.75s); the hosted failure is not reproduced or claimed fixed. No production/generated changes; root publication and hosted attribution remain pending.
