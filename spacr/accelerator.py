@@ -730,6 +730,13 @@ def cellpose_kwargs() -> dict:
       matches Make Masks; float32 arithmetic need not produce identical
       predictions to bfloat16.
 
+      Metal that accepts bfloat16 still gets float32 when the Mac has
+      :data:`_METAL_FP32_MIN_MEMORY`: accepting the dtype is not computing
+      in it. On an Apple M2 (torch 2.14, cellpose 4.2.1.1, 512x512) bfloat16
+      weights took 7.85 s an image against 5.95 s in float32, the same 65
+      masks (foreground IoU 0.9995), for 2.7 vs 4.1 GB of GPU memory. A
+      smaller Mac keeps bfloat16, where that memory is the tighter limit.
+
     Callers that pass ``device=None`` on purpose -- letting cellpose
     resolve it -- should take ``gpu`` and ``use_bfloat16`` from here and
     drop ``device``.
@@ -740,7 +747,22 @@ def cellpose_kwargs() -> dict:
     kwargs = {"gpu": accelerator.is_gpu, "device": accelerator.torch_device}
     if not accelerator.is_gpu or not accelerator.bfloat16:
         kwargs["use_bfloat16"] = False
+    elif accelerator.kind == "mps" and _physical_memory() >= _METAL_FP32_MIN_MEMORY:
+        kwargs["use_bfloat16"] = False
     return kwargs
+
+
+#: Unified memory from which Metal runs Cellpose in float32; see
+#: :func:`cellpose_kwargs`.
+_METAL_FP32_MIN_MEMORY = 16 * 1024 ** 3
+
+
+def _physical_memory() -> int:
+    """Installed RAM in bytes, or 0 when the OS will not say."""
+    try:
+        return os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+    except (AttributeError, ValueError, OSError):
+        return 0
 
 
 #: Set once ``_keep_cellpose_flows_off_metal`` has patched the module.
