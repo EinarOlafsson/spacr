@@ -16,10 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-Coarse render scope: time only actual owned WGPU context render call-throughs
-during the same strict FIBSEM/Metal75/default-viewport drag, wall/threadCPU,
-quality/scale/thread IDs; remove heavy profilers and restore exact descriptor.
-No extra GPU work/readback/scheduling change, FPS or GPU-compute attribution.
+2026-10-24 — Render86588/GnvU2e PASS35.23s/1.204GiB onc6469571:
+14 disjoint main-thread interactive75 calls328.647ms wall/48.868ms CPU,0straddlers.
+FIBSEM626×122/DPR2/Metal75,14motions/3.056s; entry mask/prewarm notrunning,unfinished.
+Entry stack app.exec→tick, no constructor; freshframe/pick0/data/idle/cleanup/registry0 PASS.
+Render boundary is inclusive, not GPU compute/FPS; remaining interval unattributed.
 
 2026-10-24 — RegistryTrace5305/OGjh8P PASS34.13s/1.228GiB onf18ee0a3:
 6 registrations: Home journal/Mask chain/4 usage; no Measure/post-close row.
