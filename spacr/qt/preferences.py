@@ -8080,6 +8080,12 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
     whenever the user changes a preference (via :class:`PreferencesDialog`
     ``accepted`` signal).
 
+    When only late widget blocks were registered since the sheet was
+    composed, each screen already wears those blocks, rendered with these
+    same values, so its local copy is kept and the screen is not restyled.
+    Clearing the copies restyled every screen at once and again at its next
+    show: 0.9 s on Home and 0.55-0.8 s per screen on an Intel Mac.
+
     :param app: optional QApplication. Falls back to
         ``QApplication.instance()``.
     :param in_slices: Preferences' Apply and its Revert: a new sheet is put
@@ -8143,13 +8149,16 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
         bool(get_strong_focus()),
         widget_qss_names(),
     )
-    style_changed = (
-        getattr(app, "_spacr_preferences_style_signature", None)
-        != style_signature
-        or window_stylesheet(app)
-        != getattr(app, "_spacr_preferences_stylesheet", None)
-        or bool(app.styleSheet())
-    )
+    previous_signature = getattr(app, "_spacr_preferences_style_signature",
+                                 None)
+    sheet_untouched = (
+        window_stylesheet(app)
+        == getattr(app, "_spacr_preferences_stylesheet", None)
+        and not app.styleSheet())
+    style_changed = previous_signature != style_signature or not sheet_untouched
+    blocks_only = (
+        sheet_untouched and previous_signature is not None
+        and tuple(previous_signature[:-1]) == tuple(style_signature[:-1]))
     if style_changed:
         set_widget_qss_context(app, theme, scale, pane_opacity)
         apply_qpalette(app, theme=theme,
@@ -8157,7 +8166,8 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
         sheet = stylesheet(
             theme=theme, font_scale=scale, background=background,
             surface_opacity=pane_opacity, load_widget_registrars=False)
-        clear_widget_qss_overlays(app)
+        if not blocks_only:
+            clear_widget_qss_overlays(app)
         apply_stylesheet_per_window(app, sheet, in_slices=in_slices)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
         setattr(app, "_spacr_preferences_stylesheet", sheet)

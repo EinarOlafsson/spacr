@@ -3585,6 +3585,14 @@ _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 #: probe under it resolving to `#000000` on the dark theme.
 _WINDOW_SHEET_DIGEST = "_spacr_window_stylesheet_digest"
 
+#: The registered-widget fragment of the sheet :func:`stylesheet` composed
+#: last; see :func:`_sheet_without_registered_blocks`.
+_LAST_WIDGET_QSS_FRAGMENT = ""
+
+#: ``{serial: (core digest, registered block names)}`` for the window
+#: sheets applied this session, newest few only.
+_WINDOW_SHEET_HISTORY = "_spacr_window_stylesheet_history"
+
 #: The length and digest of the GLOBAL part of what we last applied, so an
 #: APPEND can be told from a REPLACEMENT. Without this pair the sheet grows
 #: by a whole copy of itself at every theme change -- measured, a widget on
@@ -4062,6 +4070,55 @@ def _roots_for(window):
     return roots or [window]
 
 
+def _sheet_without_registered_blocks(sheet: str):
+    """``(core digest, block names)`` of a composed sheet, or ``None``.
+
+    The core is the sheet with its registered-widget fragment taken out,
+    so two sheets with the same core differ only in which late blocks they
+    carry. ``None`` when ``sheet`` is not the one :func:`stylesheet` last
+    composed, and nothing can be said about it.
+    """
+    fragment = _LAST_WIDGET_QSS_FRAGMENT
+    if fragment and fragment not in sheet:
+        return None
+    core = sheet.replace(fragment, "", 1) if fragment else sheet
+    names = frozenset(name for name in _WIDGET_QSS
+                      if _WIDGET_QSS_MARKER.format(name=name) in sheet)
+    return _sheet_digest(core), names
+
+
+def _remember_the_window_sheet(app, sheet: str) -> None:
+    """Note the core and blocks of the window sheet just put in force."""
+    history = dict(getattr(app, _WINDOW_SHEET_HISTORY, None) or {})
+    serial = int(getattr(app, _WINDOW_SHEET_SERIAL, 0))
+    history[serial] = _sheet_without_registered_blocks(sheet)
+    for old in sorted(history)[:-8]:
+        history.pop(old, None)
+    setattr(app, _WINDOW_SHEET_HISTORY, history)
+
+
+def _only_blocks_it_carries_were_added(app, window, serial) -> bool:
+    """Whether ``window``'s sheet differs from the one in force only by
+    registered blocks it already wears.
+
+    Composing the sheet again after a screen module registered its block
+    (:func:`spacr.qt.preferences._the_application_sheet_is_behind`) changed
+    nothing a sheeted screen shows -- each screen had installed that block
+    on itself (:func:`ensure_widget_qss_applied`) -- but the new serial made
+    every hidden module screen restyle itself in full at its first show:
+    0.55-0.77 s per screen on an Intel Mac. Same core, every new block
+    already present: the screen keeps its sheet and takes the new serial.
+    """
+    history = getattr(app, _WINDOW_SHEET_HISTORY, None) or {}
+    then = history.get(window.property(_WINDOW_SHEET_SERIAL))
+    now = history.get(serial)
+    if not then or not now or then[0] != now[0] or then[1] - now[1]:
+        return False
+    worn = str(window.styleSheet() or "")
+    return all(_WIDGET_QSS_MARKER.format(name=name) in worn
+               for name in now[1] - then[1])
+
+
 def _sheet_one_window(window) -> bool:
     """Put the live window sheet on ``window`` if it has not got it yet.
 
@@ -4084,9 +4141,12 @@ def _sheet_one_window(window) -> bool:
     try:
         if window.property(_SHEET_HELD):
             return False
-        if (window.property(_WINDOW_SHEET_SERIAL) == serial
-                and window.property(_WINDOW_SHEET_DIGEST)
-                == _sheet_digest(window.styleSheet())):
+        ours = (window.property(_WINDOW_SHEET_DIGEST)
+                == _sheet_digest(window.styleSheet()))
+        if window.property(_WINDOW_SHEET_SERIAL) == serial and ours:
+            return False
+        if ours and _only_blocks_it_carries_were_added(app, window, serial):
+            window.setProperty(_WINDOW_SHEET_SERIAL, serial)
             return False
         window.setProperty(_WINDOW_SHEET_SERIAL, serial)
         own = _the_windows_own_stylesheet(window)
@@ -4426,6 +4486,7 @@ def apply_stylesheet_per_window(app, sheet: str, *,
     setattr(app, _WINDOW_SHEET_ATTRIBUTE, str(sheet))
     setattr(app, _WINDOW_SHEET_SERIAL,
             int(getattr(app, _WINDOW_SHEET_SERIAL, 0)) + 1)
+    _remember_the_window_sheet(app, str(sheet))
 
     if _WINDOW_SHEET_FILTER is None:
         _WINDOW_SHEET_FILTER = _SheetsEveryWindowThatAppears()
@@ -4672,7 +4733,10 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
             return False
         if _the_sheet_is_waiting(root):
             return False
+        ours = root.property(_WINDOW_SHEET_DIGEST) == _sheet_digest(current)
         root.setStyleSheet(desired)
+        if ours:
+            root.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(desired))
     except (AttributeError, RuntimeError):
         return False
     return True
@@ -4902,6 +4966,8 @@ QToolButton#SectionHeader[maturity="alpha"] {{
         if theme == "glass" else ""
     )
     WIDGET_QSS = registered_widget_qss(P, surface_opacity)
+    global _LAST_WIDGET_QSS_FRAGMENT
+    _LAST_WIDGET_QSS_FRAGMENT = WIDGET_QSS
     CLOSE_MARK_RULES = close_mark_rules(theme, F["body"])
     return f"""
 /* -----------------------------------------------------------------
