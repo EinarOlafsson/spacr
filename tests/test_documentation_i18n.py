@@ -3428,6 +3428,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
         ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
         ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
