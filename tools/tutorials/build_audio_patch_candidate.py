@@ -243,12 +243,19 @@ def require_published_script_baseline(baseline, manifest):
         raise ValueError('Legacy visual reuse requires the exact complete published browser/Pages evidence')
 
 
-def verify_script_tracks(stage, identities, catalogs, planned):
+def verify_script_tracks(stage, identities, catalogs, planned, *, baseline=None):
     """Use the existing complete current-source decoder for every old offering."""
     from build_appended_candidate import verify_tracks
     for identity in identities:
         lesson = next(row for row in catalogs['lessons_en.json']['lessons'] if row['id'] == identity)
-        declared, tracks = verify_tracks(stage, lesson, catalogs)
+        mixed_record = stage / 'production' / identity / 'published-scene-audio-refresh.json'
+        if mixed_record.exists() or mixed_record.is_symlink():
+            if identity != '19_train_cellpose':
+                raise ValueError('Published-scene audio refresh is reviewed only for Tutorial19')
+            from published_scene_audio_refresh import checked_tracks
+            declared, tracks = checked_tracks(stage, baseline, lesson, catalogs)
+        else:
+            declared, tracks = verify_tracks(stage, lesson, catalogs)
         expected = {(t['language'], t['voice'], t['audio_sha256'], t['timing_sha256'])
                     for t in planned if t['lesson'] == identity}
         actual = {(t['language'], t['voice'], t['audio_sha256'], t['timing_sha256']) for t in tracks}
@@ -270,7 +277,10 @@ def build(baseline, stage, identities, *, refresh_player=False, refresh_scripts=
     if refresh_scripts:
         require_published_script_baseline(baseline, manifest)
         catalogs, planned = script_patch_plan(baseline, stage, identities)
-        verify_script_tracks(stage, identities, catalogs, planned)
+        if any((stage / 'production' / identity / 'published-scene-audio-refresh.json').exists() or (stage / 'production' / identity / 'published-scene-audio-refresh.json').is_symlink() for identity in identities):
+            verify_script_tracks(stage, identities, catalogs, planned, baseline=baseline)
+        else:
+            verify_script_tracks(stage, identities, catalogs, planned)
     else:
         planned = patch_plan(baseline, stage, identities)
         verify_current_tracks(baseline, planned)
