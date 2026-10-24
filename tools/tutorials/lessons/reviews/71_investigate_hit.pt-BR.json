@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Escolher o banco de dados de medições, as predições por célula, as frações de guias e a coluna de pontuação.",
     "Ler as abas de evidências, poços, guias e limiar e encontrar as tabelas salvas."
   ],
-  "prerequisite": "Extraia Investigate_Hit_real_screen_example.zip. Todo o conteúdo vem de uma mesma triagem real: a execução de Regression com os dados de teste de Regression (as configurações do tutorial de Regression), as predições CV por célula correspondentes e um banco de dados de medições com as medidas reais de forma, tamanho e intensidade dessas mesmas células. Para manter o download pequeno, o banco de dados tem 52 poços: todos os poços analisados com uma guia para o gene 225160 e, para cada um, três poços sem ela da mesma placa. Nenhum gene desta execução rápida de Regression atende a q ≤ 0,05. Trate a investigação como um exemplo prático, e não como um hit confirmado.",
+  "prerequisite": "Extraia Investigate_Hit_real_screen_example.zip. Todo o conteúdo vem de uma mesma triagem real: a execução de Regression com os dados de teste de Regression (as configurações do tutorial de Regression), as predições CV por célula correspondentes e um banco de dados de medições com as medidas reais de forma, tamanho e intensidade dessas mesmas células. O banco de dados de exemplo contém 52 poços: todos os poços analisados com uma guia para o gene 225160, mais três poços da mesma placa sem essa guia para cada poço-alvo. Nenhum gene desta execução rápida de Regression atende a q ≤ 0,05. Trate a investigação como um exemplo prático, e não como um hit confirmado.",
   "scenes": [
     "Na tela Home, abra Regression. O Investigate Hit parte de uma execução de Regression concluída. Ele pergunta se as células medidas nos poços ligados a um gene parecem diferentes das células de poços sem esse gene.",
     "Escolha Hits para abrir a Hit List. Primeiro extraia o arquivo de exemplo. Ele contém uma execução de Regression com os dados de teste, as predições CV por célula correspondentes e um banco de dados de medições das mesmas células. Os três vêm de uma mesma triagem real.",
@@ -31,7 +31,7 @@
     "Em Well/guide fractions, escolha regression_data.csv na mesma pasta de resultados. Foi o Regression que gravou essa tabela. Ela traz a fração de cada guia em cada poço analisado.",
     "Deixe Independent morphology features vazio. Assim o módulo usa as treze medições celulares numéricas do banco de dados e deixa de fora identificadores, frações de guias e a pontuação CV, de modo que esta verificação não reaproveita a pontuação. No seu próprio banco de dados, liste apenas colunas de medição sem valores ausentes.",
     "Clique em Investigate hit. O modelo é ajustado deixando uma placa de fora de cada vez, então nenhuma célula é pontuada por um modelo treinado na própria placa. A fração de guia de um poço só define a expectativa inicial para as células desse poço. Ela nunca marca uma célula como portadora da guia. Este exemplo leva alguns minutos.",
-    "Evidence mostra o resultado. Os poços-alvo têm uma prevalência do tipo hit apenas zero vírgula zero um maior que a dos poços-controle. O intervalo bootstrap por poço vai de menos zero vírgula zero quatro a mais zero vírgula zero seis, e o valor P da permutação em blocos é de cerca de zero vírgula sessenta e três. As células não sustentam este candidato.",
+    "Evidence mostra o resultado. Os poços-alvo têm uma prevalência do tipo hit apenas zero vírgula zero um maior que a dos poços-controle. O intervalo bootstrap por poço vai de menos zero vírgula zero quatro a mais zero vírgula zero seis, e o valor P da permutação em blocos é de cerca de zero vírgula sessenta e três. Esta análise não fornece evidência clara de uma diferença para este candidato.",
     "Wells lista, para cada poço, a fração de guia, a probabilidade média do tipo hit, a prevalência e o número de células. Cada poço conta como uma unidade independente, por isso a comparação usa treze poços-alvo e trinta e nove poços-controle, e não células individuais.",
     "Guides mostra cada guia-alvo separadamente. As respostas à dose apontam em direções diferentes, mais um motivo para não tratar este gene como um hit.",
     "Threshold sensitivity repete a comparação com limiares de probabilidade de zero vírgula cinco a zero vírgula nove. Em todos os limiares a diferença fica perto de zero vírgula zero um, então a conclusão não depende do limiar.",

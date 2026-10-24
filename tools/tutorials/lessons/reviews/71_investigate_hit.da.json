@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Vælge måledatabase, celleprædiktioner, guideandele og scorekolonne.",
     "Læse fanerne for evidens, brønde, guides og tærskel og finde de gemte tabeller."
   ],
-  "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. For at holde downloaden lille indeholder databasen 52 brønde: alle analyserede brønde med en guide til gen 225160 og, for hver af dem, tre brønde uden den fra samme plade. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
+  "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. Eksempeldatabasen indeholder 52 brønde: alle analyserede brønde med en guide til gen 225160 samt tre brønde fra samme plade uden denne guide for hver målbrønd. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
   "scenes": [
     "Fra Home åbner du Regression. Investigate Hit tager udgangspunkt i en afsluttet Regression-kørsel. Det spørger, om de målte celler i brøndene bag ét gen ser anderledes ud end celler i brønde uden det gen.",
     "Vælg Hits for at åbne Hit List. Udpak først eksempelarkivet. Det indeholder en Regression-kørsel på testdataene, de tilsvarende CV-prædiktioner pr. celle og en måledatabase for de samme celler. Alle tre stammer fra én og samme reelle screening.",
@@ -31,7 +31,7 @@
     "Til Well/guide fractions vælger du regression_data.csv i den samme resultatmappe. Den tabel er skrevet af Regression. Den angiver hver guides andel i hver analyseret brønd.",
     "Lad Independent morphology features stå tomt. Modulet bruger så databasens 13 numeriske cellemålinger og udelader identifikatorer, guideandele og CV-scoren, så kontrollen ikke genbruger scoren. Til din egen database angiver du kun målekolonner uden manglende værdier.",
     "Klik på Investigate hit. Modellen tilpasses med én plade holdt ude ad gangen, så ingen celle scores af en model, der er trænet på dens egen plade. En brønds guideandel fastlægger kun udgangsforventningen for brøndens celler. Den markerer aldrig en celle som bærer af guiden. Eksemplet tager et par minutter.",
-    "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Cellerne understøtter ikke denne kandidat.",
+    "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Denne analyse giver ingen klar evidens for en forskel for denne kandidat.",
     "Wells viser hver brønds guideandel, gennemsnitlige hit-lignende sandsynlighed, prævalens og celleantal. Hver brønd tæller som én uafhængig enhed, så sammenligningen bruger 13 målbrønde og 39 kontrolbrønde, ikke enkeltceller.",
     "Guides viser hver målguide for sig. Deres dosis-respons-forløb peger i forskellige retninger, hvilket er endnu en grund til ikke at behandle genet som et hit.",
     "Threshold sensitivity gentager sammenligningen ved sandsynlighedsgrænser fra 0,5 til 0,9. Ved hver grænse forbliver forskellen tæt på 0,01, så konklusionen afhænger ikke af grænsen.",

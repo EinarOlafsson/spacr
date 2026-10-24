@@ -14681,7 +14681,7 @@
         "Elegir la base de datos de mediciones, las predicciones por célula, las fracciones de guías y la columna de puntuación.",
         "Leer las pestañas de evidencia, pocillos, guías y umbral, y encontrar las tablas guardadas."
       ],
-      "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. Para que la descarga sea pequeña, la base de datos contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160 y, por cada uno, tres pocillos de la misma placa sin ella. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
+      "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. La base de datos de ejemplo contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160, más tres pocillos de la misma placa sin esa guía por cada pocillo diana. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
       "scenes": [
         {
           "visual": "01_module",
@@ -14767,9 +14767,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato.",
+          "narration": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato.",
           "hold_after": 0.7,
-          "speech_text": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato."
+          "speech_text": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato."
         },
         {
           "visual": "14_wells",
