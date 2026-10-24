@@ -17,6 +17,11 @@ Check initial default, real MainWindow mask hint and public release using the
 same strict glyph/reveal/readiness rules within one original20s content budget.
 Only default counts toward manifest coverage; held/released rows are separate,
 with full untested counts and no Apps-content usability inference.
+Native29473/7opZHW onb7e50fd4 passes28.92s/RSS1.243GiB: same1200x175 strip
+fully exposes default, real held mask/API/Tutorial and released default; full
+accessible text/state restoration pass. One of139 targets checked,138 untested;
+all three states use3.496s total after tour9.876s, normal close/cleanup pass.
+Apps viewport104x21 is geometry only; full Home/Apps usability remain open.
 
 Default hint scope: at GUI200/90/100%, font200, initial and released prompt
 must fit actual600px styled contents and restore full original on growth,
