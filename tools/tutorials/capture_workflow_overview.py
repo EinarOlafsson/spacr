@@ -343,6 +343,18 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 drv.finish(capture, scene)
                 scene_captured = True
                 expected_screen_key = 'regression'
+            elif key == 'timelapse' and getattr(screen, 'dimension_switch', None) is not None:
+                # Since nightly ad35831724 the Timelapse route is Mask's own Time control: it reveals the
+                # time-axis and tracking categories; the timelapse setting itself is not changed by it.
+                switch = screen.dimension_switch('t')
+                if switch is None or not switch.isVisible():
+                    raise ValueError('The native Time control is missing on Mask')
+                if not switch.isChecked():
+                    click(switch)
+                settle(1)
+                if not switch.isChecked():
+                    raise ValueError('The native Time control did not reveal the tracking settings')
+                expected_screen_key = 'mask'
             else:
                 buttons = [button for button in screen.findChildren(FoldButton)
                            if button.isVisible() and button.app_key == key]
