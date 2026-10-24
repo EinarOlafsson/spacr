@@ -242,12 +242,16 @@ def test_missing_moderngl_refuses_without_a_child_process(monkeypatch):
     assert ambient._flow_graphics_preflight() is False
 
 
-@pytest.mark.parametrize('platform,backend', [('linux', 'egl'), ('win32', None), ('darwin', None)])
-def test_context_options_per_platform(platform, backend, monkeypatch):
+@pytest.mark.parametrize('platform,backend,required', [
+    pytest.param('linux', 'egl', 430, id='linux-egl'),
+    pytest.param('win32', None, 430, id='win32-None'),
+    pytest.param('darwin', None, 410, id='darwin-None'),
+])
+def test_context_options_per_platform(platform, backend, required, monkeypatch):
     monkeypatch.setattr(ambient.sys, 'platform', platform)
     options = ambient._graphics_context_options()
     assert options.get('backend') == backend
-    assert options['standalone'] and options['require'] == 430
+    assert options['standalone'] and options['require'] == required
 
 
 def test_policy_block_releases_and_refuses_graphics(monkeypatch, qapp):
