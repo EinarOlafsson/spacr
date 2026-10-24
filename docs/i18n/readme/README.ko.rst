@@ -117,7 +117,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
+   <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering KMeans GPU; PCA 적합 CPU, 투영 GPU / CPU; UMAP / t-SNE / DBSCAN CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering KMeans GPU; PCA 적합 CPU, 투영 GPU / CPU; UMAP / t-SNE / DBSCAN CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
 
 .. spacr-hardware-end
 

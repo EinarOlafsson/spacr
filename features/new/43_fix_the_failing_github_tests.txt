@@ -17,6 +17,9 @@ checks with actual V2 dispatch: declared processing defaults before argument
 reads, explicit overrides retained, and real scorecards at legacy or returned
 output roots. Keep calibration route refusals and all product behavior unchanged;
 run only the two affected nodes, independent peer and root publication.
+CURRENT HARDWARE TABLE AND ALGORITHM CAPABILITY CONTRACT — 2026-10-24
+widgets_g5 owns the thirteen Night 8fe hardware-table failures on current source, with independent capability/source review. Bind actual resolver and algorithm dispatch before correcting stale claims; preserve CUDA/ROCm/XPU/CPU rows, beta tiers, sourced CPU context and all freshness assertions. Regenerate only affected hardware README outputs through existing helpers and run the thirteen affected cases once under the CPU cap; root publishes. No GPU/native execution or scientific acceptance is inferred.
+2026-10-24: Source review confirms Metal KMeans and conditional PCA projection, CPU PCA fitting and CPU UMAP/t-SNE/DBSCAN. The hardware-only ten-language refresh and thirteen affected checks pass (1.32s). Breakable technical separators preserve all five columns on phone assets; root publication remains pending.
 
 CURRENT HOME BODY SCROLL ACCESSIBLE NAME — 2026-10-24
 widgets_g4 owns the Night8fe unnamed Home scroll-area CI regression. Give

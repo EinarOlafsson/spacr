@@ -127,6 +127,19 @@ WORKFLOW_ORGANISM_NOTES = {'sv': 'Organismspecifik bildanalys och kvantitativa r
  'fr': 'Analyse d’images spécifique à l’organisme et résultats quantitatifs des '
        'essais.'}
 
+METAL_REDUCTION_CELL = "🟣 KMeans GPU; PCA fitting CPU, projection GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU"
+METAL_REDUCTION_CELL_TARGETS = {
+    "sv": "🟣 KMeans GPU; PCA anpassning CPU, projektion GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "de": "🟣 KMeans GPU; PCA Anpassung CPU, Projektion GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "es": "🟣 KMeans GPU; ajuste de PCA CPU, proyección GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "pt": "🟣 KMeans GPU; ajuste de PCA CPU, projeção GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "hi": "🟣 KMeans GPU; PCA फिटिंग CPU, प्रक्षेपण GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "ko": "🟣 KMeans GPU; PCA 적합 CPU, 투영 GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "zh_CN": "🟣 KMeans GPU；PCA 拟合 CPU，投影 GPU / CPU；🔴 UMAP / t-SNE / DBSCAN CPU",
+    "is": "🟣 KMeans GPU; PCA aðlögun CPU, vörpun GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU",
+    "fr": "🟣 KMeans GPU ; ajustement PCA CPU, projection GPU / CPU ; 🔴 UMAP / t-SNE / DBSCAN CPU",
+}
+
 HARDWARE_LEGEND_SOURCE = "🟢 supported (stable) \u2003 🟣 implemented (beta) \u2003 🔴 CPU support only"
 HARDWARE_LEGEND_TARGETS = {'sv': 'Stödda (stabila)  och genomförda (beta) - CPU stöd endast',
  'de': 'Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung '
@@ -311,7 +324,7 @@ HARDWARE_LEGEND_LABELS = {
 
 
 def localize_hardware_markup(text: str, language: str) -> str:
-    """The hardware table's legend in ``language``."""
+    """Localize the hardware legend and mixed Metal reduction cell."""
     stable, beta, cpu = HARDWARE_LEGEND_LABELS[language]
     legend = (f"\U0001F7E2 {stable} \u2003 \U0001F7E3 {beta} "
               f"\u2003 \U0001F534 {cpu}")
@@ -320,7 +333,9 @@ def localize_hardware_markup(text: str, language: str) -> str:
         lambda _match: legend,
         str(text),
     )
-    return localized
+    return localized.replace(
+        METAL_REDUCTION_CELL, METAL_REDUCTION_CELL_TARGETS.get(language, METAL_REDUCTION_CELL)
+    )
 
 
 def _underline_width(value: str) -> int:

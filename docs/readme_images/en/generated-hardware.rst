@@ -20,12 +20,12 @@
    * - AMD in an Intel Mac (Metal)
      - 🟣 GPU
      - 🟣 GPU
-     - 🔴 CPU
+     - 🟣 KMeans GPU; PCA fitting CPU, projection GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU
      - 🟣 GPU
    * - Apple Silicon (Metal)
      - 🟣 GPU
      - 🟣 GPU
-     - 🔴 CPU
+     - 🟣 KMeans GPU; PCA fitting CPU, projection GPU / CPU; 🔴 UMAP / t-SNE / DBSCAN CPU
      - 🟣 GPU
    * - Intel Arc/Xe (XPU)
      - 🟣 GPU
