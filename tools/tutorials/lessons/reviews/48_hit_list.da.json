@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "Filtrere kandidater og læse deres effekter og guideoverensstemmelse.",
     "Eksportere de valgte rækker som CSV, Markdown eller HTML."
   ],
-  "prerequisite": "Udpak Hit_List_real_results_companion.zip, og aktivér dit spaCR-miljø. Den nuværende genvej Hits i Regression viser ikke panelet; kør i stedet python hit_list_companion.py, og brug Browse til at gå til den udpakkede resultatmappe. Hjælpescriptet er ikke forbundet med Investigate. Brug wells_with_gene fra results_gene.csv til antallet af understøttende brønde: den eksporterede n_obs=0 er ikke den faktiske understøttelse. Eksemplet indeholder ingen gener, der opfylder q <= 0.05.",
+  "prerequisite": "Udpak Hit_List_real_results_companion.zip, og aktivér dit spaCR-miljø. Hvis genvejen Hits i Regression ikke viser panelet, så kør python hit_list_companion.py, og brug Browse til at gå til den udpakkede resultatmappe. Hjælpescriptet er ikke forbundet med Investigate. Brug wells_with_gene fra results_gene.csv til antallet af understøttende brønde: den eksporterede n_obs=0 er ikke den faktiske understøttelse. Eksemplet indeholder ingen gener, der opfylder q <= 0.05.",
   "scenes": [
     "Fra Home åbner du Regression og vælger Hits. Hvis panelet forbliver skjult, bruger du hjælpescriptet, der følger med lektionen, til at åbne Hit List.",
-    "Udpak det linkede eksempel, og aktivér dit spaCR-miljø. Kør python hit_list_companion.py. I hjælpescriptets vindue klikker du på Browse og vælger den udpakkede resultatmappe.",
+    "For at bruge alternativet skal du udpakke det linkede eksempel og aktivere dit spaCR-miljø. Kør python hit_list_companion.py. I hjælpescriptets vindue klikker du på Browse og vælger den udpakkede resultatmappe.",
     "Eksemplet indlæser 325 gener. Gør kolonnerne bredere for at læse effekt, P, q og guideoverensstemmelse. Effekterne er standardiserede marginale effekter. For antallet af understøttende brønde læser du wells_with_gene i results_gene.csv; et eksporteret observationsantal på 0 betyder, at understøttelsen ikke er tilgængelig.",
     "Sæt Max q til 0,05. Ingen gener i eksemplet består, så tabellen bliver tom. Sæt Max q tilbage til 1 for at gennemse alle kandidater.",
     "Sæt Minimum guides til 2. Der er 117 gener tilbage med mindst to testede guiderækker. Filteret bevarer de oprindelige q-værdier.",

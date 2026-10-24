@@ -9273,7 +9273,7 @@
         "Kandidaten filtern und ihre Effekte und Guide-Übereinstimmung lesen.",
         "Die ausgewählten Zeilen als CSV, Markdown oder HTML exportieren."
       ],
-      "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Die aktuelle Hits-Verknüpfung in Regression zeigt den Bereich nicht an; führen Sie stattdessen python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
+      "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Wenn die Hits-Verknüpfung in Regression den Bereich nicht anzeigt, führen Sie python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9285,7 +9285,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
+          "narration": "Um die Ausweichlösung zu verwenden, entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
           "hold_after": 0.7
         },
         {

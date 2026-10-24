@@ -9943,7 +9943,7 @@
         "候補を絞り込み、その効果とガイドの一致度を読む。",
         "選んだ行をCSV、Markdown、HTMLで書き出す。"
       ],
-      "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。現在のRegressionのHitsのショートカットではパネルが表示されないので、代わりにpython hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
+      "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。RegressionのHitsのショートカットでパネルが表示されない場合は、python hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9956,9 +9956,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
+          "narration": "代替手順を使う場合は、リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
           "hold_after": 0.7,
-          "speech_text": "リンク先の例を展開し、スペーカーの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。"
+          "speech_text": "代替手順を使う場合は、リンク先の例を展開し、スペーカーの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",

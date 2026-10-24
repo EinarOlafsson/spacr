@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "후보를 필터링하고 효과와 가이드 일치도를 읽습니다.",
     "선택한 행을 CSV, Markdown, HTML로 내보냅니다."
   ],
-  "prerequisite": "Hit_List_real_results_companion.zip의 압축을 풀고 spaCR 환경을 활성화하세요. 현재 Regression의 Hits 바로 가기는 패널을 표시하지 않으므로, 대신 python hit_list_companion.py를 실행하고 Browse로 압축을 푼 결과 폴더를 선택하세요. 보조 스크립트는 Investigate와 연결되지 않습니다. 지지하는 웰 수는 results_gene.csv의 wells_with_gene을 쓰세요. 내보낸 n_obs=0은 실제 지지 수가 아닙니다. 예제에는 q <= 0.05를 만족하는 유전자가 없습니다.",
+  "prerequisite": "Hit_List_real_results_companion.zip의 압축을 풀고 spaCR 환경을 활성화하세요. Regression의 Hits 바로 가기가 패널을 표시하지 않으면 python hit_list_companion.py를 실행하고 Browse로 압축을 푼 결과 폴더를 선택하세요. 보조 스크립트는 Investigate와 연결되지 않습니다. 지지하는 웰 수는 results_gene.csv의 wells_with_gene을 쓰세요. 내보낸 n_obs=0은 실제 지지 수가 아닙니다. 예제에는 q <= 0.05를 만족하는 유전자가 없습니다.",
   "scenes": [
     "Home에서 Regression을 열고 Hits를 선택하세요. 패널이 계속 보이지 않으면 이 강의에 포함된 보조 스크립트로 Hit List를 여세요.",
-    "연결된 예제의 압축을 풀고 spaCR 환경을 활성화하세요. python hit_list_companion.py를 실행하세요. 보조 스크립트 창에서 Browse를 클릭하고 압축을 푼 결과 폴더를 선택하세요.",
+    "대체 방법을 사용하려면 연결된 예제의 압축을 풀고 spaCR 환경을 활성화하세요. python hit_list_companion.py를 실행하세요. 보조 스크립트 창에서 Browse를 클릭하고 압축을 푼 결과 폴더를 선택하세요.",
     "예제는 유전자 325개를 불러옵니다. 열을 넓혀 효과, P, q, 가이드 일치도를 읽으세요. 효과는 표준화된 한계 효과입니다. 지지하는 웰 수는 results_gene.csv의 wells_with_gene에서 읽으세요. 내보낸 관측 수가 0이면 지지 정보가 없다는 뜻입니다.",
     "Max q를 0.05로 두세요. 이 예제에는 통과하는 유전자가 없어 표가 비게 됩니다. 모든 후보를 보려면 Max q를 다시 1로 두세요.",
     "Minimum guides를 2로 두세요. 검정된 가이드 행이 두 개 이상인 유전자 117개가 남습니다. 이 필터는 원래 q값을 유지합니다.",

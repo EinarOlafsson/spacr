@@ -9948,7 +9948,7 @@
         "筛选候选，并阅读其效应和向导序列一致性。",
         "把所选行导出为CSV、Markdown或HTML。"
       ],
-      "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。当前Regression中的Hits快捷方式不会显示面板；请改为运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
+      "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。如果Regression中的Hits快捷方式未显示面板，请运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9961,9 +9961,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
+          "narration": "如需使用备用方式，请解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
           "hold_after": 0.7,
-          "speech_text": "解压链接中的示例并激活斯佩克尔环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。"
+          "speech_text": "如需使用备用方式，请解压链接中的示例并激活斯佩克尔环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",

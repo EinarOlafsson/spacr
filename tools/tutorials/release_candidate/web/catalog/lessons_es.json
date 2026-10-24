@@ -9948,7 +9948,7 @@
         "Filtrar candidatos y leer sus efectos y la concordancia entre guías.",
         "Exportar las filas seleccionadas como CSV, Markdown o HTML."
       ],
-      "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. El acceso directo Hits actual de Regression no muestra el panel; ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
+      "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. Si el acceso directo Hits de Regression no muestra el panel, ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9961,9 +9961,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
+          "narration": "Para usar la alternativa, extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
           "hold_after": 0.7,
-          "speech_text": "Extrae el ejemplo enlazado y activa tu entorno de espáquer. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída."
+          "speech_text": "Para usar la alternativa, extrae el ejemplo enlazado y activa tu entorno de espáquer. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",

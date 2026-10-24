@@ -9948,7 +9948,7 @@
         "Filtrar candidatos e ler os efeitos e a concordância entre guias.",
         "Exportar as linhas selecionadas como CSV, Markdown ou HTML."
       ],
-      "prerequisite": "Extraia Hit_List_real_results_companion.zip e ative o seu ambiente do spaCR. O atalho Hits atual do Regression não mostra o painel; execute python hit_list_companion.py e use Browse para ir até a pasta de resultados extraída. O script complementar não se conecta ao Investigate. Use wells_with_gene de results_gene.csv para a contagem de poços de suporte: o n_obs=0 exportado não é o suporte real. O exemplo não contém genes que atendam q <= 0.05.",
+      "prerequisite": "Extraia Hit_List_real_results_companion.zip e ative o seu ambiente do spaCR. Se o atalho Hits do Regression não mostrar o painel, execute python hit_list_companion.py e use Browse para ir até a pasta de resultados extraída. O script complementar não se conecta ao Investigate. Use wells_with_gene de results_gene.csv para a contagem de poços de suporte: o n_obs=0 exportado não é o suporte real. O exemplo não contém genes que atendam q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9961,9 +9961,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extraia o exemplo indicado e ative o seu ambiente do spaCR. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída.",
+          "narration": "Para usar a alternativa, extraia o exemplo indicado e ative o seu ambiente do spaCR. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída.",
           "hold_after": 0.7,
-          "speech_text": "Extraia o exemplo indicado e ative o seu ambiente do espáquer. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída."
+          "speech_text": "Para usar a alternativa, extraia o exemplo indicado e ative o seu ambiente do espáquer. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
