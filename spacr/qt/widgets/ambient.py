@@ -5677,7 +5677,6 @@ def _prime_in_helper_process() -> bool:
         env.setdefault("QT_QPA_PLATFORM", "offscreen")
         code = ("import sys; from spacr.qt.widgets.ambient import "
                 "_prime_kernel_cache; sys.exit(_prime_kernel_cache())")
-        process = None
         try:
             with _COMPILER_LIFECYCLE_LOCK:
                 if _COMPILER_STOP.is_set():
@@ -5686,20 +5685,23 @@ def _prime_in_helper_process() -> bool:
                                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                            stderr=subprocess.DEVNULL)
                 _PRIME_PROCESS = process
+        except Exception:
+            LOG.debug("the kernel cache helper did not run", exc_info=True)
+            return False
+        try:
             process.wait(timeout=_PRIME_TIMEOUT_S)
         except Exception:
             LOG.debug("the kernel cache helper did not run", exc_info=True)
             return False
         finally:
-            if process is not None:
-                try:
-                    _stop_prime_helper(process, time.monotonic() + 3.0)
-                except Exception:
-                    _COMPILER_STOP.set()
-                    LOG.warning("ambient compiler helper did not stop", exc_info=True)
-                with _COMPILER_LIFECYCLE_LOCK:
-                    if _PRIME_PROCESS is process and process.poll() is not None:
-                        _PRIME_PROCESS = None
+            try:
+                _stop_prime_helper(process, time.monotonic() + 3.0)
+            except Exception:
+                _COMPILER_STOP.set()
+                LOG.warning("ambient compiler helper did not stop", exc_info=True)
+            with _COMPILER_LIFECYCLE_LOCK:
+                if _PRIME_PROCESS is process and process.poll() is not None:
+                    _PRIME_PROCESS = None
         return marker.exists()
 
 
