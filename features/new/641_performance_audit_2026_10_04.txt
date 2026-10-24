@@ -16,6 +16,12 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+2026-10-24 — Callback99187/nm73Bn diagnostic0/0.573GiB/zero missed on34229b6:
+before Home8.964s BOTH new fitters have0calls/0cost/no straddles. After Home,
+News1call.009528s wall/.009530CPU; Body2calls.003141wall/.002835CPU, MainThread.
+Exact class/loader restore and normalcleanup0; no constructor-delay cause/fix.
+Home5s/Mask10s/30FPS remain OPEN; instrumented result is not speed acceptance.
+
 2026-10-24 — Normal28320/b1lTpH on d348739ab3 returns0/0.500GiB/zero missed:
 observer-free public run, parent-spawn clock, GUI.9/font.9, exposed Cocoa/DPR2.
 MainWindow3.344s/eventloop8.648s/Home8.765s>5s;20 painted usable controls.
