@@ -566,7 +566,7 @@ def check_python(ctx: Context) -> Result:
 
 
 @_register("native CPU")
-def check_native_cpu(ctx: Context) -> Result:
+def _check_native_cpu(ctx: Context) -> Result:
     """Warn when this Python is Intel code translated by Rosetta 2.
 
     Everything still runs, which is why it goes unnoticed: the interpreter,
