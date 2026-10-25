@@ -2604,20 +2604,13 @@ class AppScreen(QWidget):
 
         :param event: the state-change event; it is passed to the base
             class, and only its type is read -- ``ApplicationPaletteChange``
-            and ``PaletteChange`` re-theme the backdrops, and a
-            ``StyleChange`` lets the page colour follow a spaCR sheet
-            arriving or going (:meth:`_sync_page_palette`), since the
-            theme's palette is put on before its sheet.
+            and ``PaletteChange`` re-theme the backdrops.
         """
         super().changeEvent(event)
         if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange):
             self._sync_action_status_height()
         if event.type() == QEvent.StyleChange:
-            if (self._backdrops_ready
-                    and hasattr(self, "_page_applied_over_a_sheet")
-                    and self._page_applied_over_a_sheet
-                    != _a_spacr_sheet_is_in_force()):
-                self._sync_page_palette()
+            self._page_follows_the_sheet()
             return
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
@@ -2629,6 +2622,20 @@ class AppScreen(QWidget):
         self._retheme_section_explainers()
         self._sync_page_palette()
         self.update()
+
+    def _page_follows_the_sheet(self) -> None:
+        """Sync the page colour when a spaCR sheet has arrived or gone.
+
+        A theme's palette is put on before its sheet, so the palette's sync
+        ran with no sheet in force and left the page-colour rule off; the
+        ``StyleChange`` the sheet sends is when it can go on. Nothing is read
+        from the preference store unless the sheet's presence changed.
+        """
+        if (self._backdrops_ready
+                and hasattr(self, "_page_applied_over_a_sheet")
+                and self._page_applied_over_a_sheet
+                != _a_spacr_sheet_is_in_force()):
+            self._sync_page_palette()
 
     def _retheme_section_explainers(
         self,
