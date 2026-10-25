@@ -5,6 +5,28 @@ Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
+Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
+_display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.
+1. Tooltips: every Overview tooltip uses spaCR's standard popup tooltip (rounded,
+   wrapped, API link at the end), like "Overview channels"; no wide one-line tips.
+2. Boolean channel options are one line each.
+3. Remove the separate "Channels" setting; "Overview channels" already drives every
+   level live.
+4. Settings open wider when the Overview tab opens, and are not collapsed after Next.
+5. Plate navigation moves out of Figure settings to above the "Plate" row, as
+   categorised buttons (e.g. Navigation). Remove "Open selected well" and
+   "Open selected images". Larger/smaller wells become a minus and a plus button.
+6. Remove the Annotations settings category; annotation moves to the right-click menu
+   on the plate or a selected group of wells.
+7. Measurements regrouped: Intensity (intensity, saturation, focus, background SNR,
+   cross channel, distribution, radial) and Texture (texture, granularity, radial).
+   Remove the object-based measurements.
+8. Import objects (masks), only in Mask generation's output format, with comparative
+   object measurement options.
+9. Comparisons: the user can name the groups.
+10. Easy import of a well annotation scheme.
+
 MAINTAINER FEEDBACK — 2026-10-24 (round 3) (supersedes conflicting earlier notes)
 UI agent U owns 1-8 and 10; measurement agent M2 owns 9 and the measurement side
 of 10. Priority order: speed (1, 6), live settings (5), then the rest.
@@ -668,3 +690,4 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-24 — Round 3 U wiring: measurements publish via spacr.measure._publish_image_measurements (browser fov write, rowid copy and intensity duplicate dropped; partial intensity kept on failed images); a group comparison shows _image_comparison_table beside its stacked representatives. Remaining: new-caption translations.
 
 2026-10-25 — Overview round-two, CQ1 import, PSF and measurement captions (210) ship in nine languages under immutable reviews db1b2eb2 with regenerated catalogs, caption arrivals, setting consumers and COVERAGE.md.
+2026-10-25 — Round-4 maintainer feedback recorded above (crashes #165/#166 first; tooltips, settings layout, navigation buttons, right-click annotation, measurement regrouping, object import, named groups, annotation-scheme import).
