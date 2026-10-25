@@ -3717,6 +3717,8 @@ class _FieldOverview(QWidget):
         self._annotations = {}
         self._metadata_revision = 0
         self._annotation_write_lock = threading.Lock()
+        self._image_annotation_queue = []
+        self._image_annotation_running = False
         self._annotation_write_running = False
         self._annotation_pending_snapshot = {}
         self._measurement_cancelled = threading.Event()
@@ -6133,26 +6135,56 @@ class _FieldOverview(QWidget):
         path = _image_annotation_database(source)
         wells = sorted(addresses)
         fields = tuple(field for field in self._fields if (field.plate, field.well) in addresses)
+        with self._annotation_write_lock:
+            self._image_annotation_queue.append((path, fields, key, text, source, wells, self.status.text()))
+            if self._image_annotation_running:
+                return
+            self._image_annotation_running = True
         def write():
-            """Write the annotation rows outside the GUI thread.
+            """Write queued annotations one at a time, in the order they were made.
 
-            :returns: the changed image count, or ``None`` after a refusal.
+            Two annotations in a row used to be written by two concurrent jobs,
+            so the earlier one could land last in the database and both could
+            contend for its write lock.
+
+            :returns: ``(entry, count)`` per write; ``count`` is ``None`` after a refusal.
             """
+            import sqlite3
+            results = []
             try:
-                return _set_image_annotations(path, fields, key, text, source=source, wells=wells)["count"]
-            except (OSError, ValueError, RuntimeError) as error:
-                LOG.warning("image annotation not saved: %s", error)
-                return None
-        def written(count):
-            """Report where the image-level annotation was saved.
+                while True:
+                    with self._annotation_write_lock:
+                        if not self._image_annotation_queue:
+                            self._image_annotation_running = False
+                            return results
+                        entry = self._image_annotation_queue.pop(0)
+                    target, chosen, name, value, origin, addressed, _status = entry
+                    try:
+                        count = _set_image_annotations(target, chosen, name, value, source=origin,
+                                                       wells=addressed)["count"]
+                    except (OSError, ValueError, RuntimeError, sqlite3.Error) as error:
+                        LOG.warning("image annotation not saved: %s", error)
+                        count = None
+                    results.append((entry, count))
+            except BaseException:
+                with self._annotation_write_lock:
+                    self._image_annotation_running = False
+                raise
+        def written(results):
+            """Report the last save, unless a newer message already replaced its status.
 
-            :param count: changed images, or ``None`` after a refusal.
+            :param results: ``(entry, count)`` pairs in write order.
             """
+            if not results:
+                return
+            (target, _chosen, name, _value, _origin, _addressed, status), count = results[-1]
+            if self.status.text() != status:
+                return
             if count is None:
-                self.status.setText(tr("The annotation could not be saved to {path}.", path=path))
+                self.status.setText(tr("The annotation could not be saved to {path}.", path=target))
             else:
                 self.status.setText(tr("Saved {name} for {count} images in {path} (table image_annotations).",
-                                       name=key, count=count, path=path))
+                                       name=name, count=count, path=target))
         self._metadata_jobs.submit(write, written)
 
     def _compare(self):
