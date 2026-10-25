@@ -835,6 +835,76 @@ _STORE_WATCH_SECONDS = 1.0
 #: The clock the watch above is timed by, replaceable in tests.
 _store_clock = time.monotonic
 
+#: What the GUI thread's watcher last saw: ``(path, state, when)``, with
+#: ``when`` read from :data:`_store_clock`.
+_GUI_WATCH = {"seen": None, "path": None, "thread": None}
+
+#: A watcher look that has not happened, or is too old to use.
+_UNSEEN = object()
+
+
+def _file_state_at(path: str):
+    """``(inode, size, mtime)`` of ``path``, ``()`` when it is not there yet.
+
+    :param path: the store file.
+    :returns: the state, or ``None`` when the file cannot be read.
+    """
+    try:
+        stat = os.stat(path)
+    except FileNotFoundError:
+        return ()
+    except Exception:                                        # noqa: BLE001
+        return None
+    return (stat.st_ino, stat.st_size, stat.st_mtime_ns)
+
+
+def _run_the_gui_store_watch() -> None:
+    """Look at the GUI thread's store file twice a watch interval, forever."""
+    while True:
+        path = _GUI_WATCH["path"]
+        if path:
+            _GUI_WATCH["seen"] = (path, _file_state_at(path), _store_clock())
+        time.sleep(_STORE_WATCH_SECONDS / 2.0)
+
+
+def _watch_the_gui_store(path: str) -> None:
+    """Have a worker look at the GUI thread's store file, not the GUI thread.
+
+    The GUI thread's look for another process's write was a ``stat`` of
+    the store once a second, from whichever preference read came first --
+    a drop onto a module, a paint, a translation lookup. That is a system
+    call on the GUI thread, and on a profile kept on a network share a slow
+    one. A daemon thread now makes the look and the GUI thread reads its
+    answer (:func:`_watched_gui_store_state`). Safe mode starts no thread,
+    so its GUI thread looks for itself as before.
+
+    :param path: the GUI thread's store file.
+    """
+    _GUI_WATCH["path"] = path
+    thread = _GUI_WATCH["thread"]
+    if thread is not None and thread.is_alive():
+        return
+    thread = threading.Thread(target=_run_the_gui_store_watch, daemon=True,
+                              name="spacr-preference-watch")
+    _GUI_WATCH["thread"] = thread
+    thread.start()
+
+
+def _watched_gui_store_state(path: str):
+    """The watcher's state of ``path`` when it is recent, else :data:`_UNSEEN`.
+
+    Recent is within one watch interval, so the answer is never older than
+    a look the GUI thread would have made itself; a watcher that has fallen
+    behind, or a clock a test has moved on, sends the caller back to its
+    own ``stat``.
+    """
+    seen = _GUI_WATCH["seen"]
+    if (seen is None or seen[0] != path
+            or _store_clock() - seen[2] >= _STORE_WATCH_SECONDS):
+        return _UNSEEN
+    return seen[1]
+
+
 #: Given a new value whenever any ``QSettings`` in this process writes, and
 #: whenever a kept store is opened or reloaded. :func:`_remembered` getters
 #: answer from memory only while it is unchanged. Each value comes from
@@ -921,18 +991,37 @@ def _real_store() -> QSettings:
         _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
         _STORE.store, _STORE.args, _STORE.base = store, args, QSettings
         _STORE.moves, _STORE.state = _STORE_MOVES[0], _store_file_state(store)
+        _STORE.watched = None
+        if (_STORE.state is not None and not _SAFE_MODE
+                and threading.current_thread() is threading.main_thread()):
+            _STORE.watched = store.fileName()
+            _watch_the_gui_store(_STORE.watched)
         _STORE.checked = _store_clock()
         return store
     now = _store_clock()
     if now - _STORE.checked < _STORE_WATCH_SECONDS:
         return store
     _STORE.checked = now
-    state = _store_file_state(store)
+    state = _looked_at(store)
     if state is None or state != _STORE.state:
         store.sync()
-        _STORE.state = state if state is None else _store_file_state(store)
+        _STORE.state = state if state is None else _looked_at(store)
         _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
     return store
+
+
+def _looked_at(store):
+    """The state of this thread's store file, from its watcher when it has one.
+
+    :param store: this thread's kept store.
+    :returns: what :func:`_store_file_state` would answer.
+    """
+    watched = getattr(_STORE, "watched", None)
+    if watched:
+        state = _watched_gui_store_state(watched)
+        if state is not _UNSEEN:
+            return state
+    return _store_file_state(store)
 
 
 def _watch_store() -> None:
