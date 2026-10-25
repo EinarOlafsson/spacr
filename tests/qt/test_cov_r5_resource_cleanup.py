@@ -463,7 +463,8 @@ def test_libraries_that_are_not_loaded_are_not_imported_to_be_lowered(
         "torch", get_num_threads=lambda: 16,
         set_num_threads=torch_set.append))
     monkeypatch.setitem(sys.modules, "cv2", _module(
-        "cv2", getNumThreads=lambda: 12, setNumThreads=cv_set.append))
+        "cv2", getNumThreads=lambda: cv_set[-1] if cv_set else 12,
+        setNumThreads=cv_set.append))
 
     done = rc._lower_library_threads(target=2)
     assert done == ["torch threads 16 → 2", "OpenCV threads 12 → 2"]
@@ -472,11 +473,20 @@ def test_libraries_that_are_not_loaded_are_not_imported_to_be_lowered(
 
 def test_only_the_library_that_is_loaded_is_touched(monkeypatch):
     monkeypatch.delitem(sys.modules, "torch", raising=False)
+    threads = [9]
     monkeypatch.setitem(sys.modules, "cv2", _module(
-        "cv2", getNumThreads=lambda: 9, setNumThreads=lambda value: None))
+        "cv2", getNumThreads=lambda: threads[-1], setNumThreads=threads.append))
     # A target below the floor is raised to it: one thread is not "lowered".
     assert rc._lower_library_threads(target=1) == [
         f"OpenCV threads 9 → {rc.MIN_LIBRARY_THREADS}"]
+
+
+def test_an_opencv_that_ignores_the_thread_count_is_not_reported_lowered(monkeypatch):
+    """OpenCV built on GCD -- macOS -- accepts setNumThreads and changes nothing."""
+    monkeypatch.delitem(sys.modules, "torch", raising=False)
+    monkeypatch.setitem(sys.modules, "cv2", _module(
+        "cv2", getNumThreads=lambda: 8, setNumThreads=lambda value: None))
+    assert rc._lower_library_threads(target=2) == []
 
 
 # ---------------------------------------------------------------------------

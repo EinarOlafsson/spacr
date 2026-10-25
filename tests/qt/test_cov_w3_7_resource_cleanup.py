@@ -66,7 +66,7 @@ def test_a_disk_report_prints_its_note_under_the_drives_not_instead_of_them():
 
 @pytest.mark.posix_only
 def test_the_process_size_is_still_read_when_psutil_is_missing(monkeypatch):
-    """``/proc/self/statm`` is the fallback, and it has to give a real figure.
+    """``/proc/self/statm`` (libproc on macOS) is the fallback, and it has to give a real figure.
 
     ``None`` in ``sys.modules`` is what an absent package looks like to
     ``import``: it raises ``ImportError`` rather than returning a stub, so
@@ -87,6 +87,7 @@ def test_a_process_size_that_cannot_be_read_reports_zero_not_a_guess(
     monkeypatch.setattr(os, "sysconf",
                         lambda *a, **k: (_ for _ in ()).throw(OSError("no")),
                         raising=False)
+    monkeypatch.setattr(rc, "_macos_rss", lambda: 0)
     assert rc.process_rss() == 0
 
     reclaim = rc.clear_ram()
@@ -413,12 +414,21 @@ def test_library_threads_come_down_to_the_floor_and_no_further():
     before_cv2 = cv2.getNumThreads()
     try:
         torch.set_num_threads(8)
+        cv2.setNumThreads(3)
+        # OpenCV built on GCD (macOS) ignores setNumThreads: there the count
+        # must stay put AND nothing may claim it was lowered.
+        settable = cv2.getNumThreads() == 3
         cv2.setNumThreads(8)
+        opencv_before = cv2.getNumThreads()
         said = rc._lower_library_threads()
         assert torch.get_num_threads() == rc.MIN_LIBRARY_THREADS
-        assert cv2.getNumThreads() == rc.MIN_LIBRARY_THREADS
         assert any(line.startswith("torch threads 8") for line in said)
-        assert any(line.startswith("OpenCV threads 8") for line in said)
+        if settable:
+            assert cv2.getNumThreads() == rc.MIN_LIBRARY_THREADS
+            assert any(line.startswith("OpenCV threads 8") for line in said)
+        else:
+            assert cv2.getNumThreads() == opencv_before
+            assert not any(line.startswith("OpenCV threads") for line in said)
         # Already at the floor: nothing to say and nothing to change.
         assert rc._lower_library_threads() == []
     finally:

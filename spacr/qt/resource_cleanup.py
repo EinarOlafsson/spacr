@@ -321,19 +321,38 @@ def human_bytes(count: int) -> str:
 def process_rss() -> int:
     """This process's resident set size in bytes, or ``0`` if unknowable.
 
-    ``psutil`` when it is installed, ``/proc/self/statm`` when it is not.
-    Zero means "could not measure", and a cleanup that could not measure
-    says so rather than reporting a freed figure it made up.
+    ``psutil`` when it is installed; otherwise ``/proc/self/statm`` on
+    Linux and libproc's ``proc_pid_rusage`` on macOS, which has no
+    ``/proc`` -- without psutil an Apple M2 measured 0 here. Zero means
+    "could not measure", and a cleanup that could not measure says so
+    rather than reporting a freed figure it made up.
     """
     try:
         import psutil
         return int(psutil.Process(os.getpid()).memory_info().rss)
     except Exception:
         pass
+    if sys.platform == "darwin":
+        return _macos_rss()
     try:
         with open("/proc/self/statm", "r", encoding="utf-8") as handle:
             pages = int(handle.read().split()[1])
         return pages * os.sysconf("SC_PAGE_SIZE")
+    except Exception:
+        return 0
+
+
+def _macos_rss() -> int:
+    """``ri_resident_size`` of ``rusage_info_v0`` for this process, or ``0``."""
+    try:
+        import ctypes
+        import ctypes.util
+
+        libproc = ctypes.CDLL(ctypes.util.find_library("proc") or "libproc.dylib")
+        info = (ctypes.c_uint64 * 16)()
+        if libproc.proc_pid_rusage(os.getpid(), 0, ctypes.byref(info)) != 0:
+            return 0
+        return int(info[8])
     except Exception:
         return 0
 
@@ -1045,7 +1064,9 @@ def _lower_library_threads(target: Optional[int] = None) -> List[str]:
             current = int(cv2.getNumThreads())
             if current > wanted:
                 cv2.setNumThreads(wanted)
-                done.append(f"OpenCV threads {current} → {wanted}")
+                after = int(cv2.getNumThreads())
+                if after < current:
+                    done.append(f"OpenCV threads {current} → {after}")
         except Exception:
             LOG.debug("could not lower OpenCV threads", exc_info=True)
     return done
