@@ -24,6 +24,8 @@ from dataclasses import field as _dc_field
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
+import functools
+
 import numpy as np
 from PySide6.QtCore import QEvent, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QImage, QPalette, QPixmap
@@ -4055,6 +4057,7 @@ class _FieldOverview(QWidget):
         self._tile_size_changed = None
         self._measurement_settings = None
         self._comparison_requests = 0
+        self._controls_lost = False
         self._plate_painted = True
         self._plate_built_at = 0.0
         self._original_steps = None
@@ -5166,6 +5169,8 @@ class _FieldOverview(QWidget):
 
     def _reload_image_views(self):
         """Reload every stacked image after display choices change."""
+        if self._controls_lost:
+            return
         for panel in self._image_views:
             self._load_image_view(panel)
 
@@ -7083,6 +7088,8 @@ class _FieldOverview(QWidget):
 
         :param _: unused display-control signal arguments.
         """
+        if self._controls_lost:
+            return
         self._displayed_montage = None
         self._comparison_signature = None
         self._reload_image_views()
@@ -7272,7 +7279,7 @@ class _FieldOverview(QWidget):
 
     def _request_visuals(self, *_):
         """Coalesce viewport and navigation updates on one owned timer."""
-        if self.isVisible() and not self._cancelled.is_set():
+        if self.isVisible() and not self._cancelled.is_set() and not self._controls_lost:
             self._visual_timer.start(0)
 
     def _visual_context(self):
@@ -7292,7 +7299,7 @@ class _FieldOverview(QWidget):
 
         The plate keeps one image per well on show whatever is open below it.
         """
-        if (not self.isVisible() or self._cancelled.is_set()
+        if (not self.isVisible() or self._cancelled.is_set() or self._controls_lost
                 or not self._normalization_ready or not self._geometry_valid):
             return
         try:
@@ -7670,6 +7677,17 @@ class _FieldOverview(QWidget):
         return any(runner.is_busy() for runner in (
             self._index_jobs, self._image_jobs, self._thumbnail_jobs,
             self._field_thumbnail_jobs, self._montage_jobs))
+
+    def _mounted_control_lost(self, *_):
+        """Stop for good once a control mounted in a setting row is deleted.
+
+        The plate, axis and navigation controls live in the Overview tab's
+        setting rows. Deleted with those rows while this browser still ran,
+        a display refresh read a deleted combo box (GitHub #165); the browser
+        now retires and ignores later refreshes instead.
+        """
+        self._controls_lost = True
+        self._retire()
 
     def _retire(self):
         """Stop owned image generations even when a page is already hidden."""
@@ -8186,12 +8204,13 @@ class _OverviewSettingsBridge:
         :param screen: the Overview module screen.
         :param browser: the plate browser it shows.
         """
-        from ..screens.settings_model import _connect_value_changed
-
         self._screen, self._browser = screen, browser
         self._model = screen._settings_model
         self._syncing = False
         self._pairs = []
+        self._connections = []
+        self._detached = False
+        browser.destroyed.connect(self._detach)
         for key, attribute in _OVERVIEW_SETTING_CONTROLS:
             row = self._model._widgets.get(key)
             control = getattr(browser, attribute, None)
@@ -8202,21 +8221,66 @@ class _OverviewSettingsBridge:
                 self._to_setting(key, control)
             else:
                 self._to_control(key, control)
-            _connect_value_changed(row, lambda *_a, k=key, c=control: self._to_control(k, c))
-            _overview_control_changed(control, lambda k=key, c=control: self._to_setting(k, c))
+            self._listen(row, functools.partial(self._row_changed, key, control))
+            _overview_control_changed(control, functools.partial(self._to_setting, key, control))
         from spacr.settings import _enhancement_keys
 
         self._image_keys = (*_OVERVIEW_IMAGE_SETTINGS, *_enhancement_keys())
         for key in self._image_keys:
             row = self._model._widgets.get(key)
             if row is not None:
-                _connect_value_changed(row, lambda *_a: self.apply_image_settings())
+                self._listen(row, self._image_row_changed)
         browser._tile_size_changed = lambda edge: self._write("overview_tile_size", edge)
         from spacr.settings import _overview_measurement_declarations
 
         measurement_keys = tuple(_overview_measurement_declarations()["defaults"])
         browser._measurement_settings = lambda: {
             key: self._value(key) for key in measurement_keys}
+        self.apply_image_settings()
+
+    def _listen(self, row, slot):
+        """Connect ``slot`` to the row's change signal and remember it for :meth:`_detach`."""
+        from ..screens.settings_model import _VALUE_CHANGED_SIGNALS
+
+        for name in _VALUE_CHANGED_SIGNALS:
+            signal = getattr(row, name, None)
+            if signal is not None:
+                signal.connect(slot)
+                self._connections.append((signal, slot))
+                return
+
+    def _detach(self, *_):
+        """Disconnect every setting row from this bridge's browser.
+
+        THE ROWS OUTLIVE THE BROWSER. They belong to the Overview tab's
+        settings, while a browser is replaced after each metadata step and
+        deleted with its controls; a row edited afterwards called into a
+        deleted line edit (GitHub #166). Called when the page retires the
+        browser and when the browser is destroyed.
+        """
+        self._detached = True
+        connections, self._connections = self._connections, []
+        for signal, slot in connections:
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+
+    def _live(self, *controls):
+        """Whether this bridge is attached and every control still exists."""
+        from shiboken6 import isValid
+
+        if self._detached or not isValid(self._browser) or not all(isValid(c) for c in controls):
+            self._detach()
+            return False
+        return True
+
+    def _row_changed(self, key, control, *_):
+        """Follow a changed setting row with its browser control."""
+        self._to_control(key, control)
+
+    def _image_row_changed(self, *_):
+        """Apply a changed Image or Enhancement setting."""
         self.apply_image_settings()
 
     def _value(self, key):
@@ -8235,7 +8299,7 @@ class _OverviewSettingsBridge:
 
     def _to_control(self, key, control):
         """Follow one setting row with its browser control."""
-        if self._syncing:
+        if self._syncing or not self._live(control):
             return
         self._syncing = True
         try:
@@ -8245,12 +8309,16 @@ class _OverviewSettingsBridge:
 
     def _to_setting(self, key, control):
         """Write one browser control's value into its setting row."""
+        if not self._live(control):
+            return
         value = _overview_control_value(control)
         if value is not None:
             self._write(key, value)
 
     def apply_image_settings(self):
         """Apply the Image and Enhancement settings to every view."""
+        if not self._live():
+            return
         browser = self._browser
         values = {key: self._value(key) for key in self._image_keys}
         try:
@@ -8539,7 +8607,9 @@ class _OverviewModulePage(QWidget):
                 field = _overview_row_field(widgets)
                 field.setToolTip(tr(tooltip))
                 section.add_prose_row(label, field)
-                self._rows.append((section, field))
+                self._rows.append((section, field, tuple(widgets)))
+                for widget in widgets:
+                    widget.destroyed.connect(browser._mounted_control_lost)
         section = _overview_section(self._screen, "Export")
         if section is not None:
             from ..widgets.section import Section
@@ -8547,12 +8617,31 @@ class _OverviewModulePage(QWidget):
             _overview_height_grip(section)
 
     def _retire_browser(self):
-        """Retire the shown browser and take its rows off the settings."""
-        browser, self.browser, self._bridge = self.browser, None, None
+        """Retire the shown browser and take its rows off the settings.
+
+        The bridge is detached first, and the browser's own controls go back
+        under the browser before their rows are removed, so they are deleted
+        with it and never before it (GitHub #165, #166).
+        """
+        from shiboken6 import isValid
+
+        browser, bridge = self.browser, self._bridge
+        self.browser, self._bridge = None, None
+        if bridge is not None:
+            bridge._detach()
         if browser is not None:
             browser._retire()
             self.stack.removeWidget(browser)
-        for section, field in self._rows:
+        for section, field, widgets in self._rows:
+            if browser is not None and isValid(browser):
+                for widget in widgets:
+                    if isValid(widget):
+                        try:
+                            widget.destroyed.disconnect(browser._mounted_control_lost)
+                        except (RuntimeError, TypeError):
+                            pass
+                        widget.hide()
+                        widget.setParent(browser)
             try:
                 section._form.removeRow(field)
             except RuntimeError:
