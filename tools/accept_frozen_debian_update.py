@@ -248,10 +248,41 @@ class PrivateDpkg:
             if not finished_first:
                 os.killpg(process.pid, signal.SIGKILL)
             process.wait()
+            lingering = _wait_for_process_group(process.pid)
             orphans = _stop_marked_processes(marker)
         return {"killed": not finished_first, "orphaned_fakeroot_daemons_stopped": orphans, "dpkg_new_files_at_kill": seen,
                 "seconds_to_kill": round(time.monotonic() - started, 2),
-                "returncode": process.returncode}
+                "group_still_running": lingering, "returncode": process.returncode}
+
+
+def _wait_for_process_group(group: int, timeout: float = 60) -> int:
+    """Wait until no live process of ``group`` remains after its SIGKILL.
+
+    Waiting for the group leader is not enough: ``fakeroot`` is a shell, and
+    the ``dpkg`` it started can outlive it briefly (a SIGKILLed process in
+    uninterruptible disk I/O dies only when the write returns) while it still
+    holds the dpkg lock. A recovery started in that window exits 2 on the
+    lock rather than repairing the package.
+
+    :param group: the killed process group.
+    :param timeout: seconds to wait before giving up.
+    :returns: how many members were still alive when the wait ended (0 = all gone).
+    """
+    deadline = time.monotonic() + timeout
+    while True:
+        alive = 0
+        for entry in Path("/proc").iterdir():
+            if not entry.name.isdigit():
+                continue
+            try:
+                fields = (entry / "stat").read_text(encoding="utf-8").rsplit(")", 1)[1].split()
+            except (OSError, IndexError):
+                continue
+            if len(fields) > 2 and fields[0] not in ("Z", "X") and int(fields[2]) == group:
+                alive += 1
+        if not alive or time.monotonic() >= deadline:
+            return alive
+        time.sleep(0.05)
 
 
 def _stop_marked_processes(marker: str) -> int:

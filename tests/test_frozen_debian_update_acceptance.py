@@ -105,8 +105,10 @@ def test_a_killed_unpack_is_flagged_and_both_recoveries_are_exact(tmp_path):
         if not kill["killed"]:
             pytest.skip("the unpack finished before it could be interrupted")
         assert kill["orphaned_fakeroot_daemons_stopped"] >= 1
+        assert kill["group_still_running"] == 0, kill
         assert "reinstreq" in dpkg.status()["status"]
         assert any("spacr" in line for line in dpkg.audit())
-        assert dpkg.run("-i", str(recovery))["exit"] == 0
+        repaired = dpkg.run("-i", str(recovery))
+        assert repaired["exit"] == 0, repaired
         assert dpkg.status()["abbrev"] == "ii"
         assert driver.compare(driver.package_inventory(recovery), dpkg.root)["exact"]
