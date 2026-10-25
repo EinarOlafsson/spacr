@@ -34,10 +34,11 @@ def test_directory_walk_requires_no_follow_support(monkeypatch, tmp_path):
 
 @pytest.mark.posix_only
 def test_directory_walk_releases_its_descriptor_on_a_missing_component(tmp_path):
-    before = len(os.listdir('/proc/self/fd'))
+    descriptors = '/proc/self/fd' if os.path.isdir('/proc/self/fd') else '/dev/fd'
+    before = len(os.listdir(descriptors))
     with pytest.raises(FileNotFoundError):
         ic._optional_cleanup_directory(str(tmp_path / 'missing' / 'cache'))
-    assert len(os.listdir('/proc/self/fd')) == before
+    assert len(os.listdir(descriptors)) == before
 
 
 @pytest.mark.posix_only

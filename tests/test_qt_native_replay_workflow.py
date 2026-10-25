@@ -220,7 +220,10 @@ def test_two_attempt_shell_stops_on_either_failure_and_separates_data(tmp_path):
     command = steps['Replay the original-order coverage batch twice independently']['run']
     assert command.count('for attempt in 1 2; do') == 1
     loop = 'for attempt in 1 2; do' + command.split('for attempt in 1 2; do', 1)[1]
+    # The excerpt starts after the step defines `batch`; bash before 4.4
+    # (macOS's 3.2) rejects "${batch[@]}" of an unset array under set -u.
     script = '''set -euo pipefail
+batch=(tests/stand_in.py)
 python() {
   local data_dir='' arg
   for arg in "$@"; do

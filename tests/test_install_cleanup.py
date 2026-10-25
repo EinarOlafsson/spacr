@@ -1806,7 +1806,7 @@ def test_a_redirected_desktop_is_searched_for_the_old_shortcut(tmp_path):
 @pytest.mark.posix_only
 def test_start_menu_entries_of_another_spacr_are_left_alone(tmp_path):
     if _case_insensitive(tmp_path):
-        pytest.skip("a spaCR folder and a SpaCR file are one name on this file system")
+        pytest.skip(f"a spaCR folder and a {OLD} file are one name on this file system")
     box = Box(tmp_path)
     root = windows_online(box, "1.5.0.1")
     programs = box.appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"

@@ -1502,6 +1502,15 @@ def fake_env(tmp_path_factory):
          "import sysconfig; print(sysconfig.get_paths()['purelib'])"],
         check=True, capture_output=True, text=True, timeout=120
     ).stdout.strip())
+    if sys.prefix != sys.base_prefix:
+        # Run from a venv (uv, virtualenv), --system-site-packages reaches the
+        # bare base interpreter, not the packages beside this one; a .pth adds
+        # them after the venv's own site-packages, so the stand-ins still win.
+        import sysconfig
+
+        running = {sysconfig.get_paths()["purelib"], sysconfig.get_paths()["platlib"]}
+        (purelib / "zz_running_environment.pth").write_text(
+            "\n".join(sorted(running)) + "\n", encoding="utf-8")
     (purelib / "torch").mkdir()
     (purelib / "torch" / "__init__.py").write_text(_STUB_TORCH, encoding="utf-8")
     (purelib / "cellpose").mkdir()

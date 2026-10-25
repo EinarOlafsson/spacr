@@ -23,7 +23,7 @@ from spacr import qc_quarantine
 from spacr.qc_quarantine import QuarantineError
 
 FIELD = "plate1_A01_1"
-_OPEN_DESCRIPTORS = "/proc/self/fd"
+_OPEN_DESCRIPTORS = "/proc/self/fd" if os.path.isdir("/proc/self/fd") else "/dev/fd"
 
 
 def _plate(tmp_path):

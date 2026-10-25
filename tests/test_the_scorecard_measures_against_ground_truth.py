@@ -17,6 +17,8 @@ and 1.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -529,7 +531,7 @@ def test_scoring_a_model_carries_the_sets_name_and_version(tmp_path):
     scored = scorecard.score_model_on_holdout(
         holdout,
         predict=lambda image: np.asarray(
-            tifffile.imread(str(image).replace("/f", "/t"))))
+            tifffile.imread(Path(image).with_name("t" + Path(image).name[1:]))))
 
     assert scored.name == "toxo_pv" and scored.version == "2026-09-03"
     assert scored.n_fields == 2

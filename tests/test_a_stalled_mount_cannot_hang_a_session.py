@@ -11,6 +11,7 @@ testable without one.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -24,6 +25,15 @@ GUARD = ROOT / "tools" / "nas_guard.sh"
 
 
 def _guard(*args, timeout=60):
+    """Run the guard, where the tools it is built on exist.
+
+    It detaches every probe with ``setsid`` and lists mounts with
+    ``findmnt``, both util-linux; a Mac has neither, so there each probe
+    never started and every call "gave up" after its deadline.
+    """
+    needed = "findmnt" if args[:1] == ("paths",) else "setsid"
+    if shutil.which(needed) is None:
+        pytest.skip(f"nas_guard.sh needs {needed} (util-linux)")
     return subprocess.run([str(GUARD), *args], capture_output=True,
                           text=True, timeout=timeout)
 
