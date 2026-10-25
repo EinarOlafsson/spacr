@@ -7021,7 +7021,10 @@ class _OverviewWorkspace(QWidget):
             return
         if self._owner.layout() is None:
             layout = QVBoxLayout(self._owner)
-            layout.addWidget(QWidget(self._owner), 1)
+            body = QWidget(self._owner)
+            layout.addWidget(body, 1)
+            if self._owner.isVisible():
+                body.show()
         show_as_page(self, self._owner, tr("Field-of-view overview"))
         self._owner.show()
         self.show()
