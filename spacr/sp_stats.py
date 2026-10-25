@@ -5414,6 +5414,14 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
     figure, axes = plt.subplots(1, count, figsize=(max(3.2, 1.1 * max(
         (len(entry['groups']) for entry in strata), default=1) + 1.4) * count, 3.6),
         squeeze=False, sharey=True)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: pd.DataFrame(
+        [{'stratum': ', '.join(f'{key}={value}' for key, value in entry['stratum'].items()),
+          'group': name, 'value': value}
+         for entry in strata for name in entry['groups']
+         for value in _image_unit_values(frame, entry['groups'][name], measurement, unit)],
+        columns=['stratum', 'group', 'value']),
+        x='group', y='value', kind=kind, title=measurement)
     rng = np.random.default_rng(0)
     for axis, entry in zip(axes[0], strata):
         names = list(entry['groups'])
@@ -5596,6 +5604,9 @@ def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
     labels = [f"{row.measurement}  ({row.group_a} vs {row.group_b}"
               + (f", {row.stratum}" if row.stratum else '') + ')' for row in chosen.itertuples()]
     figure, axis = plt.subplots(figsize=(6.4, max(2.4, 0.32 * len(chosen) + 1.0)))
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: chosen.assign(label=labels),
+                          x='effect_size', y='label', kind='dot')
     positions = np.arange(len(chosen))
     axis.axvline(0.0, color='0.6', linewidth=0.8)
     axis.scatter(chosen['effect_size'], positions, s=28, zorder=3)

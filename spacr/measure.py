@@ -14033,7 +14033,7 @@ def _image_granularity(values, finite, steps=8, edge=256, background_radius=10):
     ``k``-th opening removes. Fine texture peaks at small ``k``, large
     granules or cells at larger ``k``.
 
-    :returns: ``granularity_<k>`` for ``k`` in 1..``steps``, and
+    :returns: ``granularity_<k>`` for ``k`` from 1 to ``steps``, and
         ``granularity_downsample``.
     """
     small, step = _image_block_mean(values, edge)

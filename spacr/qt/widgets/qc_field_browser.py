@@ -5338,7 +5338,6 @@ class _FieldOverview(QWidget):
             :returns: ``(png bytes, saved figure, tables, measurement)`` or an error text.
             """
             from datetime import datetime
-            from io import BytesIO
             from ...sp_stats import (_compare_image_groups, _image_comparison_figure,
                                      _image_comparison_table, _image_measurement_columns,
                                      _write_image_comparison)
@@ -5363,11 +5362,15 @@ class _FieldOverview(QWidget):
                 LOG.warning("overview comparison refused: %s", error)
                 return tr("These annotation groups cannot be compared with {measurement}.",
                           measurement=column or tr("Measurement"))
-            buffer = BytesIO()
-            figure.savefig(buffer, format="png", dpi=110)
+            import tempfile
             import matplotlib.pyplot as plt
+            from .figure_queue import render_figure_to_png
+            with tempfile.TemporaryDirectory(prefix="spacr-comparison-") as scratch:
+                preview = Path(scratch) / "comparison.png"
+                png = (preview.read_bytes()
+                       if render_figure_to_png(figure, str(preview), write_pdf=False) else b"")
             plt.close(figure)
-            return buffer.getvalue(), str(saved), tables, column, columns, _image_comparison_table(result)
+            return png, str(saved), tables, column, columns, _image_comparison_table(result)
         def shown(result):
             """Show the comparison figure in the image level and offer its measurements.
 

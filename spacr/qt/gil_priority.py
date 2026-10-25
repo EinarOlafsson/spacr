@@ -1047,7 +1047,7 @@ def _cpp_address(widget):
 
     What the replay keys a widget by. A wrapper's ``id`` is no key:
     PySide on Windows answered ``findChildren`` after a sheet with new
-    ``QWidget`` wrappers for ``QLabel``s Python still held, and the id of a
+    ``QWidget`` wrappers for ``QLabel`` objects Python still held, and the id of a
     wrapper made for one call can be handed to another object once it is
     collected, pairing one widget's state with another's.
     """

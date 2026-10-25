@@ -184,6 +184,19 @@ def test_size_slider_and_settings_size_the_well_images(mask, qtbot, source):
     assert panel.field_list.gridSize().width() == 96
 
 
+@pytest.mark.parametrize("key,control,value,expected", [
+    ("overview_preview_resolution", "preview_resolution", "256", 256),
+    ("overview_preview_resolution", "preview_resolution", "512", 512),
+    ("overview_pdf_dpi", "pdf_dpi", "150", 150),
+    ("overview_pdf_quality", "pdf_quality", "3200", 3200),
+])
+def test_every_offered_preview_and_pdf_value_reaches_its_control(
+        mask, qtbot, source, key, control, value, expected):
+    tab, view = _open(mask, qtbot, source)
+    tab._settings_model.set_value_for_key(key, value)
+    assert getattr(view, control).currentData() == expected
+
+
 def test_original_loads_full_resolution_in_the_image_and_well_views(mask, qtbot, source, monkeypatch):
     tab, view = _open(mask, qtbot, source)
     tab._settings_model.set_value_for_key("overview_preview_resolution", 128)

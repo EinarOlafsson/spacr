@@ -1226,6 +1226,8 @@ def _parent_job():
             from ctypes import wintypes
 
             class _Limits(ctypes.Structure):
+                """Win32 ``JOBOBJECT_BASIC_LIMIT_INFORMATION``."""
+
                 _fields_ = [('PerProcessUserTimeLimit', ctypes.c_int64),
                             ('PerJobUserTimeLimit', ctypes.c_int64),
                             ('LimitFlags', wintypes.DWORD),
@@ -1237,11 +1239,15 @@ def _parent_job():
                             ('SchedulingClass', wintypes.DWORD)]
 
             class _Counters(ctypes.Structure):
+                """Win32 ``IO_COUNTERS``."""
+
                 _fields_ = [(name, ctypes.c_uint64) for name in (
                     'ReadOperationCount', 'WriteOperationCount', 'OtherOperationCount',
                     'ReadTransferCount', 'WriteTransferCount', 'OtherTransferCount')]
 
             class _Extended(ctypes.Structure):
+                """Win32 ``JOBOBJECT_EXTENDED_LIMIT_INFORMATION``."""
+
                 _fields_ = [('BasicLimitInformation', _Limits),
                             ('IoInfo', _Counters),
                             ('ProcessMemoryLimit', ctypes.c_size_t),
