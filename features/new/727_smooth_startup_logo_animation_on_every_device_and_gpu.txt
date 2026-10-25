@@ -1,0 +1,130 @@
+================================================================================
+A STARTUP LOGO ANIMATION THAT IS AS SMOOTH AS POSSIBLE ON EVERY DEVICE AND GPU
+================================================================================
+
+Status:    NEW
+Requested: maintainer, 2026-10-25: "also add as a ne item to make sure the
+           start up logo animation is as smooth as possible on all devises
+           and on all hardware"
+Owner:     Home (build and CI budget); WS (native Windows and Mac smoke runs)
+Related:   694 (photomosaic blow-away startup screen), 695 (startup logo on a
+           full-screen borderless window and a help replay), 55 (performance
+           sweep: nothing that loads belongs on the GUI thread), 684
+           (animation defaults, dynamic GPU use), N655 Reduce motion,
+           Preferences > Animation > Startup animation.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Where it lives: spacr/qt/widgets/loading_screen.py. LoadingScreen is the black
+cover that is the first thing in the one borderless window (695); BlowAway
+(same file) is the numpy model of the tile flight; app.py installs the cover
+(_install_loading_screen) ahead of the pipeline preloader.
+
+How it renders: pure QPainter on the widget's raster paintEvent. No OpenGL, no
+QtQuick, no QOpenGLWidget. Each frame (_paint_blow_away) draws the captured
+live-window underlay, the splash-coloured fade, the strap line, the resting
+tiles from one cached QImage, and then one drawPixmap per flying tile with a
+QTransform and opacity set per tile (_paint_tiles). Tiles are cut once, at the
+start of the blow-away (_cut_tiles); the mosaic pixmap is decoded once per
+size and ratio and cached (_mosaic_picture). The Reduce motion path is a
+single-pixmap cross-fade over about one second.
+
+What drives frame timing: a QTimer, PreciseTimer type, with a fixed 16 ms
+interval (_MOSAIC_FRAME_MS) that calls update(). It is not tied to the
+display's refresh. Motion itself is correct under lag, because tile positions
+are a function of elapsed monotonic time (elapsed()), not of a frame count, so
+a slow frame skips ahead instead of stretching the show. A 16 ms timer on a
+60 Hz display beats against the vsync (some frames double, some are skipped);
+on 120/144 Hz displays it caps the animation at about 62 fps.
+
+What adapts: _adapt() raises a tile-alpha floor by 0.08 when a frame paints in
+more than 14 ms, and lowers it by 0.04 under 9 ms, so slow machines draw
+fewer faint tiles. The thresholds are fixed milliseconds, not a share of the
+display's actual frame interval. frame_stats() reports only the paint time per
+frame (frames, mean, max, most tiles). It does not record when a frame was
+presented, so late and dropped frames, and the 95th/99th percentile of the
+frame-to-frame interval, are not measured.
+
+How the related items bear on it:
+- 694 built the blow-away and the loading cover; its tests cover the model and
+  the mean/max paint time, not pacing.
+- 695 fixed the timeline (2 s hold, 4 s blow-away, live window visible from 1 s
+  to 3 s) and added the Help replay, so the animation is repeatable on demand,
+  which makes it measurable.
+- 55 set the rule that nothing that loads runs on the GUI thread, and the
+  preloader (_PipelinePreloader) still imports pipeline modules in the
+  background while the cover animates; Python imports hold the GIL, so a heavy
+  import can still delay a paint. No test pins this down per frame.
+- 684 added animation defaults and dynamic GPU use for the live GUI; the
+  startup cover does not use the GPU path.
+- tests/qt/test_641_startup_and_browse_budgets.py and the startup benchmark
+  tests measure load times, not the animation's frame cadence.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Measure first. Record, per frame, the time the frame was presented (frame
+   swapped signal or a vsync-aligned callback; paint time alone is not
+   enough). From it report dropped frames, late frames (more than 1.5 x the
+   display interval), the mean, the 95th and 99th percentile of the
+   frame-to-frame interval, and the longest gap. Extend frame_stats() with
+   these and write them to the startup benchmark output.
+
+2. Align to the display. Replace the fixed 16 ms timer with a vsync-aligned
+   driver (the window's frame callback, QWindow frameSwapped or an
+   update()-on-swap loop, or QScreen.refreshRate() as the interval at the
+   least). Keep elapsed-time motion. Acceptance: on 60, 120 and 144 Hz the
+   animation runs at the display rate, with no beat pattern in the interval
+   histogram.
+
+3. Cover the platforms and the display modes. Run the measurement on Linux
+   (X11 and Wayland), Windows and macOS, including Retina/HiDPI and
+   fractional scaling (125 %, 150 %, 175 %); tiles and pixmaps are cut at
+   device-pixel size, so the cost at 2x and at 1.5x must be measured, not
+   assumed.
+
+4. Cover the hardware. Software rendering with no GPU (Mesa llvmpipe on Linux,
+   WARP on Windows, the macOS software path), integrated against discrete
+   GPUs, low-core and loaded CPUs (for example 2 cores, and 100 % load on the
+   other cores), and a machine with a pipeline import running at the same
+   time.
+
+5. Keep the main thread free during the animation. No import, file read, model
+   load or decode runs on the GUI thread between the first paint and the end
+   of the blow-away; the underlay capture and the tile cut are done before the
+   first animated frame or moved off the thread. A test fails if any single
+   GUI-thread stall during the animation is longer than the budget in item 8.
+
+6. Use pre-rendered or cached frames where they measurably help. Candidates:
+   cache the tiles and the resting image between the start-up run and the
+   Help replay, pre-rasterise the strap line, and on software rendering swap
+   per-tile drawPixmap calls for a pre-composed frame sequence or a lower
+   tile count. Adopt each only if the measurement in item 1 shows a gain.
+
+7. Degrade gracefully, and respect reduced motion. Replace the fixed paint
+   thresholds in _adapt() with a share of the measured display interval, and
+   let the system step down in stages (fewer faint tiles, then fewer tiles,
+   then the one-second cross-fade) when the p95 frame time breaks the budget
+   during the first frames. Reduce motion, the Startup animation preference
+   and SPACR_NO_SPLASH keep working exactly as in 695, and the animation never
+   delays the window becoming usable.
+
+8. A regression test with a budget. On the CI runners (Linux with Xvfb and
+   software Mesa, Windows, macOS) run the Help replay with a real frame
+   source and assert: no frame gap above 100 ms, p99 frame interval under
+   2.5 x the display interval, dropped frames under 5 % of the frames of the
+   4 s blow-away, and mean paint time under 8 ms. Budgets are stored in one
+   file; a loosened budget needs a note in this item. Offscreen runs stay as
+   they are (the platform does not draw the splash).
+
+9. Native smoke runs. On a Windows machine and a Mac (Retina), run the
+   unmodified app start and the Help replay, save the frame_stats() output and
+   a screen recording, and record both in this file with the display refresh
+   rate and the GPU. WS runs Windows; the Mac run follows 725.
+
+Done when: items 1 to 9 are built, the CI budget test is green on all three
+runners, and the native Windows and Mac numbers are recorded below with a p99
+frame interval inside 2.5 x the display interval.
