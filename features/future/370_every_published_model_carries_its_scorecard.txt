@@ -1626,3 +1626,4 @@ whether "recorded" numbers may stay visible until then, and native-speaker
 review of the two new captions (optional; they are labelled AI-reviewed).
 
 2026-10-15: maintainer scientific sign-off on the published score cards.
+2026-10-25 — Home: toxoplasma_plaque_v6 (d8bf9360f) is the eleventh reviewed card. Evidence: a curated binding to checkpoint a22697dd... with field-list, card and resource hashes; six matched-stock rows (object/boundary F1, precision, recall, AJI, Dice) against cpsam_v2 on the strict 160-field test split of the v6 dataset, never used for training, checkpoint or threshold choice; tools/build_model_cards.py --check passes. tests/test_f370_scorecard_states_and_export.py now expects plaque v1-v6 and ties the packaged card files to the curated bindings (11).
