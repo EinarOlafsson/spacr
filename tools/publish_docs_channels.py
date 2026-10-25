@@ -355,7 +355,7 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     index_links = explicit_index_links(output)
     project_root = Path(__file__).resolve().parents[1]
     license_name = re.search(
-        r'^license = "([^"]+)"$',
+        r'^license = "([^"]+)"\r?$',
         _read_text(project_root / "pyproject.toml"), re.M)[1]
     for filename in ("LICENSE", "LICENSE-BSD-3-Clause"):
         shutil.copyfile(project_root / filename, output / filename)
