@@ -17,6 +17,13 @@ from tests.test_spectral_unmixing import (
     _rewrite_calibrated_cell_record, calibrated_batch_inputs, calibrated_plate,
 )
 
+SUPPLIED_MATRIX_ACCESS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                          and hasattr(os, 'O_NONBLOCK') and os.open in os.supports_dir_fd
+                          and os.mkdir in os.supports_dir_fd)
+needs_supplied_matrix_access = pytest.mark.skipif(
+    not SUPPLIED_MATRIX_ACCESS,
+    reason='a supplied matrix refuses hosts without descriptor-relative no-follow access')
+
 
 @pytest.fixture
 def supplied_matrix(plate_qualified_calibrated_sources, tmp_path):
@@ -84,6 +91,23 @@ def completed_supplied_session(supplied_matrix, tmp_path):
     return dict(sample=sample, root=root, raw=raw, plan=plan)
 
 
+@pytest.mark.skipif(SUPPLIED_MATRIX_ACCESS, reason='this host admits a supplied matrix')
+def test_supplied_matrix_refuses_a_host_without_descriptor_relative_access(supplied_matrix, monkeypatch):
+    sample = supplied_matrix
+    before = sample['path'].read_bytes()
+
+    def unexpected_model(*args, **kwargs):
+        pytest.fail('a refused host reached model construction')
+
+    monkeypatch.setattr('cellpose.models.CellposeModel', unexpected_model)
+    with pytest.raises(ValueError, match='supplied spectral matrix'):
+        _run_matrix(sample)
+    assert sample['path'].read_bytes() == before
+    assert not tuple(sample['plate']['source'].glob('calibrated_segmentation*'))
+    _source_unchanged(sample)
+
+
+@needs_supplied_matrix_access
 def test_supplied_matrix_session_copies_exact_bytes_without_external_file(completed_supplied_session):
     sample = completed_supplied_session['sample']
     root = completed_supplied_session['root']
@@ -117,6 +141,7 @@ def test_supplied_matrix_session_copies_exact_bytes_without_external_file(comple
     _source_unchanged(sample)
 
 
+@needs_supplied_matrix_access
 @pytest.mark.parametrize('defect', [
     'channel-order', 'bool-channel', 'orientation', 'plate', 'time-type',
     'background', 'calibration', 'compatibility', 'condition', 'diagonal',
@@ -176,6 +201,7 @@ def test_supplied_matrix_refuses_bad_artifacts_before_outputs_or_model(
     _source_unchanged(sample)
 
 
+@pytest.mark.posix_only
 def test_supplied_matrix_nonregular_and_unsupported_access_refuse_before_outputs(
         supplied_matrix, monkeypatch):
     sample = supplied_matrix
@@ -194,6 +220,7 @@ def test_supplied_matrix_nonregular_and_unsupported_access_refuse_before_outputs
     _source_unchanged(sample)
 
 
+@needs_supplied_matrix_access
 def test_supplied_matrix_reader_refuses_rebound_evidence_and_changed_bundle(
         completed_supplied_session):
     sample = completed_supplied_session['sample']

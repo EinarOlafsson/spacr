@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 
 import numpy as np
 import pytest
@@ -18,6 +19,12 @@ from spacr.psf_pipeline import (
     _UNMIX_RECORD_KEY, _apply_recorded_unmixing, _configuration,
     _parse_unmix_controls, _prepare_measure_unmixing,
     _prepare_segmentation_psf, _prepare_unmixing, processing_requested)
+
+DESCRIPTOR_RELATIVE_READS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                             and os.open in os.supports_dir_fd)
+needs_descriptor_relative_reads = pytest.mark.skipif(
+    not DESCRIPTOR_RELATIVE_READS,
+    reason='signed cell loading refuses platforms without descriptor-relative reads')
 
 BACKGROUND = 100.0
 NOISE = 3.0
@@ -604,6 +611,20 @@ def _rewrite_calibrated_cell_record(path, record):
     path.write_text(json.dumps(record, allow_nan=False))
 
 
+@pytest.mark.skipif(DESCRIPTOR_RELATIVE_READS, reason='this platform reads signed cells')
+def test_signed_cell_loader_refuses_a_platform_without_descriptor_relative_reads(completed_calibrated_cells):
+    """Refuse the whole dataset before exposing any field or touching its bytes."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    root = completed_calibrated_cells['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    with pytest.raises(ValueError, match='POSIX descriptor-relative file access'):
+        with _open_calibrated_cell_dataset(root):
+            pytest.fail('a platform without descriptor-relative reads exposed a field')
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
+
+
+@needs_descriptor_relative_reads
 def test_signed_cell_record_serializes_role_and_streams_matching_readonly_maps(completed_calibrated_cells):
     """Consume signed pixels, explicit physical positions and exact ROI cell labels."""
     from spacr.psf_pipeline import _cell_record_hash, _open_calibrated_cell_dataset
@@ -662,8 +683,10 @@ print('headless signed cell loader passed')
     assert headless.stdout.strip() == 'headless signed cell loader passed'
 
 
+@needs_descriptor_relative_reads
 @pytest.mark.parametrize('defect', ['role', 'old-record', 'stale-hash', 'shape', 'origin',
-                                  'spacing', 'symlink', 'common-psf', 'source-identity',
+                                  'spacing', pytest.param('symlink', marks=pytest.mark.needs_symlink),
+                                  'common-psf', 'source-identity',
                                   'duplicate-field', 'duplicate-artifact', 'high-label'])
 def test_signed_cell_loader_refuses_real_inconsistent_producer_outputs(completed_calibrated_cells, defect):
     """Reject actual incompatible records and artifacts before exposing any field."""
@@ -716,6 +739,7 @@ def test_signed_cell_loader_refuses_real_inconsistent_producer_outputs(completed
     assert all(path.read_bytes() == content for path, content in before.items())
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_loader_closes_maps_and_refuses_postyield_mutation(completed_calibrated_cells):
     """Reject changed durable pixels after a real borrowed view has been consumed."""
     from spacr.psf_pipeline import _open_calibrated_cell_dataset
@@ -732,6 +756,7 @@ def test_signed_cell_loader_closes_maps_and_refuses_postyield_mutation(completed
     assert mapped._mmap.closed
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_loader_cancellation_closes_borrowed_maps(completed_calibrated_cells):
     """Cancel a real open field without leaking its mappings or modifying source bytes."""
     import threading
@@ -890,6 +915,7 @@ def plate_scoped_cells(plate_scoped_inputs):
                 signed=signed, mask=mask)
 
 
+@needs_descriptor_relative_reads
 @pytest.mark.parametrize('defect', [None, 'wrong-plate', 'wrong-map-hash', 'swapped-dye-fields', 'wrong-source'],
                          ids=['valid', 'wrong-plate', 'wrong-map-hash', 'swapped-dye-fields', 'wrong-source'])
 def test_per_plate_signed_reader_validates_selection_with_rebound_hashes(plate_scoped_cells, defect):

@@ -687,10 +687,10 @@ def test_light_install_explanations_are_localized_prose_beside_unchanged_command
     """Translated choices and limitations belong outside executable shell recipes."""
     import yaml
 
-    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text())
+    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text(encoding="utf-8"))
     source = (REPO / "packaging/readme_source.yaml" if language == "en" else
               LOCALIZED / "source" / f"{language}.yaml")
-    blocks = yaml.safe_load(source.read_text())["blocks"]
+    blocks = yaml.safe_load(source.read_text(encoding="utf-8"))["blocks"]
     start = english["blocks"].index({"h3": SECTION})
     stop = next(index for index in range(start + 1, len(blocks)) if "h2" in blocks[index])
     section = blocks[start + 1:stop]
@@ -724,9 +724,9 @@ def test_every_current_readme_prose_heading_and_list_has_all_nine_source_bound_t
     from build_documentation_i18n import REVIEWED_README_BLOCKS, REVIEWED_README_HEADINGS
 
     reviewed = {**REVIEWED_README_BLOCKS, **REVIEWED_README_HEADINGS}
-    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text())["blocks"]
+    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text(encoding="utf-8"))["blocks"]
     localized = {language: yaml.safe_load(
-        (LOCALIZED / "source" / f"{language}.yaml").read_text())["blocks"]
+        (LOCALIZED / "source" / f"{language}.yaml").read_text(encoding="utf-8"))["blocks"]
         for language in LANGUAGES}
     paper_title = (
         "Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies EAF1 "

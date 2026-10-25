@@ -3,6 +3,7 @@
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 import threading
 
@@ -13,6 +14,12 @@ from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS, assert_declares_in
 from tests.conftest import check_cellpose_eval_call
 from tests.test_pipeline_v2_illumination import plate_qualified_calibrated_sources
 from tests.qt.test_measure_unmix_preview_f538 import plate as raw_preview_plate, panel
+
+PARTITION_ACCESS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                    and hasattr(os, 'O_NONBLOCK') and os.open in os.supports_dir_fd)
+needs_partition_access = pytest.mark.skipif(
+    not PARTITION_ACCESS,
+    reason='plate partitioning refuses hosts without descriptor-relative nonblocking access')
 
 
 @pytest.fixture
@@ -88,7 +95,21 @@ def _run(inputs):
 
 @pytest.fixture
 def completed_partition(mixed_plate_inputs):
+    if not PARTITION_ACCESS:
+        pytest.skip('plate partitioning refuses hosts without descriptor-relative nonblocking access')
     return mixed_plate_inputs, _run(mixed_plate_inputs)
+
+
+@pytest.mark.skipif(PARTITION_ACCESS, reason='this host admits plate partitioning')
+def test_partition_refuses_a_host_without_descriptor_relative_access(mixed_plate_inputs):
+    inputs = mixed_plate_inputs
+    before_paths = set(inputs['source'].rglob('*'))
+    with pytest.raises(ValueError, match='unsupported hosts refuse'):
+        _run(inputs)
+    assert inputs['constructed'] == inputs['observed'] == []
+    assert set(inputs['source'].rglob('*')) == before_paths
+    assert not tuple(inputs['source'].glob('calibrated_plate_batch*'))
+    _unchanged(inputs)
 
 
 def test_real_mixed_plates_preserve_signed_fields_physical_units_and_plural_outputs(
@@ -227,6 +248,7 @@ def _assert_captured_optics_are_independent(inputs, result):
     assert all(path.read_bytes() == raw for path, raw in zip(external_paths, originals))
 
 
+@needs_partition_access
 def test_actual_partition_cancellation_preserves_the_first_completed_child(mixed_plate_inputs, monkeypatch):
     from spacr import psf_pipeline
     from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
@@ -258,6 +280,7 @@ def test_actual_partition_cancellation_preserves_the_first_completed_child(mixed
     _unchanged(inputs)
 
 
+@needs_partition_access
 def test_bad_later_plate_optics_refuse_before_any_collection_or_model(mixed_plate_inputs):
     inputs = mixed_plate_inputs
     optical_map = deepcopy(inputs['optical_map'])
@@ -272,6 +295,7 @@ def test_bad_later_plate_optics_refuse_before_any_collection_or_model(mixed_plat
     _unchanged(inputs)
 
 
+@needs_partition_access
 def test_later_plate_rank_deficient_real_controls_refuse_before_any_collection_or_model(mixed_plate_inputs):
     import tifffile
 
@@ -349,7 +373,7 @@ def test_populated_collection_and_direct_parent_arrays_never_become_raw_crop_sou
     _unchanged(inputs)
 
 
-@pytest.mark.parametrize('marker', ['malformed', 'dangling'])
+@pytest.mark.parametrize('marker', ['malformed', pytest.param('dangling', marks=pytest.mark.needs_symlink)])
 def test_present_unreadable_collection_manifest_cannot_fall_back_to_raw(tmp_path, marker):
     root = tmp_path / 'collection'
     (root / 'merged').mkdir(parents=True)
@@ -574,6 +598,7 @@ def test_real_inner_qc_failures_propagate_only_on_the_strict_partition_route(
     _unchanged(inputs)
 
 
+@needs_partition_access
 def test_later_plate_oversized_source_headers_refuse_before_any_pixel_decode(
         mixed_plate_inputs, monkeypatch):
     """All plates' real header bounds precede control decoding and output creation."""

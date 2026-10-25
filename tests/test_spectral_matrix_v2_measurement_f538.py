@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +13,10 @@ from tests.cellpose_api_contract import (
     MISSING_CHANNEL_AXIS, assert_declares_installed_eval_signature,
 )
 from tests.conftest import check_cellpose_eval_call
+
+SUPPLIED_MATRIX_ACCESS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                          and hasattr(os, 'O_NONBLOCK') and os.open in os.supports_dir_fd
+                          and os.mkdir in os.supports_dir_fd)
 
 
 def test_supplied_matrix_v2_measures_signed_truth_after_external_matrix_removal(
@@ -90,10 +95,21 @@ def test_supplied_matrix_v2_measures_signed_truth_after_external_matrix_removal(
         lower_percentile=0., cell_background=0., cell_signal_to_noise=0.,
         remove_background_cell=False, nucleus_background=0.,
         nucleus_signal_to_noise=0., remove_background_nucleus=False)
-    result = pipeline_v2.run_v2(source, channels=(3, 1), channels_for_cellpose=(0, 1),
+    options = dict(channels=(3, 1), channels_for_cellpose=(0, 1),
         channel_names=('cell', 'nucleus'), metadata_type='custom',
         custom_regex=r'^(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_F(?P<fieldID>\d+)_T(?P<timeID>\d+)_Z(?P<sliceID>\d+)_C(?P<chanID>\d+)\.tif$',
         batch_fields=1, postprocess_settings=settings)
+    if not SUPPLIED_MATRIX_ACCESS:
+        before_paths = set(source.rglob('*'))
+        with pytest.raises(ValueError, match='supplied spectral matrix'):
+            pipeline_v2.run_v2(source, **options)
+        assert observed == []
+        assert set(source.rglob('*')) == before_paths
+        assert all(path.read_bytes() == before for path, before in original_bytes.items())
+        assert matrix_path.read_bytes() == matrix_bytes
+        assert calibration_path.read_bytes() == calibration_bytes
+        return
+    result = pipeline_v2.run_v2(source, **options)
     root = result['output_root']
     assert root.parent == source and root != source
     assert len(observed) == len(result['stacks']) == 1
