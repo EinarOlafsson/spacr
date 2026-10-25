@@ -395,7 +395,7 @@ def test_missing_paths_and_non_csv_output_refuse_before_file_read(qtbot, tmp_pat
     dialog._output_path.clear()
     dialog._load_field()
     assert dialog._field is not None
-    assert dialog._output_path.text().endswith("tracks/events/annotations.csv")
+    assert dialog._output_path.text().replace("\\", "/").endswith("tracks/events/annotations.csv")
     dialog.close()
 
 
@@ -671,8 +671,13 @@ def test_annotation_output_cannot_alias_tracker_or_image_source(tmp_path):
     tracks_before = tracks.read_bytes()
     image_before = sequence.read_bytes()
     tracker_alias = tmp_path / "annotations.csv"
-    tracker_alias.symlink_to(tracks)
-    for output in (tracks, tracker_alias, sequence):
+    outputs = [tracks, sequence]
+    try:
+        tracker_alias.symlink_to(tracks)
+        outputs.insert(1, tracker_alias)
+    except OSError:
+        pass
+    for output in outputs:
         with pytest.raises(ValueError, match="separate from"):
             _annotation_field_payload(str(tracks), str(sequence), str(output))
     assert tracks.read_bytes() == tracks_before

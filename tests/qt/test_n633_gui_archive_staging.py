@@ -42,7 +42,10 @@ def test_worker_download_does_not_own_preexisting_partial(kind, symbolic, tmp_pa
     foreign.write_bytes(b'foreign data')
     partial = tmp_path / 'example.tar.part'
     if symbolic:
-        partial.symlink_to(foreign.name)
+        try:
+            partial.symlink_to(foreign.name)
+        except OSError as error:
+            pytest.skip(f'this host cannot create symlinks: {error}')
     else:
         partial.write_bytes(b'other stream')
     before = partial.read_bytes()
