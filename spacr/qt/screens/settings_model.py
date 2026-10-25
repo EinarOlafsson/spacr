@@ -2074,11 +2074,10 @@ def _overview_category_spec():
 
     measurements = _overview_measurement_declarations()["categories"]
     spec = [(title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
-        "Source", "Image")]
-    spec.append(("Enhancement", _enhancement_keys()))
+        "Source", "Image", "Channels", "Display", "Normalization")]
+    spec.append(("Enhancement", ("overview_enhance_channels", *_enhancement_keys())))
     spec.extend((title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
-        "Figure settings", "Display", "Annotations", "Comparisons",
-        "Export"))
+        "Figure settings", "Annotations", "Comparisons", "Export"))
     spec.extend((title, tuple(keys)) for title, keys in measurements.items())
     return tuple(spec)
 
@@ -2087,7 +2086,8 @@ def _overview_category_parents():
     """Which Overview headings sit inside another Overview heading."""
     from spacr.settings import _overview_measurement_declarations
 
-    return {"Enhancement": "Image",
+    return {"Channels": "Image", "Display": "Image", "Normalization": "Image",
+            "Enhancement": "Image",
             **_overview_measurement_declarations()["parents"]}
 
 
@@ -3839,19 +3839,28 @@ def _overview_category_tooltips():
                   "names each file's plate, well, field and channel, and which "
                   "channels are shown. Press Run to check the metadata and open "
                   "the plate.",
-        "IMAGE": "How images are drawn: the preview resolution the plate, well and "
-                 "image views load, the size of and gap between well images, and "
-                 "whether enlarged images open at their original full resolution.",
+        "IMAGE": "Everything about how the images look, applied live to the plate, "
+                 "well and image views: the preview resolution, original-resolution "
+                 "opening, and the channel, display, normalization and enhancement "
+                 "settings below.",
+        "CHANNELS": "Which channels are shown, by filename channel ID or stack index; "
+                    "tick or untick a channel below to show or hide it at once.",
+        "NORMALIZATION": "How intensities become brightness: the percentile stretch and "
+                         "the channels it applies to, and the advanced per-channel "
+                         "normalization with its method, bounds, background, gamma and "
+                         "reference group. Display only; measured pixels never change.",
         "ENHANCEMENT": "Make Masks' image enhancement steps -- background "
                        "subtraction, denoising, contrast curves and sharpening -- "
-                       "applied to every view for display only. Measurements and "
-                       "exported PDFs keep the unenhanced pixels.",
+                       "applied for display only to every view, or to the channels "
+                       "chosen here; PSF deconvolution and Cellpose 3 restoration "
+                       "apply to Original images only. Measurements and exported PDFs "
+                       "keep the unenhanced pixels.",
         "FIGURE SETTINGS": "Which plate, row, column, field, time point and Z "
                            "plane are shown, how Z-stacks are projected, what the "
                            "mouse wheel does, and how many fields each well shows.",
-        "DISPLAY": "How intensities become brightness: the percentile stretch, the "
-                   "channels shown, and the advanced per-channel normalization "
-                   "with its method, bounds, background, gamma and reference group.",
+        "DISPLAY": "The size of and gap between the field images in the well views; "
+                   "the same values apply to every open well and image so they line "
+                   "up for comparison.",
         "ANNOTATIONS": "Label wells with conditions such as cell type, pathogen or "
                        "drug, in the scope chosen here, and save or load annotation "
                        "sets in the project's measurements database.",
