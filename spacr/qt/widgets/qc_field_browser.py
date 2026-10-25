@@ -17,6 +17,8 @@ from __future__ import annotations
 import logging
 import math
 import os
+import threading
+import time
 from dataclasses import dataclass
 from dataclasses import field as _dc_field
 from pathlib import Path
@@ -1801,6 +1803,97 @@ def _overview_channel_info(field):
     return info
 
 
+_OVERVIEW_DISK_BUDGET = 2 * 1024 ** 3
+_OVERVIEW_DISK_PRUNE_EVERY = 256
+_OVERVIEW_DISK_WRITES = [0]
+
+
+def _overview_disk_cache_folder():
+    """Where preview planes persist between sessions: the user's cache, never a source folder.
+
+    ``SPACR_OVERVIEW_DISK_CACHE=0`` turns the disk cache off.
+
+    :returns: the folder, or ``None`` when the disk cache is off.
+    """
+    if os.environ.get("SPACR_OVERVIEW_DISK_CACHE", "1").strip() in ("0", "false", "no", "off"):
+        return None
+    base = os.environ.get("XDG_CACHE_HOME") or os.path.join(os.path.expanduser("~"), ".cache")
+    return Path(base) / "spacr" / "overview_planes"
+
+
+def _overview_disk_name(key):
+    """The cache file for one preview plane key."""
+    import hashlib
+
+    folder = _overview_disk_cache_folder()
+    if folder is None:
+        return None
+    digest = hashlib.sha1(repr(key).encode("utf-8", "replace")).hexdigest()
+    return folder / digest[:2] / (digest + ".npy")
+
+
+def _overview_disk_plane(key, path):
+    """Read a persisted preview plane, or ``None``.
+
+    The file name is a digest of the whole key, source file stamps included,
+    so a changed source file is never served from the cache.
+
+    :param key: the plane's cache key.
+    :param path: the source file the plane belongs to.
+    :returns: ``(path, read-only array)`` or ``None``.
+    """
+    name = _overview_disk_name(key)
+    if name is None:
+        return None
+    try:
+        array = np.load(name, allow_pickle=False)
+    except (OSError, ValueError):
+        return None
+    array.setflags(write=False)
+    return path, array
+
+
+def _overview_store_disk_plane(key, path, array):
+    """Persist one preview plane in the user's cache folder, atomically.
+
+    :param key: the plane's cache key, including its source file stamp.
+    :param path: the source file the plane came from.
+    :param array: the downsampled raw plane.
+    """
+    name = _overview_disk_name(key)
+    if name is None:
+        return
+    try:
+        name.parent.mkdir(parents=True, exist_ok=True)
+        pending = name.with_name(name.name + f".{os.getpid()}.{id(array)}.tmp")
+        with open(pending, "wb") as handle:
+            np.save(handle, np.ascontiguousarray(array), allow_pickle=False)
+        os.replace(pending, name)
+    except OSError:
+        LOG.debug("could not persist an overview preview plane", exc_info=True)
+        return
+    _OVERVIEW_DISK_WRITES[0] += 1
+    if _OVERVIEW_DISK_WRITES[0] % _OVERVIEW_DISK_PRUNE_EVERY == 0:
+        _overview_prune_disk_cache(name.parent.parent)
+
+
+def _overview_prune_disk_cache(folder):
+    """Remove the oldest persisted planes beyond :data:`_OVERVIEW_DISK_BUDGET`."""
+    try:
+        entries = [(item.stat().st_mtime, item.stat().st_size, item) for item in folder.glob("*/*.npy")]
+    except OSError:
+        return
+    total = sum(size for _mtime, size, _item in entries)
+    for _mtime, size, item in sorted(entries):
+        if total <= _OVERVIEW_DISK_BUDGET:
+            break
+        try:
+            item.unlink()
+            total -= size
+        except OSError:
+            continue
+
+
 def _overview_cached_raw_planes(field, channels, *, edge=None, **axes):
     """Yield raw planes like :func:`_overview_raw_planes`, decoding each one once.
 
@@ -1819,6 +1912,13 @@ def _overview_cached_raw_planes(field, channels, *, edge=None, **axes):
     selection = tuple(sorted(axes.items()))
     keys = {channel: (field.identity, stamp, channel, selection, edge) for channel in channels}
     found = {channel: _OVERVIEW_PLANE_CACHE.get(key) for channel, key in keys.items()}
+    files = {str(key): path for key, path in field.files}
+    for channel in channels:
+        if found[channel] is None and edge is not None:
+            stored = _overview_disk_plane(keys[channel], files.get(str(channel), field.files[0][1]))
+            if stored is not None:
+                found[channel] = stored
+                _OVERVIEW_PLANE_CACHE.put(keys[channel], stored)
     missing = tuple(channel for channel in channels if found[channel] is None)
     if missing:
         for channel, path, array in _overview_raw_planes(field, missing, edge=edge, **axes):
@@ -1826,6 +1926,8 @@ def _overview_cached_raw_planes(field, channels, *, edge=None, **axes):
             array.setflags(write=False)
             found[channel] = (path, array)
             _OVERVIEW_PLANE_CACHE.put(keys[channel], (path, array))
+            if edge is not None:
+                _overview_store_disk_plane(keys[channel], path, array)
     for channel in channels:
         path, array = found[channel]
         yield channel, path, array
@@ -1900,6 +2002,98 @@ def _overview_plane_region(array, region):
     return array[..., y0:y1, x0:x1]
 
 
+_OVERVIEW_SPARSE_STRIDE = 4
+
+
+_OVERVIEW_READ_TRIALS = 4
+_OVERVIEW_READ_TIMES = {}
+_OVERVIEW_READ_LOCK = threading.Lock()
+
+
+def _overview_device(path):
+    """The storage device a file lives on, for choosing how to read it."""
+    try:
+        return os.stat(path).st_dev
+    except OSError:
+        return None
+
+
+def _overview_read_method(path):
+    """Choose sparse row reads or whole-page reads for a file's storage.
+
+    Reading only a thumbnail's rows moves far fewer bytes, which wins on a
+    network share or a spinning disk; on fast local storage one sequential
+    read of the whole page can be quicker than many small ones. The first
+    reads on each device try both and the faster one is kept.
+
+    :param path: the TIFF file.
+    :returns: ``"sparse"``, ``"full"`` or, during the trial, either.
+    """
+    device = _overview_device(path)
+    with _OVERVIEW_READ_LOCK:
+        times = _OVERVIEW_READ_TIMES.setdefault(device, {"sparse": [], "full": []})
+        sparse, full = times["sparse"], times["full"]
+        if len(sparse) < _OVERVIEW_READ_TRIALS or len(full) < _OVERVIEW_READ_TRIALS:
+            return "sparse" if len(sparse) <= len(full) else "full"
+        return "sparse" if sum(sparse) / len(sparse) <= sum(full) / len(full) else "full"
+
+
+def _overview_record_read(path, method, seconds):
+    """Remember how long one thumbnail read took on a file's device."""
+    device = _overview_device(path)
+    with _OVERVIEW_READ_LOCK:
+        times = _OVERVIEW_READ_TIMES.setdefault(device, {"sparse": [], "full": []})[method]
+        times.append(seconds)
+        del times[:-16]
+
+
+def _overview_sparse_stride(page, edge):
+    """The row stride for reading a thumbnail straight from an uncompressed page.
+
+    :param page: the TIFF page.
+    :param edge: the thumbnail's longest edge in pixels.
+    :returns: the stride, or 0 when the whole page should be read instead.
+    """
+    if not page.is_memmappable or len(page.shape) != 2 or not page.is_contiguous:
+        return 0
+    stride = max(1, math.ceil(max(page.shape) / max(1, edge)))
+    return stride if stride >= _OVERVIEW_SPARSE_STRIDE else 0
+
+
+def _overview_sparse_rows(path, page, stride, byteorder):
+    """Read only every ``stride``-th row and column of an uncompressed page.
+
+    A thumbnail needs a small fraction of the rows; reading just those with
+    positioned reads, read-ahead off, moves that fraction of the bytes
+    instead of the whole image -- what matters on a network share.
+
+    :param path: the TIFF file.
+    :param page: its uncompressed, contiguous two-dimensional page.
+    :param stride: the row and column step.
+    :param byteorder: the file's byte order, ``<`` or ``>``.
+    :returns: the strided plane as a new array.
+    """
+    contiguous = page.is_contiguous
+    offset = contiguous[0] if isinstance(contiguous, tuple) else page.dataoffsets[0]
+    height, width = page.shape
+    dtype = np.dtype(page.dtype).newbyteorder(byteorder)
+    row_bytes = width * dtype.itemsize
+    rows = range(0, height, stride)
+    plane = np.empty((len(rows), width), dtype=dtype)
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        if hasattr(os, "posix_fadvise"):
+            os.posix_fadvise(descriptor, 0, 0, os.POSIX_FADV_RANDOM)
+        for index, row in enumerate(rows):
+            data = os.pread(descriptor, row_bytes, offset + row * row_bytes)
+            if len(data) != row_bytes:
+                raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
+            plane[index] = np.frombuffer(data, dtype=dtype)
+    finally:
+        os.close(descriptor)
+    return np.ascontiguousarray(plane[:, ::stride]).astype(dtype.newbyteorder("="), copy=False)
+
+
 def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=None, page_cache=None):
     """Read validated TIFF axes as selected pages, streaming explicit Z projections."""
     import tifffile
@@ -1921,21 +2115,34 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
             coordinates = tuple(positions[axis] for axis in leading)
             page_index = int(np.ravel_multi_index(coordinates, leading_shape)) if leading else 0
             page = series.pages[page_index]
-            page_key = record["path"], page.index
+            sparse = (edge is not None and region is None and page_axes == "YX"
+                      and _overview_sparse_stride(page, edge))
+            method = _overview_read_method(record["path"]) if sparse else None
+            if method == "full":
+                sparse = 0
+            page_key = record["path"], page.index, sparse
             if page_key not in page_cache:
                 page_cache.clear()
-                if page.is_memmappable:
+                started = time.perf_counter()
+                if sparse:
+                    plane = _overview_sparse_rows(record["path"], page, sparse, tif.byteorder)
+                elif method is not None:
+                    plane = np.array(tifffile.memmap(record["path"], page=page.index, mode="r")[
+                        ::_overview_sparse_stride(page, edge), ::_overview_sparse_stride(page, edge)])
+                elif page.is_memmappable:
                     plane = tifffile.memmap(record["path"], page=page.index, mode="r")
                 else:
                     if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
                         raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
                     plane = page.asarray()
+                if method is not None:
+                    _overview_record_read(record["path"], method, time.perf_counter() - started)
                 page_cache[page_key] = plane
             plane = page_cache[page_key]
             selector = tuple(positions[axis] if axis in "TCZ" else slice(None)
                              for axis in page_axes)
             plane = _overview_plane_region(plane[selector], region)
-            if edge is not None:
+            if edge is not None and not sparse and method is None:
                 stride = max(1, math.ceil(max(plane.shape) / max(1, edge)))
                 plane = plane[::stride, ::stride]
             if plane.nbytes > 128 * 1024 ** 2:
@@ -3132,7 +3339,7 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
         :param index: the physical well cell.
         """
         from PySide6.QtCore import QRect
-        from PySide6.QtGui import QColor, QPalette
+        from PySide6.QtGui import QPalette
         from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
 
         opts = QStyleOptionViewItem(option)
@@ -3155,6 +3362,8 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
             painter.drawText(QRect(rect.left(), image_rect.bottom() + 1, rect.width(), height),
                              Qt.AlignHCenter | Qt.AlignVCenter, caption)
         if option.state & QStyle.State_MouseOver:
+            from PySide6.QtGui import QColor
+
             painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QColor(35, 130, 245, 65))
         painter.restore()
 
@@ -3288,7 +3497,7 @@ _OVERVIEW_ORIGINAL_WELL_TOOLTIP = "Load this well's images at their original ful
 _OVERVIEW_ORIGINAL_ALL_TOOLTIP = "Load every stacked image at its original full resolution."
 _OVERVIEW_METADATA_ALL_TOOLTIP = "Show or hide the filename and metadata text over every stacked image."
 _OVERVIEW_MAX_IMAGE_VIEWS = 6
-_OVERVIEW_THUMBNAIL_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))
+_OVERVIEW_THUMBNAIL_WORKERS = max(2, min(8, os.cpu_count() or 2))
 _OVERVIEW_THUMBNAIL_BATCH = 8
 _OVERVIEW_THUMBNAIL_CACHE = 64
 _OVERVIEW_TILE_DEFAULT = 128
@@ -3805,6 +4014,7 @@ class _FieldOverview(QWidget):
         self._tile_sliders = []
         self._tile_size_changed = None
         self._measurement_settings = None
+        self._comparison_requests = 0
         self._original_steps = None
         self._original_generation = 0
         self.measurement_progress.connect(self._show_measurement_progress)
@@ -4014,7 +4224,6 @@ class _FieldOverview(QWidget):
         splitter.setStretchFactor(0, 2)
         splitter.setStretchFactor(1, 3)
         column.addWidget(splitter, 1)
-        self._comparison_requests = 0
         ensure_widget_qss_applied("FieldOverviewPanel", root=self)
         axes = QHBoxLayout()
         self.fov_axis, self.time_axis, self.z_axis = QComboBox(), QComboBox(), QComboBox()
@@ -5063,8 +5272,18 @@ class _FieldOverview(QWidget):
         dimensions = [key for key in dict.fromkeys(key for group in groups for key in group) if key != within]
         return dimensions, None, within, groups
 
+    def _comparison_request(self):
+        """Start a new comparison or representative request and return its number.
+
+        A result delivered for an older number is dropped, whatever its job
+        runner reports, so a late answer never replaces a newer one.
+        """
+        self._comparison_requests = getattr(self, "_comparison_requests", 0) + 1
+        return self._comparison_requests
+
     def _compare_groups(self):
         """Test and plot one measurement across every chosen annotation group."""
+        request = self._comparison_request()
         dimensions, levels, within, groups = self._comparison_groups()
         if not dimensions:
             self.status.setText(tr("Tick the annotation values to compare."))
@@ -5113,6 +5332,8 @@ class _FieldOverview(QWidget):
 
             :param result: the worker's figure and paths, or a refusal text.
             """
+            if request != self._comparison_requests:
+                return
             if isinstance(result, str):
                 self.status.setText(result)
                 return
@@ -5169,6 +5390,7 @@ class _FieldOverview(QWidget):
         :param stacked: open them as stacked images beside a comparison figure,
             keeping its status, instead of one montage.
         """
+        request = self._comparison_requests if stacked else self._comparison_request()
         dimensions, levels, within, groups = self._comparison_groups()
         levels = levels or {}
         by = (["_overview_group"] if groups else dimensions) + ([within] if within else [])
@@ -5213,6 +5435,8 @@ class _FieldOverview(QWidget):
 
             :param result: the chosen fields and their class captions.
             """
+            if request != self._comparison_requests:
+                return
             if stacked and (isinstance(result, str) or not result[0]):
                 return
             if isinstance(result, str):
@@ -5272,18 +5496,8 @@ class _FieldOverview(QWidget):
         if self._editing_channel is None:
             self._global_normalization_options = self._editor_options()
         self._editing_channel = self.norm_channel.currentData()
-    def _comparison_request(self):
-        """Start a new comparison or representative request and return its number.
-
-        A result delivered for an older number is dropped, whatever its job
-        runner reports, so a late answer never replaces a newer one.
-        """
-        self._comparison_requests = getattr(self, "_comparison_requests", 0) + 1
-        return self._comparison_requests
-
         options = dict(self._global_normalization_options)
         options.update(self._channel_overrides.get(self._editing_channel, {}))
-        request = self._comparison_request()
         self._loading_controls = True
         try:
             self.normalization_method.setCurrentIndex(self.normalization_method.findData(options["method"]))
@@ -5332,8 +5546,6 @@ class _FieldOverview(QWidget):
         self.advanced = Toggle(tr("Advanced channel normalization"))
         layout.addWidget(self.advanced)
         self.normalization_method, self.normalization_scope = _SetupComboBox(), _SetupComboBox()
-            if request != self._comparison_requests:
-                return
         for text, key in ((tr("Percentiles"), "percentile"), (tr("Minimum / maximum"), "minmax"),
             (tr("Fixed intensity bounds"), "manual"), (tr("Mean ± 3 standard deviations"), "zscore"),
             (tr("Log intensity"), "log"), (tr("Inverse hyperbolic sine"), "asinh"),
@@ -5390,7 +5602,6 @@ class _FieldOverview(QWidget):
         override_host = FlowHost(widget)
         row = FlowLayout(override_host)
         for control in (self.norm_channel, apply, reset):
-        request = self._comparison_requests if stacked else self._comparison_request()
             row.addWidget(control)
         layout.addWidget(override_host)
         column.addWidget(widget)
@@ -5435,8 +5646,6 @@ class _FieldOverview(QWidget):
         self._advanced_model = None
         self._cache.clear()
         self._thumbnail_cache.clear()
-            if request != self._comparison_requests:
-                return
         self._displayed_montage = None
         self._prepare_display()
 
@@ -6417,6 +6626,7 @@ class _FieldOverview(QWidget):
 
     def _compare(self):
         """Render only explicitly selected fields, retaining their source identities."""
+        self._comparison_request()
         fields = tuple(self._selected_fields.values())
         if not fields:
             self.status.setText(tr("Select fields by clicking or dragging a selection rectangle."))
@@ -6438,6 +6648,7 @@ class _FieldOverview(QWidget):
             self.status.setText(str(exc))
             return
         options, cancelled = self._display_kwargs(view=True), self._cancelled
+        request = getattr(self, "_comparison_requests", 0)
         labels = self.metadata_toggle.isChecked()
         self._individual = False
         self._show_image_panel()
@@ -6627,7 +6838,6 @@ class _FieldOverview(QWidget):
             self.fields = self._well_panel.field_list
         available = tuple(f for f in self._fields if f.plate == plate)
         try:
-        self._comparison_request()
             geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
         except _OverviewValidationError as error:
             self._geometry_error = str(error)
@@ -6649,7 +6859,6 @@ class _FieldOverview(QWidget):
             combo.blockSignals(True)
             combo.clear()
             combo.addItem(title, None)
-        request = getattr(self, "_comparison_requests", 0)
             for value in values:
                 combo.addItem(str(value), value)
             if old in values:
@@ -7058,6 +7267,9 @@ class _FieldOverview(QWidget):
         """
         if self._plate_panel.is_collapsed():
             return
+        if not self._thumbnail_jobs.active_jobs():
+            self._thumbnail_inflight.clear()
+            self._thumbnail_first_inflight.clear()
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
         from PySide6.QtGui import QIcon

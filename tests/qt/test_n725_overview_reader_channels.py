@@ -488,8 +488,14 @@ def test_declared_unsupported_axes_and_invalid_plane_choices_refuse_without_muta
     assert all(file.read_bytes() == content for file, content in original.items())
 
 
-def test_oversized_tiff_uses_bounded_native_mapping_and_refuses_compressed_decode(tmp_path):
+@pytest.mark.parametrize("method", ("sparse", "full"))
+def test_oversized_tiff_uses_bounded_native_mapping_and_refuses_compressed_decode(tmp_path, monkeypatch, method):
+    import tracemalloc
+
     from spacr.errors import ConfigurationError
+
+    monkeypatch.setenv("SPACR_OVERVIEW_DISK_CACHE", "0")
+    monkeypatch.setattr(browser, "_overview_read_method", lambda path: method)
 
     source = tmp_path / "source"
     source.mkdir()
@@ -508,9 +514,14 @@ def test_oversized_tiff_uses_bounded_native_mapping_and_refuses_compressed_decod
     mapped_stat = mapped_path.stat()
     fields = browser._overview_index(source)
     first, second = fields
-    _, _, preview = next(browser._overview_raw_planes(first, (0,), edge=32))
+    tracemalloc.start()
+    try:
+        _, _, preview = next(browser._overview_raw_planes(first, (0,), edge=32))
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
     assert preview.shape == (32, 32) and preview[0, 0] == 1234
-    assert isinstance(preview, np.memmap)
+    assert peak < 4 << 20 and preview.nbytes == 32 * 32 * 2
     with pytest.raises(ConfigurationError, match="128 MiB preview decode limit"):
         tuple(browser._overview_raw_planes(second, (0,), edge=32))
     assert compressed_path.read_bytes() == compressed_bytes
