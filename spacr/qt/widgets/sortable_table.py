@@ -363,14 +363,18 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
         column = view.sortColumn()
         return 0 if column < 0 else column
 
-    def _resolve_key(self):
+    def _resolve_key(self, column=None):
         """The key for the column being sorted on, read once per text.
 
         A tree row carries every column, so the key cannot be settled when
         the row is built. Cached against the text it was read from, because
         a sort asks for it O(n log n) times and the text does not move.
+
+        :param column: the sort column when the caller has it already, so a
+            comparison asks the tree for it once rather than three times.
         """
-        column = self._sort_column()
+        if column is None:
+            column = self._sort_column()
         text = self.text(column)
         cached = getattr(self, "_sort_cache", None)
         if cached is not None and cached[0] == column and cached[1] == text:
@@ -417,9 +421,9 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
             return getattr(self, "_sort_serial", 0) < getattr(
                 other, "_sort_serial", 0)
         column = self._sort_column()
-        mine_missing, mine = self._resolve_key()
+        mine_missing, mine = self._resolve_key(column)
         if isinstance(other, SortableTreeItem):
-            theirs_missing, theirs = other._resolve_key()
+            theirs_missing, theirs = other._resolve_key(column)
         else:
             peer = getattr(other, "text", None)
             if not callable(peer):
@@ -596,6 +600,26 @@ def _spare_table_item(table: QTableWidget, value="", make=None):
     return item
 
 
+def _hold_sorting_for_fill(view) -> None:
+    """Drop ``view``'s sort before a redraw writes its first row.
+
+    A sorted tree re-sorts the level of every item whose sorted-column
+    text changes, comparing it with its siblings through their Python
+    ``__lt__``; wiping and rewriting a Lineage tree of 7,000 nodes asked
+    that about 49,000 times on the GUI thread, and the rows moving under
+    the loop are what :meth:`_SortState.suspend_for_fill` exists to stop.
+    The sort is suspended here, before the first write, rather than at the
+    first row added or removed, and comes back once when the fill is done.
+
+    :param view: the tree being redrawn, or ``None``.
+    """
+    state = getattr(view, _STATE_ATTR, None) if view is not None else None
+    if state is None or getattr(state, "_suspended", None) is not None:
+        return
+    if _alive(state):
+        state.suspend_for_fill()
+
+
 def _reuse_tree_items(parent, count: int, make=None) -> list:
     """The first ``count`` children of ``parent``, as wiped items to rewrite.
 
@@ -612,6 +636,7 @@ def _reuse_tree_items(parent, count: int, make=None) -> list:
     """
     _remember_default_flags()
     tree = parent if isinstance(parent, QTreeWidget) else parent.treeWidget()
+    _hold_sorting_for_fill(tree)
     columns = max(1, tree.columnCount()) if tree is not None else 1
     spare = _spare_items(tree) if tree is not None else []
     top = isinstance(parent, QTreeWidget)
