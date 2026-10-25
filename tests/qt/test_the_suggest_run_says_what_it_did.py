@@ -21,6 +21,7 @@ screen's bookkeeping, and a real fit is pinned in
 """
 from __future__ import annotations
 
+import sys
 import sqlite3
 from pathlib import Path
 
@@ -195,7 +196,8 @@ def test_a_failed_fit_says_what_usually_causes_it(screen, monkeypatch):
     assert screen._status_label.text() == "Suggest failed — only one class"
     box = screen.findChild(QMessageBox, "AnnotateSuggestFailedBox")
     assert box is not None and box.isVisible()
-    assert box.windowTitle() == "Suggest failed"
+    # macOS alerts have no title; Qt drops it there.
+    assert box.windowTitle() == ("" if sys.platform == "darwin" else "Suggest failed")
     assert "No new suggestions from this round were saved" in box.text()
     assert "Earlier suggestions may have been cleared" in box.text()
     assert "Your annotations are unchanged" in box.text()

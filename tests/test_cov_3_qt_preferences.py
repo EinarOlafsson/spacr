@@ -509,7 +509,7 @@ def test_an_accepted_resource_action_is_confirmed(qapp, monkeypatch):
 
     assert prefs.confirm_resource_action("ram") is True
     assert "OK" not in seen["labels"], seen["labels"]
-    assert seen["title"]
+    assert seen["title"] or sys.platform == "darwin"  # macOS alerts have no title
 
 
 def test_the_result_of_a_resource_action_is_shown_with_its_details(

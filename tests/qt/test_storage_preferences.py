@@ -5,6 +5,7 @@ real is read or deleted.
 """
 from __future__ import annotations
 
+import sys
 import os
 import time
 
@@ -474,7 +475,9 @@ def test_storage_result_dialog_displays_the_actual_outcome(
 
     monkeypatch.setattr(QMessageBox, "exec", close)
     preferences._show_storage_result("Clear cache", "Removed 3 items")
-    assert observed == [("StorageActionResult", "Clear cache", "Removed 3 items")]
+    # macOS alerts have no title; Qt drops it there.
+    title = "" if sys.platform == "darwin" else "Clear cache"
+    assert observed == [("StorageActionResult", title, "Removed 3 items")]
 
 
 def test_unreadable_storage_caps_use_defaults(home):
