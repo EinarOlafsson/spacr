@@ -2062,6 +2062,76 @@ _APP_CATEGORY_PARENTS["measure"] = {
 }
 
 
+def _overview_category_spec():
+    """The Overview module's categories, measurement keys included.
+
+    :returns: ``(title, keys)`` pairs in panel order; the Enhancement and
+        Advanced headings are drawn inside Image and Measurements.
+    """
+    from spacr.settings import (OVERVIEW_CATEGORIES,
+                                _overview_measurement_declarations,
+                                _enhancement_keys)
+
+    measurements = _overview_measurement_declarations()["categories"]
+    spec = [(title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
+        "Source", "Image")]
+    spec.append(("Enhancement", _enhancement_keys()))
+    spec.extend((title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
+        "Figure settings", "Display", "Annotations", "Comparisons",
+        "Export"))
+    spec.extend((title, tuple(keys)) for title, keys in measurements.items())
+    return tuple(spec)
+
+
+def _overview_category_parents():
+    """Which Overview headings sit inside another Overview heading."""
+    from spacr.settings import _overview_measurement_declarations
+
+    return {"Enhancement": "Image",
+            **_overview_measurement_declarations()["parents"]}
+
+
+_APP_CATEGORY_SPECS["overview"] = _overview_category_spec()
+_APP_CATEGORY_PARENTS["overview"] = _overview_category_parents()
+_APP_COMBO_OPTIONS["overview"] = {
+    "overview_preview_resolution": [128, 256, 512, 1024, 2048, 4096],
+    "overview_z_mode": [("plane", "Z plane"), ("max", "Maximum Z projection"),
+                        ("mean", "Mean Z projection")],
+    "overview_wheel": [("zoom", "Wheel: zoom"), ("field", "Wheel: field"),
+                       ("z", "Wheel: Z"), ("time", "Wheel: time")],
+    "overview_normalization_method": [
+        ("percentile", "Percentiles"), ("minmax", "Minimum / maximum"),
+        ("manual", "Fixed intensity bounds"),
+        ("zscore", "Mean ± 3 standard deviations"),
+        ("log", "Log intensity"), ("asinh", "Inverse hyperbolic sine"),
+        ("none", "Raw display values"),
+        ("ratio", "Ratio to reference channel"),
+        ("difference", "Difference from reference channel")],
+    "overview_annotation_scope": [("plate", "Plate"), ("row", "Row"),
+                                  ("column", "Column"),
+                                  ("wells", "Selected wells")],
+    "overview_representative_method": [
+        ("median", "Closest to the class median"),
+        ("medoid", "Class medoid"),
+        ("pca_centroid",
+         "Closest to the class centroid in principal components"),
+        ("measurement",
+         "Closest to the class median of the chosen measurement"),
+        ("typical_in_focus", "Typical, in focus and unsaturated")],
+    "overview_export_scope": [("view", "Current view"),
+                              ("plate", "Whole plate"),
+                              ("well", "Current well"),
+                              ("field", "Current field"),
+                              ("selection", "Selected fields or wells")],
+    "overview_pdf_quality": [("full", "PDF: full source resolution"),
+                             ("1600", "PDF: 1600-pixel field"),
+                             ("3200", "PDF: 3200-pixel field")],
+    "overview_pdf_dpi": [150, 300, 600],
+    "overview_sample_grouping": [("plate", "Plate"), ("row", "Row"),
+                                 ("column", "Column"), ("well", "Well")],
+}
+
+
 def _category_parents(app_key) -> Dict[str, str]:
     """Which heading each category nests under on one module's panel.
 
@@ -3760,6 +3830,44 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
 }
 
 
+def _overview_category_tooltips():
+    """The Overview tab's category help, Measurements included."""
+    from spacr.settings import _overview_measurement_declarations
+
+    return {
+        "SOURCE": "The image folder the overview reads, the filename regex that "
+                  "names each file's plate, well, field and channel, and which "
+                  "channels are shown. Press Run to check the metadata and open "
+                  "the plate.",
+        "IMAGE": "How images are drawn: the preview resolution the plate, well and "
+                 "image views load, the size of and gap between well images, and "
+                 "whether enlarged images open at their original full resolution.",
+        "ENHANCEMENT": "Make Masks' image enhancement steps -- background "
+                       "subtraction, denoising, contrast curves and sharpening -- "
+                       "applied to every view for display only. Measurements and "
+                       "exported PDFs keep the unenhanced pixels.",
+        "FIGURE SETTINGS": "Which plate, row, column, field, time point and Z "
+                           "plane are shown, how Z-stacks are projected, what the "
+                           "mouse wheel does, and how many fields each well shows.",
+        "DISPLAY": "How intensities become brightness: the percentile stretch, the "
+                   "channels shown, and the advanced per-channel normalization "
+                   "with its method, bounds, background, gamma and reference group.",
+        "ANNOTATIONS": "Label wells with conditions such as cell type, pathogen or "
+                       "drug, in the scope chosen here, and save or load annotation "
+                       "sets in the project's measurements database.",
+        "COMPARISONS": "Build groups from combinations of annotation values, "
+                       "compare an image-level measurement between them, and pick "
+                       "one representative image for each group.",
+        "EXPORT": "What Export PDFs writes and how: the scope, resolution and page "
+                  "DPI, random samples per group, explicit selections and an "
+                  "optional CSV of raw whole-image measurements.",
+        **_overview_measurement_declarations()["category_tooltips"],
+    }
+
+
+CATEGORY_TOOLTIPS_BY_APP["overview"] = _overview_category_tooltips()
+
+
 #: Family prefixes :func:`categories_for_app` puts in front of a merged
 #: module's group titles, e.g. "Computer Vision — Training & Loss". The
 #: tooltip tables are keyed on the UNPREFIXED name, so a lookup has to try
@@ -4051,6 +4159,7 @@ _APP_API_MODULE = {
     "queue": "qt/plate_queue",
     "batch": "batch",
     "db_browser": "qt/screens/db_browser",
+    "overview": "qt/widgets/qc_field_browser",
     "mask": "core",
     "measure": "measure",
     "external_masks": "external_masks",

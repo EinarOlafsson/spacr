@@ -8051,3 +8051,196 @@ def _is_alpha(kind, name, choice=None):
     if kind == 'choices' and choice is not None:
         return str(choice) in _alpha_choices(name)
     return str(name) in _alpha_names(kind)
+
+
+OVERVIEW_APP_KEY = 'overview'
+
+OVERVIEW_DEFAULTS = {
+    'src': 'path',
+    'custom_regex': None,
+    'overview_channels': '0',
+    'overview_preview_resolution': 1024,
+    'overview_tile_size': 128,
+    'overview_tile_spacing': 4,
+    'overview_original_on_open': False,
+    'overview_z_mode': 'plane',
+    'overview_wheel': 'zoom',
+    'overview_representatives': 1,
+    'overview_normalize': True,
+    'overview_percentile_low': 1.0,
+    'overview_percentile_high': 99.9,
+    'overview_advanced_normalization': False,
+    'overview_normalization_method': 'percentile',
+    'overview_advanced_low': 1.0,
+    'overview_advanced_high': 99.0,
+    'overview_fixed_low': 0.0,
+    'overview_fixed_high': 255.0,
+    'overview_background': 0.0,
+    'overview_gamma': 1.0,
+    'overview_reference_channel': 0,
+    'overview_reference_epsilon': 1e-08,
+    'overview_annotation_scope': 'plate',
+    'overview_representative_method': 'median',
+    'overview_export_scope': 'view',
+    'overview_pdf_quality': 'full',
+    'overview_pdf_dpi': 300,
+    'overview_sample_grouping': 'plate',
+    'overview_sample_count': 1,
+    'overview_sample_seed': 0,
+    'overview_random_sample': False,
+    'overview_export_selection': False,
+    'overview_sample_selected': False,
+    'overview_measurements_csv': False,
+}
+
+OVERVIEW_TYPES = {
+    'overview_channels': (str, int, list, type(None)),
+    'overview_preview_resolution': int,
+    'overview_tile_size': int,
+    'overview_tile_spacing': int,
+    'overview_original_on_open': bool,
+    'overview_z_mode': str,
+    'overview_wheel': str,
+    'overview_representatives': int,
+    'overview_normalize': bool,
+    'overview_percentile_low': (float, int),
+    'overview_percentile_high': (float, int),
+    'overview_advanced_normalization': bool,
+    'overview_normalization_method': str,
+    'overview_advanced_low': (float, int),
+    'overview_advanced_high': (float, int),
+    'overview_fixed_low': (float, int),
+    'overview_fixed_high': (float, int),
+    'overview_background': (float, int),
+    'overview_gamma': (float, int),
+    'overview_reference_channel': int,
+    'overview_reference_epsilon': (float, int),
+    'overview_annotation_scope': str,
+    'overview_representative_method': str,
+    'overview_export_scope': str,
+    'overview_pdf_quality': str,
+    'overview_pdf_dpi': int,
+    'overview_sample_grouping': str,
+    'overview_sample_count': int,
+    'overview_sample_seed': int,
+    'overview_random_sample': bool,
+    'overview_export_selection': bool,
+    'overview_sample_selected': bool,
+    'overview_measurements_csv': bool,
+}
+
+OVERVIEW_TOOLTIPS = {
+    'overview_channels': "(str) - Channels shown in the overview, comma-separated. Use the filename channel IDs when each channel is a separate file, and zero-based indices for multichannel images. Up to three channels are shown as red, green and blue; more are shown side by side. Default '0'.",
+    'overview_preview_resolution': "(int) - Longest edge, in pixels, of the preview images the plate, well and image views load. Lower values load faster and use less memory; the Original button and zooming in still read original pixels. One of 128, 256, 512, 1024, 2048 or 4096. Default 1024.",
+    'overview_tile_size': "(int) - Edge length, in screen pixels, of each field image in the well views. The slider in a well view's header changes the same value. Larger tiles show more detail per field and fewer fields at a time. Default 128.",
+    'overview_tile_spacing': "(int) - Gap, in screen pixels, between neighbouring field images in the well views. Small values keep the images close together so more of the well fits on screen. Default 4.",
+    'overview_original_on_open': "(bool) - When True, an enlarged image is loaded at its original full resolution as soon as it opens, as if the Original button were pressed. When False it opens as a preview at the preview resolution and loads original pixels only when asked. Default False.",
+    'overview_z_mode': "(str) - How a Z-stack is shown: 'plane' shows the chosen Z plane, 'max' a maximum-intensity projection and 'mean' a mean projection across all planes. Applies to every view and to exported PDFs. Default 'plane'.",
+    'overview_wheel': "(str) - What the mouse wheel does over the enlarged image: 'zoom' zooms, 'field' steps to the next or previous field, 'z' steps through Z planes and 'time' steps through time points. Default 'zoom'.",
+    'overview_representatives': "(int) - Number of fields shown for each well on the plate view, from 1 to 24. More fields give a better impression of each well but take longer to load. Exports of whole wells and plates are not limited by this value. Default 1.",
+    'overview_normalize': "(bool) - Stretch each channel between the lower and upper percentiles for display. When False, raw intensities are shown between the image's minimum and maximum. Display scaling never changes measured pixel values. Default True.",
+    'overview_percentile_low': "(float) - Lower display percentile, 0 to 100. Intensities at or below this percentile of each channel are shown black. Default 1.0.",
+    'overview_percentile_high': "(float) - Upper display percentile, 0 to 100 and above the lower percentile. Intensities at or above this percentile of each channel are shown at full brightness. Default 99.9.",
+    'overview_advanced_normalization': "(bool) - Use the advanced channel normalization below instead of the plain percentile stretch. Each channel can then have its own method, bounds, background, gamma and reference group, applied with Apply settings to channel. Default False.",
+    'overview_normalization_method': "(str) - Advanced display normalization: 'percentile', 'minmax', fixed bounds ('manual'), mean plus or minus three standard deviations ('zscore'), 'log', inverse hyperbolic sine ('asinh'), raw values ('none'), or the ratio to or difference from a reference channel ('ratio', 'difference'). Default 'percentile'.",
+    'overview_advanced_low': "(float) - Lower percentile, 0 to 100, used by the advanced 'percentile' method. Default 1.0.",
+    'overview_advanced_high': "(float) - Upper percentile, 0 to 100, used by the advanced 'percentile' method; it must be above the lower percentile. Default 99.0.",
+    'overview_fixed_low': "(float) - Intensity shown black by the advanced 'manual' method, in the image's own units. Default 0.0.",
+    'overview_fixed_high': "(float) - Intensity shown at full brightness by the advanced 'manual' method, in the image's own units. Default 255.0.",
+    'overview_background': "(float) - Constant subtracted from every pixel before advanced display normalization, in the image's own units. Use it to remove a camera offset. Default 0.0.",
+    'overview_gamma': "(float) - Gamma applied after advanced normalization, from 0.01 to 20. Values below 1 brighten dim structures; values above 1 darken them. Default 1.0.",
+    'overview_reference_channel': "(int) - Channel that the 'ratio' and 'difference' methods compare each displayed channel with. Default 0.",
+    'overview_reference_epsilon': "(float) - Smallest absolute reference value the 'ratio' method divides by. Pixels whose reference is closer to zero are shown black instead of producing very large ratios. Default 1e-08.",
+    'overview_annotation_scope': "(str) - Wells that Apply annotation labels: the whole 'plate', the current 'row', the current 'column', or the selected 'wells'. Annotations are saved to the image-level annotation table of the project's measurements database. Default 'plate'.",
+    'overview_representative_method': "(str) - How Show representative images picks one image per annotated group: 'median' is closest to the group median, 'medoid' is the group medoid, 'pca_centroid' is closest to the centroid in principal components, 'measurement' is closest to the median of the chosen measurement, and 'typical_in_focus' prefers typical, in-focus, unsaturated images. Default 'median'.",
+    'overview_export_scope': "(str) - What Export PDFs writes: the current 'view', the whole 'plate', the current 'well', the current 'field', or the fields and wells in the current 'selection'. Default 'view'.",
+    'overview_pdf_quality': "(str) - Resolution of each field in exported PDFs: 'full' uses the full source resolution, '1600' and '3200' downsample each field to that many pixels on its longest edge. Default 'full'.",
+    'overview_pdf_dpi': "(int) - Resolution of exported PDF pages in dots per inch: 150, 300 or 600. Default 300.",
+    'overview_sample_grouping': "(str) - Level that random export samples are drawn within: 'plate', 'row', 'column' or 'well'. Default 'plate'.",
+    'overview_sample_count': "(int) - Number of fields exported from each group when exporting samples, from 1 to 1000. Default 1.",
+    'overview_sample_seed': "(int) - Random seed for sampled exports. The same seed and selection always export the same fields. Default 0.",
+    'overview_random_sample': "(bool) - Export a random sample of fields from each group instead of the first fields in natural order. Default False.",
+    'overview_export_selection': "(bool) - Export only the selected fields or wells instead of the export scope. Default False.",
+    'overview_sample_selected': "(bool) - Draw the export sample only from the selected wells. Default False.",
+    'overview_measurements_csv': "(bool) - Also write a CSV of whole-image measurements of the original, unnormalized pixels next to each exported PDF. Each field is one region of interest; no objects are segmented. Default False.",
+}
+
+OVERVIEW_DESCRIPTION = (
+    "Browse a plate's wells and fields of view before segmenting it: open "
+    "wells and images at preview or original resolution, adjust display and "
+    "enhancement, annotate wells, compare annotated groups, and export "
+    "traceable PDFs and image-level measurements."
+)
+
+OVERVIEW_IMAGE_KEYS = (
+    'overview_preview_resolution', 'overview_tile_size',
+    'overview_tile_spacing', 'overview_original_on_open',
+)
+
+OVERVIEW_CATEGORIES = {
+    'Source': ['src', 'custom_regex', 'overview_channels'],
+    'Image': list(OVERVIEW_IMAGE_KEYS),
+    'Figure settings': ['overview_z_mode', 'overview_wheel',
+                        'overview_representatives'],
+    'Display': ['overview_normalize', 'overview_percentile_low',
+                'overview_percentile_high', 'overview_advanced_normalization',
+                'overview_normalization_method', 'overview_advanced_low',
+                'overview_advanced_high', 'overview_fixed_low',
+                'overview_fixed_high', 'overview_background', 'overview_gamma',
+                'overview_reference_channel', 'overview_reference_epsilon'],
+    'Annotations': ['overview_annotation_scope'],
+    'Comparisons': ['overview_representative_method'],
+    'Export': ['overview_export_scope', 'overview_pdf_quality',
+               'overview_pdf_dpi', 'overview_sample_grouping',
+               'overview_sample_count', 'overview_sample_seed',
+               'overview_random_sample', 'overview_export_selection',
+               'overview_sample_selected', 'overview_measurements_csv'],
+}
+
+
+def _enhancement_keys():
+    """The ``enhance_*`` settings in panel order."""
+    keys = {}
+    _set_enhancement_defaults(keys)
+    return tuple(keys)
+
+
+def get_overview_default_settings(settings=None):
+    """The Overview module's settings, with their defaults filled in.
+
+    The image enhancement settings are Make Masks' own ``enhance_*``
+    settings, so a chain tuned there reads the same here.
+
+    :param settings: caller's settings, filled in with the defaults.
+    :returns: the completed settings dict.
+    """
+    settings = settings if settings is not None else {}
+    for key, value in OVERVIEW_DEFAULTS.items():
+        settings.setdefault(key, value)
+    _set_enhancement_defaults(settings)
+    _overview_measurement_defaults(settings)
+    return settings
+
+
+def register_overview_defaults(replace=False):
+    """Register the Overview defaults, types and help.
+
+    The Overview tab lays its categories out itself, from
+    :data:`OVERVIEW_CATEGORIES` and the Measurements declarations, so the
+    shared category table stays as it was.
+
+    :param replace: overwrite an existing registration rather than declining.
+    :returns: True when this call did the registering.
+    """
+    if has_registered_defaults(OVERVIEW_APP_KEY) and not replace:
+        return False
+    measurements = _overview_measurement_declarations()
+    register_defaults(
+        OVERVIEW_APP_KEY, get_overview_default_settings, replace=True,
+        expected_types={**OVERVIEW_TYPES, **measurements['expected_types']},
+        tooltips={**OVERVIEW_TOOLTIPS, **measurements['tooltips']},
+        description=OVERVIEW_DESCRIPTION)
+    return True
+
+
+register_overview_defaults()
