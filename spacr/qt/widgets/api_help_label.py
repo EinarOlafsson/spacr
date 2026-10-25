@@ -72,6 +72,17 @@ class ApiHelpLabel(QLabel):
         """The complete description, however much is being painted."""
         return getattr(self, "_full_description", QLabel.text(self))
 
+    def sizeHint(self) -> QSize:                   # noqa: N802 (Qt casing)
+        """Ask for the whole sentence, however much of it is painted."""
+        base = super().sizeHint()
+        full = self.full_text()
+        shown = QLabel.text(self)
+        if self.wordWrap() or not full or full == shown:
+            return base
+        metrics = QFontMetrics(self.font())
+        missing = metrics.horizontalAdvance(full) - metrics.horizontalAdvance(shown)
+        return QSize(base.width() + max(0, missing), base.height())
+
     def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
         """Ask the layout for one word, not for the whole sentence.
 

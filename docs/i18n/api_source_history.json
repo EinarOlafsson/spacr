@@ -1,31 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "1f0b9a113ae1eb7d9651814932f67b24b864f88fe921db40877aa76db62721ee": {
-      "source_blocks_sha256": [
-        "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
-        "3702ccb89ead8443fb52eeb5cae1044ad3a2e2c511876e84a89d5a884e3051ef",
-        "7cfd07e7b613a1836695b882521af8b8ba687c879af109b5b6996fd40d0b8cdd",
-        "66585f86b3a5591511b8be63bbb587246267c8b479fc9694285b9055a12417f4",
-        "4a710884da8d00523a523b2ed8c5d55f5b528fc903993bb2e8e6e51c5f6974e3",
-        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
-      ],
-      "source_sha256": "1f0b9a113ae1eb7d9651814932f67b24b864f88fe921db40877aa76db62721ee",
-      "text": "Consistent device and weight precision for ``CellposeModel`` inference.\n\nThe three arguments must agree, so they are produced together here\nrather than written out at six call sites:\n\n* ``gpu`` -- controls Cellpose's selection when no explicit device is\n  supplied, including callers that deliberately drop ``device`` below.\n* ``device`` -- from the one resolver, so cellpose and spaCR cannot\n  disagree about the same machine; an explicit device takes precedence.\n* ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default\n  and Metal on torch 2.2 has no bfloat16, so the default is a\n  ``TypeError: BFloat16 is not supported on MPS`` at construction.\n  Measured on the reporting iMac; float32 weights work there at the cost\n  of additional VRAM.\n  CPU inference also uses float32: bfloat16 support does not imply\n  native arithmetic, and emulation can be substantially slower. This\n  matches Make Masks; float32 arithmetic need not produce identical\n  predictions to bfloat16.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose\nresolve it -- should take ``gpu`` and ``use_bfloat16`` from here and\ndrop ``device``."
-    },
-    "ebb8460df8a071e00b694ada2e386dae42cdb8da4bb11d79f7f7c78b7374081a": {
-      "source_blocks_sha256": [
-        "1de2032e7e2b00fbdae83392f151102dca674d007d6ab71274990924d24af452",
-        "6c27df3dd9d4527077c458e783037f734bcdf93e9310eb19ff64f35f1d406051",
-        "0521299b5ed9a1c9649b03881669cb44d383bf73c7af7b0491787d1e35724ca7",
-        "38f5090f930c660ece6d4e2f5dc267ccfc7edfff2877ab3d45ddbef54fd7d5cb",
-        "a33001dffa42881c8d14ffb18402556ba48e73d6a5488666c318cb88029301f6",
-        "fd11f45c49714fd370c8cfdf5637d5334809d6a293984c51cd207bd3481a2a21",
-        "185f16fa802c4f71c3f40991abb3257145384d2c4f55efa3cfb852d0232b75e8",
-        "c1d16d767447dd0f683a725613cda46e5d8a640776292ef8e8cf25e474ab5701"
-      ],
-      "source_sha256": "ebb8460df8a071e00b694ada2e386dae42cdb8da4bb11d79f7f7c78b7374081a",
-      "text": "Give every popup the translucent card and the travelling rim.\n\nEvery settings popup in the program -- preferences, the hyperparameter\nsearch, live settings, AI settings, figure settings and the rest -- gets\nthe same translucent background and the same rim.\n\nONE INSTALL POINT, NOT THIRTY-NINE EDITS. There are thirty-nine ``QDialog``\nsubclasses in this package and there will be more next week; a look applied\nby hand in each of them is a look that is missing from the fortieth. This\ninstalls an application event filter instead, so a dialog gets the treatment\nthe first time it is shown, whoever wrote it and whenever it was added.\n\nWHAT THE TREATMENT IS, and each part is here for a reason the setup screen\nfound the hard way:\n\n* a :class:`~spacr.qt.widgets.setup_card.SetupCard` is put BEHIND the\n  dialog's own contents and kept at its size. It paints the translucent body\n  and runs the rim; it holds no layout, so it cannot disturb one;\n* the dialog and its layout CONTAINERS are made transparent. This palette's\n  ``bg`` is literally ``#000000``, so any untagged container between the card\n  and the eye paints a black rectangle over it -- which is what \"black boxes\"\n  meant on the setup screen, and is invisible to a code reading;\n* the controls are left alone. A control you can see through is a control you\n  cannot read, so combos, edits, buttons and tables keep their own surface.\n\nA DIALOG CAN SAY NO by carrying the ``spacrNoGlass`` property. Nothing in\nspaCR sets it today; it is there because the next thing somebody embeds may\nbe a native colour picker or a video surface that must own its own painting."
-    }
-  }
+  "sources": {}
 }

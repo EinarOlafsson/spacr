@@ -3116,7 +3116,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
-                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json",
+                     "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -3951,7 +3953,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-19: -1, FoldButton.paintEvent's event.
     # Item 600, 2026-10-19: 19,897 -> 19,885, the 12 parameters of
     # ChannelSortDialog's and RegexWindow's retired callables.
-    assert sum(len(item.parameters) for item in callables) == 19885
+    # 2026-10-25 c4575d4af: 19,886 - 19,885 = 1, host_pages' optional keyword
+    # mark_now=; no new callable or required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19886
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4221,7 +4225,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-10-19 for item 600 (was 592d64d6...): the 14 callables of
     # ChannelSortDialog and RegexWindow are removed; no surviving callable
     # changed its parameters.
-) == '9bbf3742d8cd1fb3c2ecdbfd1493415d2ccc55674fc92369667bd4c91561e5d7'
+    # Moved 2026-10-25 for c4575d4af (was 9bbf3742...): host_pages gained the
+    # optional mark_now=; the new callables arrive through
+    # 707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json
+    # and are subtracted above; no row removed.
+) == '0514b808f9e95fde64db40228c530523d00510d181224bba9f78518c07e65238'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -5073,6 +5081,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
         ("718_metal_loader_iterator_api_arrival_2026-10-24.json", 1),
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
+        ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
+        ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5598,7 +5608,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
-                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json",
+                     "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5684,7 +5696,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
-                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json",
+                     "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

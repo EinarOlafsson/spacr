@@ -1925,6 +1925,26 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **signed_cell_arrivals}
+    help_label_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_api_help_label_size_hint_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(help_label_arrivals) == {
+        "spacr.qt.widgets.api_help_label.ApiHelpLabel.sizeHint",
+    }
+    assert {key: docs[key] for key in help_label_arrivals} == help_label_arrivals
+    assert not help_label_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **help_label_arrivals}
+    import_hold_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json").read_text(encoding="utf-8"))
+    assert set(import_hold_arrivals) == {
+        "spacr.qt.gil_priority.background_imports_held",
+        "spacr.qt.gil_priority.hold_background_imports",
+        "spacr.qt.gil_priority.release_background_imports",
+        "spacr.settings.get_overview_default_settings",
+        "spacr.settings.register_overview_defaults",
+    }
+    assert {key: docs[key] for key in import_hold_arrivals} == import_hold_arrivals
+    assert not import_hold_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **import_hold_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
