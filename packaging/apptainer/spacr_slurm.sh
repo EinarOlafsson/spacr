@@ -41,8 +41,8 @@ for settings in "$MASK_SETTINGS" "$MEASURE_SETTINGS"; do
         exit 1
     fi
 done
-MASK_SETTINGS=$(realpath -e -- "$MASK_SETTINGS")
-MEASURE_SETTINGS=$(realpath -e -- "$MEASURE_SETTINGS")
+MASK_SETTINGS=$(realpath -- "$MASK_SETTINGS")
+MEASURE_SETTINGS=$(realpath -- "$MEASURE_SETTINGS")
 
 # The plate folder and both settings folders are bound at the same paths
 # they have on the host, so the settings files are visible inside the image.
