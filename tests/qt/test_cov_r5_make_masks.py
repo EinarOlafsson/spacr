@@ -349,8 +349,12 @@ class TestLoadingTheModelThroughSpacrsOwnResolver:
         assert isinstance(model, _Model)
         assert built["pretrained_model"] == "resolved::cyto2"
         import torch
-        assert built["gpu"] is torch.cuda.is_available()
-        assert built["device"].type in ("cuda", "cpu")
+        # A GPU is whatever spaCR's resolver picked -- Metal on an Apple
+        # Silicon Mac, where torch.cuda.is_available() is False.
+        from spacr import accelerator
+
+        assert built["gpu"] is accelerator.resolve().is_gpu
+        assert built["device"].type == accelerator.resolve().torch_device.type
         if not built["gpu"]:
             assert built["use_bfloat16"] is False
 
