@@ -1906,6 +1906,7 @@ CROP_TABLES: Tuple[str, ...] = ('png_list',)
 #: object measurements were computed. These are field-keyed, not object-keyed.
 FIELD_PROVENANCE_TABLES: Tuple[str, ...] = ('intensity_rescale',)
 IMAGE_MEASUREMENT_TABLES: Tuple[str, ...] = ('fov',)
+IMAGE_MEASUREMENT_INDEX_COLUMNS: Tuple[str, ...] = ('plateID', 'wellID', 'fieldID', 'file')
 
 IMAGE_ANNOTATION_TABLES: Tuple[str, ...] = ('image_annotations',)
 IMAGE_ANNOTATION_KEY_COLUMNS: Tuple[str, ...] = ('plateID', 'wellID', 'fieldID', 'file')

@@ -14758,3 +14758,257 @@ def _image_measurement_frame(db_path, *, annotations=True, status_ok=True):
     joined.attrs['annotation_columns'] = names
     return joined
 
+
+_IMAGE_MEASUREMENT_TABLE = 'fov'
+_IMAGE_MEASUREMENT_KEYS = ('plateID', 'wellID', 'fieldID', 'file')
+_IMAGE_MEASUREMENT_ROWID_ALIASES = frozenset(('rowid', 'oid', '_rowid_'))
+_IMAGE_MEASUREMENT_LEADING = ('plateID', 'wellID', 'fieldID', 'file', 'timeID', 'sliceID',
+                              'rowID', 'columnID', 'prc', 'prcf', 'condition')
+_IMAGE_MEASUREMENT_EXPORT_FORMATS = {'csv': ('csv',), 'xlsx': ('xlsx',),
+                                     'both': ('csv', 'xlsx'), 'none': ()}
+
+
+def _image_measurement_without_rowid(connection):
+    """Rebuild the ``fov`` table without a rowid, keeping its columns and rows.
+
+    SQLite refuses to add a column named ``rowid``, ``oid`` or ``_rowid_``
+    (in any case) to a table that has a rowid, and image rows carry
+    ``rowID``. ``fov`` is keyed by ``field_uid``; a table created before it
+    was WITHOUT ROWID is rebuilt in the caller's transaction, and legacy
+    rows without a ``field_uid`` keep their values under
+    ``legacy-rowid-<rowid>``.
+
+    :param connection: open connection holding the write transaction.
+    """
+    table = _IMAGE_MEASUREMENT_TABLE
+    created = connection.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)).fetchone()
+    if created is None or 'WITHOUT ROWID' in str(created[0]).upper():
+        return
+    columns = [(row[1], row[2]) for row in connection.execute(f'PRAGMA table_info({table})')]
+    others = ', '.join(f'"{name}" {kind}'.rstrip() for name, kind in columns if name != 'field_uid')
+    connection.execute(f'DROP TABLE IF EXISTS {table}_without_rowid')
+    connection.execute(f'CREATE TABLE {table}_without_rowid (field_uid TEXT PRIMARY KEY'
+                       + (', ' + others if others else '') + ') WITHOUT ROWID')
+    names = ', '.join(f'"{name}"' for name, _kind in columns)
+    values = ', '.join("COALESCE(field_uid, 'legacy-rowid-' || rowid)" if name == 'field_uid'
+                       else f'"{name}"' for name, _kind in columns)
+    connection.execute(f'INSERT INTO {table}_without_rowid ({names}) SELECT {values} FROM {table}')
+    connection.execute(f'DROP TABLE {table}')
+    connection.execute(f'ALTER TABLE {table}_without_rowid RENAME TO {table}')
+
+
+def _image_measurement_file(row):
+    """The image file a measurement row is keyed by, as ``image_annotations`` stores it.
+
+    The first source file of the field (``source_files``, pairs of channel
+    and path), relative to the row's ``source`` folder when it lies inside it.
+    """
+    from pathlib import Path
+    if row.get('file'):
+        return str(row['file'])
+    files = row.get('source_files') or '[]'
+    files = json.loads(files) if isinstance(files, str) else files
+    if not files:
+        return ''
+    path = Path(str(files[0][1])).expanduser().resolve()
+    root = Path(str(row.get('source') or path.parent)).expanduser().resolve()
+    return path.relative_to(root).as_posix() if path.is_relative_to(root) else str(path)
+
+
+def _image_measurement_value(value):
+    """A SQLite-storable form of one measurement value."""
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, (list, tuple, dict)):
+        return json.dumps(value, default=str)
+    return value
+
+
+def _image_measurement_identity(row):
+    """Fill the key columns of one image row: ``wellID``, ``file`` and ``field_uid``."""
+    import hashlib
+    row = {str(key): _image_measurement_value(value) for key, value in dict(row).items()}
+    row.setdefault('plateID', row.get('plate'))
+    row.setdefault('wellID', row.get('well'))
+    row['file'] = _image_measurement_file(row)
+    missing = [name for name in ('plateID', 'wellID', 'fieldID') if not row.get(name)]
+    if missing:
+        raise ValueError(f'Image measurement rows need {missing}')
+    if not row.get('field_uid'):
+        identity = [row.get(name, '') for name in _IMAGE_MEASUREMENT_KEYS + ('timeID', 'sliceID')]
+        identity += [row.get('time_index'), row.get('z_mode'), row.get('z_index')]
+        row['field_uid'] = hashlib.sha256(json.dumps(identity, default=str).encode()).hexdigest()
+    return row
+
+
+def _write_image_measurements(db_path, rows, *, cancelled=None):
+    """Save image-level rows to the ``fov`` table of ``measurements.db``.
+
+    One row per measured image, keyed by ``field_uid`` (the field, its
+    files and its time/Z selection) and indexed by ``plateID``, ``wellID``,
+    ``fieldID`` and ``file``, the keys of ``image_annotations``. Saving is
+    idempotent: a row that is already stored is updated in place, never
+    duplicated. Columns a run measures overwrite their stored values;
+    columns it does not measure keep theirs, so changing the measurement
+    selection adds columns without losing earlier ones, and
+    ``image_features`` lists every group the row holds. Everything happens
+    in one transaction, so a failure or ``cancelled`` leaves the table as it
+    was.
+
+    :param db_path: the measurements database; its folder is created.
+    :param rows: mappings from ``spacr.qt.widgets.qc_field_browser._overview_measurement``
+        or any rows with ``plateID``, ``well``/``wellID``, ``fieldID`` and
+        ``source_files``/``file``.
+    :param cancelled: optional ``threading.Event``; raises
+        ``concurrent.futures.CancelledError`` when set.
+    :returns: ``dict(path, inserted, updated, columns_added)``.
+    """
+    from concurrent.futures import CancelledError
+    from pathlib import Path
+    from .database_concurrency import connect, transaction
+    rows = [_image_measurement_identity(row) for row in rows]
+    path = Path(db_path).expanduser()
+    report = dict(path=str(path), inserted=0, updated=0, columns_added=[])
+    if not rows:
+        return report
+    table = _IMAGE_MEASUREMENT_TABLE
+
+    def check():
+        """Stop when the caller cancels."""
+        if cancelled is not None and cancelled.is_set():
+            raise CancelledError()
+
+    check()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    connection = connect(path, timeout=30)
+    try:
+        with transaction(connection, attempts=8, busy_timeout=30):
+            connection.execute(f'CREATE TABLE IF NOT EXISTS {table} '
+                               '(field_uid TEXT PRIMARY KEY) WITHOUT ROWID')
+            existing = [row[1] for row in connection.execute(f'PRAGMA table_info({table})')]
+            if 'field_uid' not in existing:
+                connection.execute(f'ALTER TABLE {table} ADD COLUMN field_uid TEXT')
+                existing.append('field_uid')
+            _image_measurement_without_rowid(connection)
+            known = {name.lower() for name in existing}
+            for row in rows:
+                for key, value in row.items():
+                    if key.lower() in known:
+                        continue
+                    kind = ('INTEGER' if isinstance(value, int) else
+                            'REAL' if isinstance(value, float) else 'TEXT')
+                    connection.execute(f'ALTER TABLE {table} ADD COLUMN "{key}" {kind}')
+                    known.add(key.lower())
+                    report['columns_added'].append(key)
+            connection.execute(f'CREATE UNIQUE INDEX IF NOT EXISTS {table}_field_uid ON {table}(field_uid)')
+            keys = ', '.join(f'"{name}"' for name in _IMAGE_MEASUREMENT_KEYS)
+            connection.execute(f'CREATE INDEX IF NOT EXISTS {table}_image_key ON {table} ({keys})')
+            for row in rows:
+                check()
+                stored = connection.execute(
+                    f'SELECT image_features FROM {table} WHERE field_uid = ?'
+                    if 'image_features' in known else f'SELECT 1 FROM {table} WHERE field_uid = ?',
+                    (row['field_uid'],)).fetchone()
+                if stored is None:
+                    names = ', '.join(f'"{key}"' for key in row)
+                    marks = ', '.join('?' for _ in row)
+                    connection.execute(f'INSERT INTO {table} ({names}) VALUES ({marks})', tuple(row.values()))
+                    report['inserted'] += 1
+                    continue
+                if 'image_features' in row:
+                    groups = [name for name in str(stored[0] or '').split(',') if name]
+                    groups += [name for name in str(row['image_features']).split(',') if name]
+                    order = {name: index for index, name in enumerate(_IMAGE_ALL_FEATURE_GROUPS)}
+                    row['image_features'] = ','.join(sorted(dict.fromkeys(groups),
+                                                            key=lambda name: order.get(name, len(order))))
+                updates = [key for key in row if key != 'field_uid']
+                assignments = ', '.join(f'"{key}" = ?' for key in updates)
+                connection.execute(f'UPDATE {table} SET {assignments} WHERE field_uid = ?',
+                                   tuple(row[key] for key in updates) + (row['field_uid'],))
+                report['updated'] += 1
+            check()
+    finally:
+        connection.close()
+    return report
+
+
+def _image_measurement_table(db_path, *, annotations=True, status_ok=True):
+    """The ready-to-compare image-level table: one row per image.
+
+    :func:`_image_measurement_frame` (measurements joined with the
+    ``image_annotations`` columns and the well ``condition``) with the
+    identity columns first, then the annotation columns, then every
+    measurement column, then provenance.
+
+    :returns: ``pandas.DataFrame``; empty when nothing is measured yet.
+    """
+    from .sp_stats import _image_measurement_columns
+    frame = _image_measurement_frame(db_path, annotations=annotations, status_ok=status_ok)
+    if frame.empty:
+        return frame
+    leading = [name for name in _IMAGE_MEASUREMENT_LEADING if name in frame.columns]
+    labels = [name for name in frame.attrs.get('annotation_columns', []) if name not in leading]
+    measured = [name for name in _image_measurement_columns(frame) if name not in leading + labels]
+    rest = [name for name in frame.columns if name not in set(leading + labels + measured)]
+    attrs = dict(frame.attrs)
+    frame = frame[leading + labels + measured + rest]
+    frame.attrs.update(attrs)
+    return frame
+
+
+def _image_measurement_export_formats(settings=None):
+    """The export formats ``overview_measure_export_format`` asks for.
+
+    :param settings: overview settings; ``None`` gives the default, CSV.
+    :returns: a tuple from ``('csv', 'xlsx')``, empty for ``'none'``.
+    :raises ValueError: for another value.
+    """
+    value = str((settings or {}).get('overview_measure_export_format') or 'csv').strip().lower()
+    if value not in _IMAGE_MEASUREMENT_EXPORT_FORMATS:
+        raise ValueError(f'overview_measure_export_format must be one of '
+                         f'{sorted(_IMAGE_MEASUREMENT_EXPORT_FORMATS)}, not {value!r}')
+    return _IMAGE_MEASUREMENT_EXPORT_FORMATS[value]
+
+
+def _export_image_measurements(db_path, *, formats=('csv',), folder=None, stem='image_measurements',
+                               status_ok=True):
+    """Write the image-level table beside ``measurements.db`` as CSV and/or Excel.
+
+    The export is :func:`_image_measurement_table`, so each row already
+    carries its annotations; it is rewritten whole each time, matching the
+    database.
+
+    :param db_path: the measurements database.
+    :param formats: any of ``'csv'`` and ``'xlsx'``.
+    :param folder: destination; defaults to the database's folder.
+    :param stem: file name without suffix.
+    :param status_ok: leave out rows whose measurement failed.
+    :returns: ``{format: written path}``; empty when nothing is measured.
+    """
+    from pathlib import Path
+    from . import tabular
+    unknown = sorted(set(formats) - {'csv', 'xlsx'})
+    if unknown:
+        raise ValueError(f'Unknown export formats: {unknown}')
+    frame = _image_measurement_table(db_path, status_ok=status_ok)
+    if frame.empty or not formats:
+        return {}
+    folder = Path(folder) if folder is not None else Path(db_path).expanduser().parent
+    return {kind: tabular.write_table(frame, folder / f'{stem}.{kind}', canonicalise=False)
+            for kind in formats}
+
+
+def _publish_image_measurements(db_path, rows, settings=None, *, cancelled=None):
+    """Save image-level rows and refresh their CSV/Excel export, in one call.
+
+    :func:`_write_image_measurements` followed by
+    :func:`_export_image_measurements` in the formats chosen by
+    ``overview_measure_export_format``.
+
+    :returns: the write report plus ``exports`` (``{format: path}``).
+    """
+    formats = _image_measurement_export_formats(settings)
+    report = _write_image_measurements(db_path, rows, cancelled=cancelled)
+    report['exports'] = _export_image_measurements(db_path, formats=formats) if report['inserted'] + report['updated'] else {}
+    return report
