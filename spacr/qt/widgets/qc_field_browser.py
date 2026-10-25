@@ -4977,6 +4977,7 @@ class _FieldOverview(QWidget):
             self._update_image_metadata()
             self.status.setText(tr("Comparison of {measurement}: figure {path}; tables {tables}.",
                                    measurement=column, path=saved, tables=tables["tests"]))
+        self._comparison_signature = None
         self.status.setText(tr("Comparing annotated groups…"))
         self._export_jobs.submit(run, shown)
 
@@ -5035,6 +5036,7 @@ class _FieldOverview(QWidget):
                 return
             self._compare_fields(chosen[:24], tr("Representative images: {classes}",
                                                  classes="; ".join(captions)))
+        self._comparison_signature = None
         self.status.setText(tr("Choosing representative images…"))
         self._export_jobs.submit(run, shown)
 
