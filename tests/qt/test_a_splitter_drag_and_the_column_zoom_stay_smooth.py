@@ -757,7 +757,17 @@ def _longest_turn(seconds):
 
 @pytest.fixture
 def hub(qapp):
-    """A watcher on the application event hub, so the hub exists."""
+    """A watcher on the application event hub, so the hub exists.
+
+    It records each object by its C++ pointer, never by the wrapper it was
+    handed. Some of these events arrive while a widget is still being built,
+    as a base-class wrapper; holding that wrapper keeps it in shiboken's
+    table, and the widget's own wrapper is never returned again --
+    ``findChildren`` hands back the plain QWidget instead (seen on an Apple
+    M2, where every replayed label then went unheard by identity).
+    """
+    from shiboken6 import getCppPointer
+
     from spacr.qt.gil_priority import (_stop_watching_application_events,
                                        _watch_application_events)
 
@@ -765,7 +775,7 @@ def hub(qapp):
 
     class _Watcher(QObject):
         def eventFilter(self, watched, event):           # noqa: N802
-            heard.append((watched, event.type()))
+            heard.append((getCppPointer(watched)[0], event.type()))
             return False
 
     watcher = _Watcher()
@@ -968,9 +978,13 @@ def test_set_scale_ends_where_the_old_restyle_did(qtbot, symbols, hub,
     heard = {(watched, kind) for watched, kind in hub}
     assert new[0] == old[0]
     assert new[1] == old[1], "set_scale's end state is not pixel-identical"
+    from shiboken6 import getCppPointer
+
+    family = {getCppPointer(root)[0]} | {getCppPointer(child)[0]
+                                         for child in root.findChildren(QWidget)}
     restyles = {(w, k) for w, k in heard
                 if k in (QEvent.StyleChange, QEvent.PaletteChange)
-                and (w is root or root.isAncestorOf(w))}
+                and w in family}
     assert restyles and restyles <= told
 
 
@@ -1048,9 +1062,13 @@ def test_the_hub_hears_after_the_sheet_what_it_did_not_hear_during_it(
         born.ensurePolished()
         during = list(hub)
     assert during == []
-    heard = {}
+    from shiboken6 import getCppPointer
+
+    by_pointer = {}
     for watched, kind in hub:
-        heard.setdefault(watched, set()).add(kind)
+        by_pointer.setdefault(watched, set()).add(kind)
+    heard = {w: by_pointer.get(getCppPointer(w)[0], set())
+             for w in (root, shown, hidden, moved, disabled, stranger, born)}
     restyle = {QEvent.StyleChange, QEvent.PaletteChange}
     assert all(restyle <= heard[w] for w in (root, shown, hidden, moved,
                                              disabled, stranger, born))
