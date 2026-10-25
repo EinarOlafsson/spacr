@@ -1,4 +1,5 @@
 """Install cancellation, download endings and explicit package consent."""
+import sys
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -56,7 +57,8 @@ def test_unknown_backend_cannot_open_an_installer(qtbot, monkeypatch):
 def test_cancelling_a_running_installer_stops_it_and_reports_once(qtbot):
     # A harmless real process, contained by the test runner's memory cgroup.
     job = install.PackageInstall("unused", command=[
-        "/bin/sh", "-c", "printf 'ready\\n'; exec sleep 30",
+        sys.executable, "-c",
+        "import time; print('ready', flush=True); time.sleep(30)",
     ])
     endings = []
     job.finished.connect(lambda *args: endings.append(args))

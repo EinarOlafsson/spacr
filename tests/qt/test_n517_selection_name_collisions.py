@@ -23,6 +23,12 @@ def test_every_distinct_image_keeps_its_bytes_order_and_original_link_names(
         path.parent.mkdir(parents=True, exist_ok=True)
         Image.new("L", (7, 9), 31 + index).save(path)
         originals[path] = path.read_bytes()
+    symbolic = not hard_links
+    if symbolic:
+        try:
+            os.symlink(paths[0], tmp_path / "symlink-probe")
+        except OSError:
+            symbolic = False
     actual_symlink = os.symlink
     attempts = []
     def link(source, target):
@@ -42,7 +48,7 @@ def test_every_distinct_image_keeps_its_bytes_order_and_original_link_names(
         assert path.read_bytes() == originals[path]
         assert target.read_bytes() == originals[path]
         assert target.parent == output
-        if hard_links:
+        if not symbolic:
             assert not target.is_symlink()
             assert os.path.samefile(path, target)
         else:

@@ -138,7 +138,10 @@ class _HomeBodyFit(QObject):
                 QEvent.Show, QEvent.Polish, QEvent.FontChange, QEvent.StyleChange,
                 QEvent.LayoutRequest) or
                 (widget in self._viewports and event.type() == QEvent.Resize)):
-            self._timer.start(0)
+            from shiboken6 import isValid
+
+            if isValid(self._outer_viewport):
+                self._timer.start(0)
         return False
 
     def _apply(self):
@@ -1744,7 +1747,10 @@ class _NewsTitleFit(QObject):
         if not getattr(self, "_busy", True) and ((watched is self._viewport and event.type() == QEvent.Resize)
                 or (watched is self._panel and event.type() in
                     (QEvent.Show, QEvent.FontChange, QEvent.StyleChange, QEvent.LayoutRequest))):
-            self._timer.start(0)
+            from shiboken6 import isValid
+
+            if isValid(self._viewport):
+                self._timer.start(0)
         return False
 
     def _fit(self):
