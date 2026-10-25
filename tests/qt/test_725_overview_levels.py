@@ -1,4 +1,6 @@
 """The 2026-10-24 overview layout: level containers, stacked wells, metadata toggles and load order."""
+from pathlib import Path
+
 import numpy as np
 import pytest
 import tifffile
@@ -264,7 +266,7 @@ def test_clicked_image_enlarges_right_with_its_metadata_toggle(source, qtbot):
     field = item.data(Qt.UserRole)
     assert dialog._image_metadata.isVisible()
     assert field.caption in dialog._image_metadata.text()
-    assert all(path.split("/")[-1] in dialog._image_metadata.text() for _channel, path in field.files)
+    assert all(Path(path).name in dialog._image_metadata.text() for _channel, path in field.files)
     assert dialog._image_metadata.parentWidget() is dialog.view.viewport()
     assert dialog._image_metadata.pos() == QPoint(8, 8)
     toggle.setChecked(False)
