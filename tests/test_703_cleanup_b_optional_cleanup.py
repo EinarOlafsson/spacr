@@ -144,6 +144,7 @@ def test_valid_relocation_manifest_marks_the_cache_external(home, tmp_path):
     assert news['path'] == str(tmp_path / 'news') and news['reason'] == 'unverified'
 
 
+@pytest.mark.posix_only
 def test_cache_root_replaced_during_inspection_is_unverified(home, monkeypatch):
     real_tree = ic._optional_cleanup_tree
 
@@ -156,6 +157,7 @@ def test_cache_root_replaced_during_inspection_is_unverified(home, monkeypatch):
     assert news['reason'] == 'unverified' and news['size_bytes'] is None and news['contents'] == ()
 
 
+@pytest.mark.posix_only
 def test_spacr_home_changed_during_inspection_is_unverified(home, monkeypatch):
     real_tree = ic._optional_cleanup_tree
 

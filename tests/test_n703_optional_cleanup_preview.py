@@ -154,6 +154,7 @@ def test_directory_swap_before_scan_never_follows_foreign_symlink(cache, tmp_pat
     assert (old / "releases.json").read_bytes() == body and folder.is_symlink()
 
 
+@pytest.mark.posix_only
 def test_sound_child_swap_before_open_is_refused(cache, tmp_path, monkeypatch):
     machine, news, body = cache
     sounds = news.parent / "sounds"

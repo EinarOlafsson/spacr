@@ -9728,12 +9728,7 @@ def _optional_cleanup_tree(descriptor, key):
     import re
     from types import MappingProxyType
 
-    patterns = {
-        "news": r"releases\.json",
-        "backgrounds": r"space-[A-Za-z0-9_-]+-[0-9]+x[0-9]+-s-?[0-9]+-v[0-9]+\.png",
-        "icons": r".+-[0-9a-f]{20}\.png",
-        "sounds": r"[A-Za-z0-9_-]+-[0-9a-f]{12}/(?:click-[0-3]|hover-[0-3]|run_finished|run_failed|bed)\.wav",
-    }
+    patterns = _OPTIONAL_CLEANUP_PATTERNS
     root_identity = _optional_cleanup_identity(os.fstat(descriptor))
     entries = [("", root_identity)]
     contents = []
@@ -9773,6 +9768,333 @@ def _optional_cleanup_tree(descriptor, key):
         raise ValueError("changed")
     contents.sort(key=lambda row: row["name"])
     return root_identity, tuple(sorted(entries)), tuple(contents), total
+
+
+_OPTIONAL_CLEANUP_PATTERNS = {
+    "news": r"releases\.json",
+    "backgrounds": r"space-[A-Za-z0-9_-]+-[0-9]+x[0-9]+-s-?[0-9]+-v[0-9]+\.png",
+    "icons": r".+-[0-9a-f]{20}\.png",
+    "sounds": r"[A-Za-z0-9_-]+-[0-9a-f]{12}/(?:click-[0-3]|hover-[0-3]|run_finished|run_failed|bed)\.wav",
+}
+
+
+class _OptionalCleanupWindowsApi:
+    """Open, identify and delete cache entries through native Windows handles.
+
+    Every handle is opened with ``FILE_FLAG_OPEN_REPARSE_POINT`` and
+    ``FILE_FLAG_BACKUP_SEMANTICS``, so a symbolic link, junction or other
+    reparse point is opened as itself and never followed. Tests replace this
+    layer through :func:`_optional_cleanup_windows_api`.
+    """
+
+    _READ_ATTRIBUTES = 0x80
+    _DELETE = 0x00010000
+    _SHARE_ALL = 0x7
+    _OPEN_EXISTING = 3
+    _FLAGS = 0x00200000 | 0x02000000
+    _EPOCH = 116444736000000000
+
+    def __init__(self):
+        """Bind the kernel32 functions with explicit argument types."""
+        import ctypes
+        from ctypes import wintypes
+
+        self._ctypes = ctypes
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.CreateFileW.restype = wintypes.HANDLE
+        kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+                                       wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+        kernel.GetFileInformationByHandle.restype = wintypes.BOOL
+        kernel.GetFileInformationByHandle.argtypes = [wintypes.HANDLE, wintypes.LPVOID]
+        kernel.GetFinalPathNameByHandleW.restype = wintypes.DWORD
+        kernel.GetFinalPathNameByHandleW.argtypes = [wintypes.HANDLE, wintypes.LPWSTR,
+                                                     wintypes.DWORD, wintypes.DWORD]
+        kernel.SetFileInformationByHandle.restype = wintypes.BOOL
+        kernel.SetFileInformationByHandle.argtypes = [wintypes.HANDLE, ctypes.c_int,
+                                                      wintypes.LPVOID, wintypes.DWORD]
+        kernel.CloseHandle.restype = wintypes.BOOL
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        self._kernel = kernel
+
+    def _error(self, path):
+        """The ``OSError`` for the thread's last Windows error."""
+        code = self._ctypes.get_last_error()
+        kind = FileNotFoundError if code in (2, 3) else OSError
+        return kind(errno.ENOENT if code in (2, 3) else errno.EACCES, self._ctypes.FormatError(code), path, code)
+
+    def open(self, path, *, delete=False):
+        """Open ``path`` itself for attributes, and for deletion when asked."""
+        access = self._READ_ATTRIBUTES | (self._DELETE if delete else 0)
+        handle = self._kernel.CreateFileW(_windows_native_path(path), access, self._SHARE_ALL, None,
+                                          self._OPEN_EXISTING, self._FLAGS, None)
+        if handle in (None, 0, self._ctypes.c_void_p(-1).value):
+            raise self._error(path)
+        return handle
+
+    def information(self, handle):
+        """``(attributes, volume_serial, file_id, size, write_ns, creation_ns)`` of an open handle."""
+        import struct
+
+        buffer = self._ctypes.create_string_buffer(52)
+        if not self._kernel.GetFileInformationByHandle(handle, buffer):
+            raise self._error("")
+        values = struct.unpack("<13I", buffer.raw)
+        created = (values[2] << 32 | values[1]) - self._EPOCH
+        written = (values[6] << 32 | values[5]) - self._EPOCH
+        return (values[0], values[7], values[11] << 32 | values[12], values[8] << 32 | values[9],
+                written * 100, created * 100)
+
+    def final_path(self, handle):
+        """The normalized drive-letter or UNC path the open handle refers to."""
+        buffer = self._ctypes.create_unicode_buffer(32768)
+        length = self._kernel.GetFinalPathNameByHandleW(handle, buffer, 32768, 0)
+        if not 0 < length < 32768:
+            raise self._error("")
+        value = buffer.value
+        if value.startswith("\\\\?\\UNC\\"):
+            return "\\\\" + value[8:]
+        return value[4:] if value.startswith("\\\\?\\") else value
+
+    def delete(self, handle):
+        """Mark the very file or empty folder behind ``handle`` for deletion on close."""
+        flag = self._ctypes.c_ubyte(1)
+        if not self._kernel.SetFileInformationByHandle(handle, 4, self._ctypes.byref(flag), 1):
+            raise self._error("")
+
+    def close(self, handle):
+        """Release a handle opened by :meth:`open`."""
+        self._kernel.CloseHandle(handle)
+
+
+def _optional_cleanup_windows_api():
+    """The native handle layer on Windows, or ``None`` where POSIX descriptors inspect caches."""
+    if os.name != "nt":
+        return None
+    try:
+        return _OptionalCleanupWindowsApi()
+    except (OSError, AttributeError):
+        return None
+
+
+def _optional_cleanup_windows_identity(api, handle):
+    """Describe an open entry like :func:`_optional_cleanup_identity`, refusing every reparse point."""
+    attributes, serial, index, size, written, created = api.information(handle)
+    if attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400):
+        raise ValueError("link")
+    if attributes & getattr(stat, "FILE_ATTRIBUTE_DIRECTORY", 0x10):
+        return (serial, index, stat.S_IFDIR | 0o700, 0, written, created)
+    return (serial, index, stat.S_IFREG | 0o600, size, written, created)
+
+
+def _optional_cleanup_windows_open(api, path, *, parent=None, delete=False):
+    """Open ``path`` without following it and prove where the handle actually is.
+
+    With ``parent`` the handle must be a direct child of that final path, which
+    accepts a short 8.3 spelling of a home component; otherwise its final path
+    must be ``path`` itself.
+
+    :returns: ``(handle, identity, final_path)``; the caller closes the handle.
+    """
+    handle = api.open(path, delete=delete)
+    try:
+        identity = _optional_cleanup_windows_identity(api, handle)
+        final = api.final_path(handle)
+        if parent is None:
+            placed = os.path.normcase(final) == os.path.normcase(path)
+        else:
+            placed = os.path.normcase(os.path.dirname(final)) == os.path.normcase(parent)
+        if not placed:
+            raise ValueError("moved")
+        return handle, identity, final
+    except BaseException:
+        api.close(handle)
+        raise
+
+
+def _optional_cleanup_windows_directory(api, path):
+    """Open each component of absolute ``path`` from its drive, refusing reparse points.
+
+    :returns: ``(handle, final_path, identity)`` of the last component.
+    """
+    drive, rest = os.path.splitdrive(os.path.abspath(path))
+    handle = api.open(drive + os.sep)
+    try:
+        identity = _optional_cleanup_windows_identity(api, handle)
+        final = api.final_path(handle)
+        for component in [part for part in rest.split(os.sep) if part]:
+            if not stat.S_ISDIR(identity[2]):
+                raise ValueError("layout")
+            child, identity, final = _optional_cleanup_windows_open(
+                api, os.path.join(final, component), parent=final)
+            api.close(handle)
+            handle = child
+        if not stat.S_ISDIR(identity[2]):
+            raise ValueError("layout")
+        return handle, final, identity
+    except BaseException:
+        api.close(handle)
+        raise
+
+
+def _optional_cleanup_windows_still(api, handle, identity, final):
+    """Refuse a held entry whose identity changed or that moved away from ``final``."""
+    if (_optional_cleanup_windows_identity(api, handle) != identity
+            or os.path.normcase(api.final_path(handle)) != os.path.normcase(final)):
+        raise ValueError("changed")
+
+
+def _optional_cleanup_windows_names(path, count):
+    """The names in folder ``path`` while the inventory stays within its 512-entry budget."""
+    with os.scandir(_windows_native_path(path)) as scan:
+        names = []
+        for entry in scan:
+            if count + len(names) >= 512:
+                raise ValueError("budget")
+            names.append(entry.name)
+    return sorted(names)
+
+
+def _optional_cleanup_windows_entry(api, path):
+    """Identify one entry at exactly ``path`` and release its handle."""
+    handle, identity, _final = _optional_cleanup_windows_open(api, path)
+    api.close(handle)
+    return identity
+
+
+def _optional_cleanup_windows_tree(api, handle, root, key):
+    """Inventory a held cache root like :func:`_optional_cleanup_tree`, through native handles."""
+    import re
+    from types import MappingProxyType
+
+    root_identity = _optional_cleanup_windows_identity(api, handle)
+    entries = [("", root_identity)]
+    contents = []
+    total = 0
+    for name in _optional_cleanup_windows_names(root, len(entries)):
+        if len(entries) >= 512:
+            raise ValueError("budget")
+        path = os.path.join(root, name)
+        child, item, _final = _optional_cleanup_windows_open(api, path)
+        try:
+            entries.append((name, item))
+            if stat.S_ISDIR(item[2]) and key == "sounds":
+                if not re.fullmatch(r"[A-Za-z0-9_-]+-[0-9a-f]{12}", name):
+                    raise ValueError("layout")
+                for leaf in _optional_cleanup_windows_names(path, len(entries)):
+                    if len(entries) >= 512:
+                        raise ValueError("budget")
+                    relative = name + "/" + leaf
+                    details = _optional_cleanup_windows_entry(api, os.path.join(path, leaf))
+                    entries.append((relative, details))
+                    if not stat.S_ISREG(details[2]) or not re.fullmatch(_OPTIONAL_CLEANUP_PATTERNS[key], relative):
+                        raise ValueError("layout")
+                    total += details[3]
+                    contents.append(MappingProxyType({"name": relative, "size_bytes": details[3]}))
+                _optional_cleanup_windows_still(api, child, item, path)
+            elif stat.S_ISREG(item[2]) and re.fullmatch(_OPTIONAL_CLEANUP_PATTERNS[key], name):
+                total += item[3]
+                contents.append(MappingProxyType({"name": name, "size_bytes": item[3]}))
+            else:
+                raise ValueError("layout")
+        finally:
+            api.close(child)
+    _optional_cleanup_windows_still(api, handle, root_identity, root)
+    contents.sort(key=lambda row: row["name"])
+    return root_identity, tuple(sorted(entries)), tuple(contents), total
+
+
+def _optional_cleanup_windows_inspect(api, home, key):
+    """Inventory registered cache ``key`` below the spaCR home through native handles.
+
+    :returns: ``(home_identity, entries, contents, total)`` as the POSIX inspection records them.
+    """
+    home_handle, home_final, home_identity = _optional_cleanup_windows_directory(api, home)
+    try:
+        root = os.path.join(home_final, key)
+        root_handle, root_identity, _final = _optional_cleanup_windows_open(api, root)
+        try:
+            if not stat.S_ISDIR(root_identity[2]):
+                raise ValueError("layout")
+            _identity, entries, contents, total = _optional_cleanup_windows_tree(api, root_handle, root, key)
+            _optional_cleanup_windows_still(api, root_handle, root_identity, root)
+        finally:
+            api.close(root_handle)
+        _optional_cleanup_windows_still(api, home_handle, home_identity, home_final)
+    finally:
+        api.close(home_handle)
+    return home_identity, entries, contents, total
+
+
+def _optional_cleanup_windows_delete(api, path, expected):
+    """Delete the entry at ``path`` only while the handle opened for it is still the inspected one."""
+    handle, identity, _final = _optional_cleanup_windows_open(api, path, delete=True)
+    try:
+        if identity[:len(expected)] != tuple(expected):
+            raise ValueError("changed")
+        api.delete(handle)
+    finally:
+        api.close(handle)
+
+
+def _optional_cleanup_windows_remove(api, key, root, root_handle, expected, path):
+    """Delete each unchanged known entry of one held cache root; the folder itself stays.
+
+    A replaced, changed or reparse entry is kept and the root is reported as retained.
+    """
+    removed = 0
+    try:
+        if _optional_cleanup_windows_identity(api, root_handle)[:3] != dict(expected)[""][:3]:
+            raise ValueError("changed")
+        if os.path.normcase(api.final_path(root_handle)) != os.path.normcase(root):
+            raise ValueError("changed")
+        for relative, details in expected:
+            if relative and stat.S_ISREG(details[2]):
+                _optional_cleanup_windows_delete(api, os.path.join(root, *relative.split("/")), details)
+                removed += 1
+        for relative, details in reversed(expected):
+            if relative and stat.S_ISDIR(details[2]):
+                _optional_cleanup_windows_delete(api, os.path.join(root, relative), details[:3])
+        return {"key": key, "ok": True, "removed": removed}
+    except (OSError, ValueError):
+        return {"key": key, "ok": False, "reason": "retained",
+                "removed": removed, "retained_path": path}
+
+
+def _optional_cleanup_windows_apply(api, operation_id, keys, paths, snapshots):
+    """Re-inventory and empty the selected caches through re-verified native handles.
+
+    :returns: The outcome :func:`apply_optional_cleanup` reports.
+    """
+    home_handle, home_final, _home = _optional_cleanup_windows_directory(api, os.path.dirname(paths[keys[0]]))
+    held = []
+    try:
+        for key in keys:
+            root = os.path.join(home_final, key)
+            handle, _identity, _final = _optional_cleanup_windows_open(api, root)
+            held.append((key, root, handle))
+            _identity, entries, _contents, _size = _optional_cleanup_windows_tree(api, handle, root, key)
+            if entries != snapshots[key]:
+                return {"ok": False, "reason": "preview_changed"}
+        if not _optional_cleanup_claim(operation_id):
+            return {"ok": False, "reason": "operation_used"}
+        outcomes = [_optional_cleanup_windows_remove(api, key, root, handle, snapshots[key], paths[key])
+                    for key, root, handle in held]
+        return {"ok": all(outcome["ok"] for outcome in outcomes),
+                "removed": sum(outcome["removed"] for outcome in outcomes),
+                "folders": outcomes}
+    finally:
+        for _key, _root, handle in held:
+            api.close(handle)
+        api.close(home_handle)
+
+
+def _optional_cleanup_claim(operation_id):
+    """Consume an action identity once in this process; ``False`` when it was already used."""
+    with _OPTIONAL_CLEANUP_ACTION_LOCK:
+        if operation_id in _OPTIONAL_CLEANUP_ACTIONS:
+            return False
+        _OPTIONAL_CLEANUP_ACTIONS.add(operation_id)
+        return True
 
 
 def preview_optional_cleanup(operation_id, *, system=None, guard=None):
@@ -9823,9 +10145,10 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
         return os.path.abspath(value)
 
     cache_home = normalized(cache_home)
+    windows = _optional_cleanup_windows_api()
     locations = {}
     try:
-        if hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW"):
+        if windows is None and hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW"):
             home_fd = _optional_cleanup_directory(cache_home)
             try:
                 descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
@@ -9857,21 +10180,26 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
         try:
             if configured_home or override or not os.path.isabs(default_home):
                 raise ValueError("external")
-            home_fd = _optional_cleanup_directory(default_home)
-            try:
-                home_identity = _optional_cleanup_identity(os.fstat(home_fd))
-                root_fd = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+            if windows is not None:
+                home_identity, entries, contents_tuple, total = _optional_cleanup_windows_inspect(
+                    windows, default_home, key)
+                contents = list(contents_tuple)
+            else:
+                home_fd = _optional_cleanup_directory(default_home)
                 try:
-                    root_identity, entries, contents_tuple, total = _optional_cleanup_tree(root_fd, key)
-                    if _optional_cleanup_identity(os.stat(key, dir_fd=home_fd, follow_symlinks=False)) != root_identity:
+                    home_identity = _optional_cleanup_identity(os.fstat(home_fd))
+                    root_fd = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+                    try:
+                        root_identity, entries, contents_tuple, total = _optional_cleanup_tree(root_fd, key)
+                        if _optional_cleanup_identity(os.stat(key, dir_fd=home_fd, follow_symlinks=False)) != root_identity:
+                            raise ValueError("changed")
+                        contents = list(contents_tuple)
+                    finally:
+                        os.close(root_fd)
+                    if _optional_cleanup_identity(os.fstat(home_fd)) != home_identity:
                         raise ValueError("changed")
-                    contents = list(contents_tuple)
                 finally:
-                    os.close(root_fd)
-                if _optional_cleanup_identity(os.fstat(home_fd)) != home_identity:
-                    raise ValueError("changed")
-            finally:
-                os.close(home_fd)
+                    os.close(home_fd)
             identities.append((key, home_identity, entries))
             size, selectable, reason = total, False, "coordinator_unavailable"
         except FileNotFoundError:
@@ -10072,6 +10400,9 @@ def apply_optional_cleanup(preview, choices, *, system=None, guard=None):
                 return {"ok": False, "reason": "preview_changed"}
             paths = current_paths
             snapshots = {key: entries for key, (_home, entries) in snapshots.items()}
+            windows = _optional_cleanup_windows_api()
+            if windows is not None:
+                return _optional_cleanup_windows_apply(windows, preview["operation_id"], keys, paths, snapshots)
             home_fd = _optional_cleanup_directory(os.path.dirname(paths[keys[0]]))
             for key in keys:
                 descriptor = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
@@ -10079,10 +10410,8 @@ def apply_optional_cleanup(preview, choices, *, system=None, guard=None):
                 _identity, entries, _contents, _size = _optional_cleanup_tree(descriptor, key)
                 if entries != snapshots[key]:
                     return {"ok": False, "reason": "preview_changed"}
-            with _OPTIONAL_CLEANUP_ACTION_LOCK:
-                if preview["operation_id"] in _OPTIONAL_CLEANUP_ACTIONS:
-                    return {"ok": False, "reason": "operation_used"}
-                _OPTIONAL_CLEANUP_ACTIONS.add(preview["operation_id"])
+            if not _optional_cleanup_claim(preview["operation_id"]):
+                return {"ok": False, "reason": "operation_used"}
             outcomes = [_optional_cleanup_remove(key, home_fd, descriptor, snapshots[key], paths[key])
                         for key, descriptor in descriptors]
             return {"ok": all(outcome["ok"] for outcome in outcomes),
