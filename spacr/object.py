@@ -4,6 +4,7 @@ import os, torch, time
 
 from . import _gc as gc
 from .mask_io import _as_uint16_mask
+from .measure import _fill_holes_smaller_than, _remove_objects_smaller_than
 
 from . import accelerator
 import numpy as np
@@ -27,8 +28,7 @@ from scipy.ndimage import distance_transform_edt
 from skimage.filters import (threshold_otsu,threshold_local,frangi,sato,meijering,gaussian,difference_of_gaussians,apply_hysteresis_threshold)
 from skimage.feature import blob_log, blob_dog, peak_local_max
 from skimage.morphology import (
-    closing, dilation, disk, opening, remove_small_holes,
-    remove_small_objects, skeletonize, white_tophat,
+    closing, dilation, disk, opening, skeletonize, white_tophat,
 )
 from skimage.exposure import equalize_adapthist
 from skimage.restoration import rolling_ball
@@ -332,31 +332,6 @@ def _prefixed_model_route(model_name, settings=None):
         if backend == name:
             return name, masks
     return None
-
-
-def _remove_objects_smaller_than(binary, min_size):
-    """Remove components with area strictly below ``min_size``.
-
-    scikit-image 0.26 renamed ``min_size`` to ``max_size`` and changed the
-    boundary from ``<`` to ``<=``. Passing ``min_size - 1`` preserves spaCR's
-    historical threshold exactly. The fallback keeps compatibility with the
-    declared 0.22-0.25 range.
-    """
-    threshold = max(0, int(min_size) - 1)
-    try:
-        return remove_small_objects(binary, max_size=threshold)
-    except TypeError:
-        return remove_small_objects(binary, min_size=int(min_size))
-
-
-def _fill_holes_smaller_than(binary, area_threshold):
-    """Fill holes with area strictly below ``area_threshold``."""
-    threshold = max(0, int(area_threshold) - 1)
-    try:
-        return remove_small_holes(binary, max_size=threshold)
-    except TypeError:
-        return remove_small_holes(
-            binary, area_threshold=int(area_threshold))
 
 
 def _mask_at_field_size(mask, field_shape, object_type=""):

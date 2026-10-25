@@ -3719,6 +3719,42 @@ def _texture_ratio(x, window):
     return float(np.median(_local_sd(x, window))) / max(noise, 1e-9)
 
 
+def _remove_objects_smaller_than(binary, min_size):
+    """Remove components with area strictly below ``min_size``.
+
+    scikit-image 0.26 renamed ``min_size`` to ``max_size`` and moved the
+    boundary from ``<`` to ``<=``. Every spaCR caller means "strictly smaller
+    than", so ``min_size - 1`` is passed to the new keyword; the fallback
+    keeps the declared 0.22-0.25 range. They live here, in the most frequent
+    caller, because this module imports no torch, so plaque, OPS and the
+    measurement workers can reach them without the segmentation stack.
+
+    :param binary: boolean or label image.
+    :param min_size: smallest area kept, in pixels.
+    :returns: the filtered image.
+    """
+    threshold = max(0, int(min_size) - 1)
+    try:
+        return morphology.remove_small_objects(binary, max_size=threshold)
+    except TypeError:
+        return morphology.remove_small_objects(binary, min_size=int(min_size))
+
+
+def _fill_holes_smaller_than(binary, area_threshold):
+    """Fill holes with area strictly below ``area_threshold``.
+
+    :param binary: boolean image.
+    :param area_threshold: smallest hole left open, in pixels.
+    :returns: the filled image.
+    """
+    threshold = max(0, int(area_threshold) - 1)
+    try:
+        return morphology.remove_small_holes(binary, max_size=threshold)
+    except TypeError:
+        return morphology.remove_small_holes(
+            binary, area_threshold=int(area_threshold))
+
+
 def _clean_coverage(covered, radius):
     """Smooth a coverage mask: open, close, and drop specks and pinholes.
 
@@ -3737,8 +3773,8 @@ def _clean_coverage(covered, radius):
     work = binary_opening(work, structure=disk)
     work = binary_closing(work, structure=disk)
     smallest = int(np.pi * (2 * radius) ** 2)
-    work = morphology.remove_small_holes(work, smallest)
-    work = morphology.remove_small_objects(work, smallest)
+    work = _fill_holes_smaller_than(work, smallest)
+    work = _remove_objects_smaller_than(work, smallest)
     return work[pad:-pad, pad:-pad]
 
 
@@ -14411,7 +14447,7 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
             stats['confluency_downsample'] = step
         if 'objects' in groups:
             if not masks:
-                objects = morphology.remove_small_objects(above, min_size=max(1, int(min_object_area)))
+                objects = _remove_objects_smaller_than(above, max(1, int(min_object_area)))
                 stats.update(_image_objects(_label(objects, connectivity=2), values, prefix='objects'))
             else:
                 for role, labels in masks.items():

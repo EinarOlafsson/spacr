@@ -1366,6 +1366,8 @@ def _colony_candidates(signal: np.ndarray, dish: np.ndarray, radius: float,
     """
     from skimage import morphology
 
+    from .measure import _fill_holes_smaller_than, _remove_objects_smaller_than
+
     values = signal[dish]
     if values.size == 0:
         return np.zeros_like(dish), 0.0, 1.0
@@ -1374,8 +1376,8 @@ def _colony_candidates(signal: np.ndarray, dish: np.ndarray, radius: float,
     cut = float(np.median(values)) + float(threshold) * noise
     mask = (signal > cut) & dish
     mask = morphology.binary_opening(mask, morphology.disk(1))
-    mask = morphology.remove_small_holes(mask, max(16, int((0.06 * radius) ** 2)))
-    mask = morphology.remove_small_objects(mask, max(1, int(min_area)))
+    mask = _fill_holes_smaller_than(mask, max(16, int((0.06 * radius) ** 2)))
+    mask = _remove_objects_smaller_than(mask, max(1, int(min_area)))
     return mask, cut, noise
 
 

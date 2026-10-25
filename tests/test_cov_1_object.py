@@ -22,6 +22,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import spacr.object as O
+from spacr import measure as _measure
 
 # The Cellpose doubles are shared with the other object coverage suites so the
 # call contract they assert against cannot drift apart from this one.
@@ -128,7 +129,7 @@ def test_the_old_skimage_call_keeps_the_same_size_boundary(monkeypatch):
         seen["min_size"] = min_size
         return _old_remove_small_objects(ar, min_size, connectivity, out=out)
 
-    monkeypatch.setattr(O, "remove_small_objects", _recording)
+    monkeypatch.setattr(_measure.morphology, "remove_small_objects", _recording)
 
     mask = np.zeros((8, 8), dtype=bool)
     mask[1:3, 1:3] = True       # area 4
@@ -148,7 +149,7 @@ def test_the_old_skimage_hole_call_keeps_the_same_area_boundary(monkeypatch):
         seen["area_threshold"] = area_threshold
         return _old_remove_small_holes(ar, area_threshold, connectivity, out=out)
 
-    monkeypatch.setattr(O, "remove_small_holes", _recording)
+    monkeypatch.setattr(_measure.morphology, "remove_small_holes", _recording)
 
     mask = np.ones((10, 10), dtype=bool)
     mask[2:4, 2:4] = False      # area 4

@@ -4584,14 +4584,14 @@ def _vs_segment(plane, *, sigma: float = 2.0, min_size: int = 300,
     from scipy import ndimage as ndi
     from skimage.feature import peak_local_max
     from skimage.filters import gaussian, threshold_otsu
-    from skimage.morphology import remove_small_objects
     from skimage.segmentation import watershed
+    from .measure import _remove_objects_smaller_than
 
     smooth = gaussian(np.asarray(plane, dtype=np.float32), sigma=sigma)
     if float(smooth.max() - smooth.min()) <= 1e-6:
         return np.zeros(smooth.shape, dtype=np.int32)
     mask = smooth > threshold_otsu(smooth)
-    mask = remove_small_objects(mask, min_size=min_size)
+    mask = _remove_objects_smaller_than(mask, min_size)
     distance = ndi.distance_transform_edt(mask)
     peaks = peak_local_max(distance, min_distance=min_distance,
                            labels=ndi.label(mask)[0], exclude_border=False)

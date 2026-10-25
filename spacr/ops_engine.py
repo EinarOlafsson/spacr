@@ -3693,10 +3693,12 @@ def _st_threshold_nuclei(image: np.ndarray, threshold: float,
     from scipy import ndimage
     from skimage import feature, filters, measure, morphology, segmentation
 
+    from .measure import _remove_objects_smaller_than
+
     foreground = filters.median(np.asarray(image, dtype=np.float32) > threshold,
                                 morphology.disk(1)).astype(bool)
     smallest = max(4, int(0.1 * np.pi * (diameter / 2.0) ** 2))
-    foreground = morphology.remove_small_objects(foreground, smallest)
+    foreground = _remove_objects_smaller_than(foreground, smallest)
     if not foreground.any():
         return np.zeros(image.shape, dtype=np.int32)
     distance = ndimage.distance_transform_edt(foreground)
