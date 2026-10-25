@@ -986,7 +986,7 @@ def _worker_import_bytes(module: str, start_method: Optional[str] = None,
     A forked worker shares its parent's imports, so it costs nothing here. A
     spawned or forkserver worker starts a new interpreter and imports the
     module of the function it runs. The sizes are the resident memory of a
-    spawned Linux worker after those imports, measured on 2026-10-25:
+    spawned Linux worker after those imports, as measured:
     24 MiB for the tar dataset worker and 66 MiB for the Cellpose dataset
     worker (NumPy, tifffile and OpenCV). Windows commits more than it keeps
     resident for the same DLLs and macOS somewhat more, hence the platform
