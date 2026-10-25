@@ -11820,12 +11820,18 @@ class SettingsWidgets:
         and the menu is greyed when it has finished. Until then every entry
         stays enabled, as when the rules cannot be imported at all.
 
+        The worker is started by the first tick of the poll, not here. It
+        holds the heavy-import lock for the whole torch import, and started
+        while the page was still being built it held it when the screen
+        asked for its ambient backdrop: the Activation screen opened with no
+        backdrop until torch had loaded.
+
         :param combo: the ``cam_type`` menu; the poll is parented to it.
         """
-        thread = _import_attribution_off_the_gui_thread()
-        if thread is None:
-            if _ATTRIBUTION_MODULE in sys.modules:
-                self._refresh_attribution_method_enablement()
+        if _ATTRIBUTION_MODULE in sys.modules:
+            self._refresh_attribution_method_enablement()
+            return
+        if _ATTRIBUTION_IMPORT and not _ATTRIBUTION_IMPORT[0].is_alive():
             return
         timer = getattr(self, "_attribution_import_poll", None)
         if timer is None:
@@ -11836,7 +11842,10 @@ class SettingsWidgets:
         timer.start()
 
     def _after_the_attribution_import(self) -> None:
-        """Stop polling and grey the menu once the worker has finished."""
+        """Start the worker on the first tick, then grey the menu once it is done."""
+        if not _ATTRIBUTION_IMPORT and _ATTRIBUTION_MODULE not in sys.modules:
+            if _import_attribution_off_the_gui_thread() is not None:
+                return
         thread = _ATTRIBUTION_IMPORT[0] if _ATTRIBUTION_IMPORT else None
         if thread is not None and thread.is_alive():
             return
