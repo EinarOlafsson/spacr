@@ -386,6 +386,33 @@ def native(keys: str) -> str:
         return str(keys)
 
 
+def _native_prose(text: str) -> str:
+    """``text`` with each ``Ctrl+…`` it names spelled for this keyboard.
+
+    Tooltips put keys into sentences -- "Add and select a cell
+    (Ctrl+Shift+N)." -- and on macOS Qt binds Ctrl to the Command key, so
+    the sentence named a key that does nothing there. Applied after
+    translation; elsewhere the text is returned unchanged. A gesture Qt
+    cannot parse as a sequence ("Ctrl+L+right-click") keeps its keys and
+    gets the platform's modifier.
+
+    :param text: translated text that may name ``Ctrl+`` sequences.
+    """
+    if sys.platform != "darwin" or "Ctrl+" not in text:
+        return text
+    import re
+
+    command = native("Ctrl+A")[:-1] or "Ctrl+"
+
+    def spell(match) -> str:
+        """One named sequence in its native spelling."""
+        keys = match.group(0)
+        printed = native(keys)
+        return printed if printed != keys else command + keys[len("Ctrl+"):]
+
+    return re.sub(r"Ctrl\+[^\s(),.;:]+", spell, text)
+
+
 def discover(window) -> List[ShortcutSpec]:
     """Find additional child shortcut and action sequences for the map.
 

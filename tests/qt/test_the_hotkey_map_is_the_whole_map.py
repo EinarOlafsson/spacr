@@ -107,7 +107,7 @@ class TestTheMapIsTheWholeMap:
         bound, and a scan for string literals misses it entirely."""
         bound = _bound_keys()
 
-        assert "Ctrl+S" in bound, "the string form was not found"
+        assert _printed("Ctrl+S") in bound, "the string form was not found"
         assert any(k in bound for k in ("Left", "←")), \
             "the Qt.Key_ form was not found"
 

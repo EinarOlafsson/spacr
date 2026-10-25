@@ -7359,7 +7359,9 @@ class _LiveMagnifier(QObject):
             return
         self.locked = locked
         self.locked_changed.emit(locked)
-        self.status.emit(tr("Magnifier locked: Ctrl+L+right-click to unlock.")
+        from ..shortcuts import _native_prose
+
+        self.status.emit(_native_prose(tr("Magnifier locked: Ctrl+L+right-click to unlock."))
                          if locked else tr("Magnifier unlocked."))
         self.canvas.update()
 
@@ -16354,7 +16356,9 @@ class MakeMasksScreen(QWidget):
         less = QToolButton(tracking)
         less.setText("−")
         less.setObjectName("MakeMasksLabelDecrease")
-        less.setToolTip(tr("Decrease selected label (Ctrl+[)"))
+        from ..shortcuts import _native_prose
+
+        less.setToolTip(_native_prose(tr("Decrease selected label (Ctrl+[)")))
         less.clicked.connect(lambda: self._step_selected_label(-1))
         tracking_layout.addWidget(less)
         button = _SplitMenuButton(tr("Edit Label / Time"), tracking)
@@ -16368,7 +16372,7 @@ class MakeMasksScreen(QWidget):
         more = QToolButton(tracking)
         more.setText("+")
         more.setObjectName("MakeMasksLabelIncrease")
-        more.setToolTip(tr("Increase selected label (Ctrl+])"))
+        more.setToolTip(_native_prose(tr("Increase selected label (Ctrl+])")))
         more.clicked.connect(lambda: self._step_selected_label(1))
         tracking_layout.addWidget(more)
         self._btn_label_time = QPushButton(tr("Time"), group)
@@ -16514,12 +16518,14 @@ class MakeMasksScreen(QWidget):
         actions = QHBoxLayout()
         add = QPushButton(tr("+ Cell"), controls)
         add.setObjectName("MakeMasksAddCell")
-        add.setToolTip(tr("Add and select a cell (Ctrl+Shift+N)."))
+        from ..shortcuts import _native_prose
+
+        add.setToolTip(_native_prose(tr("Add and select a cell (Ctrl+Shift+N).")))
         add.clicked.connect(self._add_lineage_cell)
         actions.addWidget(add)
         daughters = QPushButton(tr("+ Daughter cells"), controls)
         daughters.setObjectName("MakeMasksAddDaughters")
-        daughters.setToolTip(tr("Record a division of the selected cell (Ctrl+Shift+D)."))
+        daughters.setToolTip(_native_prose(tr("Record a division of the selected cell (Ctrl+Shift+D).")))
         daughters.clicked.connect(self._divide_lineage_cell)
         actions.addWidget(daughters)
         layout.addLayout(actions)

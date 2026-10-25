@@ -169,8 +169,12 @@ def test_every_hint_is_on_the_screen_with_its_keys_and_its_sentence(
     shown = {label.text() for label in
              screen._shortcut_panel.findChildren(QLabel)}
     assert any("Shortcut" in text for text in shown)  # the fold arrow leads the title (707)
+    from spacr.qt.shortcuts import native
+
     for keys, does in mm.SHORTCUT_HINTS:
-        assert keys in shown, f"no row for {keys!r}"
+        # The panel prints keys for this keyboard: Ctrl is the Command key
+        # on macOS, so Ctrl+Shift+N reads ⇧⌘N there.
+        assert keys in shown or native(keys) in shown, f"no row for {keys!r}"
         assert does in shown, f"{keys!r} has no sentence"
         key_label, does_label = screen._shortcut_rows[keys]
         assert key_label.isVisible() and does_label.isVisible()
