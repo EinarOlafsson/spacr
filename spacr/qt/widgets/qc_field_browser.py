@@ -8352,6 +8352,15 @@ def _overview_row_label(caption, tooltip):
     return label
 
 
+def _overview_row_key(caption):
+    """The help key of a mounted Overview row, such as ``overview_plate`` for "Plate".
+
+    :param caption: the row's English name.
+    :returns: the key its popup help is filed under.
+    """
+    return "overview_" + "_".join(caption.lower().split())
+
+
 def _overview_row_field(widgets):
     """Put one or more controls side by side as a row's field.
 
@@ -8597,7 +8606,14 @@ class _OverviewModulePage(QWidget):
         self._sync_back()
 
     def _mount_rows(self, browser):
-        """Lay the browser's navigation and action controls out as setting rows."""
+        """Lay the browser's navigation and action controls out as setting rows.
+
+        Each row's help is the module's standard popup -- name, wrapped
+        description and API link -- the same as every setting row's.
+        """
+        from ..screens.settings_model import install_api_tooltips
+
+        keys = {}
         for title, rows in _overview_module_rows(browser).items():
             section = _overview_section(self._screen, title)
             if section is None:
@@ -8605,11 +8621,15 @@ class _OverviewModulePage(QWidget):
             for caption, tooltip, widgets in rows:
                 label = _overview_row_label(caption, tooltip)
                 field = _overview_row_field(widgets)
-                field.setToolTip(tr(tooltip))
+                key = _overview_row_key(caption)
+                field.setProperty("settingKey", key)
+                field.setProperty("apiTooltipDescriptionSource", tooltip)
                 section.add_prose_row(label, field)
+                keys[field] = key
                 self._rows.append((section, field, tuple(widgets)))
                 for widget in widgets:
                     widget.destroyed.connect(browser._mounted_control_lost)
+        install_api_tooltips(self._screen, "overview", keys)
         section = _overview_section(self._screen, "Export")
         if section is not None:
             from ..widgets.section import Section
