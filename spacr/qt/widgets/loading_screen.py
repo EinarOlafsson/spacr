@@ -738,6 +738,9 @@ class LoadingScreen(QWidget):
         on the light splash where the phrases kept hundreds. Stroked at the
         bold face's stem width, the arrow reads the same in every font and
         on every platform, inside the advance ``"  →  "`` still reserves.
+        The stem is a whole number of pixels and the shaft sits on the pixel
+        grid, so it is drawn in full ink rather than spread over two
+        half-tone rows at a small font scale.
 
         :param painter: the painter, with the strap font set.
         :param tx: left edge of the arrow's advance.
@@ -747,12 +750,15 @@ class LoadingScreen(QWidget):
         """
         metrics = painter.fontMetrics()
         size = float(painter.font().pixelSize() or metrics.height())
-        length = max(4.0, metrics.horizontalAdvance("→") * 0.8)
-        stem = max(1.25, size * 0.11)
+        length = float(max(5, round(metrics.horizontalAdvance("→") * 0.8)))
+        stem = float(max(2, round(size * 0.13)))
         head = length * 0.38
         centre_x = tx + advance / 2.0
-        centre_y = baseline - metrics.xHeight() / 2.0
-        left, right = centre_x - length / 2.0, centre_x + length / 2.0
+        centre_y = round(baseline - metrics.xHeight() / 2.0)
+        if int(stem) % 2:
+            centre_y += 0.5
+        left = round(centre_x - length / 2.0)
+        right = left + length
         path = QPainterPath(QPointF(left, centre_y))
         path.lineTo(QPointF(right, centre_y))
         path.moveTo(QPointF(right - head, centre_y - head * 0.8))
