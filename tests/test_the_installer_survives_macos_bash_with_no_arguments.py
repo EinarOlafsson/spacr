@@ -81,3 +81,29 @@ def test_a_translated_terminal_with_no_arguments_reaches_the_plan():
     assert "unbound variable" not in result.stderr, result.stderr
     assert result.returncode == 0, result.stderr
     assert "DRY RUN" in result.stdout
+
+
+def _libomp_step() -> str:
+    source = SCRIPT.read_text(encoding="utf-8")
+    after = source.split("<<'SPACR_LIBOMP'", 1)[1]
+    return after.split("\n", 1)[1].split("\nSPACR_LIBOMP\n", 1)[0]
+
+
+def test_the_libomp_link_is_made_only_on_macos_and_never_fails_the_install():
+    """XGBoost's macOS wheel needs a libomp it only finds beside the interpreter."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    lines = source.splitlines()
+    at = next(i for i, line in enumerate(lines) if "<<'SPACR_LIBOMP'" in line)
+    assert lines[at - 1].strip() == 'if [[ "$PLATFORM" == "macos" ]]; then'
+    assert lines[at].rstrip().endswith("|| true")
+
+
+def test_the_libomp_link_writes_nothing_outside_its_own_install(tmp_path):
+    """Run by a Python that is not the installer's, the step must do nothing."""
+    lib = Path(sys.base_prefix) / "lib" / "libomp.dylib"
+    existed = os.path.lexists(lib)
+    result = subprocess.run([sys.executable, "-I", "-", str(tmp_path)], input=_libomp_step(),
+                            capture_output=True, text=True, timeout=60)
+    assert result.returncode == 0, result.stderr
+    assert os.path.lexists(lib) is existed
+    assert list(tmp_path.iterdir()) == []

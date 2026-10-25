@@ -1047,6 +1047,25 @@ metadata_touched=1
 mv "$work_dir/runtime-identity.new.json" "$INSTALL_ROOT/runtime-identity.json"
 mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
 
+# XGBoost's and LightGBM's macOS wheels load @rpath/libomp.dylib and look for
+# it only in Homebrew's prefix and beside the interpreter, so without
+# `brew install libomp` every XGBoost model failed to load. torch ships a
+# recent libomp; a relative link beside the private interpreter lets them load
+# that same runtime. It survives an update that swaps venv/ and never replaces
+# a libomp.dylib already there.
+if [[ "$PLATFORM" == "macos" ]]; then
+    "$VENV_DIR/bin/python" -I - "$INSTALL_ROOT" <<'SPACR_LIBOMP' || true
+import os, sys, sysconfig
+lib = os.path.join(sys.base_prefix, "lib")
+root = os.path.realpath(sys.argv[1])
+source = os.path.join(sysconfig.get_paths()["purelib"], "torch", "lib", "libomp.dylib")
+target = os.path.join(lib, "libomp.dylib")
+if (os.path.realpath(lib).startswith(root + os.sep) and os.path.isfile(source)
+        and not os.path.lexists(target)):
+    os.symlink(os.path.relpath(source, lib), target)
+SPACR_LIBOMP
+fi
+
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     # Cellpose looks for its weights here before it would download them.
     # Weights already present are left as they are.
