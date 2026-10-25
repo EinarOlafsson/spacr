@@ -54,9 +54,14 @@ def news(qtbot):
 
 @pytest.fixture
 def cache(tmp_path, monkeypatch):
-    """Point the news cache at a throwaway directory."""
+    """Point the news cache at a throwaway directory.
+
+    These tests fake the release feed, so they lift the suite-wide
+    ``SPACR_NO_NETWORK`` the way conftest asks a feature's own tests to.
+    """
     from spacr import updater
 
+    monkeypatch.delenv("SPACR_NO_NETWORK", raising=False)
     monkeypatch.setenv(updater.ENV_NEWS_CACHE, str(tmp_path / "news"))
     return updater.news_cache_path()
 
