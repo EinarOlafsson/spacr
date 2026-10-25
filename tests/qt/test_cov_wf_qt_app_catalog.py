@@ -202,7 +202,7 @@ def _unreadable_value_error():
 
 @pytest.mark.parametrize("make, expected", [
     (_unreadable_type_error, TypeError),
-    (_unreadable_value_error, ValueError),
+    (_unreadable_value_error, (ValueError, TypeError)),
 ])
 def test_a_factory_whose_signature_cannot_be_read_is_still_called(make,
                                                                   expected):

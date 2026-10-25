@@ -135,16 +135,20 @@ class TestThePagesOwnFill:
         """Theme lookup failures remain harmless during paint and teardown."""
         from spacr.qt.screens import app_screen
 
+        from PySide6.QtWidgets import QApplication
+
         monkeypatch.setattr(screen, "_ambient", None)
         monkeypatch.setattr(screen, "_dna_rain", None)
-        monkeypatch.setattr(app_screen, "__package__",
-                            "not_a_package.qt.screens")
-        monkeypatch.setattr(app_screen, "__spec__", None)
+        with monkeypatch.context() as broken:
+            broken.setattr(app_screen, "__package__",
+                           "not_a_package.qt.screens")
+            broken.setattr(app_screen, "__spec__", None)
 
-        assert screen.page_fill() is None
-        assert screen._page_fill_for_a_frame() is None
-        screen._sync_page_palette()
-        screen.close()
+            assert screen.page_fill() is None
+            assert screen._page_fill_for_a_frame() is None
+            screen._sync_page_palette()
+            screen.close()
+        QApplication.processEvents()
 
     def test_a_screen_that_animates_something_paints_no_fill(self, screen,
                                                               monkeypatch):
