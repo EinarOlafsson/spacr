@@ -31,7 +31,7 @@ def source(tmp_path):
 def _runners(view):
     return (view._index_jobs, view._image_jobs, view._thumbnail_jobs, view._field_thumbnail_jobs,
             view._montage_jobs, view._export_jobs, view._metadata_jobs, view._measurement_jobs,
-            view._native_jobs, view._image_stack_jobs)
+            view._native_jobs, view._image_stack_jobs, view._group_jobs)
 
 
 def _close(mask, qtbot):
@@ -229,20 +229,29 @@ def test_annotation_lives_in_the_plate_menu_and_its_category_is_gone(mask, qtbot
 
 def test_a_well_annotation_scheme_imports_from_a_table_or_a_plate_layout(mask, qtbot, source, tmp_path,
                                                                           monkeypatch):
-    from PySide6.QtWidgets import QFileDialog
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+    from spacr.measure import _image_annotation_database, _read_image_annotations
 
     _tab, view = _browse(mask, qtbot, source)
     table = tmp_path / "scheme.csv"
     table.write_text("well,cell_type,drug\nA1,HeLa,DMSO\nA02,HeLa,Taxol\nB01,HFF,\n", encoding="utf-8")
-    layout = tmp_path / "layout.tsv"
-    layout.write_text("pathogen_type\t1\t2\nA\tWT\tKu80\nB\tWT\t\n", encoding="utf-8")
+    layout = tmp_path / "pathogen_type.csv"
+    layout.write_text("row,1,2\nA,WT,Ku80\nB,WT,\n", encoding="utf-8")
     chosen = [str(table)]
+    asked = []
     monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args, **kwargs: (chosen[0], ""))
+    monkeypatch.setattr(QMessageBox, "question",
+                        lambda parent, title, text, *args, **kwargs: asked.append(text) or QMessageBox.Yes)
     _menu_actions(view, "A01")["Import annotation scheme…"].trigger()
     qtbot.waitUntil(lambda: view._annotations.get(("p1", "B01"), {}).get("cell_type") == "HFF", timeout=30000)
+    assert "3 wells" in asked[0] and "cell_type, drug" in asked[0] and "0 wells of the scheme" in asked[0]
     assert view._annotations[("p1", "A01")] == {"cell_type": "HeLa", "drug": "DMSO"}
     assert view._annotations[("p1", "A02")] == {"cell_type": "HeLa", "drug": "Taxol"}
     assert view._annotations[("p1", "B01")] == {"cell_type": "HFF"}
+    qtbot.waitUntil(lambda: view.status.text().startswith("Imported") or not view._export_jobs.is_busy(),
+                    timeout=30000)
+    stored = _read_image_annotations(_image_annotation_database(view._metadata_source))
+    assert set(stored.loc[stored["wellID"] == "B01", "cell_type"]) == {"HFF"}
     chosen[0] = str(layout)
     qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
     view._import_annotation_scheme()
@@ -251,14 +260,54 @@ def test_a_well_annotation_scheme_imports_from_a_table_or_a_plate_layout(mask, q
     foreign = tmp_path / "foreign.csv"
     foreign.write_text("well,drug\nH12,DMSO\n", encoding="utf-8")
     chosen[0] = str(foreign)
-    before = {address: dict(values) for address, values in view._annotations.items()}
     qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
-    failures = []
-    view._export_jobs.job_failed.connect(failures.append)
+    before = {address: dict(values) for address, values in view._annotations.items()}
+    count = len(asked)
     view._import_annotation_scheme()
-    qtbot.waitUntil(lambda: bool(failures), timeout=30000)
-    assert "outside this source" in failures[0]
+    qtbot.waitUntil(lambda: len(asked) > count, timeout=30000)
+    assert "Annotate 0 wells" in asked[-1] and "1 wells of the scheme are not in this source" in asked[-1]
+    qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
     assert view._annotations == before
+
+
+def test_object_masks_are_picked_from_a_folder_and_refused_with_the_reason(mask, qtbot, source, tmp_path,
+                                                                           monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+
+    tab, view = _browse(mask, qtbot, source)
+    edit = tab._settings_model._widgets["overview_objects_path"]
+    action = edit._spacr_folder_browse_action
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    chosen = [str(plain)]
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *args, **kwargs: chosen[0])
+    action.trigger()
+    assert view.status.text().startswith("These object masks cannot be used:")
+    assert "mask_stack" in view.status.text() and edit.text() == ""
+    stack = tmp_path / "plate" / "masks" / "cell_mask_stack"
+    stack.mkdir(parents=True)
+    tifffile.imwrite(stack / "p1-A01-f1.tif", np.ones((48, 64), np.uint16))
+    chosen[0] = str(tmp_path / "plate")
+    action.trigger()
+    assert edit.text() == str(tmp_path / "plate")
+    assert tab._settings_model._read_value("overview_objects_path") == str(tmp_path / "plate")
+    assert view.status.text() == "Object masks: 1 files of cell."
+
+
+def test_overview_measurements_add_the_imported_object_record(monkeypatch, source):
+    import spacr.measure as measure
+
+    calls = []
+
+    def record(planes, files, plate, well, field, settings=None):
+        calls.append((plate, well, field, dict(settings or {})))
+        return {"cell_objects_count": 7}
+
+    monkeypatch.setattr(measure, "_image_object_record", record)
+    fields = tuple(field for field in browser._overview_index(source, PATTERN) if not field.unresolved)
+    row = browser._overview_measurement(fields[0], (1,), measurements={"overview_objects_path": "x"})
+    assert row["cell_objects_count"] == 7 and calls[0][:2] == (fields[0].plate, fields[0].well)
+    assert calls[0][3]["overview_objects_path"] == "x"
 
 
 def test_comparison_groups_can_be_named(mask, qtbot, source, monkeypatch):
@@ -290,3 +339,45 @@ def test_comparison_groups_can_be_named(mask, qtbot, source, monkeypatch):
     assert list(grouped["_overview_group"]) == ["Human cervix", "Human cervix", "Foreskin fibroblast"]
     assert builder.rename_group(row=0, name="")
     assert builder.groups.item(0).text() == "HeLa — 4 images"
+
+
+def test_group_names_are_saved_restored_and_reach_the_comparison(mask, qtbot, source, monkeypatch):
+    import spacr.sp_stats as sp_stats
+    from spacr.measure import _image_annotation_database, _read_comparison_groups
+
+    tab, view = _browse(mask, qtbot, source)
+    view._annotations = {("p1", "A01"): {"cell_type": "HeLa"}, ("p1", "B01"): {"cell_type": "HFF"}}
+    view._refresh_comparison_choices()
+    builder = view.group_builder
+    builder.add_group({"cell_type": "HeLa"})
+    builder.add_group({"cell_type": "HFF"})
+    builder.rename_group(row=0, name="Cervix")
+    database = _image_annotation_database(view._metadata_source)
+    qtbot.waitUntil(lambda: database.is_file() and _read_comparison_groups(database)[1] == ["Cervix", "HFF"],
+                    timeout=30000)
+    seen = {}
+
+    def compare(*args, **kwargs):
+        seen.update(kwargs)
+        raise ValueError("stop here")
+
+    monkeypatch.setattr(sp_stats, "_compare_image_groups", compare)
+    monkeypatch.setattr(browser, "_overview_comparison_frame",
+                        lambda source: __import__("pandas").DataFrame({"cell_type": ["HeLa"], "x": [1.0]}))
+    view._compare_groups()
+    qtbot.waitUntil(lambda: "group_names" in seen, timeout=30000)
+    assert seen["group_names"] == ["Cervix", ""]
+    page = tab._overview_page
+    page._retire_browser()
+    model = tab._settings_model
+    page.run(model.collect())
+    wizard = page.wizard
+    wizard.preset.setCurrentIndex(wizard.preset.count() - 1)
+    wizard.regex.setText(PATTERN)
+    wizard._scan()
+    qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
+    wizard._next()
+    qtbot.waitUntil(lambda: page.browser is not None and page.browser.group_builder.groups.count() == 2,
+                    timeout=30000)
+    assert page.browser.group_builder.names() == ["Cervix", ""]
+    assert page.browser.group_builder.definitions() == [{"cell_type": "HeLa"}, {"cell_type": "HFF"}]

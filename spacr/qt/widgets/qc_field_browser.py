@@ -2532,12 +2532,10 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
             collected[channel] = plane
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
-        from ...measure import _image_advanced_features, _image_feature_masks, _image_level_features
-        masks = {}
-        if "objects" in groups and choices.get("overview_measure_existing_masks", True) not in (False, "False", "false", 0):
-            masks = _image_feature_masks(field.files, field.plate, field.well, field.field, shape)
-        record.update(_image_level_features(collected, masks, groups=groups,
-            min_object_area=int(choices.get("overview_measure_smallest_object") or 9)))
+        from ...measure import _image_advanced_features, _image_level_features, _image_object_record
+        record.update(_image_level_features(collected, {}, groups=groups))
+        record.update(_image_object_record(collected, field.files, field.plate, field.well,
+                                           field.field, choices))
         if cancelled is not None and cancelled.is_set():
             raise CancelledError()
         record.update(_image_advanced_features(collected, advanced))
@@ -2545,7 +2543,7 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
         record["advanced_features"] = ",".join(name for name in ("embedding", "deep_qc", "filter_bank")
                                                if advanced.get(name))
         if "objects" in groups:
-            record["object_source"] = ("masks:" + ",".join(sorted(masks))) if masks else "otsu_per_channel"
+            record["object_source"] = "otsu_per_channel"
     except CancelledError:
         raise
     except Exception as error:
@@ -3992,77 +3990,81 @@ class _OverviewPanel(QFrame):
         self.collapsed_changed.emit(collapsed)
 
 
-def _overview_scheme_address(plate, well, known):
-    """The source's own spelling of ``well``, so A1 and A01 name the same well.
+def _overview_store_groups(source, groups, names):
+    """Save comparison groups and names for ``source``, off the GUI thread.
 
-    :param plate: the plate.
-    :param well: the well as the scheme writes it.
-    :param known: the source's ``(plate, well)`` identities.
-    :returns: the matching identity, or ``(plate, well)`` unchanged.
+    :param source: the image source folder.
+    :param groups: ``{column: value}`` definitions.
+    :param names: one name per group, ``""`` for unnamed.
+    :returns: the stored names.
     """
-    import re
+    from ...measure import _image_annotation_database, _save_comparison_groups
 
-    well = str(well).strip()
-    match = re.fullmatch(r"([A-Za-z]+)0*(\d+)", well)
-    if match is None:
-        return (plate, well)
-    letters, number = match.group(1).upper(), int(match.group(2))
-    for spelling in (f"{letters}{number:02d}", f"{letters}{number}", f"{letters}{number:03d}", well):
-        if (plate, spelling) in known:
-            return (plate, spelling)
-    return (plate, well)
+    return _save_comparison_groups(_image_annotation_database(source), groups, names)
 
 
-def _overview_annotation_scheme(path, plate, known):
-    """Read a well annotation scheme into ``{(plate, well): {key: value}}``.
+def _overview_saved_groups(source):
+    """Read the comparison groups saved for ``source``, off the GUI thread.
 
-    :param path: a CSV, TSV, text or Excel table.
-    :param plate: the plate a table without a ``plate`` column describes.
-    :param known: the source's ``(plate, well)`` identities.
-    :returns: the annotations, empty values left out.
-    :raises _OverviewValidationError: for a well this source does not have,
-        a duplicated well, or a table that is neither shape.
+    :param source: the image source folder.
+    :returns: ``(groups, names)``.
     """
-    import re
+    from ...measure import _image_annotation_database, _read_comparison_groups
 
-    import pandas as pd
+    return _read_comparison_groups(_image_annotation_database(source))
 
-    if str(path).lower().endswith(".xlsx"):
-        table = pd.read_excel(path, dtype=str, header=None).fillna("")
-    else:
-        separator = "\t" if str(path).lower().endswith((".tsv", ".txt")) else ","
-        table = pd.read_csv(path, dtype=str, header=None, sep=separator,
-                            keep_default_na=False)
-    header = [str(value).strip() for value in table.iloc[0]] if len(table) else []
-    lowered = [value.lower() for value in header]
-    scheme = {}
-    if "well" in lowered:
-        body = table.iloc[1:]
-        for _index, record in body.iterrows():
-            values = dict(zip(lowered, (str(value).strip() for value in record)))
-            names = dict(zip(lowered, header))
-            address = _overview_scheme_address(values.get("plate") or plate, values["well"], known)
-            if address in scheme:
-                raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
-            scheme[address] = {names[key]: value for key, value in values.items()
-                               if key not in ("plate", "well") and value}
-    elif len(header) > 1 and all(re.fullmatch(r"\d+", value) for value in header[1:] if value):
-        from ...schema import letters_from_row_index
 
-        key = header[0] or "condition"
-        for _index, record in table.iloc[1:].iterrows():
-            letters = str(record.iloc[0]).strip().upper()
-            for number, value in zip(header[1:], record.iloc[1:]):
-                value = str(value).strip()
-                if letters and number and value:
-                    scheme[_overview_scheme_address(plate, f"{letters}{int(number)}", known)] = {key: value}
-    else:
-        raise _OverviewValidationError(tr(
-            "An annotation scheme is a table with a well column, or a plate layout with row letters and column numbers."))
-    scheme = {address: values for address, values in scheme.items() if values}
-    if any(address not in known for address in scheme):
-        raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
-    return scheme
+def _overview_import_scheme(source, path, records):
+    """Write a well annotation scheme into the source's measurements database.
+
+    :param source: the image source folder.
+    :param path: the scheme file.
+    :param records: the source's fields as mappings.
+    :returns: :func:`spacr.measure._import_well_annotation_scheme`'s summary.
+    """
+    from ...measure import _image_annotation_database, _import_well_annotation_scheme
+
+    return _import_well_annotation_scheme(_image_annotation_database(source), path, records, source=source)
+
+
+def _overview_scheme_preview(path):
+    """Read a well annotation scheme for its preview, off the GUI thread.
+
+    :param path: the scheme file.
+    :returns: the frame :func:`spacr.measure._read_well_annotation_scheme` returns.
+    """
+    from ...measure import _read_well_annotation_scheme
+
+    return _read_well_annotation_scheme(path)
+
+
+def _overview_scheme_annotations(frame, fields):
+    """The ``{(plate, well): {column: value}}`` a scheme gives this source's wells.
+
+    :param frame: the scheme, one row per well, from the preview.
+    :param fields: the indexed fields.
+    :returns: ``(annotations, unmatched)``: the annotations keyed by the
+        source's own well names, and how many scheme rows match no well.
+    """
+    from ...measure import _image_annotation_column_name, _scheme_well
+
+    present = {}
+    for field in fields:
+        if not field.unresolved:
+            present.setdefault((str(field.plate), _scheme_well(field.well)), (field.plate, field.well))
+    plates = sorted({plate for plate, _well in present})
+    columns = {column: _image_annotation_column_name(column) for column in list(frame.columns)[2:]}
+    result, unmatched = {}, 0
+    for entry in frame.to_dict("records"):
+        addresses = [present[(str(plate), entry["well"])] for plate in ([entry["plate"]] if entry["plate"] else plates)
+                     if (str(plate), entry["well"]) in present]
+        unmatched += not addresses
+        for address in addresses:
+            for original, column in columns.items():
+                value = entry.get(original)
+                if value is not None and str(value) != "nan":
+                    result.setdefault(address, {})[column] = str(value)
+    return result, unmatched
 
 
 class _OverviewAnnotationDialog(QDialog):
@@ -5397,6 +5399,12 @@ class _FieldOverview(QWidget):
         self.group_builder = _OverviewGroupBuilder(
             lambda definition: _overview_group_count(self._fields, self._annotation_snapshot(), definition),
             lambda: self._comparison_selection()[1], self)
+        self._restoring_groups = False
+        self._groups_saving = self._groups_dirty = False
+        self._group_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._group_jobs.job_finished.connect(self._comparison_groups_saved)
+        self._group_jobs.job_failed.connect(self.status.setText)
+        self.group_builder.changed.connect(self._save_comparison_groups)
         compare = QPushButton(tr("Compare annotated groups"))
         compare.clicked.connect(self._compare_groups)
         representatives = QPushButton(tr("Show representative images"))
@@ -5410,6 +5418,53 @@ class _FieldOverview(QWidget):
             layout.addWidget(widget)
         self._refresh_comparison_choices()
         return host
+
+    def _save_comparison_groups(self, *_):
+        """Keep the built groups and their names in the source's measurements database.
+
+        One save runs at a time; changes made meanwhile are saved, as they
+        then stand, when it finishes, so the database ends with the last state.
+        """
+        if self._restoring_groups or not self._metadata_source:
+            return
+        if self._groups_saving:
+            self._groups_dirty = True
+            return
+        self._groups_saving, self._groups_dirty = True, False
+        self._group_jobs.submit(functools.partial(
+            _overview_store_groups, self._metadata_source,
+            self.group_builder.definitions(), self.group_builder.names()))
+
+    def _comparison_groups_saved(self, *_):
+        """Save again when the groups changed while the last save ran."""
+        self._groups_saving = False
+        if self._groups_dirty:
+            self._save_comparison_groups()
+
+    def _restore_comparison_groups(self):
+        """Bring back the groups saved for this source, unless groups were built already."""
+        if not self._metadata_source:
+            return
+        self._metadata_jobs.submit(functools.partial(_overview_saved_groups, self._metadata_source),
+                                   functools.partial(self._comparison_groups_read, self._fields))
+
+    def _comparison_groups_read(self, fields, saved):
+        """Fill an empty group list with the saved groups and names.
+
+        :param fields: the indexed fields the groups were read for.
+        :param saved: ``(groups, names)``.
+        """
+        groups, names = saved
+        builder = self.group_builder
+        if fields is not self._fields or builder.groups.count() or not groups:
+            return
+        self._restoring_groups = True
+        try:
+            for definition, name in zip(groups, names):
+                if builder.add_group(definition) and name != _overview_group_label(definition):
+                    builder.rename_group(row=builder.groups.count() - 1, name=name)
+        finally:
+            self._restoring_groups = False
 
     def _refresh_comparison_choices(self):
         """Offer every annotation column and value, keeping earlier ticks."""
@@ -5524,6 +5579,7 @@ class _FieldOverview(QWidget):
         source = self._metadata_source
         measurement = self.comparison_measurement.currentText().strip()
         folder = Path(source) / "results" / "overview_comparisons"
+        names = self.group_builder.names() if groups else None
         def run():
             """Read, test, draw and save the comparison outside the GUI thread.
 
@@ -5543,13 +5599,13 @@ class _FieldOverview(QWidget):
             stratum = [within] if within else None
             try:
                 result = _compare_image_groups(frame, [column], dimensions, groups=groups,
-                                               levels=levels, within=stratum)
+                                               levels=levels, within=stratum, group_names=names)
                 stem = "comparison_" + datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                 folder.mkdir(parents=True, exist_ok=True)
                 tables = _write_image_comparison(result, folder, stem)
                 figure, saved = _image_comparison_figure(frame, column, dimensions, groups=groups, levels=levels,
                                                          within=stratum, tests=result["tests"],
-                                                         path=str(folder / stem))
+                                                         path=str(folder / stem), group_names=names)
             except (KeyError, ValueError, IndexError) as error:
                 LOG.warning("overview comparison refused: %s", error)
                 return tr("These annotation groups cannot be compared with {measurement}.",
@@ -6129,13 +6185,13 @@ class _FieldOverview(QWidget):
                                    completed=completed, total=total))
 
     def _import_annotation_scheme(self, *_):
-        """Ask for a well annotation scheme and apply it to this source's wells.
+        """Ask for a well annotation scheme, preview it, and apply it to this source's wells.
 
-        A table with a ``well`` column (and optionally ``plate``) gives one
-        annotation per other column; a plate layout -- row letters down the
-        left, column numbers across the top -- gives one annotation named by
-        its top-left cell, or ``condition``. Every well must exist in this
-        source; nothing is applied otherwise.
+        Read by :func:`spacr.measure._read_well_annotation_scheme`: a list with
+        a well column (and optionally plate), one annotation per other column,
+        or a plate map named after its file. Written by
+        :func:`spacr.measure._import_well_annotation_scheme` as undoable
+        annotation operations on every image of the matched wells.
         """
         from PySide6.QtWidgets import QFileDialog
 
@@ -6144,30 +6200,60 @@ class _FieldOverview(QWidget):
             return
         path, _ = QFileDialog.getOpenFileName(self, tr("Import annotation scheme"), "",
                                               tr("Tables (*.csv *.tsv *.txt *.xlsx)"))
-        if not path:
+        if not path or not self._metadata_source:
             return
-        plate = self.plates.currentData()
-        known = frozenset((field.plate, field.well) for field in self._fields if not field.unresolved)
-        fields = self._fields
-        self._export_jobs.submit(functools.partial(_overview_annotation_scheme, path, plate, known),
-                                 functools.partial(self._scheme_read, fields))
+        self._export_jobs.submit(functools.partial(_overview_scheme_preview, path),
+                                 functools.partial(self._scheme_previewed, self._fields, path))
 
-    def _scheme_read(self, fields, scheme):
-        """Apply an imported scheme while the same source is shown.
+    def _scheme_previewed(self, fields, path, frame):
+        """Show what a scheme would annotate and apply it once confirmed.
 
-        :param fields: the indexed fields the scheme was validated against.
-        :param scheme: ``{(plate, well): {key: value}}``.
+        :param fields: the indexed fields the scheme was read for.
+        :param path: the scheme file.
+        :param frame: the scheme, one row per well.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        if fields is not self._fields:
+            return
+        annotations, unmatched = _overview_scheme_annotations(frame, fields)
+        columns = ", ".join(str(column) for column in list(frame.columns)[2:])
+        answer = QMessageBox.question(self, tr("Import annotation scheme"), tr(
+            "Annotate {wells} wells of this source with {columns} from {name}? "
+            "{unmatched} wells of the scheme are not in this source.",
+            wells=len(annotations), columns=columns, name=Path(path).name,
+            unmatched=unmatched))
+        if answer != QMessageBox.Yes:
+            return
+        records = [field.__dict__ for field in fields if not field.unresolved]
+        self._export_jobs.submit(
+            functools.partial(_overview_import_scheme, self._metadata_source, path, records),
+            functools.partial(self._scheme_imported, fields, annotations))
+
+    def _scheme_imported(self, fields, annotations, report):
+        """Show an imported scheme's annotations in this browser.
+
+        :param fields: the indexed fields it was imported for.
+        :param annotations: ``{(plate, well): {column: value}}`` from the preview.
+        :param report: :func:`spacr.measure._import_well_annotation_scheme`'s summary.
         """
         if fields is not self._fields:
             return
-        groups = {}
-        for address, values in scheme.items():
-            for key, value in values.items():
-                groups.setdefault((key, value), set()).add(address)
-        for (key, value), addresses in sorted(groups.items()):
-            self._apply_annotation(addresses, key, value)
-        self.status.setText(tr("Imported {count} well annotations.",
-                               count=sum(len(values) for values in scheme.values())))
+        for address, values in annotations.items():
+            self._annotations.setdefault(address, {}).update(values)
+            if "condition" in values:
+                self._conditions[address] = values["condition"]
+        self._persist_metadata()
+        self._fill_group_choices(self.grouping)
+        self._fill_group_choices(self.normalization_scope, image=True)
+        self._refresh_comparison_choices()
+        self._filter()
+        message = tr("Imported {columns} for {images} images in {wells} wells.",
+                     columns=", ".join(report["columns"]), images=report["images"], wells=report["wells"])
+        if report["unmatched"]:
+            message += " " + tr("{count} wells of the scheme are not in this source.",
+                                count=len(report["unmatched"]))
+        self.status.setText(message)
 
     def _save_annotations(self):
         """Write conditions only to the user's explicitly chosen output table."""
@@ -7041,6 +7127,7 @@ class _FieldOverview(QWidget):
         self._fields = fields
         self._metadata_source = self.source.text().strip()
         self._restore_metadata()
+        self._restore_comparison_groups()
         self._populate_axes(fields)
         channel_ids = sorted({channel for field in fields for channel, _ in field.files if channel},
                              key=lambda value: (not value.isdigit(), int(value) if value.isdigit() else value))
@@ -7953,7 +8040,7 @@ class _FieldOverview(QWidget):
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
                        self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs,
                        self._metadata_jobs, self._measurement_jobs, self._native_jobs,
-                       self._image_stack_jobs):
+                       self._image_stack_jobs, self._group_jobs):
             runner.shutdown(timeout_ms=0)
 
 
@@ -8979,6 +9066,11 @@ class _OverviewModulePage(QWidget):
             model.rows_the_screen_hides = functools.partial(
                 _overview_rows_hidden, self._screen_hides, tuple(self._hidden_keys))
             model.refresh_object_visibility()
+        objects = model._widgets.get("overview_objects_path")
+        if objects is not None:
+            from ..screens.settings_model import _add_folder_browse_action
+
+            _add_folder_browse_action(objects, functools.partial(_overview_choose_object_masks, objects, self))
         install_api_tooltips(self._screen, "overview", keys)
         section = _overview_section(self._screen, "Export")
         if section is not None:
@@ -9196,6 +9288,38 @@ def _open_overview_module(owner, settings=None):
 
 
 _OVERVIEW_SETTINGS_WIDTH = 520
+
+
+def _overview_choose_object_masks(edit, page):
+    """Pick a folder of Mask generation object masks for the Overview's object measurements.
+
+    The folder is checked with :func:`spacr.measure._validate_object_masks`
+    before it is accepted; a refusal is shown with its reason and the setting
+    keeps its value.
+
+    :param edit: the ``overview_objects_path`` field.
+    :param page: the Overview page, whose current browser shows the result.
+    :returns: the validation result, or ``None`` when nothing was accepted.
+    """
+    from PySide6.QtWidgets import QFileDialog
+    from ...measure import _validate_object_masks
+
+    path = QFileDialog.getExistingDirectory(edit, tr("Choose object masks…"), edit.text())
+    if not path:
+        return None
+    status = page.browser.status if page.browser is not None else None
+    try:
+        found = _validate_object_masks(path)
+    except ValueError as error:
+        if status is not None:
+            status.setText(tr("These object masks cannot be used: {error}", error=str(error)))
+        return None
+    edit.setText(path)
+    edit.editingFinished.emit()
+    if status is not None:
+        status.setText(tr("Object masks: {count} files of {objects}.", count=found["count"],
+                          objects=", ".join(sorted(found["roles"]))))
+    return found
 
 
 def _overview_open_settings(screen):
