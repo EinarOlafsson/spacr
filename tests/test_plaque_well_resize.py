@@ -16,6 +16,9 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from tests.conftest import MISSING_CHANNEL_AXIS
+from tests.cellpose_api_contract import CELLPOSE_EVAL_PARAMETERS, eval_arguments
+
 cv2 = pytest.importorskip("cv2")
 
 from spacr import model_zoo, plaque
@@ -211,7 +214,14 @@ class _DiskModel:
     def __init__(self):
         self.calls = []
 
-    def eval(self, x, **kwargs):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+        kwargs = eval_arguments(locals())
         self.calls.append((np.asarray(x).shape, kwargs))
         shape = x.shape[1:] if kwargs.get("channel_axis") == 0 else x.shape[:2]
         yy, xx = np.ogrid[:shape[0], :shape[1]]
@@ -328,8 +338,12 @@ def test_v5_is_segmented_exactly_as_before_when_off():
         assert len(model.calls) == 1
         shape, kwargs = model.calls[0]
         assert shape == image.shape
-        assert kwargs == {"channel_axis": -1, "diameter": 30.0, "flow_threshold": 0.4,
-                          "cellprob_threshold": 0.0, "min_size": 0.0}
+        expected = {"channel_axis": -1, "diameter": 30.0, "flow_threshold": 0.4,
+                    "cellprob_threshold": 0.0, "min_size": 0.0}
+        assert {name: kwargs[name] for name in expected} == expected
+        assert {name: value for name, value in kwargs.items() if name not in expected} == {
+            name: default for name, default in CELLPOSE_EVAL_PARAMETERS.items()
+            if name not in expected}
 
 
 def test_settings_declare_and_persist_well_resize(tmp_path):
