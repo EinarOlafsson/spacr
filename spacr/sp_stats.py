@@ -5482,6 +5482,140 @@ def _write_image_comparison(result: Dict[str, pd.DataFrame], folder, stem: str =
                 tests=tabular.write_table(result['tests'], folder / f'{stem}_tests.csv'))
 
 
+def _image_well_groups(wells) -> List[Dict[str, Any]]:
+    """Group definitions that compare chosen wells directly, one group per well.
+
+    :param wells: ``(plate, well)`` pairs or bare well names such as ``'A01'``.
+    :returns: definitions for the ``groups`` argument of
+        :func:`_compare_image_groups`: ``{'plate': ..., 'well': ...}`` or
+        ``{'well': ...}``; pass ``unit='image'``, since one well is one unit.
+    :raises ValueError: for an empty or repeated selection.
+    """
+    definitions, seen = [], set()
+    for item in wells or ():
+        definition = ({'plate': str(item[0]), 'well': str(item[1])} if isinstance(item, (tuple, list))
+                      else {'well': str(item)})
+        key = tuple(definition.values())
+        if key in seen:
+            raise ValueError(f'Well chosen twice: {key}')
+        seen.add(key)
+        definitions.append(definition)
+    if len(definitions) < 2:
+        raise ValueError('Choose at least two wells to compare')
+    return definitions
+
+
+def _image_comparison_table(result: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """One compact row per tested pair, to show beside the stacked image views.
+
+    :param result: output of :func:`_compare_image_groups`.
+    :returns: columns ``stratum``, ``measurement``, ``group_a``, ``group_b``,
+        ``n_a``, ``n_b``, ``mean_a``, ``mean_b``, ``log2_ratio`` (of the
+        means, when both are positive), ``effect_size`` (Hedges' g or Cohen's
+        d, A minus B), ``effect``, ``test``, ``p_value``, ``p_adjusted`` and
+        ``significance`` (stars on the adjusted p), sorted by adjusted p and
+        then by absolute effect size. Pairs too small to test are left out.
+    """
+    from .figures.stats import stars
+    columns = ['stratum', 'measurement', 'group_a', 'group_b', 'n_a', 'n_b', 'mean_a', 'mean_b',
+               'log2_ratio', 'effect_size', 'effect', 'test', 'p_value', 'p_adjusted', 'significance']
+    tests, summary = result.get('tests'), result.get('summary')
+    if tests is None or not len(tests) or summary is None or not len(summary):
+        return pd.DataFrame(columns=columns)
+    pairs = tests[tests['stage'] == 'pairwise'] if 'stage' in tests.columns else tests
+    from itertools import combinations
+    lookup = summary.set_index(['stratum', 'measurement', 'group'])
+    members = summary.groupby(['stratum', 'measurement'], sort=False)['group'].apply(list)
+    rows = []
+    for _, test in pairs.iterrows():
+        names = next(pair for pair in combinations(members[(test['stratum'], test['measurement'])], 2)
+                     if f'{pair[0]} vs {pair[1]}' == str(test['groups']))
+        a, b = (lookup.loc[(test['stratum'], test['measurement'], name)] for name in names)
+        ratio = (float(np.log2(a['mean'] / b['mean'])) if a['mean'] > 0 and b['mean'] > 0
+                 else float('nan'))
+        p_adjusted = test['p_adjusted'] if np.isfinite(test['p_adjusted']) else test['p_value']
+        rows.append(dict(stratum=test['stratum'], measurement=test['measurement'],
+                         group_a=names[0], group_b=names[1], n_a=int(a['n']), n_b=int(b['n']),
+                         mean_a=float(a['mean']), mean_b=float(b['mean']), log2_ratio=ratio,
+                         effect_size=float(test['effect_size']), effect=test['effect'],
+                         test=test['test'], p_value=float(test['p_value']),
+                         p_adjusted=float(p_adjusted), significance=stars(p_adjusted)))
+    frame = pd.DataFrame(rows, columns=columns)
+    if frame.empty:
+        return frame
+    order = frame.assign(_size=-frame['effect_size'].abs()).sort_values(
+        ['p_adjusted', '_size'], na_position='last', kind='mergesort').index
+    return frame.loc[order].reset_index(drop=True)
+
+
+def _rank_image_differences(frame: pd.DataFrame, dimensions: Sequence[str] = (), *,
+                            groups: Optional[Sequence[Dict[str, Any]]] = None,
+                            levels: Optional[Dict[str, Sequence[Any]]] = None,
+                            within: Optional[Sequence[str]] = None,
+                            measurements: Optional[Sequence[str]] = None,
+                            unit: str = 'image', correction: str = 'fdr_bh',
+                            top: Optional[int] = None) -> pd.DataFrame:
+    """Rank every image-level measurement by how strongly it separates the groups.
+
+    Runs :func:`_compare_image_groups` over all measurement columns (or the
+    chosen ones) with one correction across every test (``family='all'``),
+    then returns :func:`_image_comparison_table`, so the strongest
+    differences between the chosen wells or conditions come first.
+
+    :param top: keep only this many rows.
+    :returns: the compact comparison table.
+    """
+    names = list(measurements) if measurements is not None else _image_measurement_columns(frame)
+    names = [name for name in names
+             if pd.to_numeric(frame[name], errors='coerce').nunique(dropna=True) > 1]
+    if not names:
+        return _image_comparison_table({})
+    result = _compare_image_groups(frame, names, dimensions, groups=groups, levels=levels,
+                                   within=within, unit=unit, correction=correction, family='all')
+    ranked = _image_comparison_table(result)
+    return ranked.head(int(top)).reset_index(drop=True) if top else ranked
+
+
+def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
+    """Dot plot of the largest effect sizes from :func:`_image_comparison_table`.
+
+    One row per measurement and pair, the effect size on the x axis with its
+    stars; styled by :func:`spacr.figures.style._apply_user_style` and, with
+    ``path``, saved by :func:`spacr.plot.save_figure`.
+
+    :returns: ``(figure, saved_path_or_None)``.
+    :raises ValueError: when the table has no finite effect sizes.
+    """
+    import matplotlib.pyplot as plt
+    from .figures.style import _apply_user_style
+    usable = table[np.isfinite(pd.to_numeric(table.get('effect_size'), errors='coerce'))] if len(table) else table
+    if not len(usable):
+        raise ValueError('No effect sizes to plot')
+    chosen = usable.reindex(usable['effect_size'].abs().sort_values(ascending=False).index).head(int(top))
+    chosen = chosen.iloc[::-1]
+    labels = [f"{row.measurement}  ({row.group_a} vs {row.group_b}"
+              + (f", {row.stratum}" if row.stratum else '') + ')' for row in chosen.itertuples()]
+    figure, axis = plt.subplots(figsize=(6.4, max(2.4, 0.32 * len(chosen) + 1.0)))
+    positions = np.arange(len(chosen))
+    axis.axvline(0.0, color='0.6', linewidth=0.8)
+    axis.scatter(chosen['effect_size'], positions, s=28, zorder=3)
+    for position, row in zip(positions, chosen.itertuples()):
+        if row.significance and row.significance not in ('ns', 'n.s.'):
+            axis.annotate(row.significance, (row.effect_size, position), xytext=(6, 0),
+                          textcoords='offset points', va='center')
+    axis.set_yticks(positions)
+    axis.set_yticklabels(labels)
+    axis.set_xlabel(str(chosen['effect'].iloc[0]) if 'effect' in chosen.columns else 'effect size')
+    figure._spacr_graph_kind = 'dot'
+    figure.tight_layout()
+    _apply_user_style(figure, 'dot')
+    saved = None
+    if path is not None:
+        from .plot import save_figure
+        saved = save_figure(figure, str(path))
+    return figure, saved
+
+
 def _standardised_measurements(frame: pd.DataFrame, measurements: Sequence[str]) -> pd.DataFrame:
     """Robustly standardise measurements across all images.
 
