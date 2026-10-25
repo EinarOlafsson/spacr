@@ -151,7 +151,7 @@ def fetch(group: str = "deck", root: Path = ROOT) -> Dict[str, Path]:
     shown = _deck_version(root)
     if group == "deck" and shown and spec.get("version") and shown != spec["version"]:
         pdf = root / "docs" / "source" / "_static" / "deck" / "spacr_deck.pdf"
-        if str(pdf.relative_to(root)) in spec["files"] and _restamp_pdf(root, pdf):
+        if pdf.relative_to(root).as_posix() in spec["files"] and _restamp_pdf(root, pdf):
             print(f"deck PDF title page restamped for {shown} (pinned PDF shows {spec['version']})")
     return written
 
