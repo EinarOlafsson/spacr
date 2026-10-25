@@ -14011,6 +14011,17 @@ def _image_radial(values, finite, bins=6, edge=512, blocks=8):
     return result
 
 
+def _image_grey_opening(plane, radius):
+    """Grey opening of an image plane with a disk of ``radius`` pixels.
+
+    :param plane: the plane to open.
+    :param radius: the disk radius, in pixels.
+    :returns: the opened plane.
+    """
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * radius + 1, 2 * radius + 1))
+    return cv2.morphologyEx(plane, cv2.MORPH_OPEN, kernel, borderType=cv2.BORDER_REFLECT)
+
+
 def _image_granularity(values, finite, steps=8, edge=256, background_radius=10):
     """Granularity spectrum of the whole image, as in CellProfiler's MeasureGranularity.
 
@@ -14027,17 +14038,11 @@ def _image_granularity(values, finite, steps=8, edge=256, background_radius=10):
     """
     small, step = _image_block_mean(values, edge)
     scaled = (small - small.min()).astype(np.float32)
-
-    def opened(plane, radius):
-        """Grey opening with a disk of ``radius`` pixels."""
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * radius + 1, 2 * radius + 1))
-        return cv2.morphologyEx(plane, cv2.MORPH_OPEN, kernel, borderType=cv2.BORDER_REFLECT)
-
-    signal = scaled - opened(scaled, int(background_radius)) if background_radius else scaled
+    signal = scaled - _image_grey_opening(scaled, int(background_radius)) if background_radius else scaled
     start = float(signal.sum())
     result, previous = {}, start
     for radius in range(1, int(steps) + 1):
-        current = float(opened(signal, radius).sum())
+        current = float(_image_grey_opening(signal, radius).sum())
         result[f'granularity_{radius}'] = 100.0 * (previous - current) / start if start > 0 else 0.0
         previous = current
     result['granularity_downsample'] = step
@@ -14842,6 +14847,18 @@ def _image_measurement_identity(row):
     return row
 
 
+def _stop_if_cancelled(cancelled):
+    """Stop an image-measurement save when its caller cancels.
+
+    :param cancelled: optional ``threading.Event``.
+    :raises concurrent.futures.CancelledError: when it is set.
+    """
+    from concurrent.futures import CancelledError
+
+    if cancelled is not None and cancelled.is_set():
+        raise CancelledError()
+
+
 def _write_image_measurements(db_path, rows, *, cancelled=None):
     """Save image-level rows to the ``fov`` table of ``measurements.db``.
 
@@ -14864,7 +14881,6 @@ def _write_image_measurements(db_path, rows, *, cancelled=None):
         ``concurrent.futures.CancelledError`` when set.
     :returns: ``dict(path, inserted, updated, columns_added)``.
     """
-    from concurrent.futures import CancelledError
     from pathlib import Path
     from .database_concurrency import connect, transaction
     rows = [_image_measurement_identity(row) for row in rows]
@@ -14873,13 +14889,7 @@ def _write_image_measurements(db_path, rows, *, cancelled=None):
     if not rows:
         return report
     table = _IMAGE_MEASUREMENT_TABLE
-
-    def check():
-        """Stop when the caller cancels."""
-        if cancelled is not None and cancelled.is_set():
-            raise CancelledError()
-
-    check()
+    _stop_if_cancelled(cancelled)
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = connect(path, timeout=30)
     try:
@@ -14905,7 +14915,7 @@ def _write_image_measurements(db_path, rows, *, cancelled=None):
             keys = ', '.join(f'"{name}"' for name in _IMAGE_MEASUREMENT_KEYS)
             connection.execute(f'CREATE INDEX IF NOT EXISTS {table}_image_key ON {table} ({keys})')
             for row in rows:
-                check()
+                _stop_if_cancelled(cancelled)
                 stored = connection.execute(
                     f'SELECT image_features FROM {table} WHERE field_uid = ?'
                     if 'image_features' in known else f'SELECT 1 FROM {table} WHERE field_uid = ?',
@@ -14927,7 +14937,7 @@ def _write_image_measurements(db_path, rows, *, cancelled=None):
                 connection.execute(f'UPDATE {table} SET {assignments} WHERE field_uid = ?',
                                    tuple(row[key] for key in updates) + (row['field_uid'],))
                 report['updated'] += 1
-            check()
+            _stop_if_cancelled(cancelled)
     finally:
         connection.close()
     return report
