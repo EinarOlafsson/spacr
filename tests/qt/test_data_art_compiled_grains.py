@@ -217,6 +217,10 @@ def test_cold_compilation_uses_worker_and_gui_keeps_ticking(qtbot, monkeypatch):
 def test_native_buffer_survives_hide_while_compiled_worker_finishes(
         _unit_pixel_scale, qtbot, monkeypatch, compiled_kernel):
     monkeypatch.setattr(ambient, '_PACKED_SCATTER', compiled_kernel)
+    # The compiled CPU kernel is what this follows; a machine with a GPU
+    # would otherwise draw the frame there and never reach it.
+    from spacr.qt import preferences
+    monkeypatch.setattr(preferences, '_flow_graphics_backend', lambda: 'cpu')
 
     class NativeWidget(ambient.AmbientWidget):
         def _follow_screen(self):
