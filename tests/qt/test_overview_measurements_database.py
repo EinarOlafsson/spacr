@@ -20,6 +20,12 @@ from spacr.qt.widgets.qc_field_browser import (
 pytestmark = pytest.mark.qt
 
 
+@pytest.fixture(autouse=True)
+def _unpaced_workers(monkeypatch):
+    from spacr.qt.widgets import qc_field_browser as browser
+    monkeypatch.setattr(browser, "_OVERVIEW_WORKER_START_DELAY", 0.0)
+
+
 def _field(tmp_path, name="one", pixels=None):
     path = tmp_path / (name + ".npy")
     if pixels is None:
@@ -299,19 +305,17 @@ def test_parallel_export_with_fewer_images_than_workers_keeps_actual_row_count(t
 
 
 def test_worker_exception_preserves_database_and_records_source_diagnostic(tmp_path, monkeypatch):
-    from concurrent import futures
+    from multiprocessing.pool import ThreadPool
     from spacr.qt.widgets import qc_field_browser as browser
     field = _field(tmp_path)
     before = _overview_measurements_export((field,), tmp_path, (0,))
     rows = _rows(before["path"])
-    def executor(*, max_workers, mp_context):
-        return futures.ThreadPoolExecutor(max_workers=max_workers)
     def failed(*args, **kwargs):
         raise MemoryError("controlled worker allocation refusal")
-    monkeypatch.setattr(futures, "ProcessPoolExecutor", executor)
+    monkeypatch.setattr(browser, "_overview_measurement_pool", lambda workers, cancelled=None: ThreadPool(workers))
     monkeypatch.setattr(browser, "_overview_measurement", failed)
-    report = _overview_measurements_export((field,), tmp_path, (0,), workers=2)
-    assert report["count"] == 0 and report["attempted"] == 1
+    report = _overview_measurements_export((field, replace(field, time_id="1")), tmp_path, (0,), workers=2)
+    assert report["count"] == 0 and report["attempted"] == 2
     assert "allocation refusal" in report["errors"][0]["error"]
     assert report["diagnostics"][0]["source_files"] == field.files
     assert _rows(before["path"]) == rows

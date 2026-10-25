@@ -1949,11 +1949,27 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
 
 
 def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
-                          z_mode="plane", z_index=None, conditions=None):
-    """Measure one whole-image ROI; intensity statistics exclude nonfinite values."""
+                          z_mode="plane", z_index=None, conditions=None,
+                          measurements=None, advanced=None):
+    """Measure one whole-image ROI; intensity statistics exclude nonfinite values.
+
+    ``measurements`` is the Overview settings mapping (or a group list) that
+    selects the image-level groups; ``advanced`` the prepared Advanced
+    options from ``spacr.measure._image_advanced_prepare``. Without
+    ``advanced`` the Advanced switches in ``measurements`` run offline.
+    """
     import json
     from concurrent.futures import CancelledError
     from skimage.measure import regionprops_table
+    from ...measure import (_image_advanced_options, _image_advanced_prepare,
+                            _image_feature_groups)
+
+    groups = _image_feature_groups(measurements)
+    choices = measurements if isinstance(measurements, dict) else {}
+    if advanced is None:
+        advanced = _image_advanced_options(choices)
+        if any(advanced[name] for name in ("embedding", "deep_qc", "filter_bank")):
+            advanced = _image_advanced_prepare(advanced, download=False)
 
     record = dict(plate=field.plate, well=field.well, row=field.row,
                   column=field.column, field=field.field,
@@ -2001,6 +2017,9 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                            prefix + "nonfinite_pixel_count": int(plane.size - count)})
             if not count:
                 raise ValueError(tr("This channel has no finite pixels."))
+            collected[channel] = plane
+            if "intensity" not in groups:
+                continue
             values = np.asarray(plane[finite], dtype=np.float64)
             percentiles = np.percentile(values, (1, 5, 25, 50, 75, 95, 99))
             mean = float(np.mean(values))
@@ -2023,14 +2042,22 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
             stats.update({"intensity_p" + str(p): float(v)
                           for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
             record.update({prefix + key: value for key, value in stats.items()})
-            collected[channel] = plane
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
-        from ...measure import _image_feature_masks, _image_level_features
-        masks = _image_feature_masks(field.files, field.plate, field.well, field.field, shape)
-        record.update(_image_level_features(collected, masks))
-        record["image_features"] = "intensity_focus_texture_coverage_objects_colocalization"
-        record["object_source"] = ("masks:" + ",".join(sorted(masks))) if masks else "otsu_per_channel"
+        from ...measure import _image_advanced_features, _image_feature_masks, _image_level_features
+        masks = {}
+        if "objects" in groups and choices.get("overview_measure_existing_masks", True) not in (False, "False", "false", 0):
+            masks = _image_feature_masks(field.files, field.plate, field.well, field.field, shape)
+        record.update(_image_level_features(collected, masks, groups=groups,
+            min_object_area=int(choices.get("overview_measure_smallest_object") or 9)))
+        if cancelled is not None and cancelled.is_set():
+            raise CancelledError()
+        record.update(_image_advanced_features(collected, advanced))
+        record["image_features"] = ",".join(groups)
+        record["advanced_features"] = ",".join(name for name in ("embedding", "deep_qc", "filter_bank")
+                                               if advanced.get(name))
+        if "objects" in groups:
+            record["object_source"] = ("masks:" + ",".join(sorted(masks))) if masks else "otsu_per_channel"
     except CancelledError:
         raise
     except Exception as error:
@@ -2276,23 +2303,76 @@ def _fov_without_rowid(connection):
     connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
 
 
+_OVERVIEW_WORKER_START_DELAY = 10.0
+
+_OVERVIEW_ADVANCED_RAM = dict(embedding=1024 ** 3, deep_qc=384 * 1024 ** 2, filter_bank=0)
+
+
+def _overview_measurement_pool(workers, cancelled=None):
+    """Start Measure's paced spawn pool for one-image overview measurement jobs.
+
+    Workers run Measure's single-thread initializer, start
+    ``_OVERVIEW_WORKER_START_DELAY`` seconds apart through ``_parallel_pool``
+    (which binds them to the parent's Windows job object) and stop waiting to
+    start once ``cancelled`` is set.
+    """
+    import multiprocessing
+    from ...measure import _initialize_measure_worker
+    from ...resource_log import _WorkerStartGate, _parallel_pool
+
+    gate = _WorkerStartGate(_OVERVIEW_WORKER_START_DELAY)
+    if cancelled is not None:
+        gate.idle = cancelled.is_set
+    return _parallel_pool(workers, initializer=_initialize_measure_worker,
+                          context=multiprocessing.get_context("spawn"), gate=gate)
+
+
+def _overview_worker_ram(field, channels, advanced):
+    """Estimate one overview worker's peak memory in bytes, or 0 when unknown."""
+    try:
+        info = _overview_channel_info(field)
+        shape = info["files"][0]["shape"]
+        axes = info["files"][0]["axes"]
+        pixels = shape[axes.index("Y")] * shape[axes.index("X")]
+    except Exception:
+        return 0
+    overhead = sum(size for name, size in _OVERVIEW_ADVANCED_RAM.items() if advanced.get(name))
+    return int(pixels * 8 * len(channels) * 8 + overhead)
+
+
 def _overview_measurements_export(fields, source, channels, workers=1,
                                   cancelled=None, annotations=None, progress=None, *,
-                                  time_index=None, z_mode="plane", z_index=None, field_options=None):
+                                  time_index=None, z_mode="plane", z_index=None, field_options=None,
+                                  measurements=None):
     """Publish an atomic raw-pixel FOV run, with one bounded image per worker.
 
     ``progress(completed, total)`` runs in the caller thread. Failed or cancelled
     runs leave existing measurements intact and return per-field diagnostics.
     Selected channels replace the previous row for the same source field.
+
+    Parallel runs use Measure's pool: ``_parallel_pool`` spawn workers with
+    single-threaded libraries, at most ``workers`` images in flight, the
+    worker count capped by the image count and lowered by the RAM plan
+    (``overview_measure_ram_guard``), and each next image held while RAM is
+    short. ``workers=None`` takes ``overview_measure_n_jobs`` from
+    ``measurements``, resolved like Measure's ``n_jobs``. ``measurements`` is
+    the Overview settings mapping choosing the measurement groups and the
+    Advanced operations; their models are prepared once here, before any
+    worker starts, and embedding principal components are added over the run.
     """
     import hashlib
     import json
-    import multiprocessing
     import sqlite3
     import tempfile
-    from concurrent.futures import CancelledError, ProcessPoolExecutor, wait, FIRST_COMPLETED
+    import time
+    from concurrent.futures import CancelledError
     from datetime import datetime, timezone
     from ...database_concurrency import connect, transaction
+    from ...measure import (_image_advanced_options, _image_advanced_prepare,
+                            _image_embedding_components, _image_feature_groups,
+                            _single_threaded_children, _wait_for_ram,
+                            resolve_n_jobs, resolve_pool_size)
+    from ...resource_log import _clamp_to_plan, _ram_plan
     from ...schema import row_id, column_id, field_id, time_id, compose_prc, compose_prcf
 
     source = Path(source).expanduser().resolve()
@@ -2300,12 +2380,30 @@ def _overview_measurements_export(fields, source, channels, workers=1,
     channels = tuple(dict.fromkeys(int(value) for value in channels))
     if not channels or any(value < 0 for value in channels):
         raise ValueError(tr("Choose one or more nonnegative channel indices."))
+    choices = dict(measurements) if isinstance(measurements, dict) else {}
+    _image_feature_groups(measurements)
+    if workers is None:
+        workers = resolve_n_jobs(choices.get("overview_measure_n_jobs"))
     workers = max(1, min(int(workers), os.cpu_count() or 1))
     fields = tuple(fields)
     report = dict(path=str(destination), count=0, errors=[], cancelled=False,
-                  attempted=0, diagnostics=[], workers=workers)
+                  attempted=0, diagnostics=[], workers=workers, advanced_unavailable={})
     if not fields:
         return report
+    advanced = _image_advanced_options(choices)
+    if any(advanced[name] for name in ("embedding", "deep_qc", "filter_bank")):
+        advanced = _image_advanced_prepare(advanced)
+        report["advanced_unavailable"] = dict(advanced["unavailable"])
+    else:
+        advanced = dict(advanced, unavailable={})
+    if workers > 1:
+        workers = resolve_pool_size(workers, len(fields))
+        per_worker = _overview_worker_ram(fields[0], channels, advanced)
+        plan = _ram_plan(per_worker, workers, module="overview_measure", multiplier=1.0)
+        workers = max(1, int(_clamp_to_plan(workers, plan, choices.get("overview_measure_ram_guard", True))))
+        report["workers"] = workers
+    else:
+        per_worker = 0
     annotations = annotations or {}
     measured_at = datetime.now(timezone.utc).isoformat()
 
@@ -2365,8 +2463,10 @@ def _overview_measurements_export(fields, source, channels, workers=1,
         if progress is not None:
             progress(report["attempted"], len(fields))
 
-    executor = None
-    pending = {}
+    def measure_kwargs(field):
+        """Keyword arguments of one image's measurement job."""
+        return dict(axes_for(field), measurements=measurements, advanced=advanced)
+
     try:
         check_cancelled()
         with tempfile.TemporaryDirectory(prefix="spacr-fov-") as temporary:
@@ -2377,31 +2477,49 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                     for field in fields:
                         check_cancelled()
                         record_result(field, _overview_measurement(field, channels, cancelled,
-                            **axes_for(field)), stage)
+                            **measure_kwargs(field)), stage)
                 else:
-                    executor = ProcessPoolExecutor(max_workers=workers,
-                        mp_context=multiprocessing.get_context("spawn"))
+                    pending = {}
                     remaining = iter(fields)
-                    for field in remaining:
+
+                    def submit():
+                        """Queue the next image once RAM allows; False when none remain."""
+                        field = next(remaining, None)
+                        if field is None:
+                            return False
                         check_cancelled()
-                        pending[executor.submit(_overview_measurement, field, channels, **axes_for(field))] = field
-                        if len(pending) >= workers:
-                            break
-                    while pending:
-                        check_cancelled()
-                        done, _ = wait(pending, timeout=.1, return_when=FIRST_COMPLETED)
-                        for future in done:
-                            field = pending.pop(future)
-                            try:
-                                row = future.result()
-                            except Exception as error:
-                                row = dict(status="error", error=str(error))
-                            record_result(field, row, stage)
-                            next_field = next(remaining, None)
-                            if next_field is not None:
-                                check_cancelled()
-                                pending[executor.submit(_overview_measurement,
-                                    next_field, channels, **axes_for(next_field))] = next_field
+                        if per_worker:
+                            _wait_for_ram(per_worker, lambda: bool(pending), field=field.field)
+                        pending[pool.apply_async(_overview_measurement, (field, channels),
+                                                 measure_kwargs(field))] = field
+                        return True
+
+                    with _single_threaded_children(), _overview_measurement_pool(workers, cancelled) as pool:
+                        while len(pending) < workers and submit():
+                            pass
+                        while pending:
+                            check_cancelled()
+                            done = []
+                            for result in list(pending):
+                                try:
+                                    if result.ready():
+                                        done.append((result, None))
+                                except Exception as error:
+                                    done.append((result, error))
+                            if not done:
+                                time.sleep(.05)
+                                continue
+                            for result, failure in done:
+                                field = pending.pop(result)
+                                if failure is None:
+                                    try:
+                                        row = result.get(timeout=0)
+                                    except Exception as error:
+                                        failure = error
+                                if failure is not None:
+                                    row = dict(status="error", error=str(failure))
+                                record_result(field, row, stage)
+                                submit()
                 check_cancelled()
                 if report["errors"]:
                     return report
@@ -2417,9 +2535,16 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                             connection.execute('ALTER TABLE fov ADD COLUMN field_uid TEXT')
                             existing.add("field_uid")
                         connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
+                        components = {}
+                        if advanced.get("embedding"):
+                            components = _image_embedding_components({
+                                item["field_uid"]: item.get("embedding_vector")
+                                for item in (json.loads(value) for (value,) in
+                                             stage.execute("SELECT record FROM records"))})
                         for (serialized,) in stage.execute("SELECT record FROM records"):
                             check_cancelled()
                             row = json.loads(serialized)
+                            row.update(components.get(row["field_uid"], {}))
                             for key, value in row.items():
                                 if key not in existing:
                                     kind = ("INTEGER" if isinstance(value, int) else
@@ -2441,11 +2566,6 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                 stage.close()
     except CancelledError:
         report["cancelled"] = True
-    finally:
-        if executor is not None:
-            for future in pending:
-                future.cancel()
-            executor.shutdown(wait=True, cancel_futures=True)
     return report
 
 
