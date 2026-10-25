@@ -1,4 +1,5 @@
 """Mask-role labels translate while organizer decisions retain canonical IDs."""
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -40,7 +41,10 @@ def test_real_marker_question_translates_the_role_but_returns_its_id(
     seen = {}
 
     def inspect_question(box):
-        seen["text"] = box.text()
+        # dialogs._set_question: on macOS the question is the text and what
+        # the box says about it leads the informative text.
+        seen["text"] = (box.informativeText().split("\n\n", 1)[0]
+                        if sys.platform == "darwin" else box.text())
         seen["keep"] = next(button for button in box.buttons()
                             if box.buttonRole(button) == QMessageBox.AcceptRole)
         seen["caption"] = seen["keep"].text()
