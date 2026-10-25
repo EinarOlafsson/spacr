@@ -38,7 +38,7 @@ def _gui_sources():
     root = pathlib.Path(__file__).resolve().parents[2]
     for sub in ("spacr/qt", "spacr/flowview"):
         for path in (root / sub).rglob("*.py"):
-            yield path, str(path.relative_to(root))
+            yield path, path.relative_to(root).as_posix()
 
 
 def test_no_widget_hard_codes_a_font_size():

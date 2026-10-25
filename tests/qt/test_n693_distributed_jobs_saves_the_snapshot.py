@@ -6,6 +6,8 @@ as Export settings…, so it can be copied to a cluster; Submit is unchanged.
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -67,7 +69,7 @@ def test_saving_writes_the_snapshot_and_keeps_submit_unchanged(
     target = tmp_path / "cluster" / "measure_settings.csv"
     offered = _save_to(monkeypatch, target)
     screen._save_snapshot_csv()
-    assert offered == ["/mnt/share/plate 1/measure_settings.csv"]
+    assert offered == [os.path.join("/mnt/share/plate 1", "measure_settings.csv")]
     assert load_settings_file(str(target)) == SNAPSHOT
     assert screen._settings_snapshot == SNAPSHOT
     assert ("spacr-run measure --settings measure_settings.csv"

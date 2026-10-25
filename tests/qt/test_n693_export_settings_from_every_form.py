@@ -333,14 +333,14 @@ def test_default_path_follows_src_then_last_folder_then_home(
     assert default_settings_csv_path("mask", "") == str(
         tmp_path / "home" / "mask_settings.csv")
     assert default_settings_csv_path("classify", ["", " /p1 ", "/p2"]) == (
-        "/p1/classify_settings.csv")
+        os.path.join("/p1", "classify_settings.csv"))
     assert default_settings_csv_path("umap", []) == str(
         tmp_path / "home" / "umap_settings.csv")
     app_screen_module._SETTINGS_CSV_FOLDER["last"] = "/shared/configs"
     assert default_settings_csv_path("mask", None) == (
-        "/shared/configs/mask_settings.csv")
+        os.path.join("/shared/configs", "mask_settings.csv"))
     assert default_settings_csv_path("mask", "/data/p") == (
-        "/data/p/mask_settings.csv")
+        os.path.join("/data/p", "mask_settings.csv"))
 
 
 def test_import_remembers_its_folder_for_the_next_export(
