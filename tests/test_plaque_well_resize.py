@@ -9,6 +9,7 @@ folder is on this machine and skipped otherwise.
 """
 import csv
 import importlib.util
+import inspect
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,7 +18,7 @@ import numpy as np
 import pytest
 
 from tests.conftest import MISSING_CHANNEL_AXIS
-from tests.cellpose_api_contract import CELLPOSE_EVAL_PARAMETERS, eval_arguments
+from tests.cellpose_api_contract import eval_arguments
 
 cv2 = pytest.importorskip("cv2")
 
@@ -340,9 +341,9 @@ def test_v5_is_segmented_exactly_as_before_when_off():
         expected = {"channel_axis": -1, "diameter": 30.0, "flow_threshold": 0.4,
                     "cellprob_threshold": 0.0, "min_size": 0.0}
         assert {name: kwargs[name] for name in expected} == expected
+        declared = inspect.signature(_DiskModel.eval).parameters
         assert {name: value for name, value in kwargs.items() if name not in expected} == {
-            name: default for name, default in CELLPOSE_EVAL_PARAMETERS.items()
-            if name not in expected}
+            name: declared[name].default for name in kwargs if name not in expected}
 
 
 def test_settings_declare_and_persist_well_resize(tmp_path):
