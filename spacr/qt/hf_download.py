@@ -511,14 +511,17 @@ class _HFDownloadUI(QObject):
         :param st: where the settings landed.
         :param err: the failure text when ``ok`` is ``False``.
         """
+        from shiboken6 import isValid
+
         dlg = self._dlg
-        try:
-            dlg.setValue(dlg.maximum())
-        except Exception:
-            pass
-        dlg.reset()
-        dlg.close()
-        dlg.deleteLater()
+        if isValid(dlg):
+            try:
+                dlg.setValue(dlg.maximum())
+            except Exception:
+                pass
+            dlg.reset()
+            dlg.close()
+            dlg.deleteLater()
         if drain_thread(self._thread, self._worker, timeout_ms=2000):
             self._thread = None
             self._worker = None
