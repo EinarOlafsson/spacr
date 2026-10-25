@@ -350,7 +350,9 @@ def test_the_flood_matches_the_wands_own_neighbourhood_rule():
 
 def canvas_xy(canvas, img_x: float, img_y: float) -> tuple:
     """Canvas-local point at the centre of image pixel ``(img_x, img_y)``."""
-    pixmap = canvas.pixmap()
+    from spacr.qt.hidpi import logical_size
+
+    pixmap = logical_size(canvas.pixmap())
     off_x = (canvas.width() - pixmap.width()) // 2
     off_y = (canvas.height() - pixmap.height()) // 2
     x0, y0, x1, y1 = canvas._viewport_bounds()
@@ -373,7 +375,7 @@ def wand_canvas(qtbot, qt_theme_applied) -> _MaskCanvas:
     qtbot.addWidget(c)
     c.resize(CANVAS_W, CANVAS_H)
     c.set_image_and_mask(image, np.zeros((IMG_N, IMG_N), dtype=np.uint16))
-    assert c.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert c.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     c.mode = MODE_WAND_ADD
     c.wand_relative = False
     c.wand_tolerance = TOLERANCE

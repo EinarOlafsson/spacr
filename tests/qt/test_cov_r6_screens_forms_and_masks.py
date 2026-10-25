@@ -97,7 +97,7 @@ def canvas(_unit_pixel_scale, qtbot, qt_theme_applied):
     widget.resize(CANVAS_W, CANVAS_H)
     widget.set_image_and_mask(np.zeros((IMG_N, IMG_N), np.uint16),
                               np.zeros((IMG_N, IMG_N), np.uint8))
-    assert widget.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert widget.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return widget
 
 

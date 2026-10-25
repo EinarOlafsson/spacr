@@ -95,7 +95,7 @@ def screen(qtbot, qt_theme_applied, folder):
     widget._history.push(widget._canvas.mask)
     _resize_actual(widget._canvas, QSize(CANVAS_W, CANVAS_H))
     widget._canvas.refresh()
-    assert widget._canvas.pixmap().width() == PIXMAP_N
+    assert widget._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
     widget._magnifier.segment = lambda request: np.zeros(
         request.crop.shape[:2] if request.crop is not None
         else request.shape, dtype=np.int32)

@@ -115,7 +115,7 @@ def screen(qtbot, qt_theme_applied, two_fields: Path):
     assert made._open_folder(str(two_fields))
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
-    assert made._canvas.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     yield made
     made._magnifier.close()
     made.close_folded()

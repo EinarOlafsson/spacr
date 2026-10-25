@@ -131,7 +131,7 @@ def canvas(qtbot, qt_theme_applied):
     qtbot.addWidget(widget)
     widget.resize(CANVAS_W, CANVAS_H)
     widget.set_image_and_mask(field_image(), merged_mask())
-    assert widget.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert widget.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return widget
 
 
@@ -502,7 +502,7 @@ def screen(qtbot, qt_theme_applied, tmp_path: Path):
     widget._history.push(widget._canvas.mask)
     widget._canvas.resize(CANVAS_W, CANVAS_H)
     widget._canvas.refresh()
-    assert widget._canvas.pixmap().width() == PIXMAP_N
+    assert widget._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
     return widget
 
 

@@ -70,7 +70,9 @@ def canvas_xy(canvas, img_x: float, img_y: float) -> tuple:
     Reads the live zoom viewport rather than assuming the full image, so
     the same helper aims a click after a wheel-zoom as before one.
     """
-    pixmap = canvas.pixmap()
+    from spacr.qt.hidpi import logical_size
+
+    pixmap = logical_size(canvas.pixmap())
     off_x = (canvas.width() - pixmap.width()) // 2
     off_y = (canvas.height() - pixmap.height()) // 2
     x0, y0, x1, y1 = canvas._viewport_bounds()
@@ -163,7 +165,7 @@ def screen(qtbot, qt_theme_applied, folder: Path) -> MakeMasksScreen:
     qtbot.addWidget(s)
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._open_folder(str(folder))
-    assert s._canvas.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert s._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return s
 
 
@@ -187,7 +189,7 @@ def canvas(qtbot, qt_theme_applied) -> _MaskCanvas:
     c.resize(CANVAS_W, CANVAS_H)
     c.set_image_and_mask(three_object_image(40000, np.uint16),
                          three_object_mask())
-    assert c.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert c.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return c
 
 

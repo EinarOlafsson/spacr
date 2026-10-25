@@ -88,7 +88,7 @@ def screen(qtbot, qt_theme_applied, labelled: Path):
     assert made._open_folder(str(labelled))
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
-    assert made._canvas.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     yield made
     made._magnifier.close()
     made.close_folded()
@@ -542,6 +542,7 @@ def test_a_download_that_fails_its_checksum_leaves_nothing_behind(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     monkeypatch.setattr(made, "_confirm", lambda *a: True)
+    monkeypatch.setattr(mm, "is_headless", lambda: True)
     try:
         before = made._cp_model.currentData()
         assert made.download_zoo_model(bad)

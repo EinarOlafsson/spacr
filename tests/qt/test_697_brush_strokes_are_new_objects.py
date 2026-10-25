@@ -62,7 +62,7 @@ def canvas(qtbot, qt_theme_applied):
     c.resize(CANVAS_W, CANVAS_H)
     image = np.zeros((IMG_N, IMG_N), np.uint16)
     c.set_image_and_mask(image, np.zeros((IMG_N, IMG_N), np.uint8))
-    assert c.pixmap().width() == PIXMAP_N
+    assert c.pixmap().deviceIndependentSize().width() == PIXMAP_N
     c.mode = MODE_BRUSH
     c.brush_radius = 10
     assert c._mask_radius_for_brush() == 1

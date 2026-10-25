@@ -111,7 +111,7 @@ def canvas(qtbot, qt_theme_applied):
     qtbot.addWidget(c)
     c.resize(CANVAS_W, CANVAS_H)
     c.set_image_and_mask(block_image(), np.zeros((IMG_N, IMG_N), np.uint8))
-    assert c.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+    assert c.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return c
 
 
@@ -148,7 +148,7 @@ def screen(qtbot, qt_theme_applied, folder_3: Path):
     # Pin the canvas geometry so canvas_xy() is valid for this screen too.
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._canvas.refresh()
-    assert s._canvas.pixmap().width() == PIXMAP_N
+    assert s._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
     return s
 
 
@@ -283,7 +283,8 @@ def test_refresh_renders_mask_colour_over_image(canvas):
     assert tinted != plain, "painting the mask must change the composite"
     # A pixel inside the labelled square is no longer pure grey.
     cx, cy = canvas_xy(30, 30)
-    px = QColor(tinted.pixel(int(cx) - MARGIN_X, int(cy)))
+    ratio = canvas.pixmap().devicePixelRatio()
+    px = QColor(tinted.pixel(int((cx - MARGIN_X) * ratio), int(cy * ratio)))
     assert not (px.red() == px.green() == px.blue()), (
         f"expected a coloured overlay, got grey {px.getRgb()}"
     )
@@ -589,7 +590,7 @@ def test_zoom_drag_commits_viewport_and_emits(canvas):
     assert canvas._viewport_bounds() == (8, 8, 57, 57)
     assert canvas._zoom_drag_start is None
     # The rendered pixmap now shows only the sub-region.
-    assert canvas.pixmap().width() == PIXMAP_N
+    assert canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
 
 
 def test_zoom_drag_smaller_than_five_pixels_is_ignored(canvas):
@@ -676,10 +677,10 @@ def test_resize_refits_the_pixmap(qtbot, qt_theme_applied):
     c.set_image_and_mask(block_image(), np.zeros((IMG_N, IMG_N), np.uint8))
     c.show()
     qtbot.wait(20)
-    assert c.pixmap().width() == PIXMAP_N
+    assert c.pixmap().deviceIndependentSize().width() == PIXMAP_N
     c.resize(900, 700)
-    qtbot.waitUntil(lambda: c.pixmap().width() == 700, timeout=3000)
-    assert c.pixmap().height() == 700
+    qtbot.waitUntil(lambda: c.pixmap().deviceIndependentSize().width() == 700, timeout=3000)
+    assert c.pixmap().deviceIndependentSize().height() == 700
     c.hide()
 
 

@@ -661,7 +661,7 @@ def blob_screen(qtbot, qt_theme_applied, tmp_path):
     assert made._open_folder(str(folder))
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
-    assert made._canvas.pixmap().width() == PIXMAP_N
+    assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
     made._min_area.setValue(4)
     made._mag_size.setValue(SIZE)
     yield made
