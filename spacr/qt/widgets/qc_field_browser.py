@@ -3320,6 +3320,7 @@ def _overview_group_count(fields, annotations, definition):
     :returns: the number of matching fields.
     """
     def matches(field):
+        """Whether the field's well annotations hold every value of the group."""
         metadata = annotations.get((field.plate, field.well), {})
         return all(str(metadata.get(key)) == str(value) for key, value in definition.items())
     return sum(1 for field in fields if matches(field))
