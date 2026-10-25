@@ -333,11 +333,10 @@ def _rosetta_translated() -> bool:
 
     ``platform.machine()`` cannot answer this: a translated process is told
     ``x86_64``, so an M2 running an Intel Anaconda looks exactly like an
-    Intel Mac to every other check in spaCR. Found 2026-10-24 on the
-    maintainer's first Apple Silicon test machine, where a hand-made
-    ``conda create -n spacr`` from a 2023 Intel Anaconda had put spaCR on
-    an emulated Python with torch capped at 2.2.2 (the last Intel-Mac
-    wheel) and nothing in spaCR said so.
+    Intel Mac to every other check in spaCR. An environment made with
+    ``conda create -n spacr`` from an Intel Anaconda on Apple Silicon puts
+    spaCR on an emulated Python with torch capped at 2.2.2 (the last
+    Intel-Mac wheel), and without this check nothing in spaCR says so.
 
     The kernel answers it directly through ``sysctl.proc_translated``: 1
     when translated, 0 when native, and absent on an Intel Mac. Read
