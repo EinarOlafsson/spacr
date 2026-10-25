@@ -1500,7 +1500,10 @@ class FigureQueue(QWidget):
                         raise ValueError(tr("Saved figure files exceed the workspace copy limit."))
                     if kind == "png":
                         reader = QImageReader(str(path))
-                        if bytes(reader.format()).lower() != b"png" or not reader.canRead():
+                        readable = (bytes(reader.format()).lower() == b"png"
+                                    and reader.canRead())
+                        del reader
+                        if not readable:
                             return False
                     else:
                         with path.open("rb") as stream:

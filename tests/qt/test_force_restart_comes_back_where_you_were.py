@@ -499,6 +499,9 @@ def test_restart_child_gets_fresh_frozen_environment_without_changing_parent(mon
     assert restart_spacr('mask', {'src': str(tmp_path / 'my images'), 'cell_channel': 2},
                          exiter=lambda code: order.append(('exit', code))) is True
     kwargs = {'start_new_session': True, 'close_fds': True}
+    if os.name == 'nt':
+        kwargs['creationflags'] = (subprocess.DETACHED_PROCESS
+                                   | subprocess.CREATE_NEW_PROCESS_GROUP)
     argv = [sys.executable, '-m', 'spacr.qt']
     if frozen:
         argv = [sys.executable]
