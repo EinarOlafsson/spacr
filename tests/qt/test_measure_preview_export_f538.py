@@ -85,7 +85,10 @@ def test_existing_destinations_are_never_replaced(tmp_path, kind):
     elif kind == 'file':
         destination.write_text('original', encoding="utf-8")
     else:
-        destination.symlink_to(tmp_path / 'missing')
+        try:
+            destination.symlink_to(tmp_path / 'missing')
+        except OSError as error:
+            pytest.skip(f'this host cannot create symlinks: {error}')
     result = mp._write_preview_crop_export(destination, [_entry()], {}, 'rgb', threading.Event())
     assert 'error' in result
     assert destination.is_symlink() if kind == 'symlink' else destination.exists()
