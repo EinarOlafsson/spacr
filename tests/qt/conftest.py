@@ -83,6 +83,28 @@ def qt_theme_applied(qapp):
     return qapp
 
 
+@pytest.fixture(autouse=True)
+def _the_ambient_compilers_are_not_left_stopped():
+    """Start every test with the backdrop's compiler stop cleared.
+
+    Closing a MainWindow retires the backdrop's compilers by setting
+    ``ambient._COMPILER_STOP``, and only the next window's startup clears
+    it. A render test that builds an engine without a window then inherited
+    the stop from whichever earlier test closed one, and every render raised
+    CancelledError -- the orbit ring and galaxy cases, on an Apple M2, only
+    when they ran after such a test. Cleared exactly as startup clears it:
+    only when no compiler thread or helper process is still alive.
+    """
+    ambient = sys.modules.get("spacr.qt.widgets.ambient")
+    if ambient is not None:
+        with ambient._COMPILER_LIFECYCLE_LOCK:
+            if (not ambient._COMPILER_THREADS and ambient._PRIME_PROCESS is None
+                    and ambient._COMPILER_STOP.is_set()):
+                ambient._PRIMED_ONCE.clear()
+                ambient._COMPILER_STOP.clear()
+    yield
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _widget_qss_registrars_loaded():
     """Fill ``theme._WIDGET_QSS`` before any test can snapshot it.
