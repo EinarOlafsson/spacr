@@ -137,6 +137,7 @@ import threading
 import time
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
+from functools import lru_cache
 from pathlib import Path
 from typing import (
     Any,
@@ -2145,9 +2146,18 @@ def package_model_root() -> Path:
     """``<spacr>/resources/models`` — where the bundled pack lives.
 
     The same folder :func:`spacr.utils.download_models` fills and
-    :func:`spacr.submodules.analyze_plaques` reads from.
+    :func:`spacr.submodules.analyze_plaques` reads from. The package folder
+    is resolved once per process: resolving follows every link on the way,
+    a filesystem round trip per component that a module build paid per model
+    entry on Windows.
     """
-    return Path(__file__).resolve().parent / "resources" / "models"
+    return _package_folder() / "resources" / "models"
+
+
+@lru_cache(maxsize=1)
+def _package_folder() -> Path:
+    """The resolved folder of this installed package, looked up once."""
+    return Path(__file__).resolve().parent
 
 
 def default_local_roots() -> List[Path]:
