@@ -130,16 +130,24 @@ def test_qtawesome_loads_without_qtpys_data_visualization_alias():
     import subprocess
     import sys
 
+    import json
+
     probe = (
-        "import sys\n"
+        "import json, sys\n"
         "from PySide6.QtWidgets import QApplication\n"
         "app = QApplication([])\n"
         "from spacr.qt import iconset\n"
-        "assert iconset._try_qta() is not None\n"
-        "assert 'PySide6.QtDataVisualization' not in sys.modules\n"
-        "assert sys.modules.get('qtpy.QtDataVisualization', 0) is not None\n"
+        "loaded = iconset._try_qta() is not None\n"
+        "facts = {'qta': loaded,\n"
+        "         'native_before': 'PySide6.QtDataVisualization' in sys.modules,\n"
+        "         'alias_blocked': sys.modules.get('qtpy.QtDataVisualization', 0) is None}\n"
         "import qtpy.QtDataVisualization\n"
-        "assert 'PySide6.QtDataVisualization' in sys.modules\n"
+        "facts['native_on_request'] = 'PySide6.QtDataVisualization' in sys.modules\n"
+        "print(json.dumps(facts))\n"
     )
-    subprocess.run([sys.executable, "-c", probe], check=True, timeout=120,
-                   env={**__import__("os").environ, "QT_QPA_PLATFORM": "offscreen"})
+    done = subprocess.run([sys.executable, "-c", probe], check=True, timeout=120,
+                          capture_output=True, text=True,
+                          env={**__import__("os").environ, "QT_QPA_PLATFORM": "offscreen"})
+    facts = json.loads(done.stdout.strip().splitlines()[-1])
+    assert facts == {"qta": True, "native_before": False, "alias_blocked": False,
+                     "native_on_request": True}, facts

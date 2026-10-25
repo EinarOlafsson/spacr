@@ -729,13 +729,20 @@ def test_importing_the_dictionary_compiles_no_object_alternation():
     import subprocess
     import sys
 
+    import json
+
     probe = (
+        "import json\n"
         "import spacr.feature_dict as f\n"
         "lazy = [f._DOUBLE_PREFIX_BLUR_RE, f._ORG_SUMMARY_CH_RE]"
         " + [p for p, _ in f._PARAMETERIZED if isinstance(p, f._LazyPattern)]\n"
-        "assert len(lazy) == 7, len(lazy)\n"
-        "assert all(p._compiled is None for p in lazy)\n"
-        "assert f._DOUBLE_PREFIX_BLUR_RE.match('cell_channel_2_blur')\n"
-        "assert f._DOUBLE_PREFIX_BLUR_RE._compiled is not None\n"
+        "facts = {'lazy': len(lazy), 'compiled_at_import': sum(p._compiled is not None for p in lazy)}\n"
+        "facts['matches'] = bool(f._DOUBLE_PREFIX_BLUR_RE.match('cell_channel_2_blur'))\n"
+        "facts['compiled_on_use'] = f._DOUBLE_PREFIX_BLUR_RE._compiled is not None\n"
+        "print(json.dumps(facts))\n"
     )
-    subprocess.run([sys.executable, "-c", probe], check=True, timeout=120)
+    done = subprocess.run([sys.executable, "-c", probe], check=True, timeout=120,
+                          capture_output=True, text=True)
+    facts = json.loads(done.stdout.strip().splitlines()[-1])
+    assert facts == {"lazy": 7, "compiled_at_import": 0, "matches": True,
+                     "compiled_on_use": True}, facts
