@@ -7680,6 +7680,58 @@ class _FieldOverview(QWidget):
             self._index_jobs, self._image_jobs, self._thumbnail_jobs,
             self._field_thumbnail_jobs, self._montage_jobs))
 
+    def _mount_navigation_bar(self):
+        """Put plate and field navigation above the plate, as labelled groups of buttons.
+
+        Navigation returns to the plate; Wells fits the plate or makes the
+        wells smaller (minus) or larger (plus); Fields pages through a well's
+        fields and compares the selected ones. Opening a well or an image is
+        a double click, so those two buttons are not shown.
+
+        :returns: the bar.
+        """
+        from .flow import FlowHost, FlowLayout
+
+        fit, larger, smaller = self._plate_zoom_buttons
+        for button, text, tooltip in ((smaller, "−", "Smaller wells"), (larger, "+", "Larger wells")):
+            button.setText(text)
+            button.setToolTip(tr(tooltip))
+            button.setAccessibleName(tr(tooltip))
+        fit.setToolTip(tr("Fit the whole plate in view"))
+        groups = (("Navigation", (self._plate_back_button,)),
+                  ("Wells", (fit, smaller, larger)),
+                  ("Fields", (*self._paging_buttons, self._compare_fields_button)))
+        bar = FlowHost(self)
+        bar.setObjectName("FieldOverviewNavigation")
+        flow = FlowLayout(bar)
+        for caption, buttons in groups:
+            group = QWidget(bar)
+            row = QHBoxLayout(group)
+            row.setContentsMargins(0, 0, 8, 0)
+            row.setSpacing(4)
+            title = QLabel(tr(caption))
+            title.setObjectName("FieldOverviewNavigationGroup")
+            font = title.font()
+            font.setBold(True)
+            title.setFont(font)
+            row.addWidget(title)
+            for button in buttons:
+                button.show()
+                row.addWidget(button)
+            flow.addWidget(group)
+        for button in (self._open_well_button, self._open_images_button):
+            button.hide()
+        holder = QWidget(self)
+        layout = QVBoxLayout(holder)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        index = self._splitter.indexOf(self._levels)
+        layout.addWidget(bar)
+        layout.addWidget(self._levels, 1)
+        self._splitter.insertWidget(max(0, index), holder)
+        self._navigation_bar = bar
+        return bar
+
     def _mounted_control_lost(self, *_):
         """Stop for good once a control mounted in a setting row is deleted.
 
@@ -8489,10 +8541,6 @@ def _overview_module_rows(browser):
             ("Field", "Field of view shown for each well.", (browser.fov_axis,)),
             ("Time", "Time point shown for time-lapse acquisitions.", (browser.time_axis,)),
             ("Z", "Z plane shown when the Z mode is a single plane.", (browser.z_axis,)),
-            ("Plate navigation", "Return to the plate, open the selected well, or change the size of the wells.",
-             (browser._plate_back_button, browser._open_well_button, *browser._plate_zoom_buttons)),
-            ("Fields", "Page through a well's fields, compare the selected fields in one montage, or open each selected field as its own stacked image.",
-             (*browser._paging_buttons, browser._compare_fields_button, browser._open_images_button)),
         ],
         "Normalization": [
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
@@ -8693,6 +8741,7 @@ class _OverviewModulePage(QWidget):
         self._screen._field_overview = browser
         self.stack.addWidget(browser)
         self.stack.setCurrentWidget(browser)
+        browser._mount_navigation_bar()
         self._mount_rows(browser)
         self._bridge = _OverviewSettingsBridge(self._screen, browser)
         self._drop_wizard(wizard)

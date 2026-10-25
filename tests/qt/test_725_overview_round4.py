@@ -158,3 +158,37 @@ def test_settings_open_wide_with_the_tab_and_stay_open_after_next(mask, qtbot, s
     qtbot.wait(50)
     assert not body.is_collapsed("Settings")
     assert body.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(body.sizes()) // 2)
+
+
+def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, source):
+    from PySide6.QtWidgets import QLabel
+
+    tab, view = _browse(mask, qtbot, source)
+    captions = {str(field.property("settingKey")) for _section, field, _widgets in tab._overview_page._rows}
+    assert "overview_plate_navigation" not in captions and "overview_fields" not in captions
+    bar = view._navigation_bar
+    holder = bar.parentWidget()
+    assert holder.layout().indexOf(bar) == 0 and holder.layout().indexOf(view._levels) == 1
+    assert view._levels.indexOf(view._plate_panel) == 0
+    groups = [label.text() for label in bar.findChildren(QLabel)
+              if label.objectName() == "FieldOverviewNavigationGroup"]
+    assert groups == ["Navigation", "Wells", "Fields"]
+    texts = [button.text() for button in bar.findChildren(QPushButton)]
+    assert "−" in texts and "+" in texts
+    assert "Open selected well" not in texts and "Open selected images" not in texts
+    assert view._open_well_button.isHidden() and view._open_images_button.isHidden()
+    fit, larger, smaller = view._plate_zoom_buttons
+    assert (smaller.text(), larger.text()) == ("−", "+")
+    assert texts.index("−") < texts.index("+")
+    fit.click()
+    extent = view._plate_cell_extent
+    larger.click()
+    assert view._plate_cell_extent[0] > extent[0]
+    smaller.click()
+    smaller.click()
+    assert view._plate_cell_extent[0] < extent[0]
+    item = view.wells.item(*view._well_positions["A01"])
+    view.wells.itemDoubleClicked.emit(item)
+    qtbot.waitUntil(lambda: view._scope[1] == "A01", timeout=5000)
+    view._plate_back_button.click()
+    assert view._scope[1] is None
