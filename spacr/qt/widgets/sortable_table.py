@@ -75,6 +75,11 @@ _TEXT_ROLE_VALUES = (_DISPLAY_ROLE.value, _EDIT_ROLE.value)
 
 _RESTORING = False
 
+#: ``(descending, token)`` while :func:`_sort_tree_on_primed_keys` sorts a
+#: tree whose rows carry ``_sort_primed`` keys read under ``token``;
+#: ``None`` otherwise.
+_PRIMED = None
+
 _STATE_ATTR = "_spacr_sort_state"
 
 #: A comma between digits is a thousands separator and nothing else.
@@ -420,6 +425,12 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
         if _RESTORING:
             return getattr(self, "_sort_serial", 0) < getattr(
                 other, "_sort_serial", 0)
+        if _PRIMED is not None:
+            mine = getattr(self, "_sort_primed", None)
+            theirs = getattr(other, "_sort_primed", None)
+            if (mine is not None and theirs is not None
+                    and mine[0] is _PRIMED[1] and theirs[0] is _PRIMED[1]):
+                return _primed_less(mine, theirs, _PRIMED[0])
         column = self._sort_column()
         mine_missing, mine = self._resolve_key(column)
         if isinstance(other, SortableTreeItem):
@@ -439,6 +450,103 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
             return (self.text(column) or "").casefold() < (
                 other.text(column) or "").casefold()
         return mine is not None
+
+
+def _primed_less(mine, theirs, descending) -> bool:
+    """:meth:`SortableTreeItem.__lt__` on keys read before the sort began.
+
+    :param mine: ``(token, missing, number, folded text)`` of the left row.
+    :param theirs: the same for the right row.
+    :param descending: whether the sort runs descending.
+    """
+    if mine[1] or theirs[1]:
+        if mine[1] and theirs[1]:
+            return False
+        return mine[1] if descending else theirs[1]
+    if mine[2] is not None and theirs[2] is not None:
+        return mine[2] < theirs[2]
+    if mine[2] is None and theirs[2] is None:
+        return mine[3] < theirs[3]
+    return mine[2] is not None
+
+
+def _read_primed_key(item, column: int, token) -> None:
+    """Store ``item``'s sort key for ``column`` on it, read under ``token``."""
+    missing, number = item._resolve_key(column)
+    item._sort_primed = (token, missing, number,
+                         (item.text(column) or "").casefold())
+
+
+def _prime_row_key(view, item) -> None:
+    """Read ``item``'s key for the sort ``view`` holds while it is filled.
+
+    For a fill that writes a large tree over several event-loop turns: each
+    row's key is read in the turn that wrote it, so the sort that comes back
+    when the fill is done (:func:`_sort_tree_on_primed_keys`) finds them
+    read. A view whose sort is not held, or was not sorted, is left alone.
+
+    :param view: the ``QTreeWidget`` being filled.
+    :param item: a row whose text has just been written.
+    """
+    state = getattr(view, _STATE_ATTR, None)
+    suspended = getattr(state, "_suspended", None) if state is not None else None
+    token = getattr(state, "_prime_token", None)
+    if (suspended is None or suspended[0] < 0 or token is None
+            or not isinstance(item, SortableTreeItem)):
+        return
+    _read_primed_key(item, suspended[0], token)
+
+
+def _prime_tree_keys(view, column: int, token) -> list:
+    """Give every row of ``view`` its sort key for ``column`` under ``token``.
+
+    A row that already carries one read under ``token`` keeps it.
+
+    :returns: the rows carrying a key, so they can be cleared after the sort.
+    """
+    primed = []
+    stack = [view.invisibleRootItem()]
+    while stack:
+        parent = stack.pop()
+        child = parent.child
+        for row in range(parent.childCount()):
+            item = child(row)
+            stack.append(item)
+            if isinstance(item, SortableTreeItem):
+                kept = getattr(item, "_sort_primed", None)
+                if kept is None or kept[0] is not token:
+                    _read_primed_key(item, column, token)
+                primed.append(item)
+    return primed
+
+
+def _sort_tree_on_primed_keys(view, section: int, order, token=None) -> None:
+    """Put ``view``'s sort indicator back, comparing keys read beforehand.
+
+    Qt compares rows through their Python ``__lt__``, and each comparison
+    asked the tree for its sort column and each row for its text to check
+    its cached key: 25,000 comparisons and 50,000 key reads, 56-60 ms in one
+    turn, when a redrawn 7,000-node Lineage tree was sorted again. Each
+    row's key is read once first -- or was, by the fill that wrote it
+    (:func:`_prime_row_key`) -- and the comparisons use those; the order is
+    the same.
+
+    :param view: a ``QTreeWidget`` whose sort was held for a fill.
+    :param section: the column to sort.
+    :param order: the order to sort in.
+    :param token: the fill's priming token; keys read under another one are
+        read again.
+    """
+    global _PRIMED
+    token = object() if token is None else token
+    primed = _prime_tree_keys(view, section, token)
+    _PRIMED = (order == Qt.DescendingOrder, token)
+    try:
+        _header(view).setSortIndicator(section, order)
+    finally:
+        _PRIMED = None
+        for item in primed:
+            item._sort_primed = None
 
 
 def table_item(value="", key=None) -> SortableTableItem:
@@ -620,7 +728,7 @@ def _hold_sorting_for_fill(view) -> None:
         state.suspend_for_fill()
 
 
-def _reuse_tree_items(parent, count: int, make=None) -> list:
+def _reuse_tree_items(parent, count: int, make=None, wipe: bool = True) -> list:
     """The first ``count`` children of ``parent``, as wiped items to rewrite.
 
     ``parent`` is a tree (its top-level items) or a tree item (its
@@ -632,6 +740,9 @@ def _reuse_tree_items(parent, count: int, make=None) -> list:
     :param count: how many children it should have.
     :param make: builds a new item when no spare one is left;
         :func:`tree_item` by default.
+    :param wipe: wipe the kept children here. A fill that writes them over
+        several turns passes ``False`` and wipes each one with
+        :func:`_wipe` in the turn that rewrites it.
     :returns: the children in order; set every attribute each one needs.
     """
     _remember_default_flags()
@@ -652,7 +763,7 @@ def _reuse_tree_items(parent, count: int, make=None) -> list:
         if tree is not None:
             _wipe(tree, child(last), columns)
         spare.append(take(last))
-    for row in range(size()):
+    for row in range(size() if wipe else 0):
         if tree is not None:
             _wipe(tree, child(row), columns)
     while size() < count:
@@ -677,6 +788,7 @@ class _SortState(QObject):
         super().__init__(view)
         self._view = view
         self._suspended = None
+        self._prime_token = None
         self._resuming = False
         self._stamping = False
         self._resume_timer = QTimer(self)
@@ -701,6 +813,7 @@ class _SortState(QObject):
         if getattr(self, "_suspended", None) is None:
             self._suspended = (header.sortIndicatorSection(),
                                header.sortIndicatorOrder())
+            self._prime_token = object()
             if self._suspended[0] >= 0:
                 header.setSortIndicator(-1, Qt.AscendingOrder)
         self._resume_timer.start(0)
@@ -721,7 +834,11 @@ class _SortState(QObject):
             return
         self._resuming = True
         try:
-            header.setSortIndicator(section, order)
+            if isinstance(view, QTreeWidget):
+                _sort_tree_on_primed_keys(view, section, order,
+                                          getattr(self, "_prime_token", None))
+            else:
+                header.setSortIndicator(section, order)
         finally:
             self._resuming = False
 
@@ -813,6 +930,20 @@ def _stamp_initial_order(view) -> None:
         if item is not None:
             for column in range(view.columnCount()):
                 item.setData(column, Qt.InitialSortOrderRole, descending)
+
+
+def _keep_sorting_held(view) -> None:
+    """Keep a fill's held sort from coming back on the next turn.
+
+    For a fill that runs over several event-loop turns: the resume
+    :meth:`_SortState.suspend_for_fill` queues would otherwise sort the
+    half-written view between them. :func:`_settle_sorting` brings it back.
+
+    :param view: a view :func:`install_sorting` was called on.
+    """
+    state = getattr(view, _STATE_ATTR, None)
+    if state is not None and _alive(state):
+        state._resume_timer.stop()
 
 
 def _settle_sorting(view) -> None:

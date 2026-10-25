@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QFileDialog, QHBoxLayout,
                                QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from ... import lineage as lin
+from .. import _after
 from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
@@ -42,10 +43,15 @@ from ..theme import SPACING, active_palette, mark_surface
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import install_test_data_button
 from ..widgets.sortable_table import (
-    _reuse_list_items, _reuse_tree_items, install_sorting)
+    _keep_sorting_held, _prime_row_key, _reuse_list_items, _reuse_tree_items,
+    _settle_sorting, _wipe, install_sorting)
 from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
+
+#: Longest a turn of :meth:`LineageScreen._fill_tree_in_turns` writes rows
+#: for, in seconds, before it lets the event loop run.
+_FILL_TURN_S = 0.02
 
 __all__ = [
     "LineageScreen",
@@ -286,28 +292,45 @@ class LineageScreen(LinkedView, QWidget):
             empty. A ``LineageError`` from building the tree is shown in the
             summary instead of raised.
         """
-        self._show_built(_build_lineage(frames))
+        self._show_built(_build_lineage(frames), in_turns=False)
 
-    def _show_built(self, built: _BuiltLineage) -> None:
+    def _show_built(self, built: _BuiltLineage,
+                    in_turns: Optional[bool] = None) -> None:
         """Draw a tree :func:`_build_lineage` has already built.
 
         :param built: the worker's result for the current load.
+        :param in_turns: write the tree over several event-loop turns
+            (:meth:`_fill_tree_in_turns`), the status line following when
+            the last row is written. ``None`` does so on a screen that reads
+            on a worker thread: rewriting a 7,000-node tree took 210-230 ms
+            in one turn, the Build tree freeze of lesson 56.
         """
+        if in_turns is None:
+            in_turns = bool(getattr(self._jobs, "_threaded", True))
+        self._fill_generation = getattr(self, "_fill_generation", 0) + 1
         self._frames = built.frames
         self._forest = built.forest
         self._orphans = built.orphans
         self._orphan_rows = built.orphan_rows
         self._collisions = built.collisions
         if built.problem is not None:
+            self.tree.setUpdatesEnabled(True)
             _reuse_tree_items(self.tree, 0)
             _reuse_list_items(self.orphan_list, 0)
             self.summary.setText(built.problem)
             self.status.setText("Nothing to show.")
             return
-        self._fill_tree()
         self._fill_orphans()
         note = self.collision_note()
         self.summary.setText(built.summary + (f"\n{note}" if note else ""))
+        if in_turns:
+            self._fill_tree_in_turns(self._say_what_is_shown)
+        else:
+            self._fill_tree()
+            self._say_what_is_shown()
+
+    def _say_what_is_shown(self) -> None:
+        """Put how much of the forest the tree shows on the status line."""
         shown = min(len(self._forest), TREE_LIMIT)
         self.status.setText(
             f"{shown} of {len(self._forest)} parent object(s) in the tree"
@@ -324,9 +347,58 @@ class LineageScreen(LinkedView, QWidget):
         rows = _reuse_tree_items(self.tree, len(roots))
         for item, root in zip(rows, roots):
             self._item(root, item)
+        if not self.tree.updatesEnabled():
+            self.tree.setUpdatesEnabled(True)
+
+    def _fill_tree_in_turns(self, done) -> None:
+        """:meth:`_fill_tree`, at most :data:`_FILL_TURN_S` of rows a turn.
+
+        The top-level rows are counted out first and each is wiped in the
+        turn that rewrites it. The tree is not repainted while it is half
+        written, and its sort stays held until the last row is in: each row's
+        sort key is read in the turn that writes it, so the one sort at the
+        end compares keys already read. A newer fill makes this one stop.
+
+        :param done: called once the last row is written and sorted.
+        """
+        import time
+
+        generation = self._fill_generation
+        tree = self.tree
+        roots = self._forest[:TREE_LIMIT]
+        rows = _reuse_tree_items(tree, len(roots), wipe=False)
+        columns = max(1, tree.columnCount())
+        work = list(zip(rows, roots))
+        position = [0]
+        tree.setUpdatesEnabled(False)
+
+        def turn() -> None:
+            """Write rows for one turn, then hand the event loop back."""
+            if generation != self._fill_generation:
+                return
+            started = time.perf_counter()
+            while position[0] < len(work):
+                item, root = work[position[0]]
+                position[0] += 1
+                _wipe(tree, item, columns)
+                self._item(root, item, prime=True)
+                if time.perf_counter() - started >= _FILL_TURN_S:
+                    break
+            _keep_sorting_held(tree)
+            _after(0, self, turn if position[0] < len(work) else finish)
+
+        def finish() -> None:
+            """Sort once on the keys read, then show the tree again."""
+            if generation != self._fill_generation:
+                return
+            _settle_sorting(tree)
+            tree.setUpdatesEnabled(True)
+            done()
+
+        turn()
 
     def _item(self, node: "lin.LineageNode",
-              item: QTreeWidgetItem) -> QTreeWidgetItem:
+              item: QTreeWidgetItem, prime: bool = False) -> QTreeWidgetItem:
         """Write one node and its descendants into a tree item.
 
         The item and any children it already has are rewritten in place, so a
@@ -335,6 +407,9 @@ class LineageScreen(LinkedView, QWidget):
         The key is stashed on the item rather than re-derived from the label
         text: a label is for reading and a key is for matching, and the two
         have drifted apart in this codebase before.
+
+        :param prime: read each written row's key for the held sort
+            (:func:`spacr.qt.widgets.sortable_table._prime_row_key`).
         """
         inside = {t: n for t, n in node.counts().items() if t != node.table}
         texts = [
@@ -347,9 +422,11 @@ class LineageScreen(LinkedView, QWidget):
         item.setData(0, _KEY_ROLE, node.key)
         item.setData(0, _ID_ROLE, node.node_id)
         item.setToolTip(0, node.describe())
+        if prime:
+            _prime_row_key(self.tree, item)
         kids = _reuse_tree_items(item, len(node.children))
         for kid, child in zip(kids, node.children):
-            self._item(child, kid)
+            self._item(child, kid, prime)
         return item
 
     def _fill_orphans(self) -> None:
