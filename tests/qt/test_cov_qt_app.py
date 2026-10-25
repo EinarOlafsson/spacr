@@ -2607,7 +2607,15 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
     monkeypatch.setattr(sys, "argv", ["spacr-qt"])
     rc = app_mod.launch()
     assert rc == 0
-    assert launched["shims"][0].argv == ["spacr-qt"]
+    # On macOS the application is built with its own name, which is what the
+    # menu bar shows; elsewhere it keeps the command it was started as.
+    if sys.platform == "darwin":
+        from spacr.qt.menus import name_the_application
+
+        expected = [name_the_application()[0]]
+    else:
+        expected = ["spacr-qt"]
+    assert launched["shims"][0].argv == expected
 
     win = launched["window"]()
     qtbot.addWidget(win, before_close_func=_close_owned_screens)
