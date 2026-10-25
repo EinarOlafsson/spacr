@@ -60,6 +60,8 @@ class _SetupComboBox(QComboBox):
 
         Ignore construction-time and reentrant polish events; never derive a
         new floor from the previously imposed minimum, so shrinking still works.
+        A repeated polish with the same native hint, font, style and items --
+        every reparenting sends one -- keeps the fit it already has.
         """
         if not self._fit_ready or self._fitting or not self.count():
             return
@@ -69,6 +71,14 @@ class _SetupComboBox(QComboBox):
 
             self.ensurePolished()
             hint = super().sizeHint().expandedTo(super().minimumSizeHint())
+            signature = (hint.width(), hint.height(), self.font().key(), id(self.style()),
+                         self.isEnabled(), self.logicalDpiX(), self.isEditable(),
+                         self.hasFrame(), self.iconSize().width(), self.iconSize().height(),
+                         self.currentIndex(), tuple(self.itemText(index) for index in range(self.count())),
+                         self.property("minimumSize"))
+            if signature == getattr(self, "_fitted_signature", None):
+                return
+            self._fitted_signature = signature
             option = QStyleOptionComboBox()
             option.initFrom(self)
             option.rect = QRect(0, 0, hint.width(), hint.height())

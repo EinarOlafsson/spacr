@@ -563,6 +563,33 @@ _ENTRY_PRELOADED_FOR = frozenset({"mask"})
 _ENTRY_PRELOAD_AFTER_S = 3.0
 
 
+#: How often a held background import asks again, in milliseconds.
+_HELD_IMPORT_RETRY_MS = 1000
+
+
+def _start_unless_held(window, start):
+    """Run ``start`` now, or once no view holds the background imports.
+
+    :func:`spacr.qt.gil_priority.hold_background_imports` is taken while an
+    Overview loads; the warm import then asks again every
+    :data:`_HELD_IMPORT_RETRY_MS` instead of competing with it for the
+    interpreter lock. Every other path starts at once, as before.
+
+    :param window: the main window whose lifetime bounds the retries.
+    :param start: the warm import to start.
+    :returns: what ``start`` returned, or ``None`` while it is held.
+    """
+    from .gil_priority import background_imports_held
+
+    if getattr(window, "_closing", False):
+        return None
+    if background_imports_held():
+        _after(_HELD_IMPORT_RETRY_MS, window,
+               lambda: _start_unless_held(window, start))
+        return None
+    return start()
+
+
 def _preload_the_pipeline_entry(app_key: str):
     """Start importing ``app_key``'s pipeline module on a worker thread.
 
@@ -7465,16 +7492,16 @@ class MainWindow(QMainWindow):
             budget_s=_timing.MODULE_BUDGET_S,
         )
         if built_now and not _DATA_LIBRARIES_STARTED:
-            from PySide6.QtCore import QTimer
-
-            QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
-                              _import_the_data_libraries_off_the_gui_thread)
+            _after(int(_DATA_LIBRARIES_AFTER_S * 1000), self,
+                   lambda: _start_unless_held(
+                       self, _import_the_data_libraries_off_the_gui_thread))
         if built_now and not _RUN_ENVIRONMENT_STARTED:
             _after(int(_RUN_ENVIRONMENT_AFTER_S * 1000), self,
                    lambda: _warm_the_run_environment_when_idle(self))
         if built_now and key in _ENTRY_PRELOADED_FOR:
             _after(int(_ENTRY_PRELOAD_AFTER_S * 1000), self,
-                   lambda k=key: _preload_the_pipeline_entry(k))
+                   lambda k=key: _start_unless_held(
+                       self, lambda: _preload_the_pipeline_entry(k)))
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)

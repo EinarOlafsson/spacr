@@ -13760,7 +13760,7 @@ def _sample_usage(per_core: bool) -> dict:
             sample["per_core"] = psutil.cpu_percent(interval=None, percpu=True)
     except Exception:
         pass
-    if _nvidia_smi_available():
+    if _nvidia_smi_known():
         reading = _nvml_gpu_usage()
         if reading is not None:
             sample["gpu"], sample["vram"] = reading
@@ -13815,6 +13815,28 @@ def _nvml_gpu_usage() -> Optional[tuple]:
         return load, (float(memory.used) / total * 100 if total else 0.0)
     except Exception:
         return None
+
+
+_NVIDIA_SMI_KNOWN: dict = {}
+_NVIDIA_SMI_RECHECK_S = 60.0
+
+
+def _nvidia_smi_known() -> bool:
+    """:func:`_nvidia_smi_available`, asked at most once a minute.
+
+    Every usage sample asked it, and on Windows ``shutil.which`` walks each
+    PATH folder with every PATHEXT suffix, under the interpreter lock, every
+    two seconds. A driver installed later is still seen within a minute, and
+    a replaced probe (a test's stand-in) is asked again at once.
+    """
+    probe = _nvidia_smi_available
+    now = time.monotonic()
+    known = _NVIDIA_SMI_KNOWN.get("value")
+    if known is not None and known[0] is probe and now - known[2] < _NVIDIA_SMI_RECHECK_S:
+        return known[1]
+    value = bool(probe())
+    _NVIDIA_SMI_KNOWN["value"] = (probe, value, now)
+    return value
 
 
 def _nvidia_smi_available() -> bool:

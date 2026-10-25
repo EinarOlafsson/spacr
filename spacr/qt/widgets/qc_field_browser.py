@@ -3698,6 +3698,9 @@ class _FieldOverview(QWidget):
         import threading
 
         super().__init__(parent)
+        from ..gil_priority import hold_background_imports
+
+        hold_background_imports(self, _FieldOverview._loading)
         self._overview_options = dict(settings or {})
         self._advanced_model = None
         self._advanced_enabled = False
@@ -7014,8 +7017,21 @@ class _FieldOverview(QWidget):
         self._retire()
         super().closeEvent(event)
 
+    def _loading(self):
+        """Whether this shown browser is still indexing, preparing or decoding images."""
+        if getattr(self, "_module_actions_retired", False) or not self.isVisible():
+            return False
+        if not self._normalization_ready:
+            return True
+        return any(runner.is_busy() for runner in (
+            self._index_jobs, self._image_jobs, self._thumbnail_jobs,
+            self._field_thumbnail_jobs, self._montage_jobs))
+
     def _retire(self):
         """Stop owned image generations even when a page is already hidden."""
+        from ..gil_priority import release_background_imports
+
+        release_background_imports(self)
         self._module_actions_retired = True
         self._module_action_fit_timer.stop()
         self._options_window.close()
@@ -8394,6 +8410,9 @@ class _OverviewMetadataWizard(QWidget):
         from PySide6.QtWidgets import QSplitter
 
         super().__init__(parent)
+        from ..gil_priority import hold_background_imports
+
+        hold_background_imports(self, lambda wizard: not wizard._finished and wizard.isVisible())
         self.setWindowTitle(tr("Image metadata and display"))
         self._settings = dict(settings or {})
         self._fields = ()
@@ -9164,6 +9183,9 @@ class _OverviewMetadataWizard(QWidget):
         else:
             self.rejected.emit()
         self.finished.emit(result)
+        from ..gil_priority import release_background_imports
+
+        release_background_imports(self)
 
     def closeEvent(self, event):
         """Retire pending metadata when its containing window is closed."""

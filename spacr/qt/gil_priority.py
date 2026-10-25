@@ -38,6 +38,70 @@ _DEPTH = 0
 _RESTORE = None
 
 
+_HOLDS_LOCK = threading.Lock()
+_HOLDS: dict = {}
+
+#: Longest a hold keeps background imports waiting, in seconds, so a view
+#: that never reports itself ready cannot keep them out for good.
+HOLD_LIMIT_S = 60.0
+
+
+def hold_background_imports(owner, busy=None) -> None:
+    """Ask the optional background imports to wait while ``owner`` loads.
+
+    The window's warm imports (the data libraries and a module's pipeline
+    entry, torch included) compete with the GUI thread for the interpreter
+    lock; on Windows that starved an Overview's first browser open by
+    several seconds. A hold only postpones their start, never cancels it,
+    and lapses after :data:`HOLD_LIMIT_S` or when ``owner`` is deleted.
+
+    :param owner: the object loading; held weakly.
+    :param busy: optional ``busy(owner) -> bool``; the hold counts only while
+        it answers True, so a view holds while it loads and not while it idles.
+    """
+    import time
+
+    try:
+        reference = weakref.ref(owner)
+    except TypeError:
+        return
+    with _HOLDS_LOCK:
+        _HOLDS.setdefault(id(owner), (reference, time.monotonic(), busy))
+
+
+def release_background_imports(owner) -> None:
+    """End ``owner``'s hold; the waiting imports start at their next check.
+
+    :param owner: the object that called :func:`hold_background_imports`.
+    """
+    with _HOLDS_LOCK:
+        entry = _HOLDS.get(id(owner))
+        if entry is not None and entry[0]() is owner:
+            del _HOLDS[id(owner)]
+
+
+def background_imports_held() -> bool:
+    """Whether a live, recent hold asks the background imports to wait."""
+    import time
+
+    now = time.monotonic()
+    with _HOLDS_LOCK:
+        held = []
+        for key, (reference, started, busy) in list(_HOLDS.items()):
+            owner = reference()
+            if owner is None or now - started >= HOLD_LIMIT_S:
+                del _HOLDS[key]
+            else:
+                held.append((owner, busy))
+    for owner, busy in held:
+        try:
+            if busy is None or busy(owner):
+                return True
+        except RuntimeError:
+            continue
+    return False
+
+
 def claim() -> None:
     """Request the responsive-GUI switch interval for one active worker.
 
