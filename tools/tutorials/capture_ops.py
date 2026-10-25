@@ -239,6 +239,13 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     proof['cached_before_click'] = (folder / 'manifest.csv').is_file()
     scene_load = drv.begin(capture, settle, '02_load_test_data')
     if not button.isVisible():
+        from qtpy.QtWidgets import QAbstractButton
+        from spacr.qt.settings_search import DISCLOSURE_NAME
+        toggle = page.findChild(QAbstractButton, DISCLOSURE_NAME)
+        if toggle is not None and toggle.isVisible() and not toggle.isChecked():
+            click(toggle)                      # Essentials -> All settings: the example section is not an essential
+            settle(1.0)
+    if not button.isVisible():
         # The test-data button sits in the example section of the OPS page; open its (outermost-first)
         # collapsed sections the way a user would before scrolling to it.
         sections, w = [], button.parentWidget()

@@ -127,9 +127,18 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     capture_ui.scroll_to(capture, parent, widget)
                 parent = parent.parentWidget()
             settle(.1)
+            # A control is disabled while the screen's own background scan runs (Model Zoo greys Choose
+            # folder while busy): wait for it, as a user would, before calling it unusable.
+            until = time.monotonic() + 90
+            while ((not widget.isVisible() or not widget.isEnabled() or widget.visibleRegion().isEmpty())
+                   and time.monotonic() < until):
+                tick()
+                settle(.3)
             if (not widget.isVisible() or not widget.isEnabled()
                     or widget.visibleRegion().isEmpty()):
-                raise RuntimeError('A requested control is not visible and usable')
+                raise RuntimeError('A requested control is not visible and usable (%s %r: visible=%s enabled=%s)'
+                                   % (type(widget).__name__, getattr(widget, 'text', lambda: '')(),
+                                      widget.isVisible(), widget.isEnabled()))
 
         def click(widget):
             expose(widget)
