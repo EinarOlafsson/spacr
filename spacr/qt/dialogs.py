@@ -545,6 +545,41 @@ def let_the_content_scroll(dialog) -> bool:
     return True
 
 
+def _with_room_for_the_scroll_bar(dialog, wanted, available=None):
+    """Widen an opening size by the form's vertical scroll bar when it will show.
+
+    The opening size is the dialog's natural size before its form was put
+    in a scroll area. When the window opens shorter than the form, the
+    vertical scroll bar takes its width out of the form, which then starts
+    wider than the viewport: a horizontal scroll bar on a window nobody has
+    touched, and the first pixels a user widens it by are spent closing
+    that gap instead of on the form.
+
+    :param dialog: the dialog about to open.
+    :param wanted: its opening size, already bounded to the screen.
+    :param available: the screen's available size, or ``None``.
+    :returns: the opening size, widened by the scroll bar's extent if needed.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QScrollArea, QStyle
+
+    for scroll in dialog.findChildren(QScrollArea):
+        inner = scroll.widget()
+        if (type(scroll).__name__ != "_FormScroll" or inner is None
+                or scroll.verticalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff):
+            continue
+        chrome = max(0, dialog.sizeHint().height() - scroll.sizeHint().height())
+        room = wanted.height() - chrome
+        if inner.sizeHint().height() + 2 * scroll.frameWidth() <= room:
+            continue
+        width = wanted.width() + scroll.style().pixelMetric(
+            QStyle.PixelMetric.PM_ScrollBarExtent, None, scroll)
+        if available is not None:
+            width = min(width, max(SMALLEST, int(available.width() * 0.9)))
+        wanted.setWidth(max(wanted.width(), width))
+    return wanted
+
+
 def open_at_its_natural_size(dialog) -> bool:
     """Apply a stored natural opening size once and clear the stored value.
 
@@ -563,6 +598,7 @@ def open_at_its_natural_size(dialog) -> bool:
     from PySide6.QtGui import QGuiApplication
 
     wanted = dialog.size().expandedTo(floor)
+    available = None
     try:
         screen = dialog.screen() or QGuiApplication.primaryScreen()
         if screen is not None:
@@ -572,7 +608,8 @@ def open_at_its_natural_size(dialog) -> bool:
             wanted.setHeight(min(wanted.height(),
                                  max(SMALLEST, int(available.height() * 0.9))))
     except (AttributeError, RuntimeError):
-        pass
+        available = None
+    wanted = _with_room_for_the_scroll_bar(dialog, wanted, available)
     try:
         from .gui_scale import _resize_actual
 
