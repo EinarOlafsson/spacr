@@ -337,6 +337,7 @@ def test_measure_source_debounce_survives_navigation_hide_and_show(
             source.mkdir()
             before = {key: registered.count(key) for key in ("measure", "measure chaining")}
             field.setText(str(source))
+            field.textEdited.emit(field.text())
             assert banner._timer.isActive() and bar._timer.isActive()
             qtbot.waitUntil(lambda: all(registered.count(key) > count
                 for key, count in before.items()), timeout=5000)
