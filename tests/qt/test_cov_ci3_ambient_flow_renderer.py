@@ -18,6 +18,18 @@ from PySide6.QtGui import QColor, QImage
 from spacr.qt.widgets import ambient
 
 
+@pytest.fixture(autouse=True)
+def _the_opengl_43_path(monkeypatch):
+    """These fakes model the OpenGL 4.3 storage-buffer path. On macOS the
+    context options ask for 4.1 (lookup textures instead) and only Radeon
+    is probed, so without this pin a Mac ran a path the fakes do not have."""
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient, "_graphics_context_options",
+                        lambda: {"standalone": True, "require": 430})
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
+
+
 class _Member:
     def __init__(self):
         self.value = None

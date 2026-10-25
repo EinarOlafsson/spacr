@@ -17,6 +17,20 @@ from spacr.qt.widgets import ambient
 from tests.qt.test_cov_ci3_ambient_flow_renderer import _fake_moderngl
 
 
+@pytest.fixture(autouse=True)
+def _a_mac_gpu_is_probed(monkeypatch):
+    """On macOS only a Radeon is probed for hardware OpenGL, so on an Apple
+    Silicon Mac these real-context tests found no context at all. They are
+    about the renderer, not that policy; an Apple M2 runs them."""
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
+    monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None, raising=False)
+    # Its fakes model the OpenGL 4.3 storage buffers, not macOS's 4.1 tables.
+    monkeypatch.setattr(ambient, "_graphics_context_options",
+                        lambda: {"standalone": True, "require": 430})
+
+
 @pytest.fixture
 def gpu(monkeypatch):
     module = _fake_moderngl()

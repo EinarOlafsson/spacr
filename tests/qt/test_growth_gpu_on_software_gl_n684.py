@@ -27,6 +27,15 @@ import pytest
 
 from spacr.qt.widgets import ambient
 
+
+@pytest.fixture(autouse=True)
+def _a_mac_gpu_is_probed(monkeypatch):
+    """Each refusal is named by the probe; on an Apple Silicon Mac the
+    Radeon-only macOS policy answered first, with its own sentence."""
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
+
 ROOT = Path(__file__).resolve().parents[2]
 MESA = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 

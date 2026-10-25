@@ -12,6 +12,17 @@ import inspect
 import numpy as np
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _a_mac_gpu_is_probed(monkeypatch):
+    """On macOS only a Radeon is probed for hardware OpenGL, so on an Apple
+    Silicon Mac these real-context tests found no context at all. They are
+    about the renderer, not that policy; an Apple M2 runs them."""
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
+    monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None, raising=False)
+
 pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
