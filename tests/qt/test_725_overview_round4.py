@@ -260,3 +260,33 @@ def test_a_well_annotation_scheme_imports_from_a_table_or_a_plate_layout(mask, q
     assert "outside this source" in failures[0]
     assert view._annotations == before
 
+
+def test_comparison_groups_can_be_named(mask, qtbot, source, monkeypatch):
+    import pandas as pd
+    from PySide6.QtWidgets import QInputDialog
+
+    _tab, view = _browse(mask, qtbot, source)
+    view._annotations = {("p1", "A01"): {"cell_type": "HeLa"}, ("p1", "A02"): {"cell_type": "HeLa"},
+                         ("p1", "B01"): {"cell_type": "HFF"}}
+    view._refresh_comparison_choices()
+    builder = view.group_builder
+    assert builder.add_group({"cell_type": "HeLa"}) and builder.add_group({"cell_type": "HFF"})
+    assert builder.names() == ["", ""]
+    builder.groups.setCurrentRow(0)
+    monkeypatch.setattr(QInputDialog, "getText", lambda *args, **kwargs: ("Human cervix", True))
+    builder.buttons["name"].click()
+    assert builder.names() == ["Human cervix", ""]
+    assert builder.groups.item(0).text() == "Human cervix (HeLa) — 4 images"
+    assert builder.definitions() == [{"cell_type": "HeLa"}, {"cell_type": "HFF"}]
+    assert not builder.rename_group(row=1, name="Human cervix")
+    assert not builder.rename_group(row=1, name="HeLa")
+    builder.groups.itemDoubleClicked.emit(builder.groups.item(1))
+    assert builder.names() == ["Human cervix", ""]
+    assert builder.rename_group(row=1, name="Foreskin fibroblast")
+    builder.refresh_counts()
+    assert builder.groups.item(1).text() == "Foreskin fibroblast (HFF) — 2 images"
+    frame = pd.DataFrame({"cell_type": ["HeLa", "HFF", "HeLa"], "value": [1, 2, 3]})
+    grouped = browser._overview_grouped_frame(frame, builder.definitions(), builder.names())
+    assert list(grouped["_overview_group"]) == ["Human cervix", "Human cervix", "Foreskin fibroblast"]
+    assert builder.rename_group(row=0, name="")
+    assert builder.groups.item(0).text() == "HeLa — 4 images"

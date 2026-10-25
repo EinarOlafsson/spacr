@@ -3614,7 +3614,7 @@ def _overview_vary_one(column, values, held):
     return [dict(held, **{column: value}) for value in values]
 
 
-def _overview_grouped_frame(frame, groups):
+def _overview_grouped_frame(frame, groups, names=None):
     """Label each image with the built group it belongs to, in group order.
 
     An image matching several groups appears once per group, so each group
@@ -3622,18 +3622,21 @@ def _overview_grouped_frame(frame, groups):
 
     :param frame: one row per image with annotation columns.
     :param groups: ``{column: value}`` groups; omitted columns are pooled.
+    :param names: the groups' names, ``""`` for an unnamed one.
     :returns: the matching rows with an ``_overview_group`` label column.
     """
     import pandas as pd
 
+    names = list(names or ())
     parts = []
-    for definition in groups:
+    for index, definition in enumerate(groups):
         mask = pd.Series(True, index=frame.index)
         for key, value in definition.items():
             if key not in frame.columns:
                 raise KeyError(key)
             mask &= frame[key].astype(str) == str(value)
-        parts.append(frame[mask].assign(_overview_group=_overview_group_label(definition)))
+        name = names[index] if index < len(names) else ""
+        parts.append(frame[mask].assign(_overview_group=name or _overview_group_label(definition)))
     return pd.concat(parts) if parts else frame.iloc[0:0].assign(_overview_group="")
 
 
@@ -3650,6 +3653,9 @@ def _overview_group_count(fields, annotations, definition):
         metadata = annotations.get((field.plate, field.well), {})
         return all(str(metadata.get(key)) == str(value) for key, value in definition.items())
     return sum(1 for field in fields if matches(field))
+
+
+_OVERVIEW_GROUP_NAME_ROLE = Qt.UserRole + 2
 
 
 class _OverviewGroupBuilder(QWidget):
@@ -3684,6 +3690,7 @@ class _OverviewGroupBuilder(QWidget):
         self.groups.setObjectName("OverviewComparisonGroups")
         self.groups.setToolTip(tr("Groups compared, in order; each lists its label and image count."))
         self.groups.setMinimumHeight(96)
+        self.groups.itemDoubleClicked.connect(self._rename_clicked)
         self.group_host = QWidget(self)
         group_layout = QVBoxLayout(self.group_host)
         group_layout.setContentsMargins(0, 0, 0, 0)
@@ -3695,6 +3702,7 @@ class _OverviewGroupBuilder(QWidget):
                 ("remove", "Remove group", "Remove the selected group.", self.remove_group),
                 ("up", "Move up", "Move the selected group earlier.", lambda: self.move_group(-1)),
                 ("down", "Move down", "Move the selected group later.", lambda: self.move_group(1)),
+                ("name", "Name group", "Give the selected group a name; its images and representative are shown under that name.", self.rename_group),
                 ("clear", "Clear groups", "Remove every group; comparisons then use the ticked values.", self.clear_groups)):
             button = QPushButton(tr(caption))
             button.setToolTip(tr(tip))
@@ -3760,10 +3768,46 @@ class _OverviewGroupBuilder(QWidget):
         """Every group in order, as ``{column: value}`` mappings."""
         return [dict(self.groups.item(index).data(Qt.UserRole)) for index in range(self.groups.count())]
 
-    def _caption(self, definition):
-        """A group's label and image count."""
-        return tr("{label} — {count} images", label=_overview_group_label(definition) or tr("Any"),
-                  count=self._counter(definition))
+    def names(self):
+        """Every group's name in order; an unnamed group gives ``""``."""
+        return [str(self.groups.item(index).data(_OVERVIEW_GROUP_NAME_ROLE) or "")
+                for index in range(self.groups.count())]
+
+    def _caption(self, definition, name=""):
+        """A group's name, label and image count."""
+        label = _overview_group_label(definition) or tr("Any")
+        if name:
+            return tr("{name} ({label}) — {count} images", name=name, label=label,
+                      count=self._counter(definition))
+        return tr("{label} — {count} images", label=label, count=self._counter(definition))
+
+    def rename_group(self, *_, row=None, name=None):
+        """Name a group; an empty name returns it to its values.
+
+        :param row: the group; the selected one when omitted.
+        :param name: the name; asked for when omitted.
+        :returns: whether the group now has the name.
+        """
+        from PySide6.QtWidgets import QInputDialog
+
+        row = self.groups.currentRow() if row is None else row
+        item = self.groups.item(row) if row is not None and row >= 0 else None
+        if item is None:
+            return False
+        if name is None:
+            name, accepted = QInputDialog.getText(self, tr("Name group"), tr("Group name"),
+                                                  text=str(item.data(_OVERVIEW_GROUP_NAME_ROLE) or ""))
+            if not accepted:
+                return False
+        name = str(name).strip()
+        taken = {other for index, other in enumerate(self.names()) if index != row and other}
+        taken |= {_overview_group_label(group) for index, group in enumerate(self.definitions()) if index != row}
+        if name and name in taken:
+            return False
+        item.setData(_OVERVIEW_GROUP_NAME_ROLE, name)
+        item.setText(self._caption(item.data(Qt.UserRole), name))
+        self.changed.emit()
+        return True
 
     def add_group(self, definition=None):
         """Append a group, refusing an empty or repeated one.
@@ -3782,6 +3826,10 @@ class _OverviewGroupBuilder(QWidget):
         self.groups.addItem(item)
         self.changed.emit()
         return True
+
+    def _rename_clicked(self, item):
+        """Name the double-clicked group."""
+        self.rename_group(row=self.groups.row(item))
 
     def remove_group(self):
         """Remove the selected group."""
@@ -3831,7 +3879,8 @@ class _OverviewGroupBuilder(QWidget):
         """Recount every group's images after annotations change."""
         for index in range(self.groups.count()):
             item = self.groups.item(index)
-            item.setText(self._caption(item.data(Qt.UserRole)))
+            item.setText(self._caption(item.data(Qt.UserRole),
+                                       str(item.data(_OVERVIEW_GROUP_NAME_ROLE) or "")))
 
 
 class _OverviewCollapseArrow(QToolButton):
@@ -5587,6 +5636,7 @@ class _FieldOverview(QWidget):
         method = self.representative_method.currentData()
         measurement = self.comparison_measurement.currentText().strip() or None
         fields, source = self._fields, self._metadata_source
+        names = self.group_builder.names() if groups else []
         def run():
             """Rank representatives and pick their source fields off the GUI thread.
 
@@ -5601,7 +5651,7 @@ class _FieldOverview(QWidget):
             for key, values in levels.items():
                 frame = frame[frame[key].astype(str).isin(values)]
             if groups:
-                frame = _overview_grouped_frame(frame, groups)
+                frame = _overview_grouped_frame(frame, groups, names)
             try:
                 ranked = _representative_images(frame, by, method=method, measurement=measurement, top=1)
             except (KeyError, ValueError) as error:
