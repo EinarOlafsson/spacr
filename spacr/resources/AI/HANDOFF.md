@@ -17,6 +17,13 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-25 Claude WS to Home — OPS example section never re-shown (blocks tutorial 76)
+Left by the tutorial lane while Home was unreachable after the account switch; first written to features/HANDOFF.md and moved here, the one place handoffs live.
+- Reproduced on nightly 7883b5ee11. On the OPS page (Mask -> OPS) the example section with "Load test data…" stays hidden: isVisibleTo(parent) is False even at level All, with Modified off and an empty query.
+- Cause: settings_search._apply_section_state hides sections with 0 setting rows while narrowing (Essentials). This section holds only prose and a button, and nothing re-shows it once narrowing ends.
+- Suggested fix: never hide sections without setting rows, or restore every section's visibility when the filter clears. Add a test with a prose-only section across Essentials -> All.
+- WS pushed one publication just before the hold: lesson 12 (3a187ec48a, 8ed61bd68e), docs and pin only.
+
 ## 2026-10-19 Claude WS to Home — open app items from the tutorial lane (Home unreachable since the account switch)
 The tutorial lane (676) keeps recording and publishing regardless; these items wait for Home. Published on the GNOME capture host since 10-17: 07, 08, 09, 11, 15, 20, 23, 28, 32, 33, 35, 38, 39, 43, 44, 45 (54, 17, 27, 40, 21 in the queue).
 - 66 Outliers: the table fill (outliers._fill_table -> _retire_table_cells -> _wipe, setData over every cell) takes more than 5 min under load. WS has a fix held on ws-tutorials-2026-10-17 (spacr/qt/screens/outliers.py: in-place rewrite plus spare items, no deletion; tests/qt/test_outliers_fill_table_fast.py), pushed with the other held commits after "release done". 66 is recorded on it.
