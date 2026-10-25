@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +11,29 @@ import pytest
 
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from spacr import pipeline_v2 as PV
+
+DESCRIPTOR_RELATIVE_READS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                             and os.open in os.supports_dir_fd)
+
+
+def _measure_or_refuse(root, **options):
+    """Measure the signed cells, or pin the refusal on a platform that cannot."""
+    from spacr.measure import measure_calibrated_cells
+
+    if DESCRIPTOR_RELATIVE_READS:
+        return measure_calibrated_cells(root, **options)
+    with pytest.raises(ValueError, match='POSIX descriptor-relative file access'):
+        measure_calibrated_cells(root, **options)
+    assert not Path(options['dst']).exists()
+    return None
+
+
+def _symlink_or_skip(link, target, **options):
+    """Create ``link``; skip where this account may not create symbolic links."""
+    try:
+        link.symlink_to(target, **options)
+    except OSError as error:
+        pytest.skip(f'this account cannot create symbolic links: {error}')
 
 
 class _CaptureModel:
@@ -565,16 +589,16 @@ def test_calibrated_v2_keeps_originals_and_commits_reference_canvas(
     mapping = PV.FilenameMapper.load_csv(root / "filename_map.csv")
     assert {entry.channel for entry in mapping.records} == {3, 1}
     assert {entry.well for entry in mapping.records} == {"A01", "B01", "C01"}
-    from spacr.measure import measure_calibrated_cells
     from spacr.tabular import read_table
 
-    measured = measure_calibrated_cells(root, dst=source.parent / "signed_cells", channels=[1])
-    cells = read_table(measured["csv_path"])
-    assert measured["fields"] == measured["rows"] == 3
-    assert set(cells["physical_channel_id"]) == {1}
-    assert set(cells["label_id"]) == {7}
-    assert set(cells["fieldID"]) == set(cells["timeID"]) == set(cells["sliceID"]) == {1}
-    assert set(cells["wellID"]) == {"A01", "B01", "C01"}
+    measured = _measure_or_refuse(root, dst=source.parent / "signed_cells", channels=[1])
+    if measured is not None:
+        cells = read_table(measured["csv_path"])
+        assert measured["fields"] == measured["rows"] == 3
+        assert set(cells["physical_channel_id"]) == {1}
+        assert set(cells["label_id"]) == {7}
+        assert set(cells["fieldID"]) == set(cells["timeID"]) == set(cells["sliceID"]) == {1}
+        assert set(cells["wellID"]) == {"A01", "B01", "C01"}
     assert all(path.read_bytes() == data for path, data in before.items())
 
 
@@ -772,7 +796,7 @@ def test_calibrated_stream_refuses_original_paths_before_any_write(
     original = source / "merged" / stacks[0].path.name
     np.save(original, np.load(stacks[0].path))
     alias = root / "merged/escaped.npy"
-    alias.symlink_to(original)
+    _symlink_or_skip(alias, original)
     before = {path: (path.read_bytes(), path.stat().st_mtime_ns)
               for path in source.rglob("*") if path.is_file()}
     constructed = []
@@ -795,7 +819,7 @@ def test_calibrated_stream_refuses_original_paths_before_any_write(
                for path, (data, modified) in before.items())
     assert all(path.read_bytes() == data for path, data in original_bytes.items())
     (root / "merged").rename(root / "assembled")
-    (root / "merged").symlink_to(original.parent, target_is_directory=True)
+    _symlink_or_skip(root / "merged", original.parent, target_is_directory=True)
     before_redirect = {path: (path.read_bytes(), path.stat().st_mtime_ns)
                        for path in source.rglob("*") if path.is_file()}
     redirected = PV.StackFile(field_id=stacks[0].field_id,
@@ -881,7 +905,6 @@ def test_calibrated_v2_uses_each_physical_plates_controls_and_signed_target(
     import functools
     import hashlib
     import io
-    from spacr.measure import measure_calibrated_cells
     from spacr.tabular import read_table
 
     sample = plate_qualified_calibrated_sources
@@ -949,19 +972,20 @@ def test_calibrated_v2_uses_each_physical_plates_controls_and_signed_target(
                 np.testing.assert_allclose(target, sample["truth"], atol=1e-5, rtol=0)
                 assert target[4, 4, 0] == pytest.approx(-2., abs=1e-5)
         assert target is not None
-        measured = measure_calibrated_cells(root, dst=tmp_path / (plate["name"] + "_cells"),
-                                            channels=[1, 3])
-        cells = read_table(measured["csv_path"])
-        assert measured["fields"] == 3 and measured["rows"] == 6
-        assert list(cells["physical_channel_id"]) == [1, 3] * 3
-        assert set(cells["plateID"]) == {plate["name"]}
-        selected = cells[cells["wellID"] == "C01"]
-        for channel, position in ((1, 1), (3, 0)):
-            values = sample["truth"][3:6, 3:6, position].astype(np.float64)
-            row = selected[selected["physical_channel_id"] == channel].iloc[0]
-            assert float(row["intensity_sum"]) == pytest.approx(values.sum(), abs=1e-5)
-            assert float(row["intensity_mean"]) == pytest.approx(values.mean(), abs=1e-5)
-            assert float(row["intensity_min"]) == pytest.approx(values.min(), abs=1e-5)
+        measured = _measure_or_refuse(root, dst=tmp_path / (plate["name"] + "_cells"),
+                                      channels=[1, 3])
+        if measured is not None:
+            cells = read_table(measured["csv_path"])
+            assert measured["fields"] == 3 and measured["rows"] == 6
+            assert list(cells["physical_channel_id"]) == [1, 3] * 3
+            assert set(cells["plateID"]) == {plate["name"]}
+            selected = cells[cells["wellID"] == "C01"]
+            for channel, position in ((1, 1), (3, 0)):
+                values = sample["truth"][3:6, 3:6, position].astype(np.float64)
+                row = selected[selected["physical_channel_id"] == channel].iloc[0]
+                assert float(row["intensity_sum"]) == pytest.approx(values.sum(), abs=1e-5)
+                assert float(row["intensity_mean"]) == pytest.approx(values.mean(), abs=1e-5)
+                assert float(row["intensity_min"]) == pytest.approx(values.min(), abs=1e-5)
         assert all(path.read_bytes() == before for path, before in plate["before"].items())
     assert roots[0] != roots[1]
     assert sample["calibration_path"].read_bytes() == sample["calibration_bytes"]

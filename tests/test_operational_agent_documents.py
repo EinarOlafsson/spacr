@@ -15,7 +15,7 @@ AI = ROOT / "spacr" / "resources" / "AI"
 
 def test_agent_instructions_exist_only_in_the_canonical_folder():
     assert (AI / "AGENTS.md").is_file()
-    assert "spacr/resources/AI/HANDOFF.md" in (AI / "AGENTS.md").read_text()
+    assert "spacr/resources/AI/HANDOFF.md" in (AI / "AGENTS.md").read_text(encoding="utf-8")
     assert not (ROOT / "AGENTS.md").exists()
     assert not (ROOT / "CLAUDE.md").exists()
     assert not list((ROOT / "features").glob("HANDOFF*.md"))
@@ -25,12 +25,13 @@ def test_canonical_handoffs_retain_complete_documents():
     canonical = set(AI.glob("HANDOFF*.md"))
     assert len(canonical) >= 4
     for target in canonical:
-        assert len(target.read_text()) > 1000, target
-    assert "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS" in (AI / "HANDOFF.md").read_text()
+        assert len(target.read_text(encoding="utf-8")) > 1000, target
+    assert "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS" in (
+        AI / "HANDOFF.md").read_text(encoding="utf-8")
 
 
 def _wheel_exclusions():
-    tree = ast.parse((ROOT / "setup.py").read_text())
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
     setup = next(node for node in tree.body if isinstance(node, ast.Expr)
                  and isinstance(node.value, ast.Call)
                  and isinstance(node.value.func, ast.Name)
@@ -68,7 +69,7 @@ def test_source_manifest_removes_operational_files_from_vcs_candidates():
     files = FileList()
     files.set_allfiles(sorted(os.path.normpath(name) for name in operational | product))
     files.files = sorted(os.path.normpath(name) for name in operational | product)
-    for line in (ROOT / "MANIFEST.in").read_text().splitlines():
+    for line in (ROOT / "MANIFEST.in").read_text(encoding="utf-8").splitlines():
         if line.strip() and not line.lstrip().startswith("#"):
             files.process_template_line(line)
     selected = {Path(name).as_posix() for name in files.files}

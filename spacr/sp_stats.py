@@ -5402,7 +5402,7 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
     """
     import matplotlib.pyplot as plt
     from .figures.stats import stars
-    from .figures.style import _apply_user_style
+    from .figures.style import _apply_user_style, figure_style, theme_target
     if kind not in ('box', 'violin', 'strip'):
         raise ValueError("kind must be 'box', 'violin' or 'strip'")
     strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
@@ -5411,9 +5411,10 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
                                       levels=levels, within=within, unit=unit,
                                       correction=correction)['tests']
     count = max(1, len(strata))
-    figure, axes = plt.subplots(1, count, figsize=(max(3.2, 1.1 * max(
-        (len(entry['groups']) for entry in strata), default=1) + 1.4) * count, 3.6),
-        squeeze=False, sharey=True)
+    with figure_style(theme_target()):
+        figure, axes = plt.subplots(1, count, figsize=(max(3.2, 1.1 * max(
+            (len(entry['groups']) for entry in strata), default=1) + 1.4) * count, 3.6),
+            squeeze=False, sharey=True)
     from .figures.bundle import _register_figure_data
     _register_figure_data(figure, lambda: pd.DataFrame(
         [{'stratum': ', '.join(f'{key}={value}' for key, value in entry['stratum'].items()),
@@ -5595,7 +5596,7 @@ def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
     :raises ValueError: when the table has no finite effect sizes.
     """
     import matplotlib.pyplot as plt
-    from .figures.style import _apply_user_style
+    from .figures.style import _apply_user_style, figure_style, theme_target
     usable = table[np.isfinite(pd.to_numeric(table.get('effect_size'), errors='coerce'))] if len(table) else table
     if not len(usable):
         raise ValueError('No effect sizes to plot')
@@ -5603,7 +5604,8 @@ def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
     chosen = chosen.iloc[::-1]
     labels = [f"{row.measurement}  ({row.group_a} vs {row.group_b}"
               + (f", {row.stratum}" if row.stratum else '') + ')' for row in chosen.itertuples()]
-    figure, axis = plt.subplots(figsize=(6.4, max(2.4, 0.32 * len(chosen) + 1.0)))
+    with figure_style(theme_target()):
+        figure, axis = plt.subplots(figsize=(6.4, max(2.4, 0.32 * len(chosen) + 1.0)))
     from .figures.bundle import _register_figure_data
     _register_figure_data(figure, lambda: chosen.assign(label=labels),
                           x='effect_size', y='label', kind='dot')

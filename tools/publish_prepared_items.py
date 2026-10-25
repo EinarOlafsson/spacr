@@ -1,6 +1,5 @@
 """Check and publish explicitly prepared items without calling a model."""
 import argparse
-import fcntl
 import hashlib
 import json
 import os
@@ -141,6 +140,18 @@ def process(manifest, output):
     print(manifest.stem, state["status"], flush=True)
 
 
+def _hold_exclusively(lock):
+    """Hold the queue's worker lock, failing at once when another worker has it."""
+    try:
+        import fcntl
+    except ImportError:
+        import msvcrt
+
+        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--queue", type=Path, required=True)
@@ -150,7 +161,7 @@ def main():
     output = args.queue / "results"
     output.mkdir(exist_ok=True)
     with (args.queue / "worker.lock").open("w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _hold_exclusively(lock)
         while True:
             for manifest in sorted(args.queue.glob("*.job.json")):
                 process(manifest, output)
