@@ -3274,19 +3274,40 @@ class AppScreen(QWidget):
 
         :returns: how many widgets left the page.
         """
+        self._hidden_bodies_are_away = True
         moved = 0
         for section in self.rendered_settings_sections():
             if getattr(section, "_settings_top_level_order", None) is None:
                 continue
-            detach = getattr(section, "_detach_body_while_hidden", None)
-            if not callable(detach) or self._heading_is_waiting(section):
+            if self._heading_is_waiting(section):
                 continue
-            try:
-                section._body_came_back = self._a_category_body_came_back
-                moved += int(detach())
-            except RuntimeError:
-                continue
+            moved += self._detach_a_body_nobody_can_see(section)
         return moved
+
+    def _detach_a_body_nobody_can_see(self, section) -> int:
+        """Take one top-level category's hidden body out of the page.
+
+        What :meth:`_detach_what_the_form_hides` does to each category, and
+        what a category built later is given once its rows exist, so that a
+        category opened in idle time, by a search or by a check that walks
+        the form is in the state the page's own pass leaves every built
+        category in: the body nobody can see out of the page, unstyled, and
+        styled when it is put back. Left in the page, such a body was
+        styled by the page's sheet where an eager window's was not, and the
+        same spin box measured 4 px apart in the two (Windows, 2026-10-24).
+
+        :returns: how many widgets left the page.
+        """
+        if getattr(section, "_settings_top_level_order", None) is None:
+            return 0
+        detach = getattr(section, "_detach_body_while_hidden", None)
+        if not callable(detach):
+            return 0
+        try:
+            section._body_came_back = self._a_category_body_came_back
+            return int(detach())
+        except RuntimeError:
+            return 0
 
     def _a_category_body_came_back(self, section) -> None:
         """Give a body that was detached what the page had while it was away.
@@ -4491,6 +4512,9 @@ class AppScreen(QWidget):
                 del self._waiting_heading_of[key]
         section._spacr_build_body = None
         section.__dict__.pop("_spacr_opening", None)
+        if (getattr(self, "_hidden_bodies_are_away", False)
+                and not section.is_expanded()):
+            self._detach_a_body_nobody_can_see(section)
 
     @staticmethod
     def _is_control_to_come(widget) -> bool:

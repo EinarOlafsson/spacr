@@ -358,6 +358,56 @@ def test_the_run_is_given_exactly_what_a_window_that_built_everything_gives(
         assert _rows(lazy) == _rows(eager), app_key
 
 
+def _styling(screen) -> dict:
+    """How Qt styles each built control: the style class, polish, size."""
+    from PySide6.QtCore import Qt
+
+    found = {}
+    for key, control in screen._settings_model._widgets.built_items():
+        sheeted = control
+        while sheeted is not None and not sheeted.styleSheet():
+            sheeted = sheeted.parentWidget()
+        found[key] = (
+            control.style().metaObject().className(),
+            control.testAttribute(Qt.WA_WState_Polished),
+            control.testAttribute(Qt.WA_StyleSheet),
+            type(sheeted).__name__ if sheeted is not None else None,
+            control.sizeHint().height(),
+        )
+    return found
+
+
+@pytest.mark.parametrize("app_key", ["classify_merged", "mask"])
+def test_a_category_opened_late_is_styled_as_one_built_at_once(
+        qtbot, app_key):
+    """With the theme on the page, late rows wear what eager rows wear.
+
+    Whether a control is drawn by plain Fusion or through the page's
+    stylesheet proxy is decided by where it sits when the sheet lands.
+    A category the page takes out of view before its first show is
+    unstyled until it is opened; one built later in idle time, or by
+    anything that asks for its rows, was left in the page and styled
+    there, so the same spin box measured 4 px differently in the two
+    windows (Windows, 2026-10-24). Compared by style class and polish,
+    which every platform reports, not only by height.
+    """
+    from spacr.qt.preferences import apply_preferences_to_app
+
+    apply_preferences_to_app(QApplication.instance())
+    _pump(5)
+    _lazy_window, lazy = _window(qtbot, app_key)
+    _eager_window, eager = _window(qtbot, app_key, eager=True)
+    assert not _waiting(eager)
+    lazy._open_every_waiting_heading()
+    _pump(10)
+    late, at_once = _styling(lazy), _styling(eager)
+    assert set(late) == set(at_once)
+    assert {key for key in late if late[key] != at_once[key]} == set(), [
+        (key, late[key], at_once[key]) for key in sorted(late)
+        if late[key] != at_once[key]][:5]
+    assert _rows(lazy) == _rows(eager)
+
+
 def test_a_value_written_before_its_category_opens_is_there_when_it_does(
         qtbot):
     _window_, screen = _window(qtbot, "classify_merged")
