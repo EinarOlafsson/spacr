@@ -286,8 +286,22 @@ def fill_setting(capture, screen, key, value):
             if not section.header().isVisible():
                 raise RuntimeError(f'{key}: its settings section {section.title()!r} is not reachable')
             h.toggle_section(capture, section, True)
+    # Since nightly a48cadef58 a settings section builds its rows over later event-loop turns: give the row
+    # a bounded moment to appear (and re-read the widget, which a deferred build may replace).
+    for _ in range(40):
+        widget = model._widgets.get(key, widget)
+        if widget.isVisible():
+            break
+        h.pause(capture, 0.25)
     if not widget.isVisible():
-        raise RuntimeError(f'The {key} control cannot be shown')
+        chain, w = [], widget
+        while w is not None and len(chain) < 8:
+            if not w.isVisibleTo(w.parentWidget()) if w.parentWidget() is not None else not w.isVisible():
+                chain.append(f'{type(w).__name__}:{w.objectName() or "-"}')
+            w = w.parentWidget()
+        toggle = screen.findChild(QAbstractButton, DISCLOSURE_NAME)
+        raise RuntimeError(f'The {key} control cannot be shown (hidden ancestors {chain}; disclosure '
+                           f'{None if toggle is None else (toggle.isVisible(), toggle.isChecked())})')
     scroll = getattr(screen, '_settings_scroll', None) or h.scroll_area_of(widget)
     if scroll is not None:
         h.scroll_into_view(capture, scroll, widget, margin=8)
