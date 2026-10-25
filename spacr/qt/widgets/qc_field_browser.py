@@ -3187,6 +3187,10 @@ def _fit_overview_action_width(button, width, context):
             state["base"] + f"\nQPushButton {{ font-size: {pixels}px; }}")
         if getter(button) != sheet:
             setter(button, sheet)
+            if QFontInfo(button.font()).pixelSize() != pixels:
+                style = button.style()
+                style.unpolish(button)
+                style.polish(button)
         button.ensurePolished()
         _fit_overview_action_buttons((button,))
         return button.property("minimumSize").width()
