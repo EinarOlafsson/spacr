@@ -1,4 +1,4 @@
-"""Item 641, 2026-10-25: three GUI-thread freezes while Home idles.
+"""Item 641, 2026-10-25: four GUI-thread costs while Home idles or a module opens.
 
 * The Preferences warm-up recomposes the window sheet once screens built
   ahead register their blocks, and each recompose restyled the VISIBLE Home
@@ -12,6 +12,9 @@
   container after the screen had been given a sheet, repolishing the form
   several times (Mask: about 3,000 style changes). It now goes on while the
   screen is built, before any sheet.
+* Make Masks' first open computed every regionprop on a probe to list its
+  filter properties (about 0.15 s); the start-up settings warm does it on
+  its worker thread.
 
 Counted in ``setStyleSheet`` calls and ``StyleChange`` events, not timed.
 """
@@ -225,3 +228,29 @@ def test_the_search_strip_goes_on_before_the_screen_is_sheeted(
         window._screens["measure"] = screen
     finally:
         theme.unregister_widget_qss(_BLOCK)
+
+
+def test_the_settings_warm_lists_make_masks_filters_off_the_gui_thread(
+        qapp, monkeypatch):
+    """The regionprop probe behind the filter list is not a first-open cost."""
+    import threading
+
+    from spacr.qt import app as app_module
+    from spacr.qt import mask_engine
+
+    monkeypatch.setattr(app_module, "_heavy_warm_allowed", lambda: True)
+    monkeypatch.setattr(mask_engine, "_FILTER_CATALOGUE", None)
+    callers = []
+    real = mask_engine._filter_catalogue
+
+    def watched():
+        callers.append(threading.current_thread())
+        return real()
+
+    monkeypatch.setattr(mask_engine, "_filter_catalogue", watched)
+    thread = app_module._start_settings_prewarm()
+    thread.join(180)
+    assert not thread.is_alive()
+    assert callers and threading.main_thread() not in callers
+    assert mask_engine._FILTER_CATALOGUE is not None
+    assert mask_engine.filter_properties() == mask_engine._FILTER_CATALOGUE[0]

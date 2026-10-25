@@ -8830,7 +8830,12 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
         _freeze_what_survived()
 
     def _warm_the_settings_imports():
-        """Import each module, logging rather than raising a failure."""
+        """Import each module, logging rather than raising a failure.
+
+        Then list Make Masks' filter properties: the list is found by
+        computing every regionprop on a probe, about 0.15 s that its first
+        open otherwise paid on the GUI thread.
+        """
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
@@ -8852,6 +8857,10 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
                         LOG.debug("numba is not available to prewarm",
                                   exc_info=True)
                 _importlib.import_module(mod)
+            else:
+                from . import mask_engine as _mask_engine
+
+                _mask_engine._filter_catalogue()
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
 
