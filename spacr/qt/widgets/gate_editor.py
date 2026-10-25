@@ -102,7 +102,8 @@ def _mesh_get_vector(mesh, segments3d):
     if not (isinstance(segments3d, np.ndarray) and segments3d.ndim == 3
             and segments3d.shape[1:] == (3, 3) and len(segments3d)):
         mesh._triangle_count = None
-        return Poly3DCollection.get_vector(mesh, segments3d)
+        own = getattr(Poly3DCollection, '_get_vector', None) or Poly3DCollection.get_vector
+        return own(mesh, segments3d)
     count = len(segments3d)
     corners = np.asarray(segments3d, dtype=float).reshape(-1, 3).T
     mesh._vec = np.vstack((corners, np.ones((1, corners.shape[1]))))
@@ -123,6 +124,7 @@ def _mesh_projection(mesh):
     try:
         vec, count, key = mesh._vec, mesh._triangle_count, mesh._zsortfunc
         vectorised = bool(count and mesh._A is None and mesh._codes3d is None
+                          and not getattr(mesh, '_axlim_clip', False)
                           and len(mesh._segslices) == count
                           and vec.shape[1] == 3 * count
                           and key in (np.average, np.min, np.max))
@@ -188,8 +190,11 @@ def _triangle_mesh(triangles, **kwargs):
     the view turns or an anchor is pulled. This collection sorts the same
     faces by the same key with a stable array sort, so faces of equal depth
     keep matplotlib's order and the drawing is the same. Anything it does not
-    cover (colour mapping, path codes, faces that are not triangles) is
-    handed to matplotlib's own projection.
+    cover (colour mapping, path codes, faces that are not triangles, axis
+    limit clipping) is handed to matplotlib's own projection. matplotlib 3.10
+    still sorts face by face but reads the corners through ``_get_vector``,
+    so the mesh takes that over too; from 3.11 matplotlib keeps the faces in
+    one array and sorts them itself, and the mesh leaves it to.
 
     :param triangles: ``(N, 3, 3)`` triangle corners in data coordinates.
     :param kwargs: passed to ``Poly3DCollection``.
@@ -199,14 +204,18 @@ def _triangle_mesh(triangles, **kwargs):
     if _TRIANGLE_MESH_CLASS is None:
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-        _TRIANGLE_MESH_CLASS = type('TriangleMesh', (Poly3DCollection,), {
+        members = {
             '__doc__': 'A ``Poly3DCollection`` of triangles sorted by depth with numpy.',
             '__module__': __name__,
             '_triangle_count': None,
             '_reused_paths': None,
             'get_vector': _mesh_get_vector,
             'do_3d_projection': _mesh_projection,
-        })
+        }
+        if (hasattr(Poly3DCollection, '_get_vector')
+                and hasattr(Poly3DCollection(np.zeros((1, 3, 3))), '_vec')):
+            members['_get_vector'] = _mesh_get_vector
+        _TRIANGLE_MESH_CLASS = type('TriangleMesh', (Poly3DCollection,), members)
     return _TRIANGLE_MESH_CLASS(triangles, **kwargs)
 
 
