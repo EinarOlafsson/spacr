@@ -122,3 +122,22 @@ def test_the_metadata_step_holds_until_it_finishes(tmp_path, qtbot):
     assert gil_priority.background_imports_held()
     wizard.reject()
     assert not gil_priority.background_imports_held()
+
+
+def test_a_source_without_a_database_reads_no_saved_groups_and_imports_nothing(tmp_path, monkeypatch):
+    import sys
+
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    monkeypatch.setitem(sys.modules, "spacr.measure", None)
+    assert browser._overview_saved_groups(str(tmp_path)) == ([], [])
+    assert not (tmp_path / "measurements").exists()
+
+
+def test_the_thumbnail_pool_follows_the_cpus_this_process_may_use():
+    import os
+
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    usable = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 2)
+    assert browser._OVERVIEW_THUMBNAIL_WORKERS == max(2, min(8, usable))

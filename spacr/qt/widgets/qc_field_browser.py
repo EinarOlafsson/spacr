@@ -3534,7 +3534,8 @@ _OVERVIEW_ORIGINAL_WELL_TOOLTIP = "Load this well's images at their original ful
 _OVERVIEW_ORIGINAL_ALL_TOOLTIP = "Load every stacked image at its original full resolution."
 _OVERVIEW_METADATA_ALL_TOOLTIP = "Show or hide the filename and metadata text over every stacked image."
 _OVERVIEW_MAX_IMAGE_VIEWS = 6
-_OVERVIEW_THUMBNAIL_WORKERS = max(2, min(8, os.cpu_count() or 2))
+_OVERVIEW_THUMBNAIL_WORKERS = max(2, min(8, len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity")
+                                          else (os.cpu_count() or 2)))
 _OVERVIEW_FIRST_PAINT_WAIT_S = 0.15
 _OVERVIEW_LIBRARY_WAIT_S = 1.5
 _OVERVIEW_INSTALL_BUDGET_S = 0.006
@@ -4006,12 +4007,20 @@ def _overview_store_groups(source, groups, names):
 def _overview_saved_groups(source):
     """Read the comparison groups saved for ``source``, off the GUI thread.
 
+    :mod:`spacr.measure` is imported only when a measurements database exists:
+    a source without one has no saved groups, and the import costs several
+    seconds of CPU that a fresh Overview should not spend on every open.
+
     :param source: the image source folder.
     :returns: ``(groups, names)``.
     """
-    from ...measure import _image_annotation_database, _read_comparison_groups
+    candidate = Path(source).expanduser()
+    database = candidate if candidate.suffix == ".db" else candidate / "measurements" / "measurements.db"
+    if not database.is_file():
+        return [], []
+    from ...measure import _read_comparison_groups
 
-    return _read_comparison_groups(_image_annotation_database(source))
+    return _read_comparison_groups(database)
 
 
 def _overview_import_scheme(source, path, records):
@@ -8233,8 +8242,10 @@ class _OverviewWorkspace(QWidget):
         clear_container_surfaces(content)
         clear_container_surfaces(self)
         make_transparent(self, self.stack, self._module_stack, current, content, current._module_actions)
-        for label in content.findChildren(QLabel):
-            label.setWordWrap(True)
+        if not content.property("spacrLabelsWrapped"):
+            for label in content.findChildren(QLabel):
+                label.setWordWrap(True)
+            content.setProperty("spacrLabelsWrapped", True)
         self._owner._settings_scroll.setWidget(content)
         if isinstance(current, _FieldOverview):
             current._settings_host = self._owner._settings_scroll
@@ -8283,7 +8294,8 @@ class _OverviewWorkspace(QWidget):
         else:
             hide_as_page(self, self._owner)
         self.hide()
-        self.setParent(self._owner, Qt.Widget)
+        if not self._owner.isAncestorOf(self):
+            self.setParent(self._owner, Qt.Widget)
 
     def _back(self):
         """Return through field, well, plate and the owning module."""
