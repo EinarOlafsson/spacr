@@ -335,7 +335,7 @@ def _start_manager(ctx):
     it up as one would be a lie in the traceback.
     """
     try:
-        return ctx.Manager()
+        manager = ctx.Manager()
     except Exception as exc:
         try:
             start_method = ctx.get_start_method()
@@ -343,6 +343,10 @@ def _start_manager(ctx):
             start_method = mp.get_start_method()
         raise ManagerStartError(
             _manager_start_diagnosis(start_method, exc)) from exc
+    from .resource_log import _bind_to_parent_job
+
+    _bind_to_parent_job(getattr(getattr(manager, '_process', None), 'pid', None))
+    return manager
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):

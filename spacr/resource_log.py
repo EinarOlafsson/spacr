@@ -1209,6 +1209,99 @@ def _clamp_to_plan(n_jobs: Any, plan: Optional[Mapping[str, Any]],
     return plan['max_safe']
 
 
+_PARENT_JOB = None
+_PARENT_JOB_LOCK = threading.Lock()
+
+
+def _parent_job():
+    """Return this process's kill-on-close Windows Job Object, created once.
+
+    The handle is never closed and is not inheritable, so it closes only when
+    this process ends, however it ends, and Windows then ends every member.
+    """
+    global _PARENT_JOB
+    with _PARENT_JOB_LOCK:
+        if _PARENT_JOB is None:
+            import ctypes
+            from ctypes import wintypes
+
+            class _Limits(ctypes.Structure):
+                _fields_ = [('PerProcessUserTimeLimit', ctypes.c_int64),
+                            ('PerJobUserTimeLimit', ctypes.c_int64),
+                            ('LimitFlags', wintypes.DWORD),
+                            ('MinimumWorkingSetSize', ctypes.c_size_t),
+                            ('MaximumWorkingSetSize', ctypes.c_size_t),
+                            ('ActiveProcessLimit', wintypes.DWORD),
+                            ('Affinity', ctypes.c_size_t),
+                            ('PriorityClass', wintypes.DWORD),
+                            ('SchedulingClass', wintypes.DWORD)]
+
+            class _Counters(ctypes.Structure):
+                _fields_ = [(name, ctypes.c_uint64) for name in (
+                    'ReadOperationCount', 'WriteOperationCount', 'OtherOperationCount',
+                    'ReadTransferCount', 'WriteTransferCount', 'OtherTransferCount')]
+
+            class _Extended(ctypes.Structure):
+                _fields_ = [('BasicLimitInformation', _Limits),
+                            ('IoInfo', _Counters),
+                            ('ProcessMemoryLimit', ctypes.c_size_t),
+                            ('JobMemoryLimit', ctypes.c_size_t),
+                            ('PeakProcessMemoryUsed', ctypes.c_size_t),
+                            ('PeakJobMemoryUsed', ctypes.c_size_t)]
+
+            kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+            kernel.CreateJobObjectW.argtypes = [ctypes.c_void_p, wintypes.LPCWSTR]
+            kernel.CreateJobObjectW.restype = wintypes.HANDLE
+            kernel.SetInformationJobObject.argtypes = [
+                wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+            kernel.SetInformationJobObject.restype = wintypes.BOOL
+            kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+            job = kernel.CreateJobObjectW(None, None)
+            if not job:
+                raise OSError(ctypes.get_last_error(), 'CreateJobObjectW failed')
+            limits = _Extended()
+            limits.BasicLimitInformation.LimitFlags = 0x2000
+            if not kernel.SetInformationJobObject(job, 9, ctypes.byref(limits),
+                                                  ctypes.sizeof(limits)):
+                error = ctypes.get_last_error()
+                kernel.CloseHandle(job)
+                raise OSError(error, 'SetInformationJobObject failed')
+            _PARENT_JOB = job
+        return _PARENT_JOB
+
+
+def _bind_to_parent_job(pid):
+    """End process ``pid`` with this process on Windows, even after a hard kill.
+
+    Pool workers and a Manager server otherwise outlive a crashed or killed
+    parent indefinitely, holding their memory and the parent's pipes. A child
+    that cannot be bound, for example inside a job that forbids nesting, runs
+    exactly as before. Other platforms are unchanged.
+    """
+    if os.name != 'nt' or not pid:
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        job = _parent_job()
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+        kernel.AssignProcessToJobObject.restype = wintypes.BOOL
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        process = kernel.OpenProcess(0x0100 | 0x0001, False, int(pid))
+        if not process:
+            return False
+        try:
+            return bool(kernel.AssignProcessToJobObject(job, process))
+        finally:
+            kernel.CloseHandle(process)
+    except (OSError, AttributeError):
+        return False
+
+
 class _WorkerStartGate:
     """Space worker start attempts by ten seconds with cooperative stop.
 
@@ -1283,7 +1376,9 @@ class _StaggeredProcess:
 
     def start(self):
         """Deploy this real process after the previous pool start attempt."""
-        return self._gate.start(self._process.start)
+        result = self._gate.start(self._process.start)
+        _bind_to_parent_job(self._process.pid)
+        return result
 
 
 class _StaggeredContext(BaseContext):
