@@ -13617,6 +13617,7 @@ class MakeMasksScreen(QWidget):
         self._top_bar_layout.addWidget(annotation, 0, Qt.AlignTop)
 
         io_group, io_row = self._titled_group(tr("IO"), "MakeMasksIoGroup")
+        io_row._space = SPACING["xs"]
         self._io_group = io_group
         self._btn_open = _SplitMenuButton(tr("Open File / Folder…"), self)
         self._btn_open.setObjectName("PrimaryButton")
@@ -13664,6 +13665,7 @@ class MakeMasksScreen(QWidget):
 
         nav_group, nav_row = self._titled_group(
             tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
+        nav_row._space = SPACING["xs"]
         self._navigation_group = nav_group
         self._btn_save = _SplitMenuButton(tr("Save mask"), self)
         self._btn_save.setObjectName("PrimaryButton")
@@ -13720,7 +13722,7 @@ class MakeMasksScreen(QWidget):
         bottom.setObjectName("MakeMasksBottomBar")
         bottom_row = QHBoxLayout(bottom)
         bottom_row.setContentsMargins(0, 0, 0, 0)
-        bottom_row.setSpacing(SPACING["md"])
+        bottom_row.setSpacing(SPACING["sm"])
         bottom_row.addWidget(io_group, 0, Qt.AlignBottom)
         bottom_row.addStretch(1)
         bottom_row.addWidget(nav_group, 0, Qt.AlignBottom)
