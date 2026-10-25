@@ -335,3 +335,65 @@ def test_presets_build_all_combinations_or_vary_one_column(mask, qtbot, source):
     builder._pickers["cell"].setCurrentIndex(builder._pickers["cell"].findData("HeLa"))
     assert builder.apply_preset() == 2
     assert builder.definitions() == [{"cell": "HeLa", "pathogen": "Ku80"}, {"cell": "HeLa", "pathogen": "WT"}]
+
+
+def _record_enhancements(monkeypatch):
+    calls = []
+    real = browser._overview_pixels
+
+    def recorded(field, *args, edge=1200, enhancement=None, **kwargs):
+        calls.append((edge, enhancement))
+        return real(field, *args, edge=edge, enhancement=enhancement, **kwargs)
+
+    monkeypatch.setattr(browser, "_overview_pixels", recorded)
+    return calls
+
+
+def _open_original(view, qtbot):
+    _open_well(view, qtbot, "A01")
+    view.fields.setCurrentRow(0)
+    view._field_in(view.fields, view.fields.item(0))
+    view.original_toggle.setChecked(True)
+
+
+def test_psf_deconvolution_applies_to_original_images_only(mask, qtbot, source, monkeypatch):
+    tab, view = _open(mask, qtbot, source)
+    page = tab._overview_page
+    enhancement = _sections(tab)["Enhancement"]
+    assert enhancement.isAncestorOf(page.psf_controls) and enhancement.isAncestorOf(page.restoration_controls)
+    psf = page.psf_controls
+    psf.operation.setCurrentIndex(psf.operation.findData("deconvolve"))
+    qtbot.waitUntil(lambda: psf._kernel is not None, timeout=20000)
+    calls = _record_enhancements(monkeypatch)
+    _open_original(view, qtbot)
+    qtbot.waitUntil(lambda: any(edge is None and chain is not None and chain.psf is not None
+                                for edge, chain in calls) and not view._image_jobs.is_busy(), timeout=30000)
+    qtbot.waitUntil(lambda: "PSF deconvolution" in view.status.text(), timeout=30000)
+    assert view.status.text() == "Original image shown with PSF deconvolution."
+    assert view.view._item.pixmap().width() == 600
+    full = [chain for edge, chain in calls if edge is None]
+    assert full and all(chain.psf_operation == "deconvolve" for chain in full)
+    calls.clear()
+    view._set_tile_size(200)
+    qtbot.waitUntil(lambda: any(edge is not None for edge, _chain in calls), timeout=20000)
+    previews = [chain for edge, chain in calls if edge is not None]
+    assert all(chain is None or chain.psf_operation == "none" for chain in previews)
+
+
+def test_missing_restoration_model_refuses_cleanly_and_still_shows_the_original(mask, qtbot, source, monkeypatch):
+    from spacr.qt.widgets import restoration_controls
+
+    def unavailable(*_args, **_kwargs):
+        raise RuntimeError("Cellpose 3 is not installed")
+
+    monkeypatch.setattr(restoration_controls, "_restoration_plan", unavailable)
+    tab, view = _open(mask, qtbot, source)
+    controls = tab._overview_page.restoration_controls
+    controls.operation.setCurrentIndex(controls.operation.findData("denoise"))
+    qtbot.waitUntil(lambda: "Restoration unavailable" in controls.status.text(), timeout=20000)
+    assert "Cellpose 3 is not installed" in controls.status.text()
+    _open_original(view, qtbot)
+    qtbot.waitUntil(lambda: view.status.text().startswith("Original image shown without Cellpose 3 restoration"),
+                    timeout=30000)
+    assert "Cellpose 3 is not installed" in view.status.text()
+    qtbot.waitUntil(lambda: view.view._item is not None and view.view._item.pixmap().width() == 600, timeout=20000)

@@ -2086,6 +2086,20 @@ def _overview_enhanced_plane(plane, chain, stride=1, cancelled=None):
     return np.clip(np.nan_to_num(np.asarray(enhanced, dtype=np.float32), nan=0., posinf=1., neginf=0.), 0, 1)
 
 
+def _overview_heavy_steps(chain):
+    """Name the full-resolution steps a chain asks for, for status text.
+
+    :param chain: the chain applied to an Original image.
+    :returns: "PSF deconvolution", "Cellpose 3 restoration" or both.
+    """
+    steps = []
+    if chain.psf_operation != "none":
+        steps.append(tr("PSF deconvolution") if chain.psf_operation == "deconvolve" else tr("PSF convolution"))
+    if chain.restoration:
+        steps.append(tr("Cellpose 3 restoration"))
+    return tr(" and ").join(steps)
+
+
 def _overview_chain(settings):
     """Read Make Masks' enhancement chain from ``enhance_*`` settings.
 
@@ -3722,6 +3736,8 @@ class _FieldOverview(QWidget):
         self._tile_sliders = []
         self._tile_size_changed = None
         self._measurement_settings = None
+        self._original_steps = None
+        self._original_generation = 0
         self.measurement_progress.connect(self._show_measurement_progress)
         self._geometry_valid = True
         self._geometry_error = None
@@ -4320,6 +4336,31 @@ class _FieldOverview(QWidget):
         if item is not None and self._individual:
             self._field(item, preserve_view=True)
 
+    def _original_chain(self, options):
+        """The chain for an image opened with Original, PSF and restoration included.
+
+        :param options: the view's display options, holding its enhancement.
+        :returns: the chain with Make Masks' full-resolution steps, or ``None``
+            when neither PSF deconvolution nor restoration is switched on.
+        """
+        fields = self._original_steps() if callable(self._original_steps) else {}
+        if not fields:
+            return None
+        from ..detect_chain import NO_CHAIN
+
+        return (options.get("enhancement") or NO_CHAIN)._replace(**fields)
+
+    def _original_steps_changed(self):
+        """Reload Original images after the PSF or the restoration model changes."""
+        self._original_generation += 1
+        self._displayed_field = None
+        item = self.fields.currentItem()
+        if self._original_image and item is not None and self._individual:
+            self._field(item, preserve_view=True)
+        for panel in self._image_views:
+            if panel.original_toggle.isChecked():
+                self._load_image_view(panel)
+
     def _set_enhancement(self, chain):
         """Show every view through Make Masks' enhancement chain, or without one.
 
@@ -4649,26 +4690,45 @@ class _FieldOverview(QWidget):
         generation, field = panel.generation, panel.field
         edge = None if panel.original_toggle.isChecked() else self.preview_resolution.currentData()
         options, cancelled = self._display_kwargs(view=True), self._cancelled
+        plain_options = options
+        heavy = self._original_chain(options) if edge is None else None
+        if heavy is not None:
+            options = dict(options, enhancement=heavy)
         def done(result):
             """Show the pixels only in the same, still open stacked image.
 
             :param result: detached pixels and an optional refusal.
             """
-            pixels, error = result
+            pixels, error, note = result
             if cancelled.is_set() or panel not in self._image_views or panel.generation != generation:
                 return
             if error:
                 self.status.setText(tr("Could not read {field}: {error}", field=field.caption, error=error))
                 return
+            if heavy is not None:
+                self.status.setText(note or tr("Original image shown with {steps}.",
+                                               steps=_overview_heavy_steps(heavy)))
             image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                            pixels.strides[0], QImage.Format_RGB888).copy()
             panel.view.set_pixmap(QPixmap.fromImage(image))
         def read():
             """Read one detached image without Qt access."""
             try:
-                return _overview_pixels(field, channels, limits, edge=edge, **options), ""
+                return _overview_pixels(field, channels, limits, edge=edge, **options), "", ""
+            except Exception as error:
+                if heavy is None:
+                    return None, str(error), ""
+                note = tr("Original image shown without {steps}: {error}",
+                          steps=_overview_heavy_steps(heavy), error=error)
+                try:
+                    return _overview_pixels(field, channels, limits, edge=edge, **plain_options), "", note
+                except Exception as exc:
+                    return None, str(exc), ""
             except Exception as exc:
-                return None, str(exc)
+                return None, str(exc), ""
+        if heavy is not None:
+            self.status.setText(tr("Applying {steps} to the original image…",
+                                   steps=_overview_heavy_steps(heavy)))
         self._image_stack_jobs.submit(read, done)
 
     def _close_image_view(self, panel):
@@ -6506,7 +6566,11 @@ class _FieldOverview(QWidget):
             self.view.clear_image()
             return
         options = self._display_kwargs(view=True)
-        source_key = field.identity, channels, limits, self._display_options_key(options)
+        plain_options, heavy = options, self._original_chain(options) if self._original_image else None
+        if heavy is not None:
+            options = dict(options, enhancement=heavy)
+        source_key = (field.identity, channels, limits, self._display_options_key(options),
+                      self._original_generation if heavy is not None else None)
         if source_key != self._displayed_field:
             self._preview_edge = min(256, self.preview_resolution.currentData())
             self._displayed_field = source_key
@@ -6528,11 +6592,15 @@ class _FieldOverview(QWidget):
         def done(result):
             """Cache bounded pixels and accept only the exact current axis/view.
 
-            :param result: detached pixels and the original header dimensions.
+            :param result: detached pixels, the original header dimensions and
+                any reason the full-resolution steps were not applied.
             """
-            pixels, shape = result
+            pixels, shape, note = result
             if cancelled.is_set():
                 return
+            if heavy is not None:
+                self.status.setText(note or tr("Original image shown with {steps}.",
+                                               steps=_overview_heavy_steps(heavy)))
             self._cache[key] = pixels
             self._source_shapes[field.identity] = shape
             while len(self._cache) > 8:
@@ -6551,7 +6619,17 @@ class _FieldOverview(QWidget):
             info = _overview_channel_info(field)
             record = info["files"][0]
             shape = tuple(record["shape"][record["axes"].index(axis)] for axis in "YX")
-            return _overview_pixels(field, channels, limits, edge=edge, **options), shape
+            if heavy is None:
+                return _overview_pixels(field, channels, limits, edge=edge, **options), shape, ""
+            try:
+                return _overview_pixels(field, channels, limits, edge=edge, **options), shape, ""
+            except Exception as error:
+                note = tr("Original image shown without {steps}: {error}",
+                          steps=_overview_heavy_steps(heavy), error=error)
+                return _overview_pixels(field, channels, limits, edge=edge, **plain_options), shape, note
+        if heavy is not None:
+            self.status.setText(tr("Applying {steps} to the original image…",
+                                   steps=_overview_heavy_steps(heavy)))
         self._image_jobs.submit(read, done)
 
     def eventFilter(self, watched, event):
@@ -7639,6 +7717,54 @@ class _OverviewModulePage(QWidget):
 
         register_widget_qss("FieldOverviewModulePage", _overview_module_qss, replace=True)
         ensure_widget_qss_applied("FieldOverviewModulePage", root=self)
+        self._mount_full_resolution_steps()
+
+    def _mount_full_resolution_steps(self):
+        """Offer Make Masks' PSF and Cellpose 3 controls under Enhancement.
+
+        They build their kernel and load their model off the GUI thread and
+        apply only to images opened with Original.
+        """
+        from .psf_controls import _PSFControls
+        from .restoration_controls import _RestorationControls
+
+        self.psf_controls = _PSFControls(image_paths=self._current_image_paths)
+        self.restoration_controls = _RestorationControls()
+        self.psf_controls.changed.connect(self._full_resolution_changed)
+        self.restoration_controls.changed.connect(self._full_resolution_changed)
+        console = getattr(self._screen, "_console", None)
+        if console is not None:
+            self.restoration_controls.said.connect(lambda text, _kind: console.append_stdout(text + "\n"))
+        section = _overview_section(self._screen, "Enhancement")
+        if section is None:
+            return
+        note = QLabel(tr("PSF deconvolution and Cellpose 3 restoration apply only to images opened "
+                         "with Original, never to previews or thumbnails."))
+        note.setWordWrap(True)
+        section.add_prose(note)
+        for caption, tooltip, control in (
+                ("PSF deconvolution", "Make Masks' calibrated or measured point spread function, applied "
+                 "to Original images after background subtraction.", self.psf_controls),
+                ("Cellpose 3 restoration", "Make Masks' Cellpose 3 denoising, deblurring or one-click "
+                 "restoration, applied to Original images; the model is installed and loaded through "
+                 "the Model Zoo.", self.restoration_controls)):
+            section.add_prose_row(_overview_row_label(caption, tooltip), control)
+
+    def _current_image_paths(self):
+        """The current field's files, for inferring PSF optics from their metadata."""
+        browser = self.browser
+        item = browser.fields.currentItem() if browser is not None else None
+        field = item.data(Qt.UserRole) if item is not None else (browser._fields[0] if browser and browser._fields else None)
+        return [path for _channel, path in field.files] if field is not None else []
+
+    def _full_resolution_fields(self):
+        """The PSF and restoration chain fields the controls ask for."""
+        return {**self.psf_controls._chain_fields(), **self.restoration_controls._chain_fields()}
+
+    def _full_resolution_changed(self):
+        """Reload the browser's Original images with the new kernel or model."""
+        if self.browser is not None:
+            self.browser._original_steps_changed()
 
     def run(self, settings):
         """Open the metadata step for the module's current source.
@@ -7703,6 +7829,7 @@ class _OverviewModulePage(QWidget):
         browser.options_button.hide()
         browser._essential_scroll.hide()
         self.browser = browser
+        browser._original_steps = self._full_resolution_fields
         self._screen._field_overview = browser
         self.stack.addWidget(browser)
         self.stack.setCurrentWidget(browser)
@@ -7783,10 +7910,12 @@ class _OverviewModulePage(QWidget):
             self.browser._measure()
 
     def retire(self):
-        """Retire the metadata step and the browser with their jobs."""
+        """Retire the metadata step, the browser and the full-resolution controls."""
         if self.wizard is not None:
             self._drop_wizard(self.wizard)
         self._retire_browser()
+        self.psf_controls._shutdown()
+        self.restoration_controls._shutdown()
 
 
 def _overview_module_qss(palette, opacity):
