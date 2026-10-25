@@ -686,7 +686,8 @@ def test_no_database_selected_is_reported_inline(qtbot):
     assert d.column_names() == []
 
 
-@pytest.mark.skipif(os.geteuid() == 0, reason="root ignores file permissions")
+@pytest.mark.skipif(os.name == "nt" or os.geteuid() == 0,
+                    reason="Windows and root ignore chmod 0o000")
 def test_a_database_that_cannot_be_opened_says_so_rather_than_blaming_sqlite(
         qtbot, measdb):
     os.chmod(measdb.path, 0o000)
