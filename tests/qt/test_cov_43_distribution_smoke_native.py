@@ -657,6 +657,10 @@ def test_a_blocking_modal_is_named_in_the_failure_and_the_receipt(qtbot, tmp_pat
               "windowTitle": "Optional cache cleanup",
               "text": "Cache review could not finish.",
               "informativeText": "Check the log."}
+    if sys.platform == "darwin":
+        # QMessageBox drops its window title on macOS; the receipt rightly
+        # leaves an empty one out.
+        del detail["windowTitle"]
     assert fake.record["blocking_modal"] == detail
     assert json.loads(fake.output.read_text(encoding="utf-8"))["blocking_modal"] == detail
     assert len(failures) == 1
