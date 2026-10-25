@@ -83,14 +83,34 @@ def test_manifest_scalar_warnings_need_no_second_truthiness_check():
     assert "else:\n                warnings_list.append(str(values))" in source
 
 
-def test_generated_organelle_keys_are_appended_without_rechecking_contracts():
-    """The post-snapshot organelle-slot test owns both contract premises."""
+def test_generated_organelle_keys_are_appended_without_rechecking_contracts(monkeypatch):
+    """The post-snapshot organelle-slot test owns both contract premises.
+
+    2026-10-25: 8fbb75c44 moved the module-level slot loop into
+    ``_categorise_every_later_organelle_slot``, so the pin drives that
+    function instead of matching the loop's old text: with no type contracts
+    at all and General already holding a key, every later slot still gets its
+    three channel keys appended to General, once each and in slot order.
+    """
     from spacr import settings
 
     source = inspect.getsource(settings)
     assert "if _key in expected_types and _key not in categories['General']" \
         not in source
-    assert "categories['General'].append(f'{role}_{_suffix}')" in source
+    assert "expected_types" not in inspect.getsource(
+        settings._categorise_every_later_organelle_slot)
+    later = settings.ORGANELLE_SLOT_ROLES[1:]
+    suffixes = ('channel', 'mask_dim', 'chann_dim')
+    already = f'{later[0]}_channel'
+    fresh = {'Organelle': [], 'Organelle advanced': [], 'General': [already]}
+    monkeypatch.setattr(settings, 'categories', fresh)
+    monkeypatch.setattr(settings, 'expected_types', {})
+    settings._categorise_every_later_organelle_slot()
+    assert fresh['General'] == [already] + [f'{role}_{suffix}' for role in later
+                                            for suffix in suffixes]
+    keys = [f'{role}_{suffix}' for role in later for suffix in suffixes]
+    monkeypatch.undo()
+    assert all(settings.categories['General'].count(key) == 1 for key in keys)
 
 
 def test_invasion_counts_use_a_branchless_defensive_default():
