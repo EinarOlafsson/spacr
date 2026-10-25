@@ -7580,11 +7580,16 @@ def reduction_and_clustering(
                 )
             reducer = SpectralEmbedding(**kwargs)
 
-        from .accelerator import resolve as resolve_accelerator
-        metal_cpu_method = (prefer_gpu and backend == 'cpu'
-                            and method in ('umap', 'tsne')
-                            and resolve_accelerator().kind == 'mps')
-        if metal_cpu_method:
+        from .accelerator import _apple_gpu, resolve as resolve_accelerator
+        found = resolve_accelerator()
+        apple_cpu_method = (prefer_gpu and backend == 'cpu' and _apple_gpu(found)
+                            and method in ('pca', 'kmeans'))
+        metal_cpu_method = apple_cpu_method or (
+            prefer_gpu and backend == 'cpu' and method in ('umap', 'tsne')
+            and found.kind == 'mps')
+        if apple_cpu_method:
+            print(f'{method} uses the CPU on Apple Silicon, where it is faster than Metal.')
+        elif metal_cpu_method:
             print(f'{method} uses the CPU on Metal; PCA and KMeans can use the GPU.')
         if prefer_gpu and backend not in ('cuml', 'mps') and not metal_cpu_method:
             raise RuntimeError(

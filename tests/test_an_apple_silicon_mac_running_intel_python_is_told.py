@@ -196,3 +196,21 @@ def test_the_warning_matches_what_metal_actually_does(order, falls_back):
     out = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True,
                          timeout=300, env=env, cwd=str(Path(__file__).parent)).stdout.split()
     assert out == [str(falls_back), str(falls_back), str(not falls_back)]
+
+
+@pytest.mark.parametrize("method", ["pca", "umap"])
+def test_a_gpu_reduction_on_apple_silicon_runs_on_the_cpu_instead_of_refusing(
+        monkeypatch, method):
+    """PCA and KMeans stay on the CPU on an Apple GPU (it is faster there);
+    asking for the GPU must run them, not raise "GPU was requested"."""
+    pytest.importorskip("sklearn")
+    from spacr import utils
+
+    monkeypatch.setattr(A, "_CACHED", A.Accelerator(
+        kind="mps", device="mps", label="Apple M2 (Apple Metal)", name="Apple M2",
+        float64=False, autocast=False, fallback=True))
+    values = __import__("numpy").random.default_rng(0).random((40, 4))
+    embedding, labels, _reducer = utils.reduction_and_clustering(
+        values, 5, 0.1, "euclidean", 0.5, 3, "kmeans",
+        reduction_method=method, prefer_gpu=True, n_jobs=1)
+    assert embedding.shape == (40, 2) and len(labels) == 40
