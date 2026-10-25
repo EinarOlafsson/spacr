@@ -550,10 +550,10 @@ class TestSearchBackend:
         assert result.ok
         assert result.higher_is_better is False
         if importlib.util.find_spec("torchcam") is None:
-            assert len(result.successful) == 1
-            assert len(result.failed) == 1
-            assert result.failed[0].params["cam_type"] == "gradcam"
-            assert "spacr[attribution]" in result.failed[0].error
+            assert len(result.successful) == 1 and not result.failed
+            assert result.successful[0].params["cam_type"] == "saliency"
+            assert any("'gradcam' was left out" in n and "spacr[attribution]" in n
+                       for n in result.notes)
         else:
             assert len(result.successful) == 2
         for trial in result.successful:
