@@ -6808,7 +6808,14 @@ class _FieldOverview(QWidget):
             self._request_native_detail()
 
     def _load_native_detail(self):
-        """Overlay a bounded source-resolution crop in the retained preview scene."""
+        """Overlay a bounded source-resolution crop in the retained preview scene.
+
+        The crop is skipped while a source pixel covers less than half a
+        device pixel, the same device-pixel measure :meth:`_request_detail`
+        uses. On a 2x Retina screen a source pixel at a third of a logical
+        pixel still spans two thirds of a physical one, so gating on logical
+        pixels withheld the original detail there that a 1x screen would get.
+        """
         if (not self._individual or self._cancelled.is_set() or self.view._item is None
                 or self._original_image):
             return
@@ -6829,7 +6836,7 @@ class _FieldOverview(QWidget):
         preview = self.view._item.pixmap()
         height, width = shape
         scale_x, scale_y = preview.width() / width, preview.height() / height
-        if self.view.transform().m11() * scale_x < .5:
+        if self.view.transform().m11() * scale_x * device_ratio(self.view.viewport()) < .5:
             return
         visible = self.view.mapToScene(self.view.viewport().rect()).boundingRect()
         x0, y0 = max(0, int(visible.left() / scale_x)), max(0, int(visible.top() / scale_y))

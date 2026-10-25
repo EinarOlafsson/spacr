@@ -1,5 +1,6 @@
 """Real field images exercise the shared overview without a model or GPU."""
 import json
+import math
 import threading
 
 import numpy as np
@@ -549,7 +550,10 @@ def test_plate_previews_decode_only_visible_representatives(plate_images, qtbot,
     dialog._update_visuals()
     assert dialog._thumbnail_jobs._next_id == before
     assert set(well for well, _ in calls) <= initial
-    assert all(edge == max(64, max(dialog._plate_cell_extent)) for _, edge in calls)
+    ratio = browser.device_ratio(dialog.wells.viewport())
+    expected = min(dialog.preview_resolution.currentData(),
+                   max(64, math.ceil(max(dialog._plate_cell_extent) * ratio)))
+    assert all(edge == expected for _, edge in calls)
     assert len(calls) < len(fields)
     dialog.wells.horizontalScrollBar().setValue(dialog.wells.horizontalScrollBar().maximum())
     qtbot.waitUntil(lambda: not dialog.wells.item(0, 39).icon().isNull())

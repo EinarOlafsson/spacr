@@ -1,6 +1,7 @@
 """Expanded overview contracts retain the published wizard and source readers."""
 import json
 import sqlite3
+import math
 import threading
 
 import numpy as np
@@ -2456,8 +2457,9 @@ def test_late_field_thumbnail_error_cannot_overwrite_another_plate_status(tmp_pa
     monkeypatch.setattr(dialog._field_thumbnail_jobs, "submit", submitted)
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
+    thumbnail_edge = math.ceil(dialog._tile_size * browser.device_ratio(dialog))
     def read(field, *args, **kwargs):
-        if field.plate == "plate1" and kwargs.get("edge") == 128:
+        if field.plate == "plate1" and kwargs.get("edge") == thumbnail_edge:
             started.set()
             assert release.wait(5)
             raise ValueError("previous plate thumbnail read failed")
@@ -2496,3 +2498,32 @@ def test_fov_takes_rowid_named_metadata_in_new_and_legacy_tables(tmp_path):
     _image_measurement_without_rowid(legacy)
     assert legacy.execute("SELECT count(*) FROM fov").fetchone() == (1,)
     legacy.close()
+
+@pytest.mark.parametrize("ratio,crops", [(1.0, False), (2.0, True)])
+def test_native_crop_gate_counts_device_pixels_on_a_retina_screen(tmp_path, qtbot, monkeypatch, ratio, crops):
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+    path = tmp_path / "plate1_A01_F1.npy"
+    raw = np.lib.format.open_memmap(path, mode="w+", dtype=np.uint8, shape=(8192, 8192))
+    raw[4000:4100, 4000:4100] = 255
+    raw.flush()
+    del raw
+    monkeypatch.setattr(browser, "device_ratio", lambda *_args: ratio)
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    dialog.show()
+    _resize_actual(dialog, QSize(1400, 900))
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    qtbot.waitUntil(lambda: dialog.view._item is not None and dialog.view._item.pixmap().width() == 1024
+                    and not dialog._image_jobs.is_busy())
+    fit = dialog.view.transform().m11()
+    dialog.view.zoom_by(0.34 / (fit * 1024 / 8192))
+    assert dialog.view.transform().m11() * 1024 / 8192 < .5 <= dialog.view.transform().m11() * 1024 / 8192 * 2
+    dialog._load_native_detail()
+    if crops:
+        qtbot.waitUntil(lambda: dialog._native_key is not None and not dialog._native_jobs.is_busy(), timeout=10000)
+    else:
+        qtbot.wait(200)
+        assert dialog._native_key is None
+    dialog.close()

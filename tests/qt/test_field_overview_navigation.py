@@ -1,4 +1,5 @@
 """Real source planes pin acquisition navigation and retained overview identities."""
+import math
 import threading
 
 import numpy as np
@@ -324,6 +325,8 @@ def test_cancelled_pending_selection_does_not_start_another_decoder(overview, mo
             assert release.wait(10)
         return original(field, channels, limits, edge=edge, **options)
 
+    dialog._set_tile_size(96)
+    assert math.ceil(96 * module.device_ratio(dialog)) != 256, "a thumbnail read would pass as the preview"
     monkeypatch.setattr(module, "_overview_pixels", read)
     dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
     dialog.fields.setCurrentRow(0)

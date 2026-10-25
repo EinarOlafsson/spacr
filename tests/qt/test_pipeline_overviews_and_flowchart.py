@@ -75,6 +75,24 @@ def test_keyboard_selectors_show_node_and_connection_details_without_resizing(qt
     assert 'not an automatic transfer' in dialog.details.toPlainText()
 
 
+def _move(graph, point):
+    """Deliver a pointer move to the view without moving the OS cursor.
+
+    ``QTest.mouseMove`` warps the real cursor, and on macOS the warped cursor
+    raises no move event unless the test runner has accessibility rights, so
+    the hover never arrived on a Mac. A MouseMove sent to the viewport makes
+    the view raise the same scene hover events on every platform.
+    """
+    from PySide6.QtCore import QEvent, QPointF
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    local = QPointF(point)
+    global_ = QPointF(graph.viewport().mapToGlobal(point))
+    QApplication.sendEvent(graph.viewport(), QMouseEvent(
+        QEvent.MouseMove, local, global_, Qt.NoButton, Qt.NoButton, Qt.NoModifier))
+
+
 def test_hovering_a_node_or_arrow_updates_the_same_fixed_text_box(qtbot):
     data = wd.workflow_map()
     data['modules'] = {k: data['modules'][k] for k in ('mask', 'measure')}
@@ -86,12 +104,12 @@ def test_hovering_a_node_or_arrow_updates_the_same_fixed_text_box(qtbot):
     graph.fit_diagram()
     size = dialog.details.size()
     point = graph.mapFromScene(graph.nodes['measure'].sceneBoundingRect().center())
-    qtbot.mouseMove(graph.viewport(), graph.viewport().rect().topLeft())
-    qtbot.mouseMove(graph.viewport(), point)
+    _move(graph, graph.viewport().rect().topLeft())
+    _move(graph, point)
     qtbot.waitUntil(lambda: 'Measure' in dialog.details.toPlainText())
     edge = graph.edges[0]
     point = graph.mapFromScene(edge.path().pointAtPercent(.5))
-    qtbot.mouseMove(graph.viewport(), point)
+    _move(graph, point)
     qtbot.waitUntil(lambda: 'Mask → Measure' in dialog.details.toPlainText())
     qtbot.mouseClick(graph.viewport(), Qt.LeftButton, pos=point)
     assert edge.highlighted
