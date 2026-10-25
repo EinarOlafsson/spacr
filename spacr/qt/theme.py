@@ -4141,6 +4141,8 @@ def _only_blocks_it_carries_were_added(app, window, serial) -> bool:
     every hidden module screen restyle itself in full at its first show:
     0.55-0.77 s per screen on an Intel Mac. Same core, every new block
     already present: the screen keeps its sheet and takes the new serial.
+    So does a root missing only blocks that cannot reach any of its
+    widgets; see :func:`_no_missing_block_can_reach`.
     """
     history = getattr(app, _WINDOW_SHEET_HISTORY, None) or {}
     then = history.get(window.property(_WINDOW_SHEET_SERIAL))
@@ -4148,8 +4150,113 @@ def _only_blocks_it_carries_were_added(app, window, serial) -> bool:
     if not then or not now or then[0] != now[0] or then[1] - now[1]:
         return False
     worn = str(window.styleSheet() or "")
-    return all(_WIDGET_QSS_MARKER.format(name=name) in worn
-               for name in now[1] - then[1])
+    missing = [name for name in sorted(now[1] - then[1])
+               if _WIDGET_QSS_MARKER.format(name=name) not in worn]
+    if not missing:
+        return True
+    return _no_missing_block_can_reach(app, window, missing)
+
+
+#: ``block text -> tuple of id sets``, one set per selector of the block;
+#: see :func:`_selector_id_requirements`.
+_BLOCK_ID_REQUIREMENTS: Dict[str, Optional[tuple]] = {}
+
+
+def _selector_id_requirements(block: str):
+    """The ``#name`` ids each selector of ``block`` needs, or ``None``.
+
+    One frozenset per comma-separated selector: a widget can only match
+    that selector if every id in its set names the widget itself or one of
+    its ancestors. ``None`` when any selector names no id at all (a type, a
+    property or ``*`` alone), because such a rule can reach any widget and
+    nothing can be said about it.
+
+    :param block: one registered block's QSS.
+    """
+    if block in _BLOCK_ID_REQUIREMENTS:
+        return _BLOCK_ID_REQUIREMENTS[block]
+    import re
+
+    text = re.sub(r"/\*.*?\*/", " ", block, flags=re.S)
+    text = re.sub(r"\{[^{}]*\}", "{}", text)
+    requirements = []
+    for head in text.split("{}"):
+        head = re.sub(r"\[[^\]]*\]", " ", head)
+        for selector in head.split(","):
+            if not selector.strip():
+                continue
+            ids = frozenset(re.findall(r"#([A-Za-z_][\w-]*)", selector))
+            if not ids:
+                requirements = None
+                break
+            requirements.append(ids)
+        if requirements is None:
+            break
+    result = tuple(requirements) if requirements is not None else None
+    if len(_BLOCK_ID_REQUIREMENTS) > 512:
+        _BLOCK_ID_REQUIREMENTS.clear()
+    _BLOCK_ID_REQUIREMENTS[block] = result
+    return result
+
+
+def _registered_block_text(fragment: str, name: str):
+    """The QSS of the block ``name`` inside a composed widget fragment.
+
+    :param fragment: the fragment :func:`registered_widget_qss` rendered.
+    :param name: the block's registered name.
+    :returns: the block's text, or ``None`` when it is not in ``fragment``.
+    """
+    marker = _WIDGET_QSS_MARKER.format(name=name)
+    start = fragment.find(marker)
+    if start < 0:
+        return None
+    start += len(marker)
+    end = fragment.find("/* --- registered widget QSS: ", start)
+    return fragment[start:] if end < 0 else fragment[start:end]
+
+
+def _no_missing_block_can_reach(app, window, missing) -> bool:
+    """Whether none of the ``missing`` blocks could style anything in ``window``.
+
+    HOME WAS RESTYLED IN FULL, ON SCREEN, FOR RULES IT HAS NO WIDGET FOR.
+    The Preferences warm-up recomposes the window sheet once screens built
+    ahead register their blocks (``SettingsBox``, ``MakeMasksInk``, ...),
+    and each recompose re-sheeted the visible Home page: about 0.2 s
+    offscreen on Linux, five recomposes in the first quarter minute, each a
+    GUI freeze while the user looks at Home. Those blocks are written for
+    the screens that registered them, and every one of their selectors
+    names an object (``#SettingsBox``) Home does not contain.
+
+    A block is left off only when EVERY selector names an id found neither
+    on ``window``, nor below it, nor on an ancestor, since a rule in a
+    root's sheet can match a descendant through an ancestor outside the
+    root. A selector with no id, or a block that cannot be found in the
+    sheet in force, keeps the full restyle, exactly as before.
+
+    :param app: the application holding the sheet in force.
+    :param window: the sheet root being asked about.
+    :param missing: the names of the blocks the root does not wear.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    fragment = _LAST_WIDGET_QSS_FRAGMENT
+    sheet = str(getattr(app, _WINDOW_SHEET_ATTRIBUTE, None) or "")
+    if not fragment or fragment not in sheet:
+        return False
+    requirements = []
+    for name in missing:
+        block = _registered_block_text(fragment, name)
+        needs = None if block is None else _selector_id_requirements(block)
+        if needs is None:
+            return False
+        requirements.extend(needs)
+    names = set()
+    widget = window
+    while widget is not None:
+        names.add(widget.objectName())
+        widget = widget.parentWidget()
+    names.update(child.objectName() for child in window.findChildren(QWidget))
+    return not any(ids <= names for ids in requirements)
 
 
 def _sheet_one_window(window) -> bool:
@@ -4467,6 +4574,25 @@ def _the_windows_own_stylesheet(window) -> str:
     return current
 
 
+def _a_screen_built_ahead(window) -> bool:
+    """Is ``window`` a module screen still being built off screen?
+
+    The screen prewarm builds a page parentless and hidden, with
+    ``WA_DontShowOnScreen``, and sheets it itself once the page has joined
+    the window's stack. A recompose that reached it before that put the
+    whole sheet on it, and joining the stack then repolished all of it
+    twice more: about 1,800 extra style changes for Mask, measured.
+
+    :param window: a top-level widget.
+    :returns: True for a hidden top-level carrying ``WA_DontShowOnScreen``.
+    """
+    try:
+        return (not window.isVisible() and window.testAttribute(
+            Qt.WidgetAttribute.WA_DontShowOnScreen))
+    except (AttributeError, RuntimeError):
+        return False
+
+
 def apply_stylesheet_per_window(app, sheet: str, *,
                                 in_slices: bool = False) -> int:
     """Install ``sheet`` on every top-level window instead of on ``app``.
@@ -4541,6 +4667,8 @@ def apply_stylesheet_per_window(app, sheet: str, *,
                 and not window.isVisible()):
             continue
         if window.property(SHEETED_WHEN_SHOWN) and not window.isVisible():
+            continue
+        if _a_screen_built_ahead(window):
             continue
         if getattr(window, "_spacr_detached_from", None) is not None:
             continue
