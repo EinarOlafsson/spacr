@@ -141,6 +141,7 @@ from ...selection import (
     with_object_type,
 )
 from ..bridge import make_thread, _wait_serving_the_interface
+from ..i18n import tr
 from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
@@ -1688,6 +1689,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._filter_col.setMinimumWidth(180)
         self._filter_op = QComboBox(self)
         self._filter_op.addItems(list(OPERATORS.keys()))
+        self._filter_op.setAccessibleName(tr("Comparison"))
         self._filter_value = QLineEdit(self)
         self._filter_value.setPlaceholderText("value")
         self._filter_value.returnPressed.connect(self.apply_filter)

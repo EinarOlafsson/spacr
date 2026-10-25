@@ -637,6 +637,7 @@ class ExperimentDesignScreen(QWidget):
             row, 1, _spare_table_item(
                 self._table, str(int(condition.replicates))))
         box = QComboBox()
+        box.setAccessibleName(tr("Role"))
         box.addItems(ROLES)
         box.setCurrentText(condition.role)
         box.currentIndexChanged.connect(self._on_changed)

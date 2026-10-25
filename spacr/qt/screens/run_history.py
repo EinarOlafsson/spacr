@@ -206,9 +206,11 @@ class RunHistoryScreen(QWidget):
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(self._apply_filters)
         self._module = QComboBox(self)
+        self._module.setAccessibleName(tr("Module"))
         self._module.addItem("All modules", "")
         self._module.currentIndexChanged.connect(self._apply_filters)
         self._status_filter = QComboBox(self)
+        self._status_filter.setAccessibleName(tr("Status"))
         for label, value in (
             ("All statuses", ""),
             ("Success", "success"),

@@ -4224,7 +4224,23 @@ def _a11y_setting_label(widget, labels_by_key):
 
 
 def _a11y_effective_name(widget) -> str:
-    """The name assistive technology is given for ``widget`` right now."""
+    """The name assistive technology is given for ``widget`` right now.
+
+    A combo box counts as named only by its own accessible name. Qt on
+    Linux and macOS announces an unnamed combo by its current item, so the
+    pass saw a name and left it alone; Windows announces it with none, and
+    the operator menu of the database browser, the two Run History filters
+    and the Experiment Design role menus reached a Windows screen reader
+    nameless. Reading the combo the way Windows does names it the same way
+    on every platform.
+    """
+    try:
+        from PySide6.QtWidgets import QComboBox
+
+        if isinstance(widget, QComboBox):
+            return str(widget.accessibleName() or "")
+    except (ImportError, RuntimeError, AttributeError):
+        pass
     try:
         from PySide6.QtGui import QAccessible
         interface = QAccessible.queryAccessibleInterface(widget)
@@ -4341,13 +4357,16 @@ def _a11y_qt_may_name(widget, buddies) -> bool:
     is the buddy of, the titled group box holding it or its window title.
     When none of those has text, clearing a derived name only to read the
     empty result back would send assistive technology two name changes for
-    nothing on every pass.
+    nothing on every pass. A combo box is named only by its own name
+    (:func:`_a11y_effective_name`), so Qt never names one.
 
     :param widget: a control carrying a name this pass derived.
     :param buddies: the buddies of the captioned labels seen in this pass.
     """
-    from PySide6.QtWidgets import QAbstractButton, QGroupBox
+    from PySide6.QtWidgets import QAbstractButton, QComboBox, QGroupBox
 
+    if isinstance(widget, QComboBox):
+        return False
     if isinstance(widget, QAbstractButton) and _a11y_plain(widget.text()):
         return True
     if widget.isWindow() and widget.windowTitle():
