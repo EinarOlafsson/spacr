@@ -1366,12 +1366,14 @@ def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on
                           "reference": ("p1", "A01"), "percentiles": (0., 100.)}})
     qtbot.addWidget(dialog)
     decoded, release, returned = threading.Event(), threading.Event(), threading.Event()
+    armed = threading.Event()
     cancelled_results = []
     original_read, original_montage = browser._overview_raw_planes, browser._overview_montage
 
     def read(field, channels, **options):
         planes = tuple(original_read(field, channels, **options))
-        if field.well == "A01" and options.get("edge") == 240 and not decoded.is_set():
+        if (armed.is_set() and field.well == "A01" and options.get("edge") == 240
+                and not decoded.is_set()):
             np.testing.assert_array_equal(planes[0][2], base)
             decoded.set()
             assert release.wait(10)
@@ -1387,6 +1389,7 @@ def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on
 
     monkeypatch.setattr(browser, "_overview_raw_planes", read)
     monkeypatch.setattr(browser, "_overview_montage", montage)
+    monkeypatch.setenv("SPACR_OVERVIEW_DISK_CACHE", "0")
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
                dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
 
@@ -1401,8 +1404,14 @@ def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on
         qtbot.waitUntil(lambda: len(dialog._fields) == 3 and dialog._normalization_ready
                         and not dialog._index_jobs.is_busy(), timeout=10000)
         old_context, old_token = dialog._normalization_context, dialog._cancelled
+        qtbot.waitUntil(lambda: {"A01", "B02"} <= dialog._installed_thumbnails
+                        and not dialog._thumbnail_jobs.active_jobs()
+                        and not dialog._thumbnail_installs, timeout=10000)
+        cancelled_results.clear()
+        browser._OVERVIEW_PLANE_CACHE.clear()
         qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
         dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions["A01"]))
+        armed.set()
         click("Open selected well")
         qtbot.waitUntil(decoded.is_set, timeout=10000)
         assert dialog.view._item is None
