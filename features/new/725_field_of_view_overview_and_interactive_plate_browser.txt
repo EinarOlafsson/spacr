@@ -44,11 +44,19 @@ measurement agent M owns 5-7 and the multiprocess measurement backend.
    enlarged image per field, each labelled with its well and field. Metadata and
    Original toggles work per image or for all, the size slider applies to them,
    each image can be closed, and there is a sensible maximum as for wells.
+13. Comparisons compare LAYERED combinations of annotation conditions: a group
+   builder adds groups by choosing a value or "any" per condition column (unused
+   columns pooled), shows each group's label and image count, adds, removes and
+   reorders groups, and offers presets ("all combinations of the chosen columns",
+   "vary one column, hold the others"). Runs go through the existing
+   _image_groups(groups=...), _compare_image_groups, _image_comparison_figure
+   and _representative_images; rows have names and tooltips.
 Acceptance: Qt tests cover opening Overview from Home as the first Core module
 with Mask generation unaffected; every setting row has a label and tooltip; the
 Export container resizes; category style matches Mask's; the image-size slider
 changes tile size; Original loads full resolution in both views; fields from two
-wells open as stacked images and closing one keeps the others; Image and
+wells open as stacked images and closing one keeps the others; three custom
+layered groups give the expected comparison groups and counts; Image and
 Enhancement settings apply; the Actions container contents; plus M's own tests.
 
 LATEST MAINTAINER REQUIREMENTS — 2026-10-24 (supersede conflicting earlier notes;
