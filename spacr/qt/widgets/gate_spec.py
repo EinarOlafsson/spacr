@@ -2659,6 +2659,65 @@ def _validate_volume_mesh(vertices, faces) -> None:
                 raise GateError(tr("Volume surfaces must not intersect or overlap."))
 
 
+def _triangle_basis(triangle, normal):
+    """The per-triangle terms :func:`_mesh_triangle_contact` reuses."""
+    u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
+    return (normal, np.linalg.norm(normal), u, v,
+            float(u @ u), float(u @ v), float(v @ v), float(normal @ normal))
+
+
+def _validate_moved_triangles(vertices, faces, moved) -> None:
+    """Check the triangles an edit moved, the way :func:`_validate_volume_mesh` checks them all.
+
+    Moving vertices or inserting an anchor keeps the boundary closed,
+    connected and consistently oriented, so only what a move can break is
+    checked here: finite distinct vertices, nonzero extent and enclosed
+    volume, and no moved triangle collapsing, crossing or overlapping any
+    other triangle. The work grows with the moved part of the boundary, not
+    with the whole of it, which is what lets a drag be checked on every move;
+    the edit that is kept is still validated whole.
+
+    :param vertices: ``(N, 3)`` edited vertices.
+    :param faces: ``(M, 3)`` triangles indexing them.
+    :param moved: indices of the triangles that have a moved vertex.
+    :raises GateError: with the same reasons as :func:`_validate_volume_mesh`.
+    """
+    if not np.isfinite(vertices).all() or len(np.unique(vertices, axis=0)) != len(vertices):
+        raise GateError(tr("Volume vertices must be finite and distinct."))
+    span = np.ptp(vertices, axis=0)
+    if np.any(span <= 0):
+        raise GateError(tr("A volume must have nonzero extent on all three axes."))
+    points = (vertices - vertices.min(axis=0)) / span
+    triangles = points[faces]
+    normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
+    moved = np.asarray(moved, dtype=int)
+    if np.any(np.linalg.norm(normals[moved], axis=1) <= 1e-12):
+        raise GateError(tr("Volume triangles must not collapse."))
+    if abs(float(np.einsum('ij,ij->i', triangles[:, 0], normals).sum() / 6)) <= 1e-12:
+        raise GateError(tr("The volume must enclose a nonzero region."))
+    low, high = triangles.min(axis=1), triangles.max(axis=1)
+    bases = {}
+
+    def basis(index):
+        """One triangle's contact terms, worked out once."""
+        if index not in bases:
+            bases[index] = _triangle_basis(triangles[index], normals[index])
+        return bases[index]
+
+    checked = set()
+    for i in moved.tolist():
+        candidates = np.flatnonzero(np.all(high[i] >= low - 1e-10, axis=1) & np.all(high >= low[i] - 1e-10, axis=1))
+        for j in candidates.tolist():
+            pair = (min(i, j), max(i, j))
+            if i == j or pair in checked:
+                continue
+            checked.add(pair)
+            first, second = pair
+            shared = set(faces[first].tolist()) & set(faces[second].tolist())
+            if len(shared) == 3 or _mesh_triangle_contact(triangles[first], triangles[second], points[sorted(shared)], _basis=(basis(first), basis(second))):
+                raise GateError(tr("Volume surfaces must not intersect or overlap."))
+
+
 @dataclass(frozen=True)
 class VolumeAnchor:
     """A boundary point and its stable barycentric editing role.
@@ -2774,6 +2833,16 @@ class EditableVolumeGate(Gate):
         :param delta: displacement along each of the three data axes.
         :raises GateError: on invalid indices, nonfinite motion or invalid geometry.
         """
+        return replace(self, vertices=tuple(map(tuple, self._moved_points(indices, delta))))
+
+    def _moved_points(self, indices, delta) -> np.ndarray:
+        """The vertices with the selected ones displaced, checked but not validated as a mesh.
+
+        :param indices: vertex indices; repeated indices are deduplicated.
+        :param delta: displacement along each of the three data axes.
+        :returns: an ``(N, 3)`` array of the moved vertices.
+        :raises GateError: on invalid indices or nonfinite motion.
+        """
         raw_indices = np.asarray(sorted(set(indices)))
         try:
             selected = raw_indices.astype(int)
@@ -2786,7 +2855,18 @@ class EditableVolumeGate(Gate):
             raise GateError(tr("Volume motion needs existing vertices and a finite three-axis displacement."))
         points = np.asarray(self.vertices).copy()
         points[selected] += movement
-        return replace(self, vertices=tuple(map(tuple, points)))
+        return points
+
+    def _surface_vertices(self, groups) -> set:
+        """Every vertex of the selected surfaces.
+
+        :param groups: existing surface identifiers; repetitions have no effect.
+        :raises GateError: when a surface does not exist.
+        """
+        selected = set(groups)
+        if not selected <= set(self.surface_groups):
+            raise GateError(tr("A selected volume surface does not exist."))
+        return {i for face, group in zip(self.faces, self.surface_groups) if group in selected for i in face}
 
     def moved_surfaces(self, groups, delta) -> 'EditableVolumeGate':
         """Move selected surfaces and their shared anchors once, maintaining connectivity.
@@ -2794,11 +2874,43 @@ class EditableVolumeGate(Gate):
         :param groups: existing surface identifiers; repetitions have no effect.
         :param delta: displacement in the three measurement dimensions.
         """
-        selected = set(groups)
-        if not selected <= set(self.surface_groups):
-            raise GateError(tr("A selected volume surface does not exist."))
-        indices = {i for face, group in zip(self.faces, self.surface_groups) if group in selected for i in face}
-        return self.moved_vertices(indices, delta)
+        return self.moved_vertices(self._surface_vertices(groups), delta)
+
+    def _preview_problem(self, vertices, faces) -> Optional[str]:
+        """Why a previewed edit of this boundary would be refused, or None.
+
+        Only the triangles with a moved or inserted vertex are checked, see
+        :func:`_validate_moved_triangles`; the edit that is kept is validated
+        whole when it is made.
+
+        :param vertices: the previewed vertices, this boundary's first.
+        :param faces: the previewed triangles.
+        :returns: the reason, or None when the moved part is sound.
+        """
+        vertices = np.asarray(vertices, dtype=float)
+        faces = np.asarray(faces, dtype=int)
+        original = np.asarray(self.vertices, dtype=float)
+        moved = np.ones(len(vertices), dtype=bool)
+        moved[:len(original)] = np.any(vertices[:len(original)] != original, axis=1)
+        try:
+            _validate_moved_triangles(vertices, faces, np.flatnonzero(moved[faces].any(axis=1)))
+        except GateError as exc:
+            return str(exc)
+        return None
+
+    def _preview_surfaces(self, groups, delta) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """The boundary :meth:`moved_surfaces` would make, without validating it.
+
+        For drawing a drag while it is in progress only: the boundary may
+        cross itself, and only :meth:`moved_surfaces` decides whether the
+        edit is kept.
+
+        :param groups: existing surface identifiers; repetitions have no effect.
+        :param delta: displacement in the three measurement dimensions.
+        :returns: ``(vertices, faces, surface_groups)`` arrays.
+        """
+        points = self._moved_points(self._surface_vertices(groups), delta)
+        return points, np.asarray(self.faces, dtype=int), np.asarray(self.surface_groups, dtype=int)
 
     @classmethod
     def from_gate(cls, gate: Gate, limits=None, *, segments: int = 32,
@@ -2971,6 +3083,40 @@ class EditableVolumeGate(Gate):
         :param point: target coordinate in the three measurement dimensions.
         :raises GateError: invalid roles, nonfinite targets or invalid deformations.
         """
+        indices, delta, inserted = self._anchor_edit(role, point)
+        if inserted is None:
+            return self.moved_vertices(indices, delta)
+        vertices, faces, groups = inserted
+        return replace(self, vertices=tuple(vertices), faces=tuple(faces), surface_groups=tuple(groups))
+
+    def _preview_anchor(self, role: str, point) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """The boundary :meth:`with_anchor` would make, without validating it.
+
+        For drawing a drag while it is in progress only: the boundary may
+        cross itself, and only :meth:`with_anchor` decides whether the edit
+        is kept.
+
+        :param role: canonical role returned by :meth:`anchors`.
+        :param point: target coordinate in the three measurement dimensions.
+        :returns: ``(vertices, faces, surface_groups)`` arrays.
+        :raises GateError: invalid roles or nonfinite targets.
+        """
+        indices, delta, inserted = self._anchor_edit(role, point)
+        if inserted is None:
+            return (self._moved_points(indices, delta), np.asarray(self.faces, dtype=int),
+                    np.asarray(self.surface_groups, dtype=int))
+        vertices, faces, groups = inserted
+        return np.asarray(vertices, dtype=float), np.asarray(faces, dtype=int), np.asarray(groups, dtype=int)
+
+    def _anchor_edit(self, role: str, point):
+        """Check an anchor edit and work out what it changes.
+
+        :param role: canonical role returned by :meth:`anchors`.
+        :param point: target coordinate in the three measurement dimensions.
+        :returns: ``(indices, delta, None)`` when the anchor is a vertex, or
+            ``(None, None, (vertices, faces, groups))`` when it is inserted.
+        :raises GateError: invalid roles or nonfinite targets.
+        """
         try:
             if not role.startswith('anchor:'):
                 raise ValueError
@@ -2987,7 +3133,7 @@ class EditableVolumeGate(Gate):
             raise GateError(tr("A volume anchor needs three finite coordinates."))
         if len(weights) == 1:
             old = self.vertices[weights[0][0]]
-            return self.moved_vertices(indices, target - old)
+            return indices, target - old, None
         vertices = list(self.vertices) + [tuple(target)]
         new_index = len(self.vertices)
         faces, groups = [], []
@@ -3004,7 +3150,7 @@ class EditableVolumeGate(Gate):
                 additions = [(a, new_index, c), (new_index, b, c)]
             faces.extend(additions)
             groups.extend([group] * len(additions))
-        return replace(self, vertices=tuple(vertices), faces=tuple(faces), surface_groups=tuple(groups))
+        return None, None, (vertices, faces, groups)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
         """Test measured points against this same closed mesh using signed solid angles.

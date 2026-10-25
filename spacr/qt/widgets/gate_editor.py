@@ -88,6 +88,107 @@ def _project(ax, point):
     return (x, y)
 
 
+_TRIANGLE_MESH_CLASS = None
+
+
+def _triangle_mesh(triangles, **kwargs):
+    """A boundary-mesh artist whose depth sort is one array operation per draw.
+
+    matplotlib 3.8 sorts a ``Poly3DCollection`` face by face in Python, which
+    for a boundary of a few thousand triangles is most of every redraw while
+    the view turns or an anchor is pulled. This collection sorts the same
+    faces by the same key with a stable array sort, so faces of equal depth
+    keep matplotlib's order and the drawing is the same. Anything it does not
+    cover (colour mapping, path codes, faces that are not triangles) is
+    handed to matplotlib's own projection.
+
+    :param triangles: ``(N, 3, 3)`` triangle corners in data coordinates.
+    :param kwargs: passed to ``Poly3DCollection``.
+    :returns: the collection, not yet added to any axes.
+    """
+    global _TRIANGLE_MESH_CLASS
+    if _TRIANGLE_MESH_CLASS is None:
+        from matplotlib.path import Path
+        from mpl_toolkits.mplot3d import proj3d
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+        class TriangleMesh(Poly3DCollection):
+            """A ``Poly3DCollection`` of triangles sorted by depth with numpy."""
+
+            _triangle_count = None
+            _reused_paths = None
+
+            def get_vector(self, segments3d):
+                """Keep an ``(N, 3, 3)`` array of triangles as one block of corners."""
+                if not (isinstance(segments3d, np.ndarray) and segments3d.ndim == 3
+                        and segments3d.shape[1:] == (3, 3) and len(segments3d)):
+                    self._triangle_count = None
+                    return super().get_vector(segments3d)
+                count = len(segments3d)
+                corners = np.asarray(segments3d, dtype=float).reshape(-1, 3).T
+                self._vec = np.vstack((corners, np.ones((1, corners.shape[1]))))
+                self._segslices = [*map(slice, range(0, 3 * count, 3), range(3, 3 * count + 3, 3))]
+                self._triangle_count = count
+
+            def do_3d_projection(self):
+                """Project and depth-sort every triangle at once."""
+                try:
+                    vec, count, key = self._vec, self._triangle_count, self._zsortfunc
+                    vectorised = bool(count and self._A is None and self._codes3d is None
+                                      and len(self._segslices) == count
+                                      and vec.shape[1] == 3 * count
+                                      and key in (np.average, np.min, np.max))
+                except AttributeError:
+                    vectorised = False
+                if not vectorised:
+                    return super().do_3d_projection()
+                txs, tys, tzs = proj3d._proj_transform_vec(vec, self.axes.M)
+                cface, cedge = self._facecolor3d, self._edgecolor3d
+                if len(cface) != count:
+                    cface = cface.repeat(count, axis=0)
+                if len(cedge) != count:
+                    cedge = cface if len(cedge) == 0 else cedge.repeat(count, axis=0)
+                depth = key(tzs.reshape(count, 3), axis=1)
+                order = np.argsort(-depth, kind='stable')
+                corners = np.stack((txs, tys), axis=-1).reshape(count, 3, 2)[order]
+                self._facecolors2d, self._edgecolors2d = cface[order], cedge[order]
+                self._set_triangles(corners)
+                if len(self._edgecolor3d) != len(cface):
+                    self._edgecolors2d = self._edgecolor3d
+                if self._sort_zpos is not None:
+                    zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+                    return proj3d._proj_transform_vec(zvec, self.axes.M)[2][0]
+                return np.min(tzs)
+
+            def _set_triangles(self, corners):
+                """Give the 2-D paths new corners, reusing the paths of the last draw.
+
+                The paths are those ``PolyCollection.set_verts`` makes from an
+                array, with the same corners and codes; only their vertices
+                change from one draw to the next.
+                """
+                closed = bool(self._closed)
+                if closed:
+                    corners = np.concatenate((corners, corners[:, :1]), axis=1)
+                reused = self._reused_paths
+                if reused is None or reused[0] != (len(corners), closed):
+                    if closed:
+                        codes = np.full(corners.shape[1], Path.LINETO, dtype=Path.code_type)
+                        codes[0], codes[-1] = Path.MOVETO, Path.CLOSEPOLY
+                        paths = [Path(xy, codes) for xy in corners]
+                    else:
+                        paths = [Path(xy) for xy in corners]
+                    self._reused_paths = reused = ((len(corners), closed), paths)
+                else:
+                    for path, xy in zip(reused[1], corners):
+                        path._vertices = xy
+                self._paths = reused[1]
+                self.stale = True
+
+        _TRIANGLE_MESH_CLASS = TriangleMesh
+    return _TRIANGLE_MESH_CLASS(triangles, **kwargs)
+
+
 def _set_view(ax, elevation: float, azimuth: float, roll: float = 0.0) -> None:
     """Point a 3D axes' camera, roll included where the axes takes one."""
     try:
@@ -516,6 +617,9 @@ class GateCanvas(GraphCanvas):
         self._edit_drag_projection = None
         self._editable_boundary_cache = None
         self._volume_handles_cache = None
+        self._mesh_artists = {}
+        self._handle_artists = []
+        self._drag_marker = None
         #: The edited gate shown while a handle is pulled, or None.
         self._volume_preview: Optional[Gate] = None
         #: The live highlight of the objects inside a shape being drawn.
@@ -877,6 +981,7 @@ class GateCanvas(GraphCanvas):
         palette = active_palette()
         self._figure.clear()
         self._axes = {}
+        self._mesh_artists, self._handle_artists, self._drag_marker = {}, [], None
         ax = self._figure.add_subplot(projection="3d")
         self._apply_spin_speed(ax)
 
@@ -2019,18 +2124,12 @@ class GateCanvas(GraphCanvas):
     def _draw_editable_volume(self, ax, mesh, colour) -> None:
         """Paint the same boundary triangles that define edited scientific membership."""
         from matplotlib.colors import to_rgba
-        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
         order = [mesh.columns.index(column) for column in self._plot_columns()]
         points = np.asarray(mesh.vertices)[:, order]
         faces = points[np.asarray(mesh.faces)]
-        selected = self._selected_surfaces if self._surface_gate == mesh.name else set()
-        under = {hit.ident for hit in self._overlap
-                 if hit.kind == "sheet" and hit.gate == mesh.name}
-        colours = [to_rgba(colour, .22 if group in selected
-                           else .12 if group in under else .045)
-                   for group in mesh.surface_groups]
-        artist = Poly3DCollection(faces, facecolors=colours, edgecolors=to_rgba(colour, .7), linewidths=self._line_width)
+        colours = self._mesh_face_colours(mesh.name, mesh.surface_groups, colour)
+        artist = _triangle_mesh(faces, facecolors=colours, edgecolors=to_rgba(colour, .7), linewidths=self._line_width)
         limits = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
         try:
             ax.add_collection3d(artist)
@@ -2038,6 +2137,67 @@ class GateCanvas(GraphCanvas):
             ax.set_xlim3d(*limits[0])
             ax.set_ylim3d(*limits[1])
             ax.set_zlim3d(*limits[2])
+        self._mesh_artists[mesh.name] = artist
+
+    def _mesh_face_colours(self, name, groups, colour) -> np.ndarray:
+        """One RGBA per boundary triangle: selected, listed under the pointer, or plain.
+
+        :param name: the gate the boundary belongs to.
+        :param groups: each triangle's surface group.
+        :param colour: the gate's colour.
+        """
+        from matplotlib.colors import to_rgba
+
+        selected = self._selected_surfaces if self._surface_gate == name else set()
+        under = {hit.ident for hit in self._overlap
+                 if hit.kind == "sheet" and hit.gate == name}
+        shades = {alpha: to_rgba(colour, alpha) for alpha in (.22, .12, .045)}
+        return np.asarray([shades[.22 if group in selected else .12 if group in under else .045]
+                           for group in groups], dtype=float).reshape(-1, 4)
+
+    def _show_volume_drag_preview(self, mesh, vertices, faces, groups, anchor=None) -> bool:
+        """Show a pulled anchor or surface by moving the drawn boundary alone.
+
+        The scene is not rebuilt: the boundary already drawn takes the new
+        corners, the editing handles step aside and one marker follows the
+        pointer. The geometry is not validated here; the release does that,
+        exactly as before, and redraws everything.
+
+        :param mesh: the boundary being edited.
+        :param vertices: the previewed vertices in ``mesh.columns`` order.
+        :param faces: the previewed triangles.
+        :param groups: each previewed triangle's surface group.
+        :param anchor: the dragged anchor in the plotted axes' order, or None.
+        :returns: False when the boundary is not on the axes, so the caller
+            must draw the whole scene instead.
+        """
+        ax = self.axes_at(0, 0)
+        artist = self._mesh_artists.get(mesh.name)
+        if ax is None or artist is None or artist.axes is not ax:
+            return False
+        order = [mesh.columns.index(column) for column in self._plot_columns()]
+        artist.set_verts(np.asarray(vertices, dtype=float)[:, order][np.asarray(faces, dtype=int)])
+        artist.set_facecolor(self._mesh_face_colours(mesh.name, groups, self.gate_colour(mesh.name)))
+        for handle in self._handle_artists:
+            handle.set_visible(False)
+        if anchor is not None:
+            point = np.asarray(anchor, dtype=float)
+            marker = self._drag_marker
+            if marker is None or marker.axes is not ax:
+                limits = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+                try:
+                    marker = ax.scatter([point[0]], [point[1]], [point[2]], s=130,
+                                        facecolor=_TOP_LAYER_BLUE, edgecolor=_TOP_LAYER_BLUE,
+                                        linewidths=2.0, depthshade=False, zorder=11)
+                finally:
+                    ax.set_xlim3d(*limits[0])
+                    ax.set_ylim3d(*limits[1])
+                    ax.set_zlim3d(*limits[2])
+                self._drag_marker = marker
+            else:
+                marker._offsets3d = ([point[0]], [point[1]], [point[2]])
+        self._canvas.draw_idle()
+        return True
 
     def volume_surface_at(self, event):
         """Pick the nearest actual boundary triangle after camera rotation.
@@ -2282,9 +2442,10 @@ class GateCanvas(GraphCanvas):
         limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
         colour = self.gate_colour(gate.name)
         try:
-            ax.scatter(points[:, 0], points[:, 1], points[:, 2], s=46,
-                       facecolor=colour, edgecolor=active_palette()["fg"],
-                       linewidths=1.4, depthshade=False, zorder=10)
+            self._handle_artists.append(ax.scatter(
+                points[:, 0], points[:, 1], points[:, 2], s=46,
+                facecolor=colour, edgecolor=active_palette()["fg"],
+                linewidths=1.4, depthshade=False, zorder=10))
             self._draw_overlap_anchors(ax, dict(handles))
         finally:
             ax.set_xlim3d(*limits[0])
@@ -2430,12 +2591,86 @@ class GateCanvas(GraphCanvas):
         return gate
 
     def _drag_volume_handle(self, event) -> None:
-        """Show the gate following the handle being pulled."""
+        """Show the gate following the handle being pulled.
+
+        An anchor of a drawn boundary moves that boundary alone; every other
+        handle redraws the view with the edited gate.
+        """
+        if self._preview_anchor_drag(event):
+            return
         edited = self._handle_moved(event)
         if edited is None:
             return
         self._volume_preview = edited
         self.render_now()
+
+    def _preview_anchor_drag(self, event) -> bool:
+        """Move the drawn boundary under a pulled anchor without rebuilding the view.
+
+        :param event: the matplotlib motion event.
+        :returns: False when this handle or boundary cannot be previewed in place.
+        """
+        if self._handle_drag is None:
+            return False
+        _name, role, start, gate, point = self._handle_drag
+        ax = self.axes_at(0, 0)
+        if ax is None or not role.startswith('anchor:'):
+            return False
+        mesh = self._editable_boundary(gate)
+        if mesh is None or mesh.name not in self._mesh_artists:
+            return False
+        drag = np.array([float(getattr(event, "x", 0) or 0) - start[0],
+                         float(getattr(event, "y", 0) or 0) - start[1]])
+        delta = self._volume_edit_delta(ax, point, drag)
+        if delta is None:
+            return True
+        target = np.asarray(point, dtype=float) + delta
+        order = [self._plot_columns().index(column) for column in mesh.columns]
+        try:
+            preview = mesh._preview_anchor(role, target[order])
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return True
+        return self._show_checked_preview(mesh, preview, target)
+
+    def _preview_surface_drag(self, event) -> bool:
+        """Move the drawn boundary with the pulled surfaces without rebuilding the view.
+
+        :param event: the matplotlib motion event.
+        :returns: False when the boundary is not drawn and the view must be rebuilt.
+        """
+        gate, mesh, groups, start, point = self._surface_drag
+        ax = self.axes_at(0, 0)
+        if ax is None or mesh.name not in self._mesh_artists:
+            return False
+        drag = np.asarray([event.x - start[0], event.y - start[1]], float)
+        delta = self._volume_edit_delta(ax, point, drag)
+        if delta is None:
+            return True
+        order = [self._plot_columns().index(column) for column in mesh.columns]
+        try:
+            preview = mesh._preview_surfaces(groups, delta[order])
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return True
+        return self._show_checked_preview(mesh, preview)
+
+    def _show_checked_preview(self, mesh, preview, anchor=None) -> bool:
+        """Show a previewed edit, or the boundary as it was with the reason it would be refused.
+
+        Only the moved part of the boundary is checked on a move; the
+        release validates the whole edit before it is kept.
+
+        :param mesh: the boundary being edited.
+        :param preview: ``(vertices, faces, groups)`` of the edit.
+        :param anchor: the dragged anchor in the plotted axes' order, or None.
+        :returns: what :meth:`_show_volume_drag_preview` returns.
+        """
+        problem = mesh._preview_problem(preview[0], preview[1])
+        if problem is not None:
+            self.depth_requested.emit(problem)
+            preview = (mesh.vertices, mesh.faces, mesh.surface_groups)
+        return self._show_volume_drag_preview(mesh, *preview, anchor=anchor)
 
     def _release_volume_handle(self, event) -> None:
         """Finish pulling a handle and hand the edited gate to the panel."""
@@ -2710,16 +2945,23 @@ class GateCanvas(GraphCanvas):
                     zorder=10)[0])
 
     def _draw_overlap_anchors(self, ax, handles: Dict[str, np.ndarray]) -> None:
-        """Ring every listed volume anchor and fill the chosen one."""
+        """Ring every listed volume anchor and fill the chosen one.
+
+        One collection for the rings and one for the chosen anchor, however
+        many anchors are listed: a press on a dense boundary can list hundreds.
+        """
+        rings, chosen = [], []
         for index, hit in enumerate(self._overlap):
             if hit.kind != "anchor" or hit.ident not in handles:
                 continue
-            chosen = index == self._overlap_choice
-            point = handles[hit.ident]
-            ax.scatter([point[0]], [point[1]], [point[2]], s=130,
-                       facecolor=_TOP_LAYER_BLUE if chosen else "none",
-                       edgecolor=_TOP_LAYER_BLUE, linewidths=2.0,
-                       depthshade=False, zorder=11)
+            (chosen if index == self._overlap_choice else rings).append(handles[hit.ident])
+        for points, face in ((rings, "none"), (chosen, _TOP_LAYER_BLUE)):
+            if not points:
+                continue
+            points = np.asarray(points, dtype=float)
+            self._handle_artists.append(ax.scatter(
+                points[:, 0], points[:, 1], points[:, 2], s=130, facecolor=face,
+                edgecolor=_TOP_LAYER_BLUE, linewidths=2.0, depthshade=False, zorder=11))
 
     def _volume_press(self, event) -> bool:
         """Start a gesture on the volume: a handle, a polygon vertex or a drag.
@@ -2787,8 +3029,9 @@ class GateCanvas(GraphCanvas):
             self._drag_volume_handle(event)
             return True
         if self._surface_drag is not None:
-            self._volume_preview = self._surface_moved(event)
-            self.render_now()
+            if not self._preview_surface_drag(event):
+                self._volume_preview = self._surface_moved(event)
+                self.render_now()
             return True
         if self._view_polygon:
             self._show_view_polygon(event)
