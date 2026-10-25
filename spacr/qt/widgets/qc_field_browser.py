@@ -3719,6 +3719,7 @@ class _FieldOverview(QWidget):
         self._annotation_write_lock = threading.Lock()
         self._image_annotation_queue = []
         self._image_annotation_running = False
+        self._annotation_file_actions = 0
         self._annotation_write_running = False
         self._annotation_pending_snapshot = {}
         self._measurement_cancelled = threading.Event()
@@ -5467,6 +5468,7 @@ class _FieldOverview(QWidget):
     def _save_annotations(self):
         """Write conditions only to the user's explicitly chosen output table."""
         from PySide6.QtWidgets import QFileDialog
+        self._annotation_file_actions += 1
         if self._export_jobs.is_busy():
             self.status.setText(tr("Wait for the current export to finish or cancel it."))
             return
@@ -5491,6 +5493,7 @@ class _FieldOverview(QWidget):
     def _load_annotations(self):
         """Validate every loaded plate/well identity before replacing conditions."""
         from PySide6.QtWidgets import QFileDialog
+        self._annotation_file_actions += 1
         if self._export_jobs.is_busy():
             self.status.setText(tr("Wait for the current export to finish or cancel it."))
             return
@@ -6136,7 +6139,8 @@ class _FieldOverview(QWidget):
         wells = sorted(addresses)
         fields = tuple(field for field in self._fields if (field.plate, field.well) in addresses)
         with self._annotation_write_lock:
-            self._image_annotation_queue.append((path, fields, key, text, source, wells, self.status.text()))
+            self._image_annotation_queue.append((path, fields, key, text, source, wells,
+                                                 self._annotation_file_actions))
             if self._image_annotation_running:
                 return
             self._image_annotation_running = True
@@ -6158,7 +6162,7 @@ class _FieldOverview(QWidget):
                             self._image_annotation_running = False
                             return results
                         entry = self._image_annotation_queue.pop(0)
-                    target, chosen, name, value, origin, addressed, _status = entry
+                    target, chosen, name, value, origin, addressed, _actions = entry
                     try:
                         count = _set_image_annotations(target, chosen, name, value, source=origin,
                                                        wells=addressed)["count"]
@@ -6171,14 +6175,16 @@ class _FieldOverview(QWidget):
                     self._image_annotation_running = False
                 raise
         def written(results):
-            """Report the last save, unless a newer message already replaced its status.
+            """Report the last save, unless an annotation file was saved or loaded since.
+
+            That later action's own report, such as a refused import, stays shown.
 
             :param results: ``(entry, count)`` pairs in write order.
             """
             if not results:
                 return
-            (target, _chosen, name, _value, _origin, _addressed, status), count = results[-1]
-            if self.status.text() != status:
+            (target, _chosen, name, _value, _origin, _addressed, actions), count = results[-1]
+            if self._annotation_file_actions != actions:
                 return
             if count is None:
                 self.status.setText(tr("The annotation could not be saved to {path}.", path=target))
