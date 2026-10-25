@@ -249,6 +249,33 @@ def fields_in(dialog) -> int:
     return found
 
 
+def _set_question(box, title: str, text: str, informative: str = "") -> None:
+    """Put a message box's question where the platform shows it.
+
+    macOS draws no title on an alert, and Qt's ``QMessageBox.setWindowTitle``
+    drops the text there, so a question carried by the title -- "Keep these
+    settings?", "Allow the assistant to run this?" -- never reached a Mac
+    user. On macOS the title becomes the box's bold text and ``text`` leads
+    the informative text, which is Apple's alert layout; elsewhere the three
+    go where their names say.
+
+    :param box: the ``QMessageBox``.
+    :param title: the question, already translated.
+    :param text: what the box says about it.
+    :param informative: supporting detail, or ``""``.
+    """
+    import sys
+
+    box.setWindowTitle(title)
+    if sys.platform == "darwin":
+        box.setText(title)
+        box.setInformativeText("\n\n".join(part for part in (text, informative) if part))
+        return
+    box.setText(text)
+    if informative:
+        box.setInformativeText(informative)
+
+
 def more_than_a_message(dialog) -> bool:
     """Return whether ``dialog`` contains resizable interactive content.
 

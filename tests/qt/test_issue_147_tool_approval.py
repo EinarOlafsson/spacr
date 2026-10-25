@@ -160,7 +160,12 @@ def _answer_dialog(monkeypatch, button_text, shown):
     from PySide6.QtWidgets import QMessageBox
 
     def exec_(box):
-        shown.append((box.objectName(), box.windowTitle(), box.text()))
+        if sys.platform == "darwin":
+            # dialogs._set_question: a Mac alert has no title, so the
+            # question is the text and the command follows it.
+            shown.append((box.objectName(), box.text(), box.informativeText()))
+        else:
+            shown.append((box.objectName(), box.windowTitle(), box.text()))
         for button in box.buttons():
             if button.text() == button_text:
                 button.click()

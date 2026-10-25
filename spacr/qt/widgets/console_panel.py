@@ -2950,13 +2950,13 @@ class ConsolePanel(QWidget):
         box = QMessageBox(self)
         box.setObjectName("aiToolApprovalBox")
         box.setIcon(QMessageBox.Question)
-        box.setWindowTitle(tr("Allow the assistant to run this?"))
-        box.setText(tr("The assistant asked to run:") + "\n\n"
-                    + "\n".join(calls))
-        box.setInformativeText(tr(
-            "Allow once runs it a single time with your user permissions, "
-            "then the assistant continues. Allow it only if you trust the "
-            "command."))
+        from ..dialogs import _set_question
+
+        _set_question(box, tr("Allow the assistant to run this?"),
+                     tr("The assistant asked to run:") + "\n\n" + "\n".join(calls),
+                     tr("Allow once runs it a single time with your user "
+                        "permissions, then the assistant continues. Allow it "
+                        "only if you trust the command."))
         self._allow_button = box.addButton(tr("Allow once"),
                                            QMessageBox.AcceptRole)
         deny = box.addButton(tr("Don't allow"), QMessageBox.RejectRole)

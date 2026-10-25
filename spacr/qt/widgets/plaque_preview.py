@@ -6083,12 +6083,13 @@ def input_mode_box(parent: Any, question: str, name: str, mode: Any, *,
     :returns: the dialog, not yet shown.
     """
     mode = normalise_mode(mode)
+    from ..dialogs import _set_question
+
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Question)
     if question == MIXED:
-        box.setWindowTitle(tr("PDFs or images?"))
-        box.setText(tr("PDFs are read in Figure mode, images in Plaque mode."))
-        box.setInformativeText(tr(
+        _set_question(box, tr("PDFs or images?"),
+                     tr("PDFs are read in Figure mode, images in Plaque mode."), tr(
             "{name} holds {pdfs} PDF(s) or paper folder(s) and {images} "
             "image(s). Which should Plaque Assay read?", name=name, pdfs=pdfs,
             images=images))
@@ -6098,19 +6099,19 @@ def input_mode_box(parent: Any, question: str, name: str, mode: Any, *,
                     QMessageBox.AcceptRole),
                    (tr("Cancel"), "", QMessageBox.RejectRole))
     elif question == TO_FIGURE:
-        box.setWindowTitle(tr("Switch to Figure mode?"))
-        box.setText(tr("Choose how to preview {name}. Figure mode finds wells; "
-                       "Plaque mode segments the images directly.", name=name))
+        _set_question(box, tr("Switch to Figure mode?"),
+                     tr("Choose how to preview {name}. Figure mode finds wells; "
+                        "Plaque mode segments the images directly.", name=name))
         answers = ((tr("Switch to Figure mode"), FIGURE_MODE,
                     QMessageBox.AcceptRole),
                    (tr("Stay in Plaque mode"), PLAQUE_MODE,
                     QMessageBox.RejectRole),
                    (tr("Cancel"), "", QMessageBox.RejectRole))
     else:
-        box.setWindowTitle(tr("Switch to Plaque mode?"))
-        box.setText(tr("{name} holds images. Plaque images are read in "
-                       "Plaque mode, and Plaque Assay is in Figure mode, "
-                       "which reads published figures.", name=name))
+        _set_question(box, tr("Switch to Plaque mode?"),
+                     tr("{name} holds images. Plaque images are read in "
+                        "Plaque mode, and Plaque Assay is in Figure mode, "
+                        "which reads published figures.", name=name))
         answers = ((tr("Switch to Plaque mode"), PLAQUE_MODE,
                     QMessageBox.AcceptRole),
                    (tr("Stay in Figure mode"), FIGURE_MODE,

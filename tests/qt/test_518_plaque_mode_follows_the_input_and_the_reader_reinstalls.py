@@ -56,9 +56,15 @@ class _Answers:
 
     def __call__(self, box):
         """Stand in for QMessageBox.exec: click the button for the next mode."""
+        title, text, info = box.windowTitle(), box.text(), box.informativeText()
+        if sys.platform == "darwin":
+            # dialogs._set_question: a Mac alert has no title, so the
+            # question is the text and the text leads the informative text.
+            title, _, rest = text, None, info.split("\n\n", 1)
+            text, info = rest[0], (rest[1] if len(rest) > 1 else "")
         self.boxes.append({
-            "title": box.windowTitle(), "text": box.text(),
-            "info": box.informativeText(),
+            "title": title, "text": text,
+            "info": info,
             "escape": box.escapeButton().text(),
             "buttons": {b.text(): b.property("plaque_mode")
                         for b in box.buttons()}})

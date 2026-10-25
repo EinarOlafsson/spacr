@@ -12510,9 +12510,10 @@ class PreferencesDialog:
             applied_network = _network_bytes()
             question = QMessageBox(dlg)
             question.setObjectName("PreferencesKeepOrRevert")
-            question.setWindowTitle(tr("Keep these settings?"))
-            question.setText(tr("Your settings have been applied."))
-            question.setInformativeText(tr(
+            from .dialogs import _set_question
+
+            _set_question(question, tr("Keep these settings?"),
+                         tr("Your settings have been applied."), tr(
                 "Keep these settings or revert to the previous settings. "
                 "Preferences stays open. After Revert, your edits remain "
                 "available to change or apply again."))

@@ -2976,8 +2976,9 @@ class OrganizeForMeasureDialog(QDialog):
                 else tr("the {role} mask of channel {n}", role=tr(label[2]),
                         n=label[1]))
         box = QMessageBox(self)
-        box.setWindowTitle(tr("What does this part of the name mean?"))
-        box.setText(tr(
+        from ..dialogs import _set_question
+
+        _set_question(box, tr("What does this part of the name mean?"), tr(
             "Images whose names have “{marker}” here look like {kind}. "
             "Does this part of the name mark a channel or a mask, or is it "
             "only part of the field's name?", marker=shown, kind=kind))
