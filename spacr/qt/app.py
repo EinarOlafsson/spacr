@@ -610,6 +610,21 @@ def _preload_the_pipeline_entry(app_key: str):
         return None
 
 
+def _warm_the_run_environment() -> None:
+    """Read the versions and locks a run records, logging any failure."""
+    from .gil_priority import responsive_gui
+
+    with responsive_gui():
+        try:
+            from spacr.run_journal import _warm_env_snapshot
+
+            with _timing.span("background warm", "run environment"):
+                _warm_env_snapshot()
+        except Exception:
+            LOG.debug("could not read the package versions early",
+                      exc_info=True)
+
+
 def _warm_the_run_environment_when_idle(window) -> Optional[threading.Thread]:
     """Read the run environment on a background thread once nothing is opening.
 
@@ -627,22 +642,7 @@ def _warm_the_run_environment_when_idle(window) -> Optional[threading.Thread]:
         _after(2000, window, lambda: _warm_the_run_environment_when_idle(window))
         return None
     _RUN_ENVIRONMENT_STARTED = True
-
-    def _work() -> None:
-        """Read the versions and locks a run records, logging any failure."""
-        from .gil_priority import responsive_gui
-
-        with responsive_gui():
-            try:
-                from spacr.run_journal import _warm_env_snapshot
-
-                with _timing.span("background warm", "run environment"):
-                    _warm_env_snapshot()
-            except Exception:
-                LOG.debug("could not read the package versions early",
-                          exc_info=True)
-
-    thread = threading.Thread(target=_work, name="spacr-run-environment",
+    thread = threading.Thread(target=_warm_the_run_environment, name="spacr-run-environment",
                               daemon=True)
     thread.start()
     return thread

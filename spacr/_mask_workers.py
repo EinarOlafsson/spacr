@@ -793,6 +793,23 @@ def _probe_mask_gpu_count(connection):
         connection.close()
 
 
+def _launch_mask_gpu_probe(process, writer, state):
+    """Start the GPU discovery child away from the GUI thread.
+
+    :param process: the discovery child, not yet started.
+    :param writer: the child's end of the answer pipe, closed here once
+        the child has it.
+    :param state: the probe's state; ``launch_failed`` is set when the
+        child could not be started.
+    """
+    try:
+        process.start()
+    except Exception:
+        state['launch_failed'] = True
+    finally:
+        writer.close()
+
+
 def _mask_gpu_count_for_controls():
     """Count compatible GPUs once per process for greying the settings controls.
 
@@ -813,18 +830,9 @@ def _mask_gpu_count_for_controls():
         state = {'process': process, 'reader': reader,
                  'started': time.monotonic(), 'stopping': None,
                  'killed': False, 'launch_failed': False}
-
-        def launch():
-            """Start the discovery child away from the GUI thread."""
-            try:
-                process.start()
-            except Exception:
-                state['launch_failed'] = True
-            finally:
-                writer.close()
-
-        launcher = threading.Thread(target=launch, name='spacr-gpu-probe-launch',
-                                    daemon=True)
+        launcher = threading.Thread(target=_launch_mask_gpu_probe,
+                                    args=(process, writer, state),
+                                    name='spacr-gpu-probe-launch', daemon=True)
         state['launcher'] = launcher
         _CONTROL_GPU_PROBE = state
         launcher.start()
