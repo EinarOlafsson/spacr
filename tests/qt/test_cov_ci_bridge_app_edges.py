@@ -81,7 +81,7 @@ def test_background_import_failures_do_not_skip_later_warmups(monkeypatch):
     class InlineThread:
         def __init__(self, *, target, name, daemon):
             self.target = target
-            assert name == "spacr-data-libraries" and daemon
+            assert name == "spacr-data-libraries" and not daemon
 
         def start(self):
             self.target()
