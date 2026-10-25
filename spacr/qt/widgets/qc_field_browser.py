@@ -1626,7 +1626,7 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                     scope.pop()
                 if not scope or scope[-1] != filename_plate:
                     scope.append(filename_plate)
-                plate = str(Path(*scope))
+                plate = "/".join(scope)
             well = str(values.get("wellID") or "").upper()
             if well.isdigit():
                 if directory not in acquisitions:
@@ -2082,12 +2082,17 @@ def _overview_sparse_rows(path, page, stride, byteorder):
     row_bytes = width * dtype.itemsize
     rows = range(0, height, stride)
     plane = np.empty((len(rows), width), dtype=dtype)
-    descriptor = os.open(path, os.O_RDONLY)
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+    positioned = getattr(os, "pread", None)
     try:
         if hasattr(os, "posix_fadvise"):
             os.posix_fadvise(descriptor, 0, 0, os.POSIX_FADV_RANDOM)
         for index, row in enumerate(rows):
-            data = os.pread(descriptor, row_bytes, offset + row * row_bytes)
+            if positioned is not None:
+                data = positioned(descriptor, row_bytes, offset + row * row_bytes)
+            else:
+                os.lseek(descriptor, offset + row * row_bytes, os.SEEK_SET)
+                data = os.read(descriptor, row_bytes)
             if len(data) != row_bytes:
                 raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
             plane[index] = np.frombuffer(data, dtype=dtype)

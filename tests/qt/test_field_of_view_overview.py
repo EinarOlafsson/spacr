@@ -982,9 +982,14 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
             picture = item.icon().pixmap(size, density)
             assert picture.devicePixelRatio() == density
             expected = QSize(image.shape[1], image.shape[0]).scaled(size, browser.Qt.KeepAspectRatio)
-            assert picture.size() == QSize(round(expected.width() * density), round(expected.height() * density))
-            assert picture.deviceIndependentSize().width() == expected.width()
-            assert picture.deviceIndependentSize().height() == expected.height()
+            # hidpi.scaled_for fits the picture into the device-pixel bounds,
+            # so where the icon box does not match the image's aspect its
+            # logical size lands within a pixel of the logical fit.
+            bounds = QSize(round(size.width() * density), round(size.height() * density))
+            physical = QSize(image.shape[1], image.shape[0]).scaled(bounds, browser.Qt.KeepAspectRatio)
+            assert picture.size() == physical
+            assert abs(picture.deviceIndependentSize().width() - expected.width()) <= 1
+            assert abs(picture.deviceIndependentSize().height() - expected.height()) <= 1
         base = max(64, max(dialog._plate_cell_extent or (160, 160)))
         cap = dialog.preview_resolution.currentData()
         assert decoded == [min(cap, base), min(cap, base * 2)]
