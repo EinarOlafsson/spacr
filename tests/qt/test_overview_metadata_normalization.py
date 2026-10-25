@@ -1481,7 +1481,9 @@ def test_metadata_wizard_keeps_native_geometry_during_a_real_hub_paint(qtbot, qa
     try:
         native = QDialog.geometry(wizard)
         states = gil_priority._hub_geometry_before(hub)
-        assert states == [(wizard, wizard.isHidden(), native)]
+        assert states == [(wizard, wizard.isHidden(),
+                           (native.x(), native.y(), native.width(),
+                            native.height()))]
         wizard.update()
         assert hub.eventFilter(wizard, QEvent(QEvent.UpdateRequest))
         assert wizard.geometry() == QDialog.geometry(wizard)

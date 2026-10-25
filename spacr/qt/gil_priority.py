@@ -452,21 +452,65 @@ def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
     return False
 
 
-def _hub_geometry_before(hub) -> list:
-    """Where each geometry-watched widget is, before a paint pass.
+_WINDOW_PLACES = weakref.WeakKeyDictionary()
 
-    Two calls a widget, because this runs on every frame of the field.
+
+def _hub_widget_place(widget) -> tuple:
+    """``widget``'s geometry as plain ints: x, y, width and height.
+
+    Read through ``QWidget`` itself, so a control that hides one of those
+    names on its instance is still measured. A frame reads this for every
+    geometry-watched widget, and each ``QRect`` PySide builds -- returned
+    by ``geometry()`` or made in Python -- gives the interpreter lock up and
+    waits to take it back. While a pipeline or a search thread runs Python
+    that wait is a switch interval each time: the 42 widgets Map Barcodes
+    watches cost 27-160 ms a frame, at worst 1.9 s, where ints cost 0.2 ms.
+
+    A window's ``x()`` and ``y()`` place its frame, not its client area, so
+    its ``geometry()`` is read again only when one of those ints changes.
+
+    :param widget: a live widget.
+    :returns: ``(x, y, width, height)`` as ``QWidget.geometry`` gives them.
     """
     from PySide6.QtWidgets import QWidget
 
+    ints = (QWidget.x(widget), QWidget.y(widget), QWidget.width(widget),
+            QWidget.height(widget))
+    if not QWidget.isWindow(widget):
+        return ints
+    seen = _WINDOW_PLACES.get(widget)
+    if seen is None or seen[0] != ints:
+        rect = QWidget.geometry(widget)
+        seen = (ints, (rect.x(), rect.y(), rect.width(), rect.height()))
+        _WINDOW_PLACES[widget] = seen
+    return seen[1]
+
+
+def _hub_place_of(geometry) -> tuple:
+    """A recorded place as ``(x, y, width, height)``, from a tuple or a rect."""
+    if isinstance(geometry, tuple):
+        return geometry
+    return (geometry.x(), geometry.y(), geometry.width(), geometry.height())
+
+
+def _hub_geometry_before(hub) -> list:
+    """Where each geometry-watched widget is, before a paint pass.
+
+    Five integer reads a widget and no Qt value objects, because this runs
+    on every frame of the field (:func:`_hub_widget_place`).
+    """
+    from PySide6.QtWidgets import QWidget
+
+    hidden_of = QWidget.isHidden
     states = []
     for ref in tuple(hub._geometry_watched.values()):
         widget = ref()
         if widget is None:
             continue
         try:
-            states.append((widget, widget.isHidden(), QWidget.geometry(widget)))
-        except (AttributeError, RuntimeError):
+            states.append((widget, hidden_of(widget),
+                           _hub_widget_place(widget)))
+        except (AttributeError, RuntimeError, TypeError):
             continue
     return states
 
@@ -477,27 +521,30 @@ def _hub_geometry_after(hub, states) -> None:
     A paint pass runs with the hub off the application, so a move, resize,
     show or hide sent from inside a paint is not heard as it happens. Each
     is made again from the widget's state and handed to the watchers that
-    asked for it, once.
+    asked for it, once. Nothing but ints is read before a widget has moved.
     """
     from PySide6.QtWidgets import QWidget
 
+    hidden_of = QWidget.isHidden
     for widget, hidden, geometry in states:
         try:
-            now_hidden, now = widget.isHidden(), QWidget.geometry(widget)
-        except RuntimeError:
+            now_hidden, now = hidden_of(widget), _hub_widget_place(widget)
+        except (RuntimeError, TypeError):
             continue
-        if now_hidden == hidden and now == geometry:
+        was = _hub_place_of(geometry)
+        if now_hidden == hidden and now == was:
             continue
+        from PySide6.QtCore import QPoint, QSize
         from PySide6.QtGui import (QHideEvent, QMoveEvent, QResizeEvent,
                                    QShowEvent)
 
         events = []
         if now_hidden != hidden:
             events.append(QHideEvent() if now_hidden else QShowEvent())
-        if now.topLeft() != geometry.topLeft():
-            events.append(QMoveEvent(now.topLeft(), geometry.topLeft()))
-        if now.size() != geometry.size():
-            events.append(QResizeEvent(now.size(), geometry.size()))
+        if now[:2] != was[:2]:
+            events.append(QMoveEvent(QPoint(*now[:2]), QPoint(*was[:2])))
+        if now[2:] != was[2:]:
+            events.append(QResizeEvent(QSize(*now[2:]), QSize(*was[2:])))
         for event in events:
             kind = event.type()
             if kind in hub._object_kinds:

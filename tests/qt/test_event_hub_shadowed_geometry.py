@@ -25,8 +25,8 @@ def test_shadowed_geometry_keeps_real_move_resize_and_show_replay(qapp):
     gil._hub_add_object(hub, widget, watcher, kinds)
     before = gil._hub_geometry_before(hub)
     assert len(before) == 1
-    assert before[0][2] == QWidget.geometry(widget)
-    original = before[0][2]
+    assert QRect(*before[0][2]) == QWidget.geometry(widget)
+    original = QRect(*before[0][2])
     widget.setGeometry(QRect(original.x() + 11, original.y() + 13,
                              original.width() + 31, original.height() + 29))
     widget.show()
