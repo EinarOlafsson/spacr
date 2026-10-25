@@ -12,6 +12,7 @@ believed it was unreachable.
 """
 from __future__ import annotations
 
+import psutil
 import pytest
 
 pytest.importorskip("PySide6")
@@ -34,7 +35,7 @@ def test_memory_that_cannot_be_read_is_none_not_a_crash(error, monkeypatch):
         raise RuntimeError("psutil cannot read this host either")
 
     monkeypatch.setattr(laptop_mode.os, "sysconf", _refuse, raising=False)
-    monkeypatch.setattr("psutil.virtual_memory", _blind)
+    monkeypatch.setattr(psutil, "virtual_memory", _blind)
 
     assert laptop_mode.total_memory_gib() is None
 
