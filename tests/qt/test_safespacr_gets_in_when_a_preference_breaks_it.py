@@ -490,10 +490,11 @@ def a_start_that_a_preference_broke(tmp_path_factory):
                SPACR_LOG_DIR=str(sandbox / "logs"),
                SPACR_INSTALL_PROFILE=str(sandbox / "no-installer-profile"),
                SPACR_LAPTOP_MODE="0")
-    if sys.platform == "darwin":
-        # macOS's store is CFPreferences, which XDG_CONFIG_HOME does not
-        # move: the children read the user's real plist and never saw the
-        # seeded file. An isolated profile keeps their store as INI here.
+    if sys.platform in ("darwin", "win32"):
+        # macOS's store is CFPreferences and Windows' is the registry, which
+        # XDG_CONFIG_HOME does not move: the children read (and saved their
+        # repair into) the user's real store and never saw the seeded file.
+        # An isolated profile keeps their store as INI here.
         env.update(SPACR_ISOLATED_PROFILE="1",
                    SPACR_HOME=str(sandbox / "spacr-home"))
         store_path = sandbox / "spacr-home" / "settings" / "spacr" / "qt.ini"
@@ -515,7 +516,8 @@ def a_start_that_a_preference_broke(tmp_path_factory):
         report = (json.loads(report_path.read_text(encoding="utf-8"))
                   if report_path.exists() else {})
         return {"returncode": finished.returncode,
-                "stderr": finished.stderr[-4000:], "report": report}
+                "stderr": finished.stderr[-4000:],
+                "full_stderr": finished.stderr, "report": report}
 
     def stored(key):
         return QSettings(str(store_path), QSettings.IniFormat).value(key)
@@ -545,7 +547,7 @@ def test_the_written_animation_kills_the_ordinary_start(
 
     assert broken["report"].get("spacr", "").startswith(runs["repo_root"])
     assert broken["returncode"] != 0 and (
-        "INJECTED-BACKDROP-ABORT" in broken["stderr"]), (
+        "INJECTED-BACKDROP-ABORT" in broken["full_stderr"]), (
         "the ordinary start survived the poisoned animation, so nothing "
         "below proves safe mode gets past one. Something other than the "
         f"store dropped the backdrop:\n{broken['stderr']}")

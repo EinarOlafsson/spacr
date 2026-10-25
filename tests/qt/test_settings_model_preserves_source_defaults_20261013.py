@@ -30,7 +30,7 @@ def test_a_deleted_source_field_falls_back_to_the_imported_folder(qapp):
     ((), ""),
     (None, ""),
     (("/data/first", "/data/second"), "/data/first"),
-    (Path("/data/first"), "/data/first"),
+    (Path("/data/first"), str(Path("/data/first"))),
 ])
 def test_a_source_without_a_built_field_reads_the_imported_value(
         qapp, value, expected):
