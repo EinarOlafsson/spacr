@@ -251,13 +251,21 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             os.environ[key] = str(private)
         click(screen._btn_run)
         wait_for(lambda: any(j.status == bt.STATUS_RUNNING for j in screen.queue()))
+        # On the current app the three conversions finish within the next two clips, so request the controlled Stop
+        # while the first job is still running: it lets that job finish and leaves the others not run (scene 14).
+        stop_requested = False
+        if screen._btn_stop.isVisible() and screen._btn_stop.isEnabled():
+            click(screen._btn_stop)
+            stop_requested = True
         if dock is not None:
             proof['jobs_dock_rows'] = jobs_dock_rows(dock)
             scenes.end('13b_jobs_dock', dock)
         scenes.begin('13_real_subprocess_running')
         record('13_real_subprocess_running', screen._table)
         scenes.begin('14_stopped_between_jobs')
-        click(screen._btn_stop)
+        if not stop_requested:
+            click(screen._btn_stop)
+        proof['stop_requested_while_first_job_ran'] = stop_requested
         if dock is not None:
             dock.close()
         wait_for(lambda: not screen.is_busy() and screen.active_jobs() == 0)
