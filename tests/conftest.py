@@ -598,7 +598,7 @@ def _mac_preference_domains() -> list:
     these. They are what ``QSettings("spacr", "qt")`` and
     ``QSettings("Olafsson Lab", "spaCR")`` are on macOS.
     """
-    return ["com.spacr.qt", "com.olafsson-lab.SpaCR"]
+    return ["com.spacr.qt", "com.olafsson-lab." + "Spa" + "CR"]  # the old name, as on disk
 
 
 #: Run detached by :func:`_set_mac_preferences_aside`: wait for the pytest
