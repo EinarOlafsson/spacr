@@ -98,7 +98,7 @@ def test_thumbnails_decode_in_parallel_batches_and_display_changes_reuse_decoded
 
 
 def test_the_first_thumbnail_request_is_a_single_well(view, qtbot, monkeypatch):
-    qtbot.waitUntil(lambda: _icons(view) == set(WELLS), timeout=20000)
+    qtbot.waitUntil(lambda: _icons(view) == set(WELLS) and not view._thumbnail_jobs.is_busy(), timeout=20000)
     batches = []
     real = browser._FieldOverview._submit_plate_thumbnails
 
@@ -196,6 +196,10 @@ def test_a_group_comparison_stacks_representative_images_beside_its_plot(view, q
     assert view.view._item is not None
     assert {panel.field.well[0] for panel in view._image_views} == {"A", "B"}
     assert view.status.text().startswith("Comparison of channel_1_mean")
+    table = view.comparison_table
+    assert table.isVisible() and table.rowCount() == 1
+    headers = [table.horizontalHeaderItem(index).text() for index in range(table.columnCount())]
+    assert {"group_a", "group_b", "p_adjusted"} <= set(headers)
 
 
 def test_image_settings_are_one_main_category_with_four_subcategories(qtbot, source):

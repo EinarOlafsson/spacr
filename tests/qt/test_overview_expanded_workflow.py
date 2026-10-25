@@ -2479,18 +2479,20 @@ def test_late_field_thumbnail_error_cannot_overwrite_another_plate_status(tmp_pa
 
 def test_fov_takes_rowid_named_metadata_in_new_and_legacy_tables(tmp_path):
     """A ``rowID`` metadata key cannot become a column of a table that has a rowid."""
+    from spacr.measure import _image_measurement_without_rowid
+
     legacy = sqlite3.connect(tmp_path / "legacy.db")
     legacy.execute("CREATE TABLE fov (field_uid TEXT PRIMARY KEY)")
     legacy.execute('ALTER TABLE fov ADD COLUMN "well" TEXT')
     legacy.execute("INSERT INTO fov (field_uid, well) VALUES ('f1', 'A01')")
     with legacy:
-        browser._fov_without_rowid(legacy)
+        _image_measurement_without_rowid(legacy)
         legacy.execute('ALTER TABLE fov ADD COLUMN "rowID" TEXT')
         legacy.execute("UPDATE fov SET rowID = 'r1' WHERE field_uid = 'f1'")
     assert legacy.execute("SELECT field_uid, well, rowID FROM fov").fetchall() == [("f1", "A01", "r1")]
     created = legacy.execute("SELECT sql FROM sqlite_master WHERE name = 'fov'").fetchone()[0]
     assert "WITHOUT ROWID" in created.upper()
-    assert legacy.execute("SELECT name FROM sqlite_master WHERE name = 'fov_field_uid'").fetchone()
-    browser._fov_without_rowid(legacy)
+    assert [row[1] for row in legacy.execute("PRAGMA table_info(fov)") if row[5]] == ["field_uid"]
+    _image_measurement_without_rowid(legacy)
     assert legacy.execute("SELECT count(*) FROM fov").fetchone() == (1,)
     legacy.close()

@@ -2314,30 +2314,6 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
             if not count:
                 raise ValueError(tr("This channel has no finite pixels."))
             collected[channel] = plane
-            if "intensity" not in groups:
-                continue
-            values = np.asarray(plane[finite], dtype=np.float64)
-            percentiles = np.percentile(values, (1, 5, 25, 50, 75, 95, 99))
-            mean = float(np.mean(values))
-            std = float(np.std(values))
-            median = float(percentiles[3])
-            stats = dict(intensity_min=float(values.min()),
-                         intensity_max=float(values.max()), intensity_mean=mean,
-                         intensity_sum=float(values.sum()), intensity_std=std,
-                         intensity_variance=float(np.var(values)),
-                         intensity_median=median,
-                         intensity_mad=float(np.median(np.abs(values - median))),
-                         intensity_iqr=float(percentiles[4] - percentiles[2]),
-                         intensity_zero_fraction=float(np.count_nonzero(values == 0) / count))
-            if std:
-                centred = (values - mean) / std
-                stats.update(intensity_skewness=float(np.mean(centred ** 3)),
-                             intensity_kurtosis=float(np.mean(centred ** 4) - 3))
-            else:
-                stats.update(intensity_skewness=0., intensity_kurtosis=0.)
-            stats.update({"intensity_p" + str(p): float(v)
-                          for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
-            record.update({prefix + key: value for key, value in stats.items()})
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
         from ...measure import _image_advanced_features, _image_feature_masks, _image_level_features
@@ -2358,6 +2334,13 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
         raise
     except Exception as error:
         record.update(status="error", error=str(error))
+        if collected and "intensity" in groups:
+            from ...measure import _image_level_features
+
+            try:
+                record.update(_image_level_features(collected, {}, groups=("intensity",)))
+            except Exception:
+                LOG.debug("partial intensity statistics unavailable", exc_info=True)
     return record
 
 
@@ -2565,40 +2548,6 @@ def _overview_advanced_planes(field, planes, model, sample_reader, reference_rea
     return tuple(result)
 
 
-_ROWID_ALIASES = frozenset(("rowid", "oid", "_rowid_"))
-
-
-def _fov_without_rowid(connection):
-    """Rebuild the ``fov`` table without a rowid, keeping its columns and rows.
-
-    Recent SQLite releases (3.54 among them) refuse to add a column named ``rowid``, ``oid`` or
-    ``_rowid_`` (in any case) to a table that has a rowid, and image metadata
-    often carries such a key (``rowID`` on many plate exports). ``fov`` is
-    keyed by ``field_uid``, so it needs no rowid; a table written before it
-    was created without one is rebuilt in place, inside the caller's
-    transaction. Legacy rows without a ``field_uid`` keep their values under
-    ``legacy-rowid-<rowid>``, since a WITHOUT ROWID key cannot be empty.
-
-    :param connection: open connection holding the write transaction.
-    """
-    created = connection.execute(
-        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'fov'").fetchone()
-    if created is None or "WITHOUT ROWID" in str(created[0]).upper():
-        return
-    columns = [(row[1], row[2]) for row in connection.execute('PRAGMA table_info(fov)')]
-    others = ", ".join(f'"{name}" {kind}'.rstrip() for name, kind in columns if name != "field_uid")
-    connection.execute('DROP TABLE IF EXISTS fov_without_rowid')
-    connection.execute('CREATE TABLE fov_without_rowid (field_uid TEXT PRIMARY KEY'
-                       + (", " + others if others else "") + ') WITHOUT ROWID')
-    names = ", ".join(f'"{name}"' for name, _kind in columns)
-    values = ", ".join("COALESCE(field_uid, 'legacy-rowid-' || rowid)" if name == "field_uid"
-                       else f'"{name}"' for name, _kind in columns)
-    connection.execute(f'INSERT INTO fov_without_rowid ({names}) SELECT {values} FROM fov')
-    connection.execute('DROP TABLE fov')
-    connection.execute('ALTER TABLE fov_without_rowid RENAME TO fov')
-    connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
-
-
 _OVERVIEW_WORKER_START_DELAY = 10.0
 
 _OVERVIEW_ADVANCED_RAM = dict(embedding=1024 ** 3, deep_qc=384 * 1024 ** 2, filter_bank=0)
@@ -2663,9 +2612,9 @@ def _overview_measurements_export(fields, source, channels, workers=1,
     import time
     from concurrent.futures import CancelledError
     from datetime import datetime, timezone
-    from ...database_concurrency import connect, transaction
     from ...measure import (_image_advanced_options, _image_advanced_prepare,
                             _image_embedding_components, _image_feature_groups,
+                            _publish_image_measurements,
                             _single_threaded_children, _wait_for_ram,
                             resolve_n_jobs, resolve_pool_size)
     from ...resource_log import _clamp_to_plan, _ram_plan
@@ -2819,45 +2768,19 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                 check_cancelled()
                 if report["errors"]:
                     return report
+                check_cancelled()
+                rows = [json.loads(value) for (value,) in stage.execute("SELECT record FROM records")]
+                if advanced.get("embedding"):
+                    components = _image_embedding_components({
+                        row["field_uid"]: row.get("embedding_vector") for row in rows})
+                    for row in rows:
+                        row.update(components.get(row["field_uid"], {}))
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                connection = connect(destination, timeout=30)
-                try:
-                    with transaction(connection, attempts=8, busy_timeout=30):
-                        check_cancelled()
-                        connection.execute('CREATE TABLE IF NOT EXISTS fov '
-                                           '(field_uid TEXT PRIMARY KEY) WITHOUT ROWID')
-                        existing = {row[1] for row in connection.execute('PRAGMA table_info(fov)')}
-                        if "field_uid" not in existing:
-                            connection.execute('ALTER TABLE fov ADD COLUMN field_uid TEXT')
-                            existing.add("field_uid")
-                        connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
-                        components = {}
-                        if advanced.get("embedding"):
-                            components = _image_embedding_components({
-                                item["field_uid"]: item.get("embedding_vector")
-                                for item in (json.loads(value) for (value,) in
-                                             stage.execute("SELECT record FROM records"))})
-                        for (serialized,) in stage.execute("SELECT record FROM records"):
-                            check_cancelled()
-                            row = json.loads(serialized)
-                            row.update(components.get(row["field_uid"], {}))
-                            for key, value in row.items():
-                                if key not in existing:
-                                    kind = ("INTEGER" if isinstance(value, int) else
-                                            "REAL" if isinstance(value, float) else "TEXT")
-                                    if key.lower() in _ROWID_ALIASES:
-                                        _fov_without_rowid(connection)
-                                    connection.execute(f'ALTER TABLE fov ADD COLUMN "{key}" {kind}')
-                                    existing.add(key)
-                            connection.execute('DELETE FROM fov WHERE field_uid = ?', (row["field_uid"],))
-                            names = ", ".join('"' + key + '"' for key in row)
-                            placeholders = ", ".join("?" for _ in row)
-                            connection.execute(f'INSERT INTO fov ({names}) VALUES ({placeholders})',
-                                               tuple(row.values()))
-                        check_cancelled()
-                    report["count"] = report["attempted"]
-                finally:
-                    connection.close()
+                published = _publish_image_measurements(destination, rows, choices, cancelled=cancelled)
+                report.update(path=str(published.get("path", destination)),
+                              exports={key: str(value) for key, value in (published.get("exports") or {}).items()},
+                              inserted=published.get("inserted", 0), updated=published.get("updated", 0))
+                report["count"] = report["attempted"]
             finally:
                 stage.close()
     except CancelledError:
@@ -4069,7 +3992,17 @@ class _FieldOverview(QWidget):
         image_column = QWidget()
         image_layout = QVBoxLayout(image_column)
         image_layout.setContentsMargins(0, 0, 0, 0)
+        from .sortable_table import install_sorting
+
+        self.comparison_table = QTableWidget()
+        self.comparison_table.setObjectName("FieldOverviewComparisonTable")
+        self.comparison_table.setToolTip(tr("Pairwise differences between the compared groups; adjusted p-values and effect sizes."))
+        self.comparison_table.setMaximumHeight(180)
+        self.comparison_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        install_sorting(self.comparison_table)
+        self.comparison_table.hide()
         image_layout.addWidget(self._image_stack_bar)
+        image_layout.addWidget(self.comparison_table)
         image_layout.addWidget(self._image_stack, 1)
         self._image_stack.addWidget(self._image_panel)
         self._image_column = image_column
@@ -5146,7 +5079,8 @@ class _FieldOverview(QWidget):
             from datetime import datetime
             from io import BytesIO
             from ...sp_stats import (_compare_image_groups, _image_comparison_figure,
-                                     _image_measurement_columns, _write_image_comparison)
+                                     _image_comparison_table, _image_measurement_columns,
+                                     _write_image_comparison)
 
             try:
                 frame = _overview_comparison_frame(source)
@@ -5172,7 +5106,7 @@ class _FieldOverview(QWidget):
             figure.savefig(buffer, format="png", dpi=110)
             import matplotlib.pyplot as plt
             plt.close(figure)
-            return buffer.getvalue(), str(saved), tables, column, columns
+            return buffer.getvalue(), str(saved), tables, column, columns, _image_comparison_table(result)
         def shown(result):
             """Show the comparison figure in the image level and offer its measurements.
 
@@ -5181,7 +5115,8 @@ class _FieldOverview(QWidget):
             if isinstance(result, str):
                 self.status.setText(result)
                 return
-            png, saved, tables, column, columns = result
+            png, saved, tables, column, columns, compact = result
+            self._show_comparison_table(compact)
             if self.comparison_measurement.count() != len(columns):
                 self.comparison_measurement.blockSignals(True)
                 self.comparison_measurement.clear()
@@ -5201,6 +5136,31 @@ class _FieldOverview(QWidget):
         self._comparison_signature = None
         self.status.setText(tr("Comparing annotated groups…"))
         self._export_jobs.submit(run, shown)
+
+    def _show_comparison_table(self, frame):
+        """Show the compared groups' numbers beside the stacked representative images.
+
+        :param frame: ``spacr.sp_stats._image_comparison_table`` output.
+        """
+        from .sortable_table import install_sorting, table_item
+
+        columns = [name for name in ("measurement", "group_a", "group_b", "n_a", "n_b", "mean_a", "mean_b",
+                                     "log2_ratio", "effect_size", "p_adjusted", "significance")
+                   if name in frame.columns]
+        table = self.comparison_table
+        table.setSortingEnabled(False)
+        table.clear()
+        table.setColumnCount(len(columns))
+        table.setRowCount(len(frame))
+        table.setHorizontalHeaderLabels(columns)
+        for row, record in enumerate(frame[columns].itertuples(index=False)):
+            for column, value in enumerate(record):
+                text = f"{value:.4g}" if isinstance(value, float) else str(value)
+                table.setItem(row, column, table_item(text))
+        install_sorting(table)
+        table.resizeColumnsToContents()
+        table.setVisible(len(frame) > 0)
+        self._show_image_column()
 
     def _show_representatives(self, stacked=False):
         """Show the most representative image of every chosen annotation class.
@@ -5679,8 +5639,11 @@ class _FieldOverview(QWidget):
                 self.status.setText(tr("Measurements were not published: {count} images failed. {error}",
                     count=len(report["errors"]), error=report["errors"][0]["error"]))
             else:
-                self.status.setText(tr("Saved {count} image measurements to {path} (table fov).",
-                    count=report["count"], path=report["path"]))
+                message = tr("Saved {count} image measurements to {path} (table fov).",
+                             count=report["count"], path=report["path"])
+                if report.get("exports"):
+                    message += " " + tr("Exported: {files}", files=", ".join(report["exports"].values()))
+                self.status.setText(message)
         if workers is None:
             self.status.setText(tr("Starting workers… measuring {count} image planes; "
                                    "parallel workers start a few seconds apart.", count=len(fields)))
