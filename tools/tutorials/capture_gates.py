@@ -407,6 +407,16 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
     QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
     settle(0.8)
+    if capture_ui.live(capture) and not errors and not renamed:
+        # A live double-click that lands as click + click (compositor timing) opens nothing: wait briefly for the
+        # dialog, then double-click the same row once more.
+        until = time.monotonic() + 3
+        while not renamed and not errors and time.monotonic() < until:
+            settle(0.2)
+        if not renamed and not errors:
+            modal_wait(capture, 400, rename)
+            QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=tree.visualItemRect(item).center())
+            settle(1.2)
     if errors or not renamed or 'dense_core' not in screen.gates.gates.names:
         raise RuntimeError('; '.join(errors) or 'The gate was not renamed')
     QTest.mouseClick(screen.gates._drag_buttons['spin'], Qt.LeftButton)
