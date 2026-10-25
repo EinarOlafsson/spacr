@@ -8282,6 +8282,13 @@ class MainWindow(QMainWindow):
         until it is opened; see ``AppScreen._build_a_waiting_heading``.
         Fold controls are attached before the first stylesheet is applied,
         so their registered rules do not restyle an already visible page.
+        The settings search strip goes on here for the same reason: its
+        install moves the whole settings form into a new container, and a
+        form already polished under a sheet is repolished by every move.
+        Theming the screen gives it the late blocks' sheet when blocks were
+        registered after the window sheet was composed, so installing the
+        strip after that cost Mask 0.8 s and about 3,000 style changes
+        offscreen; before it, nothing is polished and the move is free.
 
         :param key: the module to build.
         :returns: the screen widget.
@@ -8299,6 +8306,9 @@ class MainWindow(QMainWindow):
                 install_folds_on(screen)
                 if key in _CRAMPED_SCREENS:
                     _scroll_when_cramped(screen)
+                from .settings_search import install as _install_settings_search
+
+                _install_settings_search(screen)
                 return screen
         finally:
             _screens_package._categories_wait_to_be_opened = waited

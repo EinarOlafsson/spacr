@@ -1,4 +1,4 @@
-"""Item 641, 2026-10-25: two GUI-thread freezes while Home idles.
+"""Item 641, 2026-10-25: three GUI-thread freezes while Home idles.
 
 * The Preferences warm-up recomposes the window sheet once screens built
   ahead register their blocks, and each recompose restyled the VISIBLE Home
@@ -8,6 +8,10 @@
   ``WA_DontShowOnScreen``), and its join to the stack then repolished it
   twice more. Such a screen is left to the prewarm, which sheets it after
   the join.
+* The settings search strip moved the whole settings form into a new
+  container after the screen had been given a sheet, repolishing the form
+  several times (Mask: about 3,000 style changes). It now goes on while the
+  screen is built, before any sheet.
 
 Counted in ``setStyleSheet`` calls and ``StyleChange`` events, not timed.
 """
@@ -17,6 +21,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
+from PySide6.QtCore import QEvent, QObject  # noqa: E402
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget  # noqa: E402
 
 from spacr.qt import theme  # noqa: E402
@@ -165,3 +170,58 @@ def test_a_recompose_leaves_a_screen_being_built_ahead_alone(
     assert plain.styleSheet(), "an ordinary hidden window is still sheeted"
     assert theme._sheet_one_window(ahead), (
         "the prewarm's own sheeting after the join still applies")
+
+
+class _StyleChanges(QObject):
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.StyleChange:
+            self.count += 1
+        return False
+
+
+@pytest.fixture
+def window(qapp, monkeypatch):
+    monkeypatch.setenv("SPACR_PREWARM", "0")
+    from spacr.qt.app import MainWindow
+
+    win = MainWindow(initial_app="__home__")
+    win.resize(1200, 800)
+    win.show()
+    for _ in range(3):
+        qapp.processEvents()
+    yield win
+    win.close()
+    win.deleteLater()
+    qapp.processEvents()
+
+
+def test_the_search_strip_goes_on_before_the_screen_is_sheeted(
+        window, qapp, monkeypatch):
+    """A screen given the late blocks' sheet at theming moves no form later."""
+    theme.register_widget_qss(
+        _BLOCK, lambda palette, opacity: "QLabel#LateProbe { color: red; }",
+        replace=True)
+    try:
+        screen = window._build_screen("measure")
+        assert getattr(screen, "_settings_search", None) is not None, (
+            "the strip is installed while the screen is built")
+        window._theme_screen(screen, "measure")
+        screen.ensurePolished()
+
+        changes = _StyleChanges()
+        qapp.installEventFilter(changes)
+        try:
+            window._a_page_joined_the_stack(screen)
+        finally:
+            qapp.removeEventFilter(changes)
+        assert changes.count < 25, (
+            f"{changes.count} style changes: the settings form was moved "
+            "after the screen was sheeted")
+        window._stack.addWidget(screen)
+        window._screens["measure"] = screen
+    finally:
+        theme.unregister_widget_qss(_BLOCK)
