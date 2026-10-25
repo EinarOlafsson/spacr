@@ -7587,6 +7587,9 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    372: {
+        'widgets': ('MaskOpsSwitch',),
+    },
     691: {
         'models': ('mitonet_mini_v1',),
         'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),

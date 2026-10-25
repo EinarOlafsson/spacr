@@ -432,6 +432,10 @@ OPS_KEY: str = PAGE_FOLDS[0]
 #: What the switch says. AN ACRONYM, DELIBERATELY UNEXPANDED: "optical
 #: pooled screening" does not fit the actions row beside Live, and OPS is
 #: what the field calls it.
+#: Module pages opened by an alpha-feature switch, by app key: the
+#: ``ALPHA_FEATURES`` widget name of the switch that opens each one.
+ALPHA_FEATURE_PAGES = {"ops": "MaskOpsSwitch"}
+
 OPS_TOGGLE_TEXT = "OPS"
 
 #: What it says on hover. The full name is here, where there is room for

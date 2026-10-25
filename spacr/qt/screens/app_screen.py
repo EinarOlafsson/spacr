@@ -6613,6 +6613,21 @@ class AppScreen(QWidget):
 
         QApplication.processEvents()
 
+    def _shown_as_an_alpha_feature(self) -> bool:
+        """Whether this module is an alpha feature the user has turned on.
+
+        A page opened by an alpha-feature switch -- OPS, from Mask's
+        ``MaskOpsSwitch`` -- is reached through Show alpha features alone,
+        so its own alpha sections follow that switch's gate rather than the
+        separate alpha-maturity preference. Without this the switch opened a
+        page whose every section was hidden.
+        """
+        from ..preferences import _is_alpha_visible
+        from .mask import ALPHA_FEATURE_PAGES
+
+        switch = ALPHA_FEATURE_PAGES.get(self.app_key)
+        return switch is not None and _is_alpha_visible("widgets", switch)
+
     def refresh_maturity_visibility(self) -> None:
         """Show/hide Alpha and Beta settings without discarding typed values.
 
@@ -6632,12 +6647,14 @@ class AppScreen(QWidget):
         """
         from ..preferences import maturity_is_visible
 
+        alpha_feature = self._shown_as_an_alpha_feature()
         hidden_stages = set()
         gated = (self._dimension_hidden_sections()
                  | self._headings_the_run_lacks()
                  | self._alpha_hidden_sections())
         for section in self.rendered_settings_sections():
-            visible = maturity_is_visible(section.maturity())
+            visible = (maturity_is_visible(section.maturity())
+                       or (alpha_feature and section.maturity() == "alpha"))
             section.setVisible(visible and id(section) not in gated)
             if not visible:
                 hidden_stages.add(section.maturity())
@@ -8595,6 +8612,7 @@ class AppScreen(QWidget):
 
                 self._ops_switch = AiToggleLabel(
                     text=OPS_TOGGLE_TEXT, tooltip=OPS_TOGGLE_TOOLTIP)
+                self._ops_switch.setObjectName("MaskOpsSwitch")
                 row.addWidget(self._ops_switch)
                 install_ops_switch(self, self._ops_switch)
             except Exception:                            # noqa: BLE001
