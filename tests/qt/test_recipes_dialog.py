@@ -917,11 +917,14 @@ def test_a_delete_that_fails_is_reported_and_the_row_stays(
     R.save_recipe(R.capture_recipe(mask_screen, "Locked"))
     dialog.reload()
     folder = R.recipes_dir("mask")
-    os.chmod(folder, 0o500)                     # readable, not writable
+    locked = dialog.selected().path
+    os.chmod(locked, 0o400)                     # Windows: a read-only file
+    os.chmod(folder, 0o500)                     # POSIX: readable, not writable
     try:
         dialog._on_delete()
     finally:
         os.chmod(folder, 0o700)
+        os.chmod(locked, 0o600)
 
     (title, _text), = warnings
     assert title == "Could not delete template"

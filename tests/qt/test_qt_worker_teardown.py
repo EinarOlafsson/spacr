@@ -178,11 +178,24 @@ def test_a_closure_really_would_have_run_on_the_worker_thread(
 # ---------------------------------------------------------------------------
 
 def _os_threads() -> int:
-    """Threads the OS sees, native ones included (Linux), else Python's view."""
-    try:
-        return len(os.listdir("/proc/self/task"))
-    except OSError:
-        return threading.active_count()
+    """Threads the OS sees, native ones included."""
+    import psutil
+
+    return psutil.Process().num_threads()
+
+
+def _python_threads() -> int:
+    """Python's threads whose native thread is still alive.
+
+    A QThread that touches ``threading.current_thread()`` (every log record
+    does) is registered as a ``_DummyThread`` that Python never removes.
+    POSIX reuses the dead thread's ident, so the stale entry is overwritten;
+    Windows thread ids are not reused, so the entries pile up.
+    """
+    import psutil
+
+    alive = {thread.id for thread in psutil.Process().threads()}
+    return sum(thread.native_id in alive for thread in threading.enumerate())
 
 
 #: A per-run leak shows up as one thread per cycle, i.e. 20 over the loops
@@ -214,14 +227,14 @@ def test_thread_census_returns_to_baseline_after_runs_complete(
 
     _cycle(-1)          # warm-up: first job imports matplotlib + the journal
     qtbot.waitUntil(lambda: _drained("census-done-"), timeout=5000)
-    base_py, base_os = threading.active_count(), _os_threads()
+    base_py, base_os = _python_threads(), _os_threads()
 
     for index in range(_CYCLES):
         assert not _cycle(index).was_cancelled
 
     qtbot.waitUntil(lambda: _drained("census-done-"), timeout=5000)
-    assert threading.active_count() - base_py <= 0, (
-        f"Python threads grew {base_py} -> {threading.active_count()} "
+    assert _python_threads() - base_py <= 0, (
+        f"Python threads grew {base_py} -> {_python_threads()} "
         f"over {_CYCLES} completed runs")
     assert _os_threads() - base_os <= _SLACK, (
         f"OS threads grew {base_os} -> {_os_threads()} over {_CYCLES} "
@@ -350,7 +363,7 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
 
     _cycle(-1)
     qtbot.waitUntil(lambda: _drained("census-stop-"), timeout=5000)
-    base_py, base_os = threading.active_count(), _os_threads()
+    base_py, base_os = _python_threads(), _os_threads()
     before_threads = _thread_details()
 
     for index in range(_CYCLES):
@@ -358,8 +371,8 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
 
     qtbot.waitUntil(lambda: _drained("census-stop-"), timeout=5000)
     after_threads = _thread_details()
-    assert threading.active_count() - base_py <= 0, (
-        f"Python threads grew {base_py} -> {threading.active_count()} "
+    assert _python_threads() - base_py <= 0, (
+        f"Python threads grew {base_py} -> {_python_threads()} "
         f"over {_CYCLES} cancelled runs; "
         f"before={before_threads}; after={after_threads}; "
         f"extra_timers={_extra_timer_details(before_threads)}")

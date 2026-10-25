@@ -154,6 +154,7 @@ def test_reject_cancels_the_active_job_and_waits_for_it(controlled_picker):
 def test_default_listing_is_loaded_once_and_attached_to_each_row(qtbot, tmp_path, monkeypatch):
     listing = Mock(return_value=FILES)
     monkeypatch.setattr(mod, "runs_for", listing)
+    monkeypatch.setattr(mod, "_cached_runs", lambda: ())
     picker = mod.SraPicker(tmp_path)
     qtbot.addWidget(picker)
     listing.assert_called_once_with()
