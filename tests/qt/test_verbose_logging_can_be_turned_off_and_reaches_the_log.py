@@ -269,7 +269,12 @@ def _launch_once(tmp_path, stored: dict) -> dict:
 
     repo_root = str(Path(spacr.__file__).resolve().parents[1])
     config = tmp_path / "config"
-    store = QSettings(str(config / "spacr" / "qt.conf"), QSettings.IniFormat)
+    store_file = config / "spacr" / "qt.conf"
+    if sys.platform == "darwin":
+        # CFPreferences ignores XDG_CONFIG_HOME and HOME: the launch read the
+        # user's real plist. An isolated profile keeps its store as INI here.
+        store_file = tmp_path / "spacr-home" / "settings" / "spacr" / "qt.ini"
+    store = QSettings(str(store_file), QSettings.IniFormat)
     for key, value in stored.items():
         store.setValue(key, value)
     store.sync()
@@ -284,6 +289,9 @@ def _launch_once(tmp_path, stored: dict) -> dict:
                XDG_CONFIG_HOME=str(config),
                SPACR_LOG_DIR=str(tmp_path / "logs"),
                SPACR_NO_SETUP="1", SPACR_LAPTOP_MODE="0")
+    if sys.platform == "darwin":
+        env.update(SPACR_ISOLATED_PROFILE="1",
+                   SPACR_HOME=str(tmp_path / "spacr-home"))
     finished = subprocess.run(
         [sys.executable, str(launcher), repo_root, str(report_path)],
         env=env, capture_output=True, text=True, timeout=240)

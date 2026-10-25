@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from PySide6.QtCore import QSettings
 
 from spacr.qt import preferences, prefs
@@ -37,6 +39,13 @@ def test_recent_paths_and_preferences_use_the_same_store(tmp_path, monkeypatch):
 
 def test_both_legacy_spellings_migrate_without_being_changed(
         tmp_path, monkeypatch):
+    probe = tmp_path / "CaseProbe"
+    probe.write_text("", encoding="utf-8")
+    if (tmp_path / "caseprobe").exists():
+        # macOS's default file system ignores case: the two legacy spellings
+        # are one file there, so two stores cannot be set up side by side.
+        pytest.skip("the two legacy spellings are one file on this file system")
+    probe.unlink()
     make = _ini_factory(tmp_path)
     monkeypatch.setattr(prefs, "QSettings", make)
     monkeypatch.setattr(prefs, "_MIGRATED_FILES", set())

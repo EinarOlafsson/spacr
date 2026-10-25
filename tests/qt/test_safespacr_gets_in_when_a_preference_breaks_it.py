@@ -490,6 +490,13 @@ def a_start_that_a_preference_broke(tmp_path_factory):
                SPACR_LOG_DIR=str(sandbox / "logs"),
                SPACR_INSTALL_PROFILE=str(sandbox / "no-installer-profile"),
                SPACR_LAPTOP_MODE="0")
+    if sys.platform == "darwin":
+        # macOS's store is CFPreferences, which XDG_CONFIG_HOME does not
+        # move: the children read the user's real plist and never saw the
+        # seeded file. An isolated profile keeps their store as INI here.
+        env.update(SPACR_ISOLATED_PROFILE="1",
+                   SPACR_HOME=str(sandbox / "spacr-home"))
+        store_path = sandbox / "spacr-home" / "settings" / "spacr" / "qt.ini"
 
     store = QSettings(str(store_path), QSettings.IniFormat)
     store.setValue(preferences._KEY_AMBIENT_ENABLED, True)
