@@ -582,6 +582,99 @@ def pytest_make_parametrize_id(config, val, argname):
 _ONE_NODE_PER_DIRECTORY = "spacr-one-node-per-directory"
 
 
+#: Where a macOS run keeps the user's real spaCR preference domains while it
+#: runs. Stable rather than temporary, so a run that is killed before it can
+#: put them back is undone by the next one.
+_MAC_PREFS_BACKUP = Path.home() / ".spacr" / "test-preferences-backup"
+
+
+def _mac_preference_domains() -> list:
+    """The CFPreferences domains spaCR's two stores use for a real user.
+
+    Named rather than asked: inside this process every QSettings, explicit
+    NativeFormat included, already resolves to the sandbox's INI files, so
+    only a subprocess a test starts -- the app itself, with HOME and
+    XDG_CONFIG_HOME moved, neither of which CFPreferences reads -- reaches
+    these. They are what ``QSettings("spacr", "qt")`` and
+    ``QSettings("Olafsson Lab", "spaCR")`` are on macOS.
+    """
+    return ["com.spacr.qt", "com.olafsson-lab.SpaCR"]
+
+
+#: Run detached by :func:`_set_mac_preferences_aside`: wait for the pytest
+#: process to be gone, then do what :func:`_restore_mac_preferences` does.
+#: Outside the process because spaCR's own exit-time writes (the main window
+#: saving ``session/last`` as it closes) land after any atexit handler here.
+_RESTORE_WHEN_DONE = r"""
+import os, subprocess, sys, time
+from pathlib import Path
+pid, folder = int(sys.argv[1]), Path(sys.argv[2])
+while True:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        break
+    except PermissionError:
+        pass
+    time.sleep(0.5)
+for backup in sorted(folder.glob("*.plist")):
+    subprocess.run(["defaults", "delete", backup.stem], capture_output=True)
+    if backup.stat().st_size:
+        subprocess.run(["defaults", "import", backup.stem, str(backup)],
+                       capture_output=True)
+    backup.unlink()
+"""
+
+
+def _restore_mac_preferences() -> None:
+    """Put back every domain a macOS run set aside, then drop its backup.
+
+    An empty backup marks a domain that did not exist before the run, so
+    whatever the run left in it is deleted rather than kept.
+    """
+    import subprocess
+
+    for backup in sorted(_MAC_PREFS_BACKUP.glob("*.plist")):
+        subprocess.run(["defaults", "delete", backup.stem], capture_output=True)
+        if backup.stat().st_size:
+            subprocess.run(["defaults", "import", backup.stem, str(backup)],
+                           capture_output=True)
+        backup.unlink()
+
+
+def _set_mac_preferences_aside() -> None:
+    """Start a macOS run on empty spaCR preferences and restore them at exit.
+
+    On macOS the two-argument ``QSettings(org, app)`` is CFPreferences, which
+    ``setPath`` cannot move, and the app a test starts in a subprocess wrote
+    the user's real ``~/Library/Preferences/com.spacr.qt.plist``
+    (found 2026-10-24 on an Apple M2: a first-run layout measured on the
+    800x800 offscreen screen, written into the user's own store). Each domain
+    is exported with ``defaults``, cleared for the run, and imported back by a detached
+    process once this one has exited; the backup is kept where the next run
+    finds it, so even a killed run loses nothing. Only the controlling process does this: xdist workers
+    start after it has, and finish before it restores.
+    """
+    import subprocess
+
+    if (sys.platform != "darwin" or os.environ.get("PYTEST_XDIST_WORKER")
+            or os.environ.get("SPACR_TEST_KEEP_REAL_CONFIG")):
+        return
+    _restore_mac_preferences()
+    _MAC_PREFS_BACKUP.mkdir(parents=True, exist_ok=True)
+    for domain in _mac_preference_domains():
+        backup = _MAC_PREFS_BACKUP / f"{domain}.plist"
+        exported = subprocess.run(["defaults", "export", domain, str(backup)],
+                                  capture_output=True)
+        if exported.returncode != 0 or not backup.exists():
+            backup.write_bytes(b"")
+        subprocess.run(["defaults", "delete", domain], capture_output=True)
+    subprocess.Popen([sys.executable, "-I", "-c", _RESTORE_WHEN_DONE,
+                      str(os.getpid()), str(_MAC_PREFS_BACKUP)],
+                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, start_new_session=True)
+
+
 def pytest_configure(config):
     """Sandbox QSettings, and pin one collection node per directory.
 
@@ -642,6 +735,7 @@ def pytest_configure(config):
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
+    _set_mac_preferences_aside()
     # Snapshot the real files FIRST — the guard compares against this.
     for real in _qsettings_probe_paths():
         _QSETTINGS_REAL_STATE[real] = _stat_signature(real)
