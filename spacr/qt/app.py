@@ -611,6 +611,14 @@ def _import_the_data_libraries_off_the_gui_thread():
         from .gil_priority import responsive_gui
 
         with responsive_gui():
+            try:
+                from spacr._segmentation_backends import _warm_backend_lookups
+
+                with _timing.span("background warm", "backend lookups"):
+                    _warm_backend_lookups()
+            except Exception:
+                LOG.debug("could not look up the backend interpreters early",
+                          exc_info=True)
             for name in _DATA_LIBRARIES:
                 try:
                     with _timing.span("background import", name):
