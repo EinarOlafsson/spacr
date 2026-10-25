@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 
+import psutil
 import pytest
 
 from spacr.qt import laptop_mode as LM
@@ -72,7 +73,7 @@ def _blind_psutil(monkeypatch):
     def _blind():
         raise RuntimeError("psutil cannot read this host either")
 
-    monkeypatch.setattr("psutil.virtual_memory", _blind)
+    monkeypatch.setattr(psutil, "virtual_memory", _blind)
 
 
 def test_unreadable_memory_is_none_rather_than_an_exception(monkeypatch):
@@ -90,7 +91,7 @@ def test_windows_memory_is_read_without_sysconf(monkeypatch):
     import types
 
     monkeypatch.delattr(os, "sysconf", raising=False)
-    monkeypatch.setattr("psutil.virtual_memory",
+    monkeypatch.setattr(psutil, "virtual_memory",
                         lambda: types.SimpleNamespace(total=8 * 1024 ** 3))
     assert LM.total_memory_gib() == pytest.approx(8.0)
 
