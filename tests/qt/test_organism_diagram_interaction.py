@@ -84,7 +84,7 @@ def test_thin_divider_and_packed_tile_columns(qtbot, qt_theme_applied):
     qtbot.addWidget(screen)
     screen.resize(1280, 850)
     screen.show()
-    qtbot.wait(30)
+    qtbot.waitUntil(lambda: screen._columns > 0)
     assert screen._splitter.handleWidth() == scaled_px(1)
     tiles = screen._tiles[:screen._columns]
     assert len(tiles) >= 3

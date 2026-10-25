@@ -273,7 +273,7 @@ def test_divider_drag_resizes_text_and_reflows_tiles_without_width_button(qtbot,
     qtbot.addWidget(screen)
     screen.resize(1280, 800)
     screen.show()
-    qtbot.wait(30)
+    qtbot.waitUntil(lambda: screen._columns > 0)
     initial_width = screen._intro.width()
     initial_columns = screen._columns
     assert not hasattr(screen, "_expand")
@@ -282,9 +282,9 @@ def test_divider_drag_resizes_text_and_reflows_tiles_without_width_button(qtbot,
     qtbot.mousePress(handle, Qt.LeftButton, pos=centre)
     qtbot.mouseMove(handle, centre + QPoint(160, 0))
     qtbot.mouseRelease(handle, Qt.LeftButton, pos=centre + QPoint(160, 0))
-    qtbot.wait(30)
+    qtbot.waitUntil(lambda: screen._columns < initial_columns
+                    and screen._module_scroll.horizontalScrollBar().maximum() == 0)
     assert screen._intro.width() > initial_width + 100
-    assert screen._columns < initial_columns
     assert screen._module_scroll.horizontalScrollBar().maximum() == 0
     assert all(tile.height() == scaled_px(TILE_H) for tile in screen._tiles)
 
