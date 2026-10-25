@@ -769,6 +769,13 @@ def _assay_settings(src, **over):
         "infection_xgb_n_estimators": 15,
         "infection_xgb_max_depth": 2,
         "infection_xgb_n_jobs": 1,
+        # XGBoost's row and column subsampling draws through the C++ standard
+        # library's distributions, which differ between libstdc++ (Linux)
+        # and libc++ (macOS): the same seed gave an Apple M2 another model,
+        # and 56 of its 60 tracks fell in the ambiguous band. Without
+        # subsampling the fit is the same on every platform.
+        "infection_xgb_subsample": 1.0,
+        "infection_xgb_colsample_bytree": 1.0,
         "reuse_existing_measurements": True,
     }
     base.update(over)
