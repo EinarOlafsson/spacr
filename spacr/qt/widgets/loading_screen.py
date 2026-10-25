@@ -26,7 +26,7 @@ from typing import Callable, Optional, Sequence
 import numpy as np
 from PySide6.QtCore import QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer
 from PySide6.QtGui import (QColor, QFont, QImage, QImageReader,
-                           QPainter, QPixmap, QTransform)
+                           QPainter, QPainterPath, QPen, QPixmap, QTransform)
 from PySide6.QtWidgets import QWidget
 
 from ..hidpi import logical_size, scaled_for
@@ -727,6 +727,49 @@ class LoadingScreen(QWidget):
         text_w = sum(widths) + arrow_w * (len(phases) - 1)
         return phases, widths, arrow_w, text_w
 
+    def _paint_strap_arrow(self, painter: QPainter, tx: float,
+                           baseline: float, advance: float,
+                           colour: QColor) -> None:
+        """Draw the arrow between two strap phases as strokes, not a glyph.
+
+        The strap font rarely carries U+2192 in bold. On Linux Qt fell back
+        to Noto Sans Math Regular, a hairline arrow, and once the default
+        scale became 90 % (7884c4a1f) the unlit arrow kept 4 legible pixels
+        on the light splash where the phrases kept hundreds. Stroked at the
+        bold face's stem width, the arrow reads the same in every font and
+        on every platform, inside the advance ``"  →  "`` still reserves.
+
+        :param painter: the painter, with the strap font set.
+        :param tx: left edge of the arrow's advance.
+        :param baseline: the text baseline.
+        :param advance: the width ``"  →  "`` takes in the strap font.
+        :param colour: the arrow's ink.
+        """
+        metrics = painter.fontMetrics()
+        size = float(painter.font().pixelSize() or metrics.height())
+        length = max(4.0, metrics.horizontalAdvance("→") * 0.8)
+        stem = max(1.25, size * 0.11)
+        head = length * 0.38
+        centre_x = tx + advance / 2.0
+        centre_y = baseline - metrics.xHeight() / 2.0
+        left, right = centre_x - length / 2.0, centre_x + length / 2.0
+        path = QPainterPath(QPointF(left, centre_y))
+        path.lineTo(QPointF(right, centre_y))
+        path.moveTo(QPointF(right - head, centre_y - head * 0.8))
+        path.lineTo(QPointF(right, centre_y))
+        path.lineTo(QPointF(right - head, centre_y + head * 0.8))
+        pen = QPen(colour, stem)
+        pen.setCapStyle(Qt.RoundCap)
+        pen.setJoinStyle(Qt.RoundJoin)
+        painter.save()
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(pen)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawPath(path)
+        finally:
+            painter.restore()
+
     def _paint_strap(self, painter: QPainter, tx: float, baseline: float,
                      strap) -> None:
         """Draw the strap line from ``tx`` on ``baseline``, and its rule.
@@ -746,10 +789,10 @@ class LoadingScreen(QWidget):
             painter.drawText(int(tx), int(baseline), phase)
             tx += widths[index]
             if index < len(phases) - 1:
-                painter.setPen(_role_color(
-                    "splash_ink" if index + 1 < lit
-                    else "splash_ink_dim"))
-                painter.drawText(int(tx), int(baseline), "  →  ")
+                self._paint_strap_arrow(
+                    painter, tx, baseline, arrow_w, _role_color(
+                        "splash_ink" if index + 1 < lit
+                        else "splash_ink_dim"))
                 tx += arrow_w
 
         rule_y = baseline + metrics.descent() + scaled_px(12)
