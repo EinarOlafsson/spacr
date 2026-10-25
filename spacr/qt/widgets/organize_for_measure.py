@@ -3137,8 +3137,11 @@ class OrganizeForMeasureDialog(QDialog):
         """
         if _headless():
             return False
+        from ..dialogs import _set_question
+
         box = QMessageBox(QMessageBox.Question, title, text,
                           QMessageBox.Yes | QMessageBox.No, self)
+        _set_question(box, title, text)
         box.button(QMessageBox.Yes).setText(tr("Yes"))
         box.button(QMessageBox.No).setText(tr("No"))
         return box.exec() == QMessageBox.Yes

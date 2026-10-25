@@ -1,4 +1,6 @@
 """Organizer confirmation uses localized standard buttons and Qt decisions."""
+import sys
+
 import pytest
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtTest import QTest
@@ -38,15 +40,22 @@ def _answer_real_question(host, action, monkeypatch):
 
     def answer():
         box = QApplication.activeModalWidget()
+        # A macOS alert has no title (dialogs._set_question): the question
+        # is the box's text there.
+        heading = box.text() if sys.platform == "darwin" and box is not None else (
+            box.windowTitle() if box is not None else "")
         if (not isinstance(box, QMessageBox) or not box.isVisible()
                 or box.parentWidget() is not host
-                or box.windowTitle() != "Question title"):
+                or heading != "Question title"):
             timer.start(10)
             return
         captured["box"] = box
         box.finished.connect(deadline.stop)
+        title, text = box.windowTitle(), box.text()
+        if sys.platform == "darwin":
+            title, text = box.text(), box.informativeText()
         captured.update(
-            title=box.windowTitle(), text=box.text(), icon=box.icon(),
+            title=title, text=text, icon=box.icon(),
             standard=box.standardButtons(),
             yes=box.button(QMessageBox.Yes).text(),
             no=box.button(QMessageBox.No).text(),
