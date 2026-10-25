@@ -343,9 +343,20 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 # Set here, at import, rather than in a fixture: `log_dir()` is read the first
 # time anything configures logging, which can happen while a test module is
 # being imported -- before any fixture has run.
-os.environ.setdefault(
-    "SPACR_LOG_DIR",
-    os.path.join(tempfile.gettempdir(), "spacr-test-logs"))
+#
+# One folder per session, not one shared path: crash-recovery code replays
+# the native crashes it finds in spacr-crash.log, so a fixed
+# $TMPDIR/spacr-test-logs that every run appended to handed the segfaults of
+# earlier runs to later ones -- on an Apple M2 every test_700 error-dispatch
+# case sent a second report, a "NativeCrash" from a previous run's worker.
+# xdist workers inherit the controller's folder, and only the process that
+# made it removes it.
+if "SPACR_LOG_DIR" not in os.environ:
+    os.environ["SPACR_LOG_DIR"] = tempfile.mkdtemp(prefix="spacr-test-logs-")
+    import atexit as _logs_atexit
+    import shutil as _logs_shutil
+
+    _logs_atexit.register(_logs_shutil.rmtree, os.environ["SPACR_LOG_DIR"], True)
 
 # ---------------------------------------------------------------------------
 # Pre-empt display-touching imports. Three packages open the X display at
