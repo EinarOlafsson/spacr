@@ -31,9 +31,14 @@ def _close_figures():
 
 @pytest.fixture(autouse=True)
 def _force_cpu(monkeypatch):
-    """Keep every device decision on the CPU, whatever the host has."""
+    """Keep every device decision on the CPU, whatever the host has.
+
+    CUDA alone is not every GPU: on an Apple Silicon Mac the resolver picks
+    Metal, so the device is pinned through spaCR's own SPACR_DEVICE too.
+    """
     torch = pytest.importorskip("torch")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setenv("SPACR_DEVICE", "cpu")
 
 
 # Four well-separated blobs -> four objects for every classical method.

@@ -393,8 +393,10 @@ def test_load_unet_model_loads_on_cpu_in_eval_mode(tmp_path, monkeypatch):
     import torch.nn as nn
     from spacr.object import _load_unet_model
 
-    # Force the CPU device branch regardless of the host machine.
+    # Force the CPU device branch regardless of the host machine -- Metal on
+    # an Apple Silicon Mac as well as CUDA.
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setenv("SPACR_DEVICE", "cpu")
 
     model = nn.Sequential(nn.Conv2d(1, 2, 3, padding=1))
     model.train()

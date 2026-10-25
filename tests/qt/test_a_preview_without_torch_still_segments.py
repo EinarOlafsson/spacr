@@ -59,6 +59,8 @@ def test_a_cuda_check_that_raises_still_lands_on_the_cpu(fake_cellpose,
         raise RuntimeError("no CUDA driver on this machine")
 
     monkeypatch.setattr(torch.cuda, "is_available", _explode)
+    # On an Apple Silicon Mac the resolver would land on Metal, not the CPU.
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
 
     # THE CACHE HAS TO BE CLEARED FIRST, and that is not incidental.
     #

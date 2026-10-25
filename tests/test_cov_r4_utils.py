@@ -284,7 +284,7 @@ def test_augmenting_into_a_folder_that_exists_writes_into_it(tmp_path,
 # reduction, clustering and the figures
 # ===========================================================================
 
-def test_a_gpu_reduction_without_cuml_refuses_rather_than_falling_back():
+def test_a_gpu_reduction_without_cuml_refuses_rather_than_falling_back(monkeypatch):
     """A GPU run that quietly used the CPU would misreport what it measured.
 
     ``prefer_gpu`` also decides what is forwarded to the constructor: cuML
@@ -294,6 +294,9 @@ def test_a_gpu_reduction_without_cuml_refuses_rather_than_falling_back():
     if importlib.util.find_spec("cuml") is not None:
         pytest.skip("cuML is installed; the CPU refusal cannot be reached")
     values = np.random.default_rng(0).random((20, 4))
+    # On Metal t-SNE runs on the CPU by design, so the refusal needs a
+    # machine without one.
+    monkeypatch.setenv("SPACR_DEVICE", "cpu")
 
     with pytest.raises(RuntimeError, match="GPU was requested"):
         utils.reduction_and_clustering(
