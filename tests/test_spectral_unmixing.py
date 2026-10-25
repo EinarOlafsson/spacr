@@ -311,6 +311,149 @@ def test_calibrated_camera_noise_keeps_signed_residuals_without_clipping(calibra
     np.testing.assert_array_equal(camera, original)
 
 
+THREE_DYE_MATRIX = np.array([[1., .85, .1], [.2, 1., .5], [.05, .3, 1.]])
+THREE_DYE_KERNELS = tuple(np.asarray(kernel, dtype=np.float64) / np.sum(kernel) for kernel in (
+    [[0., 1., 0.], [1., 4., 2.], [0., 2., 1.]],
+    np.outer([1., 3., 5., 3., 1.], [1., 2., 1.]),
+    np.outer([1., 2., 4., 2., 1.], [1., 4., 6., 4., 1.])))
+THREE_DYE_SHIFTS = ((0, 0), (-2, 3), (1, -1))
+THREE_DYE_SHAPE = (64, 72)
+THREE_DYE_OFFSET = 100.
+
+
+def _three_dye_objects(rng, channel, amount, shape=THREE_DYE_SHAPE):
+    """Six rectangles of one dye, kept clear of the field edges."""
+    dyes = np.zeros(shape + (3,))
+    for _ in range(6):
+        y = rng.integers(6, shape[0] - 14)
+        x = rng.integers(6, shape[1] - 14)
+        dyes[y:y + 8, x:x + 6, channel] = amount * rng.uniform(.5, 1.5)
+    return dyes
+
+
+def _three_dye_calibration(path, shifts=THREE_DYE_SHIFTS, kernels=THREE_DYE_KERNELS):
+    """Write a version-1 calibration naming every channel's shift and PSF."""
+    path.write_text(json.dumps({
+        'version': 1, 'axes': 'YX', 'pixel_size_um': [.2, .2], 'reference_channel': 0,
+        'channels': [{'channel': channel, 'shift_to_reference_px': list(shift),
+                      'psf': kernel.tolist(),
+                      'psf_origin_px': [kernel.shape[0] // 2, kernel.shape[1] // 2],
+                      'psf_pixel_size_um': [.2, .2]}
+                     for channel, (shift, kernel) in enumerate(zip(shifts, kernels))]}),
+        encoding='utf-8')
+    return str(path)
+
+
+def _three_dye_common_blur(dyes):
+    """The known dye amounts seen through the product of all three PSFs."""
+    from scipy.signal import convolve2d
+
+    common = np.ones((1, 1))
+    for kernel in THREE_DYE_KERNELS:
+        common = convolve2d(common, kernel)
+    return np.stack([_calibrated_test_blur(dyes[..., channel], common)
+                     for channel in range(dyes.shape[-1])], axis=-1)
+
+
+@pytest.fixture
+def three_dye_plate(tmp_path):
+    """Three single-stain wells read through strong spill, signed shifts and unequal PSFs."""
+    rng = np.random.default_rng(538)
+    stack = tmp_path / 'stack'
+    stack.mkdir()
+    for channel, well in enumerate(('A01', 'B01', 'C01')):
+        for field in (1, 2):
+            camera = _calibrated_test_camera(_three_dye_objects(rng, channel, 300.),
+                                             THREE_DYE_MATRIX, THREE_DYE_KERNELS, THREE_DYE_SHIFTS)
+            np.save(stack / f'plate1_{well}_{field}.npy', camera + np.float32(THREE_DYE_OFFSET))
+    settings = {'unmix': True, 'unmix_controls': '0:A01; 1:B01; 2:C01',
+                'unmix_background_percentile': 5., 'unmix_pixel_size_um': [.2, .2],
+                'unmix_calibration': _three_dye_calibration(tmp_path / 'calibration.json')}
+    return stack, settings, rng, tmp_path
+
+
+def test_calibrated_three_dye_registration_and_unequal_psfs_recover_known_abundances(three_dye_plate):
+    stack, settings, rng, _ = three_dye_plate
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    np.testing.assert_allclose(plan.matrix, THREE_DYE_MATRIX, atol=1e-5, rtol=0)
+    dyes = (_three_dye_objects(rng, 0, 200.) + _three_dye_objects(rng, 1, 150.)
+            + _three_dye_objects(rng, 2, 100.))
+    target = (_calibrated_test_camera(dyes, THREE_DYE_MATRIX, THREE_DYE_KERNELS, THREE_DYE_SHIFTS)
+              + np.float32(THREE_DYE_OFFSET))
+    original = target.copy()
+    result = plan.apply_calibrated(target)
+    assert result.valid_slices == (slice(4, 59), slice(6, 69))
+    assert result.source_origin_px == (4, 6)
+    expected = _three_dye_common_blur(dyes)[result.valid_slices] + THREE_DYE_OFFSET
+    inverse_gain = np.linalg.norm(np.linalg.inv(THREE_DYE_MATRIX), np.inf)
+    rounding = 8 * np.finfo(np.float32).eps * float(target.max()) * inverse_gain
+    np.testing.assert_allclose(result.image, expected, atol=rounding, rtol=0)
+    np.testing.assert_array_equal(target, original)
+
+
+def test_calibrated_held_out_single_stain_off_target_falls_to_background(three_dye_plate):
+    stack, settings, rng, _ = three_dye_plate
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    dyes = _three_dye_objects(rng, 1, 300.)
+    target = (_calibrated_test_camera(dyes, THREE_DYE_MATRIX, THREE_DYE_KERNELS, THREE_DYE_SHIFTS)
+              + np.float32(THREE_DYE_OFFSET))
+    own = float(target[..., 1].max()) - THREE_DYE_OFFSET
+    assert float(target[..., 0].max()) - THREE_DYE_OFFSET > .5 * own
+    result = plan.apply_calibrated(target)
+    rounding = 8 * np.finfo(np.float32).eps * float(target.max()) * np.linalg.norm(
+        np.linalg.inv(THREE_DYE_MATRIX), np.inf)
+    off_target = np.abs(result.image[..., [0, 2]] - THREE_DYE_OFFSET)
+    assert float(off_target.max()) < rounding
+    assert float(result.image[..., 1].max()) - THREE_DYE_OFFSET > .9 * own
+
+
+@pytest.mark.parametrize('wrong', ('legacy', 'no-registration', 'one-pixel-off', 'equal-psfs'))
+def test_wrong_registration_or_psf_calibration_misestimates_the_known_spill(three_dye_plate, wrong):
+    stack, settings, _, tmp_path = three_dye_plate
+    if wrong == 'legacy':
+        settings = {key: value for key, value in settings.items()
+                    if key not in ('unmix_calibration', 'unmix_pixel_size_um')}
+        plan = _prepare_unmixing(settings, stack)
+    else:
+        shifts, kernels = {
+            'no-registration': (((0, 0),) * 3, THREE_DYE_KERNELS),
+            'one-pixel-off': (((0, 0), (-1, 3), (1, -1)), THREE_DYE_KERNELS),
+            'equal-psfs': (THREE_DYE_SHIFTS, (THREE_DYE_KERNELS[2],) * 3),
+        }[wrong]
+        settings = dict(settings, unmix_calibration=_three_dye_calibration(
+            tmp_path / f'{wrong}.json', shifts, kernels))
+        plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    assert np.abs(np.asarray(plan.matrix) - THREE_DYE_MATRIX).max() > .01
+
+
+def test_calibrated_signed_residuals_stay_unbiased_where_clipping_biases_upward(three_dye_plate):
+    stack, settings, _, tmp_path = three_dye_plate
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    shape = (160, 160)
+    dyes = np.zeros(shape + (3,))
+    dyes[30:130, 30:130, 0] = 300.
+    noise = np.zeros(shape + (3,))
+    noise[30:130, 30:130] = np.random.default_rng(5380).normal(0., 2., (100, 100, 3))
+    clean = plan.apply_calibrated(_calibrated_test_camera(
+        dyes, THREE_DYE_MATRIX, THREE_DYE_KERNELS, THREE_DYE_SHIFTS))
+    noisy = plan.apply_calibrated(_calibrated_test_camera(
+        dyes, THREE_DYE_MATRIX, THREE_DYE_KERNELS, THREE_DYE_SHIFTS, noise))
+    inside = _three_dye_common_blur(dyes)[clean.valid_slices][..., 0] > 299.
+    for index in (1, 2):
+        signed = noisy.image[..., index][inside].astype(np.float64)
+        spread = signed.std()
+        assert abs(signed.mean()) < .15 * spread
+        clipped = np.maximum(signed, 0.).mean()
+        assert .3 * spread < clipped < .5 * spread
+        assert .4 < np.mean(signed < 0) < .6
+    for channel in ('0', '1', '2'):
+        assert clean.record['negative_fraction_beyond_tolerance_per_channel'][channel] == 0.
+        assert 0. < clean.record['negative_residual_tolerance_per_channel'][channel] < 1e-2
+    assert min(noisy.record['negative_fraction_beyond_tolerance_per_channel'][channel]
+               for channel in ('1', '2')) > .1
+    assert json.loads(json.dumps(noisy.record)) == noisy.record
+
+
 def test_calibration_is_explicit_preview_only_and_legacy_apply_is_unchanged(calibrated_plate):
     stack, settings, _, _, _, target, _, _, _, _ = calibrated_plate
     with pytest.raises(ValueError):
@@ -625,6 +768,30 @@ def test_signed_cell_loader_refuses_a_platform_without_descriptor_relative_reads
 
 
 @needs_descriptor_relative_reads
+@needs_descriptor_relative_reads
+def test_signed_cell_loader_keeps_records_written_before_residual_tolerances(completed_calibrated_cells):
+    """Older signed records without the rounding-tolerance diagnostics still load unchanged."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    record = json.loads(sample['record'].read_text())
+    row = record['calibrated_fields']['000002']
+    signed = sample['result'].image
+    for index, channel in enumerate((3, 1)):
+        bound = row['negative_residual_tolerance_per_channel'][str(channel)]
+        assert 0. < bound < 1e-2
+        assert row['negative_fraction_beyond_tolerance_per_channel'][str(channel)] == float(
+            np.mean(signed[..., index] < -bound))
+    for key in ('residual_policy', 'negative_residual_tolerance_per_channel',
+                'negative_fraction_beyond_tolerance_per_channel'):
+        row.pop(key)
+    _rewrite_calibrated_cell_record(sample['record'], record)
+    with _open_calibrated_cell_dataset(sample['inputs']['output'], channels=(1,)) as dataset:
+        loaded = [np.array(field['signed'], copy=True) for field in dataset.fields()]
+    assert len(loaded) == 1
+    np.testing.assert_array_equal(loaded[0], signed)
+
+
 def test_signed_cell_record_serializes_role_and_streams_matching_readonly_maps(completed_calibrated_cells):
     """Consume signed pixels, explicit physical positions and exact ROI cell labels."""
     from spacr.psf_pipeline import _cell_record_hash, _open_calibrated_cell_dataset
@@ -687,7 +854,8 @@ print('headless signed cell loader passed')
 @pytest.mark.parametrize('defect', ['role', 'old-record', 'stale-hash', 'shape', 'origin',
                                   'spacing', pytest.param('symlink', marks=pytest.mark.needs_symlink),
                                   'common-psf', 'source-identity',
-                                  'duplicate-field', 'duplicate-artifact', 'high-label'])
+                                  'duplicate-field', 'duplicate-artifact', 'high-label',
+                                  'residual-fraction', 'residual-tolerance', 'residual-partial'])
 def test_signed_cell_loader_refuses_real_inconsistent_producer_outputs(completed_calibrated_cells, defect):
     """Reject actual incompatible records and artifacts before exposing any field."""
     from spacr.psf_pipeline import _open_calibrated_cell_dataset
@@ -715,6 +883,12 @@ def test_signed_cell_loader_refuses_real_inconsistent_producer_outputs(completed
         record['configuration']['unmixing']['calibration']['common_psf'][0][0] += .1
     elif defect == 'source-identity':
         row['source_identity']['source_dataset'] += '-other'
+    elif defect == 'residual-fraction':
+        row['negative_fraction_beyond_tolerance_per_channel']['1'] += .5
+    elif defect == 'residual-tolerance':
+        row['negative_residual_tolerance_per_channel']['3'] = -1.
+    elif defect == 'residual-partial':
+        row.pop('negative_residual_tolerance_per_channel')
     elif defect in ('duplicate-field', 'duplicate-artifact'):
         duplicate = json.loads(json.dumps(row))
         duplicate['field_id'] = '000003'

@@ -448,6 +448,7 @@ class _UnmixPlan:
         matched, region = self.calibration.apply(image)
         signed = _unmix(matched, self.matrix, self.background_percentile,
                         clip_negative=False)
+        tolerance = _signed_residual_tolerance(matched, self.matrix, self.background_percentile)
         record = self.provenance()
         record.update(mode='calibrated_live_preview',
                       valid_roi_yx=[[part.start, part.stop] for part in region],
@@ -455,6 +456,12 @@ class _UnmixPlan:
                       source_shape=list(np.shape(image)),
                       quantitative_output='signed float32 linear residuals with background restored',
                       negative_fraction_per_channel={str(channel): float(np.mean(signed[..., index] < 0))
+                          for index, channel in enumerate(self.channels)},
+                      residual_policy='signed residuals retained without clipping; only values below the negative float32 rounding tolerance count as negative residuals',
+                      negative_residual_tolerance_per_channel={str(channel): float(tolerance[index])
+                          for index, channel in enumerate(self.channels)},
+                      negative_fraction_beyond_tolerance_per_channel={
+                          str(channel): float(np.mean(signed[..., index] < -tolerance[index]))
                           for index, channel in enumerate(self.channels)})
         return _CalibratedUnmixResult(signed, region,
                                       tuple(part.start for part in region), record)
@@ -733,6 +740,28 @@ def _unmix(image, matrix, background_percentile, *, clip_negative=True):
     if clip_negative:
         solved = np.clip(solved, 0.0, None)
     return solved.reshape(array.shape).astype(np.float32)
+
+
+def _signed_residual_tolerance(matched, matrix, background_percentile):
+    """Bound the float32 rounding of signed unmixed values for each output channel.
+
+    A noise-free blank pixel solves to its background up to rounding, so
+    a strictly negative count alone would report rounding as residual.
+    The bound is four float32 epsilons times the largest magnitude each
+    output can reach from the background-subtracted inputs through the
+    inverse matrix, plus its restored background.
+
+    :param matched: registered common-PSF intensities, channels last.
+    :param matrix: square bleed-through matrix in the same channel order.
+    :param background_percentile: per-channel percentile set aside before solving.
+    :returns: float64 nonnegative tolerance per output channel.
+    """
+    count = len(matrix)
+    pixels = np.asarray(matched, dtype=np.float64).reshape(-1, count)
+    background = _unmix_background(pixels, background_percentile)
+    scale = np.max(np.abs(pixels - background), axis=0)
+    inverse = np.abs(np.linalg.inv(np.asarray(matrix, dtype=np.float64)))
+    return 4.0 * np.finfo(np.float32).eps * (inverse @ scale + np.abs(background))
 
 
 def _partition_input_error():
@@ -1803,7 +1832,8 @@ class _SegmentationPSFSession:
             'mode', 'coordinate_system', 'field_id', 'source_identity',
             'valid_roi_yx', 'source_origin_px', 'source_shape',
             'quantitative_output', 'negative_fraction_per_channel',
-            'segmentation_view',
+            'residual_policy', 'negative_residual_tolerance_per_channel',
+            'negative_fraction_beyond_tolerance_per_channel', 'segmentation_view',
         )
         row = {key: result.record[key] for key in field_keys}
         row['configuration_sha256'] = hashlib.sha256(json.dumps(
@@ -2492,6 +2522,23 @@ class _CalibratedCellDataset:
                              for start in range(0, bottom - top, 64)) / ((bottom - top) * (right - left))
                 if not np.isfinite(expected) or expected != actual:
                     raise _cell_record_error()
+            residual_keys = ('negative_residual_tolerance_per_channel',
+                             'negative_fraction_beyond_tolerance_per_channel')
+            if any(key in row for key in residual_keys):
+                tolerances, beyond = (row.get(key) for key in residual_keys)
+                names = {str(channel) for channel in self.physical_channel_order}
+                if (not isinstance(tolerances, dict) or not isinstance(beyond, dict)
+                        or tolerances.keys() != names or beyond.keys() != names):
+                    raise _cell_record_error()
+                for index, channel in enumerate(self.physical_channel_order):
+                    bound, value = tolerances[str(channel)], beyond[str(channel)]
+                    if (any(isinstance(item, bool) or not isinstance(item, (int, float)) for item in (bound, value))
+                            or not np.isfinite(bound) or bound < 0):
+                        raise _cell_record_error()
+                    actual = sum(np.count_nonzero(signed[start:start + 64, :, index] < -float(bound))
+                                 for start in range(0, bottom - top, 64)) / ((bottom - top) * (right - left))
+                    if float(value) != actual:
+                        raise _cell_record_error()
             cell_labels = np.array(region_labels, dtype=np.uint16, copy=True)
             cell_labels.flags.writeable = False
             try:
