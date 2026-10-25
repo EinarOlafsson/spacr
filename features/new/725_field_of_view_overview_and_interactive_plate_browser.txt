@@ -1,9 +1,38 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    IN PROGRESS — reopened 2026-10-24 for the maintainer's layout, annotation and comparison requirements; round-2 feedback 2026-10-24
+Status:    IN PROGRESS — reopened 2026-10-24 for the maintainer's layout, annotation and comparison requirements; round-2 and round-3 feedback 2026-10-24
 Requested: maintainer, 2026-10-22
 Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+MAINTAINER FEEDBACK — 2026-10-24 (round 3) (supersedes conflicting earlier notes)
+UI agent U owns 1-8 and 10; measurement agent M2 owns 9 and the measurement side
+of 10. Priority order: speed (1, 6), live settings (5), then the rest.
+1. Plate view keeps one image per well visible at all times, also while the
+   well view and image view are open below it, so wells with images are easy
+   to identify. Load these thumbnails much faster than now.
+2. Image view is a stack like the well view: opening 2+ wells shows one image
+   from each well side by side (and several images per well when picked).
+3. The image-quality (preview resolution) slider is also in the image view,
+   not only in the well view.
+4. Every boolean in the Overview submodule uses spaCR's boolean slider.
+5. Settings: merge Display into Image; Overview channels move into Image;
+   Image is the main settings category, with sensible subcategories (e.g.
+   Channels, Display, Normalization, Enhancement). All Image settings,
+   including channels, apply live, fast and smoothly to thumbnails and to
+   Original images.
+6. Thumbnail visualization must be fast: caching, bounded background decode,
+   no full re-read when only display settings change.
+7. Normalizations and enhancements can be set per channel, not only applied
+   to all channels at once.
+8. Users can easily compare wells and conditions by eye (stacked views, same
+   display settings, side by side).
+9. Measurements: as many of the Measure module's measurements as possible, at
+   image level only (no object level); saved intuitively (one image-level
+   table in measurements.db, clear names, exported alongside) so wells and
+   conditions can be compared quantitatively.
+10. Comparisons combine qualitative (images side by side) and quantitative
+   (measurement plots/tables) views of the chosen wells/conditions.
 
 MAINTAINER FEEDBACK — 2026-10-24 (round 2) (supersedes conflicting earlier notes)
 UI agent A owns 1-4 and 8-11 and leaves a hook for the Measurements category;
@@ -633,3 +662,4 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-24 — Round-2 items 5-7 data side (M): spacr.settings._overview_measurement_declarations() gives the Measurements + "Advanced Measurements" (parent Measurements) keys, types, tooltips and category help for the tab's settings model; _image_level_features(groups=) skips unselected groups; fov export runs on Measure's _parallel_pool, one image per worker, RAM-guarded and cancellable; Advanced filter bank, image-quality network and embeddings are off by default. Remaining: U attaches the declarations and passes measurements=settings; captions need reviewed translations.
 2026-10-24 — Round 2 (A) in 262ab6ffbd/6f1550db9c: closable Overview tab from the Mask/Make Masks icon, standard setting rows and Actions, Image + Enhancement (19 enhance_* steps; PSF/restoration not offered), Original buttons, tile slider, stacked images, layered group builder, M's Measurements wired with progress; 12 tab tests pass. Remaining: new-caption translations (translation owner) and the two pre-existing unreadable-TIFF failures in test_field_of_view_overview.
 2026-10-24 — CQ1 import (metadata agent): Overview and the shared CQ1 converter place W<index> wells from the Yokogawa XMLs (well table, plate geometry, row/column numbering, override), and the wizard autofills geometry, editable channel names/colours, well order and pixel size for CQ1, CellVoyager and TIFF headers. 19 new tests pass; the real sulfide Projection folder reads as 384-well, 18 wells (C01-F10), 9 fields, 3 channels, 0.1625 µm. 24 new captions await translation.
+2026-10-24 — Round-3 maintainer feedback recorded above (persistent plate thumbnails, stacked image view, per-channel normalization/enhancement, merged Image settings applied live, speed, image-level Measure measurements); U owns UI/speed, M2 owns measurements.
