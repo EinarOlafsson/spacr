@@ -263,6 +263,21 @@ class _HeroTextFit(QObject):
             self._timer.start(0)
         return False
 
+    @staticmethod
+    def _restyle(label, sheet, original_set):
+        """Give ``label`` its own ``sheet`` and the font that sheet selects.
+
+        PySide6 6.10 keeps the font an earlier sheet set when a polished
+        label's own sheet is cleared, so a fitted ``font-size`` outlived its
+        rule and the masthead never grew back. Polishing again resolves the
+        font from the sheets that remain, as 6.11 does on its own.
+        """
+        original_set(label, sheet)
+        if not sheet and label.testAttribute(Qt.WA_WState_Polished):
+            style = label.style()
+            style.unpolish(label)
+            style.polish(label)
+
     def _fit(self):
         """Choose the largest fitting actual pixel size from the selected font."""
         from .. import gui_scale, preferences, theme
@@ -288,7 +303,7 @@ class _HeroTextFit(QObject):
                         or label.font().toString() != previous.get('applied_font')):
                     base = previous['base'] if previous is not None and sheet == previous['applied'] else sheet
                     if sheet != base:
-                        original_set(label, base)
+                        self._restyle(label, base, original_set)
                         label.ensurePolished()
                     previous = dict(base=base, font=QFont(label.font()),
                                     context=context, applied=base)
@@ -337,7 +352,7 @@ class _HeroTextFit(QObject):
                     else:
                         target = (target.rstrip().rstrip(';') + '; ' if target else '') + f'font-size: {size}px;'
                 if original_get(label) != target:
-                    original_set(label, target)
+                    self._restyle(label, target, original_set)
                 previous['applied'] = target
                 previous['applied_font'] = label.font().toString()
                 previous['signature'] = (*signature[:-1], target)
