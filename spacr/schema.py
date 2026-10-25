@@ -1939,7 +1939,8 @@ MEASUREMENT_TABLES: Tuple[str, ...] = (
 #:   where the diagnosis mattered most was the one case it refused to make.
 BOOKKEEPING_TABLES: Tuple[str, ...] = (
     'settings', 'object_counts', 'settings_history', 'run_status',
-    'image_annotations_history', 'image_annotations_meta')
+    'image_annotations_history', 'image_annotations_meta',
+    'image_comparison_groups')
 
 #: Key columns for the bookkeeping tables, which do not carry a field
 #: identity. Both journals are append-only, so their keys are what makes one
@@ -1951,6 +1952,7 @@ BOOKKEEPING_KEY_COLUMNS = {
     'run_status': ('run_id', 'name'),
     'image_annotations_history': ('seq',),
     'image_annotations_meta': ('key',),
+    'image_comparison_groups': ('set_name', 'position'),
 }
 
 #: Every table spaCR creates in a measurements database. A table not in here

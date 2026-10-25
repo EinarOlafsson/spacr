@@ -14045,6 +14045,33 @@ def _image_grey_opening(plane, radius):
     return cv2.morphologyEx(plane, cv2.MORPH_OPEN, kernel, borderType=cv2.BORDER_REFLECT)
 
 
+def _image_radial_texture(values, finite, bins=6, edge=512, window=7):
+    """Radial profile of local texture from the image centre to its corners.
+
+    The local standard deviation in a ``window`` x ``window`` neighbourhood of
+    a copy block-averaged to at most ``edge`` pixels is profiled with
+    Measure's :func:`_calculate_radial_distribution`, as for the radial
+    intensity profile; bin 0 is the centre. It shows texture or sharpness
+    that falls off towards the edges, for example from field curvature.
+
+    :returns: ``radial_texture_bin_<i>``, ``radial_texture_edge_centre_ratio``
+        and ``radial_texture_downsample``.
+    """
+    small, step = _image_block_mean(values, edge)
+    local = _local_sd(small.astype(np.float64), int(window))
+    height, width = small.shape
+    centre = np.zeros(small.shape, dtype=np.int32)
+    centre[height // 2, width // 2] = 1
+    profile = _calculate_radial_distribution(np.ones(small.shape, dtype=np.int32), centre,
+                                             local[..., None], num_bins=bins)
+    profile = np.asarray(profile[(1, 1, 0)], dtype=np.float64)
+    result = {f'radial_texture_bin_{index}': float(value) for index, value in enumerate(profile)}
+    first, last = profile[0], profile[-1]
+    result['radial_texture_edge_centre_ratio'] = (float(last / first) if first > 0 else float('nan'))
+    result['radial_texture_downsample'] = step
+    return result
+
+
 def _image_granularity(values, finite, steps=8, edge=256, background_radius=10):
     """Granularity spectrum of the whole image, as in CellProfiler's MeasureGranularity.
 
@@ -14182,7 +14209,12 @@ def _image_fibres(values, finite):
 
 _IMAGE_FEATURE_GROUPS = ('intensity', 'saturation', 'focus', 'texture', 'coverage',
                          'background', 'objects', 'cross_channel', 'distribution',
-                         'radial', 'granularity')
+                         'radial', 'granularity', 'radial_texture')
+
+_IMAGE_OBJECT_FEATURE_GROUPS = ('coverage', 'objects')
+
+_IMAGE_SETTINGS_FEATURE_GROUPS = tuple(group for group in _IMAGE_FEATURE_GROUPS
+                                       if group not in _IMAGE_OBJECT_FEATURE_GROUPS)
 
 _IMAGE_COSTLY_FEATURE_GROUPS = ('homogeneity', 'fibres')
 
@@ -14198,15 +14230,18 @@ def _image_feature_groups(selection=None):
         (``_IMAGE_FEATURE_GROUPS``); an iterable of names from
         ``_IMAGE_ALL_FEATURE_GROUPS``; or an overview settings mapping whose
         ``overview_measure_<group>`` switches choose the groups (a missing
-        switch keeps its default: on for the default groups, off for the
-        full-resolution Advanced groups in ``_IMAGE_COSTLY_FEATURE_GROUPS``).
+        switch keeps its default: on for ``_IMAGE_SETTINGS_FEATURE_GROUPS``,
+        off for the full-resolution Advanced groups in
+        ``_IMAGE_COSTLY_FEATURE_GROUPS``). Settings never select the Otsu
+        object groups in ``_IMAGE_OBJECT_FEATURE_GROUPS``; Overview measures
+        objects only from imported masks, with :func:`_image_object_record`.
     :returns: the selected group names in canonical order.
     :raises ValueError: for an unknown group name.
     """
     if selection is None:
         return _IMAGE_FEATURE_GROUPS
     if isinstance(selection, dict):
-        chosen = {group for group in _IMAGE_ALL_FEATURE_GROUPS
+        chosen = {group for group in _IMAGE_SETTINGS_FEATURE_GROUPS + _IMAGE_COSTLY_FEATURE_GROUPS
                   if selection.get(_IMAGE_FEATURE_SETTING[group], group in _IMAGE_FEATURE_GROUPS)
                   not in (False, 0, None, '', 'False', 'false')}
     else:
@@ -14222,13 +14257,12 @@ _IMAGE_FEATURE_SETTING = {
     'saturation': 'overview_measure_saturation',
     'focus': 'overview_measure_focus',
     'texture': 'overview_measure_texture',
-    'coverage': 'overview_measure_coverage',
     'background': 'overview_measure_background_snr',
-    'objects': 'overview_measure_objects',
     'cross_channel': 'overview_measure_cross_channel',
     'distribution': 'overview_measure_distribution',
     'radial': 'overview_measure_radial',
     'granularity': 'overview_measure_granularity',
+    'radial_texture': 'overview_measure_radial_texture',
     'homogeneity': 'overview_measure_homogeneity',
     'fibres': 'overview_measure_fibres',
 }
@@ -14267,7 +14301,8 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
         ``distribution`` Measure's distributional intensity features
         (skewness, kurtosis, mode, Gini, entropy...); ``radial`` the radial
         profile from the centre and illumination uniformity; ``granularity``
-        the granularity spectrum. The Advanced groups ``homogeneity`` (Measure's GLCM homogeneity
+        the granularity spectrum; ``radial_texture`` the radial profile of
+        local texture. The Advanced groups ``homogeneity`` (Measure's GLCM homogeneity
         at six distances) and ``fibres`` (Measure's skeleton analysis) run on
         full-resolution pixels and are only computed when asked for.
         Per-channel names are ``channel_<c>_<group>_<stat>`` and per-pair
@@ -14338,6 +14373,8 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
             stats.update(_image_radial(values, finite))
         if 'granularity' in groups:
             stats.update(_image_granularity(values, finite))
+        if 'radial_texture' in groups:
+            stats.update(_image_radial_texture(values, finite))
         if 'homogeneity' in groups:
             stats.update(_image_homogeneity(values, finite))
         if 'fibres' in groups:
@@ -15045,3 +15082,421 @@ def _publish_image_measurements(db_path, rows, settings=None, *, cancelled=None)
     report = _write_image_measurements(db_path, rows, cancelled=cancelled)
     report['exports'] = _export_image_measurements(db_path, formats=formats) if report['inserted'] + report['updated'] else {}
     return report
+
+
+_OBJECT_MASK_SUFFIXES = ('.tif', '.tiff', '.npy')
+_OBJECT_MASK_ROLES = tuple(SEGMENTED_ROLES) + ('cytoplasm',)
+_OBJECT_MASK_INDEX_CACHE = {}
+
+
+def _object_mask_header(path):
+    """The stored shape and dtype of one mask file, without reading its pixels."""
+    if path.suffix.lower() == '.npy':
+        array = np.load(path, mmap_mode='r', allow_pickle=False)
+        return tuple(array.shape), array.dtype
+    import tifffile
+    with tifffile.TiffFile(path) as handle:
+        series = handle.series[0]
+        return tuple(series.shape), np.dtype(series.dtype)
+
+
+def _validate_object_masks(path):
+    """Accept a folder of object masks only in Mask generation's output format.
+
+    Mask generation writes one ``<object>_mask_stack`` folder per object
+    under ``<plate folder>/masks`` (``cell``, ``nucleus``, ``pathogen``,
+    ``cytoplasm`` and the organelle roles), holding one 2-D integer label
+    image per field as ``.tif``/``.tiff`` (or legacy ``.npy``), named after
+    the field's stack file. The plate folder, its ``masks`` folder or one
+    ``<object>_mask_stack`` folder may be chosen. Only file headers are read.
+
+    :param path: the folder the user chose.
+    :returns: ``dict(root, roles={role: folder}, files={role: {stem: path}},
+        count)``.
+    :raises ValueError: naming what is wrong, for anything else: no
+        ``<object>_mask_stack`` folder, an unknown object, an empty folder,
+        other files, or a file that is not a 2-D integer label image.
+    """
+    from pathlib import Path
+    root = Path(str(path or '')).expanduser()
+    if not str(path or '').strip() or not root.is_dir():
+        raise ValueError(f'{root} is not a folder. Choose the plate folder, its masks folder '
+                         'or a <object>_mask_stack folder written by Mask generation.')
+    if root.name.endswith('_mask_stack'):
+        stacks = [root]
+    else:
+        base = root / 'masks' if (root / 'masks').is_dir() else root
+        stacks = sorted(folder for folder in base.iterdir()
+                        if folder.is_dir() and folder.name.endswith('_mask_stack'))
+    if not stacks:
+        raise ValueError(f'{root} is not a Mask generation output: it has no '
+                         '<object>_mask_stack folder such as masks/cell_mask_stack.')
+    roles, files, problems = {}, {}, []
+    for stack in stacks:
+        role = stack.name[:-len('_mask_stack')]
+        if role not in _OBJECT_MASK_ROLES:
+            problems.append(f'{stack.name}: {role!r} is not an object Mask generation writes')
+            continue
+        entries = sorted(item for item in stack.iterdir() if not item.name.startswith('.'))
+        others = [item.name for item in entries if item.suffix.lower() not in _OBJECT_MASK_SUFFIXES]
+        if others:
+            problems.append(f'{stack.name}: not mask images: {", ".join(others[:3])}')
+        masks = [item for item in entries if item.suffix.lower() in _OBJECT_MASK_SUFFIXES]
+        if not masks:
+            problems.append(f'{stack.name}: holds no mask images')
+        for item in masks:
+            try:
+                shape, dtype = _object_mask_header(item)
+            except Exception as error:
+                problems.append(f'{stack.name}/{item.name}: cannot be read ({error})')
+                continue
+            planar = [size for size in shape if size != 1]
+            if len(planar) != 2 or not np.issubdtype(dtype, np.integer):
+                problems.append(f'{stack.name}/{item.name}: not a 2-D integer label image '
+                                f'(shape {shape}, {dtype})')
+                continue
+            files.setdefault(role, {})[item.stem] = str(item)
+        roles[role] = str(stack)
+    if problems:
+        shown = '; '.join(problems[:5]) + (f'; and {len(problems) - 5} more' if len(problems) > 5 else '')
+        raise ValueError(f'{root} is not a Mask generation output: {shown}')
+    return dict(root=str(root), roles=roles, files=files,
+                count=sum(len(stems) for stems in files.values()))
+
+
+def _object_mask_index(path):
+    """``_validate_object_masks(path)``, cached per process until the folder changes."""
+    from pathlib import Path
+    folder = Path(str(path)).expanduser()
+    key = (str(folder), folder.stat().st_mtime_ns)
+    if key not in _OBJECT_MASK_INDEX_CACHE:
+        _OBJECT_MASK_INDEX_CACHE.clear()
+        _OBJECT_MASK_INDEX_CACHE[key] = _validate_object_masks(folder)
+    return _OBJECT_MASK_INDEX_CACHE[key]
+
+
+def _object_masks_for_field(index, files, plate, well, field, shape):
+    """The imported label masks of one field, matched by name and size.
+
+    :param index: from :func:`_validate_object_masks`.
+    :param files: the field's ``(channel, path)`` pairs.
+    :param shape: the field's image shape; a mask of another size is skipped.
+    :returns: ``({role: label array}, {role: reason skipped})``.
+    """
+    from pathlib import Path
+    stems = [f'{plate}_{well}_{field}'] + [Path(str(item)).stem for _, item in files]
+    found, skipped = {}, {}
+    for role, by_stem in index['files'].items():
+        stem = next((name for name in stems if name in by_stem), None)
+        if stem is None:
+            continue
+        mask = Path(by_stem[stem])
+        if mask.suffix.lower() == '.npy':
+            labels = np.load(mask, allow_pickle=False)
+        else:
+            import tifffile
+            labels = tifffile.imread(mask)
+        labels = np.squeeze(np.asarray(labels))
+        if labels.shape != tuple(shape):
+            skipped[role] = f'mask is {labels.shape}, image is {tuple(shape)}'
+            continue
+        found[role] = labels
+    return found, skipped
+
+
+_OBJECT_OPTION_KEYS = dict(count='overview_objects_count', morphology='overview_objects_morphology',
+                           intensity='overview_objects_intensity', ratios='overview_objects_ratios')
+
+
+def _image_object_options(settings=None):
+    """Resolve the Objects settings: what to measure from imported masks.
+
+    :returns: ``dict(path, count, morphology, intensity, ratios, min_area, unit)``.
+    :raises ValueError: for an ``overview_objects_unit`` other than image or well.
+    """
+    settings = dict(settings or {})
+    options = {name: settings.get(key, True) not in (False, 0, None, '', 'False', 'false')
+               for name, key in _OBJECT_OPTION_KEYS.items()}
+    unit = str(settings.get('overview_objects_unit') or 'image')
+    if unit not in ('image', 'well'):
+        raise ValueError(f"overview_objects_unit must be 'image' or 'well', not {unit!r}")
+    options.update(path=str(settings.get('overview_objects_path') or '').strip(),
+                   min_area=max(0, int(settings.get('overview_objects_min_area') or 0)), unit=unit)
+    return options
+
+
+def _image_object_features(planes, masks, options=None):
+    """Compare imported objects within one image: counts, shape, intensity and ratios.
+
+    :param planes: ``{channel: 2-D array}``.
+    :param masks: ``{role: label array}`` from :func:`_object_masks_for_field`.
+    :param options: from :func:`_image_object_options`; all parts on by default.
+    :returns: ``<role>_objects_count``, ``_per_megapixel`` and
+        ``_area_fraction``; ``_area_mean``, ``_area_median``, ``_area_std``,
+        ``_eccentricity_mean``, ``_solidity_mean`` and ``_form_factor_mean``;
+        per channel ``<role>_objects_channel_<c>_intensity_mean``,
+        ``_integrated_mean``, ``_inside_fraction`` (share of the channel's
+        signal inside the objects) and ``_inside_outside_ratio``; and
+        ``<a>_objects_per_<b>`` for every pair of objects. Objects smaller
+        than ``min_area`` pixels are left out.
+    """
+    options = dict(dict(count=True, morphology=True, intensity=True, ratios=True, min_area=0),
+                   **dict(options or {}))
+    record, counts, nan = {}, {}, float('nan')
+    for role, labels in masks.items():
+        labels = np.asarray(labels).astype(np.int64, copy=False)
+        prefix = f'{role}_objects_'
+        table = regionprops_table(labels, properties=('label', 'area', 'eccentricity',
+                                                      'solidity', 'perimeter'))
+        keep = np.asarray(table['area'], dtype=np.float64) >= options['min_area']
+        kept = np.asarray(table['label'], dtype=np.int64)[keep]
+        area = np.asarray(table['area'], dtype=np.float64)[keep]
+        inside = np.isin(labels, kept)
+        counts[role] = int(kept.size)
+        empty = not kept.size
+        if options['count']:
+            record[prefix + 'count'] = int(kept.size)
+            record[prefix + 'per_megapixel'] = 1e6 * kept.size / labels.size
+            record[prefix + 'area_fraction'] = float(np.count_nonzero(inside)) / labels.size
+        if options['morphology']:
+            perimeter = np.asarray(table['perimeter'], dtype=np.float64)[keep]
+            form = 4 * np.pi * area / np.maximum(perimeter, 1.0) ** 2
+            record.update({prefix + 'area_mean': nan if empty else float(area.mean()),
+                           prefix + 'area_median': nan if empty else float(np.median(area)),
+                           prefix + 'area_std': nan if empty else float(area.std()),
+                           prefix + 'eccentricity_mean': nan if empty else float(
+                               np.mean(np.asarray(table['eccentricity'])[keep])),
+                           prefix + 'solidity_mean': nan if empty else float(
+                               np.mean(np.asarray(table['solidity'])[keep])),
+                           prefix + 'form_factor_mean': nan if empty else float(form.mean())})
+        if options['intensity']:
+            for channel, plane in planes.items():
+                values, finite = _image_plane_for_features(plane)
+                name = f'{prefix}channel_{channel}_'
+                sums = np.bincount(labels.ravel(), weights=np.where(finite, values, 0.0).ravel(),
+                                   minlength=int(labels.max()) + 1)[kept]
+                total = float(values[finite].sum())
+                inner, outer = values[inside & finite], values[~inside & finite]
+                record[name + 'intensity_mean'] = nan if empty else float(np.mean(sums / area))
+                record[name + 'integrated_mean'] = nan if empty else float(sums.mean())
+                record[name + 'inside_fraction'] = float(inner.sum()) / total if total else nan
+                ratio = (float(inner.mean() / outer.mean())
+                         if inner.size and outer.size and outer.mean() else nan)
+                record[name + 'inside_outside_ratio'] = ratio
+    if options['ratios']:
+        for first in counts:
+            for second in counts:
+                if first != second:
+                    record[f'{first}_objects_per_{second}'] = (counts[first] / counts[second]
+                                                                if counts[second] else nan)
+    return record
+
+
+def _image_object_record(planes, files, plate, well, field, settings=None):
+    """Object measurements of one image from the imported masks, for an Overview row.
+
+    Empty when no masks are imported (``overview_objects_path`` is blank).
+
+    :param planes: ``{channel: 2-D array}`` of the image.
+    :param files: the field's ``(channel, path)`` pairs.
+    :param settings: the Overview settings.
+    :returns: the :func:`_image_object_features` columns plus
+        ``object_masks`` (the objects found, comma-separated) and
+        ``object_masks_skipped`` (objects whose mask did not fit).
+    :raises ValueError: when the imported folder is not a Mask generation output.
+    """
+    options = _image_object_options(settings)
+    if not options['path'] or not planes:
+        return {}
+    shape = next(iter(planes.values())).shape
+    masks, skipped = _object_masks_for_field(_object_mask_index(options['path']), files,
+                                             plate, well, field, shape)
+    record = _image_object_features(planes, masks, options)
+    record['object_masks'] = ','.join(masks)
+    record['object_masks_skipped'] = '; '.join(f'{role}: {reason}' for role, reason in skipped.items())
+    return record
+
+
+def _object_well_table(frame):
+    """Per-well object summary of image rows, for comparing wells.
+
+    Counts are summed over a well's images and every other object column is
+    averaged; ``<a>_objects_per_<b>`` is recomputed from the summed counts,
+    so wells, not images, are compared.
+
+    :param frame: image rows with ``plateID``/``plate`` and ``wellID``/``well``.
+    :returns: one row per well with ``images`` and the object columns.
+    """
+    plate = 'plateID' if 'plateID' in frame.columns else 'plate'
+    well = 'wellID' if 'wellID' in frame.columns else 'well'
+    columns = [name for name in frame.columns if '_objects_' in name
+               and pd.api.types.is_numeric_dtype(frame[name])]
+    counts = [name for name in columns if name.endswith('_objects_count')]
+    ratios = [name for name in columns if '_objects_per_' in name]
+    means = [name for name in columns if name not in counts + ratios]
+    grouped = frame.groupby([plate, well], sort=True)
+    table = grouped[means].mean()
+    table[counts] = grouped[counts].sum()
+    table.insert(0, 'images', grouped.size())
+    for name in ratios:
+        first, second = name.split('_objects_per_')
+        denominator = table[f'{second}_objects_count'].astype(float)
+        table[name] = table[f'{first}_objects_count'] / denominator.where(denominator > 0)
+    return table.reset_index()
+
+
+def _scheme_well(value):
+    """The ``A01`` spelling of one well name from a scheme."""
+    from .schema import parse_well, well_id
+    try:
+        return well_id(*parse_well(str(value).strip()))
+    except Exception:
+        raise ValueError(f'{value!r} is not a well name such as A01') from None
+
+
+def _scheme_text(value):
+    """A scheme cell as text, or ``None`` when it is empty."""
+    return None if pd.isna(value) or str(value).strip() == '' else str(value).strip()
+
+
+def _read_well_annotation_scheme(path, *, name=None):
+    """Read a well annotation scheme from CSV or Excel, as one row per well.
+
+    Two layouts are understood. A list has a ``well`` (or ``wellID``) column,
+    or ``row`` and ``column`` columns, an optional ``plate`` column, and one
+    column per annotation (``cell_type``, ``drug``, ``replicate``...). A
+    plate map has row letters in its first column and column numbers as
+    headers, one value per well; its annotation is ``name`` or the file name.
+    Well names are normalised (``a1`` and ``A01`` are the same well).
+
+    :param path: the ``.csv``, ``.tsv`` or ``.xlsx`` file.
+    :param name: annotation name for a plate map.
+    :returns: ``pandas.DataFrame`` with ``plate`` (empty when the scheme has
+        none), ``well`` and the annotation columns, values as text.
+    :raises ValueError: when neither layout is found or a well is unreadable.
+    """
+    from pathlib import Path
+    from . import tabular
+    frame = tabular.read_table(path, canonicalise=False, report=None, dtype=str)
+    frame.columns = [str(column).strip() for column in frame.columns]
+    lower = {column.lower(): column for column in frame.columns}
+    headers = list(frame.columns[1:])
+    if headers and all(header.isdigit() for header in headers):
+        label = str(name or Path(str(path)).stem)
+        rows = [{'plate': '', 'well': _scheme_well(str(entry[frame.columns[0]]).strip() + header),
+                 label: _scheme_text(entry[header])}
+                for _, entry in frame.iterrows() for header in headers
+                if _scheme_text(entry[header]) is not None]
+        return pd.DataFrame(rows, columns=['plate', 'well', label])
+    well = lower.get('well') or lower.get('wellid')
+    if well:
+        wells, used = frame[well], {well}
+    elif 'row' in lower and 'column' in lower:
+        wells = frame[lower['row']].astype(str).str.strip() + frame[lower['column']].astype(str).str.strip()
+        used = {lower['row'], lower['column']}
+    else:
+        raise ValueError(f'{path} is not a well annotation scheme: it needs a well column '
+                         '(or row and column columns), or a plate map with column numbers as headers.')
+    plate = lower.get('plate') or lower.get('plateid')
+    result = pd.DataFrame({'plate': [_scheme_text(value) or '' for value in frame[plate]] if plate else '',
+                           'well': [_scheme_well(value) for value in wells]})
+    for column in frame.columns:
+        if column not in used | {plate}:
+            result[column] = [_scheme_text(value) for value in frame[column]]
+    return result
+
+
+def _import_well_annotation_scheme(db_path, path, fields, *, source=None, name=None):
+    """Annotate every image of the listed wells from a CSV or Excel scheme.
+
+    Each annotation value is one undoable :func:`_set_image_annotations`
+    operation on the ``image_annotations`` table. A scheme without a plate
+    column applies to every plate in ``fields``.
+
+    :param db_path: the measurements database.
+    :param path: the scheme, read by :func:`_read_well_annotation_scheme`.
+    :param fields: the Overview fields that may be annotated.
+    :param source: the source folder, for relative file identities.
+    :param name: annotation name for a plate map.
+    :returns: ``dict(columns, wells, images, unmatched)``; ``unmatched`` lists
+        the scheme's ``(plate, well)`` pairs with no images.
+    :raises ValueError: for an unreadable scheme or an invalid annotation name,
+        before anything is written.
+    """
+    scheme = _read_well_annotation_scheme(path, name=name)
+    originals = list(scheme.columns[2:])
+    columns = [_image_annotation_column_name(column) for column in originals]
+    present = {}
+    for item in fields:
+        value = item if isinstance(item, dict) else item.__dict__
+        present.setdefault((str(value['plate']), _scheme_well(value['well'])), str(value['well']))
+    plates = sorted({plate for plate, _ in present})
+    targets, unmatched = [], []
+    for entry in scheme.to_dict('records'):
+        matched = [(plate, entry['well']) for plate in ([entry['plate']] if entry['plate'] else plates)
+                   if (plate, entry['well']) in present]
+        if not matched:
+            unmatched.append((entry['plate'], entry['well']))
+        targets.extend((address, entry) for address in matched)
+    images, wells = 0, set()
+    for column, original in zip(columns, originals):
+        by_value = {}
+        for address, entry in targets:
+            if entry[original] is not None:
+                by_value.setdefault(entry[original], []).append((address[0], present[address]))
+        for value, addresses in sorted(by_value.items()):
+            images += _set_image_annotations(db_path, fields, column, value, source=source,
+                                             wells=addresses)['count']
+            wells.update(addresses)
+    return dict(columns=columns, wells=len(wells), images=images, unmatched=unmatched)
+
+
+_COMPARISON_GROUP_TABLE = 'image_comparison_groups'
+
+
+def _save_comparison_groups(db_path, groups, names=None, *, set_name='default'):
+    """Store named comparison groups in ``measurements.db``, replacing the set.
+
+    :param groups: ``{column: value}`` definitions, as for
+        :func:`spacr.sp_stats._image_groups`.
+    :param names: the user's group names, one per group; a blank name uses
+        the readable label of its values.
+    :param set_name: which saved set to replace.
+    :returns: the stored names, in order.
+    :raises ValueError: for repeated names or a names list of another length.
+    """
+    from datetime import datetime, timezone
+    from .database_concurrency import transaction
+    from .sp_stats import _image_group_names
+    groups = [dict(definition) for definition in groups]
+    labels = _image_group_names(groups, names)
+    now = datetime.now(timezone.utc).isoformat()
+    connection = _image_annotation_connection(db_path)
+    try:
+        with transaction(connection, attempts=8, busy_timeout=30):
+            connection.execute(f'CREATE TABLE IF NOT EXISTS {_COMPARISON_GROUP_TABLE} '
+                               '(set_name TEXT NOT NULL, position INTEGER NOT NULL, name TEXT NOT NULL, '
+                               'definition TEXT NOT NULL, saved_at TEXT, PRIMARY KEY (set_name, position))')
+            connection.execute(f'DELETE FROM {_COMPARISON_GROUP_TABLE} WHERE set_name = ?', (str(set_name),))
+            connection.executemany(
+                f'INSERT INTO {_COMPARISON_GROUP_TABLE} VALUES (?, ?, ?, ?, ?)',
+                [(str(set_name), position, label, json.dumps(definition, sort_keys=True, default=str), now)
+                 for position, (label, definition) in enumerate(zip(labels, groups))])
+    finally:
+        connection.close()
+    return labels
+
+
+def _read_comparison_groups(db_path, *, set_name='default'):
+    """Read named comparison groups saved by :func:`_save_comparison_groups`.
+
+    :returns: ``(groups, names)``; both empty when nothing is saved.
+    """
+    from pathlib import Path
+    from . import tabular
+    if not Path(db_path).is_file() or _COMPARISON_GROUP_TABLE not in tabular.database_tables(db_path):
+        return [], []
+    frame = tabular.read_table(db_path, table=_COMPARISON_GROUP_TABLE, canonicalise=False, report=None,
+                               migrate=False, read_only=True)
+    frame = frame[frame['set_name'] == str(set_name)].sort_values('position')
+    return [json.loads(text) for text in frame['definition']], list(frame['name'])

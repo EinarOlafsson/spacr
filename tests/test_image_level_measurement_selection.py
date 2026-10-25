@@ -6,6 +6,7 @@ import pytest
 
 from spacr.measure import (
     _IMAGE_FEATURE_GROUPS,
+    _IMAGE_SETTINGS_FEATURE_GROUPS,
     _image_advanced_features,
     _image_advanced_options,
     _image_advanced_prepare,
@@ -40,6 +41,7 @@ _GROUP_MARKERS = {
     'distribution': 'channel_0_distribution_gini',
     'radial': 'channel_0_radial_bin_0',
     'granularity': 'channel_0_granularity_1',
+    'radial_texture': 'channel_0_radial_texture_bin_0',
 }
 
 
@@ -54,7 +56,7 @@ def test_each_group_alone_produces_only_its_own_columns(group):
 
 def test_settings_switches_choose_the_groups_and_defaults_select_all():
     defaults = _overview_measurement_declarations()['defaults']
-    assert _image_feature_groups(defaults) == _IMAGE_FEATURE_GROUPS
+    assert _image_feature_groups(defaults) == _IMAGE_SETTINGS_FEATURE_GROUPS
     assert _image_feature_groups(None) == _IMAGE_FEATURE_GROUPS
     chosen = dict(defaults, overview_measure_texture=False, overview_measure_cross_channel=False)
     record = _image_level_features(_planes(), groups=chosen, confluency=False)
@@ -73,7 +75,8 @@ def test_declarations_are_complete_typed_and_render_as_settings_rows():
     keys = set(declared['defaults'])
     assert keys == set(declared['expected_types']) == set(declared['tooltips'])
     assert sorted(sum(declared['categories'].values(), [])) == sorted(keys)
-    assert declared['parents'] == {'Advanced Measurements': 'Measurements'}
+    assert declared['parents'] == {'Intensity': 'Measurements', 'Texture': 'Measurements',
+                                   'Objects': 'Measurements', 'Advanced Measurements': 'Measurements'}
     assert {name.upper() for name in declared['categories']} == set(declared['category_tooltips'])
     advanced = declared['categories']['Advanced Measurements']
     assert all(declared['defaults'][key] is False for key in advanced

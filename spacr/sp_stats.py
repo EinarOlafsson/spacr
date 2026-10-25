@@ -5216,10 +5216,33 @@ def _image_group_label(values: Sequence[Any]) -> str:
     return ' + '.join(str(value) for value in values)
 
 
+def _image_group_names(groups: Sequence[Dict[str, Any]],
+                       names: Optional[Sequence[Any]] = None) -> List[str]:
+    """The label of each explicit group: the user's name, else its values.
+
+    :param groups: ``{column: value}`` definitions.
+    :param names: one name per group; ``None`` or a blank name falls back
+        to :func:`_image_group_label` of the group's values.
+    :returns: the labels, in order.
+    :raises ValueError: when ``names`` has another length or two labels match.
+    """
+    groups = list(groups or ())
+    names = [None] * len(groups) if names is None else list(names)
+    if len(names) != len(groups):
+        raise ValueError(f'{len(names)} group names for {len(groups)} groups')
+    labels = [str(name).strip() if name is not None and str(name).strip() else
+              _image_group_label(definition.values()) for name, definition in zip(names, groups)]
+    repeated = sorted({label for label in labels if labels.count(label) > 1})
+    if repeated:
+        raise ValueError(f'Two groups share the label {repeated[0]!r}')
+    return labels
+
+
 def _image_groups(frame: pd.DataFrame, dimensions: Sequence[str], *,
                   groups: Optional[Sequence[Dict[str, Any]]] = None,
                   levels: Optional[Dict[str, Sequence[Any]]] = None,
-                  within: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+                  within: Optional[Sequence[str]] = None,
+                  group_names: Optional[Sequence[Any]] = None) -> List[Dict[str, Any]]:
     """Split annotated images into the groups a comparison should test.
 
     Without ``groups``, every observed combination of ``dimensions`` is a
@@ -5229,7 +5252,8 @@ def _image_groups(frame: pd.DataFrame, dimensions: Sequence[str], *,
     explicit combinations instead, each a ``{dimension: value}`` mapping; a
     dimension left out of a mapping matches any value. ``within`` repeats the
     comparison inside every stratum of other annotation columns, for example
-    HFF vs HeLa within each replicate.
+    HFF vs HeLa within each replicate. ``group_names`` gives the explicit groups
+    the user's own names, used as their labels in every table and figure.
 
     :param frame: one row per image with annotation columns.
     :param dimensions: annotation columns that define the groups.
@@ -5254,6 +5278,7 @@ def _image_groups(frame: pd.DataFrame, dimensions: Sequence[str], *,
         usable = usable[usable[name].astype(str).isin([str(value) for value in allowed])]
     needed = dimensions + within
     if groups:
+        labels = _image_group_names(groups, group_names)
         for definition in groups:
             unknown = [name for name in definition if name not in frame.columns]
             if unknown:
@@ -5270,13 +5295,10 @@ def _image_groups(frame: pd.DataFrame, dimensions: Sequence[str], *,
     for stratum, block in strata:
         members: Dict[str, Any] = {}
         if groups:
-            for definition in groups:
+            for label, definition in zip(labels, groups):
                 mask = np.ones(len(block), dtype=bool)
                 for name, value in definition.items():
                     mask &= (block[name].astype(str) == str(value)).to_numpy()
-                label = _image_group_label(definition.values())
-                if label in members:
-                    raise ValueError(f'Two groups share the label {label!r}')
                 members[label] = block.index[mask]
         else:
             for key, part in block.groupby(dimensions, sort=True):
@@ -5303,6 +5325,7 @@ def _compare_image_groups(frame: pd.DataFrame, measurements: Sequence[str],
                           groups: Optional[Sequence[Dict[str, Any]]] = None,
                           levels: Optional[Dict[str, Sequence[Any]]] = None,
                           within: Optional[Sequence[str]] = None,
+                          group_names: Optional[Sequence[Any]] = None,
                           unit: str = 'image', pairwise: bool = True,
                           correction: str = 'holm', family: str = 'measurement'
                           ) -> Dict[str, pd.DataFrame]:
@@ -5321,6 +5344,8 @@ def _compare_image_groups(frame: pd.DataFrame, measurements: Sequence[str],
     :param groups: explicit combinations, see :func:`_image_groups`.
     :param levels: values kept per dimension.
     :param within: annotation columns to stratify by.
+    :param group_names: the user's names for the explicit ``groups``, used as
+        the group labels in the summary, tests and figures.
     :param unit: ``'image'`` or ``'well'``; ``'well'`` averages images per
         well first so wells, not fields, are the replicates.
     :param pairwise: add the pairwise tests after an omnibus test.
@@ -5335,7 +5360,8 @@ def _compare_image_groups(frame: pd.DataFrame, measurements: Sequence[str],
     unknown = [name for name in measurements if name not in frame.columns]
     if unknown:
         raise ValueError(f'Unknown measurement columns: {unknown}')
-    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
+    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within,
+                           group_names=group_names)
     summary_rows, families = [], {}
     for entry in strata:
         stratum = entry['stratum']
@@ -5386,6 +5412,7 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
                              groups: Optional[Sequence[Dict[str, Any]]] = None,
                              levels: Optional[Dict[str, Sequence[Any]]] = None,
                              within: Optional[Sequence[str]] = None,
+                             group_names: Optional[Sequence[Any]] = None,
                              kind: str = 'box', unit: str = 'image',
                              correction: str = 'holm', path=None, tests=None):
     """Draw one measurement per group as box, violin or strip panels.
@@ -5405,10 +5432,11 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
     from .figures.style import _apply_user_style
     if kind not in ('box', 'violin', 'strip'):
         raise ValueError("kind must be 'box', 'violin' or 'strip'")
-    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
+    strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within,
+                           group_names=group_names)
     if tests is None:
         tests = _compare_image_groups(frame, [measurement], dimensions, groups=groups,
-                                      levels=levels, within=within, unit=unit,
+                                      levels=levels, within=within, group_names=group_names, unit=unit,
                                       correction=correction)['tests']
     count = max(1, len(strata))
     from .figures.style import figure_style, theme_target
@@ -5562,6 +5590,7 @@ def _rank_image_differences(frame: pd.DataFrame, dimensions: Sequence[str] = (),
                             levels: Optional[Dict[str, Sequence[Any]]] = None,
                             within: Optional[Sequence[str]] = None,
                             measurements: Optional[Sequence[str]] = None,
+                            group_names: Optional[Sequence[Any]] = None,
                             unit: str = 'image', correction: str = 'fdr_bh',
                             top: Optional[int] = None) -> pd.DataFrame:
     """Rank every image-level measurement by how strongly it separates the groups.
@@ -5580,7 +5609,8 @@ def _rank_image_differences(frame: pd.DataFrame, dimensions: Sequence[str] = (),
     if not names:
         return _image_comparison_table({})
     result = _compare_image_groups(frame, names, dimensions, groups=groups, levels=levels,
-                                   within=within, unit=unit, correction=correction, family='all')
+                                   within=within, group_names=group_names, unit=unit,
+                                   correction=correction, family='all')
     ranked = _image_comparison_table(result)
     return ranked.head(int(top)).reset_index(drop=True) if top else ranked
 

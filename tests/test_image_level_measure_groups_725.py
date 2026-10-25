@@ -11,6 +11,8 @@ from spacr.measure import (
     _IMAGE_COSTLY_FEATURE_GROUPS,
     _IMAGE_FEATURE_GROUPS,
     _IMAGE_FEATURE_SETTING,
+    _IMAGE_OBJECT_FEATURE_GROUPS,
+    _IMAGE_SETTINGS_FEATURE_GROUPS,
     _image_feature_groups,
     _image_level_features,
 )
@@ -164,19 +166,20 @@ def test_fibres_count_skeleton_length_and_branch_points():
 
 def test_costly_groups_are_off_unless_chosen():
     defaults = _overview_measurement_declarations()['defaults']
-    assert _image_feature_groups(defaults) == _IMAGE_FEATURE_GROUPS
+    assert _image_feature_groups(defaults) == _IMAGE_SETTINGS_FEATURE_GROUPS
     assert not set(_IMAGE_COSTLY_FEATURE_GROUPS) & set(_image_feature_groups(None))
     assert not set(_IMAGE_COSTLY_FEATURE_GROUPS) & set(_image_feature_groups({}))
     chosen = dict(defaults, overview_measure_homogeneity=True)
     assert 'homogeneity' in _image_feature_groups(chosen) and 'fibres' not in _image_feature_groups(chosen)
     assert _image_feature_groups(['fibres', 'intensity']) == ('intensity', 'fibres')
-    assert set(_IMAGE_FEATURE_SETTING) == set(_IMAGE_ALL_FEATURE_GROUPS)
+    assert set(_IMAGE_FEATURE_SETTING) == set(_IMAGE_ALL_FEATURE_GROUPS) - set(_IMAGE_OBJECT_FEATURE_GROUPS)
     declared = _overview_measurement_declarations()
     advanced = declared['categories']['Advanced Measurements']
     for group in _IMAGE_COSTLY_FEATURE_GROUPS:
         assert _IMAGE_FEATURE_SETTING[group] in advanced
-    for group in _IMAGE_FEATURE_GROUPS:
-        assert _IMAGE_FEATURE_SETTING[group] in declared['categories']['Measurements']
+    regrouped = declared['categories']['Intensity'] + declared['categories']['Texture']
+    for group in _IMAGE_SETTINGS_FEATURE_GROUPS:
+        assert _IMAGE_FEATURE_SETTING[group] in regrouped
         assert declared['defaults'][_IMAGE_FEATURE_SETTING[group]] is True
 
 
@@ -184,7 +187,7 @@ def test_every_new_per_channel_column_is_named_channel_group_statistic():
     rng = np.random.default_rng(1)
     planes = {0: rng.poisson(30, (64, 64)).astype(np.uint16),
               1: rng.poisson(40, (64, 64)).astype(np.uint16)}
-    for group in ('distribution', 'radial', 'granularity', 'homogeneity', 'fibres'):
+    for group in ('distribution', 'radial', 'granularity', 'homogeneity', 'fibres', 'radial_texture'):
         record = _features(planes, group)
         assert record and all(key.startswith((f'channel_0_{group}_', f'channel_1_{group}_'))
                               for key in record), group
