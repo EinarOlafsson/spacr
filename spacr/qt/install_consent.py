@@ -307,6 +307,12 @@ def maybe_show_anonymous_report_notice(parent) -> Optional[QDialog]:
 
     :param parent: the window that parents the notice.
     :returns: the notice, already showing, or ``None`` when it was not due.
+
+    The notice is polished before it is shown: the dialog filters make a
+    dialog a frameless window when it is polished, and on macOS a dialog
+    polished inside its own show had already been created as a panel, so
+    Cocoa rebuilt it during ``setVisible`` and re-entered it ("Already
+    setting window visible!" in the first-run smoke).
     """
     import threading
 
@@ -326,6 +332,7 @@ def maybe_show_anonymous_report_notice(parent) -> Optional[QDialog]:
         return None
     notice = AnonymousReportNotice(parent)
     notice.setAttribute(Qt.WA_DeleteOnClose, True)
+    notice.ensurePolished()
     notice.show()
     return notice
 
@@ -480,6 +487,7 @@ def _choose_optional_cleanup(preview, parent=None):
     :returns: Explicit selected keys and operation ID, or ``None``.
     """
     dialog = _InstallerCleanupDialog(preview, parent)
+    dialog.ensurePolished()
     if dialog.exec() != QDialog.Accepted:
         return None
     choices = dialog.choices()

@@ -82,6 +82,9 @@ def test_declined_cleanup_never_reads_or_retains_an_authorization(monkeypatch, p
         def __init__(self, plan, parent):
             assert plan == preview
 
+        def ensurePolished(self):
+            pass
+
         def exec(self):
             return QDialog.Rejected
 
@@ -97,6 +100,9 @@ def test_accepting_no_selected_folder_is_a_keep_everything_choice(monkeypatch, p
         def __init__(self, plan, parent):
             pass
 
+        def ensurePolished(self):
+            pass
+
         def exec(self):
             return QDialog.Accepted
 
@@ -105,6 +111,25 @@ def test_accepting_no_selected_folder_is_a_keep_everything_choice(monkeypatch, p
 
     monkeypatch.setattr(consent, "_InstallerCleanupDialog", Kept)
     assert consent._choose_optional_cleanup(preview) is None
+
+
+def test_the_cleanup_review_is_polished_before_it_is_shown(monkeypatch, preview):
+    """Polished before exec, so on macOS its window type is final when created.
+
+    A dialog polished inside its own show was created as a Cocoa panel and
+    rebuilt during ``setVisible`` ("Already setting window visible!").
+    """
+    real = consent._InstallerCleanupDialog
+    seen = []
+
+    class Recorded(real):
+        def exec(self):
+            seen.append(self.testAttribute(Qt.WA_WState_Polished))
+            return QDialog.Rejected
+
+    monkeypatch.setattr(consent, "_InstallerCleanupDialog", Recorded)
+    assert consent._choose_optional_cleanup(preview) is None
+    assert seen == [True]
 
 
 def test_keep_is_default_even_after_a_candidate_is_selected(qtbot, preview):

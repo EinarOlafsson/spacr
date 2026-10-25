@@ -120,6 +120,33 @@ class TestFirstRunNotice:
         assert notice.isVisible() and not notice.isModal()
         assert maybe_show_anonymous_report_notice(None) is None
 
+    def test_the_notice_is_polished_before_it_is_shown(self, qtbot,
+                                                       qt_theme_applied,
+                                                       monkeypatch):
+        """Polished first, so its window type is final before Qt creates it.
+
+        A dialog polished inside its own show was created as a Cocoa panel
+        and then made a plain window, which Cocoa rebuilt during
+        ``setVisible``: "Already setting window visible!" in the smoke.
+        """
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QDialog
+
+        from spacr.qt.install_consent import maybe_show_anonymous_report_notice
+
+        polished_at_show = []
+        real_show = QDialog.show
+
+        def show(dialog):
+            polished_at_show.append(dialog.testAttribute(Qt.WA_WState_Polished))
+            return real_show(dialog)
+
+        monkeypatch.setattr(QDialog, "show", show)
+        monkeypatch.delenv(cr.NO_NETWORK_ENV, raising=False)
+        notice = maybe_show_anonymous_report_notice(None)
+        qtbot.addWidget(notice)
+        assert polished_at_show == [True]
+
     def test_turning_it_off_in_the_notice_is_one_click(self, qtbot,
                                                       qt_theme_applied,
                                                       monkeypatch):
