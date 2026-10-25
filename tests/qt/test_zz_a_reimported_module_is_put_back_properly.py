@@ -134,7 +134,7 @@ def _reimporting_files():
             names = _submodule_names(body) or _submodule_names(text)
             if not names:
                 continue
-            found[str(path.relative_to(_TESTS))] = (text, sorted(names))
+            found[path.relative_to(_TESTS).as_posix()] = (text, sorted(names))
             break
     return found
 
