@@ -13939,8 +13939,226 @@ def _image_objects(labels, intensity=None, prefix='objects', solidity_limit=1000
     return summary
 
 
+def _image_region_label(finite):
+    """One whole-image region for Measure's per-object helpers: label 1 on finite pixels."""
+    return np.asarray(finite, dtype=np.int32)
+
+
+def _image_distribution(values, finite):
+    """Measure's distributional intensity features with the image as one region.
+
+    Runs :func:`_extended_regionprops_table` on a label that covers every
+    finite pixel, so the numbers are exactly the per-object ones Measure
+    writes, computed for the whole image.
+
+    :returns: ``distribution_<stat>`` for skewness, kurtosis, mode, range,
+        IQR, CV, Gini, Shannon entropy, the fractions above the image's 90th
+        and below its 10th percentile, and the 10th and 85th percentiles.
+    """
+    data = values[finite]
+    table = _extended_regionprops_table(
+        _image_region_label(finite), values, ['label', 'mean_intensity'],
+        field_percentiles=(float(np.percentile(data, 90)), float(np.percentile(data, 10))))
+    row = table.iloc[0]
+    names = dict(skewness='skew_intensity', kurtosis='kurtosis_intensity', mode='mode_intensity',
+                 range='range_intensity', iqr='iqr_intensity', cv='cv_intensity',
+                 gini='gini_intensity', entropy='entropy_intensity', frac_high90='frac_high90',
+                 frac_low10='frac_low10', p10='percentile_10', p85='percentile_85')
+    return {'distribution_' + name: float(row[column]) for name, column in names.items()}
+
+
+def _image_radial(values, finite, bins=6, edge=512, blocks=8):
+    """Radial intensity profile from the image centre and illumination uniformity.
+
+    The profile is Measure's :func:`_calculate_radial_distribution` with the
+    whole image as the cell and the centre pixel as the object, on a copy
+    block-averaged to at most ``edge`` pixels; bin 0 is the centre and the
+    last bin the corners. It reports vignetting and uneven illumination.
+
+    :returns: ``radial_bin_<i>``, ``radial_edge_centre_ratio`` (last bin over
+        bin 0), ``radial_centroid_offset`` (distance of the intensity-weighted
+        centroid from the centre, as a fraction of the half diagonal),
+        ``radial_block_cv`` (coefficient of variation of a ``blocks`` x
+        ``blocks`` grid of block means) and ``radial_downsample``.
+    """
+    small, step = _image_block_mean(values, edge)
+    height, width = small.shape
+    cell = np.ones(small.shape, dtype=np.int32)
+    centre = np.zeros(small.shape, dtype=np.int32)
+    centre[height // 2, width // 2] = 1
+    profile = _calculate_radial_distribution(cell, centre, small[..., None], num_bins=bins)
+    profile = np.asarray(profile.get((1, 1, 0), np.full(bins, np.nan)), dtype=np.float64)
+    result = {f'radial_bin_{index}': float(value) for index, value in enumerate(profile)}
+    first, last = profile[0], profile[-1]
+    result['radial_edge_centre_ratio'] = (float(last / first) if np.isfinite(first) and first != 0
+                                          and np.isfinite(last) else float('nan'))
+    weights = small - small.min()
+    total = float(weights.sum())
+    if total > 0:
+        rows, columns = np.indices(small.shape)
+        cy, cx = float((weights * rows).sum() / total), float((weights * columns).sum() / total)
+        half = 0.5 * np.hypot(height - 1, width - 1)
+        offset = np.hypot(cy - (height - 1) / 2, cx - (width - 1) / 2)
+        result['radial_centroid_offset'] = float(offset / half) if half > 0 else 0.0
+    else:
+        result['radial_centroid_offset'] = 0.0
+    grid = max(1, min(int(blocks), height, width))
+    means = np.array([[block.mean() for block in np.array_split(band, grid, axis=1)]
+                      for band in np.array_split(small, grid, axis=0)])
+    mean = float(means.mean())
+    result['radial_block_cv'] = float(means.std() / mean) if mean else float('nan')
+    result['radial_downsample'] = step
+    return result
+
+
+def _image_granularity(values, finite, steps=8, edge=256, background_radius=10):
+    """Granularity spectrum of the whole image, as in CellProfiler's MeasureGranularity.
+
+    The plane is block-averaged to at most ``edge`` pixels, its minimum is
+    subtracted (the spectrum is a ratio, so no further scaling), and its background
+    (a grey opening with a disk of ``background_radius``) is removed. Grey
+    openings with disks of radius 1 to ``steps`` then remove ever larger
+    structures; step ``k`` is the percentage of the starting signal that the
+    ``k``-th opening removes. Fine texture peaks at small ``k``, large
+    granules or cells at larger ``k``.
+
+    :returns: ``granularity_<k>`` for ``k`` in 1..``steps``, and
+        ``granularity_downsample``.
+    """
+    small, step = _image_block_mean(values, edge)
+    scaled = (small - small.min()).astype(np.float32)
+
+    def opened(plane, radius):
+        """Grey opening with a disk of ``radius`` pixels."""
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * radius + 1, 2 * radius + 1))
+        return cv2.morphologyEx(plane, cv2.MORPH_OPEN, kernel, borderType=cv2.BORDER_REFLECT)
+
+    signal = scaled - opened(scaled, int(background_radius)) if background_radius else scaled
+    start = float(signal.sum())
+    result, previous = {}, start
+    for radius in range(1, int(steps) + 1):
+        current = float(opened(signal, radius).sum())
+        result[f'granularity_{radius}'] = 100.0 * (previous - current) / start if start > 0 else 0.0
+        previous = current
+    result['granularity_downsample'] = step
+    return result
+
+
+def _image_colocalization(a, fa, b, fb, sample=262144):
+    """Measure's colocalisation statistics for two whole channels.
+
+    Pearson, Manders M1 and M2 and the Manders overlap coefficient come from
+    Measure's :func:`_calculate_correlation_object_level`, with the image as
+    one object (each channel's background is its median plus three robust
+    standard deviations); the label gets a one-pixel unlabelled border because
+    that helper skips the lowest label as background. Spearman correlation and Li's intensity
+    correlation quotient (ICQ, from -0.5 to 0.5) are added; Spearman uses at
+    most ``sample`` evenly spaced finite pixels.
+
+    :returns: ``coloc_pearson``, ``coloc_spearman``, ``coloc_manders_m1``,
+        ``coloc_manders_m2``, ``coloc_overlap_coefficient`` and ``coloc_icq``.
+    """
+    from scipy.stats import spearmanr
+    both = fa & fb
+    names = ('pearson', 'spearman', 'manders_m1', 'manders_m2', 'overlap_coefficient', 'icq')
+    if np.count_nonzero(both) < 2:
+        return {'coloc_' + name: float('nan') for name in names}
+    label = np.pad(_image_region_label(both), 1)
+    table = _calculate_correlation_object_level(np.pad(a, 1), np.pad(b, 1), label, {})
+    row = table.iloc[0]
+    x, y = a[both], b[both]
+    stride = max(1, int(np.ceil(x.size / float(sample))))
+    xs, ys = x[::stride], y[::stride]
+    if xs.size > 1 and np.ptp(xs) > 0 and np.ptp(ys) > 0:
+        spearman = float(spearmanr(xs, ys)[0])
+    else:
+        spearman = float('nan')
+    product = (x - x.mean()) * (y - y.mean())
+    return dict(coloc_pearson=float(row['Pearson_correlation']), coloc_spearman=spearman,
+                coloc_manders_m1=float(row['manders_m1']), coloc_manders_m2=float(row['manders_m2']),
+                coloc_overlap_coefficient=float(row['manders_overlap_coefficient']),
+                coloc_icq=float(np.count_nonzero(product > 0)) / product.size - 0.5)
+
+
+def _image_spectral_focus(values, crop=512, band=(0.05, 0.45), cutoff=0.25):
+    """Frequency-domain focus scores on a full-resolution central crop.
+
+    A Hann-windowed central crop of at most ``crop`` pixels keeps the original
+    sampling, so fine detail is not averaged away. The radially averaged
+    power spectrum is fitted on a log-log scale between ``band`` (cycles per
+    pixel); out-of-focus images fall off more steeply.
+
+    :returns: ``focus_power_spectrum_slope`` and
+        ``focus_high_frequency_ratio`` (the share of non-DC power above
+        ``cutoff`` cycles per pixel).
+    """
+    height, width = values.shape
+    edge_y, edge_x = min(height, int(crop)), min(width, int(crop))
+    top, left = (height - edge_y) // 2, (width - edge_x) // 2
+    patch = values[top:top + edge_y, left:left + edge_x]
+    if min(patch.shape) < 8 or float(np.ptp(patch)) == 0.0:
+        return dict(focus_power_spectrum_slope=float('nan'), focus_high_frequency_ratio=float('nan'))
+    patch = (patch - patch.mean()) * np.outer(np.hanning(edge_y), np.hanning(edge_x))
+    power = np.abs(np.fft.fftshift(np.fft.fft2(patch))) ** 2
+    fy = np.fft.fftshift(np.fft.fftfreq(edge_y))
+    fx = np.fft.fftshift(np.fft.fftfreq(edge_x))
+    radius = np.hypot(*np.meshgrid(fy, fx, indexing='ij'))
+    nonzero = radius > 0
+    total = float(power[nonzero].sum())
+    ratio = float(power[radius > cutoff].sum()) / total if total > 0 else float('nan')
+    edges = np.linspace(band[0], band[1], 17)
+    centres, means = [], []
+    for low, high in zip(edges[:-1], edges[1:]):
+        inside = (radius >= low) & (radius < high)
+        if inside.any():
+            centres.append(0.5 * (low + high))
+            means.append(float(power[inside].mean()))
+    centres, means = np.asarray(centres), np.asarray(means)
+    centres, means = centres[means > 0], means[means > 0]
+    slope = (float(np.polyfit(np.log(centres), np.log(means), 1)[0]) if centres.size >= 3
+             else float('nan'))
+    return dict(focus_power_spectrum_slope=slope, focus_high_frequency_ratio=ratio)
+
+
+def _image_homogeneity(values, finite, distances=(2, 4, 8, 16, 32, 64)):
+    """Measure's multi-distance GLCM homogeneity of the whole full-resolution image.
+
+    :func:`_calculate_homogeneity` with the image as one region, so the values
+    match Measure's ``homogeneity_distance_<d>`` columns.
+
+    :returns: ``homogeneity_distance_<d>`` per distance in pixels.
+    """
+    table = _calculate_homogeneity(_image_region_label(finite), values, list(distances))
+    return {name: float(value) for name, value in table.iloc[0].items()}
+
+
+def _image_fibres(values, finite):
+    """Measure's cytoskeleton skeleton analysis of the whole image.
+
+    :func:`_analyze_cytoskeleton` thresholds the image locally, skeletonises
+    the fibres and counts skeleton pixels and branch points; densities are
+    per finite pixel and per 10,000 pixels.
+
+    :returns: ``fibres_skeleton_length``, ``fibres_skeleton_density``,
+        ``fibres_branch_points`` and ``fibres_branch_density``.
+    """
+    shifted = np.where(finite, values - min(0.0, float(values[finite].min())), 0.0)
+    table = _analyze_cytoskeleton(shifted[..., None], _image_region_label(finite), 0)
+    area = float(np.count_nonzero(finite))
+    length = float(table['skeleton_length'].iloc[0]) if len(table) else 0.0
+    branches = float(table['skeleton_branch_points'].iloc[0]) if len(table) else 0.0
+    return dict(fibres_skeleton_length=length, fibres_skeleton_density=length / area if area else float('nan'),
+                fibres_branch_points=branches,
+                fibres_branch_density=1e4 * branches / area if area else float('nan'))
+
+
 _IMAGE_FEATURE_GROUPS = ('intensity', 'saturation', 'focus', 'texture', 'coverage',
-                         'background', 'objects', 'cross_channel')
+                         'background', 'objects', 'cross_channel', 'distribution',
+                         'radial', 'granularity')
+
+_IMAGE_COSTLY_FEATURE_GROUPS = ('homogeneity', 'fibres')
+
+_IMAGE_ALL_FEATURE_GROUPS = _IMAGE_FEATURE_GROUPS + _IMAGE_COSTLY_FEATURE_GROUPS
 
 _IMAGE_ADVANCED_FEATURES = ('embedding', 'deep_qc', 'filter_bank')
 
@@ -13948,24 +14166,27 @@ _IMAGE_ADVANCED_FEATURES = ('embedding', 'deep_qc', 'filter_bank')
 def _image_feature_groups(selection=None):
     """Resolve a measurement selection to the image-level groups it names.
 
-    :param selection: ``None`` for every group; an iterable of names from
-        ``_IMAGE_FEATURE_GROUPS``; or an overview settings mapping whose
+    :param selection: ``None`` for every default group
+        (``_IMAGE_FEATURE_GROUPS``); an iterable of names from
+        ``_IMAGE_ALL_FEATURE_GROUPS``; or an overview settings mapping whose
         ``overview_measure_<group>`` switches choose the groups (a missing
-        switch keeps its default, on).
+        switch keeps its default: on for the default groups, off for the
+        full-resolution Advanced groups in ``_IMAGE_COSTLY_FEATURE_GROUPS``).
     :returns: the selected group names in canonical order.
     :raises ValueError: for an unknown group name.
     """
     if selection is None:
         return _IMAGE_FEATURE_GROUPS
     if isinstance(selection, dict):
-        chosen = {group for group in _IMAGE_FEATURE_GROUPS
-                  if selection.get(_IMAGE_FEATURE_SETTING[group], True) not in (False, 0, 'False', 'false')}
+        chosen = {group for group in _IMAGE_ALL_FEATURE_GROUPS
+                  if selection.get(_IMAGE_FEATURE_SETTING[group], group in _IMAGE_FEATURE_GROUPS)
+                  not in (False, 0, None, '', 'False', 'false')}
     else:
         chosen = {str(name) for name in selection}
-        unknown = sorted(chosen - set(_IMAGE_FEATURE_GROUPS))
+        unknown = sorted(chosen - set(_IMAGE_ALL_FEATURE_GROUPS))
         if unknown:
             raise ValueError(f'Unknown image-level measurement groups: {unknown}')
-    return tuple(group for group in _IMAGE_FEATURE_GROUPS if group in chosen)
+    return tuple(group for group in _IMAGE_ALL_FEATURE_GROUPS if group in chosen)
 
 
 _IMAGE_FEATURE_SETTING = {
@@ -13977,6 +14198,11 @@ _IMAGE_FEATURE_SETTING = {
     'background': 'overview_measure_background_snr',
     'objects': 'overview_measure_objects',
     'cross_channel': 'overview_measure_cross_channel',
+    'distribution': 'overview_measure_distribution',
+    'radial': 'overview_measure_radial',
+    'granularity': 'overview_measure_granularity',
+    'homogeneity': 'overview_measure_homogeneity',
+    'fibres': 'overview_measure_fibres',
 }
 
 
@@ -14007,7 +14233,18 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
         ``texture`` the GLCM summary; ``coverage`` the Otsu area fraction,
         foreground mean and confluency; ``background`` the background level,
         SNR and signal-to-background; ``objects`` the regionprops summaries;
-        ``cross_channel`` the per-pair correlation and overlap.
+        ``cross_channel`` the per-pair Otsu correlation and overlap plus
+        Measure's colocalization statistics (``coloc_*``: Pearson, Manders
+        and overlap coefficients, Spearman and ICQ);
+        ``distribution`` Measure's distributional intensity features
+        (skewness, kurtosis, mode, Gini, entropy...); ``radial`` the radial
+        profile from the centre and illumination uniformity; ``granularity``
+        the granularity spectrum. The Advanced groups ``homogeneity`` (Measure's GLCM homogeneity
+        at six distances) and ``fibres`` (Measure's skeleton analysis) run on
+        full-resolution pixels and are only computed when asked for.
+        Per-channel names are ``channel_<c>_<group>_<stat>`` and per-pair
+        names ``channels_<a>_<b>_<group>_<stat>``, except for the earlier
+        coverage, background and object columns, which keep their names.
     :returns: flat ``dict`` of measurement names to numbers.
     :raises ValueError: for non-2-D planes or mismatched shapes.
     """
@@ -14036,20 +14273,47 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
             percentiles = np.percentile(data, (1, 5, 25, 50, 75, 95, 99))
         if 'intensity' in groups:
             mean, std = float(data.mean()), float(data.std())
-            stats.update(intensity_mean=mean, intensity_median=float(percentiles[3]),
+            median = float(percentiles[3])
+            stats.update(intensity_mean=mean, intensity_median=median,
                          intensity_std=std, intensity_integrated=float(data.sum()),
                          intensity_cv=std / mean if mean else float('nan'),
-                         intensity_dynamic_range=float(percentiles[6] - percentiles[0]))
+                         intensity_dynamic_range=float(percentiles[6] - percentiles[0]),
+                         intensity_min=float(data.min()), intensity_max=float(data.max()),
+                         intensity_sum=float(data.sum()), intensity_variance=float(np.var(data)),
+                         intensity_mad=float(np.median(np.abs(data - median))),
+                         intensity_iqr=float(percentiles[4] - percentiles[2]),
+                         intensity_zero_fraction=float(np.count_nonzero(data == 0)) / data.size)
+            if std:
+                centred = (data - mean) / std
+                stats.update(intensity_skewness=float(np.mean(centred ** 3)),
+                             intensity_kurtosis=float(np.mean(centred ** 4) - 3))
+            else:
+                stats.update(intensity_skewness=0.0, intensity_kurtosis=0.0)
             stats.update({f'intensity_p{p}': float(v) for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
         if 'saturation' in groups:
             level = _image_saturation_level(plane, saturation_levels.get(channel))
             stats.update(saturation_level=float('nan') if level is None else level,
                          saturation_fraction=(float(np.count_nonzero(data >= level)) / data.size
                                               if level is not None else float('nan')))
+            floor = float(np.iinfo(np.asarray(plane).dtype).min) if np.issubdtype(np.asarray(plane).dtype, np.integer) else None
+            stats['saturation_floor_fraction'] = (float(np.count_nonzero(data <= floor)) / data.size
+                                                  if floor is not None else float('nan'))
         if 'focus' in groups:
             stats.update(_image_focus(values))
+            stats['focus_normalized_variance'] = float(np.var(data) / data.mean()) if data.mean() else float('nan')
+            stats.update(_image_spectral_focus(values))
         if 'texture' in groups:
             stats.update(_image_texture(values, finite, (percentiles[0], percentiles[6])))
+        if 'distribution' in groups:
+            stats.update(_image_distribution(values, finite))
+        if 'radial' in groups:
+            stats.update(_image_radial(values, finite))
+        if 'granularity' in groups:
+            stats.update(_image_granularity(values, finite))
+        if 'homogeneity' in groups:
+            stats.update(_image_homogeneity(values, finite))
+        if 'fibres' in groups:
+            stats.update(_image_fibres(values, finite))
         above = np.zeros(values.shape, dtype=bool)
         if thresholds:
             threshold = _image_otsu(values, finite)
@@ -14113,6 +14377,7 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
             record[prefix + 'manders_m2'] = float(b[on_a & on_b].sum()) / total_b if total_b else float('nan')
             union = np.count_nonzero(on_a | on_b)
             record[prefix + 'overlap_fraction'] = float(np.count_nonzero(on_a & on_b)) / union if union else float('nan')
+            record.update({prefix + key: value for key, value in _image_colocalization(a, fa, b, fb).items()})
     return record
 
 
@@ -14492,3 +14757,4 @@ def _image_measurement_frame(db_path, *, annotations=True, status_ok=True):
     joined.attrs['annotation_conflicts'] = conflicts
     joined.attrs['annotation_columns'] = names
     return joined
+

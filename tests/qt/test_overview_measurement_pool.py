@@ -92,7 +92,7 @@ def test_measurement_selection_is_honoured_in_the_image_row(tmp_path):
     assert "object_source" not in row
     assert row["channel_0_focus_brenner"] > 0
     assert row["channel_0_finite_pixel_count"] == 48 * 64
-    assert row["image_features"] == "saturation,focus,coverage,background,cross_channel"
+    assert row["image_features"] == "saturation,focus,coverage,background,cross_channel,distribution,radial,granularity"
     full = _overview_measurement(field, (0,))
     assert "channel_0_intensity_mean" in full and "channel_0_texture_glcm_energy" in full
 

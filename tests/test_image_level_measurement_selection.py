@@ -37,6 +37,9 @@ _GROUP_MARKERS = {
     'background': 'channel_0_snr',
     'objects': 'channel_0_objects_count',
     'cross_channel': 'channels_0_1_pearson',
+    'distribution': 'channel_0_distribution_gini',
+    'radial': 'channel_0_radial_bin_0',
+    'granularity': 'channel_0_granularity_1',
 }
 
 
