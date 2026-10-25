@@ -44,8 +44,17 @@ def macos_like(monkeypatch):
 
 
 def test_the_shiboken_settings_type_is_never_patched():
+    """The binding's own type, not the stand-in ``tests/conftest.py`` installs.
+
+    The conftest replaces ``QSettings`` with a subclass that moves
+    ``setPath`` into the test's folder, so ``QSettings.__dict__`` here is that
+    subclass's and holds none of these methods.
+    """
+    shiboken_type = next(cls for cls in QSettings.__mro__
+                         if cls.__module__ == "PySide6.QtCore"
+                         and cls.__name__ == "QSettings")
     for name in ("setValue", "remove", "clear", "value", "sync"):
-        method = QSettings.__dict__[name]
+        method = shiboken_type.__dict__[name]
         assert not inspect.isfunction(method), f"QSettings.{name} was replaced"
         assert not getattr(method, "_spacr_counts_writes", False)
 
