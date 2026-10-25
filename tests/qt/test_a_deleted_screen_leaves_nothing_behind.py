@@ -178,3 +178,36 @@ def test_a_read_still_out_does_not_own_the_merge_panel(qapp):
     assert not still_there, (
         "a read that was still out kept the merge panel alive; when it "
         "lands it would destroy the widget on the reader thread")
+
+
+def test_a_widget_deleted_under_the_stylesheet_guard_is_let_go(qapp):
+    """The guard's teardown mark ends with the widget it marks.
+
+    Once a launch has put the stylesheet guard on (N709), every widget whose
+    ``DeferredDelete`` Qt delivers is marked so no sheet reaches it while it
+    goes, and the mark held the widget's wrapper. Nothing let go of a mark
+    before the next sheet asked about teardown, so after the first launch in
+    a process every deleted screen stayed alive in Python: the four checks
+    above failed whenever they ran after a test that launched. The mark is
+    now dropped at the next collection on the GUI thread once Qt has
+    destroyed the widget.
+    """
+    from spacr.qt import gui_scale
+    from spacr.qt.screens.parameter_sweep import _lazy_sweep_panel
+
+    gui_scale._install_sheet_guard()
+    host = QWidget()
+    card = QWidget(host)
+    host.sweep = _lazy_sweep_panel(host)
+    QVBoxLayout(card).addWidget(host.sweep)
+    del card
+    gone = weakref.ref(host)
+
+    _let_qt_delete(host)
+    del host
+    gc.collect()
+
+    assert gone() is None, (
+        "the stylesheet guard's teardown mark kept a deleted widget alive")
+    assert all(gui_scale._is_alive(held) for held in gui_scale._TORN_DOWN.values()), (
+        "a teardown mark outlived the widget it was for")

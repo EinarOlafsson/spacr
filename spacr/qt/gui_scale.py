@@ -1019,6 +1019,27 @@ def _prune_torn_down() -> int:
     return len(_TORN_DOWN)
 
 
+def _prune_torn_down_on_collection(phase, _info) -> None:
+    """Let go of torn-down marks whose objects are gone when Python collects.
+
+    A widget is marked while Qt delivers its ``DeferredDelete`` and its C++
+    object is destroyed straight after, but the mark kept its wrapper, and
+    with it everything the widget's Python side held, until the next sheet
+    asked about teardown: a closed screen stayed alive in Python. Dropping a
+    wrapper whose C++ object is gone frees nothing on the Qt side, and it is
+    done only on the GUI thread so nothing the widget held is freed on a
+    worker.
+
+    :param phase: ``start`` or ``stop``, as ``gc.callbacks`` passes it.
+    :param _info: the collection's details, unused.
+    """
+    if phase != "start" or not _TORN_DOWN:
+        return
+    if threading.current_thread() is not threading.main_thread():
+        return
+    _prune_torn_down()
+
+
 def _mark_torn_down(obj) -> None:
     """Never put a sheet on ``obj`` or anything inside it again.
 
@@ -1589,9 +1610,13 @@ def _install_sheet_guard() -> bool:
 
     :returns: ``True`` the first time.
     """
+    import gc
+
     from PySide6.QtWidgets import QApplication, QWidget
 
     _watch_for_teardown()
+    if _prune_torn_down_on_collection not in gc.callbacks:
+        gc.callbacks.append(_prune_torn_down_on_collection)
     if _SHEET_GUARD["installed"]:
         return False
     _ORIGINAL["guard_raw_widget_set"] = QWidget.setStyleSheet
