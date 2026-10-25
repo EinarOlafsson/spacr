@@ -484,16 +484,14 @@ def test_jitterplot_balances_groups_and_keeps_annotated_wells(fake_db_readers, c
     out = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
 
     # Readers were handed the paths built from src.
-    assert fake_db_readers["merge_calls"][0]["locs"] == [
-        "/exp/src/measurements/measurements.db"
-    ]
+    database = os.path.join("/exp/src", "measurements", "measurements.db")
+    assert fake_db_readers["merge_calls"][0]["locs"] == [database]
     assert fake_db_readers["merge_calls"][0]["tables"] == [
         "cell", "nucleus", "pathogen", "cytoplasm"
     ]
     assert fake_db_readers["merge_calls"][0]["nuclei_limit"] is True
     assert fake_db_readers["db_calls"][0]["tables"] == ["png_list"]
-    assert fake_db_readers["db_calls"][0]["loc"] == \
-        "/exp/src/measurements/measurements.db"
+    assert fake_db_readers["db_calls"][0]["loc"] == database
 
     # Well c3 has no annotated object at all -> dropped entirely.
     assert set(out["col_x"]) == {"c1", "c2"}

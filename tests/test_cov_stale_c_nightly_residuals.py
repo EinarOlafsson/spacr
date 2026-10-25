@@ -90,7 +90,7 @@ def test_generated_organelle_keys_are_appended_without_rechecking_contracts():
     source = inspect.getsource(settings)
     assert "if _key in expected_types and _key not in categories['General']" \
         not in source
-    assert "categories['General'].append(_key)" in source
+    assert "categories['General'].append(f'{role}_{_suffix}')" in source
 
 
 def test_invasion_counts_use_a_branchless_defensive_default():
