@@ -49,16 +49,41 @@ def test_each_primary_action_explains_itself_in_the_fixed_footer(
     assert screen._progress.parentWidget() is screen._action_status
 
 
+def _footer(screen):
+    return (screen._actions_row.height(), screen._hint_strip.y(),
+            screen._btn_run.pos(), screen._action_status.height())
+
+
+def _settled_footer(qtbot, screen, turns=3, timeout_s=5.0):
+    """The footer's geometry once it has stopped changing.
+
+    The footer lays itself out over several event-loop turns after the
+    screen is shown -- the wrapping button strip and the measured hint and
+    status heights each settle in their own turn: 39, 53 then 82 px for the
+    actions row here. A capture taken while that is still going on, as a
+    slow coverage run made of a fixed 10 ms wait, blames the last step on
+    whatever the test changed next.
+    """
+    import time
+
+    deadline = time.monotonic() + timeout_s
+    last, same = _footer(screen), 0
+    while same < turns and time.monotonic() < deadline:
+        qtbot.wait(20)
+        now = _footer(screen)
+        same = same + 1 if now == last else 0
+        last = now
+    assert same >= turns, "the footer never stopped moving"
+    return last
+
+
 def test_progress_and_status_text_do_not_move_the_action_help(qtbot):
     screen = _screen(qtbot, "measure")
-    before = (screen._actions_row.height(), screen._hint_strip.y(),
-              screen._btn_run.pos(), screen._action_status.height())
+    before = _settled_footer(qtbot, screen)
     screen._progress.setVisible(True)
     screen._gpu_progress.setText("GPU progress 25%")
     screen._gpu_progress.setVisible(True)
-    qtbot.wait(1)
-    assert (screen._actions_row.height(), screen._hint_strip.y(),
-            screen._btn_run.pos(), screen._action_status.height()) == before
+    assert _settled_footer(qtbot, screen) == before
     assert screen._progress.isVisibleTo(screen)
     assert screen._gpu_progress.isVisibleTo(screen)
 
