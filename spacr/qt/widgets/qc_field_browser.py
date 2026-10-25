@@ -3079,6 +3079,36 @@ def _overview_pdf_header(channels, percentiles, seed, normalization):
     return tuple(part for line in lines for part in (textwrap.wrap(line, 112) or [""]))
 
 
+def _overview_pdf_pixels(pixels, axis, dpi):
+    """Thin a field's pixels to at most ``dpi`` pixels per printed inch on its page.
+
+    The images are embedded without interpolation, so before this the page
+    DPI changed nothing in the file: 150, 300 and 600 wrote the same pixels.
+    Pixels are only ever dropped, by a whole-pixel stride, never invented.
+    The export applies it to bounded PDF qualities only: "full source
+    resolution" keeps every source pixel whatever the DPI.
+
+    :param pixels: the field's image, rows first.
+    :param axis: the page axis it is drawn in, already placed on the figure.
+    :param dpi: the page resolution in dots per inch, or ``None`` to keep all.
+    :returns: the pixels, strided when they print denser than ``dpi``.
+    """
+    if not dpi:
+        return pixels
+    width_in, height_in = axis.figure.get_size_inches()
+    box = axis.get_position()
+    rows, columns = pixels.shape[:2]
+    inches = min(box.width * width_in / max(1, columns), box.height * height_in / max(1, rows))
+    if inches <= 0:
+        return pixels
+    longest = max(rows, columns)
+    limit = max(1, math.floor(float(dpi) * longest * inches + 1e-9))
+    step = math.ceil(longest / limit)
+    if step <= 1:
+        return pixels
+    return np.ascontiguousarray(pixels[::step, ::step])
+
+
 def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
@@ -3202,6 +3232,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     inner = panel.subgridspec(channel_rows, channel_columns, hspace=.18, wspace=.08)
                     for position, (channel, pixels) in enumerate(views):
                         axis = figure.add_subplot(inner[position // channel_columns, position % channel_columns])
+                        pixels = _overview_pdf_pixels(pixels, axis, None if quality_edge is None else dpi)
                         axis.imshow(pixels, interpolation="none")
                         axis.set_title(str(channel), fontsize=10, pad=5)
                         axis.set_axis_off()
@@ -3215,6 +3246,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                                               cancelled=cancelled, advanced_normalization=advanced_normalization,
                                               channel_colors=channel_colors, **selected_axes)
                     axis = figure.add_subplot(panel)
+                    pixels = _overview_pdf_pixels(pixels, axis, None if quality_edge is None else dpi)
                     axis.imshow(pixels, interpolation="none")
                     axis.set_axis_off()
                     page_images.append(pixels)
