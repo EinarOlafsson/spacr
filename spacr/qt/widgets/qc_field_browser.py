@@ -3997,6 +3997,7 @@ class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
     measurement_progress = Signal(int, int)
+    _channels_found = Signal(object)
 
     def __init__(self, parent=None, settings=None):
         """Create controls without opening a directory or decoding an image.
@@ -5897,6 +5898,7 @@ class _FieldOverview(QWidget):
             self.norm_channel.addItem(str(channel), channel)
         self.norm_channel.blockSignals(False)
         self._normalization_target_changed()
+        self._channels_found.emit(available)
 
     def _sample_fields(self, fields):
         """Sample physical groups or arbitrary metadata reproducibly."""
@@ -8352,6 +8354,99 @@ def _overview_row_label(caption, tooltip):
     return label
 
 
+class _OverviewChannelToggles(QWidget):
+    """One switch per channel, each on its own line, for a channel-target setting.
+
+    Stands in for the comma-separated text of ``overview_normalize_channels``
+    or ``overview_enhance_channels``: the setting stays the record (``"all"``,
+    ``"none"`` or ``"1,3"``) and this writes it.
+    """
+
+    def __init__(self, model, key, parent=None):
+        """Follow one setting row.
+
+        :param model: the Overview tab's settings model.
+        :param key: the channel-target setting it writes.
+        :param parent: the owning widget.
+        """
+        from PySide6.QtWidgets import QVBoxLayout
+        from ..screens.settings_model import _connect_value_changed
+
+        super().__init__(parent)
+        self._model, self._key = model, key
+        self._channels = ()
+        self._toggles = {}
+        self._writing = False
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+        self._layout = layout
+        row = model._widgets.get(key)
+        if row is not None:
+            _connect_value_changed(row, self._row_changed)
+
+    def set_channels(self, channels):
+        """Show one switch per channel, set from the setting's value.
+
+        :param channels: the source's channel IDs, in order.
+        """
+        from .toggle import Toggle
+
+        channels = tuple(channels)
+        if channels == self._channels:
+            self._row_changed()
+            return
+        for toggle in self._toggles.values():
+            self._layout.removeWidget(toggle)
+            toggle.deleteLater()
+        self._toggles = {}
+        self._channels = channels
+        for channel in channels:
+            toggle = Toggle(tr("Channel {channel}", channel=channel))
+            toggle.toggled.connect(self._toggled)
+            self._layout.addWidget(toggle)
+            self._toggles[channel] = toggle
+        self._row_changed()
+
+    def _row_changed(self, *_):
+        """Follow the setting row's value."""
+        if self._writing:
+            return
+        targets = _overview_channel_targets(self._model._read_value(self._key))
+        for channel, toggle in self._toggles.items():
+            toggle.blockSignals(True)
+            toggle.setChecked(targets is None or channel in targets or str(channel) in map(str, targets))
+            toggle.blockSignals(False)
+
+    def _toggled(self, *_):
+        """Write the switched-on channels back into the setting."""
+        on = [str(channel) for channel, toggle in self._toggles.items() if toggle.isChecked()]
+        value = "all" if len(on) == len(self._toggles) else (",".join(on) or "none")
+        self._writing = True
+        try:
+            self._model.set_value_for_key(self._key, value)
+        finally:
+            self._writing = False
+
+
+def _overview_rows_hidden(previous, keys):
+    """The rows the screen hides, plus the text rows the channel switches stand in for.
+
+    :param previous: what the screen hid before, a callable or ``None``.
+    :param keys: the channel-target settings shown as switches.
+    :returns: the keys to keep off the form.
+    """
+    return set(previous() or ()) | set(keys) if previous is not None else set(keys)
+
+
+_OVERVIEW_CHANNEL_TARGET_ROWS = (
+    ("Normalization", "overview_normalize_channels", "Normalized channels",
+     "Channels the percentile stretch applies to; a channel switched off keeps its raw display range."),
+    ("Enhancement", "overview_enhance_channels", "Enhanced channels",
+     "Channels the image enhancement applies to; a channel switched off is shown without enhancement."),
+)
+
+
 def _overview_row_key(caption):
     """The help key of a mounted Overview row, such as ``overview_plate`` for "Plate".
 
@@ -8398,9 +8493,6 @@ def _overview_module_rows(browser):
              (browser._plate_back_button, browser._open_well_button, *browser._plate_zoom_buttons)),
             ("Fields", "Page through a well's fields, compare the selected fields in one montage, or open each selected field as its own stacked image.",
              (*browser._paging_buttons, browser._compare_fields_button, browser._open_images_button)),
-        ],
-        "Channels": [
-            ("Channels", "Channels shown; tick or untick a channel to show or hide it.", (browser._channel_host,)),
         ],
         "Normalization": [
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
@@ -8461,6 +8553,8 @@ class _OverviewModulePage(QWidget):
         self.browser = None
         self._bridge = None
         self._rows = []
+        self._hidden_keys = []
+        self._screen_hides = None
         self.setObjectName("FieldOverviewModulePage")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -8629,6 +8723,26 @@ class _OverviewModulePage(QWidget):
                 self._rows.append((section, field, tuple(widgets)))
                 for widget in widgets:
                     widget.destroyed.connect(browser._mounted_control_lost)
+        model = self._screen._settings_model
+        for title, key, caption, tooltip in _OVERVIEW_CHANNEL_TARGET_ROWS:
+            section = _overview_section(self._screen, title)
+            if section is None or model._widgets.get(key) is None:
+                continue
+            toggles = _OverviewChannelToggles(model, key)
+            toggles.setProperty("settingKey", _overview_row_key(caption))
+            toggles.setProperty("apiTooltipDescriptionSource", tooltip)
+            browser._channels_found.connect(toggles.set_channels)
+            if browser._channel_buttons:
+                toggles.set_channels(tuple(browser._channel_buttons))
+            section.add_prose_row(_overview_row_label(caption, tooltip), toggles)
+            keys[toggles] = _overview_row_key(caption)
+            self._rows.append((section, toggles, ()))
+            self._hidden_keys.append(key)
+        if self._hidden_keys:
+            self._screen_hides = model.rows_the_screen_hides
+            model.rows_the_screen_hides = functools.partial(
+                _overview_rows_hidden, self._screen_hides, tuple(self._hidden_keys))
+            model.refresh_object_visibility()
         install_api_tooltips(self._screen, "overview", keys)
         section = _overview_section(self._screen, "Export")
         if section is not None:
@@ -8667,6 +8781,11 @@ class _OverviewModulePage(QWidget):
             except RuntimeError:
                 pass
         self._rows.clear()
+        model = self._screen._settings_model
+        if self._hidden_keys:
+            model.rows_the_screen_hides = self._screen_hides
+            self._hidden_keys.clear()
+            model.refresh_object_visibility()
         if browser is not None:
             browser.deleteLater()
 

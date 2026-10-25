@@ -82,6 +82,19 @@ def _browse(mask, qtbot, source):
     return tab, page.browser
 
 
+def _row_shown(field):
+    from PySide6.QtWidgets import QFormLayout
+    from spacr.qt.settings_search import _row_is_visible
+
+    node = field
+    while node.parentWidget() is not None:
+        parent = node.parentWidget()
+        if isinstance(parent.layout(), QFormLayout) and parent.layout().getWidgetPosition(node)[0] >= 0:
+            return _row_is_visible(parent, node)
+        node = parent
+    return not field.isHidden()
+
+
 def test_every_mounted_row_has_the_standard_popup_with_its_api_link(mask, qtbot, source):
     from spacr.qt.screens.settings_model import _setting_label_for_field
 
@@ -96,3 +109,40 @@ def test_every_mounted_row_has_the_standard_popup_with_its_api_link(mask, qtbot,
         html = str(label.property("apiTooltipHtml") or "")
         assert label.toolTip() == html and "<a href=" in html and html.rstrip().endswith("</a>"), key
         assert field.toolTip() == ""
+
+
+def test_the_separate_channels_row_is_gone_and_overview_channels_drives_the_views(mask, qtbot, source):
+    tab, view = _browse(mask, qtbot, source)
+    fields = [field for _section, field, _widgets in tab._overview_page._rows]
+    assert view._channel_host not in fields
+    assert not any(field.property("settingKey") == "overview_channels" and field is not
+                   tab._settings_model._widgets["overview_channels"] for field in fields)
+    tab._settings_model.set_value_for_key("overview_channels", "2")
+    assert view.channels.text() == "2"
+
+
+@pytest.mark.parametrize("key", ["overview_normalize_channels", "overview_enhance_channels"])
+def test_channel_targets_are_one_switch_per_line(mask, qtbot, source, key):
+    tab, view = _browse(mask, qtbot, source)
+    model = tab._settings_model
+    toggles = next(field for _section, field, _widgets in tab._overview_page._rows
+                   if isinstance(field, browser._OverviewChannelToggles) and field._key == key)
+    qtbot.waitUntil(lambda: len(toggles._toggles) == 2, timeout=15000)
+    assert not _row_shown(model._widgets[key])
+    first, second = toggles._toggles.values()
+    assert first.isChecked() and second.isChecked()
+    from PySide6.QtWidgets import QVBoxLayout
+
+    assert isinstance(toggles.layout(), QVBoxLayout)
+    assert toggles.layout().indexOf(first) == 0 and toggles.layout().indexOf(second) == 1
+    assert first.text() == "Channel 1" and second.text() == "Channel 2"
+    second.setChecked(False)
+    assert model._read_value(key) == "1"
+    first.setChecked(False)
+    assert model._read_value(key) == "none"
+    model.set_value_for_key(key, "all")
+    assert first.isChecked() and second.isChecked()
+    model.set_value_for_key(key, "2")
+    assert not first.isChecked() and second.isChecked()
+    tab._overview_page._retire_browser()
+    assert _row_shown(model._widgets[key])
