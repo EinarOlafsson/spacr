@@ -968,6 +968,49 @@ _RAM_WORKER_MULTIPLIERS: Dict[str, float] = {
     'ops_decode': 6.0,
 }
 
+_RAM_WORKER_IMPORT_BYTES: Dict[str, int] = {
+    'dataset': 24 * 1024 ** 2,
+    'cellpose_dataset': 66 * 1024 ** 2,
+}
+
+_RAM_IMPORT_PLATFORM_FACTOR: Dict[str, float] = {
+    'win32': 2.0,
+    'darwin': 1.5,
+}
+
+
+def _worker_import_bytes(module: str, start_method: Optional[str] = None,
+                         platform: Optional[str] = None) -> int:
+    """Memory a newly started worker of ``module`` commits importing what it runs.
+
+    A forked worker shares its parent's imports, so it costs nothing here. A
+    spawned or forkserver worker starts a new interpreter and imports the
+    module of the function it runs. The sizes are the resident memory of a
+    spawned Linux worker after those imports, measured on 2026-10-25:
+    24 MiB for the tar dataset worker and 66 MiB for the Cellpose dataset
+    worker (NumPy, tifffile and OpenCV). Windows commits more than it keeps
+    resident for the same DLLs and macOS somewhat more, hence the platform
+    factors.
+
+    :param module: the pool's module key.
+    :param start_method: the pool's start method; the default one when omitted.
+    :param platform: ``sys.platform``; this interpreter's when omitted.
+    :returns: bytes per worker, ``0`` for a fork or an unlisted module.
+    """
+    import multiprocessing
+
+    base = _RAM_WORKER_IMPORT_BYTES.get(module, 0)
+    if not base:
+        return 0
+    if start_method is None:
+        start_method = (multiprocessing.get_start_method(allow_none=True)
+                        or multiprocessing.get_all_start_methods()[0])
+    if start_method == 'fork':
+        return 0
+    factor = _RAM_IMPORT_PLATFORM_FACTOR.get(platform or sys.platform, 1.0)
+    return int(base * factor)
+
+
 _APP_RAM_UNITS: Dict[str, Tuple[str, Tuple[str, ...]]] = {
     'measure': ('measure', ('.npy',)),
     'mask': ('mask', ('.npy', '.npz', '.tif', '.tiff', '.png')),
@@ -1161,7 +1204,8 @@ def _ram_plan(unit_bytes: int, n_jobs: Any, *, module: str = 'measure',
 
     Each worker is estimated as one input unit's in-memory size times the
     module's multiplier, the ratio of a worker's peak resident memory to its
-    input measured on one unit.
+    input measured on one unit, plus what a newly started worker commits
+    importing the function it runs (:func:`_worker_import_bytes`).
 
     :param unit_bytes: in-memory size of one worker's input unit.
     :param n_jobs: the requested worker count.
@@ -1179,7 +1223,7 @@ def _ram_plan(unit_bytes: int, n_jobs: Any, *, module: str = 'measure',
     available, total = snapshot
     factor = float(multiplier or _RAM_WORKER_MULTIPLIERS.get(
         module, _RAM_DEFAULT_MULTIPLIER))
-    per_worker = max(1, int(unit_bytes * factor))
+    per_worker = max(1, int(unit_bytes * factor)) + _worker_import_bytes(module)
     max_safe = _max_safe_workers(available, total, per_worker)
     requested = _requested_workers(n_jobs)
     return {'module': module, 'per_worker': per_worker,

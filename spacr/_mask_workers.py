@@ -1148,3 +1148,91 @@ def _finalize_adjusted_cells(mask_src, organelle_folder=None, n_jobs=None):
     _atomic_json(record, {'inputs': identity, 'raw_masks': inputs,
                           'outputs': _mask_digests(output)})
     return str(output)
+
+
+_DATASET_COUNTER = None
+_DATASET_LOCK = None
+
+
+def _dataset_tar_init(counter, lock):
+    """Give a dataset tar worker the shared progress counter and its lock.
+
+    The tar and Cellpose dataset pools run the workers below from this
+    module because a spawned worker imports the module of the function it
+    runs: from here that is the standard library, tifffile, OpenCV and NumPy,
+    not :mod:`spacr.io` and :mod:`spacr.utils` with torch.
+
+    :param counter: shared ``multiprocessing.Value`` counting added images.
+    :param lock: lock guarding ``counter``.
+    """
+    global _DATASET_COUNTER, _DATASET_LOCK
+    _DATASET_COUNTER, _DATASET_LOCK = counter, lock
+
+
+def _dataset_tar_worker(paths_chunk, tar_path, total_images):
+    """Add one chunk of images to its own tar, as :func:`spacr.utils.add_images_to_tar` does.
+
+    Every tenth image added prints the same progress line
+    :func:`spacr.utils.print_progress` prints without timings.
+
+    :param paths_chunk: the image paths for this tar.
+    :param tar_path: the tar to write.
+    :param total_images: images across every chunk, for the progress line.
+    """
+    import tarfile
+
+    with tarfile.open(tar_path, 'w') as tar:
+        for img_path in paths_chunk:
+            arcname = os.path.basename(img_path)
+            try:
+                tar.add(img_path, arcname=arcname)
+                with _DATASET_LOCK:
+                    _DATASET_COUNTER.value += 1
+                    if _DATASET_COUNTER.value % 10 == 0:
+                        print(f'Progress: {_DATASET_COUNTER.value}/{int(total_images)}, '
+                              f'operation_type: generating .tar dataset, None')
+            except FileNotFoundError:
+                print(f"File not found: {img_path}")
+
+
+def _augmented_plane(image, method):
+    """Rotate or flip an image by the named augmentation, as :func:`spacr.io.apply_augmentation`.
+
+    :param image: the image array.
+    :param method: ``rotate90``, ``rotate180``, ``rotate270``, ``flip_h`` or
+        ``flip_v``; anything else returns ``image`` unchanged.
+    :returns: the augmented image.
+    """
+    import cv2
+
+    if method == 'rotate90':
+        return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+    elif method == 'rotate180':
+        return cv2.rotate(image, cv2.ROTATE_180)
+    elif method == 'rotate270':
+        return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    elif method == 'flip_h':
+        return cv2.flip(image, 1)
+    elif method == 'flip_v':
+        return cv2.flip(image, 0)
+    return image
+
+
+def _cellpose_pair_worker(entry):
+    """Copy one image and mask pair into a Cellpose dataset, as :func:`spacr.io.process_instruction`.
+
+    :param entry: ``src_img``, ``src_msk``, ``dst_img``, ``dst_msk`` and
+        ``augment`` (an augmentation name, or falsy for none).
+    :returns: ``1``, for progress counting.
+    """
+    import tifffile
+    from .tiff_io import write_tiff
+
+    img = tifffile.imread(entry["src_img"])
+    msk = tifffile.imread(entry["src_msk"])
+    if entry["augment"]:
+        img = _augmented_plane(img, entry["augment"])
+        msk = _augmented_plane(msk, entry["augment"])
+    write_tiff(entry["dst_img"], img)
+    write_tiff(entry["dst_msk"], msk)
+    return 1

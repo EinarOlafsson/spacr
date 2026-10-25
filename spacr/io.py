@@ -7129,10 +7129,7 @@ def generate_dataset(settings=None):
     from multiprocessing import Value, Lock, cpu_count
     from .resource_log import _parallel_pool as Pool
 
-    from .utils import (
-        initiate_counter, add_images_to_tar, save_settings,
-        generate_path_list_from_db, correct_paths
-    )
+    from .utils import save_settings, generate_path_list_from_db, correct_paths
     from .settings import set_generate_dataset_defaults
 
     settings = set_generate_dataset_defaults(settings)
@@ -7249,9 +7246,11 @@ def generate_dataset(settings=None):
     counter = Value('i', 0)
     lock = Lock()
 
-    with Pool(processes=num_procs, initializer=initiate_counter, initargs=(counter, lock)) as pool:
+    from ._mask_workers import _dataset_tar_init, _dataset_tar_worker
+
+    with Pool(processes=num_procs, initializer=_dataset_tar_init, initargs=(counter, lock)) as pool:
         pool.starmap(
-            add_images_to_tar,
+            _dataset_tar_worker,
             [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
         )
         pool.close()
@@ -9733,17 +9732,9 @@ def apply_augmentation(image, method):
         unchanged.
     :returns: Augmented image array.
     """
-    if method == 'rotate90':
-        return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-    elif method == 'rotate180':
-        return cv2.rotate(image, cv2.ROTATE_180)
-    elif method == 'rotate270':
-        return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    elif method == 'flip_h':
-        return cv2.flip(image, 1)
-    elif method == 'flip_v':
-        return cv2.flip(image, 0)
-    return image
+    from ._mask_workers import _augmented_plane
+
+    return _augmented_plane(image, method)
 
 def process_instruction(entry):
     """Copy one image/mask pair described by ``entry``, applying an optional augmentation.
@@ -9752,14 +9743,9 @@ def process_instruction(entry):
         ``dst_msk`` and ``augment`` (augmentation name or falsy).
     :returns: ``1`` on success — used for progress counting.
     """
-    img = tifffile.imread(entry["src_img"])
-    msk = tifffile.imread(entry["src_msk"])
-    if entry["augment"]:
-        img = apply_augmentation(img, entry["augment"])
-        msk = apply_augmentation(msk, entry["augment"])
-    write_tiff(entry["dst_img"], img)
-    write_tiff(entry["dst_msk"], msk)
-    return 1
+    from ._mask_workers import _cellpose_pair_worker
+
+    return _cellpose_pair_worker(entry)
 
 def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8, n_jobs=None):
     """Aggregate image/mask pairs from sibling dataset folders into a Cellpose training split.
@@ -9902,8 +9888,10 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         n_jobs = _guard_workers('cellpose_dataset', n_jobs,
                                 _array_file_nbytes(instructions[0]["src_img"]))
 
+    from ._mask_workers import _cellpose_pair_worker
+
     with Pool(n_jobs) as pool:
-        for i, _ in enumerate(pool.imap_unordered(process_instruction, instructions), 1):
+        for i, _ in enumerate(pool.imap_unordered(_cellpose_pair_worker, instructions), 1):
             print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")
 
     print(f"Done. Dataset saved to: {output_root}")
