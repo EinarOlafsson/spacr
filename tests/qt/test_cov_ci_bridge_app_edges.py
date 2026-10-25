@@ -112,8 +112,41 @@ def test_background_import_failures_do_not_skip_later_warmups(monkeypatch):
 
     assert isinstance(app._import_the_data_libraries_off_the_gui_thread(),
                       InlineThread)
-    assert calls == ["import", "artwork", "environment", "freeze"]
+    assert calls == ["import", "artwork", "freeze"]
     assert app._import_the_data_libraries_off_the_gui_thread() is None
+
+
+def test_the_run_environment_waits_out_an_open_and_is_read_once(monkeypatch):
+    from spacr import run_journal
+
+    calls, postponed = [], []
+
+    class InlineThread:
+        def __init__(self, *, target, name, daemon):
+            self.target = target
+            assert name == "spacr-run-environment" and daemon
+
+        def start(self):
+            self.target()
+
+    def cannot_warm_environment():
+        calls.append("environment")
+        raise RuntimeError("package metadata is unavailable")
+
+    window = types.SimpleNamespace(_opening_a_screen=True, _closing=False)
+    monkeypatch.setattr(app, "_RUN_ENVIRONMENT_STARTED", False)
+    monkeypatch.setattr(app, "threading", types.SimpleNamespace(Thread=InlineThread))
+    monkeypatch.setattr(app._timing, "span", lambda *_args: contextlib.nullcontext())
+    monkeypatch.setattr(run_journal, "_warm_env_snapshot", cannot_warm_environment)
+    monkeypatch.setattr(app, "_after", lambda ms, owner, fn: postponed.append(ms))
+
+    assert app._warm_the_run_environment_when_idle(window) is None
+    assert postponed == [2000] and calls == []
+    window._opening_a_screen = False
+    assert isinstance(app._warm_the_run_environment_when_idle(window), InlineThread)
+    assert calls == ["environment"]
+    assert app._warm_the_run_environment_when_idle(window) is None
+    assert calls == ["environment"]
 
 
 def test_prewarm_skips_a_screen_that_the_user_already_opened(qapp):
