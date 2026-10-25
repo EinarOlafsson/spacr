@@ -8,14 +8,16 @@ Related:   155 montage provenance; 307 segmentation QC field browser; 639 import
 MAINTAINER FEEDBACK — 2026-10-24 (round 2) (supersedes conflicting earlier notes)
 UI agent A owns 1-4 and 8-11 and leaves a hook for the Measurements category;
 measurement agent M owns 5-7 and the multiprocess measurement backend.
-1. Overview is its OWN MODULE, the FIRST module in the Core group on Home, with
-   its own module screen like the other core modules (categorized settings
-   column, Actions container, console). Mask generation stays fully itself with
-   no overview takeover; it may keep a button that opens the Overview module.
-   (This supersedes the first wording "Overview must be a tab"; the original
-   complaint was that Overview took over Mask generation with no way back.)
-   Register it the normal way: app registry, Home tile order, workflows/help
-   where the generators require them, and an alpha-free maturity stage.
+1. Overview is a TAB inside Mask generation (maintainer reversal, 2026-10-24,
+   superseding the brief "own Core module" wording): Mask generation's own
+   settings and view stay one tab away and nothing takes Mask over. The tab has
+   module-style settings categories, an Actions container and its own image
+   area; agent M's Measurements category plugs into the tab's settings. The way
+   in stays the existing hidden source-field icon/button in Mask generation (and
+   Make Masks): no Home tile, no menu entry, no prominent new control.
+   The icon is the ONLY way in; clicking it opens Overview in a tab, Mask's own
+   view is never replaced, the tab can be closed (returning to Mask) and the
+   icon reopens it. A separate Overview Core module is a possible later step.
 2. In Figure settings, Display, Annotations and Export every setting is shown
    like a normal module setting: one setting per row with a name, a field of the
    appropriate type and a tooltip. Settings that read better side by side may
@@ -51,8 +53,8 @@ measurement agent M owns 5-7 and the multiprocess measurement backend.
    "vary one column, hold the others"). Runs go through the existing
    _image_groups(groups=...), _compare_image_groups, _image_comparison_figure
    and _representative_images; rows have names and tooltips.
-Acceptance: Qt tests cover opening Overview from Home as the first Core module
-with Mask generation unaffected; every setting row has a label and tooltip; the
+Acceptance: Qt tests cover icon -> Overview tab appears -> switch back to the
+Mask tab -> close the Overview tab -> the icon reopens it; every setting row has a label and tooltip; the
 Export container resizes; category style matches Mask's; the image-size slider
 changes tile size; Original loads full resolution in both views; fields from two
 wells open as stacked images and closing one keeps the others; three custom
@@ -604,3 +606,4 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-24 — UI (A) delivered: stacked plate/well/image panels with collapse arrows and metadata toggles, right-click well annotation, Comparisons settings (group comparison figure/tables, representative images by five methods). 34 new captions ship as AI-authored, independently AI-peered translations in nine languages under immutable reviews fb2f951b; catalogs, caption arrivals and setting consumers regenerated. Three overview workflow tests (font override, full-app dialog filters) fail identically on the untouched base and remain open.
 
 2026-10-24 — Round-2 maintainer feedback recorded above: Overview becomes its own first Core module with standard settings rows, Image/Enhancement categories, Original buttons, tile-size slider and standard Actions (A); Measurements category and multiprocess backend go to agent M.
+2026-10-24 — Maintainer reversed the own-module idea: Overview stays a closable tab inside Mask generation, opened only by the existing source-field icon; layered-condition comparisons and stacked image views added to round 2.
