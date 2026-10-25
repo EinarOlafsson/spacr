@@ -1637,7 +1637,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Detection Thresholds", (
             "CP_prob", "flow_threshold", "minimum_object_size", "rescale", "resample", "fill_in",
         )),
-        ("Image Geometry", ("resize", "target_height", "target_width")),
+        ("Image Geometry", ("plaque_well_resize", "plaque_well_resize_side",
+                            "plaque_well_resize_max_factor", "resize", "target_height",
+                            "target_width")),
         ("Background & Denoising", (
             "remove_background", "background", "Signal_to_noise",
         )),

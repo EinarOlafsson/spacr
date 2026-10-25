@@ -165,6 +165,44 @@ ones. Existing masks without a sidecar retain their measurements and have
 blank diagnostic columns. Figure workflows with a custom callback returning
 only labels also leave the diagnostic columns blank.
 
+Well resize
+-----------
+
+A plaque model learns plaques at the pixel size it was trained on. Very small
+plaques are the hardest case: Cellpose needs an object roughly 15 pixels or
+more across to follow its flows reliably. In a perfect-flow reconstruction
+test on the curated plaque masks, only 54% of plaques smaller than 5 pixels
+could be recovered at their native size, against 99% after a 4x enlargement.
+
+**Well resize** (``plaque_well_resize``) segments each well at a fixed size.
+The wells are found with the zoo's well detector
+(``toxoplasma_well_detector_v2``); when none is found, the whole image is one
+well. Each well is resized so that its longest side is
+``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at
+``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is
+never capped. Each resized well is scaled to its own 1st and 99th intensity
+percentiles and segmented at that scale, so the ``diameter`` setting is not
+used. Its plaques are then mapped back to the original pixels and given
+unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque
+mode's preview and run read the image with the same loader (grey stays grey,
+16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the
+scanner's ceiling) and make the same call, so they give the same masks. In
+Figure mode, each detected crop is resized whole.
+
+The setting takes three values. ``auto``, the default, follows the selected
+model. A model whose zoo record declares
+``preprocess: {"well_resize": {"side": 1500, "max_factor": 6}}`` turns well
+resize on with those values. A checkpoint can declare the same in a
+``<checkpoint>.preprocess.json`` file beside it. Plaque model v6 was trained
+this way. The metadata may also carry the thresholds chosen on the model's
+validation fields, for example
+``"thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}`` for v6. In
+``auto`` they replace ``CP_prob``, ``flow_threshold`` and
+``minimum_object_size``. Models that declare nothing, including
+``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size
+settings and your own thresholds with any model, and ``off`` turns well
+resize off.
+
 Contribute training data
 -------------------------
 

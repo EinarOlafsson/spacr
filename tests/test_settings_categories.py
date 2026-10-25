@@ -379,6 +379,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # F564 verified local checkpoint reuse (9bfaea5901).
     "counterfactual_checkpoint", "counterfactual_checkpoint_sha256",
     "minimum_object_size",
+    "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",

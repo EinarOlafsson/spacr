@@ -3821,6 +3821,50 @@ def resolve(key_or_path: Any,
 
 
 
+def _model_preprocess(requested: Any,
+                      records: Optional[Sequence[Mapping[str, Any]]] = None
+                      ) -> Dict[str, Any]:
+    """The preprocessing a model declares it was trained with, or ``{}``.
+
+    A zoo record may carry ``preprocess``, for example
+    ``{"well_resize": {"side": 1500, "max_factor": 6}}`` for a plaque model
+    trained on resized wells; :func:`spacr.plaque._well_resize_plan` reads it
+    so selecting that model turns well resize on by default. A checkpoint
+    file may declare the same in a ``<checkpoint>.preprocess.json`` beside
+    it, which wins over the record.
+
+    :param requested: a zoo key, a record ``name``/``remote_name``, or a
+        checkpoint path (matched to a record by its file name).
+    :param records: the records to search; defaults to
+        :data:`BUNDLED_REMOTE_MODELS`.
+    :returns: a copy of the declaration, ``{}`` when none.
+    """
+    from copy import deepcopy
+
+    text = str(requested or "").strip()
+    if not text:
+        return {}
+    sidecar = text + ".preprocess.json"
+    if os.path.isfile(text) and os.path.isfile(sidecar):
+        try:
+            with open(sidecar, encoding="utf-8") as handle:
+                data = json.load(handle)
+        except (OSError, ValueError) as exc:
+            LOG.warning("ignoring unreadable %s: %s", sidecar, exc)
+        else:
+            if isinstance(data, Mapping):
+                data = data.get("preprocess", data)
+                if isinstance(data, Mapping):
+                    return deepcopy(dict(data))
+    base = os.path.basename(text)
+    for record in (BUNDLED_REMOTE_MODELS if records is None else records):
+        names = {str(record.get(k) or "") for k in ("key", "name", "remote_name")}
+        if text in names or base in names - {""}:
+            declared = record.get("preprocess")
+            return deepcopy(dict(declared)) if isinstance(declared, Mapping) else {}
+    return {}
+
+
 def _model_input_kinds(module, settings):
     """Describe file-model consumers without loading a model or inspecting paths."""
     key = getattr(module, "key", str(module))

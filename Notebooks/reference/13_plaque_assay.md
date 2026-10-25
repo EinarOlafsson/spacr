@@ -112,10 +112,13 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Image Geometry (3 settings)</summary>
+<summary>Image Geometry (6 settings)</summary>
 
 #### Image Geometry
 
+- **`plaque_well_resize`** *(optional)* — (str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. When on, the diameter setting is not used. Default 'auto'. Default: `'auto'`.
+- **`plaque_well_resize_side`** *(optional)* — (int) - Longest side in pixels that each detected well is resized to before segmentation when plaque well resize is on. Larger values make small plaques bigger for the model and cost more time and memory; masks are mapped back to the original pixels. Default 1500. Default: `1500`.
+- **`plaque_well_resize_max_factor`** *(optional)* — (float or int) - Largest enlargement plaque well resize applies to a small well or a low-resolution image; shrinking a large well is never limited. It stops a tiny image from being magnified far beyond what its pixels can show. Default 6. Default: `6.0`.
 - **`resize`** *(optional)* — (bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis). Default: `True`.
 - **`target_height`** *(optional)* — (int) - Height in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_height and target_width are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.
 - **`target_width`** *(optional)* — (int) - Width in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_width and target_height are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.

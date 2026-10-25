@@ -2296,17 +2296,19 @@ def _validated_prior_plaque_callables(callables):
     assert item.category == "function" and item.exposure == "autoapi"
     assert item.variant_count == 1 and item.docless_variant_count == 0
     assert item.parameters == {
-        "image", "model", "settings", "return_flows", "return_metrics"}
+        "image", "model", "settings", "return_flows", "return_metrics",
+        "well_resize", "whole_frame"}
     assert item.required_parameters == {"image", "model", "settings"}
     assert item.accepted_documented_parameters == item.parameters
-    assert "return_metrics" in _documented_parameter_names(item.docstring)
+    assert {"return_metrics", "well_resize", "whole_frame"} <= _documented_parameter_names(
+        item.docstring)
     figure_symbol = "spacr.plaque_papers.measure_figure_folder"
     figure = next(item for item in callables if item.symbol == figure_symbol)
     parameters = {
         "src", "dst", "detector", "segmenter", "imgsz", "confidence",
         "confirm_each", "plate_format", "pixels_per_um", "formation_hours",
         "growth_settings", "legends", "annotations", "read_text", "detect",
-        "segment", "text_options", "min_size",
+        "segment", "text_options", "min_size", "well_resize",
     }
     assert figure.parameters == figure.accepted_documented_parameters == parameters
     assert figure.required_parameters == {"src"}
@@ -2329,7 +2331,8 @@ def _validated_prior_plaque_callables(callables):
         "minimum plaque area in square pixels of the input well crop, without "
         "rounding; 0 disables small-object removal. None leaves the segmenter's "
         "default unchanged. Ignored for a supplied ``segment``.")
-    additions = {symbol: {"return_metrics"}, figure_symbol: {"min_size"}}
+    additions = {symbol: {"return_metrics", "well_resize", "whole_frame"},
+                 figure_symbol: {"min_size", "well_resize"}}
     return [replace(item, parameters=item.parameters - additions[item.symbol],
                     accepted_documented_parameters=(
                         item.accepted_documented_parameters - additions[item.symbol]))

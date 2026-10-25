@@ -3555,6 +3555,9 @@ expected_types = {
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
     "minimum_object_size": (float, int),
+    "plaque_well_resize": str,
+    "plaque_well_resize_side": int,
+    "plaque_well_resize_max_factor": (float, int),
     "colony_counting": bool,
     "colony_dilution": (float, int, dict, str),
     "colony_plated_volume_ul": (float, int),
@@ -4901,6 +4904,9 @@ tooltips = {
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
     "minimum_object_size": "(float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0.",
+    "plaque_well_resize": "(str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. When on, the diameter setting is not used. Default 'auto'.",
+    "plaque_well_resize_side": "(int) - Longest side in pixels that each detected well is resized to before segmentation when plaque well resize is on. Larger values make small plaques bigger for the model and cost more time and memory; masks are mapped back to the original pixels. Default 1500.",
+    "plaque_well_resize_max_factor": "(float or int) - Largest enlargement plaque well resize applies to a small well or a low-resolution image; shrinking a large well is never limited. It stops a tiny image from being magnified far beyond what its pixels can show. Default 6.",
     "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
     "colony_dilution": "(float, int, dict or str) - Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
     "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
@@ -5803,7 +5809,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays", "export_vvvv"],
 
-    "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -6985,6 +6991,9 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('plaque_model', 'toxoplasma_plaque_v5')
     settings.setdefault('plaque_mode', 'plaque')
     settings.setdefault('minimum_object_size', 0.0)
+    settings.setdefault('plaque_well_resize', 'auto')
+    settings.setdefault('plaque_well_resize_side', 1500)
+    settings.setdefault('plaque_well_resize_max_factor', 6.0)
     settings.setdefault('figure_detector', 'toxoplasma_well_detector_v2')
     settings.setdefault('figure_imgsz', '640,1280')
     settings.setdefault('figure_confidence', 0.25)

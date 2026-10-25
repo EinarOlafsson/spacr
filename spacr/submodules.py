@@ -1346,11 +1346,9 @@ def _plaque_imread(path):
     :param path: the image file.
     :returns: the pixels.
     """
-    if str(path).lower().endswith('.scn'):
-        from .convert import read_scn, scn_to_rgb8
+    from .plaque import _read_plaque_image
 
-        return scn_to_rgb8(*read_scn(path))
-    return cellpose.io.imread(path)
+    return _read_plaque_image(path)
 
 
 def _resolve_well_detector(settings):
@@ -1843,6 +1841,18 @@ def _plaque_cellpose_model(model_path):
         raise explained from exc
 
 
+def _figure_well_resize(settings):
+    """Figure mode's well-resize plan: each detected crop resized whole.
+
+    :param settings: the plaque settings.
+    :returns: the plan of :func:`spacr.plaque._well_resize_plan` without a
+        well detector, since a Figure crop is already one well, or ``None``.
+    """
+    from .plaque import _well_resize_plan
+
+    return _well_resize_plan(settings, detect=False)
+
+
 def _segment_plaque_folder(settings, model_path):
     """Plaque mode's segmentation: every image in ``src``, one mask each.
 
@@ -1855,7 +1865,8 @@ def _segment_plaque_folder(settings, model_path):
     :param model_path: the plaque checkpoint.
     :returns: how many images were segmented.
     """
-    from .plaque import segment_plaque_image, _PLAQUE_METRIC_COLUMNS, _plaque_mask_digest
+    from .plaque import (segment_plaque_image, _PLAQUE_METRIC_COLUMNS,
+                         _plaque_mask_digest, _well_resize_plan)
     from .tiff_io import write_tiff
     from .tabular import write_table
 
@@ -1867,9 +1878,14 @@ def _segment_plaque_folder(settings, model_path):
     if not names:
         return 0
     model = _plaque_cellpose_model(model_path)
+    well_resize = _well_resize_plan(settings, fetch=True)
+    if well_resize:
+        print(f"well resize on: longest side {well_resize['side']:g} px, "
+              f"enlargement at most {well_resize['max_factor']:g}x")
     for index, name in enumerate(names, start=1):
         image = _plaque_imread(os.path.join(src, name))
-        labels, metrics = segment_plaque_image(model, image, settings, return_metrics=True)
+        labels, metrics = segment_plaque_image(model, image, settings, return_metrics=True,
+                                               well_resize=well_resize)
         labels = np.asarray(labels)
         stem = os.path.splitext(name)[0]
         write_tiff(os.path.join(dst, f"{stem}.tif"),
@@ -2027,6 +2043,7 @@ def _analyze_plaque_figures(settings, model_path):
             detector=detector,
             segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
             min_size=float(settings.get('minimum_object_size') or 0),
+            well_resize=_figure_well_resize(settings),
             confidence=float(settings.get('figure_confidence', 0.25)),
             confirm_each=bool(settings.get('confirm_annotations', False)),
             plate_format=settings.get('plate_format'),

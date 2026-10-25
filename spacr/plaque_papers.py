@@ -2347,7 +2347,8 @@ def _zoo_path(key: str, cache: Path, *, kind=None, setting=None) -> Tuple[str, s
 
 
 def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
-                        min_size: Optional[float] = None) -> Callable:
+                        min_size: Optional[float] = None,
+                        well_resize: Optional[Dict[str, Any]] = None) -> Callable:
     """A plaque segmenter from a Cellpose checkpoint.
 
     A Cellpose 3 checkpoint, which Cellpose 4 refuses, segments through the
@@ -2358,9 +2359,14 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
     :param return_metrics: Include raw probability and flow diagnostics.
     :param min_size: optional unrounded minimum object area in input pixels;
         None leaves the backend's default unchanged.
+    :param well_resize: a plan from :func:`spacr.plaque._well_resize_plan`;
+        each crop is then resized whole to the size the model was trained at
+        (:func:`spacr.plaque._segment_resized_wells`) and its plaques mapped
+        back to the crop's pixels.
     :returns: ``fn(crop) -> labels`` or, with metrics, ``(labels, metrics)``.
     """
     from cellpose import models
+    from .plaque import _segment_resized_wells
 
     try:
         from .accelerator import cellpose_kwargs
@@ -2388,6 +2394,15 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
     def segment(crop: np.ndarray) -> Any:
         """The Cellpose label mask of one plaque image crop."""
         from .plaque import _plaque_segmentation_metrics, _host_array
+        if well_resize:
+            declared = dict(well_resize.get("thresholds") or {})
+            least = declared.pop("min_size", min_size)
+            result = _segment_resized_wells(
+                model, np.asarray(crop), well_resize, eval_options=declared,
+                min_size=least,
+                whole_frame=True, want_metrics=return_metrics)
+            return ((result["labels"], result["metrics"]) if return_metrics
+                    else result["labels"])
         output = model.eval(crop, **size_options)
         masks = _host_array(output[0])
         return (masks, _plaque_segmentation_metrics(masks, output)) if return_metrics else masks
@@ -3157,7 +3172,8 @@ def measure_figure_folder(
         annotations: Any = None, read_text: Optional[Callable] = None,
         detect: Optional[Callable] = None, segment: Optional[Callable] = None,
         text_options: Optional[TextOptions] = None,
-        min_size: Optional[float] = None) -> Dict[str, Any]:
+        min_size: Optional[float] = None,
+        well_resize: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
     The function does not prompt. Legends come from ``legends`` (default
@@ -3190,6 +3206,9 @@ def measure_figure_folder(
     :param detect: passed to :func:`find_plaque_regions`.
     :param segment: ``fn(crop) -> labels``.
     :param text_options: how the text is read (:class:`TextOptions`).
+    :param well_resize: well-resize plan for the segmenter (see
+        :func:`_cellpose_segmenter`); ``None`` segments each crop as it is.
+        Ignored for a supplied ``segment``.
     :param min_size: minimum plaque area in square pixels of the input well
         crop, without rounding; 0 disables small-object removal. None leaves
         the segmenter's default unchanged. Ignored for a supplied ``segment``.
@@ -3219,8 +3238,9 @@ def measure_figure_folder(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
+        resize_options = {} if well_resize is None else {"well_resize": well_resize}
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True,
-                                      min_size=min_size)
+                                      min_size=min_size, **resize_options)
     run_id = _start_run(
         connection, entry="folder", source=str(src.resolve()),
         detector=detector_id, segmenter=segmenter_id,

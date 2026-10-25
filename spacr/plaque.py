@@ -481,10 +481,574 @@ def _plaque_mask_digest(labels):
     return digest.hexdigest()
 
 
+def _read_plaque_image(path: Any) -> np.ndarray:
+    """Read one plaque image for segmentation, the same way everywhere.
+
+    Plaque mode's preview and its run both segment what this returns, so
+    they cannot disagree about grey, 16-bit or colour files. A Bio-Rad
+    ``.scn`` is rendered by :func:`spacr.convert.scn_to_rgb8` (linear from 0
+    to the scanner's ceiling, 4095 on a Gel Doc); every other file is read by
+    :func:`cellpose.io.imread` in its own dtype. The array is then put in the
+    layout plaque model v6 was trained on: channels last, an alpha channel
+    dropped, a two-channel image reduced to its first channel and grey kept
+    grey. An 8-bit RGB image is returned unchanged.
+
+    :param path: the image file.
+    :returns: ``H x W`` or ``H x W x 3`` in the file's dtype.
+    :raises ValueError: when the file cannot be read or is not 2-D.
+    """
+    import os
+
+    if str(path).lower().endswith(".scn"):
+        from .convert import read_scn, scn_to_rgb8
+
+        return scn_to_rgb8(*read_scn(path))
+    import cellpose.io
+
+    image = cellpose.io.imread(os.fspath(path))
+    if image is None:
+        raise ValueError(f"Cannot read {path}")
+    image = np.asarray(image)
+    if image.ndim > 2:
+        image = np.squeeze(image)
+    if (image.ndim == 3 and image.shape[0] in (1, 2, 3, 4)
+            and image.shape[-1] not in (1, 2, 3, 4)):
+        image = np.moveaxis(image, 0, -1)
+    if image.ndim == 3 and image.shape[-1] == 4:
+        image = image[..., :3]
+    if image.ndim == 3 and image.shape[-1] in (1, 2):
+        image = image[..., 0]
+    if image.ndim not in (2, 3):
+        raise ValueError(f"Unsupported plaque image shape {image.shape} for {path}")
+    return np.ascontiguousarray(image)
+
+
+def _grey_if_equal_channels(image: np.ndarray) -> np.ndarray:
+    """Grey stored as three identical channels, as the grey image it is.
+
+    Plaque model v6 saw grey fields as one channel (and two empty ones);
+    a grey Gel Doc or literature image saved as RGB is given to it the same
+    way. Colour images are returned unchanged.
+
+    :param image: ``H x W`` or ``H x W x C``.
+    :returns: ``H x W`` when every channel equals the first, else ``image``.
+    """
+    if (image.ndim == 3 and image.shape[-1] >= 2
+            and all(np.array_equal(image[..., 0], image[..., c])
+                    for c in range(1, image.shape[-1]))):
+        return np.ascontiguousarray(image[..., 0])
+    return image
+
+
+_WELL_RESIZE_SIDE = 1500
+"""Longest side, in pixels, a well is resized to when well resize is on.
+
+Plaque model v6 was trained on wells resized this way, so a well segmented at
+any other size is not the picture the model learned from."""
+
+_WELL_RESIZE_MAX_FACTOR = 6.0
+"""Largest enlargement well resize applies; shrinking is never capped."""
+
+_WELL_RESIZE_DETECTOR = "toxoplasma_well_detector_v2"
+"""Zoo key of the well detector well resize finds wells with
+(``yolo_welldetect_v4.pt``, the detector plaque model v6 was trained with)."""
+
+_WELL_RESIZE_DETECTION = dict(confidence=0.35, padding_fraction=0.025,
+                              imgsz=640, min_box_px=12,
+                              aspect_range=(0.55, 1.8), merge_overlap=0.4)
+"""Detection rules of plaque model v6's training-time well normalization."""
+
+_WELL_RESIZE_MODES = ("auto", "on", "off")
+
+_WELL_DETECTORS: Dict[str, Any] = {}
+
+
+def _well_resize_mode(value: Any) -> str:
+    """Read the ``plaque_well_resize`` setting as ``'auto'``, ``'on'`` or ``'off'``.
+
+    :param value: the setting; ``True``/``False`` and their spellings are
+        accepted, and empty means ``'auto'``.
+    :returns: the mode.
+    :raises ValueError: for any other value.
+    """
+    if value is True:
+        return "on"
+    if value is False:
+        return "off"
+    text = str(value if value is not None else "").strip().lower()
+    if text in ("", "auto", "model", "default"):
+        return "auto"
+    if text in ("on", "true", "yes", "1"):
+        return "on"
+    if text in ("off", "false", "no", "0", "none"):
+        return "off"
+    raise ValueError(
+        f"plaque_well_resize must be one of {_WELL_RESIZE_MODES}, got {value!r}")
+
+
+def _resolve_well_resize_detector(requested: Any, fetch: bool) -> Optional[str]:
+    """The well detector checkpoint on disk, or ``None`` when it is not here.
+
+    :param requested: a checkpoint path or a model-zoo detector key.
+    :param fetch: download a zoo detector that is missing.
+    :returns: the path, or ``None``.
+    """
+    import os
+
+    requested = str(requested or _WELL_RESIZE_DETECTOR)
+    if os.path.isfile(requested):
+        return requested
+    try:
+        from . import model_zoo
+
+        path = model_zoo._ensure_model_file(
+            requested, kinds=("detector",), download=fetch,
+            setting="plaque_well_resize")
+    except Exception as exc:
+        LOG.warning("well resize: the well detector %s is unavailable (%s)",
+                    requested, exc)
+        return None
+    if path is None or not os.path.isfile(str(path)):
+        return None
+    return str(path)
+
+
+def _well_resize_plan(settings: Dict[str, Any], *, fetch: bool = False,
+                      detect: bool = True) -> Optional[Dict[str, Any]]:
+    """Whether and how to resize wells before Cellpose, from the settings.
+
+    ``plaque_well_resize`` is ``'auto'`` (follow the plaque model),
+    ``'on'`` or ``'off'``. In ``'auto'`` a model that declares
+    ``preprocess: {"well_resize": {"side": ..., "max_factor": ...}}``
+    (:func:`spacr.model_zoo._model_preprocess`) switches it on with its own
+    values, and a model that declares nothing leaves it off. ``'on'`` uses
+    ``plaque_well_resize_side`` and ``plaque_well_resize_max_factor``.
+
+    :param settings: the plaque settings.
+    :param fetch: download the well detector when it is missing; the live
+        preview passes ``False`` so a refresh never starts a download.
+    :param detect: find the well detector; ``False`` for Figure mode, whose
+        crops are already single wells.
+    :returns: ``None`` when off, else ``{'side', 'max_factor', 'detector',
+        'niter', 'max_size_fraction', 'thresholds'}``; ``detector`` is
+        ``None`` when the checkpoint is not on this machine, and every image
+        is then resized whole. ``thresholds`` holds the cell-probability,
+        flow and minimum-size values the model declares
+        (``preprocess: {"thresholds": {"cellprob": ..., "flow": ...,
+        "min_size": ...}}``) and is used only in ``'auto'``, in place of
+        ``CP_prob``, ``flow_threshold`` and ``minimum_object_size``; ``'on'``
+        keeps the settings' own thresholds.
+    """
+    mode = _well_resize_mode(settings.get("plaque_well_resize", "auto"))
+    if mode == "off":
+        return None
+    from .model_zoo import _model_preprocess
+
+    preprocess = _model_preprocess(settings.get("plaque_model"))
+    declared = preprocess.get("well_resize")
+    declared = dict(declared) if isinstance(declared, dict) else None
+    thresholds = None
+    if mode == "auto":
+        if not declared:
+            return None
+        thresholds = _declared_thresholds(
+            declared.get("thresholds", preprocess.get("thresholds")))
+        side = float(declared.get("side", _WELL_RESIZE_SIDE))
+        max_factor = float(declared.get("max_factor", _WELL_RESIZE_MAX_FACTOR))
+    else:
+        side = _number(settings, "plaque_well_resize_side", _WELL_RESIZE_SIDE)
+        max_factor = _number(settings, "plaque_well_resize_max_factor",
+                             _WELL_RESIZE_MAX_FACTOR)
+    if not side or side <= 0 or not max_factor or max_factor <= 0:
+        raise ValueError("well resize needs a positive side and maximum factor")
+    declared = declared or {}
+    detector = None
+    if detect:
+        detector = _resolve_well_resize_detector(
+            declared.get("detector", _WELL_RESIZE_DETECTOR), fetch)
+    if detect and detector is None:
+        LOG.warning("well resize: no well detector on this machine, so each "
+                    "image is resized whole")
+    return {"side": float(side), "max_factor": float(max_factor),
+            "detector": detector,
+            "niter": int(declared.get("niter", 200)),
+            "max_size_fraction": float(declared.get("max_size_fraction", 0.4)),
+            "thresholds": thresholds}
+
+
+def _declared_thresholds(value: Any) -> Optional[Dict[str, float]]:
+    """A model's validated inference thresholds, as ``model.eval`` options.
+
+    :param value: ``{"cellprob": ..., "flow": ..., "min_size": ...}`` from
+        the model's ``preprocess`` metadata; any key may be left out.
+    :returns: ``{'cellprob_threshold', 'flow_threshold', 'min_size'}`` for
+        the keys given, or ``None`` when nothing is declared.
+    :raises ValueError: for an unknown key or a non-numeric value.
+    """
+    if not isinstance(value, dict) or not value:
+        return None
+    names = {"cellprob": "cellprob_threshold", "flow": "flow_threshold",
+             "min_size": "min_size"}
+    unknown = set(value) - set(names)
+    if unknown:
+        raise ValueError(f"unknown plaque model thresholds {sorted(unknown)}")
+    return {names[key]: float(number) for key, number in value.items()}
+
+
+def _well_resize_scale(width: int, height: int, side: float,
+                       max_factor: float) -> float:
+    """The isotropic scale for one well: ``min(side / longest, max_factor)``.
+
+    :param width: well box width in pixels.
+    :param height: well box height in pixels.
+    :param side: target longest side.
+    :param max_factor: cap on enlargement; shrinking is not capped.
+    :returns: the scale.
+    """
+    return min(float(side) / max(width, height), float(max_factor))
+
+
+def _well_detector_input(image: np.ndarray) -> np.ndarray:
+    """An 8-bit BGR copy of ``image`` for the well detector only.
+
+    Non-8-bit images are stretched between their 1st and 99.8th percentiles,
+    as plaque model v6's training geometry was.
+
+    :param image: ``H x W`` or ``H x W x 3`` RGB.
+    :returns: ``H x W x 3`` uint8 BGR.
+    """
+    import cv2
+
+    if image.dtype != np.uint8:
+        low, high = np.percentile(image, [1, 99.8])
+        image = (np.clip((image.astype(np.float64) - low) / max(1, high - low),
+                         0, 1) * 255).astype(np.uint8)
+    if image.ndim == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    return np.ascontiguousarray(image[..., ::-1])
+
+
+def _merge_well_boxes(records: Sequence[Dict[str, Any]],
+                      shape: Tuple[int, int]) -> List[Dict[str, Any]]:
+    """Merge overlapping duplicate well boxes; keep one centred well whole.
+
+    Two boxes overlapping by at least 40% of the smaller are one well and
+    become their union. A single large, centred box in a near-square image
+    is replaced by the whole frame, as plaque model v6's training did.
+
+    :param records: ``{'box': [x0, y0, x1, y1], 'confidence': float|None}``.
+    :param shape: ``(height, width)`` of the image.
+    :returns: the boxes in reading order.
+    """
+    height, width = shape
+    overlap = _WELL_RESIZE_DETECTION["merge_overlap"]
+    boxes = [dict(box=list(r["box"]), confidence=r["confidence"]) for r in records]
+    changed = True
+    while changed:
+        changed = False
+        for i, a in enumerate(boxes):
+            x0, y0, x1, y1 = a["box"]
+            area = (x1 - x0) * (y1 - y0)
+            for j in range(i + 1, len(boxes)):
+                b = boxes[j]
+                u0, v0, u1, v1 = b["box"]
+                other = (u1 - u0) * (v1 - v0)
+                inter = (max(0, min(x1, u1) - max(x0, u0))
+                         * max(0, min(y1, v1) - max(y0, v0)))
+                if inter / max(1, min(area, other)) >= overlap:
+                    scores = [s for s in (a["confidence"], b["confidence"])
+                              if s is not None]
+                    boxes[i] = dict(box=[min(x0, u0), min(y0, v0),
+                                         max(x1, u1), max(y1, v1)],
+                                    confidence=max(scores) if scores else None)
+                    boxes.pop(j)
+                    changed = True
+                    break
+            if changed:
+                break
+    if len(boxes) == 1 and .7 <= width / max(1, height) <= 1.43:
+        x0, y0, x1, y1 = boxes[0]["box"]
+        area = (x1 - x0) * (y1 - y0) / (height * width)
+        centred = (abs((x0 + x1) / 2 - width / 2) < .2 * width
+                   and abs((y0 + y1) / 2 - height / 2) < .2 * height)
+        if area >= .4 and centred:
+            boxes[0]["box"] = [0, 0, width, height]
+            boxes[0]["whole_frame_rule"] = True
+    return sorted(boxes, key=lambda b: (b["box"][1], b["box"][0]))
+
+
+def _raw_well_detections(image: np.ndarray,
+                         weights: str) -> List[Tuple[float, float, float, float, float]]:
+    """The detector's ``(x0, y0, x1, y1, score)`` boxes for well resize.
+
+    :param image: the field, ``H x W`` or ``H x W x 3`` RGB.
+    :param weights: the detector checkpoint.
+    :returns: unfiltered boxes in pixels. Without ``ultralytics`` in this
+        environment the figure reader's environment answers instead
+        (:func:`spacr.plaque_papers.reader_detect`), which reports whole
+        pixels.
+    """
+    import importlib.util
+
+    bgr = _well_detector_input(image)
+    rules = _WELL_RESIZE_DETECTION
+    if importlib.util.find_spec("ultralytics") is None:
+        from .plaque_papers import reader_detect
+
+        found = reader_detect(np.ascontiguousarray(bgr[..., ::-1]), weights,
+                              confidence=rules["confidence"],
+                              imgsz=rules["imgsz"])
+        return [(float(b.x0), float(b.y0), float(b.x1), float(b.y1),
+                 float(b.confidence)) for b in found]
+    model = _WELL_DETECTORS.get(weights)
+    if model is None:
+        model = _WELL_DETECTORS[weights] = _load_detector(weights)
+    prediction = model.predict(bgr, imgsz=rules["imgsz"], device="cpu",
+                               conf=rules["confidence"], verbose=False)[0]
+    xyxy = _host_array(prediction.boxes.xyxy).reshape(-1, 4)
+    scores = _host_array(prediction.boxes.conf).ravel()
+    return [(*map(float, box), float(score)) for box, score in zip(xyxy, scores)]
+
+
+def _well_resize_boxes(image: np.ndarray, weights: Optional[str], *,
+                       detections: Optional[Sequence[Sequence[float]]] = None
+                       ) -> Dict[str, Any]:
+    """The well boxes well resize segments, by plaque model v6's rules.
+
+    Boxes smaller than 12 pixels or with a side ratio outside 0.55 to 1.8
+    are dropped, the rest padded by 2.5% of their longer side and clipped,
+    duplicates merged (:func:`_merge_well_boxes`); with no box left the whole
+    frame is one well.
+
+    :param image: the field.
+    :param weights: detector checkpoint, or ``None`` for the whole frame.
+    :param detections: precomputed ``(x0, y0, x1, y1, score)`` boxes, used
+        instead of running the detector.
+    :returns: ``{'boxes': [{'box', 'confidence'}], 'fallback_to_frame': bool}``.
+    """
+    import math
+
+    height, width = image.shape[:2]
+    if detections is None:
+        detections = _raw_well_detections(image, weights) if weights else []
+    rules = _WELL_RESIZE_DETECTION
+    low, high = rules["aspect_range"]
+    boxes = []
+    for x0, y0, x1, y1, score in detections:
+        bw, bh = x1 - x0, y1 - y0
+        if min(bw, bh) < rules["min_box_px"] or not low < bw / max(1, bh) < high:
+            continue
+        pad = rules["padding_fraction"] * max(bw, bh)
+        boxes.append(dict(box=[max(0, int(math.floor(x0 - pad))),
+                               max(0, int(math.floor(y0 - pad))),
+                               min(width, int(math.ceil(x1 + pad))),
+                               min(height, int(math.ceil(y1 + pad)))],
+                          confidence=float(score)))
+    fallback = not boxes
+    if fallback:
+        boxes = [dict(box=[0, 0, width, height], confidence=None)]
+    return {"boxes": _merge_well_boxes(boxes, (height, width)),
+            "fallback_to_frame": fallback}
+
+
+def _well_resize_forward(image: np.ndarray, box: Sequence[int], side: float,
+                         max_factor: float) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Crop one well and resize it isotropically for Cellpose.
+
+    Area interpolation when shrinking, bilinear when enlarging, an exact copy
+    at scale 1; no letterbox.
+
+    :param image: the field.
+    :param box: ``[x0, y0, x1, y1]`` in pixels.
+    :param side: target longest side.
+    :param max_factor: enlargement cap.
+    :returns: ``(crop, meta)``; ``meta`` holds the box, the resized
+        ``width``/``height`` and the ``ratio``.
+    :raises ValueError: for an empty box.
+    """
+    import cv2
+
+    x0, y0, x1, y1 = (int(v) for v in box)
+    width, height = x1 - x0, y1 - y0
+    if width <= 0 or height <= 0:
+        raise ValueError(f"Empty box {box}")
+    ratio = _well_resize_scale(width, height, side, max_factor)
+    nw, nh = max(1, round(width * ratio)), max(1, round(height * ratio))
+    interpolation = cv2.INTER_AREA if ratio < 1 else cv2.INTER_LINEAR
+    if abs(nw / width - 1) < 1e-12 and abs(nh / height - 1) < 1e-12:
+        interpolation = None
+    region = np.ascontiguousarray(image[y0:y1, x0:x1])
+    if region.dtype not in (np.uint8, np.uint16, np.float32):
+        region = region.astype(np.float32)
+    crop = (region.copy() if interpolation is None
+            else cv2.resize(region, (nw, nh), interpolation=interpolation))
+    if image.ndim == 3 and crop.ndim == 2:
+        crop = crop[..., None]
+    return crop, {"box": [x0, y0, x1, y1], "width": nw, "height": nh,
+                  "scale_x": nw / width, "scale_y": nh / height,
+                  "ratio": ratio}
+
+
+def _well_resize_inverse(mask: np.ndarray, meta: Dict[str, Any]) -> np.ndarray:
+    """Map crop-space labels back onto the well's original pixels.
+
+    Nearest neighbour sampled at pixel centres (``INTER_NEAREST_EXACT``);
+    plain ``INTER_NEAREST`` shifts every label by half a pixel.
+
+    :param mask: labels in crop space.
+    :param meta: what :func:`_well_resize_forward` returned.
+    :returns: uint32 labels of the box's size.
+    :raises ValueError: when ``mask`` does not match ``meta``.
+    """
+    import cv2
+
+    x0, y0, x1, y1 = meta["box"]
+    if mask.shape[:2] != (meta["height"], meta["width"]):
+        raise ValueError("Mask does not match the forward transform")
+    return cv2.resize(np.asarray(mask).astype(np.float64), (x1 - x0, y1 - y0),
+                      interpolation=cv2.INTER_NEAREST_EXACT).astype(np.uint32)
+
+
+def _paste_well_labels(full: np.ndarray, mask: np.ndarray,
+                       meta: Dict[str, Any]) -> Dict[int, int]:
+    """Add one well's plaques to the full-image labels, in place.
+
+    Labels already in ``full`` win where wells overlap; the well's ids are
+    offset past ``full.max()`` so every plaque keeps a unique id.
+
+    :param full: uint32 labels of the whole image.
+    :param mask: the well's labels in crop space.
+    :param meta: what :func:`_well_resize_forward` returned.
+    :returns: crop id to full-image id, for ids that kept any pixel.
+    """
+    region = _well_resize_inverse(mask, meta)
+    x0, y0, x1, y1 = meta["box"]
+    ids = np.unique(region)
+    ids = ids[ids > 0]
+    if not len(ids):
+        return {}
+    lut = np.zeros(int(region.max()) + 1, np.uint32)
+    lut[ids] = np.arange(1, len(ids) + 1, dtype=np.uint32) + np.uint32(full.max())
+    target = full[y0:y1, x0:x1]
+    new = lut[region]
+    free = (target == 0) & (new > 0)
+    target[free] = new[free]
+    kept = set(np.unique(new[free]).tolist())
+    return {int(i): int(lut[i]) for i in ids if int(lut[i]) in kept}
+
+
+def _well_resize_intensity(crop: np.ndarray) -> np.ndarray:
+    """Channels-first float32 input scaled per channel to its 1st/99th percentiles.
+
+    Grey goes in channel 0 with two zero channels; colour keeps three
+    channels. This is Cellpose's ``normalize99`` applied per crop, as plaque
+    model v6 was trained.
+
+    :param crop: ``h x w`` or ``h x w x c``.
+    :returns: ``3 x h x w`` float32.
+    """
+    x = np.asarray(crop, dtype=np.float32)
+    if x.ndim == 2:
+        x = np.stack([x, np.zeros_like(x), np.zeros_like(x)])
+    else:
+        x = np.moveaxis(x, -1, 0)
+        if x.shape[0] < 3:
+            x = np.concatenate([x, np.zeros((3 - x.shape[0], *x.shape[1:]),
+                                            np.float32)])
+        x = x[:3].copy()
+    for c in range(3):
+        low, high = np.percentile(x[c], [1, 99])
+        x[c] = (x[c] - low) / (high - low) if high - low > 1e-3 else 0
+    return x
+
+
+def _segment_resized_wells(model: Any, image: np.ndarray,
+                           plan: Dict[str, Any], *,
+                           eval_options: Optional[Dict[str, Any]] = None,
+                           min_size: Optional[float] = None,
+                           whole_frame: bool = False,
+                           want_flows: bool = False,
+                           want_metrics: bool = False) -> Dict[str, Any]:
+    """Segment every well at the size the plaque model was trained at.
+
+    Each well (:func:`_well_resize_boxes`, or the whole image with
+    ``whole_frame``) is resized (:func:`_well_resize_forward`), scaled to its
+    percentiles, segmented by Cellpose at its own scale (no diameter), and
+    its plaques mapped back and pasted into original pixels.
+
+    :param model: a Cellpose model.
+    :param image: the field.
+    :param plan: what :func:`_well_resize_plan` returned.
+    :param eval_options: thresholds passed to ``model.eval``.
+    :param min_size: minimum plaque area in ORIGINAL pixels, scaled into each
+        crop; ``None`` leaves Cellpose's default.
+    :param whole_frame: the image is already one well (a Figure crop).
+    :param want_flows: also return full-size flow and probability images.
+    :param want_metrics: also return per-plaque diagnostics, measured in
+        crop space and keyed by the pasted ids.
+    :returns: ``{'labels', 'boxes', 'flows', 'metrics'}``.
+    """
+    import math
+
+    import cv2
+
+    image = _grey_if_equal_channels(np.asarray(image))
+    height, width = image.shape[:2]
+    if whole_frame:
+        boxes = [dict(box=[0, 0, width, height], confidence=None)]
+    else:
+        boxes = _well_resize_boxes(image, plan.get("detector"))["boxes"]
+    full = np.zeros((height, width), np.uint32)
+    flow_rgb = np.zeros((height, width, 3), np.uint8) if want_flows else None
+    cellprob = None
+    drew_flows = False
+    written = np.zeros((height, width), bool) if want_flows else None
+    metrics: Dict[int, Dict[str, Any]] = {}
+    for record in boxes:
+        crop, meta = _well_resize_forward(image, record["box"], plan["side"],
+                                          plan["max_factor"])
+        options = dict(eval_options or {})
+        options.update(channel_axis=0, normalize=False, diameter=None,
+                       niter=max(int(plan.get("niter", 200)),
+                                 int(math.ceil(plan.get("niter", 200) * meta["ratio"]))),
+                       max_size_fraction=plan.get("max_size_fraction", 0.4))
+        if min_size is not None:
+            options["min_size"] = float(min_size) * meta["scale_x"] * meta["scale_y"]
+        output = model.eval(_well_resize_intensity(crop), **options)
+        labels = _host_array(output[0])
+        mapping = _paste_well_labels(full, labels, meta)
+        if want_metrics and mapping:
+            measured = _plaque_segmentation_metrics(labels, output)
+            for crop_id, full_id in mapping.items():
+                metrics[full_id] = measured.get(
+                    crop_id, dict.fromkeys(_PLAQUE_METRIC_COLUMNS))
+        if want_flows:
+            x0, y0, x1, y1 = meta["box"]
+            found = plaque_flow_outputs(output)
+            free = ~written[y0:y1, x0:x1]
+            if found["flow_rgb"] is not None:
+                back = cv2.resize(found["flow_rgb"], (x1 - x0, y1 - y0),
+                                  interpolation=cv2.INTER_LINEAR)
+                flow_rgb[y0:y1, x0:x1][free] = back[free]
+                drew_flows = True
+            if found["cellprob"] is not None:
+                back = cv2.resize(found["cellprob"], (x1 - x0, y1 - y0),
+                                  interpolation=cv2.INTER_LINEAR)
+                if cellprob is None:
+                    cellprob = np.full((height, width), float(back.min()), np.float32)
+                cellprob[y0:y1, x0:x1][free] = back[free]
+            written[y0:y1, x0:x1] = True
+    return {"labels": full, "boxes": boxes, "metrics": metrics,
+            "flows": {"flow_rgb": flow_rgb if drew_flows else None,
+                      "cellprob": cellprob}}
+
+
 def segment_plaque_image(model: Any, image: np.ndarray,
                          settings: Dict[str, Any], *,
                          return_flows: bool = False,
-                         return_metrics: bool = False) -> Any:
+                         return_metrics: bool = False,
+                         well_resize: Any = "settings",
+                         whole_frame: bool = False) -> Any:
     """Segment one plaque image the way both Plaque mode's preview and run do.
 
     The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
@@ -504,6 +1068,17 @@ def segment_plaque_image(model: Any, image: np.ndarray,
         Cell probability tabs show, from the same call.
     :param return_metrics: Return ``(labels, per_label_metrics)`` for saved
         assay tables. Mutually exclusive with ``return_flows``.
+    :param well_resize: the well-resize plan (:func:`_well_resize_plan`),
+        ``None`` for off, or ``"settings"`` to read it from ``settings``
+        without downloading the well detector. When on, each detected well
+        is resized so its longest side is ``side`` pixels (enlargement capped
+        at ``max_factor``), scaled to its 1st/99th percentiles and segmented
+        at that scale with no diameter, the way plaque model v6 was trained;
+        the plaques are mapped back to original pixels and given unique ids.
+        Thresholds the plan carries from the model replace ``CP_prob``,
+        ``flow_threshold`` and ``minimum_object_size``.
+    :param whole_frame: with well resize on, treat the image as one well
+        instead of detecting wells (a Figure mode crop already is one).
     :returns: the label image; with ``return_flows``, ``(labels, flows)``
         where ``flows`` is :func:`plaque_flow_outputs`.
     """
@@ -511,6 +1086,24 @@ def segment_plaque_image(model: Any, image: np.ndarray,
 
     if return_flows and return_metrics:
         raise ValueError("Choose flow images or per-plaque metrics, not both.")
+    if isinstance(well_resize, str) and well_resize == "settings":
+        well_resize = _well_resize_plan(settings, fetch=False)
+    if well_resize:
+        declared = dict(well_resize.get("thresholds") or {})
+        min_size = declared.pop("min_size", _number(settings, "minimum_object_size", 0.0))
+        options = {"flow_threshold": _number(settings, "flow_threshold", 0.4),
+                   "cellprob_threshold": _number(settings, "CP_prob", 0.0)}
+        options.update(declared)
+        result = _segment_resized_wells(
+            model, np.asarray(image), well_resize, eval_options=options,
+            min_size=min_size,
+            whole_frame=whole_frame, want_flows=return_flows,
+            want_metrics=return_metrics)
+        if return_metrics:
+            return result["labels"], result["metrics"]
+        if return_flows:
+            return result["labels"], result["flows"]
+        return result["labels"]
     diameter = _number(settings, "diameter", None)
     output = model.eval(image, channel_axis=cellpose_channel_axis(image),
                         diameter=diameter if diameter else None,

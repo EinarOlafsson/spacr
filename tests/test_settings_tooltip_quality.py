@@ -1172,6 +1172,24 @@ if app_key == "mask":
         for app in ("mask", "measure", "external_masks"):
             assert resolve_default_settings(app)[key] == value
     recognized_arrivals |= partition_arrivals
+    well_resize_defaults = {"plaque_well_resize": "auto",
+                            "plaque_well_resize_side": 1500,
+                            "plaque_well_resize_max_factor": 6.0}
+    well_resize_hashes = {
+        "plaque_well_resize": "b168a55e4b736e3fdec73a30aa4db872bda292679e154486f56a09893e47c6ba",
+        "plaque_well_resize_side": "33a208e9012bcf3bad3b9d3a038696f032ec7d61cdf372169cb08a1aa6221630",
+        "plaque_well_resize_max_factor": "f471e2da16e90f3f5410cd033e9b3340bc59f5aac284b0472426264dbd96b8e7",
+    }
+    well_resize_arrivals = {("analyze_plaques", key) for key in well_resize_defaults}
+    assert well_resize_arrivals <= compared_pairs
+    assert not well_resize_arrivals & (recognized_arrivals | variants.keys())
+    for key, value in well_resize_defaults.items():
+        assert hashlib.sha256(tooltips[key].encode()).hexdigest() == well_resize_hashes[key]
+        claims = list(DEFAULT_LITERAL.finditer(tooltips[key]))
+        assert len(claims) == 1
+        assert ast.literal_eval(claims[0].group("value")) == value
+        assert resolve_default_settings("analyze_plaques")[key] == value
+    recognized_arrivals |= well_resize_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

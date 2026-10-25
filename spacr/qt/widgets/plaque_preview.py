@@ -69,7 +69,7 @@ from .preview_contract import (
     LivePreviewContract, preview_failure_message,
 )
 
-from ...plaque import segment_plaque_image
+from ...plaque import _read_plaque_image, _well_resize_plan, segment_plaque_image
 from ...logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.plaque_preview")
@@ -1036,7 +1036,7 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
 
         def segment(p: Path) -> Tuple[np.ndarray, Dict[str, Any]]:
             """The plaque label mask of the image at ``p``, with its flows."""
-            return segment_plaque_image(model, load_display_image(p),
+            return segment_plaque_image(model, _read_plaque_image(p),
                                         settings, return_flows=True)
 
     rgb = load_display_image(path)
@@ -1170,9 +1170,11 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
 
         def segment(crop: np.ndarray) -> np.ndarray:
             """The Cellpose label mask of one plaque-well crop."""
-            return segment_plaque_image(model, crop, scaled)
+            return segment_plaque_image(model, crop, scaled, well_resize=plan,
+                                        whole_frame=True)
 
         scaled = _at_figure_scale(settings)
+        plan = _well_resize_plan(settings, detect=False)
 
     image = _load_image(path)
     regions = find_plaque_regions(
@@ -1437,7 +1439,9 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
         def segment(c: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
             """The plaque label mask of one well crop, with its flows."""
             return segment_plaque_image(model, c, _at_figure_scale(settings),
-                                        return_flows=True)
+                                        return_flows=True, whole_frame=True,
+                                        well_resize=_well_resize_plan(
+                                            settings, detect=False))
 
     segmented = segment(crop)
     flows: Dict[str, Any] = {}
