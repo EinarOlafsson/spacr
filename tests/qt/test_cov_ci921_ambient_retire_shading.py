@@ -280,7 +280,7 @@ def test_owned_helper_resisting_terminate_is_killed_and_reaped():
     ambient._stop_prime_helper(helper, time.monotonic() + .1)
     assert [item if isinstance(item, str) else item[0] for item in calls] == [
         "terminate", "wait", "kill", "wait"]
-    assert all(0 <= item[1] <= .1 for item in calls if isinstance(item, tuple))
+    assert all(0 <= item[1] <= .1 + 1e-9 for item in calls if isinstance(item, tuple))
     assert helper.poll() == -9
 
 

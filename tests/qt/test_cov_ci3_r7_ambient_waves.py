@@ -22,7 +22,7 @@ def _engine(theme="data_art_impulse_lens"):
 def test_a_valid_column_wave_is_clamped_and_sorted():
     engine = _engine()
     engine._add_column_wave((0.8, -0.5, 1.7))
-    assert engine._column_waves == [(10.0, (0.0, 0.8, 1.0))]
+    assert engine._column_waves == [(10.0, (0.0, 0.8, 1.0), 1.0)]
 
 
 @pytest.mark.parametrize("column", [
