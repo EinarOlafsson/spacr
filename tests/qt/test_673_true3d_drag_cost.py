@@ -146,8 +146,17 @@ def _burst(canvas, start, counts):
 
 
 def _drawn_corners(canvas, name):
+    """The triangles the artist holds, in either matplotlib's layout.
+
+    Before 3.10 a TriangleMesh kept them as ``_vec``; from 3.10 matplotlib
+    calls ``_get_vector`` and keeps them as ``_faces`` itself, already in
+    one NumPy array, so the mesh's own fast path is not taken there.
+    """
     artist = canvas._mesh_artists[name]
-    return np.asarray(artist._vec[:3]).T.reshape(-1, 3, 3)
+    vec = getattr(artist, "_vec", None)
+    if vec is not None:
+        return np.asarray(vec[:3]).T.reshape(-1, 3, 3)
+    return np.asarray(artist._faces)
 
 
 def _expected_corners(canvas, mesh):
