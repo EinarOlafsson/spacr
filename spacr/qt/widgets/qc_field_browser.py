@@ -52,6 +52,7 @@ from .. import path_probe
 from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..i18n import current_language, tr
 from ..job_runner import JobRunner
+from .toggle import Toggle
 from .zoom_view import ZoomableImageView
 
 LOG = logging.getLogger("spacr.qt.qc_field_browser")
@@ -1706,7 +1707,131 @@ def _overview_tiff_pixel_size(image):
     return None
 
 
+class _OverviewCache:
+    """A thread-safe least-recently-used cache bounded by entry count and bytes.
+
+    Thumbnails, previews and Original images are decoded on worker threads;
+    a display change (channels, levels, normalization, enhancement) then
+    re-renders from the decoded planes instead of reading the files again.
+    """
+
+    def __init__(self, entries, budget_bytes):
+        """Create an empty cache.
+
+        :param entries: the most entries kept.
+        :param budget_bytes: the most array bytes kept.
+        """
+        import threading
+        from collections import OrderedDict
+
+        self._lock = threading.Lock()
+        self._values = OrderedDict()
+        self._entries, self._budget, self._bytes = entries, budget_bytes, 0
+
+    @staticmethod
+    def _size(value):
+        """The array bytes a cached value holds."""
+        if isinstance(value, np.ndarray):
+            return value.nbytes
+        if isinstance(value, tuple):
+            return sum(item.nbytes for item in value if isinstance(item, np.ndarray))
+        return 0
+
+    def get(self, key):
+        """Return the cached value, or ``None``, and mark it recently used."""
+        with self._lock:
+            value = self._values.get(key)
+            if value is not None:
+                self._values.move_to_end(key)
+            return value
+
+    def put(self, key, value):
+        """Store ``value``, evicting the least recently used beyond the bounds."""
+        size = self._size(value)
+        if size > self._budget:
+            return
+        with self._lock:
+            old = self._values.pop(key, None)
+            if old is not None:
+                self._bytes -= self._size(old)
+            self._values[key] = value
+            self._bytes += size
+            while self._values and (len(self._values) > self._entries or self._bytes > self._budget):
+                _key, evicted = self._values.popitem(last=False)
+                self._bytes -= self._size(evicted)
+
+    def clear(self):
+        """Forget every cached value."""
+        with self._lock:
+            self._values.clear()
+            self._bytes = 0
+
+
+_OVERVIEW_INFO_CACHE = _OverviewCache(8192, 1 << 62)
+_OVERVIEW_PLANE_CACHE = _OverviewCache(4096, 768 * 1024 ** 2)
+
+
+def _overview_file_stamp(field):
+    """The field's files with their size and modification time, for cache keys."""
+    stamp = []
+    for _channel, path in field.files:
+        try:
+            status = os.stat(path)
+        except OSError:
+            return None
+        stamp.append((path, status.st_size, status.st_mtime_ns))
+    return tuple(stamp)
+
+
 def _overview_channel_info(field):
+    """Inspect declared axes and channel IDs once per unchanged file set.
+
+    :param field: the overview field.
+    :returns: the channel and axis description of its files.
+    """
+    stamp = _overview_file_stamp(field)
+    key = (field.identity, stamp)
+    if stamp is not None:
+        known = _OVERVIEW_INFO_CACHE.get(key)
+        if known is not None:
+            return known
+    info = _overview_read_channel_info(field)
+    if stamp is not None:
+        _OVERVIEW_INFO_CACHE.put(key, info)
+    return info
+
+
+def _overview_cached_raw_planes(field, channels, *, edge=None, **axes):
+    """Yield raw planes like :func:`_overview_raw_planes`, decoding each one once.
+
+    Planes are kept per file stamp, channel, axis selection and edge, read-only,
+    so display-only changes re-render without touching the files again.
+
+    :param field: the overview field.
+    :param channels: the channels to read, in order.
+    :param edge: the bounded preview edge, or ``None`` for original pixels.
+    :param axes: ``time_index``, ``z_mode`` and ``z_index``.
+    """
+    stamp = _overview_file_stamp(field)
+    if stamp is None:
+        yield from _overview_raw_planes(field, channels, edge=edge, **axes)
+        return
+    selection = tuple(sorted(axes.items()))
+    keys = {channel: (field.identity, stamp, channel, selection, edge) for channel in channels}
+    found = {channel: _OVERVIEW_PLANE_CACHE.get(key) for channel, key in keys.items()}
+    missing = tuple(channel for channel in channels if found[channel] is None)
+    if missing:
+        for channel, path, array in _overview_raw_planes(field, missing, edge=edge, **axes):
+            array = np.array(array, copy=True)
+            array.setflags(write=False)
+            found[channel] = (path, array)
+            _OVERVIEW_PLANE_CACHE.put(keys[channel], (path, array))
+    for channel in channels:
+        path, array = found[channel]
+        yield channel, path, array
+
+
+def _overview_read_channel_info(field):
     """Inspect declared image axes and channel IDs without decoding pixels."""
     from PIL import Image
 
@@ -1945,12 +2070,16 @@ def _overview_channel_rgb(channels, channel_colors):
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      channel_views=False, normalization_context=None, cancelled=None,
-                     advanced_normalization=None, region=None, enhancement=None, channel_colors=None):
+                     advanced_normalization=None, region=None, enhancement=None, channel_colors=None,
+                     enhancement_channels=None, percentile_channels=None):
     """Decode canonical display pixels, optionally returning individual channel views.
 
     ``enhancement`` is a Make Masks :class:`spacr.qt.detect_chain.Chain`
     applied to each displayed plane after display scaling; it changes only
-    what is shown, never raw or measured pixels.
+    what is shown, never raw or measured pixels. ``enhancement_channels`` and
+    ``percentile_channels`` restrict the enhancement and the percentile
+    stretch to those channels; the others are drawn unenhanced and stretched
+    between their minimum and maximum.
 
     Up to three channels are composited additively in ``channel_colors``
     (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
@@ -1966,8 +2095,11 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     read_edge = None if region is not None else edge
     def read_selected(target, selected, edge=read_edge):
         """Read matching physical planes, optionally cropped in original pixels."""
+        if region is None or edge is not None:
+            yield from _overview_cached_raw_planes(target, selected, edge=edge, **axes)
+            return
         for channel, path, values in _overview_raw_planes(target, selected, edge=edge,
-                region=region if edge is None else None, **axes):
+                region=region, **axes):
             yield channel, path, values
     if region is not None and normalization is None and advanced_normalization is None:
         bounds = {}
@@ -2013,13 +2145,13 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
             raise _OverviewValidationError(tr("This channel has no finite pixels."))
         if normalization is not None or advanced_normalization is not None:
             low, high = 0., 1.
-        elif percentiles is None:
+        elif percentiles is None or (percentile_channels is not None and channel not in percentile_channels):
             low, high = float(plane[finite].min()), float(plane[finite].max())
         else:
             low, high = np.percentile(plane[finite], percentiles)
         plane = np.nan_to_num((plane - low) / max(float(high - low), np.finfo(np.float32).eps),
                               nan=0., posinf=1., neginf=0.)
-        if enhancement is not None:
+        if enhancement is not None and (enhancement_channels is None or channel in enhancement_channels):
             plane = _overview_enhanced_plane(plane, enhancement, stride, cancelled)
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
@@ -3023,7 +3155,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
                       normalization_context=None, advanced_normalization=None, preview_edge=240,
-                      labels=True, enhancement=None, channel_colors=None):
+                      labels=True, enhancement=None, channel_colors=None, enhancement_channels=None,
+                      percentile_channels=None):
     """Render one bounded page of field thumbnails, using the shared pixel path.
 
     ``labels`` draws each tile's well and field name above its image.
@@ -3049,7 +3182,9 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                                       cancelled=cancelled, time_index=time_index,
                                       z_mode=z_mode, z_index=z_index,
                                       advanced_normalization=advanced_normalization,
-                                      enhancement=enhancement, channel_colors=channel_colors)
+                                      enhancement=enhancement, channel_colors=channel_colors,
+                                      enhancement_channels=enhancement_channels,
+                                      percentile_channels=percentile_channels)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -3230,6 +3365,9 @@ _OVERVIEW_ORIGINAL_WELL_TOOLTIP = "Load this well's images at their original ful
 _OVERVIEW_ORIGINAL_ALL_TOOLTIP = "Load every stacked image at its original full resolution."
 _OVERVIEW_METADATA_ALL_TOOLTIP = "Show or hide the filename and metadata text over every stacked image."
 _OVERVIEW_MAX_IMAGE_VIEWS = 6
+_OVERVIEW_THUMBNAIL_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))
+_OVERVIEW_THUMBNAIL_BATCH = 8
+_OVERVIEW_THUMBNAIL_CACHE = 64
 _OVERVIEW_TILE_DEFAULT = 128
 _OVERVIEW_TILE_SPACING = 4
 _OVERVIEW_TILE_RANGE = (48, 768)
@@ -3735,6 +3873,8 @@ class _FieldOverview(QWidget):
         self._annotations = {address: {"condition": value} for address, value in self._conditions.items()}
         self._preview_edge = 256
         self._enhancement = None
+        self._enhance_channels = None
+        self._normalize_channels = None
         self._original_image = False
         self._original_on_open = False
         self._tile_size = _OVERVIEW_TILE_DEFAULT
@@ -3756,6 +3896,8 @@ class _FieldOverview(QWidget):
         self._selected_fields = {}
         self._cache = OrderedDict()
         self._thumbnail_cache = OrderedDict()
+        self._thumbnail_inflight = set()
+        self._thumbnail_first_inflight = set()
         self._well_representatives = {}
         self._well_positions = {}
         self._installed_thumbnails = set()
@@ -3812,7 +3954,7 @@ class _FieldOverview(QWidget):
         self.channels.setPlaceholderText(tr("Channels, comma-separated"))
         self.channels.setToolTip(tr("Use filename channel IDs for separate files; use zero-based indices for multichannel images."))
         self.channels.setMaximumWidth(160)
-        self.normalise = QCheckBox(tr("Percentile normalization"))
+        self.normalise = Toggle(tr("Percentile normalization"))
         self.normalise.setChecked(bool((settings or {}).get("normalize", True)))
         self.low, self.high = QDoubleSpinBox(), QDoubleSpinBox()
         percentiles = ((settings or {}).get("normalization") or {}).get("percentiles")
@@ -3970,6 +4112,20 @@ class _FieldOverview(QWidget):
         self.preview_resolution.currentIndexChanged.connect(self._resolution_changed)
         axes.addWidget(QLabel(tr("Preview resolution")))
         axes.addWidget(self.preview_resolution)
+        from PySide6.QtWidgets import QSlider
+
+        self.resolution_slider = QSlider(Qt.Horizontal)
+        self.resolution_slider.setObjectName("FieldOverviewImageResolution")
+        self.resolution_slider.setRange(0, self.preview_resolution.count() - 1)
+        self.resolution_slider.setPageStep(1)
+        self.resolution_slider.setValue(self.preview_resolution.currentIndex())
+        self.resolution_slider.setMaximumWidth(140)
+        self.resolution_slider.setToolTip(tr("Image quality: the longest preview edge the views load, from 128 to 4096 pixels"))
+        self.resolution_slider.setAccessibleName(tr("Image quality"))
+        self.resolution_slider.valueChanged.connect(self.preview_resolution.setCurrentIndex)
+        self.preview_resolution.currentIndexChanged.connect(self._sync_resolution_slider)
+        header = self._image_panel.header_layout
+        header.insertWidget(header.indexOf(self.original_toggle), self.resolution_slider)
         compare = QPushButton(tr("Compare selected fields"))
         compare.clicked.connect(self._compare)
         axes.addWidget(compare)
@@ -4045,10 +4201,10 @@ class _FieldOverview(QWidget):
         self.count.setRange(1, 1000)
         self.count.setValue(1)
         self.seed.setRange(0, 2147483647)
-        self.random = QCheckBox(tr("Random sample"))
-        self.use_selection = QCheckBox(tr("Export selected fields or wells"))
-        self.sample_selected = QCheckBox(tr("Sample within selected wells"))
-        self.measurements = QCheckBox(tr("Measurements CSV (raw image pixels)"))
+        self.random = Toggle(tr("Random sample"))
+        self.use_selection = Toggle(tr("Export selected fields or wells"))
+        self.sample_selected = Toggle(tr("Sample within selected wells"))
+        self.measurements = Toggle(tr("Measurements CSV (raw image pixels)"))
         self.measurements.setToolTip(tr(
             "Measure original-resolution selected channels as one whole-image ROI, not segmented objects. "
             "Geometry is in pixels; intensity statistics use finite stored pixel values without display "
@@ -4286,6 +4442,13 @@ class _FieldOverview(QWidget):
         fields.setIconSize(QSize(edge, height))
         fields.setGridSize(QSize(edge + self._tile_spacing, height + self._tile_spacing + text))
 
+    def _sync_resolution_slider(self, index):
+        """Keep the image view's quality slider on the chosen preview resolution."""
+        if self.resolution_slider.value() != index:
+            self.resolution_slider.blockSignals(True)
+            self.resolution_slider.setValue(index)
+            self.resolution_slider.blockSignals(False)
+
     def _set_tile_size(self, edge):
         """Resize the images of every well view and reload them at that size.
 
@@ -4366,6 +4529,19 @@ class _FieldOverview(QWidget):
         for panel in self._image_views:
             if panel.original_toggle.isChecked():
                 self._load_image_view(panel)
+
+    def _set_channel_targets(self, enhance=None, normalize=None):
+        """Restrict enhancement and the percentile stretch to chosen channels.
+
+        :param enhance: channels enhanced, or ``None`` for all.
+        :param normalize: channels percentile-stretched, or ``None`` for all.
+        """
+        if (enhance, normalize) == (self._enhance_channels, self._normalize_channels):
+            return
+        self._enhance_channels, self._normalize_channels = enhance, normalize
+        self._display_generation += 1
+        self._displayed_montage = None
+        self._refresh_image()
 
     def _set_enhancement(self, chain):
         """Show every view through Make Masks' enhancement chain, or without one.
@@ -4455,6 +4631,24 @@ class _FieldOverview(QWidget):
             panel.set_collapsed(False)
             panel.show()
         self.fields = panel.field_list
+        self._stack_open_wells()
+
+    def _stack_open_wells(self):
+        """With two or more wells open, stack one image from each side by side."""
+        if len(self._well_panels) < 2 or not self._normalization_ready:
+            return
+        fields = []
+        for panel in self._well_panels:
+            well = panel.field_list._overview_well
+            candidates = getattr(self, "_well_fields", {}).get(well) or ()
+            representative = self._well_representatives.get(well)
+            chosen = representative if representative is not None else (candidates[0] if candidates else None)
+            if chosen is not None:
+                fields.append(chosen)
+        shown = {panel.field.well for panel in self._image_views}
+        fresh = [field for field in fields if field.well not in shown]
+        if fresh:
+            self._open_image_views(fresh)
 
     def _close_well_panel(self, panel, refresh=True):
         """Close one stacked well view, keeping the other open wells unchanged.
@@ -4627,6 +4821,9 @@ class _FieldOverview(QWidget):
         panel.view = _OverviewImageView()
         panel.view.setMinimumHeight(self._image_view_height())
         panel.body_layout.addWidget(panel.view)
+        panel.view.detail_requested.connect(lambda owner=panel.view: self._sync_image_views(owner))
+        for bar in (panel.view.horizontalScrollBar(), panel.view.verticalScrollBar()):
+            bar.valueChanged.connect(lambda _value, owner=panel.view: self._sync_image_views(owner))
         panel.metadata_label = QLabel(panel.view.viewport())
         panel.metadata_label.setObjectName("FieldOverviewImageMetadata")
         panel.metadata_label.setWordWrap(True)
@@ -4648,6 +4845,29 @@ class _FieldOverview(QWidget):
         self._image_stack.addWidget(panel)
         self._load_image_view(panel)
         return panel
+
+    def _sync_image_views(self, source):
+        """Give every stacked image the zoom and position of the one being moved.
+
+        The stacked images share display settings and size, so the same region
+        of every well lines up for comparison by eye.
+
+        :param source: the image view the user zoomed or scrolled.
+        """
+        if getattr(self, "_syncing_views", False):
+            return
+        self._syncing_views = True
+        try:
+            for panel in self._image_views:
+                view = panel.view
+                if view is source:
+                    continue
+                view.setTransform(source.transform())
+                view._user_zoomed = source._user_zoomed
+                view.horizontalScrollBar().setValue(source.horizontalScrollBar().value())
+                view.verticalScrollBar().setValue(source.verticalScrollBar().value())
+        finally:
+            self._syncing_views = False
 
     def _image_view_height(self):
         """The stacked images' height, following the image-size slider."""
@@ -4977,12 +5197,17 @@ class _FieldOverview(QWidget):
             self._update_image_metadata()
             self.status.setText(tr("Comparison of {measurement}: figure {path}; tables {tables}.",
                                    measurement=column, path=saved, tables=tables["tests"]))
+            self._show_representatives(stacked=True)
         self._comparison_signature = None
         self.status.setText(tr("Comparing annotated groups…"))
         self._export_jobs.submit(run, shown)
 
-    def _show_representatives(self):
-        """Show the most representative image of every chosen annotation class."""
+    def _show_representatives(self, stacked=False):
+        """Show the most representative image of every chosen annotation class.
+
+        :param stacked: open them as stacked images beside a comparison figure,
+            keeping its status, instead of one montage.
+        """
         dimensions, levels, within, groups = self._comparison_groups()
         levels = levels or {}
         by = (["_overview_group"] if groups else dimensions) + ([within] if within else [])
@@ -5027,6 +5252,8 @@ class _FieldOverview(QWidget):
 
             :param result: the chosen fields and their class captions.
             """
+            if stacked and (isinstance(result, str) or not result[0]):
+                return
             if isinstance(result, str):
                 self.status.setText(result)
                 return
@@ -5034,10 +5261,14 @@ class _FieldOverview(QWidget):
             if not chosen:
                 self.status.setText(tr("No measured image matches the chosen annotation values."))
                 return
+            if stacked:
+                self._open_image_views(chosen[:_OVERVIEW_MAX_IMAGE_VIEWS])
+                return
             self._compare_fields(chosen[:24], tr("Representative images: {classes}",
                                                  classes="; ".join(captions)))
-        self._comparison_signature = None
-        self.status.setText(tr("Choosing representative images…"))
+        if not stacked:
+            self._comparison_signature = None
+            self.status.setText(tr("Choosing representative images…"))
         self._export_jobs.submit(run, shown)
 
     def _fill_group_choices(self, combo, image=False):
@@ -5127,7 +5358,7 @@ class _FieldOverview(QWidget):
         from .setup_dialog import _SetupComboBox
         widget = QWidget(self)
         layout = QVBoxLayout(widget)
-        self.advanced = QCheckBox(tr("Advanced channel normalization"))
+        self.advanced = Toggle(tr("Advanced channel normalization"))
         layout.addWidget(self.advanced)
         self.normalization_method, self.normalization_scope = _SetupComboBox(), _SetupComboBox()
         for text, key in ((tr("Percentiles"), "percentile"), (tr("Minimum / maximum"), "minmax"),
@@ -5386,7 +5617,7 @@ class _FieldOverview(QWidget):
         names = self._overview_options.get("channel_names") or {}
         for channel in available:
             name = names.get(channel, names.get(str(channel), ""))
-            control = QCheckBox(f"{channel} {name}".strip())
+            control = Toggle(f"{channel} {name}".strip())
             control.setChecked(channel in selected)
             control.setToolTip(tr("Show channel {channel}", channel=channel))
             control.toggled.connect(self._channel_toggled)
@@ -5778,7 +6009,14 @@ class _FieldOverview(QWidget):
         """
         time = self.time_axis.currentData()
         z = self.z_axis.currentData()
-        extra = {"enhancement": self._enhancement} if view and self._enhancement is not None else {}
+        extra = {}
+        if view:
+            if self._enhancement is not None:
+                extra["enhancement"] = self._enhancement
+            if self._enhance_channels is not None:
+                extra["enhancement_channels"] = self._enhance_channels
+            if self._normalize_channels is not None:
+                extra["percentile_channels"] = self._normalize_channels
         return dict(extra, normalization=self._normalization_plan,
                     normalization_context=self._normalization_context,
                     time_index=time if isinstance(time, int) else 0,
@@ -6618,9 +6856,15 @@ class _FieldOverview(QWidget):
         source_key = (field.identity, channels, limits, self._display_options_key(options),
                       self._original_generation if heavy is not None else None)
         if source_key != self._displayed_field:
-            self._preview_edge = min(256, self.preview_resolution.currentData())
+            same_image = (self._displayed_field is not None and self._displayed_field[:2] == source_key[:2]
+                          and self.view._item is not None)
+            if same_image:
+                self._preview_edge = min(self._preview_edge, self.preview_resolution.currentData())
+                preserve_view = True
+            else:
+                self._preview_edge = min(256, self.preview_resolution.currentData())
+                preserve_view = False
             self._displayed_field = source_key
-            preserve_view = False
         edge = None if self._original_image else self._preview_edge
         key = source_key + (edge,)
         if not preserve_view:
@@ -6765,7 +7009,10 @@ class _FieldOverview(QWidget):
                 self.preview_resolution.currentData(), self._enhancement)
 
     def _update_visuals(self):
-        """Load up to eight visible representatives or one bounded well montage."""
+        """Keep the plate's thumbnails current, then the open well's montage.
+
+        The plate keeps one image per well on show whatever is open below it.
+        """
         if (not self.isVisible() or self._cancelled.is_set()
                 or not self._normalization_ready or not self._geometry_valid):
             return
@@ -6781,6 +7028,7 @@ class _FieldOverview(QWidget):
         options = self._display_kwargs(view=True)
         resolution = self.preview_resolution.currentData()
         self._update_field_thumbnails(signature, channels, limits, options)
+        self._update_plate_thumbnails(channels, limits, options, resolution, cancelled)
         if self._comparison_signature is not None:
             return
         if self._scope[1] is not None and not self._individual and page:
@@ -6804,6 +7052,29 @@ class _FieldOverview(QWidget):
             self._montage_jobs.submit(
                 lambda: _overview_montage(page, channels, limits, cancelled,
                     preview_edge=min(240, resolution), labels=labels, **options), show_montage)
+
+    def _plate_context(self):
+        """What the plate thumbnails depend on: the plate, its filters and the display.
+
+        Unlike :meth:`_visual_context`, opening a well or an image does not
+        change it, so thumbnails decoded meanwhile are still installed.
+        """
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError):
+            return None
+        return (self.plates.currentData(), self.rows.currentData(), self.columns.currentData(),
+                self._display_generation, self.fov_axis.currentData(), self.time_axis.currentData(),
+                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits,
+                self.preview_resolution.currentData(), self._enhancement, self.representatives.value())
+
+    def _update_plate_thumbnails(self, channels, limits, options, resolution, cancelled):
+        """Install cached plate thumbnails and decode the missing ones in parallel.
+
+        Up to :data:`_OVERVIEW_THUMBNAIL_WORKERS` bounded batches run at once;
+        the first batch is a single well, so the first image paints at once.
+        """
+        if self._plate_panel.is_collapsed():
             return
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
@@ -6816,7 +7087,8 @@ class _FieldOverview(QWidget):
                     item.setIcon(QIcon())
                     item.setData(Qt.UserRole + 1, None)
                 self._installed_thumbnails.discard(well)
-        if self._thumbnail_jobs.is_busy():
+        free = _OVERVIEW_THUMBNAIL_WORKERS - self._thumbnail_jobs.active_jobs()
+        if free <= 0:
             return
         first_row = max(0, self.wells.rowAt(0))
         last_row = self.wells.rowAt(viewport.height() - 1)
@@ -6826,6 +7098,8 @@ class _FieldOverview(QWidget):
         last_column = self.wells.columnAt(viewport.width() - 1)
         if last_column < 0:
             last_column = self.wells.columnCount() - 1
+        wanted = free * _OVERVIEW_THUMBNAIL_BATCH
+        inflight = self._thumbnail_inflight
         requests, later = [], []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
@@ -6850,18 +7124,33 @@ class _FieldOverview(QWidget):
                     self._set_thumbnail(well, first, self._thumbnail_cache[first])
                     installed = first
                 if installed == first:
-                    later.append((well, key, field, representatives, edge))
+                    if key not in inflight:
+                        later.append((well, key, field, representatives, edge))
                     continue
-                requests.append((well, first, field, (field,), edge))
-                if len(requests) == 8:
-                    break
-            if len(requests) == 8:
-                break
-        requests = requests or later[:8]
+                if first not in inflight and len(requests) < wanted:
+                    requests.append((well, first, field, (field,), edge))
+        if not requests and not self._thumbnail_first_inflight:
+            requests = later[:wanted]
         if not requests:
             return
+        context = self._plate_context()
+        batch = _OVERVIEW_THUMBNAIL_BATCH
+        if not self._installed_thumbnails:
+            if self._thumbnail_jobs.active_jobs():
+                return
+            requests, free, batch = requests[:1], 1, 1
+        while requests and free > 0:
+            chunk, requests = requests[:batch], requests[batch:]
+            batch, free = _OVERVIEW_THUMBNAIL_BATCH, free - 1
+            inflight.update(key for _well, key, *_rest in chunk)
+            self._thumbnail_first_inflight.update(
+                key for _well, key, _field, representatives, _edge in chunk if len(representatives) == 1)
+            self._submit_plate_thumbnails(chunk, channels, limits, options, resolution, cancelled, ratio, context)
+
+    def _submit_plate_thumbnails(self, requests, channels, limits, options, resolution, cancelled, ratio, context):
+        """Decode one bounded batch of plate thumbnails on a worker thread."""
         def read_thumbnails():
-            """Read at most eight detached previews per worker lifecycle."""
+            """Read one batch of detached previews."""
             results = []
             for well, key, field, representatives, edge in requests:
                 if cancelled.is_set():
@@ -6880,13 +7169,16 @@ class _FieldOverview(QWidget):
             return results
         def done(results):
             """Install each current thumbnail and preserve individual read failures."""
+            for _well, key, *_rest in requests:
+                self._thumbnail_inflight.discard(key)
+                self._thumbnail_first_inflight.discard(key)
             if cancelled.is_set():
                 return
             for well, key, field, pixels, error in results:
                 self._thumbnail_cache[key] = pixels
-                while len(self._thumbnail_cache) > 64:
+                while len(self._thumbnail_cache) > _OVERVIEW_THUMBNAIL_CACHE:
                     self._thumbnail_cache.popitem(last=False)
-                if (self._visual_context() == signature
+                if (self._plate_context() == context
                         and device_ratio(self.wells.viewport()) == ratio):
                     self._set_thumbnail(well, key, pixels)
                     if error:
@@ -7476,7 +7768,29 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
     "overview_percentile_high"})
 
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
-                            "overview_original_on_open")
+                            "overview_original_on_open", "overview_enhance_channels",
+                            "overview_normalize_channels")
+
+
+def _overview_channel_targets(value):
+    """Read an 'all' or comma-separated channel setting.
+
+    :param value: the setting value.
+    :returns: the channels as a tuple, or ``None`` for all channels.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return (value,)
+    if isinstance(value, (list, tuple)):
+        items = list(value)
+    else:
+        text = str(value).strip()
+        if not text or text.lower() == "all":
+            return None
+        items = [part.strip() for part in text.split(",") if part.strip()]
+    targets = tuple(int(item) if str(item).lstrip("-").isdigit() else item for item in items)
+    return targets or None
 
 
 def _overview_control_value(control):
@@ -7633,6 +7947,8 @@ class _OverviewSettingsBridge:
         except (TypeError, ValueError):
             pass
         browser._original_on_open = bool(values.get("overview_original_on_open"))
+        browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
+                                     _overview_channel_targets(values.get("overview_normalize_channels")))
         try:
             chain = _overview_chain(values)
         except ValueError as error:
@@ -7694,8 +8010,10 @@ def _overview_module_rows(browser):
             ("Fields", "Page through a well's fields, compare the selected fields in one montage, or open each selected field as its own stacked image.",
              (*browser._paging_buttons, browser._compare_fields_button, browser._open_images_button)),
         ],
-        "Display": [
+        "Channels": [
             ("Channels", "Channels shown; tick or untick a channel to show or hide it.", (browser._channel_host,)),
+        ],
+        "Normalization": [
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
             ("Channel to edit", "Channel the advanced normalization settings are applied to; All channels edits the shared settings.",
              (browser.norm_channel, *browser._channel_override_buttons)),
@@ -8647,7 +8965,7 @@ class _OverviewMetadataWizard(QWidget):
         self.gain = QComboBox()
         self.gain.addItem(tr("Use each channel’s own bounds"), None)
         layout.addRow(tr("Use reference-channel bounds"), self.gain)
-        self.mean_match = QCheckBox(tr("Mean-matched display scaling before reference bounds"))
+        self.mean_match = Toggle(tr("Mean-matched display scaling before reference bounds"))
         layout.addRow(self.mean_match)
         display_card = Card(title=tr("Display"), foldable=True)
         display_card.body_layout.addLayout(layout)
