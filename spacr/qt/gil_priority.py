@@ -390,9 +390,10 @@ def _hub_reindex_object(hub, key, old_chain) -> None:
 def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
     """Ask ``watcher`` first about ``watched``'s events of ``kinds``.
 
-    The wrapper is held until the object is destroyed or its last watch is
-    discarded, and found again by its ``id``: see
-    :func:`_hub_ask_object_watchers`.
+    A wrapper Qt owns is held until the object is destroyed or its last
+    watch is discarded, and found again by its ``id``: see
+    :func:`_hub_ask_object_watchers`. A parentless one is held weakly, so
+    watching it never keeps it alive (:func:`_hub_forget_wrapper`).
     """
     from shiboken6 import getCppPointer
 
@@ -402,8 +403,15 @@ def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
         wrappers = hub._wrappers = {}
         hub._wrapper_keys = {}
     if key not in wrappers:
-        wrappers[key] = watched
-        hub._wrapper_keys[id(watched)] = key
+        ident = id(watched)
+        try:
+            owned_by_qt = watched.parent() is not None
+        except (AttributeError, RuntimeError, TypeError):
+            owned_by_qt = False
+        wrappers[key] = (watched if owned_by_qt else weakref.ref(
+            watched, lambda _gone, key=key, ident=ident:
+            _hub_forget_wrapper(hub, key, ident)), ident)
+        hub._wrapper_keys[ident] = key
     old_chain = hub._objects.get(key)
     chain = [entry for entry in old_chain or []
              if entry[0]() is not watcher]
@@ -446,9 +454,41 @@ def _hub_discard_object(hub, watched, watcher) -> bool:
 
 def _hub_release_wrapper(hub, key) -> None:
     """Let go of the wrapper :func:`_hub_add_object` held for ``key``."""
-    wrapper = getattr(hub, "_wrappers", {}).pop(key, None)
-    if wrapper is not None:
-        hub._wrapper_keys.pop(id(wrapper), None)
+    held = getattr(hub, "_wrappers", {}).pop(key, None)
+    if held is not None and hub._wrapper_keys.get(held[1]) == key:
+        hub._wrapper_keys.pop(held[1], None)
+
+
+def _hub_forget_wrapper(hub, key, ident) -> None:
+    """A weakly held wrapper is gone: its ``id`` may now name anything.
+
+    Only a wrapper nothing in Qt owns is held weakly -- a parentless
+    window or widget, which its Python owner keeps alive and frees -- so
+    holding it would have kept the object alive for as long as it was
+    watched, and a backdrop watching its own window kept that window alive
+    for good (``test_a_backdrop_outlives_nothing_it_watches``).
+
+    :param hub: the event hub.
+    :param key: the object's pointer key.
+    :param ident: the ``id`` the wrapper had.
+    """
+    try:
+        held = hub._wrappers.get(key)
+        if held is not None and held[1] == ident:
+            hub._wrappers.pop(key, None)
+        if hub._wrapper_keys.get(ident) == key:
+            hub._wrapper_keys.pop(ident, None)
+    except (AttributeError, RuntimeError):
+        pass
+
+
+def _hub_held_wrapper(hub, key):
+    """The wrapper held for ``key``, or ``None`` once a weak one is gone."""
+    held = hub._wrappers.get(key)
+    if held is None:
+        return None
+    wrapper = held[0]
+    return wrapper() if isinstance(wrapper, weakref.ref) else wrapper
 
 
 def _hub_drop_object(hub, key) -> None:
@@ -487,14 +527,14 @@ def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
     shiboken hands back, so its ``id`` identifies the object for as long as
     it is watched.
     """
-    from shiboken6 import isValid
-
     key = getattr(hub, "_wrapper_keys", {}).get(id(watched))
-    if key is None:
+    if key is None or _hub_held_wrapper(hub, key) is not watched:
         return False
     chain = hub._objects.get(key)
     if not chain:
         return False
+    from shiboken6 import isValid
+
     for entry in tuple(chain):
         if not entry[2] or kind not in entry[1]:
             continue

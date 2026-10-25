@@ -22,6 +22,8 @@ loaded runner slows both sides alike.
 """
 from __future__ import annotations
 
+import weakref
+
 import statistics
 import time
 
@@ -1188,6 +1190,51 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
         "a widget seen before the sheet was paired with no state")
     assert QEvent.Polish in heard["f"]
     assert QEvent.Show not in heard["b"]
+
+
+def test_watching_a_parentless_widget_does_not_keep_it_alive(qapp, hub):
+    """The hub holds a widget Qt does not own weakly, and forgets its id.
+
+    It held every watched wrapper until the object was destroyed. A
+    parentless widget is destroyed only when its last Python reference goes,
+    so the hold kept it alive for good: an ambient backdrop watching its own
+    window, or the window it sits in, leaked that window
+    (``test_a_backdrop_outlives_nothing_it_watches``, release CI 6c375de16).
+    Run with the cycle collector off, so only reference counting can free it.
+    """
+    import gc
+
+    import shiboken6
+
+    from spacr.qt.gil_priority import (_application_event_hub,
+                                       _stop_watching_object_events,
+                                       _watch_object_events)
+
+    owner = QWidget()
+    child = QWidget(owner)
+    keeper = _KeepsWhatItIsHanded()
+    was_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        widget = QWidget()
+        _watch_object_events(widget, keeper, (QEvent.Show,))
+        _watch_object_events(child, keeper, (QEvent.Show,))
+        ident = id(widget)
+        gone = weakref.ref(widget)
+        del widget
+        assert gone() is None, "watching the widget kept it alive"
+    finally:
+        if was_enabled:
+            gc.enable()
+    events = _application_event_hub(qapp, create=False)
+    assert ident not in events._wrapper_keys, "the dead wrapper's id is kept"
+    owner.show()
+    child.show()
+    qapp.processEvents()
+    assert any(w is child for w in keeper.handed), (
+        "a watched child Qt owns is no longer told about")
+    _stop_watching_object_events(child, keeper)
+    shiboken6.delete(owner)
 
 
 def test_without_a_hub_or_a_root_the_sheet_simply_goes_on(qapp,
