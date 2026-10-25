@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="MeasurementProtocol.xslt"?>
+<icm:MeasurementProtocol icm:StructVersion="4.0" icm:IsValid="true" xmlns:icm="http://www.yokogawa.co.jp/LSC/ICMSchema/1.0">
+  <icm:ProtocolInformation icm:Name="jutta_MeasurementProtocol" icm:Version="1.0" icm:CreateTime="2026-10-15T10:03:11.3533918-04:00" icm:CreateUser="CQ1" icm:LastUpdateTime="2026-10-15T11:24:49.6296687-04:00" icm:LastUpdateUser="CQ1">PI and Hoechst viability assay.</icm:ProtocolInformation>
+  <icm:MeasurementTarget>
+    <icm:AttachmentPath icm:Name="Microplate" icm:Target="SameFolder" icm:DataVersion="1.0" icm:DataHash="1735472205">Base_Yokogawa_ICMMicroplateEnviroment.xml</icm:AttachmentPath>
+    <icm:ContainerPath icm:Name="MP_PerkinElmer_#6007430_24x16_1" icm:Target="SameFolder" icm:DataVersion="1.0" icm:DataHash="1946361660">MP_PerkinElmer_#6007430_24x16_1.xml</icm:ContainerPath>
+    <icm:EnvironmentSetting>
+      <icm:Co2ControlParameter icm:DoCo2Control="true" icm:TargetCO2Value="5" icm:TargetOValue="0" icm:GasflowValue="180" icm:IsFlowControlEnabled="true" />
+      <icm:TemperatureControlParameter icm:DoControl="true" icm:TargetValue="37" />
+      <icm:XYStageControlParameter icm:MoveMode="3" />
+    </icm:EnvironmentSetting>
+  </icm:MeasurementTarget>
+  <icm:ImagingProtocol icm:StructVersion="1.0">
+    <icm:ObjectiveList>
+      <icm:ObjectiveLens icm:RevolverPosition="3" icm:ID="NA" icm:Magnification="40.0" icm:Immersion="Dry" icm:NA="0.95" icm:WorkingDistance="0.18" icm:IsLongLens="false" icm:Purpose="Fluor" icm:FocalLength="45.06" icm:LensHeight="44.71" icm:FN="26.5" icm:TargetCoverGlassThickness="0.17">
+        <icm:ProductInformation icm:Name="UPLXAPO40X" icm:Manufacturer="Olympus"></icm:ProductInformation>
+        <icm:ObjectiveLensShapeInfoList>
+          <icm:ObjectiveLensShapeInfo icm:Height="27.70" icm:Diameter="31.50" />
+          <icm:ObjectiveLensShapeInfo icm:Height="28.70" icm:Diameter="30.00" />
+          <icm:ObjectiveLensShapeInfo icm:Height="38.39" icm:Diameter="30.00" />
+          <icm:ObjectiveLensShapeInfo icm:Height="42.60" icm:Diameter="20.30" />
+          <icm:ObjectiveLensShapeInfo icm:Height="44.71" icm:Diameter="7.50" />
+        </icm:ObjectiveLensShapeInfoList>
+      </icm:ObjectiveLens>
+    </icm:ObjectiveList>
+    <icm:ChannelList icm:DoShutterManagement="false" icm:DoLaserEnhancement="true">
+      <icm:Channel icm:Number="1" icm:Name="Ch1 ConfocalFluorescence 640nm BP685/40 S.No.000000ORCA_Flash_40 Z3 All" icm:Method="ConfocalFluorescence" icm:IsEnabled="true" icm:ObjectiveIndex="0" icm:MethodID="1">
+        <icm:LightSourceParameter icm:LightSourceIndex="4" icm:Name="640nm" icm:Caption="640nm" icm:Type="Laser" icm:Power="100.0" icm:Exposure="300" />
+        <icm:CameraSetting icm:Number="1" icm:Key="Port1,sCMOS 2000 x 2000,ORCA_Flash_40" icm:Name="S.No.000000ORCA_Flash_40" icm:Caption="ORCA_Flash_40" icm:Binning="1" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:EmissionFilterSetting icm:FilterWheelIndex="1" icm:FilterWheelPosition="4" icm:Name="BP685/40" />
+        <icm:ZParameter icm:ZSliceNumber="3" icm:ZStackMode="All" icm:ZOffset="0.0" />
+        <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="101" icm:MaxContrast="6000" icm:BitDepth="16" icm:Color="#FFFF00FF" icm:IsVisible="false" />
+      </icm:Channel>
+      <icm:Channel icm:Number="2" icm:Name="Ch2 ConfocalFluorescence 488nm BP525/50 S.No.000000ORCA_Flash_40 Z3 All" icm:Method="ConfocalFluorescence" icm:IsEnabled="true" icm:ObjectiveIndex="0" icm:MethodID="1">
+        <icm:LightSourceParameter icm:LightSourceIndex="2" icm:Name="488nm" icm:Caption="488nm" icm:Type="Laser" icm:Power="100.0" icm:Exposure="500" />
+        <icm:CameraSetting icm:Number="1" icm:Key="Port1,sCMOS 2000 x 2000,ORCA_Flash_40" icm:Name="S.No.000000ORCA_Flash_40" icm:Caption="ORCA_Flash_40" icm:Binning="1" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:EmissionFilterSetting icm:FilterWheelIndex="1" icm:FilterWheelPosition="2" icm:Name="BP525/50" />
+        <icm:ZParameter icm:ZSliceNumber="3" icm:ZStackMode="All" icm:ZOffset="0.0" />
+        <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="104" icm:MaxContrast="751" icm:BitDepth="16" icm:Color="#FF19FF06" icm:IsVisible="true" />
+      </icm:Channel>
+      <icm:Channel icm:Number="3" icm:Name="Ch3 ConfocalFluorescence 405nm BP447/60 S.No.000000ORCA_Flash_40 Z3 All" icm:Method="ConfocalFluorescence" icm:IsEnabled="true" icm:ObjectiveIndex="0" icm:MethodID="1">
+        <icm:LightSourceParameter icm:LightSourceIndex="1" icm:Name="405nm" icm:Caption="405nm" icm:Type="Laser" icm:Power="100.0" icm:Exposure="200" />
+        <icm:CameraSetting icm:Number="1" icm:Key="Port1,sCMOS 2000 x 2000,ORCA_Flash_40" icm:Name="S.No.000000ORCA_Flash_40" icm:Caption="ORCA_Flash_40" icm:Binning="1" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:EmissionFilterSetting icm:FilterWheelIndex="1" icm:FilterWheelPosition="1" icm:Name="BP447/60" />
+        <icm:ZParameter icm:ZSliceNumber="3" icm:ZStackMode="All" icm:ZOffset="0.0" />
+        <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="101" icm:MaxContrast="65000" icm:BitDepth="16" icm:Color="#FF00FFFF" icm:IsVisible="true" />
+      </icm:Channel>
+    </icm:ChannelList>
+    <icm:PinholeDiskSetting icm:Speed="4000" />
+    <icm:Wells icm:UsesSameSettingParWell="true">
+      <icm:StitchParameter icm:IsStitchEnabled="true" icm:IsWritingStitchedImageEnabled="false" icm:NaX="99" icm:NaY="99" />
+      <icm:Well icm:UniqueID="3179" icm:Number="1" icm:Column="1" icm:Row="1" icm:IsIgnore="true" icm:IsEnabled="false" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="-51.21" icm:Y="34.30" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3191" icm:Number="13" icm:Column="13" icm:Row="1" icm:IsIgnore="true" icm:IsEnabled="false" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="2.79" icm:Y="34.30" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3227" icm:Number="49" icm:Column="1" icm:Row="3" icm:IsIgnore="false" icm:IsEnabled="true" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="-51.21" icm:Y="25.30" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3230" icm:Number="52" icm:Column="4" icm:Row="3" icm:IsIgnore="false" icm:IsEnabled="true" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="-37.71" icm:Y="25.30" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3251" icm:Number="73" icm:Column="1" icm:Row="4" icm:IsIgnore="false" icm:IsEnabled="true" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="-51.21" icm:Y="20.80" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3274" icm:Number="96" icm:Column="24" icm:Row="4" icm:IsIgnore="false" icm:IsEnabled="false" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="52.29" icm:Y="20.80" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3308" icm:Number="130" icm:Column="10" icm:Row="6" icm:IsIgnore="false" icm:IsEnabled="true" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="-10.71" icm:Y="11.80" />
+        <icm:Areas />
+      </icm:Well>
+      <icm:Well icm:UniqueID="3562" icm:Number="384" icm:Column="24" icm:Row="16" icm:IsIgnore="true" icm:IsEnabled="false" icm:IsAnalysis="false">
+        <icm:CenterCoord icm:X="52.29" icm:Y="-33.20" />
+        <icm:Areas />
+      </icm:Well>
+    </icm:Wells>
+    <icm:ZSetting icm:Range="10.000" icm:Slices="10" icm:BottomAbs_um="12.000" />
+    <icm:FocusSetting icm:IsUseAF="true" icm:IsAutoFocusEnabled="true" icm:IsSoftFocusEnabled="false" icm:AFFocusLocation="EveryField" icm:ImageFocusRange="100" icm:ImageFocusSlices="20">
+      <icm:SFParameter icm:TargetCh="1" icm:SFFocusLocation="CenterArea" icm:SFRange="150.0" icm:SFSlices="20">
+        <icm:SFMethodParameter icm:Method="ConfocalFluorescence" icm:Exposure="100" icm:Power="100" icm:Binning="1" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:SFMethodParameter icm:Method="EpiFluorescence" icm:Exposure="50" icm:Power="50" icm:Binning="4" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:SFMethodParameter icm:Method="PhaseContrast" icm:Exposure="30" icm:Power="50" icm:Binning="4" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+        <icm:SFMethodParameter icm:Method="BrightField" icm:Exposure="30" icm:Power="50" icm:Binning="4" icm:GainIndex="0" icm:GainText="16-bit (full resolution, standard scan)" />
+      </icm:SFParameter>
+    </icm:FocusSetting>
+    <icm:TimelapsSetting icm:Interval="PT1S" icm:Iteration="1" icm:SoftFocusFrequency="FirstTime" icm:TotalPeriod="PT1M" icm:FPS="5.0" icm:TimelapseSelectType="Normal" icm:UseFPS="false">
+      <icm:TimelapsEventList />
+    </icm:TimelapsSetting>
+    <icm:FlatFieldCorrectSetting icm:DoCorrection="true" icm:DoGeometricCorrection="true" icm:PixelInterpolation="NearestNeighbor" />
+    <icm:SaveImageFileInfo icm:Slice="false" icm:MIP="true" icm:SUM="false" />
+    <icm:ImagingOption>
+      <icm:PriorityMode>ChannelPriority</icm:PriorityMode>
+    </icm:ImagingOption>
+  </icm:ImagingProtocol>
+</icm:MeasurementProtocol>

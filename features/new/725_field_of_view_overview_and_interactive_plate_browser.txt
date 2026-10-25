@@ -61,6 +61,23 @@ wells open as stacked images and closing one keeps the others; three custom
 layered groups give the expected comparison groups and counts; Image and
 Enhancement settings apply; the Actions container contents; plus M's own tests.
 
+MAINTAINER BUG — 2026-10-24 (Yokogawa CQ1 import; metadata agent owns it, UI
+changes minimal and coordinated with A and M)
+1. Overview metadata detection (and spaCR's shared CQ1 well conversion) reads
+   CQ1 names W<well index>F<field>T<time>Z<z>C<channel>, from a Projection
+   folder or a raw image folder.
+2. A well INDEX is placed on the plate from the Yokogawa XMLs (well table, plate
+   rows x columns and row- or column-major numbering), e.g. W0049 -> C01 on a
+   384-well plate; channel names/wavelengths, pixel size, Z and time come from
+   the XMLs where they exist.
+3. Autofill plate geometry, display channels (count, names, default colours from
+   instrument view colours, wavelengths or names), field/Z/time and pixel size
+   for CQ1, CellVoyager and the other formats; every value stays editable.
+Acceptance: CQ1 fixture (filenames + trimmed XMLs) tests both index orders,
+channel detection and the autofilled geometry/channels; CellVoyager still works;
+read-only run on the maintainer's real CQ1 folder reports plate, wells, fields
+and channels.
+
 LATEST MAINTAINER REQUIREMENTS — 2026-10-24 (supersede conflicting earlier notes;
 all earlier delivered behavior is retained where compatible)
 UI agent A owns 1-8, the right-click menu of 9 and the UI shells of 10 and 12.
@@ -609,3 +626,4 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-24 — Maintainer reversed the own-module idea: Overview stays a closable tab inside Mask generation, opened only by the existing source-field icon; layered-condition comparisons and stacked image views added to round 2.
 2026-10-24 — Round-2 items 5-7 data side (M): spacr.settings._overview_measurement_declarations() gives the Measurements + "Advanced Measurements" (parent Measurements) keys, types, tooltips and category help for the tab's settings model; _image_level_features(groups=) skips unselected groups; fov export runs on Measure's _parallel_pool, one image per worker, RAM-guarded and cancellable; Advanced filter bank, image-quality network and embeddings are off by default. Remaining: U attaches the declarations and passes measurements=settings; captions need reviewed translations.
 2026-10-24 — Round 2 (A) in 262ab6ffbd/6f1550db9c: closable Overview tab from the Mask/Make Masks icon, standard setting rows and Actions, Image + Enhancement (19 enhance_* steps; PSF/restoration not offered), Original buttons, tile slider, stacked images, layered group builder, M's Measurements wired with progress; 12 tab tests pass. Remaining: new-caption translations (translation owner) and the two pre-existing unreadable-TIFF failures in test_field_of_view_overview.
+2026-10-24 — CQ1 import (metadata agent): Overview and the shared CQ1 converter place W<index> wells from the Yokogawa XMLs (well table, plate geometry, row/column numbering, override), and the wizard autofills geometry, editable channel names/colours, well order and pixel size for CQ1, CellVoyager and TIFF headers. 19 new tests pass; the real sulfide Projection folder reads as 384-well, 18 wells (C01-F10), 9 fields, 3 channels, 0.1625 µm. 25 new captions await translation.

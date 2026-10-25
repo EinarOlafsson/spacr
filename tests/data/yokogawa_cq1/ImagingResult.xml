@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<icm:ImagingResult icm:StructVersion="2.0" xmlns:icm="http://www.yokogawa.co.jp/LSC/ICMSchema/1.0">
+  <icm:FileInformation icm:Name="ImagingResult.xml" icm:Version="1.0" icm:CreateTime="2026-10-15T11:24:58.0489894-04:00" icm:CreateUser="CQ1" icm:LastUpdateTime="2026-10-15T12:16:26.4062878-04:00" icm:LastUpdateUser="CQ1"></icm:FileInformation>
+  <icm:ResultInfo icm:BeginTime="2026-10-15T11:24:57.8544718-04:00" icm:EndTime="2026-10-15T12:16:25.7905912-04:00" icm:Result="Completed" icm:SoftwareVersion="R1.08.02.01" icm:PlateID="plate1">
+    <icm:ProtocolPath>MeasurementProtocol.xml</icm:ProtocolPath>
+  </icm:ResultInfo>
+  <icm:MachineInfo icm:ProductID="16CQ003" icm:SerialNumber="0000000000" icm:FirmwareVersion="1.03.02.00" icm:AutoFocusRevision="3" />
+  <icm:ImageDataInfo icm:FolderDividingMethod="ByField" icm:IsFlatFieldCalibration="true" icm:IsGeometricCalibration="true" icm:LastTimePoint="1" icm:TotalTimePoint="1">
+    <icm:DimensionsInfo>
+      <icm:W icm:Min="1" icm:Max="18" />
+      <icm:A icm:Min="1" icm:Max="9" />
+      <icm:F icm:Min="1" icm:Max="9" />
+      <icm:T icm:Min="1" icm:Max="1" />
+      <icm:Z icm:Min="1" icm:Max="10" />
+      <icm:C icm:Min="1" icm:Max="3" />
+    </icm:DimensionsInfo>
+    <icm:EnableArea icm:X="10" icm:Y="10" icm:Width="1980" icm:Height="1980" />
+    <icm:ImageCompressParameter icm:IsImageCompress="false" icm:ImageCompressType="Lzw" />
+  </icm:ImageDataInfo>
+  <icm:ChannelInfoList>
+    <icm:ChannelInfo icm:Ch="1" icm:HorizontalPixelSize="0.1625" icm:VerticalPixelSize="0.1625" icm:PixelWidth="2000" icm:PixelHeight="2000" icm:CameraNumber="1" icm:FilterWheelIndex="1" icm:FilterWheelPosition="4" icm:StitchROITopLeftX="10" icm:StitchROITopLeftY="10" icm:StitchROIWidth="1980" icm:StitchROIHeight="1980" />
+    <icm:ChannelInfo icm:Ch="2" icm:HorizontalPixelSize="0.1625" icm:VerticalPixelSize="0.1625" icm:PixelWidth="2000" icm:PixelHeight="2000" icm:CameraNumber="1" icm:FilterWheelIndex="1" icm:FilterWheelPosition="2" icm:StitchROITopLeftX="10" icm:StitchROITopLeftY="10" icm:StitchROIWidth="1980" icm:StitchROIHeight="1980" />
+    <icm:ChannelInfo icm:Ch="3" icm:HorizontalPixelSize="0.1625" icm:VerticalPixelSize="0.1625" icm:PixelWidth="2000" icm:PixelHeight="2000" icm:CameraNumber="1" icm:FilterWheelIndex="1" icm:FilterWheelPosition="1" icm:StitchROITopLeftX="10" icm:StitchROITopLeftY="10" icm:StitchROIWidth="1980" icm:StitchROIHeight="1980" />
+  </icm:ChannelInfoList>
+  <icm:CameraApertureResults>
+    <icm:StitchParameter icm:IsStitchEnabled="true" icm:IsWritingStitchedImageEnabled="false" icm:NaX="99" icm:NaY="99" />
+    <icm:CameraApertureResult icm:CameraNumber="1" icm:ApertureHorizontalPixels="1980" icm:ApertureVerticalPixels="1980" icm:HorizontalPixels="2000" icm:VerticalPixels="2000" />
+  </icm:CameraApertureResults>
+  <icm:CalibrationInfoList>
+    <icm:ChannelCalibrationInfo icm:Ch="1" icm:DarkPath="Calibration\DC_ORCA_Flash_40 S.No.000000_Bin1_Exp 100ms_Gain 16-bit (full resolution, standard scan).tif" icm:ShadingPath="Calibration\SC_640nm ORCA_Flash_40_UPLXAPO40X.tif" icm:CameraPrameterKey="Port1,sCMOS 2000 x 2000,ORCA_Flash_40,S.No.000000," icm:ObjectLensName="UPLXAPO40X" icm:MagnificationCalibrateRatio="1.0026" icm:BaseIntensityOffset="101" />
+    <icm:ChannelCalibrationInfo icm:Ch="2" icm:DarkPath="Calibration\DC_ORCA_Flash_40 S.No.000000_Bin1_Exp 100ms_Gain 16-bit (full resolution, standard scan).tif" icm:ShadingPath="Calibration\SC_488nm ORCA_Flash_40_UPLXAPO40X.tif" icm:CameraPrameterKey="Port1,sCMOS 2000 x 2000,ORCA_Flash_40,S.No.000000," icm:ObjectLensName="UPLXAPO40X" icm:MagnificationCalibrateRatio="1.0026" icm:BaseIntensityOffset="101" />
+    <icm:ChannelCalibrationInfo icm:Ch="3" icm:DarkPath="Calibration\DC_ORCA_Flash_40 S.No.000000_Bin1_Exp 100ms_Gain 16-bit (full resolution, standard scan).tif" icm:ShadingPath="Calibration\SC_405nm ORCA_Flash_40_UPLXAPO40X.tif" icm:CameraPrameterKey="Port1,sCMOS 2000 x 2000,ORCA_Flash_40,S.No.000000," icm:ObjectLensName="UPLXAPO40X" icm:MagnificationCalibrateRatio="1.0026" icm:BaseIntensityOffset="101" />
+  </icm:CalibrationInfoList>
+  <icm:AnalysisPath icm:Name="jutta_MeasurementProtocol" />
+  <icm:MapParameter icm:MapViewUISize="1600" icm:MapViewUIMinShowSize="400" icm:MapMargin="1.23" icm:UseOffsetToMapRestricted="true" />
+  <icm:SaveImageFileInfo icm:Slice="false" icm:MIP="true" icm:SUM="false" />
+</icm:ImagingResult>

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<icm:ImageViewSetting icm:StructVersion="1.0" xmlns:icm="http://www.yokogawa.co.jp/LSC/ICMSchema/1.0">
+  <icm:FileInformation icm:Name="ImageViewSetting" icm:Version="1.0" icm:CreateTime="2026-10-15T11:24:58.0419696-04:00" icm:CreateUser="CQ1" icm:LastUpdateTime="2026-10-15T12:16:27.0200429-04:00" icm:LastUpdateUser="CQ1"></icm:FileInformation>
+  <icm:ChannelViewSettingList>
+    <icm:ChannelViewSetting icm:Ch="1">
+      <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="101" icm:MaxContrast="6000" icm:BitDepth="16" icm:Color="#FFFF00FF" icm:IsVisible="true" />
+    </icm:ChannelViewSetting>
+    <icm:ChannelViewSetting icm:Ch="2">
+      <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="104" icm:MaxContrast="751" icm:BitDepth="16" icm:Color="#FF19FF06" icm:IsVisible="false" />
+    </icm:ChannelViewSetting>
+    <icm:ChannelViewSetting icm:Ch="3">
+      <icm:ViewSetting icm:IsAuto="false" icm:MinContrast="101" icm:MaxContrast="23598" icm:BitDepth="16" icm:Color="#FF00FFFF" icm:IsVisible="true" />
+    </icm:ChannelViewSetting>
+  </icm:ChannelViewSettingList>
+</icm:ImageViewSetting>

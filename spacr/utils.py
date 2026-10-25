@@ -1947,7 +1947,7 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
 
     return overlayed_image, outlines, image
 
-def _convert_cq1_well_id(well_id):
+def _convert_cq1_well_id(well_id, acquisition=None):
     """Convert a linear well index to the CQ1 ``<row_letter><col>`` well format.
 
     24 columns per row is the CQ1's own layout, not an assumption about the
@@ -1964,17 +1964,30 @@ def _convert_cq1_well_id(well_id):
     substituting ``'0'``, it would be handed things like ``'1a'``. Keeping the
     token leaves two odd wells as two odd wells and never invents a name.
 
+    When the acquisition's Yokogawa XMLs were found, their well table and
+    plate geometry decide instead, through
+    :func:`spacr.regex_infer._yokogawa_well`, so a 96-well CQ1 plate maps
+    ``13`` to ``B01`` rather than ``A13``.
+
     :param well_id: 1-based linear well index.
+    :param acquisition: a record from
+        :func:`spacr.regex_infer._yokogawa_acquisition`, or None for the
+        24-column default.
     :returns: the well name, e.g. ``1`` -> ``'A01'``, ``384`` -> ``'P24'``;
         or ``str(well_id)`` when it names no well.
     """
+    from .regex_infer import _yokogawa_well
     index = schema.parse_int_token(well_id, allow_prefix=False)
     if index is None or index < 1:
         print(f'Not a CQ1 well index: {well_id!r}; keeping it as it is',
               flush=True)
         return str(well_id)
-    row, col = divmod(index - 1, 24)
-    return schema.well_id(row + 1, col + 1)
+    position = _yokogawa_well(index, acquisition)
+    if position is None:
+        print(f'CQ1 well index {index} lies outside the plate; keeping it as it is',
+              flush=True)
+        return str(well_id)
+    return schema.well_id(*position)
 
 def _get_cellpose_batch_size():
     """Choose a Cellpose batch size from the GPU's VRAM.
@@ -2033,6 +2046,10 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
     :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
     """
     images_by_key = defaultdict(list)
+    acquisition = None
+    if metadata_type == 'cq1':
+        from .regex_infer import _yokogawa_acquisition
+        acquisition = _yokogawa_acquisition(src)
 
     for filename in filenames:
         match = regular_expression.match(filename)
@@ -2071,7 +2088,7 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
 
                 if metadata_type =='cq1':
                     orig_well = well
-                    well = _convert_cq1_well_id(well)
+                    well = _convert_cq1_well_id(well, acquisition)
                     print(f'Converted Well ID: {orig_well} to {well}', end='\r', flush=True)
 
                 key = (plate, well, field, channel, timeID, sliceID)

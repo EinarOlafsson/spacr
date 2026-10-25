@@ -1528,11 +1528,26 @@ def _overview_natural_key(value):
                  for part in re.split(r"(\d+)", str(value)))
 
 
-def _overview_index(source, pattern="", convention="auto", cancelled=None, source_scope="recursive"):
-    """Index paths without decoding pixels; never invent an unresolved well."""
+def _overview_well_layout(layout):
+    """Normalise an explicit ``(rows, columns, order)`` well-index layout."""
+    if not layout:
+        return None, None, None
+    rows, columns, order = (tuple(layout) + (None, None, None))[:3]
+    return (int(rows) if rows else None, int(columns) if columns else None,
+            order if order in ("row", "column") else None)
+
+
+def _overview_index(source, pattern="", convention="auto", cancelled=None, source_scope="recursive",
+                    well_layout=None):
+    """Index paths without decoding pixels; never invent an unresolved well.
+
+    A numeric well (a Yokogawa CQ1 ``W0049`` index) is placed with the
+    explicit ``well_layout`` when given, else the acquisition XMLs next to or
+    above the images, else the CQ1 24-column default.
+    """
     import re
     from ...schema import parse_well, well_id
-    from ...regex_infer import _metadata_pattern
+    from ...regex_infer import _metadata_pattern, _CQ1_FILENAME, _yokogawa_acquisition, _yokogawa_well
     from ..folder_metadata import _classify, _FIELD_RX, _CHANNEL_RX
 
     root = Path(source).resolve()
@@ -1546,6 +1561,8 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
         raise _OverviewValidationError(str(exc)) from exc
     if custom is not None and "wellID" not in custom.groupindex:
         raise _OverviewValidationError(tr("The filename regex must include a wellID group."))
+    layout = _overview_well_layout(well_layout)
+    acquisitions = {}
     groups = {}
     for directory, folders, names in os.walk(root):
         folders[:] = (sorted(p for p in folders if not p.startswith(".")
@@ -1562,6 +1579,8 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                 match = custom.match(name)
             else:
                 match = re.match(_metadata_pattern(convention, path.suffix[1:]), name, re.I)
+                if match is None:
+                    match = re.match(_CQ1_FILENAME, name, re.I)
                 if match is None:
                     match = re.match(r"(?P<plateID>.+)_(?P<wellID>[A-Za-z]+\d+)_"
                                      r"(?:F|field)?(?P<fieldID>\d+)(?:_C(?P<chanID>\d+))?(?:\.|$)", name, re.I)
@@ -1604,6 +1623,11 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                     scope.append(filename_plate)
                 plate = str(Path(*scope))
             well = str(values.get("wellID") or "").upper()
+            if well.isdigit():
+                if directory not in acquisitions:
+                    acquisitions[directory] = _yokogawa_acquisition(directory)
+                position = _yokogawa_well(int(well), acquisitions[directory], *layout)
+                well = well_id(*position) if position else ""
             try:
                 row, column = parse_well(well, strict=True)
                 well = well_id(row, column)
@@ -1645,11 +1669,49 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
     return tuple(result)
 
 
+def _overview_tiff_pixel_size(image):
+    """Read a micrometre pixel size from OME or ImageJ TIFF metadata, or None.
+
+    A resolution in inches is ignored: it is a print density, usually the
+    72 or 96 DPI default, not a pixel size.
+    """
+    import re
+    try:
+        description = image.pages[0].description or ""
+    except (AttributeError, IndexError):
+        description = ""
+    if "PhysicalSizeX" in description:
+        match = re.search(r'PhysicalSizeX="([0-9.eE+-]+)"', description)
+        unit = re.search(r'PhysicalSizeXUnit="([^"]+)"', description)
+        scale = {"µm": 1., "um": 1., "micron": 1., "nm": 1e-3, "mm": 1e3}.get(
+            unit.group(1) if unit else "µm")
+        if match and scale:
+            value = float(match.group(1)) * scale
+            return value if value > 0 else None
+    try:
+        tags = image.pages[0].tags
+        resolution = tags["XResolution"].value
+        unit = tags["ResolutionUnit"].value if "ResolutionUnit" in tags else 2
+    except (KeyError, IndexError, AttributeError):
+        return None
+    numerator, denominator = resolution if isinstance(resolution, tuple) else (resolution, 1)
+    if not numerator or not denominator:
+        return None
+    pixels_per_unit = numerator / denominator
+    imagej = getattr(image, "imagej_metadata", None) or {}
+    if str(imagej.get("unit", "")).casefold().replace("\\u00b5", "µ") in ("micron", "um", "µm"):
+        return 1. / pixels_per_unit
+    if int(unit) == 3:
+        return 1e4 / pixels_per_unit
+    return None
+
+
 def _overview_channel_info(field):
     """Inspect declared image axes and channel IDs without decoding pixels."""
     from PIL import Image
 
     records = []
+    pixel_size = None
     separate = any(key for key, _ in field.files)
     if (not field.files or (not separate and len(field.files) != 1)
             or (separate and any(not key for key, _ in field.files))):
@@ -1665,6 +1727,7 @@ def _overview_channel_info(field):
             with tifffile.TiffFile(path) as image:
                 series = image.series[0]
                 shape, dtype, axes = series.shape, series.dtype, series.axes
+                pixel_size = _overview_tiff_pixel_size(image)
         else:
             with Image.open(path) as image:
                 bands = len(image.getbands())
@@ -1682,7 +1745,9 @@ def _overview_channel_info(field):
                             channel_axis=channel_axis,
                             channel_count=shape[channel_axis] if channel_axis >= 0 else 1,
                             time_count=shape[axes.index("T")] if "T" in axes else 1,
-                            z_count=shape[axes.index("Z")] if "Z" in axes else 1))
+                            z_count=shape[axes.index("Z")] if "Z" in axes else 1,
+                            pixel_size_um=pixel_size))
+        pixel_size = None
     if separate:
         ids = [int(record["file_channel"]) for record in records
                if str(record["file_channel"]).isdigit()]
@@ -1856,15 +1921,36 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         yield channel, path, array
 
 
+def _overview_channel_rgb(channels, channel_colors):
+    """Return one ``(r, g, b)`` weight triple per channel, or None for plain RGB order."""
+    if not channel_colors:
+        return None
+    weights = []
+    for channel in channels:
+        value = channel_colors.get(channel, channel_colors.get(str(channel)))
+        text = str(value or "").lstrip("#")
+        if len(text) != 6:
+            return None
+        try:
+            weights.append(tuple(int(text[index:index + 2], 16) / 255. for index in (0, 2, 4)))
+        except ValueError:
+            return None
+    return weights
+
+
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      channel_views=False, normalization_context=None, cancelled=None,
-                     advanced_normalization=None, region=None, enhancement=None):
+                     advanced_normalization=None, region=None, enhancement=None, channel_colors=None):
     """Decode canonical display pixels, optionally returning individual channel views.
 
     ``enhancement`` is a Make Masks :class:`spacr.qt.detect_chain.Chain`
     applied to each displayed plane after display scaling; it changes only
     what is shown, never raw or measured pixels.
+
+    Up to three channels are composited additively in ``channel_colors``
+    (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
+    in order.
     """
     from PIL import Image, ImageDraw
 
@@ -1949,6 +2035,12 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
             if header:
                 draw.text((x, y), str(channel), fill="white")
         return np.asarray(mosaic).copy()
+    weights = _overview_channel_rgb(channels, channel_colors)
+    if weights is not None:
+        mixed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
+        for plane, weight in zip(planes, weights):
+            mixed += plane[..., None].astype(np.float32) * np.asarray(weight, dtype=np.float32)
+        return np.clip(mixed, 0, 255).astype(np.uint8)
     rgb = np.zeros(planes[0].shape + (3,), dtype=np.uint8)
     for index, plane in enumerate(planes):
         rgb[..., index] = plane
@@ -2704,7 +2796,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      conditions=None, normalization_context=None, annotations=None,
-                     advanced_normalization=None, field_options=None):
+                     advanced_normalization=None, field_options=None, channel_colors=None):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -2833,7 +2925,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
                                               normalization=normalization,
                                               normalization_context=normalization_context,
-                                              cancelled=cancelled, advanced_normalization=advanced_normalization, **selected_axes)
+                                              cancelled=cancelled, advanced_normalization=advanced_normalization,
+                                              channel_colors=channel_colors, **selected_axes)
                     axis = figure.add_subplot(panel)
                     axis.imshow(pixels, interpolation="none")
                     axis.set_axis_off()
@@ -2912,7 +3005,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
                       normalization_context=None, advanced_normalization=None, preview_edge=240,
-                      labels=True, enhancement=None):
+                      labels=True, enhancement=None, channel_colors=None):
     """Render one bounded page of field thumbnails, using the shared pixel path.
 
     ``labels`` draws each tile's well and field name above its image.
@@ -2938,7 +3031,7 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                                       cancelled=cancelled, time_index=time_index,
                                       z_mode=z_mode, z_index=z_index,
                                       advanced_normalization=advanced_normalization,
-                                      enhancement=enhancement)
+                                      enhancement=enhancement, channel_colors=channel_colors)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -4415,7 +4508,9 @@ class _FieldOverview(QWidget):
         """
         if field is not None:
             names = "\n".join(Path(path).name for _channel, path in field.files)
-            self._image_metadata.setText(field.caption + ("\n" + names if names else ""))
+            pixel = self._overview_options.get("pixel_size_um")
+            pixel = "\n" + tr("Pixel size: {size} µm", size=f"{pixel:g}") if pixel else ""
+            self._image_metadata.setText(field.caption + ("\n" + names if names else "") + pixel)
         shown = self.metadata_toggle.isChecked() and self._individual
         self._image_metadata.setVisible(shown)
         if shown:
@@ -5208,8 +5303,10 @@ class _FieldOverview(QWidget):
         self.norm_channel.blockSignals(True)
         self.norm_channel.clear()
         self.norm_channel.addItem(tr("All channels"), None)
+        names = self._overview_options.get("channel_names") or {}
         for channel in available:
-            control = QCheckBox(str(channel))
+            name = names.get(channel, names.get(str(channel), ""))
+            control = QCheckBox(f"{channel} {name}".strip())
             control.setChecked(channel in selected)
             control.setToolTip(tr("Show channel {channel}", channel=channel))
             control.toggled.connect(self._channel_toggled)
@@ -5605,7 +5702,8 @@ class _FieldOverview(QWidget):
                     time_index=time if isinstance(time, int) else 0,
                     z_index=z if isinstance(z, int) else 0,
                     z_mode=self.z_mode.currentData() or "plane",
-                    advanced_normalization=self._advanced_model if self.advanced.isChecked() else None)
+                    advanced_normalization=self._advanced_model if self.advanced.isChecked() else None,
+                    channel_colors=self._overview_options.get("channel_colors") or None)
 
     @staticmethod
     def _natural(value):
@@ -6099,10 +6197,12 @@ class _FieldOverview(QWidget):
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
         self.status.setText(tr("Indexing image metadata…"))
         source_scope = self._overview_options.get("source_scope", "recursive")
+        well_layout = self._overview_options.get("well_layout")
         def read():
             """Reject unresolved wells on every browser load, retaining honest previews."""
             fields = _overview_matched_fields(_overview_index(
-                source, regex, convention, cancelled, source_scope=source_scope), regex)
+                source, regex, convention, cancelled, source_scope=source_scope,
+                well_layout=well_layout), regex)
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
@@ -8030,23 +8130,83 @@ def _overview_matched_fields(fields, pattern):
         expression.match(Path(path).name) for _, path in field.files))
 
 
-def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder"):
+def _overview_acquisition_summary(fields, info, acquisition):
+    """Combine acquisition XML metadata with what the filenames and headers show.
+
+    :param fields: matched source records.
+    :param info: header information from :func:`_overview_channel_info`.
+    :param acquisition: a :func:`spacr.regex_infer._yokogawa_acquisition`
+        record, or None.
+    :returns: plate geometry, well numbering, channel names and colours,
+        pixel size and axis counts, each with where it came from.
+    """
+    import re
+    from ...regex_infer import _channel_display_colour
+    acquisition = acquisition or {}
+    numeric = any(re.fullmatch(r"\d+", str(value or "")) for value in
+                  (_overview_filename_well(path) for field in fields[:50] for _, path in field.files))
+    pixel = acquisition.get("pixel_size_um")
+    pixel_source = "acquisition" if pixel else ""
+    if not pixel:
+        pixel = next((entry.get("pixel_size_um") for entry in info.get("files", ())
+                      if entry.get("pixel_size_um")), None)
+        pixel_source = "image" if pixel else ""
+    named = acquisition.get("channels") or {}
+    channels = {}
+    for position, channel in enumerate(info.get("channels", ())):
+        record = dict(named.get(channel) or {})
+        name = record.get("name") or ""
+        channels[channel] = dict(name=name, excitation_nm=record.get("excitation_nm"),
+                                 emission=record.get("emission", ""),
+                                 color=record.get("color") or _channel_display_colour(name, position=position))
+    rows, columns = acquisition.get("rows"), acquisition.get("columns")
+    return dict(
+        instrument=acquisition.get("instrument", ""), folder=acquisition.get("folder", ""),
+        sources=tuple(acquisition.get("sources", ())), rows=rows, columns=columns,
+        numeric_wells=numeric, well_order=acquisition.get("well_order") or ("row" if numeric else None),
+        well_table=bool(acquisition.get("wells")), channels=channels,
+        pixel_size_um=pixel, pixel_source=pixel_source,
+        wells=len({(field.plate, field.well) for field in fields if field.well}),
+        fields=len({field.field_id for field in fields if field.field_id}) or acquisition.get("fields"),
+        z_planes=len({field.z_id for field in fields if field.z_id}) or max(
+            (entry.get("z_count", 1) for entry in info.get("files", ())), default=1),
+        time_points=len({field.time_id for field in fields if field.time_id}) or max(
+            (entry.get("time_count", 1) for entry in info.get("files", ())), default=1),
+        acquired_z=acquisition.get("z_slices"), z_step_um=acquisition.get("z_step_um"),
+        acquired_time=acquisition.get("time_points"))
+
+
+def _overview_filename_well(path):
+    """Return the CQ1 well token a filename carries, or ``""``."""
+    import re
+    from ...regex_infer import _CQ1_FILENAME
+    match = re.match(_CQ1_FILENAME, Path(path).name, re.I)
+    return match.group("wellID") if match else ""
+
+
+def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder", well_layout=None):
     """Index names on a worker and inspect only the first field's image headers."""
-    fields = _overview_index(source, pattern, convention, cancelled, source_scope=source_scope)
+    import re
+    from ...regex_infer import _CQ1_FILENAME, _yokogawa_acquisition
+    fields = _overview_index(source, pattern, convention, cancelled, source_scope=source_scope,
+                             well_layout=well_layout)
     if cancelled.is_set() or not fields:
         return fields, None
     detected_pattern, detected_label = pattern, convention
-    if convention == "auto" and not pattern:
-        import re
+    all_names = tuple(Path(path).name for field in fields for _, path in field.files)
+    if (convention == "auto" and not pattern
+            and 2 * sum(bool(re.match(_CQ1_FILENAME, name, re.I)) for name in all_names) >= len(all_names)):
+        detected_pattern, detected_label = _CQ1_FILENAME, "cq1"
+    elif convention == "auto" and not pattern:
         from ..regex_detect import auto_detect_regex
-        names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
+        names = all_names[:20]
         detected_pattern, detected_label, hits = auto_detect_regex(names)
         if detected_pattern and ("wellID" not in re.compile(detected_pattern).groupindex
                 or not any(re.match(detected_pattern, name, re.I) for name in names)):
             detected_pattern, detected_label = pattern, convention
         if detected_pattern and hits:
             inferred = _overview_index(source, detected_pattern, "auto", cancelled,
-                                       source_scope=source_scope)
+                                       source_scope=source_scope, well_layout=well_layout)
             by_path = {path: (field, channel) for field in inferred for channel, path in field.files}
             preserves_metadata = all(
                 path in by_path
@@ -8069,6 +8229,8 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     info = dict(_overview_channel_info(first))
     info["detected_pattern"] = detected_pattern or ""
     info["detected_label"] = detected_label
+    acquisition = _yokogawa_acquisition(Path(first.files[0][1]).parent) if first.files else None
+    info["acquisition"] = _overview_acquisition_summary(matched or fields, info, acquisition)
     return fields, info
 
 
@@ -8176,6 +8338,32 @@ class _OverviewMetadataWizard(QWidget):
         self.channels.setObjectName("OverviewWizardChannels")
         self.channels.setToolTip(tr("Choose only channel IDs reported by this image's metadata."))
         layout.addRow(tr("Display channels"), self.channels)
+        self.channel_table = QTableWidget(0, 4)
+        self.channel_table.setObjectName("OverviewWizardChannelTable")
+        install_sorting(self.channel_table)
+        self.channel_table.setHorizontalHeaderLabels([tr("Channel"), tr("Name"), tr("Wavelength"), tr("Colour")])
+        self.channel_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.channel_table.horizontalHeader().setStretchLastSection(True)
+        self.channel_table.setMinimumHeight(110)
+        self.channel_table.setToolTip(tr(
+            "Channel names and display colours, filled from the acquisition metadata or the wavelengths. "
+            "Edit a name or a colour (#rrggbb or a colour name) to override it."))
+        self.channel_table.itemChanged.connect(self._channel_colour_edited)
+        layout.addRow(tr("Channel names and colours"), self.channel_table)
+        self.pixel_size = QDoubleSpinBox()
+        self.pixel_size.setObjectName("OverviewWizardPixelSize")
+        self.pixel_size.setRange(0., 1000.)
+        self.pixel_size.setDecimals(4)
+        self.pixel_size.setSingleStep(.01)
+        self.pixel_size.setSuffix(" µm")
+        self.pixel_size.setSpecialValueText(tr("Unknown"))
+        self.pixel_size.setToolTip(tr(
+            "Pixel size in micrometres, filled from the acquisition metadata or the image header when they state it."))
+        self._pixel_size_explicit = self._settings.get("pixel_size_um") is not None
+        if self._pixel_size_explicit:
+            self.pixel_size.setValue(float(self._settings["pixel_size_um"]))
+        self.pixel_size.valueChanged.connect(self._pixel_size_edited)
+        layout.addRow(tr("Pixel size"), self.pixel_size)
         self.time = QSpinBox()
         self.time.setObjectName("OverviewWizardTime")
         self.z_mode = QComboBox()
@@ -8202,6 +8390,20 @@ class _OverviewMetadataWizard(QWidget):
         self.plate_geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
         self.plate_geometry.activated.connect(self._choose_geometry)
         layout.addRow(tr("Plate geometry"), self.plate_geometry)
+        self.well_order = QComboBox()
+        self.well_order.setObjectName("OverviewWizardWellOrder")
+        self.well_order.addItem(tr("Row by row (A01, A02, …)"), "row")
+        self.well_order.addItem(tr("Column by column (A01, B01, …)"), "column")
+        self.well_order.setToolTip(tr(
+            "How numeric well indices such as CQ1 W0049 are counted across the plate geometry. "
+            "Filled from the acquisition metadata; changing it or the geometry places the wells again."))
+        self.well_order.setEnabled(False)
+        self._well_layout = self._settings.get("well_layout")
+        self._layout_explicit = bool(self._well_layout)
+        if self._layout_explicit and len(self._well_layout) > 2:
+            self.well_order.setCurrentIndex(max(0, self.well_order.findData(self._well_layout[2])))
+        self.well_order.activated.connect(self._choose_well_order)
+        layout.addRow(tr("Well index order"), self.well_order)
         self.representatives = QSpinBox()
         self.representatives.setRange(1, 100)
         self.representatives.setValue(1)
@@ -8449,8 +8651,10 @@ class _OverviewMetadataWizard(QWidget):
         convention = self.preset.currentData()
         cancelled = self._cancelled
         self.status.setText(tr("Reading filename metadata and image headers…"))
+        well_layout = self._well_layout if self._layout_explicit else None
         self._runner.submit(lambda: (generation, _overview_wizard_probe(
-            source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope)), self._scanned)
+            source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope,
+            well_layout)), self._scanned)
 
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
@@ -8484,15 +8688,19 @@ class _OverviewMetadataWizard(QWidget):
             missed = ()
         self.preview.setRowCount(len(rows))
         self.preview.setSortingEnabled(False)
+        placed = {path: field for field in self._fields for _, path in field.files}
         for row, (name, values) in enumerate(rows):
             from ...schema import parse_well, letters_from_row_index
+            well = values.get("wellID", "")
+            if str(well).isdigit() and files[row] in placed and placed[files[row]].well:
+                well = placed[files[row]].well
             try:
-                physical_row, physical_column = parse_well(values.get("wellID", ""), strict=True)
+                physical_row, physical_column = parse_well(well, strict=True)
                 row_letters = letters_from_row_index(int(physical_row[1:]))
                 column_number = str(int(physical_column[1:]))
             except (ValueError, TypeError):
                 row_letters, column_number = "", ""
-            for column, value in enumerate((name, values.get("plateID", ""), values.get("wellID", ""), row_letters, column_number)
+            for column, value in enumerate((name, values.get("plateID", ""), well, row_letters, column_number)
                     + tuple(values.get(key, "") or "" for key in ("fieldID", "timeID", "sliceID", "chanID"))):
                 item = table_item(str(value))
                 item.setToolTip(str(value))
@@ -8512,11 +8720,32 @@ class _OverviewMetadataWizard(QWidget):
         for entry in info["files"]:
             descriptions.append(tr("Axes: {axes}; shape: {shape}; type: {dtype}", axes=entry["axes"],
                                    shape=str(entry["shape"]), dtype=entry["dtype"]))
-        self.axes.setText(tr("First field: {details}. Available channel IDs: {channels}",
-                             details="; ".join(dict.fromkeys(descriptions)), channels=str(available)))
+        acquisition = info.get("acquisition") or {}
+        self.axes.setText(" ".join((tr("First field: {details}. Available channel IDs: {channels}",
+                                       details="; ".join(dict.fromkeys(descriptions)), channels=str(available)),)
+                                   + self._acquisition_sentences(acquisition)))
+        self._fill_channel_table(available, acquisition.get("channels") or {})
+        if not self._pixel_size_explicit:
+            self.pixel_size.blockSignals(True)
+            self.pixel_size.setValue(float(acquisition.get("pixel_size_um") or 0.))
+            self.pixel_size.blockSignals(False)
+        numeric = bool(acquisition.get("numeric_wells"))
+        self.well_order.setEnabled(numeric)
+        if numeric and not self._layout_explicit:
+            self.well_order.setCurrentIndex(max(0, self.well_order.findData(
+                acquisition.get("well_order") if acquisition.get("well_order") in ("row", "column") else "row")))
         self.time.setRange(0, max(entry.get("time_count", 1) for entry in info["files"]) - 1)
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
-        if not self._geometry_explicit:
+        if not self._geometry_explicit and acquisition.get("rows") and acquisition.get("columns"):
+            dimensions = (int(acquisition["rows"]), int(acquisition["columns"]))
+            index = next((index for index in range(self.plate_geometry.count())
+                          if self.plate_geometry.itemData(index) == dimensions), -1)
+            if index < 0:
+                self.plate_geometry.addItem(tr("{rows} × {columns} plate", rows=dimensions[0],
+                                               columns=dimensions[1]), dimensions)
+                index = self.plate_geometry.count() - 1
+            self.plate_geometry.setCurrentIndex(index)
+        elif not self._geometry_explicit:
             rows_required, columns_required = _overview_geometry_extent(self._fields)
             for index in range(self.plate_geometry.count()):
                 rows_available, columns_available = self.plate_geometry.itemData(index)
@@ -8564,6 +8793,110 @@ class _OverviewMetadataWizard(QWidget):
     def _choose_geometry(self):
         """Keep an explicit user geometry across subsequent metadata previews."""
         self._geometry_explicit = True
+        if self.well_order.isEnabled():
+            self._choose_well_order()
+
+    def _choose_well_order(self, *_):
+        """Place numeric well indices again with the chosen geometry and numbering."""
+        geometry = self.plate_geometry.currentData() or (None, None)
+        self._well_layout = (geometry[0], geometry[1], self.well_order.currentData())
+        self._layout_explicit = True
+        self._geometry_explicit = True
+        self._scan()
+
+    def _pixel_size_edited(self, *_):
+        """Keep a typed pixel size across later metadata previews."""
+        self._pixel_size_explicit = True
+
+    @staticmethod
+    def _acquisition_sentences(acquisition):
+        """Describe what the acquisition metadata and filenames established."""
+        sentences = []
+        if acquisition.get("sources"):
+            sentences.append(tr("Acquisition metadata from {instrument}: {sources}.",
+                                instrument=acquisition.get("instrument", ""),
+                                sources=", ".join(acquisition["sources"])))
+        else:
+            sentences.append(tr("No acquisition metadata files were found; values come from filenames and image headers."))
+        sentences.append(tr("Detected {wells} wells, {fields} fields, {z} Z planes and {time} time points.",
+                            wells=acquisition.get("wells", 0), fields=acquisition.get("fields") or 0,
+                            z=acquisition.get("z_planes", 1), time=acquisition.get("time_points", 1)))
+        if acquisition.get("numeric_wells"):
+            if acquisition.get("rows") and acquisition.get("columns"):
+                order = {"row": tr("row by row"), "column": tr("column by column")}.get(
+                    acquisition.get("well_order"), tr("by the acquisition well table"))
+                sentences.append(tr("Numeric well indices are placed on a {rows} × {columns} plate numbered {order}.",
+                                    rows=acquisition["rows"], columns=acquisition["columns"], order=order))
+            else:
+                sentences.append(tr("Numeric well indices have no plate metadata; the CQ1 default of 24 columns "
+                                    "numbered row by row is used until you choose a geometry."))
+        return tuple(sentences)
+
+    def _fill_channel_table(self, available, detected):
+        """Show detected channel names, wavelengths and colours as editable rows."""
+        from .sortable_table import table_item
+        from ...regex_infer import _channel_display_colour
+        previous = self._channel_overrides() if getattr(self, "_edited_channels", None) else {}
+        self.channel_table.blockSignals(True)
+        self.channel_table.setSortingEnabled(False)
+        self.channel_table.setRowCount(len(available))
+        for row, channel in enumerate(available):
+            record = detected.get(channel) or detected.get(str(channel)) or {}
+            name, colour = previous.get(channel, (record.get("name") or "",
+                record.get("color") or _channel_display_colour(position=row)))
+            wavelength = record.get("excitation_nm")
+            wavelength = " / ".join(part for part in (
+                f"{wavelength:g} nm" if wavelength else "", record.get("emission") or "") if part)
+            for column, value in enumerate((str(channel), name, wavelength, colour)):
+                item = table_item(str(value))
+                if column in (0, 2):
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self.channel_table.setItem(row, column, item)
+            self._paint_colour_cell(row)
+        self.channel_table.setSortingEnabled(True)
+        self.channel_table.blockSignals(False)
+
+    def _paint_colour_cell(self, row):
+        """Show a channel's display colour as the colour cell's swatch."""
+        from PySide6.QtGui import QColor
+        item = self.channel_table.item(row, 3)
+        if item is None:
+            return
+        colour = QColor(item.text().strip())
+        if colour.isValid():
+            item.setBackground(colour)
+            item.setForeground(QColor("#000000") if colour.lightness() > 110 else QColor("#ffffff"))
+
+    def _channel_colour_edited(self, item):
+        """Repaint an edited colour cell and remember the user's names and colours."""
+        if item.column() == 3:
+            self.channel_table.blockSignals(True)
+            self._paint_colour_cell(item.row())
+            self.channel_table.blockSignals(False)
+        self._edited_channels = self._channel_overrides()
+
+    def _channel_overrides(self):
+        """Return ``{channel: (name, colour)}`` from the table's current rows."""
+        output = {}
+        for row in range(self.channel_table.rowCount()):
+            items = [self.channel_table.item(row, column) for column in range(4)]
+            if all(item is not None for item in items) and items[0].text().isdigit():
+                output[int(items[0].text())] = (items[1].text().strip(), items[3].text().strip())
+        return output
+
+    def _channel_display(self):
+        """Validate the channel table into names and ``#rrggbb`` colours."""
+        from PySide6.QtGui import QColor
+        names, colours = {}, {}
+        for channel, (name, colour) in self._channel_overrides().items():
+            value = QColor(colour)
+            if not value.isValid():
+                raise _OverviewValidationError(tr("Channel {channel} has no valid colour: {colour}.",
+                                                  channel=channel, colour=colour))
+            if name:
+                names[channel] = name
+            colours[channel] = value.name()
+        return names, colours
 
     def _condition_mapping(self):
         """Read explicit condition labels without changing any image metadata."""
@@ -8628,7 +8961,12 @@ class _OverviewMetadataWizard(QWidget):
             raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
         if gain is not None and gain not in channels:
             raise _OverviewValidationError(tr("The reference channel must be selected for display."))
+        channel_names, channel_colors = self._channel_display()
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
+                "well_layout": tuple(self._well_layout) if self._layout_explicit else None,
+                "channel_names": channel_names, "channel_colors": channel_colors,
+                "pixel_size_um": self.pixel_size.value() or None,
+                "acquisition": dict((self._info or {}).get("acquisition") or {}),
                 "microscope": self.preset.currentData(), "source_scope": self.scope.currentData(),
                 "geometry": tuple(self.plate_geometry.currentData()),
                 "channels": channels, "time_index": self.time.value(),

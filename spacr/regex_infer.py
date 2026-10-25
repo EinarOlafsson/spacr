@@ -1604,3 +1604,399 @@ def _metadata_autodetect(names, img_format="tif"):
             ranked.append((-matched, index, key, matched, total))
     ranked.sort()
     return [(key, matched, total) for _n, _i, key, matched, total in ranked]
+
+
+_CQ1_FILENAME = (
+    r"W(?P<wellID>\d+)F(?P<fieldID>\d+)T(?P<timeID>\d+)"
+    r"Z(?P<sliceID>\d+)C(?P<chanID>\d+)\.(?:tif|tiff|png|jpg|jpeg)$")
+
+_YOKOGAWA_MARKERS = ("MeasurementProtocol.xml", "ImagingResult.xml",
+                     "MeasurementDetail.mrf")
+
+_YOKOGAWA_XML_LIMIT = 4 * 1024 ** 2
+
+_YOKOGAWA_FOLDER_CACHE = {}
+
+
+def _xml_local(name):
+    """Drop an XML namespace from a tag or attribute name."""
+    return str(name).rsplit("}", 1)[-1]
+
+
+def _xml_tree(path):
+    """Parse one bounded instrument XML file, or return None when unreadable."""
+    import xml.etree.ElementTree as ElementTree
+    try:
+        if os.path.getsize(path) > _YOKOGAWA_XML_LIMIT:
+            return None
+        return ElementTree.parse(path).getroot()
+    except (OSError, ElementTree.ParseError):
+        return None
+
+
+def _xml_attributes(element):
+    """Return an element's attributes without namespaces."""
+    return {_xml_local(key): value for key, value in element.attrib.items()}
+
+
+def _xml_number(value, kind=float):
+    """Read a numeric attribute, or None when it is absent or not numeric."""
+    try:
+        number = kind(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+    return number
+
+
+def _yokogawa_metadata_folder(folder, depth=3):
+    """Find the nearest Yokogawa acquisition folder at or above ``folder``.
+
+    CQ1 projections sit in a ``Projection`` child of the folder holding the
+    acquisition XMLs, raw images sit beside them, so the folder itself and up
+    to ``depth`` parents are searched. CellVoyager writes
+    ``MeasurementDetail.mrf`` beside its images.
+
+    :param folder: an image folder.
+    :param depth: how many parent folders to search.
+    :returns: the folder path, or None.
+    """
+    current = os.path.abspath(str(folder))
+    for _level in range(depth + 1):
+        try:
+            names = set(os.listdir(current))
+        except OSError:
+            names = set()
+        if any(marker in names for marker in _YOKOGAWA_MARKERS) or any(
+                name.lower().endswith(".mes") for name in names):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
+def _wavelength_nm(text):
+    """Return the first wavelength written as ``<number>nm`` or a filter centre."""
+    match = re.search(r"(\d{3,4}(?:\.\d+)?)\s*nm", str(text or ""), re.I)
+    if match:
+        return float(match.group(1))
+    match = re.search(r"(?:BP|BA|LP|FF|ET)?\s*(\d{3,4})\s*/\s*\d+", str(text or ""), re.I)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+_CHANNEL_NAME_COLOURS = (
+    (("dapi", "hoechst", "bfp", "405", "blue", "af405", "alexa405"), "#0000ff"),
+    (("gfp", "fitc", "488", "af488", "alexa488", "green", "yfp", "cy2"), "#00ff00"),
+    (("cfp", "cyan"), "#00ffff"),
+    (("mcherry", "rfp", "tritc", "cy3", "561", "568", "594", "af568", "af594",
+      "texas", "tdtomato", "red", "lysotracker red"), "#ff0000"),
+    (("cy5", "640", "647", "af647", "alexa647", "far red", "farred", "draq5",
+      "magenta"), "#ff00ff"),
+    (("brightfield", "bright field", "phase", "dic", "transmitted", "bf"), "#ffffff"),
+)
+
+
+def _wavelength_colour(nanometres):
+    """Map an emission or excitation wavelength to a display colour."""
+    if nanometres is None:
+        return None
+    if nanometres < 480:
+        return "#0000ff"
+    if nanometres < 500:
+        return "#00ffff"
+    if nanometres < 570:
+        return "#00ff00"
+    if nanometres < 590:
+        return "#ffff00"
+    if nanometres < 650:
+        return "#ff0000"
+    return "#ff00ff"
+
+
+def _channel_display_colour(name="", excitation_nm=None, emission_nm=None, position=0):
+    """Pick a default display colour for one channel.
+
+    The emission wavelength decides when it is known, then the excitation
+    wavelength, then a recognised fluorophore or stain in the name. Without
+    any of those the channel takes red, green and blue by position, the
+    colours a multichannel composite has always used.
+
+    :param name: the channel name.
+    :param excitation_nm: excitation wavelength in nanometres, or None.
+    :param emission_nm: emission (filter centre) wavelength, or None.
+    :param position: zero-based position among the displayed channels.
+    :returns: a ``#rrggbb`` colour.
+    """
+    colour = _wavelength_colour(emission_nm)
+    if colour is None and excitation_nm is not None:
+        colour = ("#0000ff" if excitation_nm < 460 else "#00ff00" if excitation_nm < 520
+                  else "#ff0000" if excitation_nm < 620 else "#ff00ff")
+    if colour:
+        return colour
+    text = str(name or "").casefold()
+    tokens = set(re.split(r"[^a-z0-9]+", text))
+    for keys, value in _CHANNEL_NAME_COLOURS:
+        if any((key in tokens) if key.isalnum() else (key in text) for key in keys):
+            return value
+    return ("#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#00ffff", "#ffff00")[position % 6]
+
+
+def _argb_colour(value):
+    """Convert a Yokogawa ``#AARRGGBB`` view colour to ``#rrggbb``."""
+    text = str(value or "").strip()
+    if re.fullmatch(r"#[0-9a-fA-F]{8}", text):
+        return "#" + text[3:].lower()
+    if re.fullmatch(r"#[0-9a-fA-F]{6}", text):
+        return text.lower()
+    return None
+
+
+def _well_index_order(table, rows, columns):
+    """Name the numbering a ``{index: (row, column)}`` table follows."""
+    if not table or not rows or not columns:
+        return None
+    if all(index == (row - 1) * columns + column for index, (row, column) in table.items()):
+        return "row"
+    if all(index == (column - 1) * rows + row for index, (row, column) in table.items()):
+        return "column"
+    return "table"
+
+
+def _cq1_acquisition(folder, names):
+    """Read plate, well numbering, channels and axes from CQ1 acquisition XMLs."""
+    result = dict(instrument="CQ1", folder=folder, sources=[], wells={}, channels={})
+    protocol = _xml_tree(os.path.join(folder, "MeasurementProtocol.xml")) \
+        if "MeasurementProtocol.xml" in names else None
+    container = None
+    if protocol is not None:
+        result["sources"].append("MeasurementProtocol.xml")
+        for element in protocol.iter():
+            tag, attributes = _xml_local(element.tag), _xml_attributes(element)
+            if tag == "ContainerPath" and (element.text or "").strip():
+                container = os.path.basename((element.text or "").strip().replace("\\", "/"))
+            elif tag == "Well":
+                number = _xml_number(attributes.get("Number"), int)
+                row = _xml_number(attributes.get("Row"), int)
+                column = _xml_number(attributes.get("Column"), int)
+                if number and row and column:
+                    result["wells"][number] = (row, column)
+            elif tag == "Channel" and attributes.get("Number"):
+                channel = _xml_number(attributes.get("Number"), int)
+                if channel is None:
+                    continue
+                excitation = emission = None
+                caption = ""
+                slices = None
+                view = None
+                for child in element:
+                    child_tag, child_attributes = _xml_local(child.tag), _xml_attributes(child)
+                    if child_tag == "LightSourceParameter":
+                        caption = child_attributes.get("Caption") or child_attributes.get("Name") or ""
+                        excitation = _wavelength_nm(caption)
+                    elif child_tag == "EmissionFilterSetting":
+                        emission = child_attributes.get("Name") or ""
+                    elif child_tag == "ZParameter":
+                        slices = _xml_number(child_attributes.get("ZSliceNumber"), int)
+                    elif child_tag == "ViewSetting":
+                        view = _argb_colour(child_attributes.get("Color"))
+                label = " ".join(part for part in (caption, emission) if part)
+                result["channels"][channel] = dict(
+                    name=label or attributes.get("Name", ""),
+                    method=attributes.get("Method", ""),
+                    excitation_nm=excitation, emission=emission or "",
+                    emission_nm=_wavelength_nm(emission), z_slices=slices,
+                    instrument_color=view, enabled=attributes.get("IsEnabled", "true") != "false")
+            elif tag == "ZSetting":
+                result["z_slices"] = _xml_number(attributes.get("Slices"), int)
+                span = _xml_number(attributes.get("Range"))
+                if span is not None and result["z_slices"] and result["z_slices"] > 1:
+                    result["z_step_um"] = span / (result["z_slices"] - 1)
+            elif tag == "TimelapsSetting":
+                result["time_points"] = _xml_number(attributes.get("Iteration"), int)
+    if container and container in names:
+        plate = _xml_tree(os.path.join(folder, container))
+        if plate is not None:
+            result["sources"].append(container)
+            for element in plate.iter():
+                if _xml_local(element.tag) == "PlateParameter":
+                    attributes = _xml_attributes(element)
+                    result["rows"] = _xml_number(attributes.get("RowCount"), int)
+                    result["columns"] = _xml_number(attributes.get("ColumnCount"), int)
+    if not result.get("rows"):
+        shape = next((re.search(r"_(\d+)x(\d+)(?:_|\.xml$)", name) for name in names
+                      if name.startswith("MP_") and re.search(r"_(\d+)x(\d+)(?:_|\.xml$)", name)), None)
+        if shape:
+            result["columns"], result["rows"] = int(shape.group(1)), int(shape.group(2))
+    if not result.get("rows") and result["wells"]:
+        result["rows"] = max(row for row, _ in result["wells"].values())
+        result["columns"] = max(column for _, column in result["wells"].values())
+    imaging = _xml_tree(os.path.join(folder, "ImagingResult.xml")) if "ImagingResult.xml" in names else None
+    if imaging is not None:
+        result["sources"].append("ImagingResult.xml")
+        for element in imaging.iter():
+            tag, attributes = _xml_local(element.tag), _xml_attributes(element)
+            if tag == "ChannelInfo" and result.get("pixel_size_um") is None:
+                result["pixel_size_um"] = _xml_number(attributes.get("HorizontalPixelSize"))
+            elif tag in ("F", "T", "Z"):
+                maximum = _xml_number(attributes.get("Max"), int)
+                key = {"F": "fields", "T": "time_points", "Z": "z_slices"}[tag]
+                if maximum is not None and (key != "z_slices" or not result.get(key)):
+                    result[key] = maximum
+            elif tag == "SaveImageFileInfo":
+                result["projection"] = attributes.get("MIP") == "true"
+                result["raw_slices"] = attributes.get("Slice") == "true"
+    view = _xml_tree(os.path.join(folder, "ImageViewSetting.xml")) if "ImageViewSetting.xml" in names else None
+    if view is not None:
+        result["sources"].append("ImageViewSetting.xml")
+        for element in view.iter():
+            if _xml_local(element.tag) == "ChannelViewSetting":
+                channel = _xml_number(_xml_attributes(element).get("Ch"), int)
+                for child in element:
+                    colour = _argb_colour(_xml_attributes(child).get("Color"))
+                    if channel is not None and colour:
+                        result["channels"].setdefault(channel, dict(name="", excitation_nm=None,
+                            emission="", emission_nm=None))["instrument_color"] = colour
+    result["well_order"] = _well_index_order(result["wells"], result.get("rows"), result.get("columns"))
+    return result
+
+
+def _cellvoyager_acquisition(folder, names):
+    """Read plate, channel and pixel-size metadata from CellVoyager files."""
+    result = dict(instrument="CellVoyager", folder=folder, sources=[], wells={}, channels={})
+    candidates = [name for name in sorted(names)
+                  if name == "MeasurementDetail.mrf" or name.lower().endswith(".mes")]
+    for name in candidates:
+        root = _xml_tree(os.path.join(folder, name))
+        if root is None:
+            continue
+        result["sources"].append(name)
+        for element in root.iter():
+            tag, attributes = _xml_local(element.tag), _xml_attributes(element)
+            if tag == "MeasurementDetail":
+                result["rows"] = _xml_number(attributes.get("RowCount"), int) or result.get("rows")
+                result["columns"] = _xml_number(attributes.get("ColumnCount"), int) or result.get("columns")
+                for key, attribute in (("fields", "FieldCount"), ("z_slices", "ZCount"),
+                                       ("time_points", "TimePointCount")):
+                    value = _xml_number(attributes.get(attribute), int)
+                    if value:
+                        result[key] = value
+            elif tag in ("MeasurementChannel", "Channel") and attributes.get("Ch"):
+                channel = _xml_number(attributes.get("Ch"), int)
+                if channel is None:
+                    continue
+                record = result["channels"].setdefault(channel, dict(
+                    name="", excitation_nm=None, emission="", emission_nm=None))
+                size = _xml_number(attributes.get("HorizontalPixelDimension"))
+                if size and result.get("pixel_size_um") is None:
+                    result["pixel_size_um"] = size
+                label = attributes.get("Target") or attributes.get("Fluorophore") or attributes.get("Name") or ""
+                if label and not record["name"]:
+                    record["name"] = label
+                for key, value in attributes.items():
+                    if "wavelength" in key.lower() or "laser" in key.lower():
+                        nanometres = _wavelength_nm(value) or _xml_number(value)
+                        if nanometres and nanometres > 200 and record["excitation_nm"] is None:
+                            record["excitation_nm"] = nanometres
+                    elif "filter" in key.lower() and _wavelength_nm(value):
+                        record["emission"] = value
+                        record["emission_nm"] = _wavelength_nm(value)
+    return result
+
+
+def _yokogawa_acquisition(folder, depth=3):
+    """Read Yokogawa acquisition metadata near an image folder.
+
+    Searches ``folder`` and up to ``depth`` parents with
+    :func:`_yokogawa_metadata_folder`, then reads the CQ1 XMLs
+    (``MeasurementProtocol.xml``, its plate container XML,
+    ``ImagingResult.xml``, ``ImageViewSetting.xml``) or the CellVoyager
+    ``MeasurementDetail.mrf`` and ``.mes`` files. Only metadata the files
+    state is returned; nothing is assumed. Each channel carries its name,
+    wavelengths and a default display ``color``: the instrument's own view
+    colour when recorded, else :func:`_channel_display_colour`.
+
+    :param folder: an image folder.
+    :param depth: how many parents to search.
+    :returns: a dict with ``instrument``, ``folder``, ``sources``, ``rows``,
+        ``columns``, ``wells`` (``{index: (row, column)}``), ``well_order``
+        (``'row'``, ``'column'``, ``'table'`` or None), ``channels``,
+        ``pixel_size_um``, ``fields``, ``z_slices``, ``z_step_um`` and
+        ``time_points`` where known; or None when there is no metadata.
+    """
+    location = _yokogawa_metadata_folder(folder, depth)
+    if location is None:
+        return None
+    names = set(os.listdir(location))
+    stamp = tuple(sorted((name, os.path.getmtime(os.path.join(location, name)))
+                         for name in names if name.lower().endswith((".xml", ".mrf", ".mes"))))
+    cached = _YOKOGAWA_FOLDER_CACHE.get(location)
+    if cached is not None and cached[0] == stamp:
+        return _yokogawa_copy(cached[1])
+    if "MeasurementProtocol.xml" in names or "ImagingResult.xml" in names:
+        result = _cq1_acquisition(location, names)
+    else:
+        result = _cellvoyager_acquisition(location, names)
+    if not result["sources"]:
+        return None
+    for position, channel in enumerate(sorted(result["channels"])):
+        record = result["channels"][channel]
+        record["color"] = record.get("instrument_color") or _channel_display_colour(
+            record.get("name", ""), record.get("excitation_nm"), record.get("emission_nm"), position)
+    if len(_YOKOGAWA_FOLDER_CACHE) > 32:
+        _YOKOGAWA_FOLDER_CACHE.clear()
+    _YOKOGAWA_FOLDER_CACHE[location] = (stamp, result)
+    return _yokogawa_copy(result)
+
+
+def _yokogawa_copy(result):
+    """Return an independent copy of a cached acquisition record."""
+    import copy
+    return copy.deepcopy(result)
+
+
+def _yokogawa_well(index, acquisition=None, rows=None, columns=None, order=None):
+    """Turn a Yokogawa well INDEX into a ``(row, column)`` pair.
+
+    Explicit ``rows``, ``columns`` and ``order`` win, so a user can always
+    override the files; then the acquisition's own well table, then its plate
+    geometry and numbering. Without any of those the CQ1 default, 24 columns
+    numbered row by row, is used, as :func:`spacr.utils._convert_cq1_well_id`
+    always has.
+
+    :param index: the 1-based well index, e.g. ``49`` from ``W0049``.
+    :param acquisition: a record from :func:`_yokogawa_acquisition`, or None.
+    :param rows: explicit plate row count, or None.
+    :param columns: explicit plate column count, or None.
+    :param order: ``'row'`` or ``'column'`` numbering, or None.
+    :returns: the 1-based ``(row, column)``, or None when ``index`` lies
+        outside the plate.
+    """
+    try:
+        index = int(index)
+    except (TypeError, ValueError):
+        return None
+    if index < 1:
+        return None
+    acquisition = acquisition or {}
+    explicit = bool(rows and columns) or order in ("row", "column")
+    table = acquisition.get("wells") or {}
+    if not explicit and index in table:
+        return tuple(table[index])
+    rows = rows or acquisition.get("rows")
+    columns = columns or acquisition.get("columns")
+    order = order or (acquisition.get("well_order") if acquisition.get("well_order") in ("row", "column") else None) or "row"
+    if not columns:
+        rows, columns = None, 24
+    if order == "column":
+        if not rows:
+            return None
+        column, row = divmod(index - 1, rows)
+    else:
+        row, column = divmod(index - 1, columns)
+    row, column = row + 1, column + 1
+    if (rows and row > rows) or column > columns:
+        return None
+    return row, column

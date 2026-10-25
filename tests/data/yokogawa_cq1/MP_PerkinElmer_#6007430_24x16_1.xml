@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<icm:Microplate icm:StructVersion="1.0" icm:ID="72" icm:IsOriginalData="false" icm:IsValid="true" xmlns:icm="http://www.yokogawa.co.jp/LSC/ICMSchema/1.0">
+  <icm:FileInformation icm:Name="MP_PerkinElmer_#6007430_24x16_1" icm:Version="1.0" icm:CreateTime="2016-02-09T10:40:36.7517795+09:00" icm:CreateUser="CQ1"></icm:FileInformation>
+  <icm:Product icm:ProductID="#6007430" icm:Manufacturer="PerkinElmer" />
+  <icm:BottomParameter icm:Offset="0.49" icm:Thickness="0.19" icm:Material="Plastic" icm:RefractiveIndex="1.515" />
+  <icm:AutoFocusParameterForSampleContainer icm:IsBottomDetect="false" />
+  <icm:MediumRefractiveIndex>1.3</icm:MediumRefractiveIndex>
+  <icm:PlateParameter icm:ColumnCount="24" icm:RowCount="16" icm:Width="127.76" icm:Height="14.4" icm:Depth="85.48" />
+  <icm:WellLocation icm:ColumnPitch="4.5" icm:RowPitch="4.5" icm:LeftMargin="12.30" icm:LeftMarginOffset="0.4" icm:TopMargin="8.60" icm:TopMarginOffset="-0.3" icm:DoStageCenterCorrection="false" />
+  <icm:WellParameter icm:WellTopWidth="3.7" icm:WellTopHeight="3.7" icm:WellBottomWidth="3.27" icm:WellBottomHeight="3.27" icm:WellVolume="130" icm:WellShape="Rectangle" />
+</icm:Microplate>
