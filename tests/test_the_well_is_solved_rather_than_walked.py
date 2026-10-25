@@ -28,10 +28,12 @@ def test_the_positions_come_out_of_every_edge_at_once():
         (2, 3): (PITCH, 0.0),
     }
     placed = solve_placements(edges, [0, 1, 2, 3])
-    assert placed[0] == pytest.approx((0.0, 0.0))
-    assert placed[1] == pytest.approx((PITCH, 0.0))
-    assert placed[2] == pytest.approx((0.0, PITCH))
-    assert placed[3] == pytest.approx((PITCH, PITCH))
+    # A least-squares solve: Accelerate on an Apple M2 left 1.06e-12 px
+    # where the exact answer is 0, past approx's default 1e-12.
+    assert placed[0] == pytest.approx((0.0, 0.0), abs=1e-9)
+    assert placed[1] == pytest.approx((PITCH, 0.0), abs=1e-9)
+    assert placed[2] == pytest.approx((0.0, PITCH), abs=1e-9)
+    assert placed[3] == pytest.approx((PITCH, PITCH), abs=1e-9)
 
 
 def test_a_disagreeing_edge_is_spread_rather_than_believed():

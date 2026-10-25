@@ -58,6 +58,31 @@ def test_invalid_per_crop_class_refuses_before_model_or_generator_transfer(
         assert pickle.dumps(targets) == before_targets
 
 
+_ORACLE = Path(__file__).parents[1] / 'features/data/564_sequence_target_identity_2026-10-15'
+
+
+def _matches_the_oracle(rows, frames, key):
+    """Compare with the recorded oracle to float32 rounding, everything else exactly.
+
+    The oracle was recorded on x86-64. torch's arm64 CPU kernels reduce in a
+    different order, so on an Apple M2 score_end came out 0.8320183753967285
+    against 0.8320184350013733 -- two float32 ulps. Which sequence a target
+    representation produces is still checked exactly, against the live list
+    form, in the test below.
+    """
+    expected_rows = json.loads((_ORACLE / 'valid-oracle.json').read_text(encoding="utf-8"))[key]
+    assert len(rows) == len(expected_rows)
+    for got, want in zip(rows, expected_rows):
+        assert got.keys() == want.keys()
+        for name, value in want.items():
+            if isinstance(value, float):
+                assert got[name] == pytest.approx(value, rel=1e-6, nan_ok=True), name
+            else:
+                assert got[name] == value, name
+    with np.load(_ORACLE / 'valid-oracle.npz') as expected:
+        np.testing.assert_allclose(frames, expected[key], rtol=1e-6, atol=1e-6)
+
+
 @pytest.mark.parametrize('kind', ['list', 'numpy', 'tensor', 'float-list', 'float-tensor',
                                   'bool-list', 'bool-numpy', 'bool-tensor'])
 @pytest.mark.parametrize('goal', [0, 1])
@@ -69,22 +94,19 @@ def test_valid_scalar_representations_match_exact_public_sequence_oracle(kind, g
                    np.asarray([bool(goal)]) if kind == 'bool-numpy' else torch.tensor([bool(goal)]))
     else:
         targets = _target(goal, kind)
-    root = Path(__file__).parents[1] / 'features/data/564_sequence_target_identity_2026-10-15'
-    expected_rows = json.loads((root / 'valid-oracle.json').read_text(encoding="utf-8"))[f'class{goal}']
     crops = _crops()
     original = crops.clone()
     rows, frames = attribution._counterfactual_sequences(
         _ReferenceScore(), _BothChannelEdit(), crops, targets=targets, keep=1)
-    np.testing.assert_equal(rows, expected_rows)
-    with np.load(root / 'valid-oracle.npz') as expected:
-        np.testing.assert_array_equal(frames, expected[f'class{goal}'])
+    _matches_the_oracle(rows, frames, f'class{goal}')
+    plain_rows, plain_frames = attribution._counterfactual_sequences(
+        _ReferenceScore(), _BothChannelEdit(), _crops(), targets=[goal], keep=1)
+    np.testing.assert_equal(rows, plain_rows)
+    np.testing.assert_array_equal(frames, plain_frames)
     assert torch.equal(crops, original)
 
 
 def test_default_target_arithmetic_matches_exact_public_sequence_oracle():
-    root = Path(__file__).parents[1] / 'features/data/564_sequence_target_identity_2026-10-15'
     rows, frames = attribution._counterfactual_sequences(
         _ReferenceScore(), _BothChannelEdit(), _crops(), targets=None, keep=1)
-    np.testing.assert_equal(rows, json.loads((root / 'valid-oracle.json').read_text(encoding="utf-8"))['default'])
-    with np.load(root / 'valid-oracle.npz') as expected:
-        np.testing.assert_array_equal(frames, expected['default'])
+    _matches_the_oracle(rows, frames, 'default')
