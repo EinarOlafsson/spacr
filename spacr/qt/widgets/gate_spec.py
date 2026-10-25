@@ -2697,13 +2697,6 @@ def _validate_moved_triangles(vertices, faces, moved) -> None:
         raise GateError(tr("The volume must enclose a nonzero region."))
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     bases = {}
-
-    def basis(index):
-        """One triangle's contact terms, worked out once."""
-        if index not in bases:
-            bases[index] = _triangle_basis(triangles[index], normals[index])
-        return bases[index]
-
     checked = set()
     for i in moved.tolist():
         candidates = np.flatnonzero(np.all(high[i] >= low - 1e-10, axis=1) & np.all(high >= low[i] - 1e-10, axis=1))
@@ -2713,8 +2706,11 @@ def _validate_moved_triangles(vertices, faces, moved) -> None:
                 continue
             checked.add(pair)
             first, second = pair
+            for index in pair:
+                if index not in bases:
+                    bases[index] = _triangle_basis(triangles[index], normals[index])
             shared = set(faces[first].tolist()) & set(faces[second].tolist())
-            if len(shared) == 3 or _mesh_triangle_contact(triangles[first], triangles[second], points[sorted(shared)], _basis=(basis(first), basis(second))):
+            if len(shared) == 3 or _mesh_triangle_contact(triangles[first], triangles[second], points[sorted(shared)], _basis=(bases[first], bases[second])):
                 raise GateError(tr("Volume surfaces must not intersect or overlap."))
 
 

@@ -91,6 +91,95 @@ def _project(ax, point):
 _TRIANGLE_MESH_CLASS = None
 
 
+def _mesh_get_vector(mesh, segments3d):
+    """Keep an ``(N, 3, 3)`` array of triangles as one block of corners.
+
+    :param mesh: the triangle mesh collection.
+    :param segments3d: the polygons; anything else is matplotlib's to keep.
+    """
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    if not (isinstance(segments3d, np.ndarray) and segments3d.ndim == 3
+            and segments3d.shape[1:] == (3, 3) and len(segments3d)):
+        mesh._triangle_count = None
+        return Poly3DCollection.get_vector(mesh, segments3d)
+    count = len(segments3d)
+    corners = np.asarray(segments3d, dtype=float).reshape(-1, 3).T
+    mesh._vec = np.vstack((corners, np.ones((1, corners.shape[1]))))
+    mesh._segslices = [*map(slice, range(0, 3 * count, 3), range(3, 3 * count + 3, 3))]
+    mesh._triangle_count = count
+    return None
+
+
+def _mesh_projection(mesh):
+    """Project and depth-sort every triangle of a mesh collection at once.
+
+    :param mesh: the triangle mesh collection.
+    :returns: the collection's depth, as ``Poly3DCollection.do_3d_projection``.
+    """
+    from mpl_toolkits.mplot3d import proj3d
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    try:
+        vec, count, key = mesh._vec, mesh._triangle_count, mesh._zsortfunc
+        vectorised = bool(count and mesh._A is None and mesh._codes3d is None
+                          and len(mesh._segslices) == count
+                          and vec.shape[1] == 3 * count
+                          and key in (np.average, np.min, np.max))
+    except AttributeError:
+        vectorised = False
+    if not vectorised:
+        return Poly3DCollection.do_3d_projection(mesh)
+    txs, tys, tzs = proj3d._proj_transform_vec(vec, mesh.axes.M)
+    cface, cedge = mesh._facecolor3d, mesh._edgecolor3d
+    if len(cface) != count:
+        cface = cface.repeat(count, axis=0)
+    if len(cedge) != count:
+        cedge = cface if len(cedge) == 0 else cedge.repeat(count, axis=0)
+    depth = key(tzs.reshape(count, 3), axis=1)
+    order = np.argsort(-depth, kind='stable')
+    corners = np.stack((txs, tys), axis=-1).reshape(count, 3, 2)[order]
+    mesh._facecolors2d, mesh._edgecolors2d = cface[order], cedge[order]
+    _mesh_set_triangles(mesh, corners)
+    if len(mesh._edgecolor3d) != len(cface):
+        mesh._edgecolors2d = mesh._edgecolor3d
+    if mesh._sort_zpos is not None:
+        zvec = np.array([[0], [0], [mesh._sort_zpos], [1]])
+        return proj3d._proj_transform_vec(zvec, mesh.axes.M)[2][0]
+    return np.min(tzs)
+
+
+def _mesh_set_triangles(mesh, corners):
+    """Give a mesh collection's 2-D paths new corners, reusing the paths of the last draw.
+
+    The paths are those ``PolyCollection.set_verts`` makes from an array,
+    with the same corners and codes; only their vertices change from one
+    draw to the next.
+
+    :param mesh: the triangle mesh collection.
+    :param corners: ``(N, 3, 2)`` projected corners in drawing order.
+    """
+    from matplotlib.path import Path
+
+    closed = bool(mesh._closed)
+    if closed:
+        corners = np.concatenate((corners, corners[:, :1]), axis=1)
+    reused = mesh._reused_paths
+    if reused is None or reused[0] != (len(corners), closed):
+        if closed:
+            codes = np.full(corners.shape[1], Path.LINETO, dtype=Path.code_type)
+            codes[0], codes[-1] = Path.MOVETO, Path.CLOSEPOLY
+            paths = [Path(xy, codes) for xy in corners]
+        else:
+            paths = [Path(xy) for xy in corners]
+        mesh._reused_paths = reused = ((len(corners), closed), paths)
+    else:
+        for path, xy in zip(reused[1], corners):
+            path._vertices = xy
+    mesh._paths = reused[1]
+    mesh.stale = True
+
+
 def _triangle_mesh(triangles, **kwargs):
     """A boundary-mesh artist whose depth sort is one array operation per draw.
 
@@ -108,84 +197,16 @@ def _triangle_mesh(triangles, **kwargs):
     """
     global _TRIANGLE_MESH_CLASS
     if _TRIANGLE_MESH_CLASS is None:
-        from matplotlib.path import Path
-        from mpl_toolkits.mplot3d import proj3d
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-        class TriangleMesh(Poly3DCollection):
-            """A ``Poly3DCollection`` of triangles sorted by depth with numpy."""
-
-            _triangle_count = None
-            _reused_paths = None
-
-            def get_vector(self, segments3d):
-                """Keep an ``(N, 3, 3)`` array of triangles as one block of corners."""
-                if not (isinstance(segments3d, np.ndarray) and segments3d.ndim == 3
-                        and segments3d.shape[1:] == (3, 3) and len(segments3d)):
-                    self._triangle_count = None
-                    return super().get_vector(segments3d)
-                count = len(segments3d)
-                corners = np.asarray(segments3d, dtype=float).reshape(-1, 3).T
-                self._vec = np.vstack((corners, np.ones((1, corners.shape[1]))))
-                self._segslices = [*map(slice, range(0, 3 * count, 3), range(3, 3 * count + 3, 3))]
-                self._triangle_count = count
-
-            def do_3d_projection(self):
-                """Project and depth-sort every triangle at once."""
-                try:
-                    vec, count, key = self._vec, self._triangle_count, self._zsortfunc
-                    vectorised = bool(count and self._A is None and self._codes3d is None
-                                      and len(self._segslices) == count
-                                      and vec.shape[1] == 3 * count
-                                      and key in (np.average, np.min, np.max))
-                except AttributeError:
-                    vectorised = False
-                if not vectorised:
-                    return super().do_3d_projection()
-                txs, tys, tzs = proj3d._proj_transform_vec(vec, self.axes.M)
-                cface, cedge = self._facecolor3d, self._edgecolor3d
-                if len(cface) != count:
-                    cface = cface.repeat(count, axis=0)
-                if len(cedge) != count:
-                    cedge = cface if len(cedge) == 0 else cedge.repeat(count, axis=0)
-                depth = key(tzs.reshape(count, 3), axis=1)
-                order = np.argsort(-depth, kind='stable')
-                corners = np.stack((txs, tys), axis=-1).reshape(count, 3, 2)[order]
-                self._facecolors2d, self._edgecolors2d = cface[order], cedge[order]
-                self._set_triangles(corners)
-                if len(self._edgecolor3d) != len(cface):
-                    self._edgecolors2d = self._edgecolor3d
-                if self._sort_zpos is not None:
-                    zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-                    return proj3d._proj_transform_vec(zvec, self.axes.M)[2][0]
-                return np.min(tzs)
-
-            def _set_triangles(self, corners):
-                """Give the 2-D paths new corners, reusing the paths of the last draw.
-
-                The paths are those ``PolyCollection.set_verts`` makes from an
-                array, with the same corners and codes; only their vertices
-                change from one draw to the next.
-                """
-                closed = bool(self._closed)
-                if closed:
-                    corners = np.concatenate((corners, corners[:, :1]), axis=1)
-                reused = self._reused_paths
-                if reused is None or reused[0] != (len(corners), closed):
-                    if closed:
-                        codes = np.full(corners.shape[1], Path.LINETO, dtype=Path.code_type)
-                        codes[0], codes[-1] = Path.MOVETO, Path.CLOSEPOLY
-                        paths = [Path(xy, codes) for xy in corners]
-                    else:
-                        paths = [Path(xy) for xy in corners]
-                    self._reused_paths = reused = ((len(corners), closed), paths)
-                else:
-                    for path, xy in zip(reused[1], corners):
-                        path._vertices = xy
-                self._paths = reused[1]
-                self.stale = True
-
-        _TRIANGLE_MESH_CLASS = TriangleMesh
+        _TRIANGLE_MESH_CLASS = type('TriangleMesh', (Poly3DCollection,), {
+            '__doc__': 'A ``Poly3DCollection`` of triangles sorted by depth with numpy.',
+            '__module__': __name__,
+            '_triangle_count': None,
+            '_reused_paths': None,
+            'get_vector': _mesh_get_vector,
+            'do_3d_projection': _mesh_projection,
+        })
     return _TRIANGLE_MESH_CLASS(triangles, **kwargs)
 
 
