@@ -921,14 +921,19 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         # setting labels as plain ui captions, with the same reviewed wording.
         "Object type": "46e7c345a4106f8dba31dee33a1559a12f24d16a1678241d55e84ae55c107d81",
         "Save measurements": "e8ac777599eba6295d02d6d7b4ba13d74eecc2b61383369c8bf9c99134423063",
+        # 2026-10-25 (item 725): the Overview tile-size slider binds the reviewed
+        # image_size setting label as a plain ui caption with the same wording.
+        "Image size": "80bb38dca36b0439367670908cfe04711b4e9d5dfabc789bf4dd8f21935cd4f9",
     }
     assert latest_batches & sources == repeated_sources.keys()
     current_files = {
         "Object type": "2026-10-16-705-ui-arrival-bindings.json",
         "Save measurements": "2026-10-16-705-ui-arrival-bindings.json",
+        "Image size": "2026-10-25-overview-round-two-cq1-psf-and-measurements.json",
     }
     previous_keys = {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train",
-                     "Object type": "object_type", "Save measurements": "save_measurements"}
+                     "Object type": "object_type", "Save measurements": "save_measurements",
+                     "Image size": "image_size"}
     for source, source_hash in repeated_sources.items():
         current_file = current_files.get(source, "2026-10-15-f561-classifier-ui-runtime-home-b.json")
         current = [row for row in json.loads((folder / current_file).read_text(encoding="utf-8"))["records"]
