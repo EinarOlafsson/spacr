@@ -291,10 +291,14 @@ def _write_real_plate(root: Path):
 
 
 def _umap_settings(src, **over):
+    # eps spans the whole embedding, so DBSCAN marks no point as noise:
+    # generate_image_umap drops noise points, and which ones are noise
+    # depends on UMAP's floating point -- with eps=0.9 an Apple M2 dropped
+    # three of the 60 objects these tests count, and x86-64 dropped none.
     s = {
         "src": str(src), "tables": ["cell"], "visualize": "cell",
         "reduction_method": "umap", "n_neighbors": 5, "min_dist": 0.1,
-        "metric": "euclidean", "clustering": "dbscan", "eps": 0.9,
+        "metric": "euclidean", "clustering": "dbscan", "eps": 1000.0,
         "min_samples": 3,
         "col_to_compare": "columnID", "pos": "c1", "neg": "c2", "mix": "c3",
         "plot_images": False, "plot_points": True, "plot_by_cluster": False,
