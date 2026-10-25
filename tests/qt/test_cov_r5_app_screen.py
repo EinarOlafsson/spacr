@@ -470,11 +470,16 @@ class TestTheSheetBuilderIsFoundEitherWay:
 
         # A package the relative import cannot resolve. ``__spec__`` is
         # cleared with it so the import machinery reads the name we set
-        # rather than warning about the disagreement.
-        monkeypatch.setattr(aps, "__package__", "not_a_package.qt.screens")
-        monkeypatch.setattr(aps, "__spec__", None)
+        # rather than warning about the disagreement. Only the sheet call is
+        # given the broken package: the layout timers it arms run afterwards,
+        # with the real one, as they would in the module it simulates.
+        from PySide6.QtWidgets import QApplication
 
-        screen._show_publication_sheet()
+        with monkeypatch.context() as broken:
+            broken.setattr(aps, "__package__", "not_a_package.qt.screens")
+            broken.setattr(aps, "__spec__", None)
+            screen._show_publication_sheet()
+        QApplication.processEvents()
 
         assert shown == [figure, 0]
 
