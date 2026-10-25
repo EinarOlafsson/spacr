@@ -293,7 +293,22 @@ def fill_setting(capture, screen, key, value):
         if widget.isVisible():
             break
         h.pause(capture, 0.25)
+    if not widget.isVisible() and sections:
+        # A section reports itself expanded while its body is still hidden (the body was shown before a deferred
+        # build finished): close and open the hidden section again, as a user would, then wait once more.
+        for section in reversed(sections):
+            body = getattr(section, '_body', None)
+            if body is not None and not body.isVisible():
+                h.toggle_section(capture, section, False)
+                h.toggle_section(capture, section, True)
+        for _ in range(40):
+            widget = model._widgets.get(key, widget)
+            if widget.isVisible():
+                break
+            h.pause(capture, 0.25)
     if not widget.isVisible():
+        states = [(sec.title(), sec.is_expanded(), getattr(sec, '_body', None) is not None and sec._body.isVisible())
+                  for sec in sections]
         chain, w = [], widget
         while w is not None and len(chain) < 8:
             if not w.isVisibleTo(w.parentWidget()) if w.parentWidget() is not None else not w.isVisible():
@@ -301,7 +316,7 @@ def fill_setting(capture, screen, key, value):
             w = w.parentWidget()
         toggle = screen.findChild(QAbstractButton, DISCLOSURE_NAME)
         raise RuntimeError(f'The {key} control cannot be shown (hidden ancestors {chain}; disclosure '
-                           f'{None if toggle is None else (toggle.isVisible(), toggle.isChecked())})')
+                           f'{None if toggle is None else (toggle.isVisible(), toggle.isChecked())}; sections {states})')
     scroll = getattr(screen, '_settings_scroll', None) or h.scroll_area_of(widget)
     if scroll is not None:
         h.scroll_into_view(capture, scroll, widget, margin=8)

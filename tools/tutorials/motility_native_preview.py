@@ -112,8 +112,14 @@ def record_preview(app, window, screen, root, captures, capture, settle, write_j
         completed = []
         click(panel._run_btn, settle_after=False)
         worker = panel._worker
+        for _ in range(100):            # a real click reaches the button over a later event-loop turn
+            if worker is not None:
+                break
+            settle(.1)
+            worker = panel._worker
         if worker is None:
-            raise ValueError('The actual preview Run button started no worker')
+            raise ValueError('The actual preview Run button started no worker (run enabled=%s, visible=%s)'
+                             % (panel._run_btn.isEnabled(), panel._run_btn.isVisible()))
         worker.finished_result.connect(lambda points, error: completed.append(dict(
             rows=0 if points is None else len(points), error=error)))
         deadline = time.monotonic() + timeout

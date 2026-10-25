@@ -204,6 +204,7 @@ def record_tabulate(app, window, stage, captures, capture, settle, write_json, t
             if attempt == 30 and not shown_tips():
                 # The pointer rests on the cell but the compositor delivered no hover rest: ask the viewport for
                 # its tooltip at that point, exactly as Qt does after a rest (the app's tooltip policy still shows it).
+                from qtpy.QtWidgets import QApplication
                 from qtpy.QtGui import QHelpEvent
                 from qtpy.QtCore import QEvent
                 local = table.visualItemRect(item).center()

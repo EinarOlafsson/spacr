@@ -245,6 +245,13 @@ def record_layers(app, window, stage, captures, capture, settle, write_json, tim
             world=[before.origin[i]+before.step[i]*anchor[i] for i in (0,1)]
             if capture_ui.live(capture):
                 for _ in range(3):capture_ui.wheel_at(capture,screen.canvas,-1,point)   # wheel up = zoom in
+                for _retry in range(3):
+                    # The compositor sometimes delivers no wheel to the canvas after a long glide: rest the pointer on
+                    # the target again and turn the wheel once more until the canvas has actually zoomed.
+                    settle(.4)
+                    if screen.canvas.canvas.step[0]!=before.step[0]:break
+                    capture_ui.wheel_at(capture,screen.canvas,-1,point)
+                    capture_ui.wheel_at(capture,screen.canvas,-1,point)
             else:
                 native_motion(screen.canvas.mapToGlobal(point));settle(.1)
                 for _ in range(3):
