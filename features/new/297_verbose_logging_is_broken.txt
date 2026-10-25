@@ -1,6 +1,8 @@
 297 — Verbose logging is broken
 
-Status:    DONE 2026-08-28 — re-checked 2026-09-13. All three points are in
+Status:    DONE 2026-10-25 — closed by the maintainer: verbose logging works, and
+           the optional sampled tracing is not wanted. Earlier: DONE 2026-08-28,
+           re-checked 2026-09-13. All three points are in
            the tree: `get_log_file_levels` (spacr/qt/preferences.py) ORs
            DEBUG in on read while verbose is on, `_trace_profile`
            (spacr/logging_util.py:532) wraps its body in `except
@@ -105,3 +107,5 @@ having, which is why on-by-default was tried -- making it affordable means
 NOT tracing every call. Sampling, or tracing only the module a run is in,
 would do it. Until that exists the honest default is off, and the tooltip
 now states both numbers so the choice can be made knowingly.
+
+2026-10-25 — Closed by the maintainer: verbose logging works as shipped and the optional sampled or per-module tracing described above is not wanted, so nothing remains open here.
