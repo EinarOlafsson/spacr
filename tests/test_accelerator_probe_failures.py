@@ -47,6 +47,8 @@ def test_directml_probe_reports_only_a_working_device(monkeypatch, result):
 @pytest.mark.parametrize('output', ['Chipset Model: Test Radeon\n', 'no chipset row', OSError('profiler missing')])
 def test_metal_name_handles_missing_profiler_and_unrecognized_output(monkeypatch, output):
     monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
+    # The profiler path is the Intel Mac's; Apple Silicon names its chip from sysctl.
+    monkeypatch.setattr(acc, '_apple_silicon', lambda: False)
     profiler = Mock(side_effect=output) if isinstance(output, Exception) else Mock(return_value=SimpleNamespace(stdout=output))
     monkeypatch.setattr(subprocess, 'run', profiler)
     # Bypass only the cache, so a simulated machine cannot poison later tests.
@@ -92,6 +94,7 @@ def test_a_broken_probe_does_not_hide_a_later_working_backend(monkeypatch):
 def test_neural_engine_is_reported_only_for_apple_silicon(monkeypatch):
     monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
     monkeypatch.setattr(acc.platform, 'machine', lambda: 'arm64')
+    monkeypatch.setattr(acc, '_rosetta_translated', lambda: False)
     assert acc.neural_engines() == ('Apple Neural Engine (CoreML only)',)
     monkeypatch.setattr(acc.platform, 'machine', lambda: 'x86_64')
     assert acc.neural_engines() == ()
@@ -148,6 +151,7 @@ def test_device_questions_and_cellpose_arguments_agree(monkeypatch, kind, gpu, d
 def test_missing_torch_is_a_safe_cpu_diagnostic_and_no_cache_cleanup(monkeypatch):
     monkeypatch.setitem(sys.modules, 'torch', None)
     monkeypatch.delenv(acc.ENV_DEVICE, raising=False)
+    monkeypatch.setattr(acc, '_rosetta_translated', lambda: False)
     assert acc._torch() is None
     assert acc.empty_cache() == ''
     assert acc.describe() == 'CPU (PyTorch is not installed)'

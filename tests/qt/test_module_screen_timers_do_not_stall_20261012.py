@@ -31,6 +31,7 @@ cached at the size they are shown.
 """
 from __future__ import annotations
 
+import os
 import statistics
 import subprocess
 import sys
@@ -460,7 +461,18 @@ def test_no_periodic_timer_holds_the_gui_thread_on_the_mask_screen(
 
 
 def _region_ms(backdrop, region, frames=12) -> float:
-    """Cheapest GUI-thread CPU of a synchronous field repaint of ``region``."""
+    """Cheapest GUI-thread CPU of a synchronous field repaint of ``region``.
+
+    Windows advances ``thread_time`` in steps of about 15.6 ms, longer than
+    a repaint, so one frame reads as 0 there; the cost is then the thread
+    time of a run of repaints at least 100 ms long, divided by its length.
+    """
+    if os.name == "nt":
+        repaints, started = 0, time.thread_time()
+        while time.thread_time() - started < 0.1 or repaints < frames:
+            backdrop.repaint(region)
+            repaints += 1
+        return (time.thread_time() - started) * 1000.0 / repaints
     spent = []
     for _frame in range(frames):
         started = time.thread_time()

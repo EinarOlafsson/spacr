@@ -15565,7 +15565,7 @@
         },
         {
           "visual": "module_timelapse",
-          "narration": "Opnaðu Mask frá Home og veldu svo Timelapse. Opnaðu Timelapse innan Mask til að aðgreina og tengja hluti yfir raðaða ramma; skoðaðu tengslin fyrir hreyfanleikagreiningu. Timelapse les smásjármyndirnar. Út frá þeim býr Timelapse til myndirnar og merkingagrímurnar, merkingagrímurnar ásamt tengdu tímaraðarhlutina. Mask getur útvegað smásjármyndirnar. Virkjaðu innbyggðu tímaraðarleiðina áður en tengdar merkingar eru búnar til. Næst tekur Measure við myndirnar og merkingagrímurnar. Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta. Þú getur líka farið með tengdu tímaraðarhlutina áfram til Motility Assay. Gefðu upp tímabil milli ramma og kvörðun díla.",
+          "narration": "Opnaðu Mask frá Home. Í Mask ýtirðu á Time til að birta stillingar fyrir tímaás og rakningu, aðgreinir síðan og tengir hluti yfir raðaða ramma; skoðaðu tengslin fyrir hreyfanleikagreiningu. Timelapse les smásjármyndirnar. Út frá þeim býr Timelapse til myndirnar og merkingagrímurnar, merkingagrímurnar ásamt tengdu tímaraðarhlutina. Mask getur útvegað smásjármyndirnar. Virkjaðu innbyggðu tímaraðarleiðina áður en tengdar merkingar eru búnar til. Næst tekur Measure við myndirnar og merkingagrímurnar. Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta. Þú getur líka farið með tengdu tímaraðarhlutina áfram til Motility Assay. Gefðu upp tímabil milli ramma og kvörðun díla.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",

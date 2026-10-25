@@ -620,3 +620,26 @@ def test_repaint_fields_reaches_every_live_field(qtbot, prefs_sandbox, qapp):
     made = [_field(qtbot, factory) for factory in
             (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox)]
     assert ff.repaint_fields(qapp) >= len(made)
+
+
+def test_repaint_fields_counts_only_visible_fields_and_never_walks_every_widget(
+        qtbot, prefs_sandbox, qapp, monkeypatch):
+    """Lesson 85: the warm slice's repaint walked every widget of the process."""
+    _apply(qapp)
+    shown = [_field(qtbot, factory) for factory in (QLineEdit, QComboBox)]
+    hidden_host = QWidget()
+    qtbot.addWidget(hidden_host)
+    hidden = [QLineEdit(hidden_host), QSpinBox(hidden_host)]
+    updated = []
+
+    def no_walk():
+        raise AssertionError("repaint_fields walked allWidgets()")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(QWidget, "update",
+                      lambda self, *a: updated.append(self))
+        patch.setattr(qapp, "allWidgets", no_walk)
+        count = ff.repaint_fields(qapp)
+    assert count >= len(shown)
+    assert all(field in updated for field in shown)
+    assert not any(field in updated for field in hidden)

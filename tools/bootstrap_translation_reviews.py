@@ -28,10 +28,19 @@ def _sha256(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+_NO_GIT = ("git was not found on PATH. The translation reviews are fetched with "
+           "Git: install Git (https://git-scm.com/downloads; on Windows also tick "
+           "'Git from the command line'), open a new terminal so PATH is "
+           "refreshed, and run this command again.")
+
+
 def _git(repository, *args, check=True):
-    result = subprocess.run(
-        ["git", "-C", str(repository), *args], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository), *args], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env={**os.environ, "GIT_TERMINAL_PROMPT": "0"})
+    except FileNotFoundError as exc:
+        raise ReviewInputsError(_NO_GIT) from exc
     if check and result.returncode:
         raise ReviewInputsError(result.stderr.decode("utf-8", "replace").strip())
     return result
@@ -174,7 +183,28 @@ def _manifest(pin, cache, offline):
     return files
 
 
-def _existing(root, files):
+def _published(cache):
+    """Every path/hash pair an earlier verified pin hydrated on this machine."""
+    published = {}
+    for cached in (cache / "manifests").glob("*.json"):
+        raw = cached.read_bytes()
+        if _sha256(raw) != cached.stem:
+            continue
+        try:
+            records = json.loads(raw)["files"]
+        except (ValueError, KeyError, TypeError):
+            continue
+        if not isinstance(records, dict):
+            continue
+        for path, record in records.items():
+            if isinstance(record, dict) and isinstance(record.get("sha256"), str):
+                published.setdefault(path, set()).add(record["sha256"])
+    return published
+
+
+def _existing(root, files, published=None):
+    """Return the files present and the earlier-pin hydrations the new pin supersedes."""
+    published = published or {}
     present = set()
     for prefix in PREFIXES:
         folder = root / prefix
@@ -188,26 +218,39 @@ def _existing(root, files):
                     if path.name.startswith(".spacr-translation-review-") and path.name.endswith(".tmp"):
                         continue
                     present.add(path.relative_to(root).as_posix())
-    unexpected = present - files.keys()
+    hashes = {path: _sha256((root / path).read_bytes()) for path in present}
+    superseded = {path for path in present
+                  if hashes[path] in published.get(path, ())
+                  and (path not in files or hashes[path] != files[path]["sha256"])}
+    unexpected = present - files.keys() - superseded
     if unexpected:
         raise ReviewInputsError("Unpinned local review files; commit/pin them before bootstrap: "
                                 + ", ".join(sorted(unexpected)[:5]))
-    for path in present:
-        raw = (root / path).read_bytes()
-        if len(raw) != files[path]["size"] or _sha256(raw) != files[path]["sha256"]:
+    for path in present - superseded:
+        if (root / path).stat().st_size != files[path]["size"] or hashes[path] != files[path]["sha256"]:
             raise ReviewInputsError(f"Local review differs from immutable pin; refusing to overwrite: {path}")
-    return present
+    return present - superseded, superseded
 
 
 def _restore(root, pin, files, missing, cache, offline):
     repository = _repository(pin, cache, offline)
-    process = subprocess.Popen(
-        ["git", "-C", str(repository), "archive", pin["revision"],
-         "--", "docs/i18n/reviewed", "docs/i18n/retired"], stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+    folders = [prefix.rstrip("/") for prefix in PREFIXES if any(path.startswith(prefix) for path in files)]
+    try:
+        process = subprocess.Popen(
+            ["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+             "-C", str(repository), "archive", pin["revision"],
+             "--", *folders], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+    except FileNotFoundError as exc:
+        raise ReviewInputsError(_NO_GIT) from exc
     restored = set()
     try:
-        with tarfile.open(fileobj=process.stdout, mode="r|") as archive:
+        try:
+            archive = tarfile.open(fileobj=process.stdout, mode="r|")
+        except tarfile.ReadError as exc:
+            stderr = process.stderr.read().decode("utf-8", "replace").strip()
+            raise ReviewInputsError(stderr or "git archive produced no translation inputs") from exc
+        with archive:
             for member in archive:
                 if member.isdir():
                     continue
@@ -248,12 +291,15 @@ def ensure_review_inputs(root=ROOT, *, cache=None, offline=False, check=False):
     cache = _cache_root(cache)
     with _lock(root / ".translation-reviews.lock"):
         files = _manifest(pin, cache, offline)
-        present = _existing(root, files)
+        present, superseded = _existing(root, files, _published(cache))
         missing = set(files) - present
-        if missing:
+        if missing or superseded:
             if check:
                 raise ReviewInputsError(f"Missing {len(missing)} pinned review files; run translation bootstrap fetch")
-            _restore(root, pin, files, missing, cache, offline)
+            for path in superseded:
+                (root / path).unlink()
+            if missing:
+                _restore(root, pin, files, missing, cache, offline)
     _READY.add(key)
 
 

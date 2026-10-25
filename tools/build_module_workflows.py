@@ -43,6 +43,10 @@ def validate(data, root=ROOT, *, live=True):
             raise ValueError(f"{key}: missing API source {api}")
         if not module["guidance"].strip():
             raise ValueError(f"{key}: missing handoff guidance")
+        route = module.get("route")
+        if route is not None and (set(route) != {"narration", "docs"}
+                                  or not all(isinstance(v, str) and v.strip() for v in route.values())):
+            raise ValueError(f"{key}: invalid route override")
         if module.get("api_entry"):
             prefix, _, name = module["api_entry"].rpartition(".")
             if (prefix != module["api_module"] or module["home"] is not None
@@ -182,6 +186,8 @@ def module_rst(data, key):
     if module.get("api_entry"):
         parts.append(f"**Use from Python:** :func:`{module['api_entry']}`. "
                      "This API-only workflow has no Home tile or menu entry.\n\n")
+    elif module.get("route"):
+        parts.append(f"**Open:** {module['route']['docs']}.\n\n")
     elif parent:
         host = data['modules'][parent]
         prefix = "Help search → " if host['home'] is None else ""
@@ -285,6 +291,9 @@ def _items(keys, data, tr):
 
 def _opening(data, module, tr):
     parent = module["parent"]
+    route = module.get("route")
+    if route:
+        return tr(route["narration"])
     if module.get("api_entry"):
         return tr(
             "Use {name} from Python through {api}. "

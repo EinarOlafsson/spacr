@@ -34,6 +34,18 @@ ROOT = Path(__file__).resolve().parents[2]
 HAS_TORCH = importlib.util.find_spec("torch") is not None
 
 
+@pytest.fixture(autouse=True)
+def _linux_dlopen_flags(monkeypatch):
+    """The Linux ``dlopen`` flags, so the simulated Linux path runs on any host.
+
+    Windows has no ``os.RTLD_*``; their Linux values are what the mapping
+    passes to ``dlopen`` there.
+    """
+    for name, value in (("RTLD_NOW", 2), ("RTLD_GLOBAL", 256), ("RTLD_LAZY", 1)):
+        if not hasattr(os, name):
+            monkeypatch.setattr(os, name, value, raising=False)
+
+
 @pytest.fixture
 def fresh(monkeypatch):
     """As if torch had never been imported nor its libraries tried."""

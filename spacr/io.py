@@ -1868,6 +1868,21 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
     return normalized_stack.astype(save_dtype, copy=False)
 
 
+class _DeepTemporaryDirectory(tempfile.TemporaryDirectory):
+    """A temporary directory that is removed even below a deep Windows folder.
+
+    Its files can sit past MAX_PATH, where removal by the ordinary path
+    fails and leaves the directory behind. Only the removal uses the
+    extended-length form, so ``name`` stays the ordinary path every caller
+    records.
+    """
+
+    @classmethod
+    def _rmtree(cls, name, *args, **kwargs):
+        """Remove ``name`` through its extended-length spelling on Windows."""
+        return super()._rmtree(_long_path(name, always=True), *args, **kwargs)
+
+
 @contextmanager
 def _native_map_workspace(*, prefix, dir, parent=None):
     """Retain private directories while borrowed native arrays still exist.
@@ -1877,7 +1892,7 @@ def _native_map_workspace(*, prefix, dir, parent=None):
     :param parent: optional outer workspace retained by the same arrays.
     :returns: context yielding the private path and directory-owner tuple.
     """
-    directory = tempfile.TemporaryDirectory(prefix=prefix, dir=dir)
+    directory = _DeepTemporaryDirectory(prefix=prefix, dir=dir)
     workspace = {
         'name': directory.name,
         'owners': (directory, *(parent['owners'] if parent is not None else ())),
@@ -1900,8 +1915,8 @@ def _finalize_native_memmap(handle, path, owners):
     try:
         handle.close()
     finally:
-        if path is not None and os.path.exists(path):
-            os.unlink(path)
+        if path is not None and os.path.exists(_long_path(path)):
+            os.unlink(_long_path(path))
 
 
 def _retain_native_memmap(mapped, owners=(), *, remove_path=None):
@@ -3558,12 +3573,13 @@ def _volume_file_hash(path):
     """Hash one immutable source or derived volume in bounded chunks."""
     import hashlib
 
-    before = os.stat(path)
+    native = _long_path(path)
+    before = os.stat(native)
     digest = hashlib.sha256()
-    with open(path, 'rb') as handle:
+    with open(native, 'rb') as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b''):
             digest.update(chunk)
-    after = os.stat(path)
+    after = os.stat(native)
     if any(getattr(before, key) != getattr(after, key)
            for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
         raise ValueError(f'Volume changed while being read: {path}')
@@ -3836,11 +3852,11 @@ def _preprocess_mapped_volume_series(settings):
     expected_archive_names = {
         _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
         for field in fields}
-    if os.path.isfile(receipt_path):
-        if (os.path.islink(stack_path) or os.path.islink(masks_path)
-                or os.path.islink(receipt_path)):
+    if os.path.isfile(_long_path(receipt_path)):
+        if (os.path.islink(_long_path(stack_path)) or os.path.islink(_long_path(masks_path))
+                or os.path.islink(_long_path(receipt_path))):
             raise ValueError('Native T-by-Z outputs or receipt cannot be links.')
-        with open(receipt_path, encoding='utf8') as handle:
+        with open(_long_path(receipt_path), encoding='utf8') as handle:
             content = handle.read(16 * 1024 * 1024 + 1)
         if len(content) > 16 * 1024 * 1024:
             raise ValueError('Native T-by-Z source receipt exceeds 16 MiB.')
@@ -3852,9 +3868,9 @@ def _preprocess_mapped_volume_series(settings):
                 or set(receipt.get('archives', {})) != expected_archive_names):
             raise ValueError('Native T-by-Z source, map or processing recipe '
                              'differs from its completed receipt; use a fresh folder.')
-        if ({name for name in os.listdir(stack_path) if name.endswith('.npy')}
+        if ({name for name in os.listdir(_long_path(stack_path)) if name.endswith('.npy')}
                 != expected_stack_names or
-                {name for name in os.listdir(masks_path)
+                {name for name in os.listdir(_long_path(masks_path))
                  if name.endswith('_norm_timelapse.npz')}
                 != expected_archive_names):
             raise ValueError('Native T-by-Z output inventory differs from '
@@ -3864,8 +3880,8 @@ def _preprocess_mapped_volume_series(settings):
                 if core._watch_file_identity(os.path.join(folder, name)) is None or (
                         _volume_file_hash(os.path.join(folder, name)) != digest):
                     raise ValueError(f'Native T-by-Z output changed: {name}')
-    elif any(os.path.lexists(path) for path in (stack_path, masks_path,
-                                               os.path.join(src, 'merged'))):
+    elif any(os.path.lexists(_long_path(path)) for path in (stack_path, masks_path,
+                                                           os.path.join(src, 'merged'))):
         raise ValueError('Existing outputs have no native T-by-Z source receipt; '
                          'use a fresh output folder.')
     else:
@@ -3873,8 +3889,8 @@ def _preprocess_mapped_volume_series(settings):
             stage = stage_owner['name']
             stage_stack = os.path.join(stage, 'stack')
             stage_masks = os.path.join(stage, 'masks')
-            os.mkdir(stage_stack)
-            os.mkdir(stage_masks)
+            os.mkdir(_long_path(stage_stack))
+            os.mkdir(_long_path(stage_masks))
             stacks, archives = {}, {}
             for field, times in sorted(fields.items()):
                 filenames, shape, dtype, frame_shape = [], None, None, None
@@ -3887,7 +3903,7 @@ def _preprocess_mapped_volume_series(settings):
                             path = os.path.join(src, name)
                             flags = (os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
                                      | getattr(os, 'O_NONBLOCK', 0))
-                            with os.fdopen(os.open(path, flags), 'rb') as handle:
+                            with os.fdopen(os.open(_long_path(path), flags), 'rb') as handle:
                                 info = os.fstat(handle.fileno())
                                 opened = core._watch_stat_identity(
                                     info, descriptor=handle.fileno())
@@ -3928,7 +3944,7 @@ def _preprocess_mapped_volume_series(settings):
                 staged_paths = [os.path.join(stage_stack, name) for name in filenames]
                 for name, path in zip(filenames, staged_paths):
                     checkpoint()
-                    if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
+                    if os.path.islink(_long_path(path)) or _volume_file_hash(path) != stacks[name]:
                         raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                 output_shape = (len(filenames), *frame_shape)
                 with _native_map_workspace(
@@ -3939,7 +3955,7 @@ def _preprocess_mapped_volume_series(settings):
                         workspace, output_shape, len(selected), dtype, filenames)
                     normalized = _retain_native_memmap(
                         np.lib.format.open_memmap(
-                            os.path.join(workspace, 'selected.npy'), mode='w+',
+                            _long_path(os.path.join(workspace, 'selected.npy')), mode='w+',
                             dtype=np.float32,
                             shape=(*output_shape[:-1], len(selected))),
                         workspace_owner['owners'],
@@ -3952,7 +3968,7 @@ def _preprocess_mapped_volume_series(settings):
                                 workspace, f'channel-{channel}.npy')
                             values = _retain_native_memmap(
                                 np.lib.format.open_memmap(
-                                    channel_path, mode='w+', dtype=np.dtype(dtype),
+                                    _long_path(channel_path), mode='w+', dtype=np.dtype(dtype),
                                     shape=output_shape[:-1]),
                                 workspace_owner['owners'], remove_path=channel_path)
                             try:
@@ -3960,7 +3976,8 @@ def _preprocess_mapped_volume_series(settings):
                                 for index, path in enumerate(staged_paths):
                                     checkpoint()
                                     mapped = _retain_native_memmap(
-                                        np.load(path, mmap_mode='r', allow_pickle=False),
+                                        np.load(_long_path(path), mmap_mode='r',
+                                                allow_pickle=False),
                                         stage_owner['owners'])
                                     try:
                                         if (mapped.shape != frame_shape
@@ -3989,7 +4006,7 @@ def _preprocess_mapped_volume_series(settings):
                             workspace_dir=workspace)
                         for name, path in zip(filenames, staged_paths):
                             checkpoint()
-                            if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
+                            if os.path.islink(_long_path(path)) or _volume_file_hash(path) != stacks[name]:
                                 raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                         archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
                         archive = os.path.join(stage_masks, archive_name)
@@ -4006,7 +4023,7 @@ def _preprocess_mapped_volume_series(settings):
                            != row['identity'] or core._watch_artifact_sha256(os.path.join(src, name))
                            != row['sha256'] for name, row in inputs.items())):
                 raise ValueError('Native T-by-Z inputs or map changed before publication.')
-            with open(os.path.join(stage_stack, '.spacr_volume_series_ingest.json'),
+            with open(_long_path(os.path.join(stage_stack, '.spacr_volume_series_ingest.json')),
                       'w', encoding='utf8') as handle:
                 json.dump(dict(version=1, axes='TZYXC', map_sha256=map_sha256,
                                inputs=inputs, recipe=recipe, stacks=stacks,
@@ -4014,23 +4031,24 @@ def _preprocess_mapped_volume_series(settings):
                 handle.write('\n')
             published = []
             try:
-                os.mkdir(stack_path)
+                os.mkdir(_long_path(stack_path))
                 published.append(stack_path)
-                os.mkdir(masks_path)
+                os.mkdir(_long_path(masks_path))
                 published.append(masks_path)
                 for folder, stage_folder, names_to_link in (
                         (stack_path, stage_stack, [*stacks, '.spacr_volume_series_ingest.json']),
                         (masks_path, stage_masks, archives)):
                     for name in names_to_link:
                         destination = os.path.join(folder, name)
-                        os.link(os.path.join(stage_folder, name), destination)
+                        os.link(_long_path(os.path.join(stage_folder, name)),
+                                _long_path(destination))
                         published.append(destination)
             except BaseException:
                 for path in reversed(published):
-                    if os.path.isdir(path):
-                        os.rmdir(path)
+                    if os.path.isdir(_long_path(path)):
+                        os.rmdir(_long_path(path))
                     else:
-                        os.unlink(path)
+                        os.unlink(_long_path(path))
                 raise
     for key in channel_keys:
         if settings.get(key) is not None:

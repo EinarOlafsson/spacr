@@ -546,3 +546,36 @@ def test_a_growing_czi_is_taken_only_after_it_settles(tmp_path):
     assert result['done'] == ['grow_A01_1', 'grow_A01_2']
     assert [call[0] for call in recorder.calls] == result['done']
     assert all(call[2] >= finished[0] + 0.4 for call in recorder.calls)
+
+
+class _WholeOnlyLifImage:
+    """A ``liffile`` image as the releases Python 3.10 and 3.11 install it: no ``frame``."""
+
+    dims = ('T', 'M', 'Z', 'C', 'Y', 'X')
+    sizes = {'T': 2, 'M': 3, 'Z': 2, 'C': 2, 'Y': 4, 'X': 5}
+
+    def __init__(self):
+        self.reads = 0
+        self.data = np.arange(np.prod(list(self.sizes.values()))).reshape(tuple(self.sizes.values()))
+
+    def asarray(self):
+        self.reads += 1
+        return self.data
+
+
+class _WholeOnlyLifFile:
+    def __init__(self, image):
+        self.images = [image]
+
+    def close(self):
+        pass
+
+
+def test_a_lif_reader_without_frame_still_yields_each_declared_plane():
+    """Old liffile has only ``asarray``; watching a LIF must not wait forever."""
+    image = _WholeOnlyLifImage()
+    handles = {'plate.lif': _WholeOnlyLifFile(image)}
+    for t, tile, z, c in ((0, 0, 0, 0), (1, 2, 1, 1), (0, 1, 1, 0)):
+        plane = core._watch_vendor_plane(handles, '.', 'plate.lif', ('lif', 0, t, tile, z, c))
+        assert np.array_equal(plane, image.data[t, tile, z, c])
+    assert image.reads == 1, 'the whole image is decoded once per open reader'

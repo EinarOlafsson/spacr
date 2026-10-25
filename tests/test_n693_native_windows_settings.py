@@ -12,6 +12,37 @@ import pytest
 pytestmark = pytest.mark.skipif(os.name != 'nt', reason='native Windows sharing/console behavior')
 
 
+def _run_tree(args, folder, timeout, **options):
+    """Run ``args`` with output in files; on timeout kill it and every process it started.
+
+    With pipes, a pool worker that outlives a timed-out child keeps them open
+    and ``subprocess.run`` then waits for it forever on Windows.
+    """
+    import psutil
+
+    out_path, err_path = folder / 'child-stdout.bin', folder / 'child-stderr.bin'
+    with out_path.open('wb') as out, err_path.open('wb') as err:
+        process = subprocess.Popen(args, stdout=out, stderr=err, **options)
+        try:
+            process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            tree = [process.pid]
+            try:
+                tree += [child.pid for child in psutil.Process(process.pid).children(recursive=True)]
+            except psutil.Error:
+                pass
+            for pid in reversed(tree):
+                try:
+                    psutil.Process(pid).kill()
+                except psutil.Error:
+                    pass
+            process.wait()
+            pytest.fail(f'child did not finish within {timeout} s:\n'
+                        + err_path.read_bytes().decode('cp1252', errors='replace')[-6000:])
+    return subprocess.CompletedProcess(args, process.returncode,
+                                       out_path.read_bytes(), err_path.read_bytes())
+
+
 def test_native_locked_csv_preserves_both_snapshots_and_recovers(tmp_path, capsys):
     from spacr.utils import load_settings, save_settings
 
@@ -94,9 +125,8 @@ print('N693_NATIVE_CP1252_UNICODE_PASS')
                        SPACR_HOME=str(profile / '.spacr'), SPACR_ISOLATED_PROFILE='1',
                        USERPROFILE=str(profile), HOME=str(profile),
                        APPDATA=str(profile / 'roaming'), LOCALAPPDATA=str(profile / 'local'))
-    process = subprocess.run([sys.executable, '-c', code, str(folder)],
-                             cwd=Path(__file__).resolve().parents[1], env=environment,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+    process = _run_tree([sys.executable, '-c', code, str(folder)], tmp_path, 60,
+                        cwd=Path(__file__).resolve().parents[1], env=environment)
     assert process.returncode == 0, process.stderr.decode('cp1252', errors='replace')
     assert b'N693_NATIVE_CP1252_UNICODE_PASS' in process.stdout
     assert b'Warning: could not save settings' in process.stdout
@@ -176,9 +206,8 @@ print('N693_NATIVE_CP1252_MEASURE_UNICODE_PASS')
                        SPACR_HOME=str(profile / '.spacr'), SPACR_ISOLATED_PROFILE='1',
                        USERPROFILE=str(profile), HOME=str(profile),
                        APPDATA=str(profile / 'roaming'), LOCALAPPDATA=str(profile / 'local'))
-    process = subprocess.run([sys.executable, '-c', code, str(settings_file), json.dumps(expected_areas)],
-                             cwd=Path(__file__).resolve().parents[1], env=environment,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+    process = _run_tree([sys.executable, '-c', code, str(settings_file), json.dumps(expected_areas)],
+                        tmp_path, 120, cwd=Path(__file__).resolve().parents[1], env=environment)
     assert process.returncode == 0, (process.stdout.decode('cp1252', errors='replace')[-3000:] + '\n' +
                                      process.stderr.decode('cp1252', errors='replace')[-6000:])
     assert b'N693_NATIVE_CP1252_MEASURE_UNICODE_PASS' in process.stdout

@@ -70,7 +70,7 @@ jobs:
           REQUESTED_VERSION: ${{ inputs.version }}
           BEFORE_SHA: ${{ github.event.before }}
         run: |
-          python -m pip install "packaging>=24"
+          python -m pip install "packaging>=24" pillow fonttools brotli uharfbuzz pyyaml pypdf
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             version=$(python packaging/release.py bump \
               --allow-current "$REQUESTED_VERSION")
@@ -102,6 +102,16 @@ jobs:
               release_required=false
             fi
           fi
+          python tools/build_readme_images.py --check
+          python - "$version" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          manifest = Path("docs/source/_static/deck/slides.json")
+          if json.loads(manifest.read_text(encoding="utf-8"))["version"] != sys.argv[1]:
+              raise SystemExit("The info deck does not match the release version")
+          PY
           python packaging/release.py verify >/dev/null
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
@@ -116,7 +126,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff spacr/_version.py spacr/resources/release_notes.json README.rst packaging/readme_source.yaml docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
+          git add -u -- setup.py CITATION.cff spacr/_version.py spacr/resources/release_notes.json README.rst packaging/readme_source.yaml docs/i18n/readme docs/readme_images docs/readme_text docs/readme_assets docs/source/_static/deck docs/source/_generated/hardware_table.rst docs/source/installer_guide.rst packaging/apptainer/README.md
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else

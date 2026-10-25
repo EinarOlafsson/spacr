@@ -2,6 +2,7 @@
 MAKE MACOS GUI SCALING CONTENT-SAFE
 ================================================================================
 
+Status:    DONE 2026-10-21 — native macOS acceptance and final-source runtime/API catalog closure complete
 Status:    DONE 2026-10-21 — native macOS scale fixes, tour readability and runtime/API catalog closure complete
 Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
 Priority:  P1

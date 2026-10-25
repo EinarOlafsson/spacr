@@ -515,7 +515,6 @@ def _prepared_release_is_current(
     return result.returncode == 0
 
 
-
 def sync_docker_tags(root: Path, version: str) -> list[Path]:
     """Point every Docker command and tag on the release pages at ``version``.
 
@@ -550,9 +549,9 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     version line is drawn onto the kept picture instead
     (``tools/build_readme_deck.py``). Nothing happens in a tree without the
     deck, when the deck already shows ``version`` (a rerun, or CI's own bump
-    step after the maintainer bumped), or where Pillow is not installed --
-    the release job's version step installs only packaging tools, and a
-    picture must never be what stops a release.
+    step after the maintainer bumped), or where Pillow is not installed.
+    Local callers retain that optional-render fallback; release preparation
+    installs the renderer dependencies and checks its generated outputs.
 
     :param root: the repository root.
     :param version: the release being bumped to.
@@ -1284,6 +1283,50 @@ class MetadataNotReady(RuntimeError):
     """A release exists but a service has not published what it mints yet."""
 
 
+def verify_pypi_source(wheel_dir: Path, published, version: str, source_commit: str) -> str:
+    """Match PyPI to the validated wheel's immutable source-pinned description.
+
+    Wheel timestamps and archive bytes are deliberately outside this check.
+    The package gate already validates the description against the checkout;
+    this comparison prevents a resume from adopting another source's upload.
+    """
+    from email import message_from_string
+    import zipfile
+
+    if PROJECT_RELEASE_PATTERN.fullmatch(version) is None:
+        raise ValueError("Expected a numeric release version")
+    if re.fullmatch(r"[0-9a-f]{40}", source_commit) is None:
+        raise ValueError("Expected a full lowercase release source SHA")
+    wheels = list(wheel_dir.glob("*.whl"))
+    if len(wheels) != 1:
+        raise ValueError("Expected exactly one validated release wheel")
+    with zipfile.ZipFile(wheels[0]) as wheel:
+        names = [name for name in wheel.namelist()
+                 if name.endswith(".dist-info/METADATA")]
+        if len(names) != 1:
+            raise ValueError("Expected exactly one wheel METADATA entry")
+        metadata = message_from_string(wheel.read(names[0]).decode("utf-8"))
+    if (metadata.get_all("Name") != ["spacr"]
+            or metadata.get_all("Version") != [version]
+            or metadata.get_all("Description-Content-Type") != ["text/x-rst"]):
+        raise ValueError("Validated wheel package, version or description type differs")
+    description = metadata.get_payload()
+    if not isinstance(description, str):
+        raise ValueError("Validated wheel has no text description")
+    pins = set(re.findall(
+        r"https://(?:raw\.githubusercontent\.com/EinarOlafsson/spacr|"
+        r"github\.com/EinarOlafsson/spacr/blob)/([0-9a-fA-F]{40})/",
+        description))
+    if pins != {source_commit}:
+        raise ValueError("Validated wheel description lacks the exact release source pin")
+    info = published.get("info") if isinstance(published, dict) else None
+    if not isinstance(info, dict) or info.get("name") != "spacr" or info.get("version") != version:
+        raise ValueError("Published PyPI package or version differs")
+    if info.get("description") != description:
+        raise ValueError("Published PyPI description differs from the validated source wheel")
+    return source_commit
+
+
 def fetch_json(url: str):
     """GET ``url`` and decode it as JSON (the only network access here)."""
     import json
@@ -1495,50 +1538,6 @@ def sync_release_metadata(root: Path, metadata: dict[str, str]) -> list[Path]:
             path.write_text(updated, encoding="utf-8")
             changed.append(path)
     return changed
-
-
-def verify_pypi_source(wheel_dir: Path, published, version: str, source_commit: str) -> str:
-    """Match PyPI to the validated wheel's immutable source-pinned description.
-
-    Wheel timestamps and archive bytes are deliberately outside this check.
-    The package gate already validates the description against the checkout;
-    this comparison prevents a resume from adopting another source's upload.
-    """
-    from email import message_from_string
-    import zipfile
-
-    if PROJECT_RELEASE_PATTERN.fullmatch(version) is None:
-        raise ValueError("Expected a numeric release version")
-    if re.fullmatch(r"[0-9a-f]{40}", source_commit) is None:
-        raise ValueError("Expected a full lowercase release source SHA")
-    wheels = list(wheel_dir.glob("*.whl"))
-    if len(wheels) != 1:
-        raise ValueError("Expected exactly one validated release wheel")
-    with zipfile.ZipFile(wheels[0]) as wheel:
-        names = [name for name in wheel.namelist()
-                 if name.endswith(".dist-info/METADATA")]
-        if len(names) != 1:
-            raise ValueError("Expected exactly one wheel METADATA entry")
-        metadata = message_from_string(wheel.read(names[0]).decode("utf-8"))
-    if (metadata.get_all("Name") != ["spacr"]
-            or metadata.get_all("Version") != [version]
-            or metadata.get_all("Description-Content-Type") != ["text/x-rst"]):
-        raise ValueError("Validated wheel package, version or description type differs")
-    description = metadata.get_payload()
-    if not isinstance(description, str):
-        raise ValueError("Validated wheel has no text description")
-    pins = set(re.findall(
-        r"https://(?:raw\.githubusercontent\.com/EinarOlafsson/spacr|"
-        r"github\.com/EinarOlafsson/spacr/blob)/([0-9a-fA-F]{40})/",
-        description))
-    if pins != {source_commit}:
-        raise ValueError("Validated wheel description lacks the exact release source pin")
-    info = published.get("info") if isinstance(published, dict) else None
-    if not isinstance(info, dict) or info.get("name") != "spacr" or info.get("version") != version:
-        raise ValueError("Published PyPI package or version differs")
-    if info.get("description") != description:
-        raise ValueError("Published PyPI description differs from the validated source wheel")
-    return source_commit
 
 
 def main() -> int:

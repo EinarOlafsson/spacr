@@ -45,8 +45,36 @@ def test_metal_kmeans_matches_separated_cpu_clusters():
     np.testing.assert_allclose(model.inertia_, reference.inertia_, rtol=0.01)
 
 
-def test_metal_backend_is_opt_in_and_unsupported_options_keep_cpu():
+def _an_intel_mac_radeon(monkeypatch):
+    """Route as on the Intel Mac these reducers were measured on.
+
+    On Apple Silicon backend_for keeps PCA/KMeans on the CPU, which beats
+    Metal there; the reducers themselves still run on this machine's MPS.
+    """
+    from spacr import accelerator
+
+    monkeypatch.setattr(accelerator, "_CACHED", accelerator.Accelerator(
+        kind="mps", device="mps", label="AMD Radeon Pro 5300 (Apple Metal)",
+        name="AMD Radeon Pro 5300", float64=False, autocast=False, fallback=True))
+
+
+def test_apple_silicon_keeps_pca_and_kmeans_on_the_cpu(monkeypatch):
+    from spacr import accelerator
     from spacr.gpu_reduce import make_reducer
+
+    monkeypatch.setattr(accelerator, "_CACHED", accelerator.Accelerator(
+        kind="mps", device="mps", label="Apple M2 (Apple Metal)", name="Apple M2",
+        float64=False, autocast=False, fallback=True))
+    assert make_reducer("pca", prefer_gpu=True)[1] == "cpu"
+    assert make_reducer("kmeans", prefer_gpu=True)[1] == "cpu"
+    rows = {task: (on, detail) for task, on, detail in accelerator.capabilities()}
+    assert rows["UMAP / t-SNE / clustering"][0] is False
+
+
+def test_metal_backend_is_opt_in_and_unsupported_options_keep_cpu(monkeypatch):
+    from spacr.gpu_reduce import make_reducer
+
+    _an_intel_mac_radeon(monkeypatch)
 
     assert make_reducer("pca", prefer_gpu=False)[1] == "cpu"
     assert make_reducer("pca", prefer_gpu=True)[1] == "mps"
@@ -55,10 +83,12 @@ def test_metal_backend_is_opt_in_and_unsupported_options_keep_cpu():
     assert make_reducer("tsne", prefer_gpu=True)[1] == "cpu"
 
 
-def test_image_reduction_and_clustering_runs_metal_end_to_end():
+def test_image_reduction_and_clustering_runs_metal_end_to_end(monkeypatch):
     from sklearn.metrics import adjusted_rand_score
 
     from spacr.utils import reduction_and_clustering
+
+    _an_intel_mac_radeon(monkeypatch)
 
     rng = np.random.default_rng(23)
     data = np.concatenate([rng.normal(k * 10, 0.2, (20, 6)) for k in range(3)])

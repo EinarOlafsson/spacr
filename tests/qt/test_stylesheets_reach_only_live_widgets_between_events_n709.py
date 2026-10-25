@@ -271,7 +271,7 @@ def test_a_theme_change_during_a_dialog_close_never_restyles_the_dying_dialog(
                 if r["target"] is dialog or r["target"] is child]
         assert all("#300000" not in r["text"] for r in late)
         assert not any(r["nested"] or r["in_handler"] for r in applied)
-        assert not gui_scale._TORN_DOWN
+        assert gui_scale._prune_torn_down() == 0
     finally:
         theme.apply_stylesheet_per_window(app, per_window_sheet)
         QCoreApplication.processEvents()
@@ -502,3 +502,117 @@ def test_an_application_sheet_survives_widgets_freed_inside_its_walk(tmp_path):
     raw = subprocess.run([sys.executable, str(script), "raw", "25"],
                          env=env, capture_output=True, text=True, timeout=240)
     assert raw.returncode != 0, "the unguarded walk no longer crashes"
+
+
+class _SizesFromAChildSheetOnFontChange(QWidget):
+    """Puts a font-size sheet on a child in its FontChange, then measures."""
+
+    def __init__(self):
+        super().__init__()
+        self.child = QLabel("Xg", self)
+        self.measured = []
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() == QEvent.FontChange:
+            pixels = max(6, self.fontInfo().pixelSize() * 2)
+            self.child.setStyleSheet(f"QLabel {{ font-size: {pixels}px; }}")
+            self.measured.append((pixels, self.child.fontInfo().pixelSize()))
+
+
+def test_a_font_change_handler_sees_the_child_sheet_it_just_set(applied):
+    widget = _SizesFromAChildSheetOnFontChange()
+    widget.ensurePolished()
+    widget.child.ensurePolished()
+    larger = widget.font()
+    larger.setPointSize(larger.pointSize() + 3)
+    widget.setFont(larger)
+
+    assert widget.measured, "the FontChange never arrived"
+    wanted, painted = widget.measured[-1]
+    assert painted == wanted
+    assert _texts_for(applied, widget.child)
+    assert not any(r["nested"] for r in applied)
+    widget.deleteLater()
+
+
+def test_hidden_combo_popups_are_never_restyled_until_they_show(
+        applied, per_window_sheet, qtbot):
+    """Windows nightly 4f723c7d8: restyling hidden combo popup frames crashed.
+
+    A combo box's list lives in a parentless popup frame from the first
+    ``view()`` on; every theme pass and change of scale restyled each hidden
+    one. They are now left alone until they show.
+    """
+    from PySide6.QtWidgets import QComboBox
+
+    app = QApplication.instance()
+    host = QWidget()
+    qtbot.addWidget(host)
+    combos = []
+    for index in range(6):
+        combo = QComboBox(host)
+        combo.addItems([f"item {index}-{n}" for n in range(9)])
+        combo.view()
+        combos.append(combo)
+    popups = [combo.view().window() for combo in combos]
+    assert all(popup is not host and popup.isWindow() for popup in popups)
+    assert {popup.metaObject().className() for popup in popups} == {
+        "QComboBoxPrivateContainer"}
+    host.show()
+    QCoreApplication.processEvents()
+    original = gui_scale.current_scale()
+    try:
+        for round_ in range(4):
+            theme.apply_stylesheet_per_window(
+                app, per_window_sheet + f"\nQComboBox {{ margin: {round_}px; }}")
+            gui_scale.set_gui_scale_live(0.9 if round_ % 2 else 1.1)
+            for popup in popups:
+                popup.setStyleSheet(f"QFrame {{ margin: {round_}px; }}")
+            QCoreApplication.processEvents()
+        inside = set()
+        for popup in popups:
+            inside.add(id(popup))
+            inside.update(id(child) for child in popup.findChildren(QWidget))
+        assert not [r for r in applied if id(r["target"]) in inside]
+
+        combos[0].showPopup()
+        qtbot.waitUntil(popups[0].isVisible, timeout=2000)
+        QCoreApplication.processEvents()
+        assert [r for r in applied if r["target"] is popups[0]]
+        shown = _raw_sheet(popups[0])
+        assert shown.startswith(per_window_sheet)
+        assert shown.endswith("QFrame { margin: 3px; }")
+        combos[0].hidePopup()
+    finally:
+        gui_scale.set_gui_scale_live(original)
+
+
+class _CountsStyleChanges(QLabel):
+    """Counts the StyleChange events Qt sends it."""
+
+    def __init__(self):
+        super().__init__("count")
+        self.style_changes = 0
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.StyleChange:
+            self.style_changes += 1
+        super().changeEvent(event)
+
+
+def test_an_unchanged_sheet_is_not_handed_to_qt_again(applied):
+    """Lessons 70 and 85: restyles to an unchanged sheet stalled module opens."""
+    label = _CountsStyleChanges()
+    label.ensurePolished()
+    label.setStyleSheet("QLabel { color: #123456; }")
+    first = label.style_changes
+    assert first >= 1
+    for _ in range(5):
+        label.setStyleSheet("QLabel { color: #123456; }")
+    assert label.style_changes == first
+
+    label.setStyleSheet("QLabel { color: #654321; }")
+    assert label.style_changes > first
+    assert _raw_sheet(label) == "QLabel { color: #654321; }"
+    label.deleteLater()

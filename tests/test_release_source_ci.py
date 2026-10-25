@@ -2,6 +2,7 @@
 import importlib.util
 import json
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 from urllib.parse import parse_qs, urlsplit
@@ -400,6 +401,30 @@ def test_repository_installer_sync_is_post_release_and_reuses_the_same_artifacts
     assert "git tag" not in commands
 
 
+def test_bump_checks_and_stages_tracked_owner_outputs_before_finalizing_the_source():
+    steps = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())["jobs"]["bump"]["steps"]
+    validate = next(step for step in steps if step.get("id") == "version")
+    commit = next(step for step in steps if step.get("id") == "commit")
+    finalize = next(step for step in steps if step.get("id") == "finalize")
+    commands = validate["run"]
+    install = next(line for line in commands.splitlines() if "pip install" in line)
+    assert {"pillow", "fonttools", "brotli", "uharfbuzz", "pyyaml", "pypdf"} <= set(shlex.split(install))
+    assert commands.index(install) < commands.index("python packaging/release.py bump")
+    assert commands.index("python packaging/release.py bump") < commands.index("python tools/build_readme_images.py --check")
+    assert 'Path("docs/source/_static/deck/slides.json")' in commands
+    assert 'manifest.read_text(encoding="utf-8")' in commands
+    assert 'raise SystemExit("The info deck does not match the release version")' in commands
+    assert steps.index(validate) < steps.index(commit) < steps.index(finalize)
+    stage = next(line for line in commit["run"].splitlines() if line.startswith("git add "))
+    arguments = shlex.split(stage)
+    assert arguments[:4] == ["git", "add", "-u", "--"]
+    assert set(arguments[4:]) == {
+        "setup.py", "CITATION.cff", "spacr/_version.py", "spacr/resources/release_notes.json", "README.rst",
+        "packaging/readme_source.yaml", "docs/i18n/readme", "docs/readme_images",
+        "docs/readme_text", "docs/readme_assets", "docs/source/_static/deck",
+        "docs/source/_generated/hardware_table.rst", "docs/source/installer_guide.rst",
+        "packaging/apptainer/README.md",
+    }
 
 
 @pytest.fixture

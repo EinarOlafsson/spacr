@@ -1,7 +1,7 @@
 {
   "language": "ja",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "74ffb2780312b1dbb6be41c4d4f8489af7431d43e7013377af9aa04070613aed",
+  "english_sha256": "0303eb4f547b49d27da7ce4ffbd7eae9ee49a78b5696f419ca1b4581b6ebcd19",
   "title": "モジュールの入力と出力",
   "section": "ワークフロー",
   "description": "Home モジュール内のツールも含め、現在の各モジュールの入力データ、保存する出力、上流の生成元、下流の利用先を確認します。",
@@ -76,7 +76,7 @@
     "Home から Measure を開き、Illumination を選びます。 設定した段階でフラットフィールド補正を推定して適用します。補正した表示値と生の測定値を区別し、適用した方針を記録します。 Illumination は 顕微鏡画像 を読み込みます。 そこから、Illumination は 顕微鏡画像 を生成します。",
     "Home から Measure を開き、AnnData Export を選びます。 オブジェクトのメタデータと測定した特徴量を含む AnnData .h5ad ファイルを、後続の単一細胞解析用にエクスポートします。 AnnData Export は 測定済みのオブジェクト を読み込みます。 そこから、AnnData Export は AnnData のエクスポート を生成します。 AnnData のエクスポート はここで見つかります： 測定した特徴量とオブジェクトのメタデータを含む、エクスポートされた .h5ad ファイル。 Measure から 測定済みのオブジェクト を得ることもできます。 互換性のある特徴量列とメタデータ列をエクスポートします。",
     "Home から Measure を開き、Motility Assay を選びます。 明示的なフレーム間隔とピクセル校正を用いて、軌跡の速度と感染関連の測定値を確認します。 Motility Assay は 連結された時系列オブジェクト と 測定済みのオブジェクト を読み込みます。 そこから、Motility Assay は アッセイの結果、および 図と書き出した表 を生成します。 Timelapse から 連結された時系列オブジェクト を得ることもできます。 フレーム間隔とピクセル校正を提供します。 Measure から始める場合は、そこで 測定済みのオブジェクト が得られます。 測定済みオブジェクトを対応する軌跡と組み合わせます。",
-    "Home から Mask を開き、Timelapse を選びます。 Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。 Timelapse は 顕微鏡画像 を読み込みます。 そこから、Timelapse は 画像とラベルマスク, ラベルマスク、および 連結された時系列オブジェクト を生成します。 Mask から 顕微鏡画像 を得ることもできます。 関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 次に Measure が 画像とラベルマスク を引き継ぎます。 フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 連結された時系列オブジェクト を Motility Assay に渡すこともできます。 フレーム間隔とピクセル校正を提供します。",
+    "Home から Mask を開きます。 Mask で Time を押して時間軸とトラッキングの設定を表示し、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。 Timelapse は 顕微鏡画像 を読み込みます。 そこから、Timelapse は 画像とラベルマスク, ラベルマスク、および 連結された時系列オブジェクト を生成します。 Mask から 顕微鏡画像 を得ることもできます。 関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。 次に Measure が 画像とラベルマスク を引き継ぎます。 フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。 連結された時系列オブジェクト を Motility Assay に渡すこともできます。 フレーム間隔とピクセル校正を提供します。",
     "Home から Mask を開き、OPS を選びます。 シーケンシングサイクルの画像と表現型の位置合わせを使い、核ごとにバーコードをデコードします。Regression の前に、デコードした識別情報を互換性のある表現型入力に集計または結合します。OPS データベースは FASTQ カウント CSV の直接の代替ではありません。 OPS は 顕微鏡画像、および 位置合わせしたモザイクと座標 を読み込みます。 そこから、OPS は 光学バーコードの割り当て を生成します。 Align & Stitch から 位置合わせしたモザイクと座標 を得ることもできます。 タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。 次に Regression が 光学バーコードの割り当て を引き継ぎます。 Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。",
     "Home から Classify を開き、Classifier Evaluation を選びます。 対応する分類器のホールドアウト予測、校正、データ分割および漏洩に関する根拠を確認します。 Classifier Evaluation は 分類器の評価一式 を読み込みます。 そこから、Classifier Evaluation は 品質管理の結果、および 図と書き出した表 を生成します。 Classify から 分類器の評価一式 を得ることもできます。 対応するホールドアウト予測とデータ分割のメタデータを使用します。",
     "Home から Classify を開き、Explain CV Model を選びます。 識別情報による結合を保持しながら、既存のコンピュータービジョンスコアに対する代理モデルを測定した特徴量から適合させます。代理モデルによる説明は因果関係を示すものではありません。 Explain CV Model は 測定済みのオブジェクト と オブジェクトの分類スコア を読み込みます。 そこから、Explain CV Model は 当てはめた特徴量分類器、および 図と書き出した表 を生成します。 Classify から オブジェクトの分類スコア を得ることもできます。 CV の予測と対応する測定済みオブジェクトを選びます。",
@@ -94,8 +94,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "acc2262b70bdca85df02692ab4190b8856e9002e1878c5b1b81c3eae7ed7a392",
-    "phrase_bank_sha256": "9aa6eddb390ce8a3efdb18735fa17ba141f74ccf3c2717d3d0c82803a9ca82b0",
+    "workflow_map_sha256": "525297984345aeadceafd53104fad40f00e49d94a6c8b369d4a7719ddc16669a",
+    "phrase_bank_sha256": "c502f6ec2f694d2f0f11fa76d1874e11cf35195c8235c5ef2378a83b29f80572",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

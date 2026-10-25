@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, NamedTuple, Optional, Tuple
 
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
@@ -64,6 +64,48 @@ LINK_SOURCE = "lineage"
 #: is for looking at a family, and the search box is how you reach one.
 TREE_LIMIT = 2000
 
+
+class _BuiltLineage(NamedTuple):
+    """One loaded database's tree, built off the GUI thread. Plain data."""
+
+    frames: Dict[str, pd.DataFrame]
+    forest: tuple
+    orphans: pd.DataFrame
+    orphan_rows: Tuple[Tuple[str, str], ...]
+    collisions: Dict[str, Any]
+    summary: str
+    problem: Optional[str]
+
+
+def _build_lineage(frames) -> _BuiltLineage:
+    """Build the forest, the orphan rows and their texts from loaded tables.
+
+    Every row's typed key goes through :func:`spacr.schema.object_id`, which
+    is per-row string work; on a plate of objects it froze the window for
+    1-2 s when it ran in the GUI thread's callback. The load job runs this on
+    the worker, so the GUI thread only writes the capped tree.
+
+    :param frames: ``{table name: rows}``; ``None`` counts as empty.
+    :returns: the built tree, or the ``LineageError`` text in ``problem``.
+    """
+    frames = dict(frames or {})
+    try:
+        forest = lin.build_forest(frames)
+        orphans = lin.orphans(frames)
+    except lin.LineageError as exc:
+        return _BuiltLineage(frames, (), pd.DataFrame(), (), {}, "", str(exc))
+    rows = []
+    for _index, row in orphans.iterrows():
+        key = lin.node_key(row, str(row.get("table") or "") or None)
+        claimed = str(row.get("parent_id") or "")
+        text = (f"{row['table']} {row[lin.schema.OBJECT_LABEL_KEY]} → "
+                + (f"cell {claimed} (missing)" if claimed
+                   else "no cell_id at all"))
+        rows.append((text, key))
+    return _BuiltLineage(frames, forest, orphans, tuple(rows),
+                         lin.forest_key_collisions(forest),
+                         lin.describe_forest(forest), None)
+
 #: Where the shared object key is stashed on a tree row — what gets
 #: published and routed.
 _KEY_ROLE = Qt.UserRole
@@ -100,6 +142,8 @@ class LineageScreen(LinkedView, QWidget):
         self._frames: Dict[str, pd.DataFrame] = {}
         self._forest: tuple = ()
         self._orphans = pd.DataFrame()
+        self._orphan_rows: Tuple[Tuple[str, str], ...] = ()
+        self._collisions: Dict[str, Any] = {}
         self._build()
         self.link_selection(LINK_SOURCE)
         from ..dnd import install_for
@@ -227,8 +271,9 @@ class LineageScreen(LinkedView, QWidget):
             self.status.setText("Choose a measurements database first.")
             return
         self.status.setText("Reading the object tables…")
-        self._jobs.submit(lambda: lin.read_object_tables(db_path),
-                          self.set_frames)
+        self._jobs.submit(
+            lambda: _build_lineage(lin.read_object_tables(db_path)),
+            self._show_built)
 
     def set_frames(self, frames: Dict[str, pd.DataFrame]) -> None:
         """Build and draw the tree from already-loaded tables.
@@ -241,23 +286,28 @@ class LineageScreen(LinkedView, QWidget):
             empty. A ``LineageError`` from building the tree is shown in the
             summary instead of raised.
         """
-        self._frames = dict(frames or {})
-        try:
-            self._forest = lin.build_forest(self._frames)
-            self._orphans = lin.orphans(self._frames)
-        except lin.LineageError as exc:
-            self._forest = ()
-            self._orphans = pd.DataFrame()
+        self._show_built(_build_lineage(frames))
+
+    def _show_built(self, built: _BuiltLineage) -> None:
+        """Draw a tree :func:`_build_lineage` has already built.
+
+        :param built: the worker's result for the current load.
+        """
+        self._frames = built.frames
+        self._forest = built.forest
+        self._orphans = built.orphans
+        self._orphan_rows = built.orphan_rows
+        self._collisions = built.collisions
+        if built.problem is not None:
             _reuse_tree_items(self.tree, 0)
             _reuse_list_items(self.orphan_list, 0)
-            self.summary.setText(str(exc))
+            self.summary.setText(built.problem)
             self.status.setText("Nothing to show.")
             return
         self._fill_tree()
         self._fill_orphans()
         note = self.collision_note()
-        self.summary.setText(
-            lin.describe_forest(self._forest) + (f"\n{note}" if note else ""))
+        self.summary.setText(built.summary + (f"\n{note}" if note else ""))
         shown = min(len(self._forest), TREE_LIMIT)
         self.status.setText(
             f"{shown} of {len(self._forest)} parent object(s) in the tree"
@@ -315,13 +365,8 @@ class LineageScreen(LinkedView, QWidget):
             only.setData(Qt.DisplayRole,
                          "(none — every child names a parent that exists)")
             return
-        rows = _reuse_list_items(self.orphan_list, len(self._orphans))
-        for item, (_index, row) in zip(rows, self._orphans.iterrows()):
-            key = lin.node_key(row, str(row.get("table") or "") or None)
-            claimed = str(row.get("parent_id") or "")
-            text = (f"{row['table']} {row[lin.schema.OBJECT_LABEL_KEY]} → "
-                    + (f"cell {claimed} (missing)" if claimed
-                       else "no cell_id at all"))
+        rows = _reuse_list_items(self.orphan_list, len(self._orphan_rows))
+        for item, (text, key) in zip(rows, self._orphan_rows):
             item.setText(text)
             item.setData(_KEY_ROLE, key)
             item.setToolTip(key)
@@ -407,7 +452,7 @@ class LineageScreen(LinkedView, QWidget):
         "opening four objects showed three crops" would have no explanation
         on screen.
         """
-        collisions = lin.forest_key_collisions(self._forest)
+        collisions = self._collisions
         if not collisions:
             return ""
         example = sorted(collisions)[0]

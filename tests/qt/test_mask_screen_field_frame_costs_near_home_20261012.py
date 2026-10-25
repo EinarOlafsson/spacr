@@ -111,12 +111,9 @@ def _frame_ms(backdrop, frames=FRAMES) -> float:
     The minimum, because on a machine with other work on it every other
     sample measures some of that work too.
     """
-    spent = []
-    for _frame in range(frames):
-        started = time.thread_time()
-        backdrop.repaint()
-        spent.append((time.thread_time() - started) * 1000.0)
-    return min(spent)
+    from tests._thread_clock import thread_ms
+
+    return min(thread_ms(backdrop.repaint) for _frame in range(frames))
 
 
 @pytest.fixture

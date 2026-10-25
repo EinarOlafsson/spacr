@@ -15565,7 +15565,7 @@
         },
         {
           "visual": "module_timelapse",
-          "narration": "Öppna Mask från Home och välj sedan Timelapse. Öppna Timelapse i Mask för att segmentera och länka objekt över ordnade bildrutor; inspektera länkarna före efterföljande motilitetsanalys. Timelapse läser mikroskopbilderna. Utifrån dem skapar Timelapse bilderna och etikettmaskerna, etikettmaskerna samt de länkade tidsserieobjekten. Mask kan leverera mikroskopbilderna. Aktivera den inbäddade tidsserievägen innan länkade etiketter skapas. Därefter tar Measure över bilderna och etikettmaskerna. Använd tidsserieprojektet med stabila bildrute- och objektidentiteter. Du kan också ta de länkade tidsserieobjekten vidare till Motility Assay. Ange bildintervall och pixelkalibrering.",
+          "narration": "Öppna Mask från Home. I Mask trycker du på Time för att visa inställningarna för tidsaxel och spårning, och sedan segmenterar och länkar du objekt över ordnade bildrutor; inspektera länkarna före efterföljande motilitetsanalys. Timelapse läser mikroskopbilderna. Utifrån dem skapar Timelapse bilderna och etikettmaskerna, etikettmaskerna samt de länkade tidsserieobjekten. Mask kan leverera mikroskopbilderna. Aktivera den inbäddade tidsserievägen innan länkade etiketter skapas. Därefter tar Measure över bilderna och etikettmaskerna. Använd tidsserieprojektet med stabila bildrute- och objektidentiteter. Du kan också ta de länkade tidsserieobjekten vidare till Motility Assay. Ange bildintervall och pixelkalibrering.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",

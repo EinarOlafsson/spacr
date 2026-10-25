@@ -119,3 +119,42 @@ def test_a_matrix_screener_tree_past_max_path_converts_on_windows(tmp_path):
     first = os.path.join(plate, *MATRIX.split("/"))
     loaded = spacr_io.load_images_from_paths({"k": [first]})["k"]
     assert len(loaded) == 1 and loaded[0].shape == (8, 8)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="native Windows MAX_PATH behaviour")
+def test_a_volume_series_archive_past_max_path_is_hashed_and_its_stage_removed(tmp_path):
+    """Native T-by-Z Mask hashes its staged archive and removes its stage on a deep folder."""
+    from spacr import io as spacr_io
+
+    root = str(tmp_path)
+    while len(os.path.join(root, "x" * 40, "masks", "f" * 40 + "_norm_timelapse.npz")) <= 270:
+        root = os.path.join(root, "a_deeper_project_folder")
+    os.makedirs(_long_path(root, always=True), exist_ok=True)
+    with spacr_io._native_map_workspace(prefix=".spacr-volume-series-", dir=root) as owner:
+        stage = owner["name"]
+        assert not stage.startswith("\\\\?\\"), "recorded paths keep their ordinary spelling"
+        archive = os.path.join(stage, "masks", "f" * 40 + "_norm_timelapse.npz")
+        os.makedirs(_long_path(os.path.dirname(archive)), exist_ok=True)
+        with open(_long_path(archive), "wb") as handle:
+            handle.write(b"volume")
+        assert len(archive) > 260
+        assert spacr_io._volume_file_hash(archive) == __import__("hashlib").sha256(b"volume").hexdigest()
+    del owner
+    import gc
+
+    gc.collect()
+    assert not os.path.lexists(_long_path(stage, always=True)), "the deep stage is removed"
+
+
+def test_the_deep_temporary_directory_removes_through_the_extended_spelling(monkeypatch):
+    """Only the removal is respelled; the name callers record stays ordinary."""
+    import tempfile
+
+    from spacr import io as spacr_io
+
+    removed = []
+    monkeypatch.setattr(tempfile.TemporaryDirectory, "_rmtree",
+                        classmethod(lambda cls, name, *a, **k: removed.append(name)))
+    spacr_io._DeepTemporaryDirectory._rmtree("C:\\deep\\stage")
+    expected = _long_path("C:\\deep\\stage", always=True)
+    assert removed == [expected]

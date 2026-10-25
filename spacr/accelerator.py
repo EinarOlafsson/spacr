@@ -262,7 +262,8 @@ def _why_metal_is_unavailable() -> Tuple[str, str]:
 
     gpu = _metal_gpu_name()
     release = platform.mac_ver()[0]
-    intel_mac = platform.machine() in ("x86_64", "i386")
+    intel_mac = (platform.machine() in ("x86_64", "i386")
+                 and not _rosetta_translated())
 
     if release:
         try:
@@ -308,6 +309,10 @@ def _metal_gpu_name() -> str:
     """
     if platform.system() != "Darwin":
         return "Metal GPU"
+    if _apple_silicon():
+        chip = _sysctl_string(b"machdep.cpu.brand_string")
+        if chip.startswith("Apple "):
+            return chip
     try:
         import subprocess
 
@@ -320,6 +325,95 @@ def _metal_gpu_name() -> str:
     except Exception:                                        # noqa: BLE001
         pass
     return "Metal GPU"
+
+
+@lru_cache(maxsize=1)
+def _rosetta_translated() -> bool:
+    """True when this process is Intel code running under Rosetta 2.
+
+    ``platform.machine()`` cannot answer this: a translated process is told
+    ``x86_64``, so an M2 running an Intel Anaconda looks exactly like an
+    Intel Mac to every other check in spaCR. Found 2026-10-24 on the
+    maintainer's first Apple Silicon test machine, where a hand-made
+    ``conda create -n spacr`` from a 2023 Intel Anaconda had put spaCR on
+    an emulated Python with torch capped at 2.2.2 (the last Intel-Mac
+    wheel) and nothing in spaCR said so.
+
+    The kernel answers it directly through ``sysctl.proc_translated``: 1
+    when translated, 0 when native, and absent on an Intel Mac. Read
+    through ``sysctlbyname`` rather than a ``sysctl`` subprocess because
+    it is asked at launch. Never raises.
+    """
+    if platform.system() != "Darwin":
+        return False
+    try:
+        import ctypes
+
+        libc = _libc()
+        value = ctypes.c_int(0)
+        size = ctypes.c_size_t(ctypes.sizeof(value))
+        if libc.sysctlbyname(b"sysctl.proc_translated", ctypes.byref(value),
+                             ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return False
+        return value.value == 1
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+@lru_cache(maxsize=1)
+def _libc():
+    """The C library, for ``sysctlbyname``.
+
+    ``CDLL(None)`` is the process's own symbol table, which on macOS already
+    holds libSystem; ``find_library("c")`` scans dyld paths for ~30 ms first.
+    """
+    import ctypes
+
+    try:
+        libc = ctypes.CDLL(None)
+        libc.sysctlbyname
+        return libc
+    except (OSError, AttributeError):
+        import ctypes.util
+
+        return ctypes.CDLL(ctypes.util.find_library("c"))
+
+
+def _sysctl_string(name: bytes) -> str:
+    """A string sysctl read through ``sysctlbyname``, or ``""``. Never raises."""
+    try:
+        import ctypes
+
+        libc = _libc()
+        size = ctypes.c_size_t(0)
+        if libc.sysctlbyname(name, None, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        buffer = ctypes.create_string_buffer(size.value)
+        if libc.sysctlbyname(name, buffer, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        return buffer.value.decode("utf-8", "replace").strip()
+    except Exception:                                        # noqa: BLE001
+        return ""
+
+
+def _apple_silicon() -> bool:
+    """True on an Apple Silicon Mac, whether or not this Python is native."""
+    return (platform.system() == "Darwin"
+            and (platform.machine() == "arm64" or _rosetta_translated()))
+
+
+#: What to do about :func:`_rosetta_translated`. ``CONDA_SUBDIR`` is the part
+#: that matters: an Intel Anaconda creates Intel environments by default, so
+#: the plain ``conda create`` the doctor used to suggest rebuilt the problem.
+#: Verified on that M2 with Anaconda's x86_64 conda 23.7.4.
+_ROSETTA_FIX = (
+    "Create a native arm64 environment and reinstall spaCR into it:\n"
+    "CONDA_SUBDIR=osx-arm64 conda create -n spacr-arm64 python=3.12 -y && "
+    "conda activate spacr-arm64 && conda config --env --set subdir osx-arm64 && "
+    'python -m pip install "spacr"\n'
+    "(or install Miniforge for Apple Silicon, or the spaCR macOS installer, "
+    "which installs a native runtime itself)"
+)
 
 
 def _xpu(torch, *, device_names=True) -> Optional[Accelerator]:
@@ -368,7 +462,7 @@ def neural_engines() -> Tuple[str, ...]:
     through OpenVINO -- so none of them is offered as a compute device.
     """
     found = []
-    if platform.system() == "Darwin" and platform.machine() == "arm64":
+    if _apple_silicon():
         found.append("Apple Neural Engine (CoreML only)")
     return tuple(found)
 
@@ -441,11 +535,36 @@ def resolve(refresh: bool = False) -> Accelerator:
     if found.usable and found.kind != "cpu":
         found = _measure_dtypes(torch, found)
     if found.usable and found.fallback:
-        found = replace(found, fallback=bool(
-            os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", "")))
+        found = replace(found, fallback=_mps_fallback_live(found))
     _CACHED = found
     LOG.debug("accelerator resolved to %s (%s)", found.device, found.label)
     return found
+
+
+def _mps_fallback_live(found: Accelerator) -> bool:
+    """Whether operators the device lacks will run on the CPU, warning when not.
+
+    The variable alone is not the answer: torch reads it once, at import, so
+    a notebook that ran ``import torch`` before ``import spacr`` has it set
+    and no fallback. On an M2, ``torch.linalg.eig`` on Metal then raised
+    NotImplementedError instead of running on the CPU.
+    """
+    if not os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", ""):
+        return False
+    import spacr
+
+    if getattr(spacr, "_MPS_FALLBACK_LIVE", True):
+        return True
+    if found.kind == "mps":
+        import warnings
+
+        warnings.warn(
+            "torch was imported before spaCR, so PYTORCH_ENABLE_MPS_FALLBACK "
+            "is not active and operators Apple Metal lacks will raise "
+            "NotImplementedError instead of running on the CPU. Import spacr "
+            "before torch, or set PYTORCH_ENABLE_MPS_FALLBACK=1 before "
+            "starting Python.", RuntimeWarning, stacklevel=3)
+    return False
 
 
 def _measure_dtypes(torch, found: Accelerator) -> Accelerator:
@@ -675,6 +794,13 @@ def cellpose_kwargs() -> dict:
       matches Make Masks; float32 arithmetic need not produce identical
       predictions to bfloat16.
 
+      Metal that accepts bfloat16 still gets float32 when the Mac has
+      :data:`_METAL_FP32_MIN_MEMORY`: accepting the dtype is not computing
+      in it. On an Apple M2 (torch 2.14, cellpose 4.2.1.1, 512x512) bfloat16
+      weights took 7.85 s an image against 5.95 s in float32, the same 65
+      masks (foreground IoU 0.9995), for 2.7 vs 4.1 GB of GPU memory. A
+      smaller Mac keeps bfloat16, where that memory is the tighter limit.
+
     Callers that pass ``device=None`` on purpose -- letting cellpose
     resolve it -- should take ``gpu`` and ``use_bfloat16`` from here and
     drop ``device``.
@@ -685,7 +811,22 @@ def cellpose_kwargs() -> dict:
     kwargs = {"gpu": accelerator.is_gpu, "device": accelerator.torch_device}
     if not accelerator.is_gpu or not accelerator.bfloat16:
         kwargs["use_bfloat16"] = False
+    elif accelerator.kind == "mps" and _physical_memory() >= _METAL_FP32_MIN_MEMORY:
+        kwargs["use_bfloat16"] = False
     return kwargs
+
+
+#: Unified memory from which Metal runs Cellpose in float32; see
+#: :func:`cellpose_kwargs`.
+_METAL_FP32_MIN_MEMORY = 16 * 1024 ** 3
+
+
+def _physical_memory() -> int:
+    """Installed RAM in bytes, or 0 when the OS will not say."""
+    try:
+        return os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+    except (AttributeError, ValueError, OSError):
+        return 0
 
 
 #: Set once ``_keep_cellpose_flows_off_metal`` has patched the module.
@@ -803,6 +944,7 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
     found = resolve() if found is None else found
     gpu = found.is_gpu
     display_gpu = _opengl_likely()
+    metal_reducers = gpu and found.kind == 'mps' and not _apple_gpu(found)
     rows = [
         ("Segmentation (Cellpose)", gpu,
          "on the GPU — minutes per image on a CPU" if gpu
@@ -813,12 +955,26 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", display_gpu,
          "GPU shader" if display_gpu else "CPU renderer"),
-        ("UMAP / t-SNE / clustering", gpu and found.kind in ('cuda', 'mps'),
+        ("UMAP / t-SNE / clustering", gpu and found.kind == 'cuda' or metal_reducers,
          "on the GPU via cuML" if gpu and found.is_cuda
-         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if gpu and found.kind == 'mps'
+         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if metal_reducers
          else "CPU — cuML is built for CUDA only"),
     ]
     return tuple(rows)
+
+
+def _apple_gpu(found: Accelerator) -> bool:
+    """Whether a Metal accelerator is Apple Silicon's own GPU.
+
+    Read from the resolved name ("Apple M2"), not from the host, so an
+    Accelerator describing an Intel Mac's Radeon means that on any machine.
+    "Metal GPU" is :func:`_metal_gpu_name`'s fallback when system_profiler
+    would not answer; only then does the host decide.
+    """
+    if found.kind != "mps":
+        return False
+    name = found.name or ""
+    return name.startswith("Apple ") or (name == "Metal GPU" and _apple_silicon())
 
 
 def _opengl_likely() -> bool:
@@ -838,8 +994,10 @@ def _opengl_likely() -> bool:
 def describe() -> str:
     """One line for a log or a console: what was found and whether it runs."""
     accelerator = resolve()
+    emulated = (" — Intel Python under Rosetta on Apple Silicon, see "
+                "spacr-doctor" if _rosetta_translated() else "")
     if accelerator.is_gpu:
-        return f"{accelerator.label} — in use"
+        return f"{accelerator.label} — in use{emulated}"
     if accelerator.detected and not accelerator.usable:
-        return f"{accelerator.label} — found, not used ({accelerator.note})"
-    return "CPU" + (f" ({accelerator.note})" if accelerator.note else "")
+        return f"{accelerator.label} — found, not used ({accelerator.note}){emulated}"
+    return "CPU" + (f" ({accelerator.note})" if accelerator.note else "") + emulated

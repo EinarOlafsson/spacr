@@ -602,7 +602,7 @@ def test_archive_current_rejects_incoherent_prepared_sources(
     page = root / helper.INSTALLER_INDEX_PATH
     monkeypatch.setitem(globals(), "PAGE", page)
     path = page if defect == "marker" else root / "README.rst"
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     if defect == "stale":
         text = text.replace("1.5.1.6", "1.5.1.4")
     elif defect == "malformed":
@@ -612,6 +612,6 @@ def test_archive_current_rejects_incoherent_prepared_sources(
         text = text.replace(helper.README_END, match.group(0) + "\n" + helper.README_END)
     else:
         text = text.replace("1.5.1.5 (current)", "1.5.1.5")
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     with pytest.raises((AssertionError, ValueError)):
         test_the_committed_page_marks_the_version_the_readme_advertises()

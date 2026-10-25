@@ -3892,7 +3892,7 @@ def _install_native_error_capture(path=None):
                         "path": str(path), "offset": len(marker) + max(0, old_offset - old_size + len(tail))})
                 except ImportError:
                     pass
-        handle = path.open("a", buffering=1, encoding="utf-8")
+        handle = path.open("a", buffering=1, encoding="utf-8", newline="\n")
         session = {
             "known": True, "id": str(uuid.uuid4()),
             "started_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

@@ -84,7 +84,7 @@ def test_staged_projection_preserves_hardlinked_sources_and_runtime_data(
         assert {k: v for k, v in namespace.items() if k.isupper()} == {
             k: v for k, v in original_namespace.items()
             if k.isupper() and k not in FIELDS}
-        assert _runtime_ast(staged.read_text()) == _runtime_ast(original.decode())
+        assert _runtime_ast(staged.read_text(encoding="utf-8")) == _runtime_ast(original.decode())
 
 
 @pytest.mark.parametrize("original", [
@@ -165,7 +165,7 @@ def test_real_wheel_and_wheel_from_sdist_have_identical_runtime_catalogs(tmp_pat
 
     with zipfile.ZipFile(next(direct.glob("*.whl"))) as first, \
             zipfile.ZipFile(next(rebuilt.glob("*.whl"))) as second:
-        assert first.read(str(font_notice)) == second.read(str(font_notice)) == \
+        assert first.read(font_notice.as_posix()) == second.read(font_notice.as_posix()) == \
             (ROOT / font_notice).read_bytes()
         for wheel in (first, second):
             license_path = next(name for name in wheel.namelist()
@@ -174,9 +174,9 @@ def test_real_wheel_and_wheel_from_sdist_have_identical_runtime_catalogs(tmp_pat
             assert not any("resources/AI/" in name for name in wheel.namelist())
         for name in ("__init__", "en", *LOCALES):
             relative = CATALOG / (name + ".py")
-            data = first.read(str(relative))
-            assert data == second.read(str(relative)) == (unpacked / relative).read_bytes()
-            assert _runtime_ast(data.decode()) == _runtime_ast((ROOT / relative).read_text())
+            data = first.read(relative.as_posix())
+            assert data == second.read(relative.as_posix()) == (unpacked / relative).read_bytes()
+            assert _runtime_ast(data.decode()) == _runtime_ast((ROOT / relative).read_text(encoding="utf-8"))
             if name in LOCALES:
                 namespace = {}
                 exec(compile(data, str(relative), "exec"), namespace)
