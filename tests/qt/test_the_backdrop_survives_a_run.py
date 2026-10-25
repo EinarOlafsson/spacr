@@ -558,15 +558,20 @@ def test_lowering_the_frame_cap_slows_the_shading_thread_too(qtbot):
     assert shaded >= 1, "the shading thread stopped altogether"
 
 
-def test_an_unbuffered_theme_keeps_the_synchronous_path(qtbot):
+def test_an_unbuffered_theme_keeps_the_synchronous_path(qtbot, monkeypatch):
     """``drift`` is excluded on purpose, and the exclusion is a behaviour.
 
     It is the one engine with no buffer, it degrades the least of the six
     under a Python worker (0.528 -> 1.084 ms, 2.1x, against 48.7x for
     ``cells``), and a producer for it would have to publish a full-resolution
     frame — 7.91 MiB a slot at 1080p against 126.6 KiB for ``blobs``. So it
-    paints where it always painted, and still paints.
+    paints where it always painted, and still paints. With Animation GPU on
+    and a hardware GL context available it moves to a graphics thread
+    instead, so the CPU renderer is chosen here explicitly.
     """
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "_flow_graphics_backend", lambda: "cpu")
     widget = _shown(qtbot, theme="drift")
     assert widget.is_running()
     assert not widget.shading_thread_alive()

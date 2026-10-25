@@ -35,7 +35,8 @@ def opened(qtbot, tmp_path, monkeypatch):
         QMessageBox, "information",
         lambda parent, title, text, *a, **k: shown.append((title, text)))
     monkeypatch.setattr(R.QDesktopServices, "openUrl",
-                        lambda url: urls.append(url.toLocalFile()) or True)
+                        lambda url: urls.append(
+                            os.path.normpath(url.toLocalFile())) or True)
     return R.DiagnosticsOpener(screen), tmp_path, shown, urls
 
 

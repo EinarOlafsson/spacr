@@ -184,8 +184,9 @@ def test_anomaly_percentile_header_is_bound_to_its_live_source():
     calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
              and isinstance(node.func, ast.Attribute)
              and node.func.attr == "setHorizontalHeaderLabels"]
-    assert any(ast.unparse(call.args[0]) ==
-               "[tr(label) for _key, label in _ANOMALY_COLUMNS]"
+    expected = ast.dump(ast.parse(
+        "[tr(label) for _key, label in _ANOMALY_COLUMNS]", mode="eval").body)
+    assert any(ast.dump(call.args[0]) == expected
                for call in calls if call.args)
     assert caption in _builder().extract_static_ui_sources()
 

@@ -281,7 +281,8 @@ def _dose_reached(key, screen, folder) -> bool:
                 and len(screen.runs()) == 2)
     if key == "run_history":
         return len([record for record in screen.records
-                    if str(folder) in json.dumps(record, default=str)]) == 2
+                    if json.dumps(str(folder))[1:-1]
+                    in json.dumps(record, default=str)]) == 2
     if key == "train_compare":
         return len(screen.runs()) == 2
     raise AssertionError(key)

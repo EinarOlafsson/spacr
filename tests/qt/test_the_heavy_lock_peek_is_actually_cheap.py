@@ -21,6 +21,7 @@ exact, not an approximation.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import textwrap
@@ -31,12 +32,18 @@ pytest.importorskip("PySide6")
 
 
 def _in_a_cold_interpreter(body: str) -> str:
-    """Run ``body`` in a fresh process, so imports are genuinely cold."""
+    """Run ``body`` in a fresh process, so imports are genuinely cold.
+
+    Windows cannot start an interpreter without ``SYSTEMROOT``, so that one
+    name is carried over there.
+    """
+    env = {"QT_QPA_PLATFORM": "offscreen", "PATH": "/usr/bin:/bin",
+           "HOME": "/tmp"}
+    if "SYSTEMROOT" in os.environ:
+        env["SYSTEMROOT"] = os.environ["SYSTEMROOT"]
     result = subprocess.run(
         [sys.executable, "-c", textwrap.dedent(body)],
-        capture_output=True, text=True, timeout=300,
-        env={"QT_QPA_PLATFORM": "offscreen", "PATH": "/usr/bin:/bin",
-             "HOME": "/tmp"},
+        capture_output=True, text=True, timeout=300, env=env,
     )
     assert result.returncode == 0, result.stderr[-2000:]
     return result.stdout.strip()
