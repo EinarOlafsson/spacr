@@ -270,6 +270,11 @@ def test_normal_macos_startup_reset_and_restart_keep_scale_font_and_icons(tmp_pa
     cache = os.path.join(settings, "cache")
     env = dict(os.environ, QT_QPA_PLATFORM="cocoa", CUDA_VISIBLE_DEVICES="",
                SPACR_MENU_TEST_SETTINGS=settings, SPACR_NO_BACKDROP="1",
+               # Home is measured the moment it reports ready, and the startup
+               # photomosaic's four-second blow-away is still covering it then
+               # wherever the animation is allowed -- on an Apple M2, from 3.9 s
+               # to 7.9 s, so no tile was ever fully visible.
+               SPACR_NO_SPLASH="1",
                SPACR_NO_NETWORK="1", SPACR_LANGUAGE="en", PYTHONPATH=root,
                SPACR_HOME=state, SPACR_LOG_DIR=os.path.join(state, "logs"),
                SPACR_ISOLATED_PROFILE="1", SPACR_LOCK_DIR=os.path.join(state, "locks"),
