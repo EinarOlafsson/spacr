@@ -18,7 +18,7 @@ pytestmark = pytest.mark.qt
 @pytest.fixture(autouse=True)
 def isolated_guard(monkeypatch):
     monkeypatch.setattr(gs, "_PENDING_SHEETS", {})
-    monkeypatch.setattr(gs, "_TORN_DOWN", set())
+    monkeypatch.setattr(gs, "_TORN_DOWN", {})
     monkeypatch.setitem(gs._SHEET_GUARD, "posted", False)
     yield
 
@@ -93,11 +93,11 @@ def test_address_of_a_non_qt_object_is_none():
 
 def test_marking_torn_down_ignores_unaddressable_and_repeated_objects(monkeypatch, qtbot):
     gs._mark_torn_down(object())
-    assert gs._TORN_DOWN == set()
+    assert gs._TORN_DOWN == {}
     widget = _widget(qtbot)
     gs._mark_torn_down(widget)
     address = gs._address_of(widget)
-    assert address in gs._TORN_DOWN
+    assert gs._TORN_DOWN.get(address) is widget
     dropped = []
     monkeypatch.setattr(gs, "_drop_pending_sheets_inside", dropped.append)
     gs._mark_torn_down(widget)
@@ -132,7 +132,8 @@ def test_a_closing_application_is_torn_down_and_a_failing_query_is_ignored(monke
 
 
 def test_teardown_walk_handles_none_plain_cyclic_and_deleted_parents(monkeypatch):
-    gs._TORN_DOWN.add(-1)
+    held = QObject()
+    gs._TORN_DOWN[-1] = held
     assert gs._is_torn_down(None) is False
     assert gs._is_torn_down(QObject()) is False
 
@@ -272,10 +273,10 @@ def test_flush_skips_torn_down_windows_and_widgets(qtbot, monkeypatch):
     gs._PENDING_SHEETS[2] = (sibling, "s{}", None)
     assert gs._flush_pending_sheets() == 0
     assert applied == []
-    gs._TORN_DOWN.discard(gs._address_of(window))
+    gs._TORN_DOWN.pop(gs._address_of(window), None)
     gs._PENDING_SHEETS[3] = (inner, "i{}", None)
     gs._PENDING_SHEETS[4] = (window, "w{}", None)
-    gs._TORN_DOWN.discard(gs._address_of(inner))
+    gs._TORN_DOWN.pop(gs._address_of(inner), None)
     gs._mark_torn_down(inner)
     gs._PENDING_SHEETS[3] = (inner, "i{}", None)
     assert gs._flush_pending_sheets() == 1
@@ -285,7 +286,7 @@ def test_flush_skips_torn_down_windows_and_widgets(qtbot, monkeypatch):
 def test_only_a_deferred_delete_marks_an_object(qtbot):
     widget = _widget(qtbot)
     gs._note_sheet_lifecycle(widget, QEvent.Type.Show)
-    assert gs._TORN_DOWN == set()
+    assert gs._TORN_DOWN == {}
     gs._note_sheet_lifecycle(widget, QEvent.Type.DeferredDelete)
     assert gs._address_of(widget) in gs._TORN_DOWN
 
@@ -295,7 +296,7 @@ def test_watcher_never_consumes_events_and_ignores_unreadable_ones(qtbot, qapp):
     victim = _widget(qtbot)
     assert watcher.eventFilter(victim, _Event(QEvent.Type.None_)) is False
     assert watcher.eventFilter(victim, QEvent(QEvent.Type.Show)) is False
-    assert gs._TORN_DOWN == set()
+    assert gs._TORN_DOWN == {}
     assert watcher.eventFilter(victim, QEvent(QEvent.Type.DeferredDelete)) is False
     assert gs._address_of(victim) in gs._TORN_DOWN
 
@@ -313,10 +314,10 @@ def test_closing_flag_off_resumes_restyling_and_tolerates_no_address(qtbot, monk
     gs._close_without_restyling(window)
     assert gs._address_of(window) in gs._TORN_DOWN
     gs._close_without_restyling(window, closing=False)
-    assert gs._TORN_DOWN == set()
+    assert gs._TORN_DOWN == {}
     monkeypatch.setattr(gs, "_address_of", lambda obj: None)
     gs._close_without_restyling(window, closing=False)
-    assert gs._TORN_DOWN == set()
+    assert gs._TORN_DOWN == {}
 
 
 def test_first_install_wires_every_layer_once(monkeypatch):
