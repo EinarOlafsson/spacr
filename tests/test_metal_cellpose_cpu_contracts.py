@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+import inspect
 import sys
 from types import SimpleNamespace
 
@@ -59,14 +60,19 @@ def test_metadata_selected_metal_context_runs_real_cpu_helpers_and_restores_on_f
                         assert value.device.type == 'cpu' and value.dtype == torch.float32
                 with train.torch.autocast(device_type='cuda', enabled=False):
                     assert train.torch.ones(1).device.type == 'cpu'
+                tensor_api = 'bsize' in inspect.signature(original_augment).parameters
+                options = (dict(bsize=8, scale_range=0, device=torch.device('cpu')) if tensor_api
+                           else dict(xy=(8, 8), scale_range=0))
                 np.random.seed(7)
-                expected = original_augment([pixels], bsize=8, scale_range=0,
-                                            device=torch.device('cpu'))
+                expected = original_augment([pixels], **options)
                 np.random.seed(7)
-                actual = train.random_rotate_and_resize(
-                    [pixels], bsize=8, scale_range=0, device=torch.device('cpu'))
-                torch.testing.assert_close(actual[0], expected[0], rtol=0, atol=0)
-                assert actual[0].device.type == 'cpu' and actual[1] is expected[1] is None
+                actual = train.random_rotate_and_resize([pixels], **options)
+                if tensor_api:
+                    torch.testing.assert_close(actual[0], expected[0], rtol=0, atol=0)
+                    assert actual[0].device.type == 'cpu' and actual[1] is expected[1] is None
+                else:
+                    np.testing.assert_array_equal(actual[0], expected[0])
+                    assert actual[0].shape == (1, 3, 8, 8) and list(actual[1]) == list(expected[1]) == []
                 np.testing.assert_array_equal(actual[2], expected[2])
                 raise RuntimeError('owned cancellation')
     finally:
