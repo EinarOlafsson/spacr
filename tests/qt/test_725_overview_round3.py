@@ -98,7 +98,8 @@ def test_thumbnails_decode_in_parallel_batches_and_display_changes_reuse_decoded
 
 
 def test_the_first_thumbnail_request_is_a_single_well(view, qtbot, monkeypatch):
-    qtbot.waitUntil(lambda: _icons(view) == set(WELLS) and not view._thumbnail_jobs.is_busy(), timeout=20000)
+    qtbot.waitUntil(lambda: _icons(view) == set(WELLS) and not view._thumbnail_jobs.is_busy()
+                    and not view._thumbnail_jobs.active_jobs(), timeout=20000)
     batches = []
     real = browser._FieldOverview._submit_plate_thumbnails
 

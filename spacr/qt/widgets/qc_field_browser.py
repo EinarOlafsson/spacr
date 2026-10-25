@@ -25,10 +25,12 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QEvent, QRect, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
+    QStyle,
+    QStyleOptionViewItem,
     QStyledItemDelegate,
     QComboBox,
     QDialog,
@@ -3338,10 +3340,6 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
         :param option: native cell geometry and hover state.
         :param index: the physical well cell.
         """
-        from PySide6.QtCore import QRect
-        from PySide6.QtGui import QPalette
-        from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
-
         opts = QStyleOptionViewItem(option)
         self.initStyleOption(opts, index)
         option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
@@ -3362,8 +3360,6 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
             painter.drawText(QRect(rect.left(), image_rect.bottom() + 1, rect.width(), height),
                              Qt.AlignHCenter | Qt.AlignVCenter, caption)
         if option.state & QStyle.State_MouseOver:
-            from PySide6.QtGui import QColor
-
             painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QColor(35, 130, 245, 65))
         painter.restore()
 
@@ -3498,6 +3494,9 @@ _OVERVIEW_ORIGINAL_ALL_TOOLTIP = "Load every stacked image at its original full 
 _OVERVIEW_METADATA_ALL_TOOLTIP = "Show or hide the filename and metadata text over every stacked image."
 _OVERVIEW_MAX_IMAGE_VIEWS = 6
 _OVERVIEW_THUMBNAIL_WORKERS = max(2, min(8, os.cpu_count() or 2))
+_OVERVIEW_FIRST_PAINT_WAIT_S = 0.15
+_OVERVIEW_LIBRARY_WAIT_S = 1.5
+_OVERVIEW_INSTALL_BUDGET_S = 0.006
 _OVERVIEW_THUMBNAIL_BATCH = 8
 _OVERVIEW_THUMBNAIL_CACHE = 64
 _OVERVIEW_TILE_DEFAULT = 128
@@ -4015,6 +4014,8 @@ class _FieldOverview(QWidget):
         self._tile_size_changed = None
         self._measurement_settings = None
         self._comparison_requests = 0
+        self._plate_painted = True
+        self._plate_built_at = 0.0
         self._original_steps = None
         self._original_generation = 0
         self.measurement_progress.connect(self._show_measurement_progress)
@@ -4031,6 +4032,7 @@ class _FieldOverview(QWidget):
         self._thumbnail_cache = OrderedDict()
         self._thumbnail_inflight = set()
         self._thumbnail_first_inflight = set()
+        self._thumbnail_installs = []
         self._well_representatives = {}
         self._well_positions = {}
         self._installed_thumbnails = set()
@@ -4058,6 +4060,12 @@ class _FieldOverview(QWidget):
         self._visual_timer = QTimer(self)
         self._visual_timer.setSingleShot(True)
         self._visual_timer.timeout.connect(self._update_visuals)
+        self._prepare_timer = QTimer(self)
+        self._prepare_timer.setSingleShot(True)
+        self._prepare_timer.timeout.connect(self._prepare_display_after_paint)
+        self._install_timer = QTimer(self)
+        self._install_timer.setSingleShot(True)
+        self._install_timer.timeout.connect(self._install_pending_thumbnails)
         self._thumbnail_jobs.job_finished.connect(self._request_visuals)
         self._montage_jobs.job_finished.connect(self._request_visuals)
         self._scope = (None, None)
@@ -5272,6 +5280,34 @@ class _FieldOverview(QWidget):
         dimensions = [key for key in dict.fromkeys(key for group in groups for key in group) if key != within]
         return dimensions, None, within, groups
 
+    def _await_plate_paint(self):
+        """Mark the plate as rebuilt and not yet painted."""
+        self._plate_painted = False
+        self._plate_built_at = time.monotonic()
+
+    def _prepare_display_after_paint(self):
+        """Start the display preparation once the rebuilt plate has painted.
+
+        Its worker reads and samples planes in Python and competes with the
+        GUI thread for the interpreter lock; started with the first paint of
+        a 384-well plate, the build and paint ran 55-75 ms instead of under
+        50. The wait is bounded by :data:`_OVERVIEW_FIRST_PAINT_WAIT_S` for
+        a plate that never paints. Its thread is also not started while
+        PyTorch's libraries are being mapped
+        (:func:`spacr.qt.gil_priority._torch_libraries_mapping`), for at most
+        :data:`_OVERVIEW_LIBRARY_WAIT_S`.
+        """
+        from ..gil_priority import _torch_libraries_mapping
+
+        waited = time.monotonic() - self._plate_built_at
+        if self._fields and self.isVisible() and (
+                (not self._plate_painted and waited < _OVERVIEW_FIRST_PAINT_WAIT_S)
+                or (_torch_libraries_mapping() and waited < _OVERVIEW_LIBRARY_WAIT_S)):
+            self._normalization_ready = False
+            self._prepare_timer.start(10)
+            return
+        self._prepare_display()
+
     def _comparison_request(self):
         """Start a new comparison or representative request and return its number.
 
@@ -5744,7 +5780,8 @@ class _FieldOverview(QWidget):
             return values
         def loaded(values):
             """Install only metadata belonging to the unchanged indexed generation."""
-            if cancelled.is_set() or fields is not self._fields or revision != self._metadata_revision:
+            if (cancelled.is_set() or fields is not self._fields or revision != self._metadata_revision
+                    or not values):
                 return
             for address, metadata in values.items():
                 self._annotations.setdefault(address, {}).update(metadata)
@@ -6264,6 +6301,7 @@ class _FieldOverview(QWidget):
 
     def _prepare_display(self):
         """Resolve reference normalization and real axis headers off the GUI thread."""
+        self._prepare_timer.stop()
         if not self._fields:
             return
         self._display_generation += 1
@@ -6780,7 +6818,7 @@ class _FieldOverview(QWidget):
         self._back()
         if not self._geometry_valid:
             return
-        self._prepare_display()
+        self._prepare_display_after_paint()
         self.status.setText(tr("{count} fields; {unresolved} with unresolved metadata.",
                                count=len(fields), unresolved=sum(f.unresolved for f in fields)))
 
@@ -6891,6 +6929,7 @@ class _FieldOverview(QWidget):
             self._well_representatives.setdefault(field.well, field)
         self._well_positions = {}
         self._installed_thumbnails.clear()
+        self._await_plate_paint()
         self.wells.blockSignals(True)
         self.wells.clear()
         coverslip = geometry == (1, 1) and not addresses and known_wells == {""}
@@ -6901,19 +6940,23 @@ class _FieldOverview(QWidget):
         self.wells.setVerticalHeaderLabels([tr("Unresolved")] if coverslip else
             [letters_from_row_index(n) for n in range(1, rows + 1)]
             + ([tr("Unresolved")] if "" in known_wells else []))
+        snapshot = self._annotation_snapshot()
+        language = current_language()
+        unresolved = tr("Unresolved")
+        no_image = tr("No image at the selected acquisition axes.")
+        shown = self.representatives.value()
         for well in sorted(known_wells):
             count = counts[well]
             r, c = addresses.get(well, (1 if coverslip else rows + 1, 1))
-            item = table_item(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
+            item = table_item(tr("{well}\n{count} fields", language=language, well=well or unresolved, count=count))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setData(Qt.UserRole, well)
             detail = [item.text(), self._conditions.get((plate, well), "")]
             detail.extend(str(key) + ": " + str(value)
-                          for key, value in self._annotation_snapshot().get((plate, well), {}).items())
-            detail.extend(field.caption for field in self._well_fields.get(well, ())
-                          [:self.representatives.value()])
+                          for key, value in snapshot.get((plate, well), {}).items())
+            detail.extend(field.caption for field in self._well_fields.get(well, ())[:shown])
             if not count:
-                detail.append(tr("No image at the selected acquisition axes."))
+                detail.append(no_image)
             item.setToolTip("\n".join(part for part in detail if part))
             self.wells.setItem(r - 1, c - 1, item)
             item.setSelected((plate, well) in self._selected_wells)
@@ -6936,11 +6979,10 @@ class _FieldOverview(QWidget):
                                   current_identities.get(id(fields)))
         if not self._visible:
             self.view.clear_image()
-        if self._overview_options.get("geometry"):
-            if self._plate_fit or self._plate_cell_extent is None:
-                self._zoom_plate()
-            else:
-                self._apply_plate_extent()
+        if self._plate_fit or self._plate_cell_extent is None:
+            self._zoom_plate()
+        else:
+            self._apply_plate_extent()
         if (self._overview_options.get("normalization")
                 and self._normalization_plate != plate):
             self._prepare_display()
@@ -7164,6 +7206,8 @@ class _FieldOverview(QWidget):
             return True
         if watched is self._well_viewport and event.type() == QEvent.Resize and self._plate_fit:
             self._zoom_plate()
+        if watched is self._well_viewport and event.type() == QEvent.Paint:
+            self._plate_painted = True
         if ((watched is self._well_viewport or hasattr(watched.parentWidget(), "_overview_well"))
                 and event.type() in (QEvent.Paint, QEvent.Resize)):
             self._request_visuals()
@@ -7265,7 +7309,7 @@ class _FieldOverview(QWidget):
         Up to :data:`_OVERVIEW_THUMBNAIL_WORKERS` bounded batches run at once;
         the first batch is a single well, so the first image paints at once.
         """
-        if self._plate_panel.is_collapsed():
+        if self._plate_panel.is_collapsed() or self._thumbnail_installs:
             return
         if not self._thumbnail_jobs.active_jobs():
             self._thumbnail_inflight.clear()
@@ -7273,17 +7317,6 @@ class _FieldOverview(QWidget):
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
         from PySide6.QtGui import QIcon
-        for well in tuple(self._installed_thumbnails):
-            position = self._well_positions.get(well)
-            item = self.wells.item(*position) if position is not None else None
-            if item is None or not viewport.rect().intersects(self.wells.visualItemRect(item)):
-                if item is not None:
-                    item.setIcon(QIcon())
-                    item.setData(Qt.UserRole + 1, None)
-                self._installed_thumbnails.discard(well)
-        free = _OVERVIEW_THUMBNAIL_WORKERS - self._thumbnail_jobs.active_jobs()
-        if free <= 0:
-            return
         first_row = max(0, self.wells.rowAt(0))
         last_row = self.wells.rowAt(viewport.height() - 1)
         if last_row < 0:
@@ -7292,24 +7325,39 @@ class _FieldOverview(QWidget):
         last_column = self.wells.columnAt(viewport.width() - 1)
         if last_column < 0:
             last_column = self.wells.columnCount() - 1
+        for well in tuple(self._installed_thumbnails):
+            position = self._well_positions.get(well)
+            item = self.wells.item(*position) if position is not None else None
+            if (item is None or not first_row <= position[0] <= last_row
+                    or not first_column <= position[1] <= last_column):
+                if item is not None:
+                    item.setIcon(QIcon())
+                    item.setData(Qt.UserRole + 1, None)
+                self._installed_thumbnails.discard(well)
+        free = _OVERVIEW_THUMBNAIL_WORKERS - self._thumbnail_jobs.active_jobs()
+        if free <= 0:
+            return
         wanted = free * _OVERVIEW_THUMBNAIL_BATCH
         inflight = self._thumbnail_inflight
+        queued = {entry[1] for entry in self._thumbnail_installs}
+        shown = self.representatives.value()
+        edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
+        display_key = self._display_options_key(options)
         requests, later = [], []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
                 item = self.wells.item(row, column)
-                if item is None or not viewport.rect().intersects(self.wells.visualItemRect(item)):
+                if item is None:
                     continue
                 well = item.data(Qt.UserRole)
                 field = self._well_representatives.get(well)
                 if field is None:
                     continue
-                representatives = tuple(self._well_fields[well][:self.representatives.value()])
-                edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
-                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, self._display_options_key(options))
+                representatives = tuple(self._well_fields[well][:shown])
+                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, display_key)
                 first = ((field.identity,),) + key[1:]
                 installed = item.data(Qt.UserRole + 1)
-                if installed == key:
+                if installed == key or key in queued:
                     continue
                 if key in self._thumbnail_cache:
                     self._set_thumbnail(well, key, self._thumbnail_cache[key])
@@ -7372,13 +7420,36 @@ class _FieldOverview(QWidget):
                 self._thumbnail_cache[key] = pixels
                 while len(self._thumbnail_cache) > _OVERVIEW_THUMBNAIL_CACHE:
                     self._thumbnail_cache.popitem(last=False)
-                if (self._plate_context() == context
-                        and device_ratio(self.wells.viewport()) == ratio):
-                    self._set_thumbnail(well, key, pixels)
-                    if error:
-                        self.status.setText(tr("Could not read {field}: {error}",
-                                               field=field.caption, error=error))
+                self._thumbnail_installs.append((well, key, field, pixels, error, context, ratio))
+            if self._thumbnail_installs:
+                self._install_timer.start(0)
         self._thumbnail_jobs.submit(read_thumbnails, done)
+
+    def _install_pending_thumbnails(self):
+        """Install decoded plate thumbnails within a per-turn time budget.
+
+        Eight workers finishing together delivered 64 thumbnails in one event
+        turn; converting and attaching them all held the GUI past 50 ms. The
+        finished batches queue them, and each timer turn installs for at most
+        :data:`_OVERVIEW_INSTALL_BUDGET_S`, leaving the rest for the next. The
+        plate is scanned for more work only once the queue is empty. A thumbnail is installed only while
+        the plate context and device ratio it was decoded for still hold.
+        """
+        deadline = time.monotonic() + _OVERVIEW_INSTALL_BUDGET_S
+        pending = self._thumbnail_installs
+        while pending and time.monotonic() < deadline:
+            well, key, field, pixels, error, context, ratio = pending.pop(0)
+            if (self._cancelled.is_set() or self._plate_context() != context
+                    or device_ratio(self.wells.viewport()) != ratio):
+                continue
+            self._set_thumbnail(well, key, pixels)
+            if error:
+                self.status.setText(tr("Could not read {field}: {error}",
+                                       field=field.caption, error=error))
+        if pending:
+            self._install_timer.start(0)
+        else:
+            self._request_visuals()
 
     def _set_thumbnail(self, well, key, pixels):
         """Attach an image to the current well cell only on the GUI thread."""
@@ -7566,6 +7637,9 @@ class _FieldOverview(QWidget):
         self._options_window.close()
         self._cancel()
         self._visual_timer.stop()
+        self._prepare_timer.stop()
+        self._install_timer.stop()
+        self._thumbnail_installs.clear()
         self._native_timer.stop()
         self._measurement_cancelled.set()
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,

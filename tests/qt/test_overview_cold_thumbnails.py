@@ -121,3 +121,69 @@ def test_a_late_representative_result_cannot_replace_a_newer_refusal(qtbot, tmp_
     view._comparison_requests += 1
     qtbot.waitUntil(lambda: not view._montage_jobs.is_busy(), timeout=15000)
     assert view.status.text() == "No representative image can be chosen this way for these annotation values."
+
+
+def test_display_preparation_starts_after_the_rebuilt_plate_paints(qtbot, tmp_path, monkeypatch):
+    fields = _plate(tmp_path / "images")
+    view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
+    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    view.show()
+    qtbot.waitExposed(view)
+    started = []
+    real = browser._FieldOverview._prepare_display
+
+    def recorded(self):
+        started.append(self._plate_painted)
+        return real(self)
+
+    monkeypatch.setattr(browser._FieldOverview, "_prepare_display", recorded)
+    view._indexed(fields)
+    assert started == [] and not view._normalization_ready
+    qtbot.waitUntil(lambda: bool(started), timeout=5000)
+    assert started[0] is True
+    qtbot.waitUntil(lambda: view._normalization_ready, timeout=15000)
+
+
+def test_a_plate_that_never_paints_still_prepares_its_display(qtbot, tmp_path, monkeypatch):
+    fields = _plate(tmp_path / "images")
+    view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
+    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    view.show()
+    qtbot.waitExposed(view)
+    monkeypatch.setattr(browser._FieldOverview, "_plate_painted",
+                        property(lambda self: False, lambda self, value: None), raising=False)
+    view._indexed(fields)
+    assert not view._normalization_ready
+    qtbot.waitUntil(lambda: view._normalization_ready, timeout=15000)
+
+
+def test_decoded_thumbnails_install_within_a_per_turn_budget(qtbot, tmp_path, monkeypatch):
+    fields = _plate(tmp_path / "images")
+    view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
+    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    view.show()
+    qtbot.waitExposed(view)
+    view._indexed(fields)
+    qtbot.waitUntil(lambda: len(view._installed_thumbnails) == 2
+                    and not view._thumbnail_jobs.active_jobs(), timeout=20000)
+    entries = []
+    for well in ("A01", "A02"):
+        item = view.wells.item(*view._well_positions[well])
+        entries.append((well, item.data(browser.Qt.UserRole + 1), view._well_representatives[well],
+                        np.zeros((8, 8, 3), dtype=np.uint8), "", view._plate_context(),
+                        browser.device_ratio(view.wells.viewport())))
+        item.setData(browser.Qt.UserRole + 1, None)
+    view._installed_thumbnails.clear()
+    scans = []
+    real = browser._FieldOverview._submit_plate_thumbnails
+    monkeypatch.setattr(browser._FieldOverview, "_submit_plate_thumbnails",
+                        lambda self, *args: scans.append(args) or real(self, *args))
+    monkeypatch.setattr(browser, "_OVERVIEW_INSTALL_BUDGET_S", 0.0)
+    view._thumbnail_installs.extend(entries)
+    view._update_visuals()
+    assert scans == [] and len(view._thumbnail_installs) == 2
+    view._install_pending_thumbnails()
+    assert len(view._thumbnail_installs) == 2 and view._install_timer.isActive()
+    monkeypatch.setattr(browser, "_OVERVIEW_INSTALL_BUDGET_S", 1.0)
+    qtbot.waitUntil(lambda: not view._thumbnail_installs, timeout=5000)
+    assert view._installed_thumbnails == {"A01", "A02"} and scans == []
