@@ -393,6 +393,20 @@ def test_essentials_is_where_a_first_visit_starts(mask_screen):
     assert "All settings" in bar.count_text()
 
 
+def test_a_section_without_setting_rows_comes_back_when_narrowing_ends(mask_screen):
+    """A prose-and-button section has no rows to keep, so narrowing hides it.
+
+    Releasing the filter must show it again.
+    """
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    prose = next(section for section in bar._sections if not section.isHidden())
+    bar._apply_section_state({}, narrowing=True)
+    assert prose.isHidden()
+    bar._apply_section_state({}, narrowing=False)
+    assert not prose.isHidden()
+
+
 def test_all_settings_hides_nothing_by_level(mask_screen):
     """At the top level the disclosure filter stops hiding anything.
 

@@ -217,6 +217,7 @@ class SettingsSearchBar(QWidget):
         self._level = disclosure_for(self._app_key)
         self._grid_section_counted: Optional[QWidget] = None
         self._sections_kept: Optional[set] = None
+        self._sections_hidden: set = set()
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 4)
@@ -950,7 +951,11 @@ class SettingsSearchBar(QWidget):
             count = shown.get(id(section), 0)
             visible = count > 0
             if not visible and not narrowing:
+                if id(section) in self._sections_hidden:
+                    section.setVisible(True)
                 continue
+            if not visible and not section.isHidden():
+                self._sections_hidden.add(id(section))
             section.setVisible(visible)
             if not hasattr(section, "set_expanded"):
                 continue
@@ -963,6 +968,7 @@ class SettingsSearchBar(QWidget):
                     self._restore_expanded.get(id(section), False))
         if not narrowing:
             self._restore_expanded = None
+            self._sections_hidden.clear()
             refresh = getattr(self._screen, "refresh_maturity_visibility", None)
             if callable(refresh):
                 try:
