@@ -18,6 +18,7 @@ import ast
 import importlib
 import sys
 import textwrap
+import logging
 import threading
 import time
 import uuid
@@ -170,13 +171,28 @@ def test_the_deadlock_check_follows_the_import_systems_record():
 
 
 def test_a_wait_that_never_ends_gives_up_and_imports_beside_it(monkeypatch, caplog):
-    """A registered import that never finishes costs at most the bound."""
+    """A registered import that never finishes costs at most the bound.
+
+    The warning is read from the bridge's own logger. ``caplog`` listens on
+    the root logger, and once anything in the process has called
+    :func:`spacr.logger.configure_logger` the ``spacr`` logger keeps its
+    records to spaCR's log file and stops passing them up -- the release
+    run's coverage shard had, so the warning never reached the root.
+    """
     never = threading.Event()
     monkeypatch.setattr(bridge, "_GATE_WAIT_S", 0.05)
     monkeypatch.setattr(bridge, "_held_module_lock_blocks", lambda *_a: False)
     monkeypatch.setitem(bridge._BACKGROUND_IMPORTERS, -1, never)
-    assert bridge._wait_for_background_imports() is False
-    assert "still running" in caplog.text
+    caplog.set_level(logging.WARNING, logger=bridge.LOG.name)
+    bridge.LOG.addHandler(caplog.handler)
+    try:
+        assert bridge._wait_for_background_imports() is False
+    finally:
+        bridge.LOG.removeHandler(caplog.handler)
+    assert any(record.name == bridge.LOG.name
+               and record.levelno == logging.WARNING
+               and "still running" in record.getMessage()
+               for record in caplog.records)
 
 
 def test_a_waiter_the_warm_is_blocked_on_stops_at_once(monkeypatch):
