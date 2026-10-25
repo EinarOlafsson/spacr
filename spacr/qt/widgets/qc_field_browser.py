@@ -4014,6 +4014,7 @@ class _FieldOverview(QWidget):
         splitter.setStretchFactor(0, 2)
         splitter.setStretchFactor(1, 3)
         column.addWidget(splitter, 1)
+        self._comparison_requests = 0
         ensure_widget_qss_applied("FieldOverviewPanel", root=self)
         axes = QHBoxLayout()
         self.fov_axis, self.time_axis, self.z_axis = QComboBox(), QComboBox(), QComboBox()
@@ -5271,8 +5272,18 @@ class _FieldOverview(QWidget):
         if self._editing_channel is None:
             self._global_normalization_options = self._editor_options()
         self._editing_channel = self.norm_channel.currentData()
+    def _comparison_request(self):
+        """Start a new comparison or representative request and return its number.
+
+        A result delivered for an older number is dropped, whatever its job
+        runner reports, so a late answer never replaces a newer one.
+        """
+        self._comparison_requests = getattr(self, "_comparison_requests", 0) + 1
+        return self._comparison_requests
+
         options = dict(self._global_normalization_options)
         options.update(self._channel_overrides.get(self._editing_channel, {}))
+        request = self._comparison_request()
         self._loading_controls = True
         try:
             self.normalization_method.setCurrentIndex(self.normalization_method.findData(options["method"]))
@@ -5321,6 +5332,8 @@ class _FieldOverview(QWidget):
         self.advanced = Toggle(tr("Advanced channel normalization"))
         layout.addWidget(self.advanced)
         self.normalization_method, self.normalization_scope = _SetupComboBox(), _SetupComboBox()
+            if request != self._comparison_requests:
+                return
         for text, key in ((tr("Percentiles"), "percentile"), (tr("Minimum / maximum"), "minmax"),
             (tr("Fixed intensity bounds"), "manual"), (tr("Mean ± 3 standard deviations"), "zscore"),
             (tr("Log intensity"), "log"), (tr("Inverse hyperbolic sine"), "asinh"),
@@ -5377,6 +5390,7 @@ class _FieldOverview(QWidget):
         override_host = FlowHost(widget)
         row = FlowLayout(override_host)
         for control in (self.norm_channel, apply, reset):
+        request = self._comparison_requests if stacked else self._comparison_request()
             row.addWidget(control)
         layout.addWidget(override_host)
         column.addWidget(widget)
@@ -5421,6 +5435,8 @@ class _FieldOverview(QWidget):
         self._advanced_model = None
         self._cache.clear()
         self._thumbnail_cache.clear()
+            if request != self._comparison_requests:
+                return
         self._displayed_montage = None
         self._prepare_display()
 
@@ -6433,7 +6449,8 @@ class _FieldOverview(QWidget):
             :param result: detached montage pixels and per-field errors.
             """
             if (not cancelled.is_set() and not self._individual
-                    and self._comparison_signature == signature):
+                    and self._comparison_signature == signature
+                    and request == getattr(self, "_comparison_requests", 0)):
                 pixels, errors = result
                 if pixels is not None:
                     self._show_pixels(pixels)
@@ -6610,6 +6627,7 @@ class _FieldOverview(QWidget):
             self.fields = self._well_panel.field_list
         available = tuple(f for f in self._fields if f.plate == plate)
         try:
+        self._comparison_request()
             geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
         except _OverviewValidationError as error:
             self._geometry_error = str(error)
@@ -6631,6 +6649,7 @@ class _FieldOverview(QWidget):
             combo.blockSignals(True)
             combo.clear()
             combo.addItem(title, None)
+        request = getattr(self, "_comparison_requests", 0)
             for value in values:
                 combo.addItem(str(value), value)
             if old in values:
