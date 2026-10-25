@@ -14,10 +14,13 @@ from tests.test_convert_barcode_f583 import acquisition  # noqa: F401
 
 
 def test_a_sidecar_that_is_not_a_regular_file_is_refused(tmp_path):
-    fifo = tmp_path / "barcode.txt"
-    os.mkfifo(fifo)
+    if hasattr(os, "mkfifo"):
+        sidecar = tmp_path / "barcode.txt"
+        os.mkfifo(sidecar)
+    else:
+        sidecar = os.devnull
     with pytest.raises(ConfigurationError, match="stable regular file"):
-        cv._conversion_barcode_sidecar_bytes(str(fifo))
+        cv._conversion_barcode_sidecar_bytes(str(sidecar))
 
 
 def test_a_sidecar_that_grows_while_read_is_refused(tmp_path, monkeypatch):

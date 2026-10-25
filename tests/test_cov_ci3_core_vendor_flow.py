@@ -47,7 +47,7 @@ def _micromanager(folder):
 def test_two_companions_with_one_field_key_both_wait(tmp_path):
     for folder in ('x_1', 'x1'):
         _micromanager(tmp_path / folder)
-    names = [os.path.join(folder, member) for folder in ('x_1', 'x1')
+    names = [f'{folder}/{member}' for folder in ('x_1', 'x1')
              for member in ('metadata.txt', 't0.tif', 't1.tif')]
     context = _context(tmp_path, _seen(*names))
     groups = core._watch_vendor_groups(context, 100.0)

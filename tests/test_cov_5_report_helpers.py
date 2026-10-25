@@ -498,7 +498,7 @@ def test_a_figure_outside_the_plate_folder_is_captioned_by_its_name(tmp_path):
     assert R._figure_title(Path("/elsewhere/volcano.png"),
                            tmp_path) == "volcano.png"
     assert R._figure_title(tmp_path / "results" / "v.png",
-                           tmp_path) == os.path.join("results", "v.png")
+                           tmp_path) == "results/v.png"
 
 
 def test_a_figure_whose_file_vanishes_is_still_listed_with_no_size(
@@ -591,7 +591,7 @@ def test_the_statistics_index_survives_files_it_cannot_stat_or_parse(
     assert any("locked.csv unreadable (PermissionError)" in note
                for note in section.notes)
     assert [row[0] for row in section.table.rows] == [
-        os.path.join("measurements.db"), os.path.join("results", "good.csv")]
+        "measurements.db", "results/good.csv"]
     assert "0 B" in [row[3] for row in section.table.rows]
 
 
