@@ -466,7 +466,33 @@ def _page_body(screen: QWidget) -> Optional[QWidget]:
     return None
 
 
-def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
+def _start_pages(screen: QWidget) -> QTabWidget:
+    """The host's page strip before its first page: made, hidden, not laid out.
+
+    Kept on ``screen._fold_pages_pending`` until :func:`host_pages` puts the
+    host body on it, so a strip begun in one event-loop pass and finished
+    in a later one is never made twice.
+
+    :param screen: the host module's screen.
+    :returns: the empty strip.
+    """
+    pending = getattr(screen, "_fold_pages_pending", None)
+    if isinstance(pending, QTabWidget) and isValid(pending):
+        return pending
+    pages = QTabWidget(screen)
+    pages.setObjectName(PAGES_NAME)
+    pages.setDocumentMode(True)
+    pages.setTabsClosable(True)
+    pages.hide()
+    install_close_marks(pages, tooltip=tr("Close"))
+    pages.tabCloseRequested.connect(
+        partial(_close_fold_page, pages))
+    screen._fold_pages_pending = pages
+    return pages
+
+
+def host_pages(screen: QWidget, title: str = "",
+               mark_now: bool = True) -> Optional[QTabWidget]:
     """Return the host's page strip, creating it when first requested.
 
     The host body becomes a non-closable first page and retains its layout
@@ -478,9 +504,15 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     Qt queues when a layout adopts a widget, and that queued show did not
     arrive on Windows: the overview wizard opened inside a hidden strip.
 
+    A strip begun by :func:`_host_pages_in_steps` is finished here, never
+    made again.
+
     :param screen: the host module's screen.
     :param title: caption for the host page. If omitted, use
         ``screen._fold_page_title`` and then the registered application name.
+    :param mark_now: put the close mark on the host page's tab now. A
+        caller that runs the event loop next passes ``False`` and the strip's
+        own close-mark watcher marks it on that pass.
     :returns: the page strip, or ``None`` when the host has no page body.
     """
     existing = getattr(screen, "_fold_pages", None)
@@ -499,10 +531,7 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
             or folded_module_title(getattr(screen, "app_key", "") or ""))
     _ensure_pages_qss(screen)
     body_shown = not body.isHidden()
-    pages = QTabWidget(screen)
-    pages.setObjectName(PAGES_NAME)
-    pages.setDocumentMode(True)
-    pages.setTabsClosable(True)
+    pages = _start_pages(screen)
     layout.removeWidget(body)
     pages.addTab(body, name)
     bar = pages.tabBar()
@@ -510,12 +539,40 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
         button = bar.tabButton(0, side)
         if button is not None:
             button.hide()
-    install_close_marks(pages, tooltip=tr("Close"))
-    pages.tabCloseRequested.connect(
-        partial(_close_fold_page, pages))
+    if mark_now:
+        install_close_marks(pages, tooltip=tr("Close"))
     layout.insertWidget(index, pages, stretch)
     pages.setVisible(body_shown)
     screen._fold_pages = pages
+    screen._fold_pages_pending = None
+    return pages
+
+
+def _host_pages_in_steps(screen: QWidget) -> Optional[QTabWidget]:
+    """:func:`host_pages`, with an event-loop pass after each step.
+
+    The first fold opened on a shown host made the strip, moved the host
+    body onto it and marked its tab in one pass -- 50-240 ms offscreen on
+    Make Masks -- and lesson 81's module_ops froze there. The strip is made
+    first (2 ms), the body moves in the next pass, and the tab's close mark
+    comes on the pass after that. Moving the body is one Qt call that
+    restyles every widget under it, so that pass is as long as the body is
+    big: 25-50 ms on Map Barcodes and Make Masks while nothing else runs.
+
+    :param screen: the host module's screen.
+    :returns: the page strip, or ``None`` when the host has no page body.
+    """
+    existing = getattr(screen, "_fold_pages", None)
+    if isinstance(existing, QTabWidget):
+        return host_pages(screen)
+    if _page_body(screen) is None or screen.layout() is None:
+        return None
+    _ensure_pages_qss(screen)
+    _start_pages(screen)
+    _breathe()
+    pages = host_pages(screen, mark_now=False)
+    if pages is not None:
+        _breathe()
     return pages
 
 
@@ -635,18 +692,30 @@ class FoldOpener:
         self.window: Optional[QWidget] = None
 
     def open(self, _checked: bool = False) -> Optional[QWidget]:
-        """Show the folded module; raise it if it is already up."""
+        """Show the folded module; raise it if it is already up.
+
+        The first open holds the window's background imports
+        (:func:`spacr.qt.gil_priority.hold_background_imports`) until the
+        page is on show: an import that started in one of its event-loop
+        passes would take the interpreter lock from every Python event
+        filter the move of the host body onto its strip calls.
+        """
         built = self.window
         if built is not None:
             try:
                 built.isVisible()
             except RuntimeError:
                 built = self.window = None
-        if built is None:
+        if built is not None:
+            return self._show(built)
+        from ..gil_priority import (hold_background_imports,
+                                    release_background_imports)
+
+        hold_background_imports(self)
+        try:
             if (self.screen is not None
-                    and getattr(self.screen, "_fold_pages", None) is None
-                    and host_pages(self.screen) is not None):
-                _breathe()
+                    and getattr(self.screen, "_fold_pages", None) is None):
+                _host_pages_in_steps(self.screen)
             host_window = (self.screen.window()
                            if self.screen is not None else None)
             try:
@@ -655,6 +724,16 @@ class FoldOpener:
                 LOG.exception("Could not open the folded module %r", self.key)
                 return None
             _breathe()
+            return self._show(built)
+        finally:
+            release_background_imports(self)
+
+    def _show(self, built: QWidget) -> QWidget:
+        """Put ``built`` on the host's page strip, or in a window of its own.
+
+        :param built: the folded module's screen.
+        :returns: what is on show.
+        """
         title = folded_module_title(self.key)
         shown = show_as_page(built, self.screen, title)
         if shown is None:
