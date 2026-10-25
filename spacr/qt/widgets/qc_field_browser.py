@@ -3943,6 +3943,79 @@ class _OverviewPanel(QFrame):
         self.collapsed_changed.emit(collapsed)
 
 
+def _overview_scheme_address(plate, well, known):
+    """The source's own spelling of ``well``, so A1 and A01 name the same well.
+
+    :param plate: the plate.
+    :param well: the well as the scheme writes it.
+    :param known: the source's ``(plate, well)`` identities.
+    :returns: the matching identity, or ``(plate, well)`` unchanged.
+    """
+    import re
+
+    well = str(well).strip()
+    match = re.fullmatch(r"([A-Za-z]+)0*(\d+)", well)
+    if match is None:
+        return (plate, well)
+    letters, number = match.group(1).upper(), int(match.group(2))
+    for spelling in (f"{letters}{number:02d}", f"{letters}{number}", f"{letters}{number:03d}", well):
+        if (plate, spelling) in known:
+            return (plate, spelling)
+    return (plate, well)
+
+
+def _overview_annotation_scheme(path, plate, known):
+    """Read a well annotation scheme into ``{(plate, well): {key: value}}``.
+
+    :param path: a CSV, TSV, text or Excel table.
+    :param plate: the plate a table without a ``plate`` column describes.
+    :param known: the source's ``(plate, well)`` identities.
+    :returns: the annotations, empty values left out.
+    :raises _OverviewValidationError: for a well this source does not have,
+        a duplicated well, or a table that is neither shape.
+    """
+    import re
+
+    import pandas as pd
+
+    if str(path).lower().endswith(".xlsx"):
+        table = pd.read_excel(path, dtype=str, header=None).fillna("")
+    else:
+        separator = "\t" if str(path).lower().endswith((".tsv", ".txt")) else ","
+        table = pd.read_csv(path, dtype=str, header=None, sep=separator,
+                            keep_default_na=False)
+    header = [str(value).strip() for value in table.iloc[0]] if len(table) else []
+    lowered = [value.lower() for value in header]
+    scheme = {}
+    if "well" in lowered:
+        body = table.iloc[1:]
+        for _index, record in body.iterrows():
+            values = dict(zip(lowered, (str(value).strip() for value in record)))
+            names = dict(zip(lowered, header))
+            address = _overview_scheme_address(values.get("plate") or plate, values["well"], known)
+            if address in scheme:
+                raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
+            scheme[address] = {names[key]: value for key, value in values.items()
+                               if key not in ("plate", "well") and value}
+    elif len(header) > 1 and all(re.fullmatch(r"\d+", value) for value in header[1:] if value):
+        from ...schema import letters_from_row_index
+
+        key = header[0] or "condition"
+        for _index, record in table.iloc[1:].iterrows():
+            letters = str(record.iloc[0]).strip().upper()
+            for number, value in zip(header[1:], record.iloc[1:]):
+                value = str(value).strip()
+                if letters and number and value:
+                    scheme[_overview_scheme_address(plate, f"{letters}{int(number)}", known)] = {key: value}
+    else:
+        raise _OverviewValidationError(tr(
+            "An annotation scheme is a table with a well column, or a plate layout with row letters and column numbers."))
+    scheme = {address: values for address, values in scheme.items() if values}
+    if any(address not in known for address in scheme):
+        raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
+    return scheme
+
+
 class _OverviewAnnotationDialog(QDialog):
     """Ask for one metadata key and value for the selected wells."""
 
@@ -5189,10 +5262,30 @@ class _FieldOverview(QWidget):
         if item is not None and not item.isSelected():
             self.wells.clearSelection()
             item.setSelected(True)
+        from ...schema import letters_from_row_index
+
         menu = QMenu(self.wells)
         action = menu.addAction(tr("Annotate selected wells…"))
         action.setEnabled(bool(self._selected_wells))
         action.triggered.connect(self._annotate_selected_wells)
+        plate = self.plates.currentData()
+        on_plate = tuple(field for field in self._fields if field.plate == plate and not field.unresolved)
+        clicked = self._well_representatives.get(item.data(Qt.UserRole)) if item is not None else None
+        if clicked is not None and not clicked.unresolved:
+            row = tuple(sorted({(plate, field.well) for field in on_plate if field.row == clicked.row}))
+            column = tuple(sorted({(plate, field.well) for field in on_plate if field.column == clicked.column}))
+            menu.addAction(tr("Annotate row {row}…", row=letters_from_row_index(int(clicked.row)))
+                           ).triggered.connect(functools.partial(self._annotate_wells, row))
+            menu.addAction(tr("Annotate column {column}…", column=clicked.column)
+                           ).triggered.connect(functools.partial(self._annotate_wells, column))
+        whole = tuple(sorted({(plate, field.well) for field in on_plate}))
+        action = menu.addAction(tr("Annotate the whole plate…"))
+        action.setEnabled(bool(whole))
+        action.triggered.connect(functools.partial(self._annotate_wells, whole))
+        menu.addSeparator()
+        menu.addAction(tr("Import annotation scheme…")).triggered.connect(self._import_annotation_scheme)
+        menu.addAction(tr("Save annotations…")).triggered.connect(self._save_annotations)
+        menu.addAction(tr("Load annotations…")).triggered.connect(self._load_annotations)
         self._well_context_menu = menu
         menu.popup(self.wells.viewport().mapToGlobal(position))
         return menu
@@ -5202,7 +5295,15 @@ class _FieldOverview(QWidget):
 
         :returns: the open prompt, or ``None`` without a selection.
         """
-        wells = tuple(sorted(self._selected_wells))
+        return self._annotate_wells(tuple(sorted(self._selected_wells)))
+
+    def _annotate_wells(self, wells, *_):
+        """Open the key/value prompt for ``wells``.
+
+        :param wells: plate-qualified ``(plate, well)`` identities.
+        :returns: the open prompt, or ``None`` when there are no wells.
+        """
+        wells = tuple(wells)
         if not wells:
             self.status.setText(tr("Choose a row, column or well selection before annotating."))
             return None
@@ -5976,6 +6077,47 @@ class _FieldOverview(QWidget):
         if self._measurement_jobs.is_busy():
             self.status.setText(tr("Measured {completed} of {total} images…",
                                    completed=completed, total=total))
+
+    def _import_annotation_scheme(self, *_):
+        """Ask for a well annotation scheme and apply it to this source's wells.
+
+        A table with a ``well`` column (and optionally ``plate``) gives one
+        annotation per other column; a plate layout -- row letters down the
+        left, column numbers across the top -- gives one annotation named by
+        its top-left cell, or ``condition``. Every well must exist in this
+        source; nothing is applied otherwise.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        if self._export_jobs.is_busy():
+            self.status.setText(tr("Wait for the current export to finish or cancel it."))
+            return
+        path, _ = QFileDialog.getOpenFileName(self, tr("Import annotation scheme"), "",
+                                              tr("Tables (*.csv *.tsv *.txt *.xlsx)"))
+        if not path:
+            return
+        plate = self.plates.currentData()
+        known = frozenset((field.plate, field.well) for field in self._fields if not field.unresolved)
+        fields = self._fields
+        self._export_jobs.submit(functools.partial(_overview_annotation_scheme, path, plate, known),
+                                 functools.partial(self._scheme_read, fields))
+
+    def _scheme_read(self, fields, scheme):
+        """Apply an imported scheme while the same source is shown.
+
+        :param fields: the indexed fields the scheme was validated against.
+        :param scheme: ``{(plate, well): {key: value}}``.
+        """
+        if fields is not self._fields:
+            return
+        groups = {}
+        for address, values in scheme.items():
+            for key, value in values.items():
+                groups.setdefault((key, value), set()).add(address)
+        for (key, value), addresses in sorted(groups.items()):
+            self._apply_annotation(addresses, key, value)
+        self.status.setText(tr("Imported {count} well annotations.",
+                               count=sum(len(values) for values in scheme.values())))
 
     def _save_annotations(self):
         """Write conditions only to the user's explicitly chosen output table."""
@@ -8133,7 +8275,6 @@ _OVERVIEW_SETTING_CONTROLS = (
     ("overview_background", "background"), ("overview_gamma", "gamma"),
     ("overview_reference_channel", "reference_channel"),
     ("overview_reference_epsilon", "reference_epsilon"),
-    ("overview_annotation_scope", "annotation_scope"),
     ("overview_representative_method", "representative_method"),
     ("overview_export_scope", "export_scope"),
     ("overview_pdf_quality", "pdf_quality"), ("overview_pdf_dpi", "pdf_dpi"),
@@ -8546,11 +8687,6 @@ def _overview_module_rows(browser):
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
             ("Channel to edit", "Channel the advanced normalization settings are applied to; All channels edits the shared settings.",
              (browser.norm_channel, *browser._channel_override_buttons)),
-        ],
-        "Annotations": [
-            ("Metadata", "Annotation column to write, such as condition, cell type or drug; type a new name to add a column.", (browser.annotation_key,)),
-            ("Value", "Value written into the annotation column; an empty value removes the annotation.", (browser.annotation_text,)),
-            ("Annotation actions", "Apply the annotation to the annotation scope, or save and load annotation sets.", browser._annotation_buttons),
         ],
         "Comparisons": [
             ("Annotation dimensions", "Tick annotation columns and the values to compare; every combination of the ticked values is one group.",

@@ -2079,7 +2079,7 @@ def _overview_category_spec():
         "Source", "Image", "Channels", "Display", "Normalization")]
     spec.append(("Enhancement", ("overview_enhance_channels", *_enhancement_keys())))
     spec.extend((title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
-        "Figure settings", "Annotations", "Comparisons", "Export"))
+        "Figure settings", "Comparisons", "Export"))
     spec.extend((title, tuple(keys)) for title, keys in measurements.items())
     return tuple(spec)
 
@@ -2109,9 +2109,6 @@ _APP_COMBO_OPTIONS["overview"] = {
         ("none", "Raw display values"),
         ("ratio", "Ratio to reference channel"),
         ("difference", "Difference from reference channel")],
-    "overview_annotation_scope": [("plate", "Plate"), ("row", "Row"),
-                                  ("column", "Column"),
-                                  ("wells", "Selected wells")],
     "overview_representative_method": [
         ("median", "Closest to the class median"),
         ("medoid", "Class medoid"),
@@ -3863,9 +3860,6 @@ def _overview_category_tooltips():
         "DISPLAY": "The size of and gap between the field images in the well views; "
                    "the same values apply to every open well and image so they line "
                    "up for comparison.",
-        "ANNOTATIONS": "Label wells with conditions such as cell type, pathogen or "
-                       "drug, in the scope chosen here, and save or load annotation "
-                       "sets in the project's measurements database.",
         "COMPARISONS": "Build groups from combinations of annotation values, "
                        "compare an image-level measurement between them, and pick "
                        "one representative image for each group.",

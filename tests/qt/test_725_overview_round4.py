@@ -192,3 +192,71 @@ def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, sou
     qtbot.waitUntil(lambda: view._scope[1] == "A01", timeout=5000)
     view._plate_back_button.click()
     assert view._scope[1] is None
+
+
+def _menu_actions(view, well):
+    rect = view.wells.visualItemRect(view.wells.item(*view._well_positions[well]))
+    menu = view._well_menu(rect.center())
+    actions = {action.text(): action for action in menu.actions() if action.text()}
+    menu.close()
+    return actions
+
+
+def test_annotation_lives_in_the_plate_menu_and_its_category_is_gone(mask, qtbot, source):
+    tab, view = _browse(mask, qtbot, source)
+    titles = {str(section.property("settingsCategorySource")) for section in tab._settings_sections}
+    assert "Annotations" not in titles and "Comparisons" in titles
+    assert "overview_annotation_scope" not in tab._settings_model._widgets
+    keys = {str(field.property("settingKey")) for _section, field, _widgets in tab._overview_page._rows}
+    assert not {"overview_metadata", "overview_value", "overview_annotation_actions"} & keys
+    actions = _menu_actions(view, "A01")
+    assert list(actions) == ["Annotate selected wells…", "Annotate row A…", "Annotate column 1…",
+                             "Annotate the whole plate…", "Import annotation scheme…",
+                             "Save annotations…", "Load annotations…"]
+    actions["Annotate row A…"].trigger()
+    dialog = view._annotation_dialog
+    assert set(dialog.wells) == {("p1", "A01"), ("p1", "A02")}
+    dialog.key.setCurrentIndex(dialog.key.findData("drug"))
+    dialog.value.setText("DMSO")
+    dialog.accept()
+    assert view._annotations[("p1", "A01")]["drug"] == "DMSO"
+    assert view._annotations[("p1", "A02")]["drug"] == "DMSO"
+    assert "drug" not in view._annotations.get(("p1", "B01"), {})
+    _menu_actions(view, "B01")["Annotate the whole plate…"].trigger()
+    assert set(view._annotation_dialog.wells) == {("p1", well) for well in WELLS}
+    view._annotation_dialog.reject()
+
+
+def test_a_well_annotation_scheme_imports_from_a_table_or_a_plate_layout(mask, qtbot, source, tmp_path,
+                                                                          monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+
+    _tab, view = _browse(mask, qtbot, source)
+    table = tmp_path / "scheme.csv"
+    table.write_text("well,cell_type,drug\nA1,HeLa,DMSO\nA02,HeLa,Taxol\nB01,HFF,\n", encoding="utf-8")
+    layout = tmp_path / "layout.tsv"
+    layout.write_text("pathogen_type\t1\t2\nA\tWT\tKu80\nB\tWT\t\n", encoding="utf-8")
+    chosen = [str(table)]
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args, **kwargs: (chosen[0], ""))
+    _menu_actions(view, "A01")["Import annotation scheme…"].trigger()
+    qtbot.waitUntil(lambda: view._annotations.get(("p1", "B01"), {}).get("cell_type") == "HFF", timeout=30000)
+    assert view._annotations[("p1", "A01")] == {"cell_type": "HeLa", "drug": "DMSO"}
+    assert view._annotations[("p1", "A02")] == {"cell_type": "HeLa", "drug": "Taxol"}
+    assert view._annotations[("p1", "B01")] == {"cell_type": "HFF"}
+    chosen[0] = str(layout)
+    qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
+    view._import_annotation_scheme()
+    qtbot.waitUntil(lambda: view._annotations[("p1", "B01")].get("pathogen_type") == "WT", timeout=30000)
+    assert view._annotations[("p1", "A02")]["pathogen_type"] == "Ku80"
+    foreign = tmp_path / "foreign.csv"
+    foreign.write_text("well,drug\nH12,DMSO\n", encoding="utf-8")
+    chosen[0] = str(foreign)
+    before = {address: dict(values) for address, values in view._annotations.items()}
+    qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
+    failures = []
+    view._export_jobs.job_failed.connect(failures.append)
+    view._import_annotation_scheme()
+    qtbot.waitUntil(lambda: bool(failures), timeout=30000)
+    assert "outside this source" in failures[0]
+    assert view._annotations == before
+
