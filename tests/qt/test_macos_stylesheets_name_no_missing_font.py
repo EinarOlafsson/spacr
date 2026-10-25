@@ -157,6 +157,8 @@ def test_macos_sheets_do_not_ask_for_the_generic_sans_serif():
     family aliases ... missing font family "Sans-serif"". Open Sans is
     bundled and Helvetica Neue ships with every macOS, so nothing is lost."""
     if sys.platform == "darwin":
-        assert theme.QSS_FONT_FAMILY == '"Open Sans", "Helvetica Neue"'
+        assert theme.QSS_FONT_FAMILY.endswith('"Helvetica Neue", '
+                                              '"spaCR Glyphs Noto Sans CJK JP"')
+        assert "sans-serif" not in theme.QSS_FONT_FAMILY
     else:
         assert theme.QSS_FONT_FAMILY.endswith("sans-serif")

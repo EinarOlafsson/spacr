@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
 
 from .hidpi import device_ratio, follow_device_ratio, scaled_for
 from .i18n import tr
+from .theme import SYMBOL_FONT_FAMILIES
 from . import iconset
 from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
                           register_declared as _register_declared)
@@ -8519,11 +8520,6 @@ def _use_open_sans(app, weight: str = "") -> str:
     return font.family()
 
 
-#: The families of ``resources/font/glyphs``, in the order Qt asks them.
-SYMBOL_FONT_FAMILIES = ("spaCR Glyphs Math", "spaCR Glyphs Latin",
-                        "spaCR Glyphs Sans", "spaCR Glyphs Symbols",
-                        "spaCR Glyphs Noto Sans CJK JP")
-
 #: The families the application's style sheets ask for by name.
 _SYMBOLS_STAND_IN_FOR = ("Open Sans", "Segoe UI", "Helvetica Neue",
                          "sans-serif")
@@ -8543,7 +8539,10 @@ def _load_bundled_fonts() -> None:
     ``tools/build_glyph_fonts.py``) hold exactly those glyphs, cut from the
     fonts that drew them before, and are named here as substitutes of every
     family the style sheets ask for, so Qt finds each one in a font it has
-    already registered.
+    already registered. A substitute is asked only for a family that is not
+    installed, so on Windows and macOS, where Segoe UI and Helvetica Neue
+    are, :data:`spacr.qt.theme.QSS_FONT_FAMILY` names the glyph families
+    itself.
 
     THE ORDER OF THE OPEN SANS FILES IS THE DIRECTORY'S, UNSORTED, as it
     always was. The sheets ask for weight 500, which Open Sans does not

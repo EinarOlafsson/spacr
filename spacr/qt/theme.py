@@ -46,10 +46,40 @@ from PySide6.QtWidgets import QApplication
 from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
 
-QSS_FONT_FAMILY = ('"Open Sans", "Segoe UI", "Helvetica Neue", sans-serif'
-                   if sys.platform.startswith("win") else
-                   '"Open Sans", "Helvetica Neue"' if sys.platform == "darwin" else
-                   '"Open Sans", "Helvetica Neue", sans-serif')
+#: The families of ``resources/font/glyphs``, in the order Qt asks them.
+SYMBOL_FONT_FAMILIES = ("spaCR Glyphs Math", "spaCR Glyphs Latin",
+                        "spaCR Glyphs Sans", "spaCR Glyphs Symbols",
+                        "spaCR Glyphs Noto Sans CJK JP")
+
+
+def _qss_font_families(platform: str = sys.platform) -> Tuple[str, ...]:
+    """The families the style sheets ask for on ``platform``, in order.
+
+    Qt takes a substitute only for a family that is NOT INSTALLED. Segoe UI
+    is installed on every Windows and Helvetica Neue on every Mac, so there
+    each symbol Open Sans lacks came from the system family and never from
+    the glyph fonts named as its substitutes. Those platforms name the glyph
+    fonts directly after Open Sans. The CJK subset follows the system
+    family, so Chinese and Korean text keeps the system's own font linking
+    and the subset draws only what that family lacks. Elsewhere none of the
+    named system families is installed and the substitutes take the
+    symbols, as before.
+
+    :param platform: a :data:`sys.platform` value.
+    :returns: Family names, generic ``sans-serif`` included where asked.
+    """
+    *glyphs, cjk = SYMBOL_FONT_FAMILIES
+    if platform.startswith("win"):
+        return ("Open Sans", *glyphs, "Segoe UI", cjk, "Helvetica Neue",
+                "sans-serif")
+    if platform == "darwin":
+        return ("Open Sans", *glyphs, "Helvetica Neue", cjk)
+    return ("Open Sans", "Helvetica Neue", "sans-serif")
+
+
+QSS_FONT_FAMILY = ", ".join(
+    family if family == "sans-serif" else f'"{family}"'
+    for family in _qss_font_families())
 
 LOG = logging.getLogger(__name__)
 

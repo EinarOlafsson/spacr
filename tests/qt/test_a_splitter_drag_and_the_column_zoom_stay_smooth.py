@@ -360,8 +360,10 @@ from pathlib import Path                                            # noqa: E402
 from PySide6.QtCore import QEventLoop, QObject                      # noqa: E402
 from PySide6.QtGui import QFont, QFontDatabase, QTextLayout         # noqa: E402
 
+from spacr.qt.theme import _qss_font_families                       # noqa: E402
+
 _REPO = Path(__file__).resolve().parents[2]
-_QSS_FAMILIES = ["Open Sans", "Segoe UI", "Helvetica Neue", "sans-serif"]
+_QSS_FAMILIES = list(_qss_font_families())
 
 
 def _glyph_tool():
@@ -481,6 +483,155 @@ def test_qt_finds_every_symbol_in_a_font_spacr_ships(symbols):
     assert _families_drawing("↓") == {"spaCR Glyphs Math"}
 
 
+#: The family each platform installs that the style sheets name.
+_INSTALLED_SYSTEM_FAMILY = {"win32": "Segoe UI", "darwin": "Helvetica Neue"}
+
+
+def _shipped_cmaps(tool):
+    """``{family: code points}`` of Open Sans and each glyph family."""
+    cmaps = {"Open Sans": tool.open_sans_cmap()}
+    for family, faces, _takes in tool.FAMILIES:
+        cmaps[family] = set().union(*(tool._cmap(tool.OUT / out)
+                                      for _style, _src, out in faces))
+    return cmaps
+
+
+def _first_family_drawing(char, stack, installed, substitutes):
+    """The family Qt draws ``char`` from: the first of ``stack`` that is
+    installed and has it, a family that is NOT installed standing for its
+    substitutes."""
+    for family in stack:
+        for name in ([family] if family in installed
+                     else substitutes.get(family, ())):
+            if ord(char) in installed.get(name, ()):
+                return name
+    return None
+
+
+@pytest.mark.parametrize("platform", ["win32", "darwin", "linux"])
+def test_a_symbol_open_sans_lacks_comes_from_a_shipped_font_everywhere(
+        symbols, platform):
+    """2026-10-24, Windows: "ᵢ" at weight 300 was drawn by Segoe UI.
+
+    Qt takes a family's substitutes only when the family is not installed,
+    and Segoe UI is installed on every Windows (Helvetica Neue on every
+    Mac), so the glyph fonts named as its substitutes were never asked.
+    Modelled with the shipped fonts' real character maps and the platform's
+    system family installed, drawing every glyph the interface draws except
+    the fullwidth forms neither Segoe UI nor Helvetica Neue has.
+    """
+    tool = _glyph_tool()
+    chars = sorted(set(tool.ui_glyphs()) | set("▾↓"))
+    cmaps = _shipped_cmaps(tool)
+    *glyphs, cjk = symbols.SYMBOL_FONT_FAMILIES
+    installed = dict(cmaps)
+    system = _INSTALLED_SYSTEM_FAMILY.get(platform)
+    if system:
+        installed[system] = {ord(c) for c in chars} - cmaps[cjk]
+    substitutes = {family: symbols.SYMBOL_FONT_FAMILIES
+                   for family in symbols._SYMBOLS_STAND_IN_FOR}
+    stack = _qss_font_families(platform)
+    before_cjk = set().union(cmaps["Open Sans"],
+                             *(cmaps[family] for family in glyphs))
+    for char in chars:
+        drawn = _first_family_drawing(char, stack, installed, substitutes)
+        assert drawn in cmaps, (char, f"U+{ord(char):04X}", platform, drawn)
+        if ord(char) not in before_cjk:
+            assert drawn == cjk, (char, platform, drawn)
+
+
+@pytest.mark.parametrize("platform", ["win32", "darwin"])
+def test_the_cjk_subset_follows_the_system_family_and_the_rest_precede_it(
+        symbols, platform):
+    """Chinese and Korean text keeps the system family's font linking
+    (Microsoft YaHei, Malgun Gothic; PingFang): the CJK subset is asked only
+    after the system family, every other glyph family before it."""
+    stack = list(_qss_font_families(platform))
+    system = stack.index(_INSTALLED_SYSTEM_FAMILY[platform])
+    *glyphs, cjk = symbols.SYMBOL_FONT_FAMILIES
+    assert stack[:system] == ["Open Sans", *glyphs]
+    assert stack[system + 1] == cjk
+
+
+def test_linux_asks_for_the_families_it_always_did():
+    """Linux installs none of the named system families, so there the
+    substitutes take every symbol and the list is unchanged."""
+    assert _qss_font_families("linux") == (
+        "Open Sans", "Helvetica Neue", "sans-serif")
+
+
+_WITH_AN_INSTALLED_SYSTEM_FAMILY = r'''
+import json, os, sys
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QFont, QFontDatabase, QTextLayout
+app = QApplication([])
+from spacr.qt.app import _load_bundled_fonts
+from spacr.qt.theme import _qss_font_families
+_load_bundled_fonts()
+assert sys.argv[2] in QFontDatabase.applicationFontFamilies(
+    QFontDatabase.addApplicationFont(sys.argv[3]))
+out = {}
+for char in sys.argv[4]:
+    for weight in (300, 400, 600, 700):
+        font = QFont()
+        font.setFamilies(list(_qss_font_families(sys.argv[1])))
+        font.setPixelSize(13)
+        font.setWeight(QFont.Weight(weight))
+        layout = QTextLayout("a" + char + "b", font)
+        layout.beginLayout(); layout.createLine(); layout.endLayout()
+        out[f"{char}|{weight}"] = sorted(
+            {r.rawFont().familyName() for r in layout.glyphRuns()})
+print(json.dumps(out))
+'''
+
+
+def _stand_in_system_font(tmp_path, family):
+    """DejaVu Sans renamed ``family``: a system face with most symbols."""
+    from fontTools.ttLib import TTFont
+
+    found = [path for path in (
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/TTF/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/dejavu/DejaVuSans.ttf"))
+        if path.is_file()]
+    if not found:
+        pytest.skip("DejaVu Sans is not installed here")
+    font = TTFont(str(found[0]))
+    for record in font["name"].names:
+        if record.nameID in (1, 4, 16):
+            record.string = family
+        elif record.nameID == 6:
+            record.string = family.replace(" ", "")
+    out = tmp_path / "stand-in.ttf"
+    font.save(str(out))
+    return out
+
+
+@pytest.mark.parametrize("platform", ["win32", "darwin"])
+def test_qt_skips_an_installed_system_family_for_the_shipped_symbols(
+        symbols, tmp_path, platform):
+    """The Windows failure reproduced anywhere: with a face named Segoe UI
+    (or Helvetica Neue) installed, Qt still draws every symbol from Open
+    Sans or a glyph font."""
+    tool = _glyph_tool()
+    system = _INSTALLED_SYSTEM_FAMILY[platform]
+    face = _stand_in_system_font(tmp_path, system)
+    chars = "".join(sorted(set(tool.ui_glyphs()) | set("▾↓")))
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONPATH=str(_REPO) + os.pathsep
+               + os.environ.get("PYTHONPATH", ""))
+    done = subprocess.run(
+        [sys.executable, "-c", _WITH_AN_INSTALLED_SYSTEM_FAMILY, platform,
+         system, str(face), chars],
+        capture_output=True, text=True, env=env, timeout=300, check=True)
+    drawn = json.loads(done.stdout.strip().splitlines()[-1])
+    shipped = {"Open Sans", *symbols.SYMBOL_FONT_FAMILIES}
+    wrong = {key: families for key, families in drawn.items()
+             if not set(families) <= shipped}
+    assert wrong == {}
+
+
 def test_without_the_symbol_fonts_open_sans_is_registered_alone(
         monkeypatch):
     import PySide6.QtGui as qtgui
@@ -532,13 +683,13 @@ else:
                           "resources", "font", "open_sans", "static")
     for name in os.listdir(folder):
         QFontDatabase.addApplicationFont(os.path.join(folder, name))
+from spacr.qt.theme import _qss_font_families
 out = {}
 for char in sys.argv[2]:
     for weight in (300, 400, 600, 700):
         for px in (11, 13, 16, 22):
             font = QFont()
-            font.setFamilies(["Open Sans", "Segoe UI", "Helvetica Neue",
-                              "sans-serif"])
+            font.setFamilies(list(_qss_font_families()))
             font.setPixelSize(px)
             font.setWeight(QFont.Weight(weight))
             layout = QTextLayout(char, font)
