@@ -388,10 +388,22 @@ def _hub_reindex_object(hub, key, old_chain) -> None:
 
 
 def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
-    """Ask ``watcher`` first about ``watched``'s events of ``kinds``."""
+    """Ask ``watcher`` first about ``watched``'s events of ``kinds``.
+
+    The wrapper is held until the object is destroyed or its last watch is
+    discarded, and found again by its ``id``: see
+    :func:`_hub_ask_object_watchers`.
+    """
     from shiboken6 import getCppPointer
 
     key = getCppPointer(watched)[0]
+    wrappers = getattr(hub, "_wrappers", None)
+    if wrappers is None:
+        wrappers = hub._wrappers = {}
+        hub._wrapper_keys = {}
+    if key not in wrappers:
+        wrappers[key] = watched
+        hub._wrapper_keys[id(watched)] = key
     old_chain = hub._objects.get(key)
     chain = [entry for entry in old_chain or []
              if entry[0]() is not watcher]
@@ -427,12 +439,21 @@ def _hub_discard_object(hub, watched, watcher) -> bool:
         hub._objects[key] = kept
     else:
         hub._objects.pop(key, None)
+        _hub_release_wrapper(hub, key)
     _hub_reindex_object(hub, key, chain)
     return found
 
 
+def _hub_release_wrapper(hub, key) -> None:
+    """Let go of the wrapper :func:`_hub_add_object` held for ``key``."""
+    wrapper = getattr(hub, "_wrappers", {}).pop(key, None)
+    if wrapper is not None:
+        hub._wrapper_keys.pop(id(wrapper), None)
+
+
 def _hub_drop_object(hub, key) -> None:
     """Forget every watch on an object that has been destroyed."""
+    _hub_release_wrapper(hub, key)
     chain = hub._objects.pop(key, None)
     for entry in chain or ():
         entry[2] = False
@@ -454,13 +475,24 @@ def _hub_object_watchers(hub, watched) -> tuple:
 
 
 def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
-    """Hand ``event`` to ``watched``'s watchers of ``kind``."""
-    from shiboken6 import getCppPointer, isValid
+    """Hand ``event`` to ``watched``'s watchers of ``kind``.
 
-    try:
-        chain = hub._objects.get(getCppPointer(watched)[0])
-    except (RuntimeError, TypeError):
+    The object is recognised by its wrapper's ``id`` alone, without reading
+    the wrapper: every event of a watched kind for EVERY object in the
+    application arrives here, and asking ``getCppPointer`` of each one read
+    whatever wrapper Qt handed over. On macOS some of those were stale, and
+    the read was the segmentation fault in 12 of 14 crashed test workers of
+    a native Apple M2 run (none with the hub turned off but this call).
+    Holding the watched wrapper in :func:`_hub_add_object` keeps it the one
+    shiboken hands back, so its ``id`` identifies the object for as long as
+    it is watched.
+    """
+    from shiboken6 import isValid
+
+    key = getattr(hub, "_wrapper_keys", {}).get(id(watched))
+    if key is None:
         return False
+    chain = hub._objects.get(key)
     if not chain:
         return False
     for entry in tuple(chain):
@@ -645,6 +677,8 @@ def _application_event_hub_class():
             self._by_kind = {}
             self._paints_unheard = True
             self._objects = {}
+            self._wrappers = {}
+            self._wrapper_keys = {}
             self._object_kinds = frozenset()
             self._geometry_watched = {}
 
