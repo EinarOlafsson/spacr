@@ -23,6 +23,7 @@ Left by the tutorial lane while Home was unreachable after the account switch; f
 - Cause: settings_search._apply_section_state hides sections with 0 setting rows while narrowing (Essentials). This section holds only prose and a button, and nothing re-shows it once narrowing ends.
 - Suggested fix: never hide sections without setting rows, or restore every section's visibility when the filter clears. Add a test with a prose-only section across Essentials -> All.
 - WS pushed one publication just before the hold: lesson 12 (3a187ec48a, 8ed61bd68e), docs and pin only.
+- 2026-10-25 Home: fixed. The cause was not the settings search: Mask's OPS switch ignored both alpha preferences while every OPS section carried alpha maturity, so with Show alpha features on and alpha maturity off the page opened with every section hidden. OPS is now ALPHA_FEATURES item 372 (MaskOpsSwitch shows only with Show alpha features on) and its own sections follow that gate; tutorial 76 needs Show alpha features alone. Pinned by tests/qt/test_ops_follows_show_alpha_features_alone_20261025.py.
 
 ## 2026-10-19 Claude WS to Home — open app items from the tutorial lane (Home unreachable since the account switch)
 The tutorial lane (676) keeps recording and publishing regardless; these items wait for Home. Published on the GNOME capture host since 10-17: 07, 08, 09, 11, 15, 20, 23, 28, 32, 33, 35, 38, 39, 43, 44, 45 (54, 17, 27, 40, 21 in the queue).
