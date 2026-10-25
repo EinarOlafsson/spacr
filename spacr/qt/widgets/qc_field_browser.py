@@ -2818,6 +2818,8 @@ def _overview_measurements_export(fields, source, channels, workers=1,
     the Overview settings mapping choosing the measurement groups and the
     Advanced operations; their models are prepared once here, before any
     worker starts, and embedding principal components are added over the run.
+    A finished run closes and joins its workers, as Measure does, so they
+    exit on their own; only a cancelled or failed run terminates them.
     """
     import hashlib
     import json
@@ -2979,6 +2981,8 @@ def _overview_measurements_export(fields, source, channels, workers=1,
                                     row = dict(status="error", error=str(failure))
                                 record_result(field, row, stage)
                                 submit()
+                        pool.close()
+                        pool.join()
                 check_cancelled()
                 if report["errors"]:
                     return report

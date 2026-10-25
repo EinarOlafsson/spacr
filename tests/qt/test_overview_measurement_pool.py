@@ -63,6 +63,14 @@ class _RecordingPool:
     def __exit__(self, *args):
         return self._pool.__exit__(*args)
 
+    def close(self):
+        self._log["closed"] = True
+        return self._pool.close()
+
+    def join(self):
+        self._log["joined"] = self._log.get("closed", False)
+        return self._pool.join()
+
     def apply_async(self, function, args=(), kwds=None):
         self._outstanding += 1
         self._log["tasks"].append((function.__name__, args[0]))
@@ -116,6 +124,7 @@ def test_pool_runs_one_image_per_task_and_matches_the_serial_path(tmp_path, monk
     assert sorted(field.field for _, field in log["tasks"]) == ["0", "1", "2", "3"]
     assert log["peak"] <= 2
     assert progress == [1, 2, 3, 4]
+    assert log.get("closed") and log.get("joined")
     serial_rows, parallel_rows = _rows(serial["path"]), _rows(parallel["path"])
     assert len(parallel_rows) == 4
     for uid, row in serial_rows.items():
@@ -184,6 +193,12 @@ def test_a_lost_worker_is_recorded_against_its_image(tmp_path, monkeypatch):
 
         def __exit__(self, *args):
             return False
+
+        def close(self):
+            pass
+
+        def join(self):
+            pass
 
         def apply_async(self, function, args=(), kwds=None):
             return _LostResult()
