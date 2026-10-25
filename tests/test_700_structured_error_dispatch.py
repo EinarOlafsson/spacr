@@ -766,8 +766,8 @@ def test_native_replay_does_not_borrow_a_following_session_and_retains_previous_
              'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
     second = dict(first, id='6ae2c2af-3e47-4bf8-9a19-f346ba655d34', python='3.14.0')
     path = tmp_path / 'fatal.log'
-    path.write_text('=== spaCR session ' + json.dumps(first) + ' ===\n',
-                    encoding='utf-8', newline='\n')
+    with path.open('w', encoding='utf-8', newline='\n') as handle:
+        handle.write('=== spaCR session ' + json.dumps(first) + ' ===\n')
     assert cr._consume_native_crash(path) is None
     with path.open('a', encoding='utf-8', newline='\n') as handle:
         handle.write('Fatal Python error: Aborted\n\n=== spaCR session ' + json.dumps(second) + ' ===\n')

@@ -2509,6 +2509,16 @@ x to the right and y down; centroids are pixel centres.
 """
 
 
+def _write_crlf_text(path, text: str) -> None:
+    """Write ``text`` as UTF-8 with Windows line endings.
+
+    ``Path.write_text`` takes ``newline`` only from Python 3.10, and the
+    minimum supported interpreter is 3.9.
+    """
+    with open(path, "w", encoding="utf-8", newline="\r\n") as handle:
+        handle.write(text)
+
+
 def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
                 image: Optional[np.ndarray] = None, *,
                 source_path: str = "", pixel_size=None, unit: str = "µm",
@@ -2603,8 +2613,7 @@ def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
         except (OSError, UnicodeDecodeError):
             unchanged = False
         if not unchanged:
-            publish(target, lambda pending, text=text: Path(pending)
-                    .write_text(text, encoding="utf-8", newline="\r\n"))
+            publish(target, lambda pending, text=text: _write_crlf_text(pending, text))
     names["project"] = f"{stem}.vl"
     names["readme"] = "README.txt"
     channels = [column[len("mean_intensity_"):] for column in frame.columns
