@@ -193,8 +193,9 @@ The setting takes three values. ``auto``, the default, follows the selected
 model. A model whose zoo record declares
 ``preprocess: {"well_resize": {"side": 1500, "max_factor": 6}}`` turns well
 resize on with those values. A checkpoint can declare the same in a
-``<checkpoint>.preprocess.json`` file beside it. Plaque model v6 was trained
-this way. The metadata may also carry the thresholds chosen on the model's
+``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``,
+the default plaque model since 2026-10-25, was trained this way and declares
+it. The metadata may also carry the thresholds chosen on the model's
 validation fields, for example
 ``"thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}`` for v6. In
 ``auto`` they replace ``CP_prob``, ``flow_threshold`` and

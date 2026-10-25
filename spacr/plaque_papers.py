@@ -122,7 +122,7 @@ FORMAT_RANK = {".scn": 0, ".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 
                ".jpeg": 2, ".gif": 3, ".bmp": 3}
 
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
-DEFAULT_SEGMENTER = "toxoplasma_plaque_v5"
+DEFAULT_SEGMENTER = "toxoplasma_plaque_v6"
 DEFAULT_IMGSZ: Tuple[int, ...] = (640, 1280)
 
 INSTALL_HINT = 'pip install "spacr[papers]"'
@@ -2409,6 +2409,20 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
     return segment
 
 
+def _model_well_resize(segmenter: Any) -> Optional[Dict[str, Any]]:
+    """The well-resize plan a segmenter's own zoo record asks for, or ``None``.
+
+    A Figure crop is already one well, so the plan carries no detector.
+
+    :param segmenter: a zoo key or checkpoint path.
+    :returns: :func:`spacr.plaque._well_resize_plan` for that model in
+        ``'auto'``.
+    """
+    from .plaque import _well_resize_plan
+
+    return _well_resize_plan({"plaque_model": str(segmenter)}, detect=False)
+
+
 def _new_summary(database: Path, run_id: int) -> Dict[str, Any]:
     """The counters every entry point reports.
 
@@ -2488,7 +2502,9 @@ def measure_plaques_from_papers(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
-        segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
+        plan = _model_well_resize(segmenter)
+        segment = _cellpose_segmenter(segmenter_path, return_metrics=True,
+                                      **({} if plan is None else {"well_resize": plan}))
     references = list(references)
     run_id = _start_run(
         connection, entry="papers", source=json.dumps([str(r) for r in references]),
@@ -3173,7 +3189,7 @@ def measure_figure_folder(
         detect: Optional[Callable] = None, segment: Optional[Callable] = None,
         text_options: Optional[TextOptions] = None,
         min_size: Optional[float] = None,
-        well_resize: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        well_resize: Any = "model") -> Dict[str, Any]:
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
     The function does not prompt. Legends come from ``legends`` (default
@@ -3238,6 +3254,8 @@ def measure_figure_folder(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
+        if isinstance(well_resize, str) and well_resize == "model":
+            well_resize = _model_well_resize(segmenter)
         resize_options = {} if well_resize is None else {"well_resize": well_resize}
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True,
                                       min_size=min_size, **resize_options)

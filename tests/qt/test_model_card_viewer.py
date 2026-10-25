@@ -26,6 +26,7 @@ KEYS = {
     "toxoplasma_plaque_v3": "toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
     "toxoplasma_plaque_v4": "toxoplasma-plaque-segmentation-cpsam-r6",
     "toxoplasma_plaque_v5": "toxoplasma-plaque-segmentation-cpsam-r7",
+    "toxoplasma_plaque_v6": "toxoplasma-plaque-segmentation-cpsam-v6",
 }
 
 

@@ -714,8 +714,8 @@ Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://hug
 
 SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``.
 
-Toxoplasma Plaque v5 (round 7, cpsam_v2, default)
--------------------------------------------------
+Toxoplasma Plaque v5 (round 7, cpsam_v2)
+----------------------------------------
 
 **Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)
 
@@ -757,7 +757,7 @@ Toxoplasma Plaque v5 (round 7, cpsam_v2, default)
 
 Evaluation set: ``plaque_curated_20261015_test``; version ``strict hold-out, pooled``; 153 scored fields and 6540 annotated objects.
 
-* The default plaque model since 2026-10-17, by the maintainer's choice; toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable.
+* The default plaque model 2026-10-17 to 2026-10-25; toxoplasma_plaque_v6 replaced it by the maintainer's choice, and v5 stays selectable so recorded runs reproduce. toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable.
 * Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset (spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI 0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 (0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954.
 * The final epoch 100 ships by the maintainer's rule: an earlier checkpoint replaces it only if better on every metric in every domain. Epoch 40 led on validation object F1 (0.766 against 0.750) but trailed on boundary F1 (0.700 against 0.711), AJI (0.661 against 0.667) and Dice (0.857 against 0.869); on test it scored F1 0.823.
 * Training ran 100 epochs; indices 91 to 99 were resumed from epoch 90 after a power cut, with the same schedule and seeds (optimizer moments restarted at LR 2e-8).
@@ -765,18 +765,81 @@ Evaluation set: ``plaque_curated_20261015_test``; version ``strict hold-out, poo
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7>`_, as ``cpsam_plaque_r7``.
 
 .. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/cards/page1.png
-   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page1.png
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/blob/main/cards/page1.png
 
 .. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/cards/page2.png
-   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page2.png
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/blob/main/cards/page2.png
 
 .. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/cards/page3.png
-   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page3.png
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/blob/main/cards/page3.png
 
 SHA-256 ``9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1``.
+
+Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default)
+----------------------------------------------------------------
+
+**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)
+
+**Trained on.** Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier curation rounds, each well resized so its longest side is 1500 px (enlargement at most 6x); 100 epochs, final epoch kept, base cpsam_v2
+
+**Measured.** F1 0.768 against stock cpsam_v2's 0.294 on the 160 strict hold-out fields at IoU 0.5; AJI 0.752 against 0.249
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.7683
+     - 0.2941
+     - 0.4742
+   * - Boundary F1 (2 px)
+     - 0.7811
+     - 0.3028
+     - 0.4782
+   * - Precision
+     - 0.7770
+     - 0.5571
+     - 0.2199
+   * - Recall
+     - 0.7598
+     - 0.1998
+     - 0.5600
+   * - AJI
+     - 0.7517
+     - 0.2493
+     - 0.5024
+   * - Dice
+     - 0.9091
+     - 0.4142
+     - 0.4950
+
+Evaluation set: ``plaque_v6_20261024_test``; version ``strict hold-out, pooled``; 160 scored fields and 6182 annotated objects.
+
+* The default plaque model since 2026-10-25, by the maintainer's choice; it needs well resize (plaque_well_resize auto follows this record's preprocess). toxoplasma_plaque_v5 stays selectable.
+* Scored 2026-10-25 on the 160 test fields (single locked test, validation-chosen thresholds cellprob -0.5, flow 0.4, min size 0): object F1 0.768 (95% group-bootstrap CI 0.715 to 0.815), precision 0.777, recall 0.760, boundary F1 0.781, AJI 0.752, Dice 0.909. Recall by plaque size 0.432 (<5 px), 0.795 (5-10 px), 0.811 (>=10 px). Control: stock cpsam_v2 with the same well resize and its own validation-tuned thresholds, object F1 0.294.
+* Final epoch 100 shipped by the maintainer's choice; the validation objective peaked at epoch 25 (0.673 against 0.651).
+
+Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6>`_, as ``cpsam_plaque_v6``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/blob/main/cards/page3.png
+
+SHA-256 ``a22697ddfa002c99605f1a1a95df5f5f09f35167fcd9da97ed314f27a346c919``.
 
 Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
 -----------------------------------------------------

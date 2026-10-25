@@ -2,7 +2,7 @@
 
 # Plaques
 
-v5
+v5 · older
 
 **0.816** — F1 · 153 held-out fields
 
@@ -15,15 +15,17 @@ v5
 | Dice | 0.896 | 0.329 |
 
 
-![Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2.](cards/toxoplasma_plaque_v5.svg)
+![Score card of Plaques v5 (toxoplasma_plaque_v5, older version): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2.](cards/toxoplasma_plaque_v5.svg)
 
-## Toxoplasma Plaque v5 (round 7, cpsam_v2, default)
+## Toxoplasma Plaque v5 (round 7, cpsam_v2)
 
-`toxoplasma_plaque_v5` · Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1) · default in the `toxoplasma_plaque` family
+`toxoplasma_plaque_v5` · Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1) · older version in the `toxoplasma_plaque` family
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-Other versions: [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+The family's default is [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md).
+
+Other versions: [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 
@@ -61,7 +63,7 @@ Evaluation set `plaque_curated_20261015_test`, version `strict hold-out, pooled`
 
 ## Notes
 
-- The default plaque model since 2026-10-17, by the maintainer's choice; toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable.
+- The default plaque model 2026-10-17 to 2026-10-25; toxoplasma_plaque_v6 replaced it by the maintainer's choice, and v5 stays selectable so recorded runs reproduce. toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable.
 - Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset (spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI 0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 (0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954.
 - The final epoch 100 ships by the maintainer's rule: an earlier checkpoint replaces it only if better on every metric in every domain. Epoch 40 led on validation object F1 (0.766 against 0.750) but trailed on boundary F1 (0.700 against 0.711), AJI (0.661 against 0.667) and Dice (0.857 against 0.869); on test it scored F1 0.823.
 - Training ran 100 epochs; indices 91 to 99 were resumed from epoch 90 after a power cut, with the same schedule and seeds (optimizer moments restarted at LR 2e-8).

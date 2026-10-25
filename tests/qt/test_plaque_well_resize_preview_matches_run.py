@@ -92,7 +92,8 @@ def test_preview_and_batch_agree_without_well_resize(monkeypatch, tmp_path):
     src, dst = tmp_path / "src", tmp_path / "masks"
     src.mkdir()
     tifffile.imwrite(src / "field.tif", _field())
-    settings = get_analyze_plaque_settings({"src": str(src), "dst": str(dst)})
+    settings = get_analyze_plaque_settings({"src": str(src), "dst": str(dst),
+                                            "plaque_model": "toxoplasma_plaque_v5"})
     preview_model, run_model = _ThresholdModel(), _ThresholdModel()
     monkeypatch.setattr(ppv, "resolve_plaque_model", lambda s: ("model.pt", "", None))
     monkeypatch.setattr(ppv, "_cellpose_model", lambda path: preview_model)

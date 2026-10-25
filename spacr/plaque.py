@@ -641,6 +641,13 @@ def _well_resize_plan(settings: Dict[str, Any], *, fetch: bool = False,
     """
     mode = _well_resize_mode(settings.get("plaque_well_resize", "auto"))
     if mode == "off":
+        from .model_zoo import _model_preprocess
+
+        if isinstance(_model_preprocess(settings.get("plaque_model")).get("well_resize"), dict):
+            LOG.warning(
+                "plaque_well_resize is off, but %s was trained on resized wells; "
+                "its scores were measured with well resize on",
+                settings.get("plaque_model"))
         return None
     from .model_zoo import _model_preprocess
 

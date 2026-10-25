@@ -12,7 +12,7 @@ from tools.build_model_cards import published_models
 def test_required_model_classes_and_current_desktop_defaults_are_preserved():
     families = {entry["family"]: entry for entry in registry.model_families()}
     assert set(families) == {"toxoplasma_pv", "toxoplasma_plaque", "toxoplasma_well_detector", "toxoplasma_from_cellmask", "live_cell", "nuclei_from_cellmask", "cell_from_hoechst", "toxoplasma_from_hoechst"}
-    assert families["toxoplasma_plaque"]["default"] == "toxoplasma_plaque_v5"
+    assert families["toxoplasma_plaque"]["default"] == "toxoplasma_plaque_v6"
     assert families["toxoplasma_pv"]["default"] == "toxoplasma_pv_v4"
     assert families["toxoplasma_well_detector"]["default"] == "toxoplasma_well_detector_v3"
     for family in families.values():
@@ -39,18 +39,18 @@ def provisioned(tmp_path, monkeypatch):
     checkpoint.write_bytes(b"controlled fake weights for identity only")
     records = copy.deepcopy(model_zoo.BUNDLED_REMOTE_MODELS)
     for entry in records:
-        if entry["key"] == "toxoplasma_plaque_v5":
+        if entry["key"] == "toxoplasma_plaque_v6":
             entry["sha256"] = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
     monkeypatch.setattr(model_zoo, "BUNDLED_REMOTE_MODELS", records)
-    return checkpoint, {"toxoplasma_plaque_v5": checkpoint}
+    return checkpoint, {"toxoplasma_plaque_v6": checkpoint}
 
 
 def test_only_operator_mapping_and_exact_model_checksum_can_resolve(provisioned):
     checkpoint, paths = provisioned
     resolved = registry.resolve_trusted_model("toxoplasma_plaque", paths)
     assert resolved["checkpoint"] == checkpoint
-    assert resolved["metadata"]["key"] == "toxoplasma_plaque_v5"
-    assert registry.resolve_trusted_model("toxoplasma_plaque", paths, model_key="toxoplasma_plaque_v5") == resolved
+    assert resolved["metadata"]["key"] == "toxoplasma_plaque_v6"
+    assert registry.resolve_trusted_model("toxoplasma_plaque", paths, model_key="toxoplasma_plaque_v6") == resolved
 
 
 @pytest.mark.parametrize("family,key", [("unknown", None), ("toxoplasma_plaque", "toxoplasma_pv_v4"), ("toxoplasma_plaque", "../../checkpoint"), ("toxoplasma_plaque", "toxoplasma_plaque_v3")])

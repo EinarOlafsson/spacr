@@ -73,6 +73,10 @@
        (Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1))
      - 1,507 curated plaque fields of 2026-10-15 (Gel Doc wells, lab plates, published figures, earlier curation rounds); 1,201 train / 153 validation / 153 test
      - F1 0.816 against stock cpsam_v2's 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178
+   * - ``toxoplasma_plaque_v6``
+       (Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1))
+     - 1,520 curated plaque fields (Gel Doc wells, lab plates, published figures, earlier curation rounds); 1,196 train / 164 validation / 160 test, grouped per-domain split of 2026-10-24
+     - F1 0.768 against stock cpsam_v2's 0.294 on the 160 strict hold-out fields at IoU 0.5; AJI 0.752 against 0.249
    * - ``toxoplasma_well_detector_v3``
        (YOLO11n (fine-tuned from detector v3))
      - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization

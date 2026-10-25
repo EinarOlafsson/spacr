@@ -19445,7 +19445,7 @@ Read by ``get_analyze_plaque_settings``, ``analyze_plaques``.
 plaque_model
 ------------
 
-(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v5' is the cpsam_v2 round-7 model; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells; 'toxoplasma_plaque_v4', the default until 2026-10-17, and 'toxoplasma_plaque_v2' are earlier defaults), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v5'.
+(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.
 
 | ``_seed_the_model``
 |     ``_model_the_run_would_use``

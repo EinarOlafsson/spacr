@@ -328,8 +328,7 @@ def test_v5_is_segmented_exactly_as_before_when_off():
     """Off, or a model without metadata, makes the legacy single call."""
     from spacr.settings import get_analyze_plaque_settings
 
-    settings = get_analyze_plaque_settings({})
-    assert settings["plaque_model"] == "toxoplasma_plaque_v5"
+    settings = get_analyze_plaque_settings({"plaque_model": "toxoplasma_plaque_v5"})
     assert plaque._well_resize_plan(settings) is None
     image = _field((60, 70, 3), np.uint8)
     for extra in ({}, {"plaque_well_resize": "off"}):
@@ -415,3 +414,49 @@ def test_equal_channel_rgb_is_segmented_as_grey():
     other = _DiskModel()
     plaque.segment_plaque_image(other, grey, {}, well_resize=dict(PLAN, detector=None))
     assert model.calls[0][0] == other.calls[0][0]
+
+
+def test_the_default_plaque_model_is_v6_with_resize_and_thresholds(monkeypatch):
+    from spacr import plaque_papers, submodules
+    from spacr.settings import get_analyze_plaque_settings
+
+    monkeypatch.setattr(plaque, "_resolve_well_resize_detector",
+                        lambda requested, fetch: None)
+    settings = get_analyze_plaque_settings({})
+    assert settings["plaque_model"] == submodules.DEFAULT_PLAQUE_MODEL == "toxoplasma_plaque_v6"
+    assert plaque_papers.DEFAULT_SEGMENTER == "toxoplasma_plaque_v6"
+    record = next(r for r in model_zoo.BUNDLED_REMOTE_MODELS if r["key"] == "toxoplasma_plaque_v6")
+    assert record["sha256"].startswith("a22697dd") and record["uri"].endswith("cpsam_plaque_v6")
+    assert model_zoo._model_preprocess("toxoplasma_plaque_v6") == {
+        "well_resize": {"side": 1500, "max_factor": 6},
+        "thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}}
+    plan = plaque._well_resize_plan(settings)
+    assert plan["side"] == 1500 and plan["max_factor"] == 6
+    assert plan["thresholds"] == {"cellprob_threshold": -0.5, "flow_threshold": 0.4,
+                                  "min_size": 0.0}
+    model = _DiskModel()
+    plaque.segment_plaque_image(model, _field((300, 400, 3), np.uint8), settings)
+    kwargs = model.calls[0][1]
+    assert kwargs["normalize"] is False and kwargs["diameter"] is None
+    assert kwargs["cellprob_threshold"] == -0.5 and kwargs["flow_threshold"] == 0.4
+    assert kwargs["min_size"] == 0.0
+    assert plaque._well_resize_plan({"plaque_model": "toxoplasma_plaque_v5"}) is None
+
+
+def test_turning_resize_off_for_a_resize_model_warns(caplog):
+    with caplog.at_level("WARNING", logger=plaque.LOG.name):
+        assert plaque._well_resize_plan({"plaque_model": "toxoplasma_plaque_v6",
+                                         "plaque_well_resize": "off"}) is None
+    assert "trained on resized wells" in caplog.text
+    caplog.clear()
+    with caplog.at_level("WARNING", logger=plaque.LOG.name):
+        plaque._well_resize_plan({"plaque_model": "toxoplasma_plaque_v5",
+                                  "plaque_well_resize": "off"})
+    assert "trained on resized wells" not in caplog.text
+
+
+def test_the_v6_scorecard_binding_loads():
+    record = next(r for r in model_zoo.BUNDLED_REMOTE_MODELS if r["key"] == "toxoplasma_plaque_v6")
+    entry = model_zoo._builtin_entry_from_mapping(record)
+    assert entry._curated_card
+    assert entry.metrics["holdout"] == "plaque_v6_20261024_test"

@@ -119,7 +119,7 @@ def _run(tmp_path, monkeypatch, output=None):
     monkeypatch.setattr(submodules, '_resolve_plaque_model', lambda *args, **kwargs: 'model')
     monkeypatch.setattr(submodules, '_plaque_cellpose_model', lambda path: Model())
     monkeypatch.setattr('spacr.utils.save_settings', lambda *args, **kwargs: None)
-    settings = {'src': str(tmp_path), 'masks': True}
+    settings = {'src': str(tmp_path), 'masks': True, 'plaque_model': 'toxoplasma_plaque_v5'}
     submodules.analyze_plaques(settings)
     return settings, calls
 

@@ -1,6 +1,6 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: CODE COMPLETE (alpha) — BLOCKED ON MAINTAINER for real known-amount scientific acceptance
+Status: IN PROGRESS (alpha) — calibrated registration/PSF and residual policy follow-up
 Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -376,6 +376,3 @@ Notebook references, consumer/flow artifacts and caption arrivals were generated
 2026-10-24 Home: correct the signed-cell CSV durability flush to use an existing write-capable descriptor, retaining read-only digest calculation, missing-file failure and atomic no-overwrite publication; both fsync guards and the real signed CSV export pass (3 controls), with callable prose, translated strings and generated source positions unchanged. Root owns publication; broader F538 acceptance remains OPEN.
 
 2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).
-
-2026-10-25 Home: calibrated registration/PSF/residual code complete. Signed calibrated records add a float32-rounding tolerance and the fraction of residuals beyond it (noise-free blanks previously read 65-78% "negative"); the signed reader verifies them when present, older records load unchanged. New CPU ground truth: 3 dyes, 0.85 spill, signed YX shifts, unequal asymmetric PSFs recover the matrix (<1e-5) and abundances within float32 rounding; zero/1-px-off registration, equal PSFs and legacy all misestimate spill (>0.01); signed noise residuals stay unbiased (<0.15 SD) where clipping adds ~0.4 SD.
-SCIENTIFIC ACCEPTANCE PENDING (maintainer): 1) image one double-stained sample with known dye amounts plus single-stain wells of each dye on the same plate/settings; 2) measure per-channel bead PSFs and integer chromatic shifts to the reference channel and write the version-1 unmix_calibration JSON (Help: unmix_calibration); 3) Preferences -> Show alpha features, set unmix, unmix_controls, unmix_calibration, unmix_pixel_size_um and run Make Masks V2 cell-only 2D, then measure_calibrated_cells; 4) accept if single-stain off-target falls to background and double-stain cell means move to the known amounts; record verdict here.

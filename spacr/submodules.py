@@ -1423,9 +1423,9 @@ def _resolve_training_base(requested):
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2
-#: round-7 model (toxoplasma_plaque_v5, maintainer's choice 2026-10-17). ``'bundled'`` is not the default because
+#: round-8 model trained on resized wells (toxoplasma_plaque_v6, maintainer's choice 2026-10-25). ``'bundled'`` is not the default because
 #: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
-DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v5'
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v6'
 
 
 class Cellpose3Checkpoint(ValueError):
@@ -1547,12 +1547,15 @@ def _resolve_plaque_model(settings, fetch=True):
     THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
-    fails. ``toxoplasma_plaque_v5`` (the cpsam_v2 round-7 model) is the
-    default since 2026-10-17: on the 153 test fields of the curated 2026-10-15
-    set it scores object F1 0.816, against 0.725 for ``toxoplasma_plaque_v4``
-    (the default before it) and 0.741 for ``toxoplasma_plaque_v3``, which
-    stays the better choice on Gel Doc wells (0.954 against 0.868). Both stay
-    selectable for recorded runs.
+    fails. ``toxoplasma_plaque_v6`` (the cpsam_v2 round-8 model, trained on
+    wells resized so their longest side is 1500 pixels) is the default since
+    2026-10-25, by the maintainer's choice; its zoo record turns well resize
+    and its validation-chosen thresholds on. ``toxoplasma_plaque_v5``, the
+    default from 2026-10-17, scores object F1 0.816 on the 153 test fields of
+    the curated 2026-10-15 set, against 0.725 for ``toxoplasma_plaque_v4``
+    and 0.741 for ``toxoplasma_plaque_v3``, which stays the better choice on
+    Gel Doc wells (0.954 against 0.868). All stay selectable for recorded
+    runs.
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through

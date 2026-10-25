@@ -72,7 +72,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
     assert [i["src"].split("/main/")[-1] for i in desktop] == [
         s["srcset"] for s in original.sources]
     assert all(i["src"].startswith("https://") for i in converted.images)
-    assert all(re.match(r"(?:https?://|[Mm][Aa][Ii][Ll][Tt][Oo]:|#)", link) for link in converted.links)
+    assert all(re.match(r"(?:https?://|mailto:|#)", link) for link in converted.links)
     restored = packaged["long_description"].replace(
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/main/", "")

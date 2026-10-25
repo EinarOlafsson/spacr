@@ -1,0 +1,500 @@
+{
+ "schema": "spacr-model-card-v2",
+ "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6",
+ "key": "toxoplasma_plaque_v6",
+ "display_name": "Toxoplasma Plaque v6",
+ "family": "plaque",
+ "round": "round 8",
+ "status": "default",
+ "date": "trained 2026-10-25",
+ "pages": [
+  "cards/page1.png",
+  "cards/page2.png",
+  "cards/page3.png"
+ ],
+ "extra_pages": [
+  "cards/page4.png",
+  "cards/page5.png",
+  "cards/page6.png"
+ ],
+ "scores": {
+  "rows": [
+   {
+    "key": "object_f1",
+    "label": "Object F1 (IoU ≥ 0.5)",
+    "this": 0.7682996646765355,
+    "stock": 0.294082628884391
+   },
+   {
+    "key": "boundary_f1",
+    "label": "Boundary F1 (outline edges)",
+    "this": 0.7810663737785009,
+    "stock": 0.3028450070352241
+   },
+   {
+    "key": "precision",
+    "label": "Precision",
+    "this": 0.7770057899090157,
+    "stock": 0.5570590888588183
+   },
+   {
+    "key": "recall",
+    "label": "Recall",
+    "this": 0.7597864768683275,
+    "stock": 0.19977353607246845
+   },
+   {
+    "key": "aji",
+    "label": "AJI",
+    "this": 0.7517018663010968,
+    "stock": 0.24927029702681155
+   },
+   {
+    "key": "dice",
+    "label": "Dice",
+    "this": 0.9091348427146121,
+    "stock": 0.41417697482223975
+   }
+  ],
+  "this_model": "toxoplasma_plaque_v6",
+  "stock_model": "cpsam_v2",
+  "stock_note": "stock cpsam_v2 with the same well resize and its own validation-tuned thresholds",
+  "counts": {
+   "this": {
+    "tp": 4697,
+    "fp": 1348,
+    "fn": 1485,
+    "n_pred": 6045
+   },
+   "stock": {
+    "tp": 1235,
+    "fp": 982,
+    "fn": 4947,
+    "n_pred": 2217
+   }
+  },
+  "ci95": {
+   "this": {
+    "object_f1": [
+     0.7148138187567576,
+     0.8146301767963205
+    ],
+    "boundary_f1": [
+     0.7139667610573656,
+     0.8662959992563672
+    ],
+    "precision": [
+     0.72203642574643,
+     0.8325079327004179
+    ],
+    "recall": [
+     0.7001375842455985,
+     0.813050763403506
+    ],
+    "aji": [
+     0.6460231961648953,
+     0.8044353512978701
+    ],
+    "dice": [
+     0.8440024107620103,
+     0.9356571551464076
+    ]
+   },
+   "stock": {
+    "object_f1": [
+     0.18920054649461154,
+     0.39659994052564146
+    ],
+    "boundary_f1": [
+     0.1780288635389247,
+     0.45812809061161985
+    ],
+    "precision": [
+     0.38793469980233897,
+     0.7316875523108017
+    ],
+    "recall": [
+     0.12274217935949143,
+     0.2820957056569023
+    ],
+    "aji": [
+     0.1353135958363068,
+     0.4731297963197118
+    ],
+    "dice": [
+     0.24546524934428163,
+     0.680150067682242
+    ]
+   },
+   "method": "2000 group-bootstrap resamples of independent source groups (seed 20261024)"
+  },
+  "holdout": {
+   "set": "plaque_v6_20261024_test",
+   "rule": "strict: the test split of the plaque v6 dataset (1,520 curated fields, new grouped per-domain 80/10/10 split of 2026-10-24, splits.csv); grouped by source paper or plate; never used for training, checkpoint choice or threshold choice",
+   "n_fields": 160,
+   "n_empty_fields": 21,
+   "n_objects": 6182,
+   "objects_by_size": {
+    "under5": 729,
+    "5to10": 2654,
+    "atleast10": 2799
+   },
+   "fields_by_source": {
+    "bigbean": 6,
+    "geldoc": 24,
+    "literature": 94,
+    "malnio": 9,
+    "new-geldoc": 6,
+    "patrick": 7,
+    "previous-curation": 13,
+    "previous-segmentation": 1
+   }
+  },
+  "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (optimal one-to-one matching, IoU >= 0.5, as spacr.scorecard.match_objects); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary). All scored in original image pixels.",
+  "inference": {
+   "this": "each detected well (YOLO well detector v4, boxes of the run) cropped and resized by rule side:1500,maxfactor:6 (longest side 1500 px, enlargement at most 6x), per-channel 1st/99th percentile intensity scaling, Cellpose with diameter None, cell probability -0.5, flow threshold 0.4 (chosen on validation only), min size 0, niter max(200, ceil(200 x scale)); masks mapped back to original pixels (nearest neighbour)",
+   "stock": "stock cpsam_v2, no plaque fine-tuning, through the same well crop and resize (side:1500,maxfactor:6) with its own validation-tuned thresholds (cell probability -0.5, flow threshold 0.4, chosen on validation the same way), min size 0"
+  },
+  "small_plaques_note": "Small plaques here means under 5 px equivalent diameter. The run report's \"recall_small\" interval pools plaques under 10 px (under 5 px and 5 to 10 px) and is not the under-5-px recall."
+ },
+ "breakdowns": {
+  "by_domain": {
+   "rows": [
+    {
+     "key": "literature",
+     "label": "Published figures",
+     "n_fields": 94,
+     "n_objects": 3412,
+     "this": {
+      "object_f1": 0.7894431554524362,
+      "recall": 0.7977725674091442,
+      "precision": 0.7812858783008036
+     },
+     "stock": {
+      "object_f1": 0.36359629792860293,
+      "recall": 0.2417936694021102,
+      "precision": 0.7326820603907638
+     }
+    },
+    {
+     "key": "geldoc",
+     "label": "Gel Doc lab plates",
+     "n_fields": 24,
+     "n_objects": 613,
+     "this": {
+      "object_f1": 0.7616580310880829,
+      "recall": 0.7194127243066885,
+      "precision": 0.8091743119266055
+     },
+     "stock": {
+      "object_f1": 0.02702702702702703,
+      "recall": 0.01957585644371941,
+      "precision": 0.04363636363636364
+     }
+    },
+    {
+     "key": "previous-curation",
+     "label": "Earlier curation rounds",
+     "n_fields": 13,
+     "n_objects": 803,
+     "this": {
+      "object_f1": 0.668370607028754,
+      "recall": 0.651307596513076,
+      "precision": 0.6863517060367454
+     },
+     "stock": {
+      "object_f1": 0.36450381679389315,
+      "recall": 0.23785803237858033,
+      "precision": 0.7795918367346939
+     }
+    },
+    {
+     "key": "malnio",
+     "label": "Lab plates (malnio)",
+     "n_fields": 9,
+     "n_objects": 580,
+     "this": {
+      "object_f1": 0.6556473829201102,
+      "recall": 0.6155172413793103,
+      "precision": 0.7013752455795678
+     },
+     "stock": {
+      "object_f1": 0.04590163934426229,
+      "recall": 0.02413793103448276,
+      "precision": 0.4666666666666667
+     }
+    },
+    {
+     "key": "patrick",
+     "label": "Lab plates (patrick)",
+     "n_fields": 7,
+     "n_objects": 433,
+     "this": {
+      "object_f1": 0.9073405535499398,
+      "recall": 0.8706697459584296,
+      "precision": 0.9472361809045227
+     },
+     "stock": {
+      "object_f1": 0.3144963144963145,
+      "recall": 0.2956120092378753,
+      "precision": 0.3359580052493438
+     }
+    },
+    {
+     "key": "bigbean",
+     "label": "Lab plates (bigbean)",
+     "n_fields": 6,
+     "n_objects": 279,
+     "this": {
+      "object_f1": 0.9034608378870674,
+      "recall": 0.8888888888888888,
+      "precision": 0.9185185185185185
+     },
+     "stock": {
+      "object_f1": 0.3080568720379147,
+      "recall": 0.23297491039426524,
+      "precision": 0.45454545454545453
+     }
+    },
+    {
+     "key": "new-geldoc",
+     "label": "Gel Doc, new plates",
+     "n_fields": 6,
+     "n_objects": 42,
+     "this": {
+      "object_f1": 0.28,
+      "recall": 0.3333333333333333,
+      "precision": 0.2413793103448276
+     },
+     "stock": {
+      "object_f1": 0.0,
+      "recall": 0.0,
+      "precision": 0.0
+     }
+    },
+    {
+     "key": "previous-segmentation",
+     "label": "Earlier segmentations",
+     "n_fields": 1,
+     "n_objects": 20,
+     "this": {
+      "object_f1": 0.7692307692307693,
+      "recall": 0.75,
+      "precision": 0.7894736842105263
+     },
+     "stock": {
+      "object_f1": 0.0,
+      "recall": 0.0,
+      "precision": 0.0
+     }
+    }
+   ],
+   "lead": "Object F1 of this model is higher than stock in 8 of 8 sources."
+  },
+  "by_size": {
+   "rows": [
+    {
+     "key": "under5",
+     "label": "Under 5 px",
+     "curated": 729,
+     "this": {
+      "object_f1": 0.465288035450517,
+      "recall": 0.43209876543209874,
+      "precision": 0.4991922455573506
+     },
+     "stock": {
+      "object_f1": 0.08568646543330087,
+      "recall": 0.06035665294924554,
+      "precision": 0.16721311475409836
+     },
+     "counts": {
+      "this": {
+       "matched": 315,
+       "predicted": 619,
+       "unmatched_predictions": 310
+      },
+      "stock": {
+       "matched": 44,
+       "predicted": 305,
+       "unmatched_predictions": 254
+      }
+     }
+    },
+    {
+     "key": "5to10",
+     "label": "5 to 10 px",
+     "curated": 2654,
+     "this": {
+      "object_f1": 0.7933107854190155,
+      "recall": 0.7954031650339111,
+      "precision": 0.7847758887171561
+     },
+     "stock": {
+      "object_f1": 0.2615146831530139,
+      "recall": 0.15938206480783723,
+      "precision": 0.7137681159420289
+     },
+     "counts": {
+      "this": {
+       "matched": 2111,
+       "predicted": 2588,
+       "unmatched_predictions": 557
+      },
+      "stock": {
+       "matched": 423,
+       "predicted": 552,
+       "unmatched_predictions": 158
+      }
+     }
+    },
+    {
+     "key": "atleast10",
+     "label": "10 px and over",
+     "curated": 2799,
+     "this": {
+      "object_f1": 0.8182309493784904,
+      "recall": 0.8113612004287245,
+      "precision": 0.8305144467935166
+     },
+     "stock": {
+      "object_f1": 0.37128353879622916,
+      "recall": 0.27438370846730975,
+      "precision": 0.5808823529411765
+     },
+     "counts": {
+      "this": {
+       "matched": 2271,
+       "predicted": 2838,
+       "unmatched_predictions": 481
+      },
+      "stock": {
+       "matched": 768,
+       "predicted": 1360,
+       "unmatched_predictions": 570
+      }
+     }
+    },
+    {
+     "key": "all",
+     "label": "All sizes",
+     "curated": 6182,
+     "this": {
+      "object_f1": 0.7682996646765355,
+      "recall": 0.7597864768683275,
+      "precision": 0.7770057899090157
+     },
+     "stock": {
+      "object_f1": 0.294082628884391,
+      "recall": 0.19977353607246845,
+      "precision": 0.5570590888588183
+     }
+    }
+   ],
+   "lead": "Plaques under 5 px: recall 0.43 for this model against 0.06 for stock (729 curated plaques)."
+  }
+ },
+ "facts": {
+  "rows": [
+   {
+    "key": "train_fov",
+    "label": "Training FOV",
+    "this": "1,196 + 164 val.",
+    "stock": "Cellpose-SAM v2 training set (public)"
+   },
+   {
+    "key": "test_fov",
+    "label": "Test FOV",
+    "this": "160",
+    "stock": "160"
+   },
+   {
+    "key": "train_obj",
+    "label": "Training objects",
+    "this": "49,172 + 6,545 val.",
+    "stock": "not applicable"
+   },
+   {
+    "key": "test_obj",
+    "label": "Test objects",
+    "this": "6,182",
+    "stock": "6,182"
+   },
+   {
+    "key": "domains",
+    "label": "Domains",
+    "this": "Gel Doc lab plates, lab plates, published figures, earlier curation rounds",
+    "stock": "General cell and nucleus images (Cellpose datasets)"
+   },
+   {
+    "key": "input",
+    "label": "Input",
+    "this": "Wells resized to 1500 px (at most 6x)",
+    "stock": "Same wells; cell probability -0.5"
+   },
+   {
+    "key": "epochs",
+    "label": "Epochs",
+    "this": "100, final epoch kept",
+    "stock": "not applicable"
+   },
+   {
+    "key": "base",
+    "label": "Base (stock) model",
+    "this": "cpsam_v2",
+    "stock": "is the stock model"
+   },
+   {
+    "key": "cellpose",
+    "label": "Cellpose version",
+    "this": "4.2.1.1",
+    "stock": "4.2 and later"
+   }
+  ],
+  "evidence": "training/run_config.json"
+ },
+ "about": {
+  "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells, small plaques included.",
+  "version_line": "Zoo key toxoplasma_plaque_v6, round 8 (weights cpsam_plaque_v6). Default plaque model in spaCR versions that resize wells (plaque_well_resize); older versions keep toxoplasma_plaque_v5.",
+  "trained_on": "1,196 curated fields from Gel Doc lab plates, lab plates, published figures and earlier curation rounds, each well resized to 1500 px (at most 6x), with 164 for validation.",
+  "status": "Default plaque model in spaCR versions with well resize; toxoplasma_plaque_v5 stays selectable.",
+  "leak_note": "Needs the same well crop and resize before Cellpose (normalize.py in training/); native-pixel inference is not what was scored.",
+  "load_line": "Set `plaque_model` to `toxoplasma_plaque_v6` (spaCR with plaque_well_resize); spaCR downloads and checks the weights on first use and resizes wells automatically.",
+  "links": {
+   "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6",
+   "stock": "https://huggingface.co/mouseland/cellpose-sam/blob/main/cpsam_v2"
+  }
+ },
+ "provenance": {
+  "checkpoint": "weights/cpsam_plaque_v6",
+  "sha256": "a22697ddfa002c99605f1a1a95df5f5f09f35167fcd9da97ed314f27a346c919",
+  "selection": {
+   "selected": "epoch100",
+   "rule": "best validation objective J = mean(R<5, R>=10, P) over checkpoints (maintainer rule 2026-10-24, replaces ship-e100); thresholds by config objective",
+   "selected_thresholds": {
+    "cellprob_threshold": -0.5,
+    "flow_threshold": 0.4,
+    "min_size": 0,
+    "niter": "max(200, ceil(200 * crop scale))",
+    "diameter": null,
+    "normalize_rule": "side:1500,maxfactor:6"
+   },
+   "control": {
+    "name": "control-pretrained-cpsam_v2",
+    "cellprob_threshold": -0.5,
+    "flow_threshold": 0.4
+   },
+   "test_used_for_selection": false
+  },
+  "control_settings": {
+   "transform": "side:1500,maxfactor:6",
+   "cellprob_threshold": -0.5,
+   "flow_threshold": 0.4,
+   "min_size": 0,
+   "niter": "max(200, ceil(200 * crop scale))",
+   "max_size_fraction": 0.4,
+   "wells": "data/geometry.json"
+  },
+  "native_stock_in_qc_only": "qc/scorecard_vs_stock.json models.cpsam_v2 (native pixels, diameter 30)",
+  "scored_split": "test"
+ }
+}

@@ -26,15 +26,6 @@
 #   log           one line per wait, start and finish
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
-#
-# Priority (maintainer, 2026-10-25): jobs whose label starts with a prefix in
-# GPU_PRIORITY_PREFIXES (default "plaque-") go first. A job without priority
-# that holds the queue while still waiting hands the lock back as soon as a
-# priority job is queued, and takes it again once no priority job is queued
-# or running. Priority jobs are found from the process table (any copy of
-# gpu_turn.sh with a priority label that uses this same queue directory), so
-# frozen older copies count too. A job
-# that has already started is never stopped.
 set -uo pipefail
 
 case "${OSTYPE:-}" in
@@ -64,45 +55,6 @@ LABEL="$1"; shift
 
 say() { echo "$(date -Is) [$LABEL] $*" | tee -a "$LOG" >&2; }
 
-PRIORITY_PREFIXES=${GPU_PRIORITY_PREFIXES-plaque-}
-
-is_priority() {
-    local prefix
-    for prefix in $PRIORITY_PREFIXES; do
-        [[ "$1" == "$prefix"* ]] && return 0
-    done
-    return 1
-}
-
-same_queue() {
-    local environment entry_variable home=""
-    environment=()
-    mapfile -d '' -t environment < "$1/environ" 2>/dev/null || return 1
-    for entry_variable in "${environment[@]}"; do
-        [[ "$entry_variable" == HOME=* ]] && home=${entry_variable#HOME=}
-    done
-    [[ -n "$home" && "$home/.spacr/gpu" -ef "$DIR" ]]
-}
-
-priority_queued() {
-    local entry argv i
-    [[ -n "$PRIORITY_PREFIXES" ]] || return 1
-    for entry in /proc/[0-9]*; do
-        [[ "${entry#/proc/}" == "$$" ]] && continue
-        argv=()
-        mapfile -d '' -t argv < "$entry/cmdline" 2>/dev/null || continue
-        for (( i = 0; i + 1 < ${#argv[@]}; i++ )); do
-            if [[ "${argv[i]}" == *gpu_turn.sh ]]; then
-                if is_priority "${argv[i+1]}" && same_queue "$entry"; then
-                    return 0
-                fi
-                break
-            fi
-        done
-    done
-    return 1
-}
-
 compute_pids() {
     local pid executable
     for pid in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
@@ -126,17 +78,6 @@ say "holds the queue; waiting for ${IDLE_S}s idle and ${GAP_S}s since the last t
 
 idle_since=$(date +%s)
 while true; do
-    if ! is_priority "$LABEL" && priority_queued; then
-        say "hands the queue to a waiting priority job"
-        flock -u 9
-        while priority_queued; do
-            sleep "$POLL_S"
-        done
-        flock 9
-        say "holds the queue again; waiting for ${IDLE_S}s idle and ${GAP_S}s since the last turn"
-        idle_since=$(date +%s)
-        continue
-    fi
     now=$(date +%s)
     busy=$(compute_pids)
     if [[ -n "$busy" ]]; then

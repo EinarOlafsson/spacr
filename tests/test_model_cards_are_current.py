@@ -116,7 +116,7 @@ def test_the_app_the_readme_and_the_cards_open_a_family_on_the_same_version():
         assert family["versions"][default_version_index(pairs)] is family["default"]
     defaults = {cards.key_of(e) for e in cards.default_records()}
     assert "toxoplasma_well_detector_v3" in defaults
-    assert {"toxoplasma_pv_v4", "toxoplasma_plaque_v5"} <= defaults
+    assert {"toxoplasma_pv_v4", "toxoplasma_plaque_v6"} <= defaults
     # Stock Cellpose-SAM stays the label-free default (2026-10-20).
     assert "live_cell_v1" not in defaults
 

@@ -13,7 +13,7 @@ import re
 
 import numpy as np
 
-from spacr.plaque import _host_array, segment_plaque_image
+from spacr.plaque import _host_array, _well_resize_plan, segment_plaque_image
 from spacr.qt.i18n import tr
 
 from .inputs import read_upload_plane
@@ -87,9 +87,16 @@ def run_plaque_download(
             raise ValueError(tr("Choose at most three channels for the plaque model."))
         image = np.moveaxis(image, 0, -1)
     model = _CapturedModel(_load_model(checkpoint, actual_sha256))
-    masks = segment_plaque_image(model, image, settings)
-    flow_list = model.output[1] if isinstance(model.output, (tuple, list)) and len(model.output) > 1 else None
+    plan = _well_resize_plan({"plaque_model": model_id})
     flows = cell_probability = None
+    if plan:
+        masks, resized_flows = segment_plaque_image(
+            model, image, settings, well_resize=plan, return_flows=True)
+        cell_probability = resized_flows.get("cellprob")
+        flow_list = None
+    else:
+        masks = segment_plaque_image(model, image, settings, well_resize=None)
+        flow_list = model.output[1] if isinstance(model.output, (tuple, list)) and len(model.output) > 1 else None
     if isinstance(flow_list, (tuple, list)):
         if len(flow_list) > 1 and flow_list[1] is not None:
             flows = _host_array(flow_list[1])
@@ -102,6 +109,9 @@ def run_plaque_download(
         unavailable["cell_probability"] = tr("The desktop backend returned no score map.")
     provenance = {**settings, "input_selection": plane["selection"],
                   "pipeline": "spacr.plaque.segment_plaque_image"}
+    if plan:
+        provenance["well_resize"] = {key: plan[key] for key in
+                                     ("side", "max_factor", "thresholds")}
     return build_result_zip(
         destination, input_file=input_file, image=plane["image"], image_axes=plane["image_axes"],
         masks=masks, model_id=model_id, model_version=model_version,
