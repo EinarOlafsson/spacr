@@ -102,8 +102,8 @@ def test_groups_are_titled_and_placed_around_the_image(screen, qtbot):
 def test_every_button_is_in_its_group_once(screen):
     expected = {
         screen._tools_group: ["Brush", "Erase", "Erase object", "Wand", "Draw",
-                              "Box", "Edit Label", "Divide / Merge", "Zoom", "Recrop",
-                              "Magnifier"],
+                              "Box", "Edit Label", "Divide / Merge", "Zoom", "Pick",
+                              "Recrop", "Magnifier"],
         screen._annotation_group: ["Keep", "Skip", "Discard"],
         screen._io_group: ["Open File / Folder…", "Measure…",
                            "Load test data…", "ROIs…"],

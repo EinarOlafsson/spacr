@@ -7477,3 +7477,309 @@ def restore_recropped_original(folder: str, original: str) -> List[str]:
             restored.append(source)
         break
     return restored
+
+
+_LAYER_COLOURS: Tuple[str, ...] = (
+    "#00e5ff", "#ffd60a", "#ff4d6d", "#7cff6b", "#c77dff", "#ff9f1c",
+    "#4d96ff", "#f72585",
+)
+"""Default outline colours of mask layers, in the order layers are added."""
+
+_LAYER_SETTINGS_NAME = "curate_layers.json"
+"""The file beside the images that keeps a mask-layer session's choices."""
+
+_LAYER_DECISIONS_SUFFIX = ".decisions.json"
+"""Suffix of the per-image decisions log written beside a curated mask."""
+
+
+def _layer_mask_file(layer_dir: str, filename: str) -> Optional[str]:
+    """The label file of one layer that belongs to ``filename``.
+
+    Matched by stem the way ``masks/`` is: ``<stem>.tif`` first, then the
+    image's own name, ``.tiff``, ``.png`` and ``.npy``.
+
+    :param layer_dir: the layer's folder.
+    :param filename: the field's image name.
+    :returns: the path, or None when the layer has nothing for the field.
+    """
+    stem = os.path.splitext(os.path.basename(str(filename)))[0]
+    for name in (stem + ".tif", os.path.basename(str(filename)), stem + ".tiff",
+                 stem + ".png", stem + ".npy"):
+        path = os.path.join(str(layer_dir), name)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _read_layer_mask(layer_dir: str, filename: str,
+                     shape) -> Optional[np.ndarray]:
+    """One layer's labels for a field, or None.
+
+    :param layer_dir: the layer's folder.
+    :param filename: the field's image name.
+    :param shape: the field's shape; a file of another shape is refused.
+    :returns: the labels, or None when the layer has no file for the field.
+    :raises ValueError: when the file does not match the field's shape.
+    """
+    path = _layer_mask_file(layer_dir, filename)
+    if path is None:
+        return None
+    raw = np.load(path) if path.endswith(".npy") else imageio.imread(path)
+    return _as_field_mask(raw, tuple(shape), path, filename)
+
+
+def _layer_pick(curated: np.ndarray, base: Optional[np.ndarray], layers,
+                x: int, y: int, next_id: int):
+    """What one click of the Pick tool does to the curated overlay.
+
+    In order: an object of the curated overlay under the click is removed;
+    else a base-layer object that is no longer in the overlay there is
+    restored (only onto background); else the first of ``layers`` with an
+    object under the click adds that object under ``next_id``, again only
+    where the overlay is background.
+
+    :param curated: the curated overlay.
+    :param base: the base layer's labels, or None when the base is hidden
+        or has no file for this field.
+    :param layers: ``[(layer index, labels), ...]`` of the other visible
+        layers, in the order they are tried.
+    :param x: column clicked.
+    :param y: row clicked.
+    :param next_id: the id an added object takes.
+    :returns: ``(new overlay, action)``, or ``(None, None)`` when the click
+        changed nothing. ``action`` holds ``kind`` (``remove``, ``restore``
+        or ``add``), ``id`` and, for an add, ``layer`` and ``source_id``.
+    """
+    current = int(curated[y, x])
+    if current:
+        out = np.array(curated, copy=True)
+        out[out == current] = 0
+        return out, {"kind": "remove", "id": current}
+    if base is not None and int(base[y, x]):
+        label = int(base[y, x])
+        region = (base == label) & (curated == 0)
+        if region.any():
+            out = np.array(curated, copy=True)
+            out = _widen_labels(out, label)
+            out[region] = label
+            return out, {"kind": "restore", "id": label}
+    for index, labels in layers:
+        if labels is None or not int(labels[y, x]):
+            continue
+        source = int(labels[y, x])
+        region = (labels == source) & (curated == 0)
+        if not region.any():
+            continue
+        out = _widen_labels(np.array(curated, copy=True), next_id)
+        out[region] = next_id
+        return out, {"kind": "add", "id": int(next_id), "layer": int(index),
+                     "source_id": source}
+    return None, None
+
+
+def _widen_labels(labels: np.ndarray, value: int) -> np.ndarray:
+    """``labels`` in a dtype that can hold ``value``.
+
+    :param labels: a label image.
+    :param value: the largest id about to be written.
+    :returns: ``labels`` itself when it fits, else a uint16 or uint32 copy.
+    """
+    if labels.dtype.kind in "ui" and value <= np.iinfo(labels.dtype).max:
+        return labels
+    return labels.astype(np.uint16 if value <= 65535 else np.uint32)
+
+
+def _layer_removed_ids(base: Optional[np.ndarray], curated: np.ndarray,
+                       previous=()) -> List[int]:
+    """Base-layer ids that are not in the curated overlay.
+
+    :param base: the base layer's labels, or None.
+    :param curated: the curated overlay.
+    :param previous: ids an earlier session recorded as removed; kept while
+        they are still absent, so overwriting the base layer loses nothing.
+    :returns: the ids, sorted.
+    """
+    present = set(int(v) for v in np.unique(curated) if v)
+    removed = set(int(v) for v in previous) - present
+    if base is not None:
+        removed |= set(int(v) for v in np.unique(base) if v) - present
+    return sorted(removed)
+
+
+def _layer_overlay(layers, curated: np.ndarray, base_index: Optional[int],
+                   edges=None) -> Optional[np.ndarray]:
+    """The outlines of every visible layer, as one RGBA picture.
+
+    Each layer is drawn as its objects' inner boundaries in its own colour,
+    earlier layers on top. Objects of the base layer that are not in the
+    curated overlay are drawn dashed, which is what tells a removed object
+    from a kept one.
+
+    :param layers: ``[(labels or None, "#rrggbb", visible), ...]``.
+    :param curated: the curated overlay.
+    :param base_index: which of ``layers`` is the base, or None.
+    :param edges: each layer's boundary pixels, already computed, so an
+        edit redraws without tracing every layer again; traced here when
+        omitted.
+    :returns: an ``(h, w, 4)`` uint8 array, or None when nothing is drawn.
+    """
+    from skimage.segmentation import find_boundaries
+
+    rgba = None
+    for index in reversed(range(len(layers))):
+        labels, colour, visible = layers[index]
+        if labels is None or not visible:
+            continue
+        if rgba is None:
+            rgba = np.zeros(curated.shape[:2] + (4,), dtype=np.uint8)
+        edge = (edges[index] if edges is not None and index < len(edges)
+                and edges[index] is not None
+                else find_boundaries(labels, mode="inner") & (labels > 0))
+        red, green, blue = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
+        if index == base_index:
+            removed = _layer_removed_ids(labels, curated)
+            if removed:
+                gone = np.isin(labels, removed)
+                rows, cols = np.indices(labels.shape)
+                dash = ((rows + cols) // 3) % 2 == 0
+                rgba[edge & ~gone] = (red, green, blue, 255)
+                rgba[edge & gone & dash] = (red, green, blue, 255)
+                continue
+        rgba[edge] = (red, green, blue, 255)
+    return rgba
+
+
+def _default_curated_folder(root: str, today: Optional[str] = None) -> str:
+    """Where a mask-layer session saves when nobody chose a folder.
+
+    The newest existing ``masks_curated_<date>`` folder in ``root``, so a
+    session resumes into the folder it was writing yesterday; otherwise a
+    new one named with today's date.
+
+    :param root: the folder the images were opened from.
+    :param today: the date as ``YYYYMMDD``; today when omitted.
+    :returns: the folder's path, which need not exist yet.
+    """
+    import datetime
+
+    try:
+        existing = sorted(name for name in os.listdir(root)
+                          if name.startswith("masks_curated_")
+                          and os.path.isdir(os.path.join(root, name)))
+    except OSError:
+        existing = []
+    if existing:
+        return os.path.join(root, existing[-1])
+    stamp = today or datetime.date.today().strftime("%Y%m%d")
+    return os.path.join(root, f"masks_curated_{stamp}")
+
+
+def _read_layer_settings(root: str) -> Dict:
+    """The mask-layer choices kept in ``<root>/curate_layers.json``.
+
+    :param root: the folder the images were opened from.
+    :returns: the saved choices, or an empty dict when there are none or the
+        file cannot be read.
+    """
+    path = os.path.join(str(root), _LAYER_SETTINGS_NAME)
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _write_layer_settings(root: str, data: Dict) -> Optional[str]:
+    """Keep the mask-layer choices in ``<root>/curate_layers.json``.
+
+    :param root: the folder the images were opened from.
+    :param data: the choices, JSON-serialisable.
+    :returns: the path written, or None when it could not be written.
+    """
+    path = os.path.join(str(root), _LAYER_SETTINGS_NAME)
+    try:
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(data, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+    except OSError:
+        return None
+    return path
+
+
+def _layer_decisions_path(target: str, filename: str) -> str:
+    """Where the decisions log of one field goes, beside its curated mask.
+
+    :param target: the folder the curated overlay is saved to.
+    :param filename: the field's image name.
+    :returns: ``<target>/<stem>.decisions.json``.
+    """
+    stem = os.path.splitext(os.path.basename(str(filename)))[0]
+    return os.path.join(str(target), stem + _LAYER_DECISIONS_SUFFIX)
+
+
+def _read_layer_decisions(target: str, filename: str) -> Dict:
+    """The decisions an earlier session logged for one field.
+
+    :param target: the save folder.
+    :param filename: the field's image name.
+    :returns: the log, or an empty dict.
+    """
+    try:
+        with open(_layer_decisions_path(target, filename),
+                  encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _layer_decisions(filename: str, base_path: Optional[str],
+                     base: Optional[np.ndarray], curated: np.ndarray,
+                     added: Dict[int, Dict], previous: Optional[Dict] = None,
+                     saved: Optional[str] = None) -> Dict:
+    """The decisions log of one field: what was removed and what was added.
+
+    :param filename: the field's image name.
+    :param base_path: the base layer's folder.
+    :param base: the base layer's labels for the field, or None.
+    :param curated: the curated overlay as saved.
+    :param added: ``{new id: {"layer": folder, "source_id": id}}`` for every
+        object added from another layer; only ids still in ``curated`` are
+        logged.
+    :param previous: the log an earlier session wrote, whose removals are
+        carried forward.
+    :param saved: the ISO time of the save; now when omitted.
+    :returns: the log, ready for :func:`json.dump`.
+    """
+    import datetime
+
+    present = set(int(v) for v in np.unique(curated) if v)
+    rows = [{"id": int(new), "layer": info.get("layer"),
+             "source_id": info.get("source_id")}
+            for new, info in sorted(added.items()) if int(new) in present]
+    return {
+        "schema": 1,
+        "image": os.path.basename(str(filename)),
+        "base_layer": base_path,
+        "removed": _layer_removed_ids(
+            base, curated, (previous or {}).get("removed", ())),
+        "added": rows,
+        "saved": saved or datetime.datetime.now().isoformat(timespec="seconds"),
+    }
+
+
+def _write_layer_decisions(target: str, filename: str, log: Dict) -> str:
+    """Write one field's decisions log beside its curated mask.
+
+    :param target: the save folder.
+    :param filename: the field's image name.
+    :param log: from :func:`_layer_decisions`.
+    :returns: the path written.
+    """
+    path = _layer_decisions_path(target, filename)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(log, handle, indent=2)
+        handle.write("\n")
+    return path

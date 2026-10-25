@@ -307,6 +307,9 @@ def test_hiding_the_settings_leaves_every_tool_reachable(
     screen._btn_label_time.click()
 
     for mode, button in screen._mode_buttons.items():
+        if mode == mm.MODE_PICK:
+            assert not button.isVisibleTo(screen), "Pick showed with no mask layers"
+            continue
         assert button.isVisibleTo(screen), f"{mode} went away with the settings"
         assert button.isEnabled()
     assert screen._btn_reset_zoom.isVisibleTo(screen)

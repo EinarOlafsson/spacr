@@ -108,6 +108,10 @@ EXIT_USAGE = 2
 #: than on somebody's finished session.
 _HANDOVER: Optional[CurationQueue] = None
 
+#: The mask layers and save folder the terminal asked for, waiting with the
+#: queue in :data:`_HANDOVER`; taken with it by :func:`_take_layers`.
+_LAYERS_HANDOVER: Optional[dict] = None
+
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``spacr-make-masks`` argument parser.
@@ -167,6 +171,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--save-uncertainty-maps", nargs="?", const="auto", default=None,
                         metavar="DIR", help="save float32 TIFF maps with provenance; "
                         "default directory is <folder>/uncertainty")
+    parser.add_argument(
+        "--layers", nargs="+", default=None, metavar="DIR",
+        help="folders of label masks matched to the images by stem, drawn "
+             "as coloured outlines. An editable curated overlay starts as a "
+             "copy of the first; click objects to remove them or to add "
+             "another layer's. A name that is not a folder as given is "
+             "looked for inside --folder.")
+    parser.add_argument(
+        "--save-to", default=None, metavar="DIR",
+        help="where the curated overlay is saved with --layers (default: "
+             "<folder>/masks_curated_<date>, or the newest such folder "
+             "already there). Its curate_status.csv holds this review's "
+             "progress.")
     return parser
 
 
@@ -177,6 +194,74 @@ def hand_over(queue: Optional[CurationQueue]) -> None:
     """
     global _HANDOVER
     _HANDOVER = queue
+
+
+def _hand_over_layers(layers: Optional[dict]) -> None:
+    """Leave the mask layers for the screen that takes the queue.
+
+    :param layers: ``{"layers": [folders], "save_to": folder or None,
+        "root": queue folder}``, or None to clear the slot.
+    """
+    global _LAYERS_HANDOVER
+    _LAYERS_HANDOVER = layers
+
+
+def _take_layers() -> Optional[dict]:
+    """Take the mask layers the terminal handed over, once.
+
+    :returns: what :func:`_hand_over_layers` left, or None.
+    """
+    global _LAYERS_HANDOVER
+    layers, _LAYERS_HANDOVER = _LAYERS_HANDOVER, None
+    return layers
+
+
+def _resolve_layers(folder: Path, names: Sequence[str]) -> List[Path]:
+    """The layer folders ``--layers`` named, each one checked.
+
+    :param folder: the queue folder, where a bare name is also looked for.
+    :param names: what was given on the command line.
+    :returns: the folders, absolute.
+    :raises CurationQueueError: when one of them is not a folder.
+    """
+    found: List[Path] = []
+    for name in names:
+        given = Path(name).expanduser()
+        for candidate in (given, folder / given):
+            if candidate.is_dir():
+                found.append(candidate.resolve())
+                break
+        else:
+            raise CurationQueueError(
+                f"--layers: {name} is not a folder (looked for {given} and "
+                f"{folder / given})")
+    return found
+
+
+def _layer_queue(queue: CurationQueue, target: Path,
+                 limit: Optional[int]) -> CurationQueue:
+    """The session a mask-layer review offers: resumed from its own record.
+
+    The fields still waiting are those without a state in the save
+    folder's ``curate_status.csv``; a field done in the folder's ordinary
+    curation is offered again, because reviewing it against the layers is
+    new work.
+
+    :param queue: the queue built with every field included, ordered.
+    :param target: the folder the curated overlay is saved to.
+    :param limit: the session's cap, applied after the resume.
+    :returns: the queue, with its items, status and summary from ``target``.
+    """
+    from dataclasses import replace
+
+    from .curation_queue import pending_items, read_status, summarize
+
+    status = read_status(target)
+    waiting = pending_items(queue.items, status)
+    if limit is not None:
+        waiting = waiting[:limit]
+    return replace(queue, items=tuple(waiting), status=status, limit=limit,
+                   summary=summarize(queue.layout.items, status))
 
 
 def take_handover() -> Optional[CurationQueue]:
@@ -291,14 +376,39 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"not a folder: {folder}", file=sys.stderr)
         return EXIT_USAGE
 
+    layers = None
     try:
-        queue = build_queue(folder, order=args.order, limit=args.limit,
+        queue = build_queue(folder, order=args.order,
+                            limit=None if args.layers else args.limit,
+                            include_reviewed=bool(args.layers),
                             exclude_verdicts=args.exclude_verdicts)
+        if args.layers:
+            if queue.layout.kind not in ("nested", "sibling"):
+                raise CurationQueueError(
+                    f"--layers needs a folder of images; {folder} holds "
+                    f"_seg.npy bundles")
+            from .qt.mask_engine import (
+                _default_curated_folder, _read_layer_settings)
+
+            paths = _resolve_layers(folder, args.layers)
+            if args.save_to:
+                target = Path(args.save_to).expanduser().resolve()
+            else:
+                kept = _read_layer_settings(str(folder)).get("target")
+                target = Path(kept) if kept else Path(
+                    _default_curated_folder(str(folder)))
+            queue = _layer_queue(queue, target, args.limit)
+            layers = {"layers": [str(p) for p in paths],
+                      "save_to": str(target), "root": str(folder)}
     except CurationQueueError as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_USAGE
 
     print(queue.describe())
+    if layers is not None:
+        print(f"mask layers ({len(layers['layers'])}, the first is the base): "
+              + ", ".join(layers["layers"]))
+        print(f"curated masks are saved to {layers['save_to']}")
     if queue.exclude_verdicts:
         print(f"{queue.excluded_by_verdict} excluded by Keep/Discard verdict")
 
@@ -308,8 +418,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                   f"verdict remain in {queue.folder}. Omit --exclude-verdicts "
                   f"to include judged fields that have no done/skip state.")
         else:
+            record = (Path(layers["save_to"]) / STATUS_FILENAME
+                      if layers is not None else queue.layout.status_path)
             print(f"nothing to open: every field in {queue.folder} already has a "
-                  f"state in {queue.layout.status_path}. Delete a row from that "
+                  f"state in {record}. Delete a row from that "
                   f"file to offer its field again.")
         return EXIT_OK
 
@@ -337,6 +449,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
               f"{queue.folder / 'curate_uncertainty.csv'}")
         return EXIT_OK
 
+    _hand_over_layers(layers)
     return open_editor(queue)
 
 

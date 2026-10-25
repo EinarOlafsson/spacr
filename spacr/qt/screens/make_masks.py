@@ -160,6 +160,7 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -384,6 +385,10 @@ MODE_ZOOM = "zoom"
 #: what happens to the field it was cut out of.
 MODE_RECROP = "recrop"
 MODE_RULER = "ruler"
+#: Click objects to curate against mask layers: an object of the curated
+#: overlay is removed, a removed base object restored, and another layer's
+#: object added. Shown only while mask layers are loaded.
+MODE_PICK = "pick"
 
 #: The tools that fill the toolbar row, in the order they appear there:
 #: ``(mode, label, icon key)``. THE ROW IS BUILT FROM THIS TABLE and not
@@ -402,6 +407,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_EDIT_LABEL,   "Edit Label",   "annotate"),
     (MODE_DIVIDE,       "Divide / Merge", "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
+    (MODE_PICK,         "Pick",         "check"),
     (MODE_RECROP,       "Recrop",       "recrop"),
     (MODE_RULER,        "Ruler",        "measure"),
 ]
@@ -1788,6 +1794,12 @@ class _MaskCanvas(QLabel):
     box_selected = Signal(int)
     label_requested = Signal(int, int, object)
     label_time_step = Signal(int, object, object)
+    #: A left click with the Pick tool, in image pixels: (x, y). The screen
+    #: decides what it removes, restores or adds.
+    pick_requested = Signal(int, int)
+    #: The outlines of the loaded mask layers at image resolution, as a
+    #: QImage, or None when no layer is loaded.
+    layer_overlay = None
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -2737,6 +2749,7 @@ class _MaskCanvas(QLabel):
         without the preview the user is dragging an invisible line.
         """
         super().paintEvent(event)
+        self._paint_layers()
         self._paint_boxes()
         self._paint_label_ids()
         self._paint_recrop_boxes()
@@ -2748,6 +2761,25 @@ class _MaskCanvas(QLabel):
         if self.ruler.start is not None:
             painter = QPainter(self)
             self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
+            painter.end()
+
+    def _paint_layers(self) -> None:
+        """Draw the mask layers' outlines over the part of the field shown."""
+        overlay = self.layer_overlay
+        pixmap = self.pixmap()
+        if overlay is None or self.mask is None or pixmap is None or pixmap.isNull():
+            return
+        if (overlay.width(), overlay.height()) != (self.mask.shape[1], self.mask.shape[0]):
+            return
+        shown = logical_size(pixmap)
+        ox = (self.width() - shown.width()) // 2
+        oy = (self.height() - shown.height()) // 2
+        x0, y0, x1, y1 = self._viewport_bounds()
+        painter = QPainter(self)
+        try:
+            painter.drawImage(QRectF(ox, oy, shown.width(), shown.height()), overlay,
+                              QRectF(x0, y0, max(1, x1 - x0), max(1, y1 - y0)))
+        finally:
             painter.end()
 
     def _paint_label_ids(self) -> None:
@@ -3548,6 +3580,15 @@ class _MaskCanvas(QLabel):
                     self.assign_label_at(point, self.selected_label)
                 elif int(self.mask[y, x]):
                     self.label_requested.emit(x, y, int(self.mask[y, x]))
+            event.accept()
+            return
+
+        if (self.mode == MODE_PICK and event.button() == Qt.LeftButton
+                and event.modifiers() == Qt.NoModifier):
+            point = self._canvas_to_image(event.position().x(), event.position().y())
+            self._swallowed.add(event.button())
+            if point is not None:
+                self.pick_requested.emit(int(point[0]), int(point[1]))
             event.accept()
             return
 
@@ -12970,6 +13011,21 @@ class MakeMasksScreen(QWidget):
         #: Set with the folder by :meth:`_open_folder`, so no field of one
         #: set is ever read or saved against another set's masks.
         self._masks_dir: Optional[str] = None
+        #: The mask layers loaded for this folder (``path``, ``name``,
+        #: ``colour``, ``visible``), empty for the ordinary editor; the
+        #: base layer's index; and the folder the curated overlay is saved
+        #: to. See :meth:`_set_layers`.
+        self._layers: List[dict] = []
+        self._layer_base = 0
+        self._layer_target: Optional[str] = None
+        self._layer_pending_target: Optional[str] = None
+        self._layer_root: Optional[str] = None
+        self._layer_settings_root: str = ""
+        self._layer_masks: List[Optional[np.ndarray]] = []
+        self._layer_edges: List[Optional[np.ndarray]] = []
+        self._layer_added: dict = {}
+        self._layer_previous: dict = {}
+        self._layer_next_id = 1
         #: What a terminal-built session had to say when it opened, still
         #: waiting for its first field to land. A field large enough to load
         #: off the GUI thread arrives after :meth:`open_queue` has returned,
@@ -13241,6 +13297,16 @@ class MakeMasksScreen(QWidget):
         if not files:
             LOG.info("%s has nothing left to curate", queue.folder)
             return False
+        try:
+            from ...cli_make_masks import _take_layers
+
+            handed = _take_layers()
+        except Exception:                                    # noqa: BLE001
+            handed = None
+        if handed and handed.get("layers"):
+            self._set_layers(handed["layers"], root=folder,
+                             settings_root=str(handed.get("root") or queue.folder),
+                             target=handed.get("save_to"))
         if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
@@ -13281,6 +13347,8 @@ class MakeMasksScreen(QWidget):
 
         :returns: ``{"masks_dir": ...}`` for a sibling session, else ``{}``.
         """
+        if self._layers_active():
+            return {"masks_dir": self._layer_target}
         return {"masks_dir": self._masks_dir} if self._masks_dir else {}
 
     def _note_curated(self, filename: str,
@@ -13301,12 +13369,549 @@ class MakeMasksScreen(QWidget):
         from ...curation_queue import mark_state
 
         stem = engine.field_stem(filename)
-        folder = self._queue.folder
+        folder = self._status_folder()
         try:
             mark_state(folder, stem, "done", n_objects=n_objects)
         except Exception:                                    # noqa: BLE001
             LOG.warning("could not record %s as done in the curation queue",
                         stem, exc_info=True)
+
+    def _layers_active(self) -> bool:
+        """Whether mask layers are loaded and the curated overlay is in use."""
+        return bool(getattr(self, "_layers", None)) and bool(self._layer_target)
+
+    def _status_folder(self) -> Optional[str]:
+        """The folder whose ``curate_status.csv`` records this session.
+
+        The save folder of a mask-layer review, so a review resumes on its
+        own record; otherwise the queue folder.
+
+        :returns: the folder, or None when the folder is not a queue.
+        """
+        if self._queue is None:
+            return None
+        if self._layers_active():
+            return self._layer_target
+        return str(self._queue.folder)
+
+    def _set_layers(self, paths, *, root: str, settings_root: str,
+                    target: Optional[str] = None) -> None:
+        """Load mask layers for the images in ``root``.
+
+        Colours, visibility, the base and the save folder chosen in an
+        earlier session of the same folder come back from
+        ``<settings_root>/curate_layers.json``.
+
+        :param paths: the layer folders, in order; the first is the base
+            unless a stored choice names another.
+        :param root: the images folder the layers belong to.
+        :param settings_root: where the session's choices are kept.
+        :param target: the save folder; the stored one, or a new
+            ``masks_curated_<date>`` folder, when omitted.
+        """
+        stored = engine._read_layer_settings(settings_root)
+        kept = {os.path.abspath(str(item.get("path", ""))): item
+                for item in stored.get("layers", []) if isinstance(item, dict)}
+        layers = []
+        for path in paths:
+            path = os.path.abspath(str(path))
+            if any(layer["path"] == path for layer in layers):
+                continue
+            old = kept.get(path, {})
+            colour = str(old.get("colour") or "")
+            if not re.fullmatch(r"#[0-9a-fA-F]{6}", colour):
+                used = {layer["colour"] for layer in layers}
+                colour = next((c for c in engine._LAYER_COLOURS if c not in used),
+                              engine._LAYER_COLOURS[len(layers) % len(engine._LAYER_COLOURS)])
+            layers.append({"path": path, "name": os.path.basename(path) or path,
+                           "colour": colour, "visible": bool(old.get("visible", True))})
+        if not layers:
+            self._clear_layers()
+            return
+        self._layers = layers
+        base = os.path.abspath(str(stored.get("base") or layers[0]["path"]))
+        self._layer_base = next((i for i, layer in enumerate(layers)
+                                 if layer["path"] == base), 0)
+        self._layer_root = os.path.abspath(str(root))
+        self._layer_settings_root = os.path.abspath(str(settings_root))
+        self._layer_target = os.path.abspath(str(
+            target or stored.get("target")
+            or engine._default_curated_folder(str(settings_root))))
+        self._layer_pending_target = None
+        self._save_layer_settings()
+        self._rebuild_layer_panel()
+        button = self._mode_buttons.get(MODE_PICK)
+        if button is not None:
+            button.setVisible(True)
+        if self._canvas.mode != MODE_PICK:
+            self._set_mode(MODE_PICK)
+
+    def _clear_layers(self) -> None:
+        """Unload every mask layer; the editor is the ordinary one again."""
+        self._layers = []
+        self._layer_target = None
+        self._layer_pending_target = None
+        self._layer_masks = []
+        self._layer_edges = []
+        self._layer_added = {}
+        self._layer_previous = {}
+        self._canvas.layer_overlay = None
+        section = getattr(self, "_layer_section", None)
+        if section is not None:
+            section.hide()
+        button = self._mode_buttons.get(MODE_PICK) if hasattr(self, "_mode_buttons") else None
+        if button is not None:
+            button.setVisible(False)
+        if self._canvas.mode == MODE_PICK:
+            self._set_mode(MODE_BRUSH)
+        self._canvas.update()
+
+    def _save_layer_settings(self) -> None:
+        """Keep the layers, colours, visibility, base and save folder."""
+        if not self._layers_active():
+            return
+        engine._write_layer_settings(self._layer_settings_root, {
+            "layers": [{"path": layer["path"], "colour": layer["colour"],
+                        "visible": layer["visible"]} for layer in self._layers],
+            "base": self._layers[self._layer_base]["path"],
+            "target": self._layer_target,
+        })
+
+    def _edits_unsaved(self) -> bool:
+        """Whether the mask on screen differs from what was last saved."""
+        mask, saved = self._canvas.mask, self._last_saved_mask
+        if mask is None or saved is None:
+            return False
+        return not (saved.shape == mask.shape and np.array_equal(saved, mask))
+
+    def _on_add_mask_layer(self, path: Optional[str] = None) -> bool:
+        """Add a folder of label masks as a layer of the images on screen.
+
+        :param path: the layer folder; asked for when omitted.
+        :returns: whether the layer was added.
+        """
+        from ..i18n import tr
+
+        if not self._image_files or self._field_folders:
+            self._status_label.setText(tr(
+                "Open one folder of images before adding a mask layer."))
+            return False
+        if path is None:
+            path = QFileDialog.getExistingDirectory(
+                self, tr("Add mask layer…"), self._folder or os.path.expanduser("~"))
+            if not path:
+                return False
+        if not os.path.isdir(path):
+            self._status_label.setText(tr("{path} is not a folder.").format(path=path))
+            return False
+        if self._edits_unsaved():
+            self._status_label.setText(tr(
+                "Save or undo the edits on this field before adding a mask layer."))
+            return False
+        paths = [layer["path"] for layer in self._layers] + [path]
+        settings_root = (str(self._queue.folder) if self._queue is not None
+                         else self._folder)
+        self._set_layers(paths, root=self._folder, settings_root=settings_root,
+                         target=self._layer_target)
+        self._load_current()
+        return True
+
+    def _seed_layer_field(self, filename: str, image: np.ndarray,
+                          mask: np.ndarray):
+        """Read every layer for a field and choose the curated overlay.
+
+        The overlay is the mask already in the save folder when that folder
+        is this review's own (not a loaded layer, or a layer this review
+        wrote a decisions log into, or the base itself); otherwise a copy of
+        the base layer.
+
+        :param filename: the field's image name.
+        :param image: the field.
+        :param mask: what was read from the save folder.
+        :returns: ``(overlay, whether it came from the save folder)``.
+        """
+        from skimage.segmentation import find_boundaries
+
+        shape = image.shape[:2]
+        self._layer_masks = []
+        for layer in self._layers:
+            try:
+                labels = engine._read_layer_mask(layer["path"], filename, shape)
+            except Exception as exc:                          # noqa: BLE001
+                LOG.warning("mask layer %s skipped for %s: %s",
+                            layer["path"], filename, exc)
+                labels = None
+            self._layer_masks.append(labels)
+        self._layer_edges = [None if labels is None else
+                             find_boundaries(labels, mode="inner") & (labels > 0)
+                             for labels in self._layer_masks]
+        target = self._layer_target
+        previous = engine._read_layer_decisions(target, filename)
+        self._layer_previous = previous
+        self._layer_added = {}
+        for row in previous.get("added", []) or []:
+            if isinstance(row, dict) and row.get("id") is not None:
+                self._layer_added[int(row["id"])] = {
+                    "layer": row.get("layer"), "source_id": row.get("source_id")}
+        layer_dirs = {layer["path"] for layer in self._layers}
+        base_dir = self._layers[self._layer_base]["path"]
+        has_file = os.path.isfile(engine.mask_save_path(
+            self._folder, filename, masks_dir=target))
+        from_target = bool(has_file and (target not in layer_dirs or previous
+                                         or target == base_dir))
+        if not from_target:
+            base = self._layer_masks[self._layer_base]
+            mask = (np.array(base, copy=True) if base is not None
+                    else np.zeros(shape, dtype=np.uint16))
+        highest = [int(mask.max()) if mask.size else 0]
+        base = self._layer_masks[self._layer_base]
+        if base is not None and base.size:
+            highest.append(int(base.max()))
+        highest.extend(int(key) for key in self._layer_added)
+        self._layer_next_id = max(highest) + 1
+        return mask, from_target
+
+    def _refresh_layer_overlay(self) -> None:
+        """Redraw the layers' outlines against the curated overlay."""
+        mask = self._canvas.mask
+        if not self._layers_active() or mask is None or mask.ndim != 2:
+            self._canvas.layer_overlay = None
+            self._canvas.update()
+            return
+        entries = []
+        for index, layer in enumerate(self._layers):
+            labels = (self._layer_masks[index]
+                      if index < len(self._layer_masks) else None)
+            entries.append((labels, layer["colour"], layer["visible"]))
+        rgba = engine._layer_overlay(entries, mask, self._layer_base,
+                                     edges=self._layer_edges)
+        if rgba is None:
+            self._canvas.layer_overlay = None
+        else:
+            rgba = np.ascontiguousarray(rgba)
+            h, w = rgba.shape[:2]
+            self._canvas.layer_overlay = QImage(
+                rgba.data, w, h, 4 * w, QImage.Format_RGBA8888).copy()
+        self._canvas.update()
+
+    def _on_layer_pick(self, x: int, y: int) -> None:
+        """Remove, restore or add the object under a Pick click.
+
+        One click is one edit: it goes through the stroke history, so Undo
+        and Redo take it back and the curation ledger records it.
+
+        :param x: column clicked, in image pixels.
+        :param y: row clicked, in image pixels.
+        """
+        from ..i18n import tr
+
+        mask = self._canvas.mask
+        if not self._layers_active() or mask is None or mask.ndim != 2:
+            return
+        base_layer = self._layers[self._layer_base]
+        base = (self._layer_masks[self._layer_base]
+                if base_layer["visible"] and self._layer_base < len(self._layer_masks)
+                else None)
+        others = [(index, labels) for index, labels in enumerate(self._layer_masks)
+                  if index != self._layer_base and labels is not None
+                  and self._layers[index]["visible"]]
+        changed, action = engine._layer_pick(mask, base, others, x, y,
+                                             self._layer_next_id)
+        if changed is None:
+            self._status_label.setText(tr(
+                "Nothing to pick here: no object of the curated overlay or of a "
+                "visible layer under the click."))
+            return
+        detail = {}
+        if action["kind"] == "add":
+            layer = self._layers[action["layer"]]
+            self._layer_added[action["id"]] = {"layer": layer["path"],
+                                               "source_id": action["source_id"]}
+            self._layer_next_id = max(self._layer_next_id, action["id"] + 1)
+            detail = {"layer": layer["path"], "source_id": action["source_id"]}
+        self._canvas._emit_stroke_start()
+        self._canvas.mask = changed
+        self._canvas.refresh()
+        self._canvas._emit_stroke_end(kind="layer_" + action["kind"],
+                                      target=int(action["id"]), **detail)
+        if action["kind"] == "remove":
+            text = tr("Removed object {id}; click its dashed outline to restore it.")
+        elif action["kind"] == "restore":
+            text = tr("Restored object {id}.")
+        else:
+            text = tr("Added object {id} from {layer}.")
+        self._status_label.setText(text.format(
+            id=action["id"], layer=os.path.basename(detail.get("layer", ""))))
+
+    def _write_layer_decisions(self, filename: str) -> Optional[str]:
+        """Write the decisions log of a field just saved to the save folder.
+
+        :param filename: the field's image name.
+        :returns: the log's path, or None when there are no layers or it
+            could not be written.
+        """
+        if not self._layers_active() or self._canvas.mask is None:
+            return None
+        base = (self._layer_masks[self._layer_base]
+                if self._layer_base < len(self._layer_masks) else None)
+        log = engine._layer_decisions(
+            filename, self._layers[self._layer_base]["path"], base,
+            self._canvas.mask, self._layer_added, self._layer_previous)
+        try:
+            path = engine._write_layer_decisions(self._layer_target, filename, log)
+        except OSError:
+            LOG.warning("could not write the decisions log for %s", filename,
+                        exc_info=True)
+            return None
+        self._layer_previous = log
+        return path
+
+    def _build_layer_section(self):
+        """The Mask layers settings category, hidden while no layer is loaded.
+
+        :returns: the category.
+        """
+        from ..i18n import tr
+
+        section = self._settings_category("Mask layers")
+        section.setObjectName("MakeMasksLayerSection")
+        body = section.body_layout
+        self._layer_rows_host = QWidget(section)
+        self._layer_rows = QVBoxLayout(self._layer_rows_host)
+        self._layer_rows.setContentsMargins(0, 0, 0, 0)
+        self._layer_rows.setSpacing(SPACING["xs"])
+        body.addWidget(self._layer_rows_host)
+        form = QFormLayout()
+        self._layer_base_combo = QComboBox(section)
+        self._layer_base_combo.setObjectName("MakeMasksLayerBase")
+        self._layer_base_combo.setToolTip(tr(
+            "The layer the curated overlay starts as, for every field not "
+            "already saved to the save folder."))
+        self._layer_base_combo.currentIndexChanged.connect(self._on_layer_base_changed)
+        form.addRow(tr("Base layer"), self._layer_base_combo)
+        self._layer_target_combo = QComboBox(section)
+        self._layer_target_combo.setObjectName("MakeMasksLayerTarget")
+        self._layer_target_combo.setToolTip(tr(
+            "Where the curated overlay is saved: a new mask folder (the "
+            "default), or one of the layer folders, which is overwritten "
+            "field by field after you confirm."))
+        self._layer_target_combo.currentIndexChanged.connect(self._on_layer_target_chosen)
+        form.addRow(tr("Save to"), self._layer_target_combo)
+        self._layer_name_edit = QLineEdit(section)
+        self._layer_name_edit.setObjectName("MakeMasksLayerFolderName")
+        self._layer_name_edit.setToolTip(tr(
+            "Name of the new mask folder, inside the images folder, or a full path."))
+        self._layer_name_edit.editingFinished.connect(self._on_layer_folder_named)
+        form.addRow(tr("Folder name"), self._layer_name_edit)
+        body.addLayout(form)
+        self._layer_confirm = QFrame(section)
+        self._layer_confirm.setObjectName("MakeMasksLayerConfirm")
+        self._layer_confirm.setFrameShape(QFrame.StyledPanel)
+        confirm = QVBoxLayout(self._layer_confirm)
+        self._layer_confirm_text = QLabel(self._layer_confirm)
+        self._layer_confirm_text.setWordWrap(True)
+        confirm.addWidget(self._layer_confirm_text)
+        buttons = QHBoxLayout()
+        self._layer_confirm_yes = QPushButton(tr("Overwrite"), self._layer_confirm)
+        self._layer_confirm_yes.setObjectName("MakeMasksLayerOverwrite")
+        self._layer_confirm_yes.clicked.connect(self._confirm_layer_target)
+        self._layer_confirm_no = QPushButton(tr("Cancel"), self._layer_confirm)
+        self._layer_confirm_no.setObjectName("MakeMasksLayerKeepTarget")
+        self._layer_confirm_no.clicked.connect(self._cancel_layer_target)
+        buttons.addWidget(self._layer_confirm_yes)
+        buttons.addWidget(self._layer_confirm_no)
+        confirm.addLayout(buttons)
+        self._layer_confirm.hide()
+        body.addWidget(self._layer_confirm)
+        self._layer_legend = QLabel(tr(
+            "Pick: click an object of the curated overlay to remove it; a "
+            "removed base object is drawn dashed, and a second click restores "
+            "it. Click an object of another layer to add it with a new id; it "
+            "fills only background. Hidden layers are not picked from."), section)
+        self._layer_legend.setObjectName("CardSubtitle")
+        self._layer_legend.setWordWrap(True)
+        body.addWidget(self._layer_legend)
+        add = QPushButton(tr("Add mask layer…"), section)
+        add.setObjectName("MakeMasksAddLayer")
+        add.clicked.connect(lambda _checked=False: self._on_add_mask_layer())
+        body.addWidget(add)
+        self._layer_section = section
+        section.hide()
+        return section
+
+    def _rebuild_layer_panel(self) -> None:
+        """Show the loaded layers, the base and the save folder."""
+        from ..i18n import tr
+
+        while self._layer_rows.count():
+            item = self._layer_rows.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        for index, layer in enumerate(self._layers):
+            row = QWidget(self._layer_rows_host)
+            line = QHBoxLayout(row)
+            line.setContentsMargins(0, 0, 0, 0)
+            swatch = QToolButton(row)
+            swatch.setObjectName("MakeMasksLayerColour")
+            swatch.setToolTip(tr("Choose this layer's outline colour"))
+            swatch.setStyleSheet(f"background-color: {layer['colour']};")
+            swatch.setFixedSize(20, 20)
+            swatch.clicked.connect(lambda _c=False, i=index: self._on_layer_colour(i))
+            shown = QCheckBox(layer["name"], row)
+            shown.setObjectName("MakeMasksLayerVisible")
+            shown.setToolTip(layer["path"])
+            shown.setChecked(layer["visible"])
+            shown.toggled.connect(lambda on, i=index: self._on_layer_visible(i, on))
+            line.addWidget(swatch)
+            line.addWidget(shown, 1)
+            self._layer_rows.addWidget(row)
+        for combo in (self._layer_base_combo, self._layer_target_combo):
+            combo.blockSignals(True)
+            combo.clear()
+        for layer in self._layers:
+            self._layer_base_combo.addItem(layer["name"], layer["path"])
+        self._layer_base_combo.setCurrentIndex(self._layer_base)
+        self._layer_target_combo.addItem(tr("New mask folder"), "")
+        for layer in self._layers:
+            self._layer_target_combo.addItem(
+                tr("Overwrite {name}").format(name=layer["name"]), layer["path"])
+        self._sync_layer_target_combo()
+        for combo in (self._layer_base_combo, self._layer_target_combo):
+            combo.blockSignals(False)
+        self._layer_confirm.hide()
+        self._layer_section.show()
+
+    def _sync_layer_target_combo(self) -> None:
+        """Point the save-folder controls at the current save folder."""
+        target = self._layer_target or ""
+        index = next((i for i in range(1, self._layer_target_combo.count())
+                      if self._layer_target_combo.itemData(i) == target), 0)
+        blocked = self._layer_target_combo.blockSignals(True)
+        self._layer_target_combo.setCurrentIndex(index)
+        self._layer_target_combo.blockSignals(blocked)
+        root = self._layer_settings_root
+        name = (os.path.basename(target)
+                if os.path.dirname(target) == os.path.abspath(root) else target)
+        self._layer_name_edit.setText(name if index == 0 else "")
+        self._layer_name_edit.setEnabled(index == 0)
+
+    def _on_layer_colour(self, index: int, colour: Optional[str] = None) -> None:
+        """Change one layer's outline colour.
+
+        :param index: the layer.
+        :param colour: ``#rrggbb``; asked for when omitted.
+        """
+        from ..i18n import tr
+
+        if not 0 <= index < len(self._layers):
+            return
+        if colour is None:
+            from ..widgets.colour_picker import pick_colour
+
+            chosen = pick_colour(self, self._layers[index]["colour"],
+                                 tr("Layer colour"))
+            if not chosen.isValid():
+                return
+            colour = chosen.name()
+        self._layers[index]["colour"] = str(colour)
+        self._save_layer_settings()
+        self._rebuild_layer_panel()
+        self._refresh_layer_overlay()
+
+    def _on_layer_visible(self, index: int, visible: bool) -> None:
+        """Show or hide one layer's outlines, and whether it is picked from.
+
+        :param index: the layer.
+        :param visible: whether it is shown.
+        """
+        if 0 <= index < len(self._layers):
+            self._layers[index]["visible"] = bool(visible)
+            self._save_layer_settings()
+            self._refresh_layer_overlay()
+
+    def _on_layer_base_changed(self, index: int) -> None:
+        """Make another layer the base.
+
+        The field on screen starts again from the new base when it is
+        unedited and not already in the save folder; otherwise the change
+        applies from the next field.
+
+        :param index: the new base.
+        """
+        from ..i18n import tr
+
+        if not 0 <= index < len(self._layers) or index == self._layer_base:
+            return
+        self._layer_base = index
+        self._save_layer_settings()
+        if (self._image_files and not self._edits_unsaved()
+                and not self._loaded_from_save_path):
+            self._load_current()
+        else:
+            self._refresh_layer_overlay()
+            self._status_label.setText(tr(
+                "The new base applies from the next field; this one keeps its edits."))
+
+    def _set_layer_target(self, target: str) -> None:
+        """Save the curated overlay to ``target`` from now on.
+
+        :param target: the folder.
+        """
+        self._layer_target = os.path.abspath(str(target))
+        self._layer_pending_target = None
+        self._loaded_from_save_path = False
+        self._save_layer_settings()
+        self._layer_confirm.hide()
+        self._sync_layer_target_combo()
+
+    def _on_layer_target_chosen(self, index: int) -> None:
+        """Choose the save folder; a layer folder waits for confirmation.
+
+        :param index: the entry chosen.
+        """
+        from ..i18n import tr
+
+        path = self._layer_target_combo.itemData(index) or ""
+        if not path:
+            name = self._layer_name_edit.text().strip()
+            if not name or self._layer_target in {layer["path"] for layer in self._layers}:
+                name = os.path.basename(engine._default_curated_folder(
+                    self._layer_settings_root))
+            self._layer_pending_target = None
+            self._layer_confirm.hide()
+            self._set_layer_target(name if os.path.isabs(name)
+                                   else os.path.join(self._layer_settings_root, name))
+            return
+        if path == self._layer_target:
+            return
+        self._layer_pending_target = path
+        self._layer_confirm_text.setText(tr(
+            "Saving will overwrite the masks in {path}, field by field, with "
+            "the curated overlay. Press Overwrite to save there, or Cancel to "
+            "keep saving to {current}.").format(path=path, current=self._layer_target))
+        self._layer_confirm.show()
+
+    def _confirm_layer_target(self) -> None:
+        """Accept the layer folder waiting for confirmation as the save folder."""
+        if self._layer_pending_target:
+            self._set_layer_target(self._layer_pending_target)
+
+    def _cancel_layer_target(self) -> None:
+        """Keep the save folder as it was."""
+        self._layer_pending_target = None
+        self._layer_confirm.hide()
+        self._sync_layer_target_combo()
+
+    def _on_layer_folder_named(self) -> None:
+        """Save to the new mask folder named in the folder-name box."""
+        name = self._layer_name_edit.text().strip()
+        if not name or self._layer_target_combo.currentIndex() != 0:
+            return
+        target = (name if os.path.isabs(name)
+                  else os.path.join(self._layer_settings_root, name))
+        if os.path.abspath(target) != self._layer_target:
+            self._set_layer_target(target)
 
     def _build_ui(self):
         """Lay out the title, the editor and the four button groups.
@@ -13393,6 +13998,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
         self._canvas.recrop_requested.connect(self._on_recrop_requested)
         self._canvas.label_requested.connect(self._edit_label_at)
+        self._canvas.pick_requested.connect(self._on_layer_pick)
         self._canvas.label_time_step.connect(self._queue_label_time_step)
         self._canvas.prepare_label_assignment = self._prepare_label_assignment
         self._magnifier = _LiveMagnifier(
@@ -13646,6 +14252,14 @@ class MakeMasksScreen(QWidget):
             "folder; a z-stack or volume (TIFF, OME-TIFF or MRC) opens in "
             "the Mask view as a 3D image."))
         action.triggered.connect(lambda _checked=False: self._on_pick_file())
+        action = open_menu.addAction(tr("Add mask layer…"))
+        action.setObjectName("MakeMasksAddMaskLayer")
+        action.setToolTip(tr(
+            "Add a folder of label masks matched to these images by stem. Each "
+            "layer is drawn as outlines in its own colour; an editable curated "
+            "overlay starts as a copy of the first layer and is saved to a new "
+            "mask folder."))
+        action.triggered.connect(lambda _checked=False: self._on_add_mask_layer())
         self._btn_open.set_split_menu(open_menu)
         io_row.addWidget(self._btn_open)
         from ..widgets.qc_field_browser import _open_overview_module
@@ -15535,6 +16149,12 @@ class MakeMasksScreen(QWidget):
                 btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
             if mode == MODE_DIVIDE:
                 btn.setToolTip(tr("Left-drag to divide an object. Right-drag across objects to merge them."))
+            if mode == MODE_PICK:
+                btn.setToolTip(tr(
+                    "Curate against mask layers: click an object to remove it from "
+                    "the curated overlay, click a dashed one to restore it, or click "
+                    "another layer's object to add it. Shown while mask layers are loaded."))
+                btn.setVisible(False)
             btn.setIcon(iconset.icon(icon_key))
             if mode == MODE_BOX:
                 btn.setObjectName("MakeMasksBoxTool")
@@ -15617,9 +16237,17 @@ class MakeMasksScreen(QWidget):
         curated after hand editing records the objects the user was looking
         at when they pressed the button.
 
+        With mask layers loaded, Keep accepts the curated overlay as edited:
+        it is saved to the save folder, with its decisions log, whether or
+        not Save on navigation is on.
+
         :param keep: True for Keep, False for Discard.
         :returns: the CSV's path, or None when there was nothing to record.
         """
+        if (keep and self._layers_active() and self._canvas.mask is not None
+                and self._mask_stage.session is None
+                and self._save_mask() is None):
+            return None
         if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
             return None
         image_path, mask_path = self._curation_paths()
@@ -15792,6 +16420,7 @@ class MakeMasksScreen(QWidget):
         self._folded_categories = {
             _RENAMED_CATEGORIES.get(str(t), str(t)) for t in (folded or ())}
 
+        col.addWidget(self._build_layer_section())
         brush_card = self._settings_category("Brush")
         brush_form = QFormLayout()
         self._brush_slider = QSlider(Qt.Horizontal)
@@ -17402,6 +18031,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.refresh()
         self._record("undo", None, changed)
         self._refresh_history_buttons()
+        if self._layers:
+            self._refresh_layer_overlay()
 
     def _on_redo(self):
         """Restore the most recently undone edit, recorded as a ``redo``."""
@@ -17423,6 +18054,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.refresh()
         self._record("redo", None, changed)
         self._refresh_history_buttons()
+        if self._layers:
+            self._refresh_layer_overlay()
 
     def _refresh_history_buttons(self):
         """Enable undo and redo from what the history actually holds."""
@@ -23030,6 +23663,9 @@ class MakeMasksScreen(QWidget):
                 or not self._save_boxes_if_needed()):
             return False
         self._leave_blind_unopened("another folder was opened")
+        if self._layers and (field_folders is not None
+                             or os.path.abspath(folder) != self._layer_root):
+            self._clear_layers()
         self._lineage = None
         self._lineage_scanned = None
         self._selected_cell = None
@@ -23382,6 +24018,9 @@ class MakeMasksScreen(QWidget):
         self._paired_source = None
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
+        from_target = None
+        if self._layers_active() and np.asarray(mask).ndim == 2:
+            mask, from_target = self._seed_layer_field(filename, image, mask)
         self._canvas.set_image_and_mask(image, mask)
         self._load_box_annotations(filename, image)
         self._canvas.ruler.calibrate_from_file(
@@ -23390,6 +24029,8 @@ class MakeMasksScreen(QWidget):
         self._last_saved_mask = self._loaded_mask
         self._loaded_from_save_path = os.path.isfile(engine.mask_save_path(
             self._folder, filename, **self._layout_kwargs()))
+        if from_target is not None:
+            self._loaded_from_save_path = from_target
         self._recrop_children = []
         self._reset_flow_panes()
         self._history.clear()
@@ -23430,6 +24071,8 @@ class MakeMasksScreen(QWidget):
         self._show_session_notice()
         self._magnifier.refresh()
         self._refresh_lineage_rows()
+        if self._layers:
+            self._refresh_layer_overlay()
 
     def _start_field_timer(self, filename: str, mask) -> None:
         """Start timing the field just loaded (see :mod:`spacr.curation_queue`)."""
@@ -23704,7 +24347,7 @@ class MakeMasksScreen(QWidget):
         filename = self._image_files[self._current_index]
         stem = engine.field_stem(filename)
         try:
-            mark_state(self._queue.folder, stem, "skip")
+            mark_state(self._status_folder(), stem, "skip")
         except Exception as exc:                              # noqa: BLE001
             LOG.warning("could not record %s as skipped", stem, exc_info=True)
             self._warn(tr("Skip failed"), str(exc))
@@ -23760,8 +24403,9 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+            self._write_layer_decisions(filename)
             return path
-        preserve_ids = self._canvas.retain_label_ids()
+        preserve_ids = self._canvas.retain_label_ids() or self._layers_active()
         filename = self._image_files[self._current_index]
         layout = dict(self._layout_kwargs())
         try:
@@ -23798,6 +24442,7 @@ class MakeMasksScreen(QWidget):
             self._finish_mask_write(request)
             if request["error"] is not None:
                 return None
+        self._write_layer_decisions(filename)
         return path
 
     def _track_mask_write(self, request) -> None:
@@ -24088,6 +24733,8 @@ class MakeMasksScreen(QWidget):
                       **dict(edit.get("detail") or {}))
         self._history.push(self._canvas.mask)
         self._refresh_history_buttons()
+        if self._layers:
+            self._refresh_layer_overlay()
 
     def _sync_button_states(self):
         """Enable each control only when it has something to act on."""

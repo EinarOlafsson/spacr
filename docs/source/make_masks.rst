@@ -319,6 +319,9 @@ Canvas tools and navigation
    * - Ruler
      - Drag a line to measure image-pixel distance. Right-click with Ruler
        selected to clear it. Zooming and panning preserve the measurement.
+   * - Pick
+     - Shown while mask layers are loaded: remove, restore or add objects of
+       the curated overlay; see `Curate against mask layers`_.
 
 **Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets
 zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes
@@ -718,6 +721,59 @@ Each plane is copied into ``split_channels/`` with one channel column per
 plane, and the original files are not touched. Files move in the
 background, and the manifest records every move. If a move fails, the
 message names the error, and the manifest lists every move made before it.
+
+Curate against mask layers
+--------------------------
+
+Mask layers compare any number of mask sets for the same images, such as the
+curated training labels and the masks two models made, and build one curated
+set from them. A layer is a folder of label masks matched to the images by
+stem, like ``masks/``. Add one with **Add mask layer…** in the arrow menu of
+**Open File / Folder…**, or start the session from a terminal:
+
+.. code-block:: bash
+
+   spacr-make-masks --folder /data/plaques --layers masks model_a model_b
+
+A layer name that is not a folder where the command runs is looked for in
+``--folder``. The **Mask layers** settings category lists the layers. Each
+is drawn as outlines in its own colour; click a layer's swatch to change the
+colour, or clear its check box to hide it. The choices are kept in
+``curate_layers.json`` in the folder, so the next session of the folder
+opens with them.
+
+The editable **curated overlay** starts as a copy of the **Base layer**, the
+first layer unless another is chosen. The **Pick** tool edits it:
+
+* Click an object of the curated overlay to remove it. A removed object of
+  the base layer is drawn dashed; click it again to restore it.
+* Click an object of another visible layer to add it under a new, unused
+  ID. An added object fills only background: where it overlaps an object of
+  the overlay, the overlay keeps its pixels. When two visible layers have an
+  object under the click, the first in the list is added.
+* Hidden layers are not picked from. To add another layer's object where a
+  removed base object lies, hide the base layer first.
+
+Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and
+**Ctrl+Y** undo and redo every click.
+
+**Save to** chooses where the overlay is written. The default is
+**New mask folder**, ``masks_curated_<date>`` beside the images (an existing
+``masks_curated_*`` folder is reused, so a session resumes into it); type
+another name or a full path under **Folder name**, or pass ``--save-to``.
+Choosing one of the layer folders overwrites its masks field by field, and
+takes effect only after **Overwrite** in the confirmation shown under the
+control. A field already saved to the save folder opens from there.
+
+**Keep** saves the overlay as edited, with its object IDs unchanged, and
+moves to the next field; **Next** behaves as in any queue. Each save also
+writes the curation history (``<stem>.tif.curation.json``) and
+``<stem>.decisions.json`` beside the mask: the base IDs that were removed and
+each added object's ID, source layer and ID in that layer. Progress is kept
+in the ``curate_status.csv`` inside the save folder, so a review resumes on
+its own record and offers again the fields the folder's ordinary curation
+already finished. Without layers, Make Masks behaves and saves exactly as
+before.
 
 Upload data
 -----------
