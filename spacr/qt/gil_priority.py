@@ -177,6 +177,20 @@ _TORCH_WHEEL_CUDA_LIBRARIES = (("cuda_nvrtc", "libnvrtc.so.*[0-9]"),
 
 _TORCH_LIBRARIES_TRIED = False
 
+#: Set once :func:`_open_torch_libraries` has finished its one attempt.
+_TORCH_LIBRARIES_DONE = threading.Event()
+
+
+def _torch_libraries_mapping() -> bool:
+    """Whether a thread is mapping PyTorch's libraries right now.
+
+    The mapping holds the dynamic linker's lock for 0.3-0.4 s, and starting a
+    thread needs that lock to allocate its thread-local storage, so a thread
+    started on the GUI thread meanwhile froze it with the interpreter lock
+    held (200 ms, Overview first open, 2026-10-25).
+    """
+    return _TORCH_LIBRARIES_TRIED and not _TORCH_LIBRARIES_DONE.is_set()
+
 
 def _dlopen_without_the_lock():
     """The C library's ``dlopen``, called through ctypes.
@@ -275,6 +289,17 @@ def _open_torch_libraries() -> bool:
         if _TORCH_LIBRARIES_TRIED or "torch" in sys.modules:
             return False
         _TORCH_LIBRARIES_TRIED = True
+    try:
+        return _map_torch_libraries()
+    finally:
+        _TORCH_LIBRARIES_DONE.set()
+
+
+def _map_torch_libraries() -> bool:
+    """Map the libraries for :func:`_open_torch_libraries`, once it has claimed the attempt.
+
+    :returns: True when every library the build has was mapped here.
+    """
     if not sys.platform.startswith("linux"):
         return False
     try:

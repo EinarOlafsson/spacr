@@ -563,6 +563,13 @@ _ENTRY_PRELOADED_FOR = frozenset({"mask"})
 #: (:data:`_DATA_LIBRARIES_AFTER_S`) so the two imports do not overlap.
 _ENTRY_PRELOAD_AFTER_S = 3.0
 
+#: Seconds after a screen in :data:`_ENTRY_PRELOADED_FOR` is on show before
+#: PyTorch's libraries are mapped; before the data libraries
+#: (:data:`_DATA_LIBRARIES_AFTER_S`), whose extension imports would wait on
+#: the dynamic linker the mapping holds.
+_TORCH_LIBRARIES_AFTER_S = 0.3
+_TORCH_LIBRARIES_STARTED = False
+
 
 #: How often a held background import asks again, in milliseconds.
 _HELD_IMPORT_RETRY_MS = 1000
@@ -644,6 +651,46 @@ def _warm_the_run_environment_when_idle(window) -> Optional[threading.Thread]:
     _RUN_ENVIRONMENT_STARTED = True
     thread = threading.Thread(target=_warm_the_run_environment, name="spacr-run-environment",
                               daemon=True)
+    thread.start()
+    return thread
+
+
+def _map_the_torch_libraries() -> None:
+    """Map PyTorch's libraries under the heavy-import lock, logging any failure."""
+    from .bridge import _importing_in_the_background
+    from .gil_priority import _open_torch_libraries
+
+    try:
+        with HEAVY_IMPORT_LOCK, _importing_in_the_background():
+            with _timing.span("background warm", "torch libraries"):
+                _open_torch_libraries()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not map the torch libraries early", exc_info=True)
+
+
+def _map_the_torch_libraries_off_the_gui_thread() -> Optional[threading.Thread]:
+    """Map PyTorch's libraries on a worker thread before an Overview opens, once per process.
+
+    THE FIRST OVERVIEW JOB MAPPED THEM, AND THE GUI WAITED. Every job
+    worker maps them first (:func:`spacr.qt.gil_priority._open_torch_libraries`),
+    with the interpreter lock released but the dynamic linker's lock held for
+    0.3-0.4 s. The Overview's first thumbnail job did that while the plate
+    painted, so the thumbnails started 0.35 s late, and any library the GUI
+    thread loaded meanwhile waited with the interpreter lock held (a ``dlopen``
+    there took 297 ms, 2026-10-25). Mask generation, which hosts the
+    Overview, now has them mapped shortly after it is on show. The mapping
+    only loads the files: no CUDA call is made and no device is opened, so
+    it is the same with ``CUDA_VISIBLE_DEVICES=''``.
+
+    :returns: the started thread, or ``None`` when it was started before or
+        torch is imported already.
+    """
+    global _TORCH_LIBRARIES_STARTED
+    if _TORCH_LIBRARIES_STARTED or "torch" in sys.modules:
+        return None
+    _TORCH_LIBRARIES_STARTED = True
+    thread = threading.Thread(target=_map_the_torch_libraries,
+                              name="spacr-torch-libraries")
     thread.start()
     return thread
 
@@ -7492,6 +7539,10 @@ class MainWindow(QMainWindow):
             started_at=interaction_started,
             budget_s=_timing.MODULE_BUDGET_S,
         )
+        if built_now and key in _ENTRY_PRELOADED_FOR and not _TORCH_LIBRARIES_STARTED:
+            _after(int(_TORCH_LIBRARIES_AFTER_S * 1000), self,
+                   lambda: _start_unless_held(
+                       self, _map_the_torch_libraries_off_the_gui_thread))
         if built_now and not _DATA_LIBRARIES_STARTED:
             _after(int(_DATA_LIBRARIES_AFTER_S * 1000), self,
                    lambda: _start_unless_held(
