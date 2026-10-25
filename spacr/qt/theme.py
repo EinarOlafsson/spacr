@@ -3786,12 +3786,9 @@ def _sheet_the_menu_behind(reference) -> None:
     if widget is None:
         return
 
-    def apply() -> None:
-        for root in _roots_for(widget):
-            _sheet_one_window(root)
-
     try:
-        _sheet_a_popup_about_to_open(widget, apply)
+        _sheet_a_popup_about_to_open(
+            widget, lambda: [_sheet_one_window(root) for root in _roots_for(widget)])
     except (AttributeError, RuntimeError):
         pass
 
