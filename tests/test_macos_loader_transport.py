@@ -110,7 +110,8 @@ def assert_same(actual, expected):
         torch.testing.assert_close(actual, expected, rtol=0, atol=0)
     elif isinstance(expected, dict):
         assert list(actual) == list(expected)
-        assert actual.default_factory is expected.default_factory
+        if isinstance(expected, defaultdict):
+            assert actual.default_factory is expected.default_factory
         for key in expected:
             assert_same(actual[key], expected[key])
     elif isinstance(expected, (tuple, list)):
