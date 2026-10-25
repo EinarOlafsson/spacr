@@ -307,12 +307,6 @@ def maybe_show_anonymous_report_notice(parent) -> Optional[QDialog]:
 
     :param parent: the window that parents the notice.
     :returns: the notice, already showing, or ``None`` when it was not due.
-
-    The notice is polished before it is shown: the dialog filters make a
-    dialog a frameless window when it is polished, and on macOS a dialog
-    polished inside its own show had already been created as a panel, so
-    Cocoa rebuilt it during ``setVisible`` and re-entered it ("Already
-    setting window visible!" in the first-run smoke).
     """
     import threading
 
