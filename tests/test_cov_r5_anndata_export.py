@@ -117,6 +117,9 @@ class AnnDataDouble:
     def __len__(self):
         return self.n_obs
 
+    def strings_to_categoricals(self):
+        """The write path asks for this; the pickle needs no conversion."""
+
     def write_h5ad(self, path, compression=None):
         if compression not in (None, "gzip", "lzf"):
             raise ValueError(f"unknown compression {compression!r}")

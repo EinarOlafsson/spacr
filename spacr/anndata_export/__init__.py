@@ -1566,6 +1566,9 @@ def _write_h5ad_atomic(adata: Any, path: Union[str, os.PathLike],
     partial export or scratch files; the original exception reaches the caller.
     """
     path = os.path.abspath(os.fspath(path))
+    adata.strings_to_categoricals()
+    _hdf5_metadata(adata.obs)
+    _hdf5_metadata(adata.var)
     with tempfile.TemporaryDirectory(prefix=".anndata-", dir=os.path.dirname(path)) as folder:
         pending = os.path.join(folder, "pending.h5ad")
         adata.write_h5ad(pending, **kwargs)
