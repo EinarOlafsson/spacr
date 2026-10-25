@@ -1080,18 +1080,40 @@ def test_the_hub_hears_after_the_sheet_what_it_did_not_hear_during_it(
     assert QEvent.Show not in heard[root]
 
 
+class _FreshWrapper:
+    """A second Python face for a widget: same C++ object, new identity."""
+
+    def __init__(self, target):
+        self.target = target
+
+    def __getattr__(self, name):
+        return getattr(self.target, name)
+
+
+class _KeepsWhatItIsHanded(QObject):
+    """An application watcher that keeps every object it is handed."""
+
+    def __init__(self):
+        super().__init__()
+        self.handed = []
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        self.handed.append(watched)
+        return False
+
+
 def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
         qtbot, hub, monkeypatch):
     """A fresh wrapper from ``findChildren`` is not a different widget.
 
     Inside the Windows pytest run, ``findChildren`` after the sheet handed
-    back new ``QWidget`` wrappers, same C++ objects, new ids, for four
-    ``QLabel``s the test still held. The replay was keyed by ``id`` and told
-    the watchers about those strangers, so the labels' states were never
-    paired and a watcher comparing by identity heard nothing about them.
-    Simulated here by giving the replay stand-ins for the labels that share
-    their C++ object but not their Python identity; ``hub`` records by C++
-    pointer, and a second watcher keeps the object it was handed.
+    back new ``QWidget`` wrappers, same C++ objects, new ids. The replay was
+    keyed by ``id`` and told the watchers about those strangers, so states
+    were never paired and a watcher comparing by identity heard nothing.
+    Whatever wrappers the replay saw BEFORE the sheet -- the owner's, or
+    already fresh ones where shiboken hands those out -- are the ones the
+    watchers must be told about; here every widget the snapshot saw comes
+    back after the sheet as yet another face of the same C++ object.
     """
     import shiboken6
 
@@ -1099,28 +1121,24 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
                                        _stop_watching_application_events,
                                        _watch_application_events)
 
-    class Fresh:
-        def __init__(self, target):
-            self.target = target
-
-        def __getattr__(self, name):
-            return getattr(self.target, name)
-
-    handed = []
-
-    class _Keeper(QObject):
-        def eventFilter(self, watched, event):           # noqa: N802
-            handed.append(watched)
-            return False
-
-    keeper = _Keeper()
+    real_pointer = shiboken6.getCppPointer
+    monkeypatch.setattr(shiboken6, "getCppPointer", lambda obj: real_pointer(
+        obj.target if isinstance(obj, _FreshWrapper) else obj))
+    pointer_of = lambda obj: shiboken6.getCppPointer(obj)[0]   # noqa: E731
+    real_children = QWidget.findChildren
+    snapshot = {}
+    phase = ["before"]
+    monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: (
+        [snapshot.setdefault(pointer_of(c), c)
+         for c in real_children(self, *a)]
+        if phase[0] == "before" else
+        [_FreshWrapper(c) if pointer_of(c) in snapshot else c
+         for c in real_children(self, *a)]
+        if phase[0] == "after" else real_children(self, *a)))
+    keeper = _KeepsWhatItIsHanded()
     _watch_application_events(QApplication.instance(), keeper, (
         QEvent.StyleChange, QEvent.PaletteChange, QEvent.Polish,
         QEvent.Show, QEvent.Hide, QEvent.Move, QEvent.EnabledChange))
-    real_pointer = shiboken6.getCppPointer
-    monkeypatch.setattr(shiboken6, "getCppPointer", lambda obj: real_pointer(
-        obj.target if isinstance(obj, Fresh) else obj))
-    real_children = QWidget.findChildren
 
     root = QWidget()
     qtbot.addWidget(root)
@@ -1134,8 +1152,10 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
     qtbot.waitExposed(root)
     _pump()
     hub.clear()
+    snapshot.clear()
     try:
         with _restyle_unheard(QApplication.instance(), root):
+            phase[0] = "sheet"
             root.setStyleSheet("QLabel { font-size: 21px; }")
             shown.show()
             hidden.hide()
@@ -1143,34 +1163,31 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
             disabled.setEnabled(False)
             born = QLabel("f", root)
             born.ensurePolished()
-            handed.clear()
-            monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: [
-                Fresh(child) if any(child is label for label in labels)
-                else child for child in real_children(self, *a)])
+            keeper.handed.clear()
+            phase[0] = "after"
     finally:
         monkeypatch.setattr(QWidget, "findChildren", real_children)
         _stop_watching_application_events(QApplication.instance(), keeper)
+    handed = keeper.handed
     assert handed, "the replay told the watchers nothing"
-    assert not [w for w in handed if isinstance(w, Fresh)], (
-        "a watcher was handed a wrapper its owner does not hold")
+    assert not [w for w in handed if isinstance(w, _FreshWrapper)], (
+        "a watcher was handed a wrapper the replay had not seen before")
     for label in labels:
-        assert any(w is label for w in handed), label.text()
+        seen = snapshot[real_pointer(label)[0]]
+        assert any(w is seen for w in handed), label.text()
     by_pointer = {}
     for pointer, kind in hub:
         by_pointer.setdefault(pointer, set()).add(kind)
-    heard = {id(w): by_pointer.get(real_pointer(w)[0], set())
-             for w in labels + (born,)}
+    heard = {name: by_pointer.get(real_pointer(w)[0], set())
+             for name, w in zip("abcdf", labels + (born,))}
     restyle = {QEvent.StyleChange, QEvent.PaletteChange}
-    for label in labels + (born,):
-        assert restyle <= heard[id(label)]
-    assert QEvent.Show in heard[id(shown)]
-    assert QEvent.Hide in heard[id(hidden)]
-    assert QEvent.Move in heard[id(moved)]
-    assert QEvent.EnabledChange in heard[id(disabled)]
-    for label in labels:
-        assert QEvent.Polish not in heard[id(label)], "paired with no state"
-    assert QEvent.Polish in heard[id(born)]
-    assert QEvent.Show not in heard[id(hidden)]
+    assert all(restyle <= kinds for kinds in heard.values()), heard
+    assert QEvent.Show in heard["a"] and QEvent.Hide in heard["b"]
+    assert QEvent.Move in heard["c"] and QEvent.EnabledChange in heard["d"]
+    assert not [n for n in "abcd" if QEvent.Polish in heard[n]], (
+        "a widget seen before the sheet was paired with no state")
+    assert QEvent.Polish in heard["f"]
+    assert QEvent.Show not in heard["b"]
 
 
 def test_without_a_hub_or_a_root_the_sheet_simply_goes_on(qapp,
