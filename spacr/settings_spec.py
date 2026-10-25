@@ -334,6 +334,7 @@ def convert_settings_dict_for_gui(settings):
         'enhance_background': ('combo', ['none', 'rolling_ball', 'tophat'], 'none'),
         'enhance_denoise': ('combo', ['none', 'gaussian', 'median', 'bilateral', 'nlm', 'tv'], 'none'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
+        'overview_embedding_backbone': ('combo', ['resnet18', 'openphenom', 'chada_vit'], 'resnet18'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
         'spatial_platform': ('combo', ['auto', 'xenium', 'visium_hd', 'visium'], 'auto'),
         'spatial_window_unit': ('combo', ['um', 'px'], 'um'),

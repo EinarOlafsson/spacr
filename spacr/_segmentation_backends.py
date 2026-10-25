@@ -1401,13 +1401,22 @@ def _env_python(env, windows=None):
     return os.path.join(env, "bin", "python")
 
 
+_WORKER_PATHS = {}
+
+
 def _worker_path():
     """This file, which is what a backend environment runs; None when the
-    running spaCR has no source file to hand it (a frozen build)."""
-    path = os.path.abspath(__file__)
-    if path.endswith(".py") and os.path.isfile(path):
-        return path
-    return None
+    running spaCR has no source file to hand it (a frozen build).
+
+    Checked once per ``__file__`` per process: every backend's state asks,
+    and a file check is slow on Windows.
+    """
+    source = __file__
+    if source not in _WORKER_PATHS:
+        path = os.path.abspath(source)
+        _WORKER_PATHS[source] = (
+            path if path.endswith(".py") and os.path.isfile(path) else None)
+    return _WORKER_PATHS[source]
 
 
 def _importable(module):
@@ -1604,9 +1613,9 @@ def _interpreter_candidates(spec, *, executable=None, version=None,
     found = []
     if not frozen and lo <= version <= hi:
         found.append((executable or sys.executable,))
+    launcher = which("py") if windows else None
     for minor in range(hi[1], lo[1] - 1, -1):
         if windows:
-            launcher = which("py")
             if launcher:
                 found.append((launcher, f"-3.{minor}"))
         else:
@@ -1625,6 +1634,19 @@ def _candidates(spec):
     if spec.name not in _CANDIDATES:
         _CANDIDATES[spec.name] = _interpreter_candidates(spec)
     return _CANDIDATES[spec.name]
+
+
+def _warm_backend_lookups():
+    """Do every backend's once-per-process PATH and file lookups now.
+
+    :func:`_backend_state` runs on the GUI thread while Mask, Make Masks and
+    the Model Zoo build, and on Windows each PATH search stats every folder
+    for every executable extension. A background thread calls this first so
+    those screens find the answers cached.
+    """
+    _worker_path()
+    for spec in _SPECS.values():
+        _candidates(spec)
 
 
 def _versions(pair):

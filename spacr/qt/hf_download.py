@@ -447,13 +447,18 @@ class _HFDownloadUI(QObject):
             that goes out of scope while running takes the download with it.
         :param worker: the object doing the fetching, held for the same
             reason.
-        :param parent: the owning widget, also kept as ``_owner`` so the
-            callback can reach the screen that asked for the download.
+        :param parent: the owning widget, kept only as ``_owner`` so the
+            callback can reach the screen that asked for the download. It is
+            NOT this object's Qt parent: as a child, its ``deleteLater``
+            detached it from that widget inside ``~QObject``, and about one
+            failed download in thirty then crashed there with the object's
+            private data already freed (``test_console_thread_safety``, 4 of
+            120 runs; 0 of 120 unparented).
         :param on_done: called with the result and a message when the
             download finishes, whether it succeeded or not -- the result is
             ``None`` on failure and the message says why.
         """
-        super().__init__(parent)
+        super().__init__()
         self._dlg = dlg
         self._thread = thread
         self._worker = worker

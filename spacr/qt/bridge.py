@@ -2450,7 +2450,7 @@ def _import_the_entry_off_the_gui_thread(
             return None
         thread = threading.Thread(
             target=_import_the_entry_module, args=(name,),
-            name=f"spacr-entry-import-{name}", daemon=True)
+            name=f"spacr-entry-import-{name}", daemon=False)
         _ENTRY_IMPORTS[name] = thread
         thread.start()
     return thread if thread.is_alive() else None

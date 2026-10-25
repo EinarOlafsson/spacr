@@ -263,7 +263,7 @@ class CommandLineTool:
 
     def is_installed(self) -> bool:
         """Return True when the tool's executable is on ``PATH``."""
-        return shutil.which(self.cli_name) is not None
+        return _found_on_path(self.cli_name)
 
     def check_signed_in(self) -> Optional[bool]:
         """Ask the tool itself whether it is signed in.
@@ -1254,6 +1254,44 @@ def hosted_refusal_message(reason: str, scope: str = "",
         return tr("spaCR hosted AI could not be reached. Check the network "
                   "connection and try again later.")
     return tr("spaCR hosted AI could not answer this time. Try again later.")
+
+
+_PATH_LOOKUPS: Dict[tuple, Tuple[float, bool]] = {}
+
+#: How long one ``PATH`` search answers for the same tool and ``PATH``.
+_PATH_LOOKUP_TTL_S = 300.0
+
+
+def _found_on_path(name: str) -> bool:
+    """Whether ``name`` is on ``PATH``, searching at most once per few minutes.
+
+    Every screen's AI switch asks which providers are configured while the
+    screen is built, and each answer was a ``PATH`` search; on Windows those
+    searches (every folder times every ``PATHEXT``) were seconds of a module
+    open. The key holds ``PATH`` and the resolver itself, so installing a tool
+    or a test's stand-in resolver is seen at once.
+
+    :param name: the executable's name.
+    :returns: True when the executable is found.
+    """
+    import time
+
+    key = (name, os.environ.get("PATH", ""), shutil.which)
+    now = time.monotonic()
+    cached = _PATH_LOOKUPS.get(key)
+    if cached is not None and now - cached[0] < _PATH_LOOKUP_TTL_S:
+        return cached[1]
+    found = shutil.which(name) is not None
+    _PATH_LOOKUPS[key] = (now, found)
+    return found
+
+
+def _warm_path_lookups() -> None:
+    """Search ``PATH`` for every vendor tool now, for a background thread."""
+    for provider in list(_PROVIDERS):
+        name = getattr(provider, "cli_name", "")
+        if name:
+            _found_on_path(name)
 
 
 _PROVIDERS: List[ChatProvider] = [

@@ -11,6 +11,7 @@ import pickle
 import queue
 import sys
 import tempfile
+import threading
 import time
 import weakref
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
@@ -793,7 +794,13 @@ def _probe_mask_gpu_count(connection):
 
 
 def _mask_gpu_count_for_controls():
-    """Count compatible GPUs once per process for greying the settings controls."""
+    """Count compatible GPUs once per process for greying the settings controls.
+
+    The discovery child is started on a short-lived launcher thread: a spawn
+    start launches a whole interpreter, which took the GUI thread most of a
+    second inside a settings build on Windows. Until the launch has returned
+    the count reads as pending, exactly like a child that has not answered.
+    """
     global _CONTROL_GPU_PROBE
     if _CONTROL_GPU_COUNT:
         _reap_mask_gpu_probe()
@@ -803,18 +810,32 @@ def _mask_gpu_count_for_controls():
         reader, writer = context.Pipe(duplex=False)
         process = context.Process(target=_probe_mask_gpu_count,
                                   args=(writer,), daemon=True)
-        try:
-            process.start()
-        except Exception:
-            reader.close()
-            writer.close()
-            _CONTROL_GPU_COUNT.append(0)
-            return 0
-        writer.close()
-        _CONTROL_GPU_PROBE = {'process': process, 'reader': reader,
-                              'started': time.monotonic(), 'stopping': None,
-                              'killed': False}
+        state = {'process': process, 'reader': reader,
+                 'started': time.monotonic(), 'stopping': None,
+                 'killed': False, 'launch_failed': False}
+
+        def launch():
+            """Start the discovery child away from the GUI thread."""
+            try:
+                process.start()
+            except Exception:
+                state['launch_failed'] = True
+            finally:
+                writer.close()
+
+        launcher = threading.Thread(target=launch, name='spacr-gpu-probe-launch',
+                                    daemon=True)
+        state['launcher'] = launcher
+        _CONTROL_GPU_PROBE = state
+        launcher.start()
         return None
+    if _CONTROL_GPU_PROBE['launcher'].is_alive():
+        return None
+    if _CONTROL_GPU_PROBE['launch_failed']:
+        _CONTROL_GPU_PROBE['reader'].close()
+        _CONTROL_GPU_PROBE = None
+        _CONTROL_GPU_COUNT.append(0)
+        return 0
     process = _CONTROL_GPU_PROBE['process']
     reader = _CONTROL_GPU_PROBE['reader']
     started = _CONTROL_GPU_PROBE['started']
@@ -872,11 +893,17 @@ def _stop_mask_gpu_probe():
         return
     state = _CONTROL_GPU_PROBE
     process = state['process']
+    launcher = state.get('launcher')
+    if launcher is not None:
+        launcher.join(timeout=1.0)
     if state['reader'] is not None:
         state['reader'].close()
         state['reader'] = None
     if not _CONTROL_GPU_COUNT:
         _CONTROL_GPU_COUNT.append(0)
+    if launcher is not None and (launcher.is_alive() or state.get('launch_failed')):
+        _CONTROL_GPU_PROBE = None
+        return
     if process.is_alive():
         process.terminate()
         process.join(timeout=0.2)

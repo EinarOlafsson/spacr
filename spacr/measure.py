@@ -335,7 +335,7 @@ def _start_manager(ctx):
     it up as one would be a lie in the traceback.
     """
     try:
-        return ctx.Manager()
+        manager = ctx.Manager()
     except Exception as exc:
         try:
             start_method = ctx.get_start_method()
@@ -343,6 +343,10 @@ def _start_manager(ctx):
             start_method = mp.get_start_method()
         raise ManagerStartError(
             _manager_start_diagnosis(start_method, exc)) from exc
+    from .resource_log import _bind_to_parent_job
+
+    _bind_to_parent_job(getattr(getattr(manager, '_process', None), 'pid', None))
+    return manager
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):
@@ -13935,8 +13939,49 @@ def _image_objects(labels, intensity=None, prefix='objects', solidity_limit=1000
     return summary
 
 
+_IMAGE_FEATURE_GROUPS = ('intensity', 'saturation', 'focus', 'texture', 'coverage',
+                         'background', 'objects', 'cross_channel')
+
+_IMAGE_ADVANCED_FEATURES = ('embedding', 'deep_qc', 'filter_bank')
+
+
+def _image_feature_groups(selection=None):
+    """Resolve a measurement selection to the image-level groups it names.
+
+    :param selection: ``None`` for every group; an iterable of names from
+        ``_IMAGE_FEATURE_GROUPS``; or an overview settings mapping whose
+        ``overview_measure_<group>`` switches choose the groups (a missing
+        switch keeps its default, on).
+    :returns: the selected group names in canonical order.
+    :raises ValueError: for an unknown group name.
+    """
+    if selection is None:
+        return _IMAGE_FEATURE_GROUPS
+    if isinstance(selection, dict):
+        chosen = {group for group in _IMAGE_FEATURE_GROUPS
+                  if selection.get(_IMAGE_FEATURE_SETTING[group], True) not in (False, 0, 'False', 'false')}
+    else:
+        chosen = {str(name) for name in selection}
+        unknown = sorted(chosen - set(_IMAGE_FEATURE_GROUPS))
+        if unknown:
+            raise ValueError(f'Unknown image-level measurement groups: {unknown}')
+    return tuple(group for group in _IMAGE_FEATURE_GROUPS if group in chosen)
+
+
+_IMAGE_FEATURE_SETTING = {
+    'intensity': 'overview_measure_intensity',
+    'saturation': 'overview_measure_saturation',
+    'focus': 'overview_measure_focus',
+    'texture': 'overview_measure_texture',
+    'coverage': 'overview_measure_coverage',
+    'background': 'overview_measure_background_snr',
+    'objects': 'overview_measure_objects',
+    'cross_channel': 'overview_measure_cross_channel',
+}
+
+
 def _image_level_features(planes, masks=None, *, saturation_levels=None, min_object_area=9,
-                          confluency=True, confluency_edge=1024):
+                          confluency=True, confluency_edge=1024, groups=None):
     """Measure whole-image intensity, focus, texture, coverage and objects.
 
     Every value is computed on raw stored pixels; nonfinite pixels are
@@ -13955,10 +14000,20 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
     :param confluency: also run spaCR's texture confluency estimator.
     :param confluency_edge: long side, in pixels, above which confluency is
         estimated on a block-averaged copy with a proportionally smaller window.
+    :param groups: the measurement groups to compute, resolved by
+        ``_image_feature_groups``; unselected groups are skipped entirely.
+        ``intensity`` holds the mean, median, spread and percentiles;
+        ``saturation`` the clipped fraction; ``focus`` the sharpness scores;
+        ``texture`` the GLCM summary; ``coverage`` the Otsu area fraction,
+        foreground mean and confluency; ``background`` the background level,
+        SNR and signal-to-background; ``objects`` the regionprops summaries;
+        ``cross_channel`` the per-pair correlation and overlap.
     :returns: flat ``dict`` of measurement names to numbers.
     :raises ValueError: for non-2-D planes or mismatched shapes.
     """
     from skimage.measure import label as _label
+    groups = set(_image_feature_groups(groups))
+    thresholds = bool(groups & {'coverage', 'background', 'objects', 'cross_channel'})
     planes = {key: np.asarray(value) for key, value in dict(planes).items()}
     if not planes:
         return {}
@@ -13976,59 +14031,71 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
         data = values[finite]
         if data.size == 0:
             raise ValueError(f'Channel {channel} has no finite pixels')
-        percentiles = np.percentile(data, (1, 5, 25, 50, 75, 95, 99))
-        mean, std = float(data.mean()), float(data.std())
-        level = _image_saturation_level(plane, saturation_levels.get(channel))
-        stats = dict(intensity_mean=mean, intensity_median=float(percentiles[3]),
-                     intensity_std=std, intensity_integrated=float(data.sum()),
-                     intensity_cv=std / mean if mean else float('nan'),
-                     intensity_dynamic_range=float(percentiles[6] - percentiles[0]),
-                     saturation_level=float('nan') if level is None else level,
-                     saturation_fraction=(float(np.count_nonzero(data >= level)) / data.size
-                                          if level is not None else float('nan')))
-        stats.update({f'intensity_p{p}': float(v) for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
-        stats.update(_image_focus(values))
-        stats.update(_image_texture(values, finite, (percentiles[0], percentiles[6])))
-        threshold = _image_otsu(values, finite)
-        if threshold is None:
-            above = np.zeros(values.shape, dtype=bool)
-            background = data
-            stats.update(otsu_threshold=float('nan'), otsu_area_fraction=0.0,
-                         foreground_mean=float('nan'))
-        else:
-            above = (values > threshold) & finite
-            background = values[finite & ~above]
-            stats.update(otsu_threshold=threshold,
-                         otsu_area_fraction=float(np.count_nonzero(above)) / data.size,
-                         foreground_mean=float(values[above].mean()) if above.any() else float('nan'))
+        stats = {}
+        if groups & {'intensity', 'texture'}:
+            percentiles = np.percentile(data, (1, 5, 25, 50, 75, 95, 99))
+        if 'intensity' in groups:
+            mean, std = float(data.mean()), float(data.std())
+            stats.update(intensity_mean=mean, intensity_median=float(percentiles[3]),
+                         intensity_std=std, intensity_integrated=float(data.sum()),
+                         intensity_cv=std / mean if mean else float('nan'),
+                         intensity_dynamic_range=float(percentiles[6] - percentiles[0]))
+            stats.update({f'intensity_p{p}': float(v) for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
+        if 'saturation' in groups:
+            level = _image_saturation_level(plane, saturation_levels.get(channel))
+            stats.update(saturation_level=float('nan') if level is None else level,
+                         saturation_fraction=(float(np.count_nonzero(data >= level)) / data.size
+                                              if level is not None else float('nan')))
+        if 'focus' in groups:
+            stats.update(_image_focus(values))
+        if 'texture' in groups:
+            stats.update(_image_texture(values, finite, (percentiles[0], percentiles[6])))
+        above = np.zeros(values.shape, dtype=bool)
+        if thresholds:
+            threshold = _image_otsu(values, finite)
+            if threshold is None:
+                background = data
+                coverage = dict(otsu_threshold=float('nan'), otsu_area_fraction=0.0,
+                                foreground_mean=float('nan'))
+            else:
+                above = (values > threshold) & finite
+                background = values[finite & ~above]
+                coverage = dict(otsu_threshold=threshold,
+                                otsu_area_fraction=float(np.count_nonzero(above)) / data.size,
+                                foreground_mean=float(values[above].mean()) if above.any() else float('nan'))
+            if 'coverage' in groups:
+                stats.update(coverage)
+            if 'background' in groups:
+                background_level = float(np.median(background)) if background.size else float('nan')
+                background_std = float(np.std(background)) if background.size else float('nan')
+                signal = coverage['foreground_mean']
+                stats.update(background_median=background_level, background_std=background_std)
+                stats['snr'] = (float((signal - background_level) / background_std)
+                                if np.isfinite(signal) and background_std > 0 else float('nan'))
+                stats['signal_to_background'] = (float(signal / background_level)
+                                                 if np.isfinite(signal) and background_level > 0 else float('nan'))
         foreground[channel] = above
-        background_level = float(np.median(background)) if background.size else float('nan')
-        background_std = float(np.std(background)) if background.size else float('nan')
-        stats.update(background_median=background_level, background_std=background_std)
-        signal = stats['foreground_mean']
-        stats['snr'] = (float((signal - background_level) / background_std)
-                        if np.isfinite(signal) and background_std > 0 else float('nan'))
-        stats['signal_to_background'] = (float(signal / background_level)
-                                         if np.isfinite(signal) and background_level > 0 else float('nan'))
-        if confluency:
+        if confluency and 'coverage' in groups:
             reduced, step = _image_block_mean(values, confluency_edge)
             stats['confluency'] = float(_field_confluency(
                 reduced, source='texture', window=max(3, int(round(15 / step)))).confluency)
             stats['confluency_downsample'] = step
-        if not masks:
-            objects = morphology.remove_small_objects(above, min_size=max(1, int(min_object_area)))
-            stats.update(_image_objects(_label(objects, connectivity=2), values, prefix='objects'))
-        else:
-            for role, labels in masks.items():
-                summary = _image_objects(labels, values, prefix=role + '_objects')
-                stats[role + '_object_intensity_mean'] = summary[role + '_objects_intensity_mean']
-                stats[role + '_object_integrated_intensity_mean'] = summary[role + '_objects_integrated_intensity_mean']
+        if 'objects' in groups:
+            if not masks:
+                objects = morphology.remove_small_objects(above, min_size=max(1, int(min_object_area)))
+                stats.update(_image_objects(_label(objects, connectivity=2), values, prefix='objects'))
+            else:
+                for role, labels in masks.items():
+                    summary = _image_objects(labels, values, prefix=role + '_objects')
+                    stats[role + '_object_intensity_mean'] = summary[role + '_objects_intensity_mean']
+                    stats[role + '_object_integrated_intensity_mean'] = summary[role + '_objects_integrated_intensity_mean']
         record.update({prefix + key: value for key, value in stats.items()})
-    for role, labels in masks.items():
-        summary = _image_objects(labels, None, prefix=role + '_objects')
-        summary[role + '_objects_source'] = 'mask'
-        record.update(summary)
-    channels = list(planes)
+    if 'objects' in groups:
+        for role, labels in masks.items():
+            summary = _image_objects(labels, None, prefix=role + '_objects')
+            summary[role + '_objects_source'] = 'mask'
+            record.update(summary)
+    channels = list(planes) if 'cross_channel' in groups else []
     for index, first in enumerate(channels):
         for second in channels[index + 1:]:
             a, fa = prepared[first]
@@ -14048,6 +14115,279 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
             record[prefix + 'overlap_fraction'] = float(np.count_nonzero(on_a & on_b)) / union if union else float('nan')
     return record
 
+
+
+def _image_filter_bank(values, finite, edge=512, frequencies=(0.1, 0.25), orientations=4,
+                       sigmas=(1.0, 2.0, 4.0)):
+    """Summarise Gabor and Laplacian-of-Gaussian responses of one plane.
+
+    The plane is block-averaged to at most ``edge`` pixels on its long side
+    and scaled between its 1st and 99th finite percentiles; nonfinite pixels
+    take the finite median. Gabor magnitude is averaged over ``orientations``
+    directions per frequency (cycles per reduced pixel); LoG energy is the
+    mean squared scale-normalised response per ``sigma``.
+
+    :returns: ``{name: value}`` with ``filter_gabor_f<freq>_mean``/``_std``,
+        ``filter_log_s<sigma>_energy`` and ``filter_bank_downsample``.
+    """
+    from scipy.ndimage import gaussian_laplace
+    from skimage.filters import gabor_kernel
+    small, step = _image_block_mean(values, edge)
+    low, high = np.percentile(values[finite], (1, 99)) if finite.any() else (0.0, 0.0)
+    scaled = (small - low) / (high - low) if high > low else np.zeros_like(small)
+    scaled = np.clip(scaled, 0, 1).astype(np.float32)
+    result = {'filter_bank_downsample': step}
+    for frequency in frequencies:
+        magnitudes = []
+        for index in range(int(orientations)):
+            kernel = gabor_kernel(frequency, theta=np.pi * index / orientations)
+            real = cv2.filter2D(scaled, cv2.CV_32F, np.real(kernel).astype(np.float32),
+                                borderType=cv2.BORDER_REFLECT)
+            imaginary = cv2.filter2D(scaled, cv2.CV_32F, np.imag(kernel).astype(np.float32),
+                                     borderType=cv2.BORDER_REFLECT)
+            magnitudes.append(np.hypot(real, imaginary))
+        magnitude = np.mean(magnitudes, axis=0)
+        name = f'filter_gabor_f{frequency:g}'.replace('.', 'p')
+        result[name + '_mean'] = float(magnitude.mean())
+        result[name + '_std'] = float(magnitude.std())
+    for sigma in sigmas:
+        response = gaussian_laplace(scaled, sigma) * sigma ** 2
+        result[f'filter_log_s{sigma:g}_energy'.replace('.', 'p')] = float(np.mean(np.square(response, dtype=np.float64)))
+    return result
+
+
+_IMAGE_ADVANCED_CACHE = {}
+
+
+def _image_qc_model(path):
+    """Load the image-quality classifier once per worker process."""
+    from pathlib import Path
+    key = ('deep_qc', str(path))
+    if key not in _IMAGE_ADVANCED_CACHE:
+        from .image_quality import _QC_BUILTIN_CUTOFFS, _builtin_qc_model_path, _load_qc_model
+        model = _load_qc_model(path)
+        if Path(path).name == _builtin_qc_model_path().name:
+            model.qc_cutoffs = dict(_QC_BUILTIN_CUTOFFS)
+        _IMAGE_ADVANCED_CACHE[key] = model
+    return _IMAGE_ADVANCED_CACHE[key]
+
+
+def _image_deep_qc(planes, model, saturation_levels=None):
+    """Score each channel with spaCR's image-quality classifier.
+
+    :returns: ``channel_<c>_deep_qc_p_<class>`` probabilities, calibrated as
+        in Mask generation's image screening, and ``deep_qc_max_<class>``
+        over channels.
+    """
+    from .image_quality import _QC_CLASSES, _calibrated_qc, _predict_qc, _qc_inputs
+    saturation_levels = dict(saturation_levels or {})
+    record, worst = {}, {name: float('-inf') for name in _QC_CLASSES}
+    for channel, plane in planes.items():
+        values, _ = _image_plane_for_features(plane)
+        level = _image_saturation_level(plane, saturation_levels.get(channel))
+        local, whole = _qc_inputs(values, level)
+        probabilities = _calibrated_qc(model, _predict_qc(model, local[None], whole[None]))[0]
+        for name, value in zip(_QC_CLASSES, probabilities):
+            record[f'channel_{channel}_deep_qc_p_{name}'] = float(value)
+            worst[name] = max(worst[name], float(value))
+    record.update({f'deep_qc_max_{name}': value for name, value in worst.items()})
+    return record
+
+
+def _image_encoder(backbone):
+    """Build a CPU embedding encoder once per worker process."""
+    key = ('embedding', str(backbone))
+    if key not in _IMAGE_ADVANCED_CACHE:
+        from .embeddings import EmbeddingSpec, _backbone_encoder
+        _IMAGE_ADVANCED_CACHE[key] = _backbone_encoder(EmbeddingSpec(backbone=backbone, device='cpu', batch_size=1))
+    return _IMAGE_ADVANCED_CACHE[key]
+
+
+def _image_embedding_text(vector):
+    """Encode a vector compactly as base64 float16 text."""
+    import base64
+    return 'f16:' + base64.b64encode(np.asarray(vector, dtype='<f2').tobytes()).decode('ascii')
+
+
+def _image_embedding_vector(text):
+    """Decode ``_image_embedding_text`` back to a float32 vector, or ``None``."""
+    import base64
+    if not isinstance(text, str) or not text.startswith('f16:'):
+        return None
+    return np.frombuffer(base64.b64decode(text[4:]), dtype='<f2').astype(np.float32)
+
+
+def _image_embedding(planes, backbone='resnet18', size=224, encoder=None):
+    """Embed one whole image with one of spaCR's embedding encoders.
+
+    Each channel is block-averaged so its long side is at most ``size``
+    pixels, scaled by its own 99th finite percentile and encoded separately
+    (spaCR's per-channel policy); the per-channel vectors are concatenated.
+
+    :param encoder: optional injected encoder, as for
+        ``spacr.embeddings.embed_array``; the default loads ``backbone``.
+    :returns: ``embedding_vector`` (base64 float16 text), its
+        ``embedding_dims``, ``embedding_backbone``, ``embedding_fingerprint``
+        and the summary columns ``embedding_norm``, ``embedding_mean`` and
+        ``embedding_std``.
+    """
+    from .embeddings import CHANNEL_PER_CHANNEL, EmbeddingSpec, embed_array
+    stack, scales = [], []
+    for plane in planes.values():
+        values, finite = _image_plane_for_features(plane)
+        small, _ = _image_block_mean(values, max(16, int(size)))
+        stack.append(small.astype(np.float32))
+        scale = float(np.percentile(values[finite], 99)) if finite.any() else 0.0
+        scales.append(scale if np.isfinite(scale) and scale > 0 else 1.0)
+    crops = np.stack(stack, axis=-1)[None]
+    spec = EmbeddingSpec(backbone=backbone, channel_policy=CHANNEL_PER_CHANNEL,
+                         channels=tuple(range(len(stack))), batch_size=1, device='cpu',
+                         normalize=True, channel_scale=tuple(scales))
+    result = embed_array(crops, spec, encoder=encoder if encoder is not None else _image_encoder(backbone))
+    vector = result.values[0].astype(np.float32)
+    return dict(embedding_vector=_image_embedding_text(vector), embedding_dims=int(vector.size),
+                embedding_backbone=str(backbone), embedding_fingerprint=result.spec.fingerprint(),
+                embedding_norm=float(np.linalg.norm(vector)), embedding_mean=float(vector.mean()),
+                embedding_std=float(vector.std()))
+
+
+def _image_advanced_options(settings=None):
+    """Resolve the Advanced measurement switches from overview settings.
+
+    :returns: ``{'embedding': bool, 'deep_qc': bool, 'filter_bank': bool,
+        'embedding_backbone': str, 'embedding_size': int}``.
+    """
+    settings = dict(settings or {})
+    on = lambda key: settings.get(key, False) not in (False, 0, None, '', 'False', 'false')
+    return dict(embedding=on('overview_measure_embeddings'),
+                deep_qc=on('overview_measure_deep_qc'),
+                filter_bank=on('overview_measure_filter_bank'),
+                embedding_backbone=str(settings.get('overview_embedding_backbone') or 'resnet18'),
+                embedding_size=int(settings.get('overview_embedding_size') or 224))
+
+
+def _image_advanced_prepare(options, *, download=True):
+    """Make the Advanced models available once, before any worker starts.
+
+    Downloads go through spaCR's existing flows: the image-quality
+    classifier through the verified model-zoo cache, embedding weights
+    through ``spacr.embeddings``' pinned loaders. ``SPACR_MODEL_DOWNLOAD=0``
+    or ``download=False`` keeps everything offline, and a model that is not
+    already cached is then reported unavailable instead of fetched.
+
+    :param options: the mapping from ``_image_advanced_options``.
+    :returns: a copy of ``options`` with ``deep_qc_model`` (a local path or
+        ``None``) and ``unavailable`` (``{feature: reason}``).
+    """
+    import os as _os
+    from pathlib import Path
+    options = dict(options)
+    options['unavailable'] = {}
+    options['deep_qc_model'] = None
+    allowed = download and _os.environ.get('SPACR_MODEL_DOWNLOAD', '').strip().casefold() not in (
+        '0', 'off', 'false', 'no') and not _os.environ.get('SPACR_NO_NETWORK')
+    if options.get('deep_qc'):
+        try:
+            import importlib
+            importlib.import_module('torch')
+            from .image_quality import _acquire_builtin_qc_model, _builtin_qc_model_path
+            cached = _builtin_qc_model_path()
+            if allowed:
+                path = _acquire_builtin_qc_model()
+            else:
+                path = cached if cached.is_file() else None
+            if path is None or not Path(path).is_file():
+                raise FileNotFoundError('the image-quality classifier is not downloaded')
+            options['deep_qc_model'] = str(path)
+        except Exception as error:
+            options['unavailable']['deep_qc'] = str(error) or type(error).__name__
+    if options.get('embedding'):
+        backbone = options['embedding_backbone']
+        try:
+            import importlib
+            importlib.import_module('torch')
+            from .embeddings import _FOUNDATION_MODELS, _weights_on_disk
+            if backbone not in _FOUNDATION_MODELS:
+                importlib.import_module('timm')
+            if not _weights_on_disk(backbone)[0]:
+                if not allowed:
+                    raise FileNotFoundError(f'{backbone} weights are not downloaded')
+                _image_encoder(backbone)
+        except Exception as error:
+            options['unavailable']['embedding'] = str(error) or type(error).__name__
+    return options
+
+
+def _image_advanced_features(planes, options, *, saturation_levels=None, encoder=None, qc_model=None):
+    """Compute the selected Advanced image operations for one image.
+
+    Each feature records ``<feature>_status`` (``ok``, ``unavailable: ...``
+    or ``error: ...``) so one missing model never fails the image.
+
+    :param planes: ``{channel: 2-D array}``.
+    :param options: from ``_image_advanced_prepare``.
+    :param encoder: optional injected embedding encoder.
+    :param qc_model: optional injected image-quality classifier.
+    :returns: flat ``dict`` of measurement names to values.
+    """
+    record = {}
+    unavailable = dict(options.get('unavailable') or {})
+    if options.get('filter_bank'):
+        try:
+            for channel, plane in planes.items():
+                values, finite = _image_plane_for_features(plane)
+                record.update({f'channel_{channel}_{key}': value
+                               for key, value in _image_filter_bank(values, finite).items()})
+            record['filter_bank_status'] = 'ok'
+        except Exception as error:
+            record['filter_bank_status'] = f'error: {error}'
+    if options.get('deep_qc'):
+        if qc_model is None and 'deep_qc' in unavailable:
+            record['deep_qc_status'] = 'unavailable: ' + unavailable['deep_qc']
+        else:
+            try:
+                model = qc_model if qc_model is not None else _image_qc_model(options['deep_qc_model'])
+                record.update(_image_deep_qc(planes, model, saturation_levels))
+                record['deep_qc_status'] = 'ok'
+            except Exception as error:
+                record['deep_qc_status'] = f'error: {error}'
+    if options.get('embedding'):
+        if encoder is None and 'embedding' in unavailable:
+            record['embedding_status'] = 'unavailable: ' + unavailable['embedding']
+        else:
+            try:
+                record.update(_image_embedding(planes, options.get('embedding_backbone', 'resnet18'),
+                                               options.get('embedding_size', 224), encoder=encoder))
+                record['embedding_status'] = 'ok'
+            except Exception as error:
+                record['embedding_status'] = f'error: {error}'
+    return record
+
+
+def _image_embedding_components(vectors, count=3):
+    """Principal components of image embeddings, for comparisons.
+
+    :param vectors: ``{key: vector or encoded text}``; rows without a vector
+        or with another length than the most common one are left out.
+    :returns: ``{key: {'embedding_pc1': ..., ...}}``; empty below three rows.
+    """
+    decoded = {key: (_image_embedding_vector(value) if isinstance(value, str) else
+                     (None if value is None else np.asarray(value, dtype=np.float32)))
+               for key, value in dict(vectors).items()}
+    decoded = {key: value for key, value in decoded.items() if value is not None and value.size}
+    if len(decoded) < 3:
+        return {}
+    sizes = pd.Series([value.size for value in decoded.values()]).mode()
+    keep = [key for key, value in decoded.items() if value.size == int(sizes.iloc[0])]
+    if len(keep) < 3:
+        return {}
+    matrix = np.stack([decoded[key] for key in keep]).astype(np.float64)
+    matrix -= matrix.mean(axis=0)
+    _, singular, components = np.linalg.svd(matrix, full_matrices=False)
+    count = max(1, min(int(count), components.shape[0]))
+    scores = matrix @ components[:count].T
+    return {key: {f'embedding_pc{index + 1}': float(scores[row, index]) for index in range(count)}
+            for row, key in enumerate(keep)}
 
 def _image_feature_masks(files, plate, well, field, shape, roles=('cell', 'nucleus', 'pathogen', 'cytoplasm')):
     """Find existing spaCR label masks for one field, matching its shape.

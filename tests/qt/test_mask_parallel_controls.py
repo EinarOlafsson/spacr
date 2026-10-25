@@ -101,7 +101,10 @@ class _ProbeProcess:
         self.joins = []
 
     def start(self):
+        import threading
+
         self.started = True
+        self.start_thread = threading.current_thread()
 
     def is_alive(self):
         return not self.stopped
@@ -118,6 +121,11 @@ class _ProbeProcess:
     def close(self):
         assert self.stopped
         self.closed = True
+
+
+def _launched():
+    """Wait for the launcher thread that starts the discovery child."""
+    mw._CONTROL_GPU_PROBE['launcher'].join(5)
 
 
 def _fake_probe(monkeypatch):
@@ -142,7 +150,9 @@ def _fake_probe(monkeypatch):
 def test_the_gpu_count_is_read_once_without_waiting_for_the_child(monkeypatch):
     reader, writer, process, launches = _fake_probe(monkeypatch)
     assert mw._mask_gpu_count_for_controls() is None
+    _launched()
     assert process.started and writer.closed and not reader.closed
+    assert process.start_thread is not __import__("threading").main_thread()
     assert mw._mask_gpu_count_for_controls() is None
     assert len(launches) == 1
     assert launches[0]["target"] is mw._probe_mask_gpu_count
@@ -158,6 +168,7 @@ def test_the_gpu_count_is_read_once_without_waiting_for_the_child(monkeypatch):
 def test_failed_gpu_discovery_finishes_without_blocking(monkeypatch, failure):
     reader, _, process, _ = _fake_probe(monkeypatch)
     assert mw._mask_gpu_count_for_controls() is None
+    _launched()
     if failure == "exit":
         process.stopped = True
     elif failure == "timeout":
@@ -182,6 +193,7 @@ def test_discovery_retains_the_child_until_termination_is_confirmed(monkeypatch)
     monkeypatch.setattr(process, "terminate", lambda: signals.append("terminate"))
     monkeypatch.setattr(process, "kill", lambda: signals.append("kill"))
     assert mw._mask_gpu_count_for_controls() is None
+    _launched()
     reader.ready = True
     assert mw._mask_gpu_count_for_controls() == 3
     assert mw._CONTROL_GPU_PROBE is not None and not process.closed
@@ -223,6 +235,7 @@ def test_application_exit_kills_and_reaps_pending_discovery(qapp, monkeypatch):
     signals = []
     monkeypatch.setattr(process, "terminate", lambda: signals.append("terminate"))
     assert mw._mask_gpu_count_for_controls() is None
+    _launched()
     mw._watch_mask_gpu_probe()
     qapp.aboutToQuit.emit()
     assert signals == ["terminate"]

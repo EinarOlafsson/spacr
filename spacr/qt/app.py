@@ -539,6 +539,18 @@ _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
 
+#: Set once the application is quitting: the data-library warm thread stops
+#: between imports instead of starting another one.
+_BACKGROUND_WARMS_STOPPING = threading.Event()
+
+#: Seconds after the first module screen is on show before the run
+#: environment (every installed distribution's metadata, pip and conda
+#: lists) is read. Read alongside the data libraries it competed with the
+#: next screen's build for the interpreter lock and the disk; a run that
+#: starts earlier reads it itself.
+_RUN_ENVIRONMENT_AFTER_S = 20.0
+_RUN_ENVIRONMENT_STARTED = False
+
 #: Screens whose pipeline module is imported in the background soon after
 #: the screen first opens, so that Run finds it imported. Mask's is
 #: ``spacr.core`` -- torch, cellpose and about 2,900 modules -- and its
@@ -568,6 +580,64 @@ def _preload_the_pipeline_entry(app_key: str):
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not preload the %s pipeline", app_key, exc_info=True)
         return None
+
+
+def _warm_the_run_environment_when_idle(window) -> Optional[threading.Thread]:
+    """Read the run environment on a background thread once nothing is opening.
+
+    Called on the GUI thread by a timer; while a screen is being opened it
+    asks again two seconds later instead.
+
+    :param window: the main window whose screen opens are waited out.
+    :returns: the started thread, or ``None`` when it was started before or
+        was postponed.
+    """
+    global _RUN_ENVIRONMENT_STARTED
+    if _RUN_ENVIRONMENT_STARTED or getattr(window, "_closing", False):
+        return None
+    if getattr(window, "_opening_a_screen", False):
+        _after(2000, window, lambda: _warm_the_run_environment_when_idle(window))
+        return None
+    _RUN_ENVIRONMENT_STARTED = True
+
+    def _work() -> None:
+        """Read the versions and locks a run records, logging any failure."""
+        from .gil_priority import responsive_gui
+
+        with responsive_gui():
+            try:
+                from spacr.run_journal import _warm_env_snapshot
+
+                with _timing.span("background warm", "run environment"):
+                    _warm_env_snapshot()
+            except Exception:
+                LOG.debug("could not read the package versions early",
+                          exc_info=True)
+
+    thread = threading.Thread(target=_work, name="spacr-run-environment",
+                              daemon=True)
+    thread.start()
+    return thread
+
+
+def _stop_background_warms_on_quit() -> None:
+    """Stop the background warms between steps once the event loop quits.
+
+    THEY ARE NOT DAEMON THREADS. A daemon thread still inside an extension
+    import when the interpreter finalises is ended with ``pthread_exit``, which
+    unwinds its C++ frames without the interpreter lock: Matplotlib's FT2Font
+    building the font cache or torch's import, freeing Python memory
+    unguarded. That was the occasional SIGSEGV after a clean quit (gdb under
+    ``PYTHONMALLOC=debug``: ``pybind11 ref_small_vector`` destructor in
+    ``PyFT2Font_init`` on an exiting thread). Shutdown now waits for the
+    import in flight, and the warm thread takes no further step.
+    """
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance()
+    if app is not None and not getattr(app, "_spacr_warms_stop_on_quit", False):
+        app.aboutToQuit.connect(_BACKGROUND_WARMS_STOPPING.set)
+        app._spacr_warms_stop_on_quit = True
 
 
 def _import_the_data_libraries_off_the_gui_thread():
@@ -611,13 +681,25 @@ def _import_the_data_libraries_off_the_gui_thread():
         from .gil_priority import responsive_gui
 
         with responsive_gui():
+            try:
+                from spacr._segmentation_backends import _warm_backend_lookups
+
+                with _timing.span("background warm", "backend lookups"):
+                    _warm_backend_lookups()
+            except Exception:
+                LOG.debug("could not look up the backend interpreters early",
+                          exc_info=True)
             for name in _DATA_LIBRARIES:
+                if _BACKGROUND_WARMS_STOPPING.is_set():
+                    return
                 try:
                     with _timing.span("background import", name):
                         _importlib.import_module(name)
                 except Exception:
                     LOG.debug("could not import %s early", name,
                               exc_info=True)
+            if _BACKGROUND_WARMS_STOPPING.is_set():
+                return
             try:
                 from .widgets.organism_diagram import _warm_the_artwork
 
@@ -626,18 +708,11 @@ def _import_the_data_libraries_off_the_gui_thread():
             except Exception:
                 LOG.debug("could not prepare the organism artwork early",
                           exc_info=True)
-            try:
-                from spacr.run_journal import _warm_env_snapshot
-
-                with _timing.span("background warm", "run environment"):
-                    _warm_env_snapshot()
-            except Exception:
-                LOG.debug("could not read the package versions early",
-                          exc_info=True)
             _freeze_what_survived()
 
+    _stop_background_warms_on_quit()
     thread = threading.Thread(target=_work, name="spacr-data-libraries",
-                              daemon=True)
+                              daemon=False)
     thread.start()
     return thread
 
@@ -7394,6 +7469,9 @@ class MainWindow(QMainWindow):
 
             QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
                               _import_the_data_libraries_off_the_gui_thread)
+        if built_now and not _RUN_ENVIRONMENT_STARTED:
+            _after(int(_RUN_ENVIRONMENT_AFTER_S * 1000), self,
+                   lambda: _warm_the_run_environment_when_idle(self))
         if built_now and key in _ENTRY_PRELOADED_FOR:
             _after(int(_ENTRY_PRELOAD_AFTER_S * 1000), self,
                    lambda k=key: _preload_the_pipeline_entry(k))
@@ -8860,8 +8938,10 @@ def _tear_down_before_finalization() -> None:
     itself (:func:`spacr.qt.widgets.ambient._retire_shading_threads`). On
     a real-GPU capture host the process otherwise ended with SIGSEGV
     ("<no Python frame>") after a clean quit, with ``moderngl.mgl`` and
-    ``glcontext.egl`` loaded.
+    ``glcontext.egl`` loaded. The background warms are told to take no
+    further step (:func:`_stop_background_warms_on_quit`).
     """
+    _BACKGROUND_WARMS_STOPPING.set()
     try:
         from .widgets.ambient import _retire_shading_threads
 

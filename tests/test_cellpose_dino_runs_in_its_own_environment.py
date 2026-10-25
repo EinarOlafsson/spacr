@@ -104,7 +104,8 @@ def test_it_is_chosen_by_a_model_setting_not_by_segmentation_backend():
                                               "samcell"]
 
 
-def test_the_zoo_lists_the_backend_with_its_state_and_licence(tmp_path):
+def test_the_zoo_lists_the_backend_with_its_state_and_licence(tmp_path, monkeypatch):
+    monkeypatch.setitem(SB._CANDIDATES, "cellpose_dino", [("python3.12",)])
     rows = {e.key: e for e in zoo.installable_backend_entries()}
     row = rows["cellpose_dino_v1"]
     assert (row.kind, row.source, row.uri) == (

@@ -262,6 +262,16 @@ def _write_news_cache(releases: list) -> None:
         LOG.debug("could not write the news cache: %s", e)
 
 
+def _network_switched_off() -> bool:
+    """Whether ``SPACR_NO_NETWORK`` asks spaCR to stay off the network.
+
+    The same reading as :func:`spacr.crashreport.network_allowed`, without
+    its safe-mode clause, so a manual update check in safe mode still works.
+    """
+    flag = os.environ.get("SPACR_NO_NETWORK", "").strip().lower()
+    return bool(flag) and flag not in ("0", "false", "no", "off")
+
+
 def fetch_release_notes(timeout: float = 4.0,
                         max_age: float = NEWS_MAX_AGE_S) -> list:
     """The repository's releases, newest first, or ``[]``.
@@ -274,7 +284,9 @@ def fetch_release_notes(timeout: float = 4.0,
     have. That means the shared, per-address rate limit, which is why the
     answer is cached for a day and why every failure is silent: the
     bundled ``spacr/resources/release_notes.json`` remains the offline
-    source of truth and an empty list simply leaves it alone.
+    source of truth and an empty list simply leaves it alone. With
+    ``SPACR_NO_NETWORK`` set no socket is opened at all, so a window closing
+    straight away does not wait for a name lookup.
 
     :param timeout: request timeout in seconds. Short on purpose.
     :param max_age: how old a cached answer may be before it is asked
@@ -285,6 +297,8 @@ def fetch_release_notes(timeout: float = 4.0,
     cached = _read_news_cache(max_age)
     if cached is not None:
         return cached
+    if _network_switched_off():
+        return []
     _apply_network_settings()
     try:
         import urllib.request

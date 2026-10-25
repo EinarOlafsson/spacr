@@ -780,3 +780,21 @@ def test_the_download_worker_emits_the_friendly_text(monkeypatch, tmp_path):
     assert ok is False
     assert "Could not reach huggingface.co" in err
     assert "MaxRetryError" not in err
+
+
+def test_the_download_ui_is_never_a_qt_child_of_the_caller(qtbot):
+    """A child UI's deleteLater detached it from the caller inside ~QObject.
+
+    About one failed download in thirty then crashed in ``QObject::~QObject``
+    with the UI's private data already freed (test_console_thread_safety,
+    4 of 120 runs before, 0 of 240 after). The caller is still reachable as
+    ``_owner`` for the callback.
+    """
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    thread = QThread()
+    worker = hf._HFDownloadWorker(Path("."))
+    ui = hf._HFDownloadUI(None, thread, worker, owner, lambda r, e: None)
+    assert ui.parent() is None
+    assert ui._owner is owner
+    assert ui not in owner.children()
