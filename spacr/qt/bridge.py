@@ -2578,6 +2578,42 @@ def _call_on_the_gui_thread(fn, timeout_s: Optional[float] = None):
     return box.get("value")
 
 
+def _wait_serving_the_interface(thread, timeout_ms: int = 5000) -> bool:
+    """Wait on the GUI thread for ``thread`` to stop, answering it meanwhile.
+
+    A worker can need the GUI thread before it can finish: closing a run
+    journal reads the workspace sections through
+    :func:`_call_on_the_gui_thread`. A ``closeEvent`` that waited with
+    ``thread.wait(5000)`` held the GUI thread for the whole five seconds
+    while the worker waited on it, then gave up and left the thread
+    running behind a widget about to be destroyed. This waits in short
+    slices and runs the calls posted to the GUI thread between them, and
+    nothing else, so no other event is delivered inside the close.
+
+    :param thread: a ``QThread``; ``None`` or a deleted one counts as stopped.
+    :param timeout_ms: how long to wait in all, in milliseconds.
+    :returns: ``True`` when the thread has stopped.
+    """
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    while True:
+        remaining = int((deadline - time.monotonic()) * 1000)
+        try:
+            if thread is None or thread.wait(max(0, min(20, remaining))):
+                return True
+        except RuntimeError:
+            return True
+        relay = _GUI_CALLS[0] if _GUI_CALLS else None
+        if relay is not None:
+            try:
+                QCoreApplication.sendPostedEvents(relay, QEvent.MetaCall)
+            except RuntimeError:
+                pass
+        if remaining <= 0:
+            return thread_has_stopped(thread)
+
+
 def _run_the_posted(fn, box, done) -> None:
     """Run ``fn`` on the GUI thread, record its outcome in ``box``, signal."""
     try:

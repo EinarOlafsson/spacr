@@ -140,7 +140,7 @@ from ...selection import (
     Selection,
     with_object_type,
 )
-from ..bridge import make_thread
+from ..bridge import make_thread, _wait_serving_the_interface
 from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
@@ -3181,7 +3181,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             try:
                 if thread.isRunning():
                     thread.quit()
-                    thread.wait(5000)
+                    _wait_serving_the_interface(thread, 5000)
             except RuntimeError:
                 pass
         super().closeEvent(event)

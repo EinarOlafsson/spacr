@@ -263,10 +263,18 @@ def test_closing_waits_out_a_thread_whose_wrapper_outlived_it(screen, qtbot):
     assert screen._cancel["stop"] is True
 
 
-def test_closing_waits_for_a_job_that_is_still_running(screen):
+def test_closing_waits_for_a_job_that_is_still_running(screen, monkeypatch):
     """A QThread collected mid-run takes the process down, so the widget
-    waits for it instead of dropping its references and hoping."""
+    waits for it instead of dropping its references and hoping.
+
+    The wait goes through the bridge's wait that answers the GUI calls the
+    worker posts; here it is the plain wait it wraps, so the budget the
+    screen asks for is what the stand-in sees.
+    """
     from PySide6.QtGui import QCloseEvent
+
+    monkeypatch.setattr(mz, "_wait_serving_the_interface",
+                        lambda thread, ms: thread.wait(ms))
 
     class _StillRunning:
         def __init__(self):

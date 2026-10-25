@@ -93,7 +93,7 @@ from ..widgets.model_card_viewer import ModelCardViewer
 
 from ... import model_cards
 from ... import model_zoo as zoo
-from ..bridge import make_thread
+from ..bridge import make_thread, _wait_serving_the_interface
 from ..i18n import tr
 from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
@@ -1632,7 +1632,7 @@ class ModelZooScreen(QWidget):
             try:
                 if thread.isRunning():
                     thread.quit()
-                    thread.wait(5000)
+                    _wait_serving_the_interface(thread, 5000)
             except RuntimeError:
                 pass
         super().closeEvent(event)

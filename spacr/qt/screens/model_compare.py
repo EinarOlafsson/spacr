@@ -86,7 +86,7 @@ from PySide6.QtWidgets import (
 from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
-from ..bridge import make_thread
+from ..bridge import make_thread, _wait_serving_the_interface
 from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
@@ -1123,7 +1123,7 @@ class ModelCompareScreen(QWidget):
             try:
                 if thread.isRunning():
                     thread.quit()
-                    thread.wait(5000)
+                    _wait_serving_the_interface(thread, 5000)
             except RuntimeError:
                 pass
         super().closeEvent(event)

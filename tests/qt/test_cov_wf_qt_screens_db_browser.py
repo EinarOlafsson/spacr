@@ -349,7 +349,7 @@ def test_the_sweep_retires_stopped_jobs_and_leaves_the_running_one(
 
 
 def test_closing_waits_only_on_the_threads_that_are_still_running(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, monkeypatch):
     """Closing must not block for five seconds per finished thread.
 
     ``closeEvent`` quits and waits every job it still holds so a running
@@ -358,6 +358,10 @@ def test_closing_waits_only_on_the_threads_that_are_still_running(
     thread and may not have run — and calling ``wait(5000)`` on each of them
     would stall closing the screen for whole seconds with nothing happening.
     """
+    from spacr.qt.screens import db_browser
+
+    monkeypatch.setattr(db_browser, "_wait_serving_the_interface",
+                        lambda thread, ms: thread.wait(ms))
     w = DbBrowserScreen(threaded=True)
     qtbot.addWidget(w)
     running, finished = _FakeThread(True), _FakeThread(False)
