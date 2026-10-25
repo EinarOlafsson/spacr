@@ -113,7 +113,8 @@ def test_the_ready_to_compare_table_joins_annotations_and_is_exported(tmp_path):
     measured = [name for name in table.columns if name.startswith('channel_')]
     assert table.columns.get_loc('cell_type') < table.columns.get_loc(measured[0])
     exported = pd.read_csv(report['exports']['csv'])
-    assert report['exports']['csv'].endswith('measurements/image_measurements.csv')
+    assert report['exports']['csv'].replace('\\', '/').endswith(
+        'measurements/image_measurements.csv')
     assert len(exported) == 2 and list(exported.columns) == list(table.columns)
     assert len(pd.read_excel(report['exports']['xlsx'])) == 2
     _publish_image_measurements(db, [_row(tmp_path, value=1.0)], dict(overview_measure_export_format='csv'))

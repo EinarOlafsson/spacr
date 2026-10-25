@@ -13493,6 +13493,7 @@ def _image_annotation_schema(connection):
         raise ValueError(f'The image annotation table uses layout {version}; '
                          f'this spaCR reads up to {_IMAGE_ANNOTATION_VERSION}')
     present = [row[1] for row in connection.execute(f'PRAGMA table_info({_IMAGE_ANNOTATION_TABLE})')]
+    deferred = {}
     if present and version < 1:
         canonical = {name for name, _ in _IMAGE_ANNOTATION_BASE}
         for name in list(present):
@@ -13500,6 +13501,9 @@ def _image_annotation_schema(connection):
             if name.lower() in ('field', 'field_name') and 'fieldID' not in present:
                 target = 'fieldID'
             if target != name and target in canonical and target not in present:
+                if target.lower() == 'rowid':
+                    deferred[name] = target
+                    continue
                 connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} '
                                    f'RENAME COLUMN "{name}" TO "{target}"')
                 present[present.index(name)] = target
@@ -13512,6 +13516,25 @@ def _image_annotation_schema(connection):
     missing_keys = [name for name in _IMAGE_ANNOTATION_KEYS if name not in present]
     if missing_keys:
         raise ValueError(f'The image annotation table lacks its key columns: {missing_keys}')
+    targets = [deferred.get(name, name) for name in present]
+    if deferred or any(name.lower() == 'rowid' and name not in targets
+                       for name, _ in _IMAGE_ANNOTATION_BASE):
+        declared = {row[1]: row[2] for row in connection.execute(
+            f'PRAGMA table_info({_IMAGE_ANNOTATION_TABLE})')}
+        base = dict(_IMAGE_ANNOTATION_BASE)
+        extra = [(name, target) for name, target in zip(present, targets) if target not in base]
+        layout = ', '.join([f'"{name}" {kind.replace(" NOT NULL", "")}'
+                            for name, kind in _IMAGE_ANNOTATION_BASE]
+                           + [f'"{target}" {declared.get(name, "")}'.rstrip() for name, target in extra])
+        staging = f'{_IMAGE_ANNOTATION_TABLE}_migrating'
+        into = ', '.join(f'"{name}"' for name in targets)
+        source = ', '.join(f'"{name}"' for name in present)
+        connection.execute(f'CREATE TABLE {staging} ({layout})')
+        connection.execute(f'INSERT INTO {staging} ({into}) SELECT {source} '
+                           f'FROM {_IMAGE_ANNOTATION_TABLE}')
+        connection.execute(f'DROP TABLE {_IMAGE_ANNOTATION_TABLE}')
+        connection.execute(f'ALTER TABLE {staging} RENAME TO {_IMAGE_ANNOTATION_TABLE}')
+        present = [name for name, _ in _IMAGE_ANNOTATION_BASE] + [target for _, target in extra]
     for name, kind in _IMAGE_ANNOTATION_BASE:
         if name not in present:
             connection.execute(f'ALTER TABLE {_IMAGE_ANNOTATION_TABLE} '

@@ -154,6 +154,26 @@ def test_unversioned_table_with_legacy_names_is_migrated_without_losing_values(t
         assert connection.execute("SELECT value FROM image_annotations_meta").fetchone()[0] == "1"
 
 
+def test_a_legacy_row_column_reaches_the_rowid_alias_without_losing_values(tmp_path):
+    """SQLite 3.54 refuses to rename or add a column called ``rowID``.
+
+    The table is rebuilt instead, so ``row`` still arrives as ``rowID``.
+    """
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as connection:
+        connection.execute("CREATE TABLE image_annotations (plate TEXT, well TEXT, field TEXT, "
+                           "file TEXT, row TEXT, col TEXT, cell_type TEXT)")
+        connection.execute("INSERT INTO image_annotations VALUES "
+                           "('plate1','A01','f1','a.tif','A','1','HeLa')")
+    _set_image_annotations(db, [dict(plate="plate1", well="A01", field="1", file="b.tif")],
+                           "cell_type", "HFF")
+    rows = {row["file"]: row for row in _table(db)}
+    assert rows["a.tif"]["rowID"] == "A" and rows["a.tif"]["cell_type"] == "HeLa"
+    assert "row" not in rows["a.tif"]
+    assert rows["b.tif"]["cell_type"] == "HFF"
+    assert _image_annotation_columns(db) == ["cell_type"]
+
+
 def test_reads_never_migrate_the_database(tmp_path):
     db = tmp_path / "measurements.db"
     _set_image_annotations(db, _fields(tmp_path), "drug", "none")
