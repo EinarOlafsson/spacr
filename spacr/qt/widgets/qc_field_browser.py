@@ -4806,8 +4806,11 @@ class _FieldOverview(QWidget):
         host = QWidget(self)
         layout = QVBoxLayout(host)
         layout.setContentsMargins(0, 0, 0, 0)
+        from .sortable_table import install_sorting
+
         self.comparison_dimensions = QTreeWidget()
         self.comparison_dimensions.setHeaderHidden(True)
+        install_sorting(self.comparison_dimensions)
         self.comparison_dimensions.setMinimumHeight(120)
         self.comparison_dimensions.setToolTip(tr(
             "Tick annotation columns and the values to compare; every combination of the ticked values is one group."))
@@ -4842,7 +4845,7 @@ class _FieldOverview(QWidget):
 
     def _refresh_comparison_choices(self):
         """Offer every annotation column and value, keeping earlier ticks."""
-        from PySide6.QtWidgets import QTreeWidgetItem
+        from .sortable_table import tree_item
 
         tree = self.comparison_dimensions
         ticked = {(item.parent().text(0) if item.parent() else None, item.text(0))
@@ -4853,11 +4856,11 @@ class _FieldOverview(QWidget):
                 values.setdefault(key, set()).add(value)
         tree.clear()
         for key in sorted(values):
-            parent = QTreeWidgetItem([key])
+            parent = tree_item([key])
             parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsAutoTristate)
             tree.addTopLevelItem(parent)
             for value in sorted(values[key], key=_overview_natural_key):
-                child = QTreeWidgetItem([value])
+                child = tree_item([value])
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                 child.setCheckState(0, Qt.Checked if (key, value) in ticked else Qt.Unchecked)
                 parent.addChild(child)

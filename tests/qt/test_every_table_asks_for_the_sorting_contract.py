@@ -27,7 +27,8 @@ QT_ROOT = os.path.join(os.path.dirname(os.path.abspath(spacr.__file__)), "qt")
 #: see ``test_the_database_browser_sorts_descending_first``.
 EXEMPT = {("screens/db_browser.py", "self._view"),
           ("widgets/activity_spinner.py", "self._table"),
-          ("widgets/organize_for_measure.py", "self.table")}
+          ("widgets/organize_for_measure.py", "self.table"),
+          ("widgets/qc_field_browser.py", "self.wells")}
 #: The Jobs dock (650, 0037ef2bd) is the second: it is rebuilt from the job
 #: registry every tick, row by row with a progress bar and a Cancel button per
 #: job, so a header sort would be undone a fraction of a second later and
@@ -36,6 +37,12 @@ EXEMPT = {("screens/db_browser.py", "self._view"),
 #: third: every cell is a path editor widget with no table item to sort by,
 #: and its first row is pinned to the image being edited, so a header sort
 #: would have nothing to compare and must not move that row.
+#: The Overview's plate (``_FieldOverview.wells``) is the fourth: its cells
+#: ARE the physical plate -- row A to P, column 1 to 24 -- and its header
+#: labels are those plate rows and columns. A header sort would put well B03
+#: where A03 sits on the plate, and every well lookup goes by that physical
+#: position. It never sorted; it escaped the sweep while it was built in a
+#: tuple assignment. Its cells are still the shared item.
 
 #: View SUBCLASSES that must not take it, and why.
 #:
