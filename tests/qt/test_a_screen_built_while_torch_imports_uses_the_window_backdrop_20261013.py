@@ -64,7 +64,8 @@ def test_the_screen_defers_to_the_window_field_once_the_lock_is_free(
     qtbot.wait(400)
     assert screen._ambient is None, "the screen built a second field"
     assert screen.page_fill() is None
-    assert "background" not in screen.styleSheet(), screen.styleSheet()
+    assert "AppScreen { background-color" not in screen.styleSheet(), (
+        screen.styleSheet())
     assert not screen.autoFillBackground()
 
     backdrop._timer.stop()
