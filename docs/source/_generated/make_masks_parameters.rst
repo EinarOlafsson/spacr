@@ -11,7 +11,7 @@ or restore values from the current session.
     dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background.
 
 ``propagate_sigma`` — default ``2.0``
-    the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound.
+    the Gaussian blur before the maxima are found, in pixels. This is separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: the blur that gives one object one centre is usually much stronger than the blur wanted for measuring the object's edge, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound.
 
 ``propagate_min_distance`` — default ``10``
     the smallest gap between two seeds, in pixels; about one object radius.

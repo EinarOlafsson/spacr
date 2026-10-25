@@ -1477,7 +1477,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 8832,
+    "line": 8831,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -1999,7 +1999,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "balance_to_smallest",
-    "line": 8488,
+    "line": 8487,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -2090,7 +2090,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "baseline",
-    "line": 3129,
+    "line": 3159,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_export"
@@ -2099,7 +2099,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "baseline",
-    "line": 5548,
+    "line": 5582,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._normalization_target_changed"
@@ -3001,7 +3001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2074,
+    "line": 2124,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -7923,7 +7923,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4096,
+    "line": 4128,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -8125,7 +8125,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "chunk_size",
-    "line": 2060,
+    "line": 2110,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -8486,7 +8486,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "class_metadata",
-    "line": 8789,
+    "line": 8788,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -8614,7 +8614,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 9016,
+    "line": 9015,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_class_column"
@@ -11979,7 +11979,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 4092,
+    "line": 4124,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -11988,7 +11988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 8439,
+    "line": 8473,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -12235,7 +12235,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 8888,
+    "line": 8887,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -12244,7 +12244,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 8895,
+    "line": 8894,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -15265,7 +15265,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 7206,
+    "line": 7203,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -15274,7 +15274,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 7210,
+    "line": 7207,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -16043,7 +16043,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 7156,
+    "line": 7153,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -16052,7 +16052,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 7173,
+    "line": 7170,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -16061,7 +16061,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 7173,
+    "line": 7170,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -16070,7 +16070,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 7210,
+    "line": 7207,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -16079,7 +16079,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 7309,
+    "line": 7308,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_dataset_crop_refs"
@@ -24747,7 +24747,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 4406,
+    "line": 4438,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -25941,7 +25941,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 6336,
+    "line": 6370,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -25950,7 +25950,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 6817,
+    "line": 6851,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._indexed"
@@ -25959,7 +25959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 8776,
+    "line": 8810,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -25968,7 +25968,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 9840,
+    "line": 9874,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -28418,7 +28418,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4107,
+    "line": 4139,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28427,7 +28427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 8687,
+    "line": 8721,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -28798,7 +28798,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4104,
+    "line": 4136,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -29231,7 +29231,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 8495,
+    "line": 8494,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -37507,7 +37507,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 8435,
+    "line": 8469,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38093,7 +38093,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 8440,
+    "line": 8474,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38157,7 +38157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 8442,
+    "line": 8476,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38177,7 +38177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 8441,
+    "line": 8475,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38905,7 +38905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "path_string",
-    "line": 7156,
+    "line": 7153,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -38914,7 +38914,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "path_string",
-    "line": 8489,
+    "line": 8488,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39722,7 +39722,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 8497,
+    "line": 8496,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -41293,7 +41293,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 6325,
+    "line": 6359,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -41302,7 +41302,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8780,
+    "line": 8814,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -41311,7 +41311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 9873,
+    "line": 9907,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
@@ -43285,7 +43285,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 7391,
+    "line": 7390,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_write_crop_tar"
@@ -43397,7 +43397,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_type",
-    "line": 7157,
+    "line": 7154,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -43406,7 +43406,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_type",
-    "line": 8489,
+    "line": 8488,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -44961,7 +44961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 1003,
+    "line": 1046,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_ram_guard_scope.__init__"
@@ -44970,7 +44970,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 1026,
+    "line": 1069,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_ram_guard_enabled"
@@ -45244,7 +45244,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 8492,
+    "line": 8491,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -45253,7 +45253,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 8888,
+    "line": 8887,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -45262,7 +45262,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 8894,
+    "line": 8893,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -47891,7 +47891,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 7180,
+    "line": 7177,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -47900,7 +47900,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 7180,
+    "line": 7177,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "generate_dataset"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "sample",
+    "line": 7178,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -47918,7 +47927,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 7184,
+    "line": 7181,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -47927,16 +47936,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 7184,
-    "module": "spacr.io",
-    "nested": false,
-    "qualname": "generate_dataset"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "sample",
-    "line": 7185,
+    "line": 7182,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51757,7 +51757,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7142,
+    "line": 7139,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51766,7 +51766,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7152,
+    "line": 7149,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51775,7 +51775,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7153,
+    "line": 7150,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51784,7 +51784,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7153,
+    "line": 7150,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51793,7 +51793,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7159,
+    "line": 7156,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51802,7 +51802,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7163,
+    "line": 7160,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -51811,10 +51811,19 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7203,
+    "line": 7200,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 8500,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "generate_training_dataset"
    },
    {
     "form": "subscript",
@@ -51829,7 +51838,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8502,
+    "line": 8501,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -51838,7 +51847,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8502,
+    "line": 8733,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -51847,7 +51856,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8734,
+    "line": 8736,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -51856,16 +51865,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8737,
-    "module": "spacr.io",
-    "nested": false,
-    "qualname": "generate_training_dataset"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 8741,
+    "line": 8740,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -52927,7 +52927,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4083,
+    "line": 4115,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -52936,7 +52936,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7956,
+    "line": 7990,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_field_overview"
@@ -52945,7 +52945,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8426,
+    "line": 8460,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -52954,7 +52954,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8683,
+    "line": 8717,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -52981,7 +52981,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2066,
+    "line": 2116,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -52990,7 +52990,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2068,
+    "line": 2118,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -55174,7 +55174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tables",
-    "line": 8490,
+    "line": 8489,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -56494,7 +56494,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "test_split",
-    "line": 8888,
+    "line": 8887,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -56503,7 +56503,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_split",
-    "line": 8892,
+    "line": 8891,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -64647,7 +64647,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "write_random_annotation_column",
-    "line": 8491,
+    "line": 8490,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
