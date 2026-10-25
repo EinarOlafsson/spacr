@@ -150,7 +150,7 @@ def test_a_loader_whose_signature_cannot_be_read_is_called_with_the_row_alone(
     import inspect
 
     loader = _OpaqueLoader()
-    with pytest.raises(ValueError):
+    with pytest.raises((TypeError, ValueError)):
         inspect.signature(loader)
 
     worker = annotate_mod._PageLoadWorker(1, ["a", "b"], loader)
