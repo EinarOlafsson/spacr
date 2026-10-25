@@ -594,7 +594,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing-link-1.desktop.svg"><img src="../../readme_images/sv/licensing-link-1.svg" alt="BSD 3-Clause with additional terms"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing-link-2.desktop.svg"><img src="../../readme_images/sv/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing-link-1.desktop.svg"><img src="../../readme_images/sv/licensing-link-1.svg" alt="BSD 3-Clause with additional terms"></picture></a><a href="MAILTO:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing-link-2.desktop.svg"><img src="../../readme_images/sv/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
 
 .. raw:: html
 

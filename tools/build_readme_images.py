@@ -1649,6 +1649,19 @@ def fitting_columns(labels: Sequence[str], wanted: int, layout_width: int,
     return columns
 
 
+def _pypi_safe_target(target: str) -> str:
+    """A mail link whose scheme PyPI's stylesheet does not decorate.
+
+    Warehouse appends an envelope glyph to every link whose ``href`` starts
+    with lowercase ``mailto:``; in a row of equal cells that glyph wraps
+    onto its own line. URL schemes are case-insensitive, so the link still
+    opens the mail client.
+    """
+    if target.startswith("mailto:"):
+        return "MAILTO:" + target[len("mailto:"):]
+    return target
+
+
 def _chip_grid(language: str, prefix: str, links: list[tuple[str, str]],
                images: dict, render: bool, *, columns: int = 0,
                nav: bool = False) -> str:
@@ -1685,7 +1698,7 @@ def _chip_grid(language: str, prefix: str, links: list[tuple[str, str]],
         cells.append(picture_html(
             _image_reference(language, name),
             _image_reference(language, f"{name}.desktop"), label,
-            _relative(target, language)))
+            _pypi_safe_target(_relative(target, language))))
     return raw_html("".join(cells))
 
 
