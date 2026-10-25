@@ -11,6 +11,12 @@ from spacr import run_journal as rj
 CAPTION = 'A run is in progress. Try again when it has finished.'
 
 
+def _unchanged(details):
+    """What a refused mutation must not alter; reading a file may move its access time."""
+    return (details.st_mode, details.st_ino, details.st_dev, details.st_size,
+            details.st_mtime_ns, details.st_ctime_ns)
+
+
 @pytest.fixture
 def cache(tmp_path, monkeypatch):
     state = tmp_path / 'private-spacr'
@@ -65,8 +71,8 @@ def test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization(c
         else:
             with pytest.raises(ValueError, match='run is in progress'):
                 rj._relocate_cache('news', tmp_path / 'destination')
-        assert (folder / 'kept.json').stat() == before_cache
-        assert metadata.stat() == before_stat
+        assert _unchanged((folder / 'kept.json').stat()) == _unchanged(before_cache)
+        assert _unchanged(metadata.stat()) == _unchanged(before_stat)
         assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
         assert metadata.read_bytes() == before_metadata
         assert not (tmp_path / 'destination').exists()

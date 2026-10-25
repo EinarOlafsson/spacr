@@ -15,6 +15,12 @@ from spacr.errors import ConfigurationError
 from spacr.measure import _measure_merged_folder
 from spacr.validate import ERROR, WARNING, _resolve_measure_src, validate_settings
 
+DESCRIPTOR_RELATIVE_READS = (hasattr(os, 'O_DIRECTORY') and hasattr(os, 'O_NOFOLLOW')
+                             and os.open in os.supports_dir_fd)
+needs_descriptor_relative_reads = pytest.mark.skipif(
+    not DESCRIPTOR_RELATIVE_READS,
+    reason='signed cell measurement refuses platforms without descriptor-relative reads')
+
 
 @pytest.fixture
 def plate(tmp_path):
@@ -339,6 +345,19 @@ def calibrated_signed_cells(tmp_path, request):
                 record=dataset / 'psf' / 'segmentation_application.json')
 
 
+@pytest.mark.skipif(DESCRIPTOR_RELATIVE_READS, reason='this platform reads signed cells')
+def test_signed_cell_measurement_refuses_a_platform_without_descriptor_relative_reads(
+        calibrated_signed_cells, tmp_path):
+    from spacr.measure import measure_calibrated_cells
+
+    sample = calibrated_signed_cells
+    with pytest.raises(ValueError, match='POSIX descriptor-relative file access'):
+        measure_calibrated_cells(sample['root'], dst=tmp_path / 'signed_measurements')
+    assert not (tmp_path / 'signed_measurements').exists()
+    assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+@needs_descriptor_relative_reads
 def test_signed_cell_measurement_uses_original_signed_pixels_and_full_reference_geometry(
         calibrated_signed_cells, tmp_path):
     import csv
@@ -398,6 +417,7 @@ def test_signed_cell_measurement_uses_original_signed_pixels_and_full_reference_
         assert isinstance(metadata[key], str) and metadata[key].strip()
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_measurement_cancel_after_actual_csv_write_publishes_nothing(
         calibrated_signed_cells, tmp_path, monkeypatch):
     import threading
@@ -429,6 +449,7 @@ def test_signed_cell_measurement_cancel_after_actual_csv_write_publishes_nothing
     assert all(path.read_bytes() == original for path, original in sample['sources'].items())
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_measurement_cancels_after_real_statistics_without_publication(
         calibrated_signed_cells, tmp_path, monkeypatch):
     import threading
@@ -457,6 +478,7 @@ def test_signed_cell_measurement_cancels_after_real_statistics_without_publicati
     assert all(path.read_bytes() == original for path, original in sample['sources'].items())
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_measurement_preserves_actual_output_write_error(
         calibrated_signed_cells, tmp_path, monkeypatch):
     import errno
@@ -499,7 +521,10 @@ def test_signed_cell_measurement_never_replaces_an_existing_destination(
         destination.mkdir()
     else:
         target.mkdir()
-        destination.symlink_to(target, target_is_directory=True)
+        try:
+            destination.symlink_to(target, target_is_directory=True)
+        except OSError as error:
+            pytest.skip(f'this account cannot create symbolic links: {error}')
     identity = destination.lstat()
     before = set(tmp_path.iterdir())
     with pytest.raises(FileExistsError):
@@ -516,6 +541,7 @@ def test_signed_cell_measurement_never_replaces_an_existing_destination(
 
 
 
+@needs_descriptor_relative_reads
 def test_signed_cell_measurement_preserves_a_destination_created_during_staging(
         calibrated_signed_cells, tmp_path, monkeypatch):
     from pathlib import Path
@@ -550,6 +576,7 @@ def test_signed_cell_measurement_preserves_a_destination_created_during_staging(
     assert all(path.read_bytes() == original for path, original in sample['sources'].items())
 
 
+@needs_descriptor_relative_reads
 @pytest.mark.parametrize('calibrated_signed_cells', [(1e-200, 1e-200), (1e308, 1e308)],
                          indirect=True, ids=['underflow-area', 'overflow-geometry'])
 def test_signed_cell_measurement_refuses_unrepresentable_physical_geometry(
