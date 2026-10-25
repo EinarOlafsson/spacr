@@ -2919,9 +2919,9 @@ class AppScreen(QWidget):
             self.app_key, parent=content,
             current=AppScreen.values_the_next_screen_is_built_for)
         if self.app_key in ("mask", "measure", "classify", "classify_merged"):
-            from ..widgets.qc_field_browser import _open_field_overview
+            from ..widgets.qc_field_browser import _open_overview_module
 
-            self._settings_model._field_overview_requested = lambda: _open_field_overview(
+            self._settings_model._field_overview_requested = lambda: _open_overview_module(
                 self, self._settings_model.collect())
         self._settings_model._enable_commit_observation(
             self._observe_settings_commit)
@@ -8151,6 +8151,10 @@ class AppScreen(QWidget):
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
+        elif self.app_key == "overview":
+            from ..widgets.qc_field_browser import _install_overview_module
+
+            self._remember_runtime_splitter(_install_overview_module(self, layout))
         elif self.app_key == "timelapse":
             from ..widgets.timelapse_preview import build_timelapse_preview_card
             splitter = self._new_runtime_splitter()
@@ -8327,6 +8331,11 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
+        if self.app_key == "overview":
+            from ..widgets.qc_field_browser import _install_overview_actions
+
+            _install_overview_actions(self, buttons)
+            self._btn_stop.setEnabled(True)
 
         from ..i18n import set_translatable_text
         self._btn_export = QPushButton()
@@ -9279,6 +9288,10 @@ class AppScreen(QWidget):
         looking at" that quietly picked those up would compare two runs
         differing in more ways than the one the user chose.
         """
+        page = getattr(self, "_overview_page", None)
+        if page is not None:
+            page.run(self._settings_model.collect())
+            return
         if self._wait_for_the_entry_import(override):
             return
         from ..verbose_logger import log_button_press
@@ -12621,6 +12634,10 @@ class AppScreen(QWidget):
         does: a pipeline killed mid-write leaves a half-written .npy, and
         silent corruption found later is worse than waiting.
         """
+        page = getattr(self, "_overview_page", None)
+        if page is not None:
+            page.stop()
+            return
         if self._thread is None:
             return
         from ..button_roles import set_button_busy

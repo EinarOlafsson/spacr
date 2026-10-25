@@ -13646,7 +13646,7 @@ class MakeMasksScreen(QWidget):
         action.triggered.connect(lambda _checked=False: self._on_pick_file())
         self._btn_open.set_split_menu(open_menu)
         io_row.addWidget(self._btn_open)
-        from ..widgets.qc_field_browser import _open_field_overview
+        from ..widgets.qc_field_browser import _open_overview_module
 
         overview = QToolButton()
         overview.setObjectName("MakeMasksFieldOverview")
@@ -13655,7 +13655,7 @@ class MakeMasksScreen(QWidget):
         overview.setCursor(Qt.PointingHandCursor)
         overview.setToolTip(tr("Field-of-view overview"))
         overview.setAccessibleName(overview.toolTip())
-        overview.clicked.connect(lambda: _open_field_overview(
+        overview.clicked.connect(lambda: _open_overview_module(
             self, {"src": getattr(self, "_folder", ""),
                    "normalization_percentiles": (self._canvas.norm_lo, self._canvas.norm_hi)}))
         io_row.addWidget(overview)

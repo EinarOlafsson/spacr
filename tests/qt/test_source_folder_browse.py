@@ -112,7 +112,7 @@ def test_source_row_keeps_editable_paths_and_compact_actions(qtbot, monkeypatch,
     from spacr.qt.widgets import qc_field_browser
 
     opened = []
-    monkeypatch.setattr(qc_field_browser, '_open_field_overview',
+    monkeypatch.setattr(qc_field_browser, '_open_overview_module',
                         lambda owner, settings: opened.append((owner, settings['src'])))
     screen = AppScreen(app)
     qtbot.addWidget(screen)

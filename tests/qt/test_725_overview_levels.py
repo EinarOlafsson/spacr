@@ -245,7 +245,8 @@ def test_clicked_image_enlarges_right_with_its_metadata_toggle(source, qtbot):
 
     dialog = _overview(qtbot, source)
     dialog._well(_item(dialog, "A01"))
-    assert dialog._splitter.indexOf(dialog._image_panel) == 1
+    assert dialog._splitter.indexOf(dialog._image_column) == 1
+    assert dialog._image_stack.indexOf(dialog._image_panel) == 0
     qtbot.waitUntil(lambda: dialog._displayed_montage is not None and not dialog._montage_jobs.is_busy(),
                     timeout=10000)
     assert dialog._montage_labels is False

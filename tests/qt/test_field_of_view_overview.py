@@ -402,8 +402,10 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
         assert row.itemAt(row.indexOf(screen._btn_open) + 1).widget() is button
         assert not screen._view_controls.isAncestorOf(button)
     button.click()
-    wizard = screen._field_overview_wizard
-    qtbot.addWidget(wizard)
+    pages = screen._fold_pages
+    assert pages.currentWidget() is screen._overview_tab and pages.indexOf(screen._overview_tab) == 1
+    qtbot.addWidget(screen._overview_tab)
+    wizard = screen._overview_tab._overview_page.wizard
     assert isinstance(wizard, browser._OverviewMetadataWizard)
     assert wizard.source.text() == source_path
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
@@ -412,9 +414,8 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
     configuration = wizard.configuration()
     assert configuration["channels"] == tuple(channels)
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
-    assert hasattr(screen, "_field_overview"), wizard.status.text()
-    dialog = screen._field_overview
-    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog = screen._overview_tab._overview_page.browser
+    assert dialog is not None, wizard.status.text()
     assert isinstance(dialog, browser._FieldOverview)
     assert dialog.source.text() == source_path
     channels = expected.get("channels") or (0,)
