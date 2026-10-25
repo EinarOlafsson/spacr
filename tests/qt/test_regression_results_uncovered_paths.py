@@ -14,6 +14,7 @@ assert what the reader is left looking at in each case.
 
 from __future__ import annotations
 
+import os
 import sys
 
 import pandas as pd
@@ -319,7 +320,7 @@ def test_an_older_run_gains_a_level_column_when_its_gene_rows_are_merged(
         module.find_results_tables(str(folder)))
 
     assert found.endswith("results.csv")
-    assert [m.rsplit("/", 1)[-1] for m in merged] == ["results_gene.csv"]
+    assert [os.path.basename(m) for m in merged] == ["results_gene.csv"]
     assert len(frame) == 5
     assert sorted(frame["level"].dropna().unique()) == ["gene", "grna"]
     assert (frame["level"] == "grna").sum() == 3

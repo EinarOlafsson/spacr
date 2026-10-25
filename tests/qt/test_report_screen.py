@@ -353,7 +353,7 @@ def test_open_hands_the_report_to_the_desktop(screen, plate, tmp_path,
     screen.set_output(str(out))
     screen.generate()
     assert screen.open_output() is True
-    assert opened == [str(out)]
+    assert [os.path.normpath(path) for path in opened] == [str(out)]
 
 
 # ---------------------------------------------------------------------------
