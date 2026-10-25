@@ -5402,7 +5402,7 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
     """
     import matplotlib.pyplot as plt
     from .figures.stats import stars
-    from .figures.style import _apply_user_style, figure_style, theme_target
+    from .figures.style import _apply_user_style
     if kind not in ('box', 'violin', 'strip'):
         raise ValueError("kind must be 'box', 'violin' or 'strip'")
     strata = _image_groups(frame, dimensions, groups=groups, levels=levels, within=within)
@@ -5411,69 +5411,69 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
                                       levels=levels, within=within, unit=unit,
                                       correction=correction)['tests']
     count = max(1, len(strata))
+    from .figures.style import figure_style, theme_target
+    from .figures.bundle import _register_figure_data
     with figure_style(theme_target()):
         figure, axes = plt.subplots(1, count, figsize=(max(3.2, 1.1 * max(
             (len(entry['groups']) for entry in strata), default=1) + 1.4) * count, 3.6),
             squeeze=False, sharey=True)
-    from .figures.bundle import _register_figure_data
-    _register_figure_data(figure, lambda: pd.DataFrame(
-        [{'stratum': ', '.join(f'{key}={value}' for key, value in entry['stratum'].items()),
-          'group': name, 'value': value}
-         for entry in strata for name in entry['groups']
-         for value in _image_unit_values(frame, entry['groups'][name], measurement, unit)],
-        columns=['stratum', 'group', 'value']),
-        x='group', y='value', kind=kind, title=measurement)
-    rng = np.random.default_rng(0)
-    for axis, entry in zip(axes[0], strata):
-        names = list(entry['groups'])
-        data = [_image_unit_values(frame, entry['groups'][name], measurement, unit) for name in names]
-        positions = np.arange(1, len(names) + 1)
-        filled = [values if values.size else np.array([np.nan]) for values in data]
-        if kind == 'box':
-            axis.boxplot(filled, positions=positions, widths=0.55, showfliers=False)
-        elif kind == 'violin':
-            drawable = [i for i, values in enumerate(data) if values.size > 1]
-            if drawable:
-                axis.violinplot([data[i] for i in drawable], positions=positions[drawable],
-                                showmedians=True, widths=0.7)
-        for position, values in zip(positions, data):
-            axis.scatter(position + rng.uniform(-0.12, 0.12, values.size), values, s=12,
-                         alpha=0.75, zorder=3)
-        axis.set_xticks(positions)
-        axis.set_xticklabels(names, rotation=30 if len(names) > 3 else 0,
-                             ha='right' if len(names) > 3 else 'center')
-        label = ', '.join(f'{key}={value}' for key, value in entry['stratum'].items())
-        mine = tests[(tests['stratum'] == label) & (tests['measurement'] == measurement)] if len(tests) else tests
-        omnibus = mine[mine['stage'] == 'omnibus'] if len(mine) else mine
-        subtitle = label
-        if len(omnibus):
-            first = omnibus.iloc[0]
-            subtitle = (label + '\n' if label else '') + f"{first['test']} p = {first['p_adjusted']:.3g}"
-        axis.set_title(subtitle)
-        finite = np.concatenate([values for values in data if values.size]) if any(v.size for v in data) else np.array([0.0])
-        top, span = float(np.nanmax(finite)), float(np.nanmax(finite) - np.nanmin(finite)) or 1.0
-        level = 0
-        for _, test in (mine[mine['stage'] == 'pairwise'].iterrows() if len(mine) else ()):
-            pair = str(test['groups']).split(' vs ')
-            if len(pair) != 2 or pair[0] not in names or pair[1] not in names:
-                continue
-            p_value = test['p_adjusted'] if np.isfinite(test['p_adjusted']) else test['p_value']
-            if not p_value < 0.05:
-                continue
-            a, b = names.index(pair[0]) + 1, names.index(pair[1]) + 1
-            level += 1
-            height = top + span * 0.08 * level
-            axis.plot([a, a, b, b], [height, height + span * 0.02, height + span * 0.02, height],
-                      color='0.25', linewidth=0.9)
-            axis.text((a + b) / 2, height + span * 0.025, stars(p_value), ha='center', va='bottom')
-    axes[0][0].set_ylabel(measurement)
-    figure._spacr_graph_kind = kind
-    figure.tight_layout()
-    _apply_user_style(figure, kind)
-    saved = None
-    if path is not None:
-        from .plot import save_figure
-        saved = save_figure(figure, str(path))
+        _register_figure_data(figure, lambda: pd.DataFrame([
+            dict(stratum=', '.join(f'{key}={value}' for key, value in entry['stratum'].items()),
+                 group=name, value=value)
+            for entry in strata for name in entry['groups']
+            for value in _image_unit_values(frame, entry['groups'][name], measurement, unit)]),
+            x='group', y='value', kind=kind, title=measurement)
+        rng = np.random.default_rng(0)
+        for axis, entry in zip(axes[0], strata):
+            names = list(entry['groups'])
+            data = [_image_unit_values(frame, entry['groups'][name], measurement, unit) for name in names]
+            positions = np.arange(1, len(names) + 1)
+            filled = [values if values.size else np.array([np.nan]) for values in data]
+            if kind == 'box':
+                axis.boxplot(filled, positions=positions, widths=0.55, showfliers=False)
+            elif kind == 'violin':
+                drawable = [i for i, values in enumerate(data) if values.size > 1]
+                if drawable:
+                    axis.violinplot([data[i] for i in drawable], positions=positions[drawable],
+                                    showmedians=True, widths=0.7)
+            for position, values in zip(positions, data):
+                axis.scatter(position + rng.uniform(-0.12, 0.12, values.size), values, s=12,
+                             alpha=0.75, zorder=3)
+            axis.set_xticks(positions)
+            axis.set_xticklabels(names, rotation=30 if len(names) > 3 else 0,
+                                 ha='right' if len(names) > 3 else 'center')
+            label = ', '.join(f'{key}={value}' for key, value in entry['stratum'].items())
+            mine = tests[(tests['stratum'] == label) & (tests['measurement'] == measurement)] if len(tests) else tests
+            omnibus = mine[mine['stage'] == 'omnibus'] if len(mine) else mine
+            subtitle = label
+            if len(omnibus):
+                first = omnibus.iloc[0]
+                subtitle = (label + '\n' if label else '') + f"{first['test']} p = {first['p_adjusted']:.3g}"
+            axis.set_title(subtitle)
+            finite = np.concatenate([values for values in data if values.size]) if any(v.size for v in data) else np.array([0.0])
+            top, span = float(np.nanmax(finite)), float(np.nanmax(finite) - np.nanmin(finite)) or 1.0
+            level = 0
+            for _, test in (mine[mine['stage'] == 'pairwise'].iterrows() if len(mine) else ()):
+                pair = str(test['groups']).split(' vs ')
+                if len(pair) != 2 or pair[0] not in names or pair[1] not in names:
+                    continue
+                p_value = test['p_adjusted'] if np.isfinite(test['p_adjusted']) else test['p_value']
+                if not p_value < 0.05:
+                    continue
+                a, b = names.index(pair[0]) + 1, names.index(pair[1]) + 1
+                level += 1
+                height = top + span * 0.08 * level
+                axis.plot([a, a, b, b], [height, height + span * 0.02, height + span * 0.02, height],
+                          color='0.25', linewidth=0.9)
+                axis.text((a + b) / 2, height + span * 0.025, stars(p_value), ha='center', va='bottom')
+        axes[0][0].set_ylabel(measurement)
+        figure._spacr_graph_kind = kind
+        figure.tight_layout()
+        _apply_user_style(figure, kind)
+        saved = None
+        if path is not None:
+            from .plot import save_figure
+            saved = save_figure(figure, str(path))
     return figure, saved
 
 
@@ -5596,7 +5596,7 @@ def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
     :raises ValueError: when the table has no finite effect sizes.
     """
     import matplotlib.pyplot as plt
-    from .figures.style import _apply_user_style, figure_style, theme_target
+    from .figures.style import _apply_user_style
     usable = table[np.isfinite(pd.to_numeric(table.get('effect_size'), errors='coerce'))] if len(table) else table
     if not len(usable):
         raise ValueError('No effect sizes to plot')
@@ -5604,28 +5604,30 @@ def _image_effect_figure(table: pd.DataFrame, *, top: int = 20, path=None):
     chosen = chosen.iloc[::-1]
     labels = [f"{row.measurement}  ({row.group_a} vs {row.group_b}"
               + (f", {row.stratum}" if row.stratum else '') + ')' for row in chosen.itertuples()]
+    from .figures.style import figure_style, theme_target
+    from .figures.bundle import _register_figure_data
     with figure_style(theme_target()):
         figure, axis = plt.subplots(figsize=(6.4, max(2.4, 0.32 * len(chosen) + 1.0)))
-    from .figures.bundle import _register_figure_data
-    _register_figure_data(figure, lambda: chosen.assign(label=labels),
-                          x='effect_size', y='label', kind='dot')
-    positions = np.arange(len(chosen))
-    axis.axvline(0.0, color='0.6', linewidth=0.8)
-    axis.scatter(chosen['effect_size'], positions, s=28, zorder=3)
-    for position, row in zip(positions, chosen.itertuples()):
-        if row.significance and row.significance not in ('ns', 'n.s.'):
-            axis.annotate(row.significance, (row.effect_size, position), xytext=(6, 0),
-                          textcoords='offset points', va='center')
-    axis.set_yticks(positions)
-    axis.set_yticklabels(labels)
-    axis.set_xlabel(str(chosen['effect'].iloc[0]) if 'effect' in chosen.columns else 'effect size')
-    figure._spacr_graph_kind = 'dot'
-    figure.tight_layout()
-    _apply_user_style(figure, 'dot')
-    saved = None
-    if path is not None:
-        from .plot import save_figure
-        saved = save_figure(figure, str(path))
+        _register_figure_data(figure, lambda: chosen.assign(label=labels)[
+            ['label', 'measurement', 'group_a', 'group_b', 'effect_size', 'p_adjusted', 'significance']],
+            x='effect_size', y='label', kind='scatter', title='Effect sizes')
+        positions = np.arange(len(chosen))
+        axis.axvline(0.0, color='0.6', linewidth=0.8)
+        axis.scatter(chosen['effect_size'], positions, s=28, zorder=3)
+        for position, row in zip(positions, chosen.itertuples()):
+            if row.significance and row.significance not in ('ns', 'n.s.'):
+                axis.annotate(row.significance, (row.effect_size, position), xytext=(6, 0),
+                              textcoords='offset points', va='center')
+        axis.set_yticks(positions)
+        axis.set_yticklabels(labels)
+        axis.set_xlabel(str(chosen['effect'].iloc[0]) if 'effect' in chosen.columns else 'effect size')
+        figure._spacr_graph_kind = 'dot'
+        figure.tight_layout()
+        _apply_user_style(figure, 'dot')
+        saved = None
+        if path is not None:
+            from .plot import save_figure
+            saved = save_figure(figure, str(path))
     return figure, saved
 
 
