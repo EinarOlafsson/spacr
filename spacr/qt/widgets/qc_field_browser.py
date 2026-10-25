@@ -2253,7 +2253,8 @@ def _fov_without_rowid(connection):
     often carries such a key (``rowID`` on many plate exports). ``fov`` is
     keyed by ``field_uid``, so it needs no rowid; a table written before it
     was created without one is rebuilt in place, inside the caller's
-    transaction.
+    transaction. Legacy rows without a ``field_uid`` keep their values under
+    ``legacy-rowid-<rowid>``, since a WITHOUT ROWID key cannot be empty.
 
     :param connection: open connection holding the write transaction.
     """
@@ -2267,8 +2268,9 @@ def _fov_without_rowid(connection):
     connection.execute('CREATE TABLE fov_without_rowid (field_uid TEXT PRIMARY KEY'
                        + (", " + others if others else "") + ') WITHOUT ROWID')
     names = ", ".join(f'"{name}"' for name, _kind in columns)
-    connection.execute(f'INSERT INTO fov_without_rowid ({names}) SELECT {names} FROM fov '
-                       'WHERE field_uid IS NOT NULL')
+    values = ", ".join("COALESCE(field_uid, 'legacy-rowid-' || rowid)" if name == "field_uid"
+                       else f'"{name}"' for name, _kind in columns)
+    connection.execute(f'INSERT INTO fov_without_rowid ({names}) SELECT {values} FROM fov')
     connection.execute('DROP TABLE fov')
     connection.execute('ALTER TABLE fov_without_rowid RENAME TO fov')
     connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')

@@ -267,7 +267,7 @@ def test_existing_legacy_fov_table_keeps_rows_while_new_export_adds_stable_keys(
     rows = _rows(path)
     assert len(rows) == 2
     legacy, = (row for row in rows if row["field"] == "legacy")
-    assert legacy["legacy_value"] == 42 and legacy["field_uid"] is None
+    assert legacy["legacy_value"] == 42 and legacy["field_uid"] == "legacy-rowid-1"
     fresh, = (row for row in rows if row["field"] == "one")
     assert len(fresh["field_uid"]) == 64 and fresh["channel_0_intensity_mean"] == 11.5
 
