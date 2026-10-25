@@ -53,6 +53,12 @@ measurement agent M owns 5-7 and the multiprocess measurement backend.
    "vary one column, hold the others"). Runs go through the existing
    _image_groups(groups=...), _compare_image_groups, _image_comparison_figure
    and _representative_images; rows have names and tooltips.
+14. Enhancement also offers Make Masks' PSF deconvolution (calibrated or measured
+   kernel) and Cellpose 3 restoration (model zoo loading), reusing Make Masks'
+   controls and implementation. They apply ONLY to images opened at full
+   resolution with Original, never to thumbnails or previews; they run off the
+   GUI thread with progress text and say clearly when a calibration or model is
+   missing. Tests: applied for Original, skipped for thumbnails, clean refusal.
 Acceptance: Qt tests cover icon -> Overview tab appears -> switch back to the
 Mask tab -> close the Overview tab -> the icon reopens it; every setting row has a label and tooltip; the
 Export container resizes; category style matches Mask's; the image-size slider
