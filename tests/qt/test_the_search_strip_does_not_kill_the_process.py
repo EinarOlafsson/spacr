@@ -19,12 +19,13 @@ import os
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import pytest
 
 pytest.importorskip("PySide6")
 
-REPO = __file__.rsplit("/tests/", 1)[0]
+REPO = str(Path(__file__).resolve().parents[2])
 
 
 def _run(body: str) -> subprocess.CompletedProcess:

@@ -13,6 +13,8 @@ Offscreen, CPU-only, offline.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -52,7 +54,8 @@ def test_the_image_quality_card_opens_its_gallery(
     opened = []
     from PySide6.QtGui import QDesktopServices
     monkeypatch.setattr(QDesktopServices, "openUrl",
-                        lambda url: opened.append(url.toLocalFile()) or True)
+                        lambda url: opened.append(
+                            str(Path(url.toLocalFile()))) or True)
 
     screen = _screen(qtbot, tmp_path, _reader)
     buttons = _review_buttons(screen)

@@ -160,14 +160,21 @@ def test_the_prose_reflows_and_the_formula_never_breaks(qtbot,
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
     screen._refresh_model_explainer()
     box = screen._model_explainer
-    doc = box.document()
+    # A copy of the rendered document: the browser re-applies its viewport
+    # width to its own document whenever a width change toggles a scroll bar.
+    doc = box.document().clone(box)
 
     code = formula_for("fraction:grna")
     prose_starts = "One coefficient per guide"
     widths, prose_lines = (280, 400, 620, 900), []
     for width in widths:
         doc.setTextWidth(width)
-        for block in _block_texts(box):
+        doc.size()
+        blocks, block = [], doc.begin()
+        while block.isValid():
+            blocks.append(block)
+            block = block.next()
+        for block in blocks:
             text = block.text().strip()
             if text == code:
                 assert block.layout().lineCount() == 1, (

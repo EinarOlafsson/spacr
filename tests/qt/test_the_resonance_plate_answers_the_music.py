@@ -544,7 +544,7 @@ class _Fake:
         self.made_on = QThread.currentThread()
 
     def setSource(self, url):                  # noqa: N802 - Qt naming
-        self.source = url.toLocalFile()
+        self.source = str(Path(url.toLocalFile()))
 
     def setVolume(self, value):                # noqa: N802 - Qt naming
         self.volume = float(value)

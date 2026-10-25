@@ -71,8 +71,11 @@ class TestMinimumWidth:
         row = QHBoxLayout(host)
         for text in ("Live", "Hyperparameter search", "AI"):
             row.addWidget(AiToggleLabel(text=text))
-        natural = sum(row.itemAt(i).widget().sizeHint().width()
-                      for i in range(row.count()))
+        margins = row.contentsMargins()
+        natural = (sum(row.itemAt(i).widget().sizeHint().width()
+                       for i in range(row.count()))
+                   + margins.left() + margins.right()
+                   + row.spacing() * (row.count() - 1))
         assert host.minimumSizeHint().width() < natural
 
 

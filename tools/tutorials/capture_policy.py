@@ -482,7 +482,7 @@ def verify_visible_paths(windows, prepared_root):
         QWidget,
     )
 
-    allowed = str(Path(prepared_root).absolute())
+    allowed = Path(prepared_root).absolute().as_posix()
     if _PRIVATE_PATH.search(allowed):
         raise ValueError("Use a neutral prepared capture directory, for example /tmp/spacr-tutorials")
     for window in windows:

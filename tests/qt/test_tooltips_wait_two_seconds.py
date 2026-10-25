@@ -34,7 +34,17 @@ from spacr.qt.preferences import (get_tooltips_enabled,       # noqa: E402
 
 @pytest.fixture
 def policy(qapp):
-    """A freshly installed filter, removed again afterwards."""
+    """A freshly installed filter, removed again afterwards.
+
+    The pointer is parked in the screen's far corner, away from every test
+    window: where the platform starts it (``(0, 0)``, or ``(10, 10)`` on
+    Windows) a window shown at ``(2, 2)`` is under it, and Qt then delivers
+    a real ``Enter`` when the tooltip closes, which rightly starts a new wait.
+    """
+    from PySide6.QtGui import QCursor
+
+    parked = QCursor.pos()
+    QCursor.setPos(qapp.primaryScreen().geometry().bottomRight())
     tooltip_policy.uninstall_tooltip_policy(qapp)
     tooltip_policy.install_tooltip_policy(qapp)
     filter_ = tooltip_policy.tooltip_policy()
@@ -42,6 +52,7 @@ def policy(qapp):
     QToolTip.hideText()
     tooltip_policy.uninstall_tooltip_policy(qapp)
     set_tooltips_enabled(True)
+    QCursor.setPos(parked)
 
 
 @pytest.fixture
