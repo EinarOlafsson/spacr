@@ -2,8 +2,7 @@
 3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
 ================================================================================
 
-Status:    IN PROGRESS — unchanged editing handles are reused; current-frame picking, accelerated FPS and physical interaction acceptance remain
-Status:    IN PROGRESS — native Mac pan and moving-frame alignment repaired; 3D performance and physical interaction acceptance remain
+Status:    DONE — 2026-10-25 native Windows drag and orbit acceptance on all four backends (see dated notes)
 Requested: 2026-10-08
 Owner:     Mac Codex session (current Mac runtime/UI and Mac-specific fixes); root (Linux/general CI/publication); other platform acceptance remains separate
 Depends:   N672 validated gate anchor and surface editing logic
