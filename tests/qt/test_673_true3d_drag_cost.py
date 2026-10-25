@@ -139,17 +139,34 @@ def _outward(canvas, mesh, start):
     return away / max(float(np.hypot(*away)), 1e-9)
 
 
-def _burst(canvas, start, counts, direction):
+def _small_pull(canvas, point, direction, most=0.2):
+    """How many pixels along ``direction`` move ``point`` at most ``most`` data units.
+
+    A few pixels are a large part of a voxel when the canvas is small, as it
+    is when an earlier test in the same process left the window short, and
+    a pull that large folds the test's small spheres. Sizing the pull in
+    data units keeps it a small reshape on any canvas.
+    """
+    ax = canvas.axes_at(0, 0)
+    pixels = 0.3 * MOVES
+    delta = canvas._volume_edit_delta(ax, point, np.asarray(direction, float) * pixels)
+    size = float(np.linalg.norm(delta)) if delta is not None else 0.0
+    return pixels * min(1.0, most / size) if size > 0 else pixels
+
+
+def _burst(canvas, start, counts, direction, pixels=0.3 * MOVES):
     """Send the moves back to back, then let the event loop run once.
 
     :param direction: the unit screen direction the pointer moves in.
+    :param pixels: how far the pointer moves in all.
     :returns: the last move as matplotlib read it, which is where the
         release lands.
     """
     seen = []
     watch = canvas._canvas.mpl_connect("motion_notify_event", lambda event: seen.append((event.x, event.y)))
     for step in range(1, MOVES + 1):
-        _move(canvas, start[0] + step * 0.3 * direction[0], start[1] + step * 0.3 * direction[1])
+        _move(canvas, start[0] + step * pixels / MOVES * direction[0],
+              start[1] + step * pixels / MOVES * direction[1])
     canvas._canvas.mpl_disconnect(watch)
     assert len(seen) == MOVES
     assert counts["rebuilds"] == 0 and counts["validations"] == 0
@@ -190,7 +207,8 @@ def test_a_burst_of_anchor_moves_rebuilds_nothing_and_releases_the_old_edit(cpu_
     start = GE._screen_points(canvas.axes_at(0, 0), [point])[0]
     assert canvas._start_volume_handle(gate, role, point, float(start[0]), float(start[1]))
     counts = _counted(monkeypatch, canvas)
-    end = _burst(canvas, start, counts, _outward(canvas, canvas._editable_boundary(gate), start))
+    direction = _outward(canvas, canvas._editable_boundary(gate), start)
+    end = _burst(canvas, start, counts, direction, _small_pull(canvas, point, direction))
     expected = canvas._handle_moved(_At(canvas, *end))
     assert counts["validations"] == 1
     assert isinstance(expected, gate_spec.EditableVolumeGate) and expected != gate
@@ -216,7 +234,8 @@ def test_a_burst_of_surface_moves_rebuilds_nothing_and_releases_the_old_edit(cpu
     start = GE._screen_points(canvas.axes_at(0, 0), [centre[order]])[0]
     assert canvas._drag_selected_surfaces(_At(canvas, float(start[0]), float(start[1])))
     counts = _counted(monkeypatch, canvas)
-    end = _burst(canvas, start, counts, _outward(canvas, canvas._editable_boundary(gate), start))
+    direction = _outward(canvas, canvas._editable_boundary(gate), start)
+    end = _burst(canvas, start, counts, direction, _small_pull(canvas, centre[order], direction))
     expected = canvas._surface_moved(_At(canvas, *end))
     assert counts["validations"] == 1
     assert isinstance(expected, gate_spec.EditableVolumeGate) and expected != mesh
