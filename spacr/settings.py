@@ -938,6 +938,112 @@ def _takes_an_argument(fn):
     return False
 
 
+
+_OVERVIEW_MEASUREMENT_DEFAULTS = {
+    'overview_measure_intensity': True,
+    'overview_measure_saturation': True,
+    'overview_measure_focus': True,
+    'overview_measure_texture': True,
+    'overview_measure_coverage': True,
+    'overview_measure_background_snr': True,
+    'overview_measure_objects': True,
+    'overview_measure_cross_channel': True,
+    'overview_measure_existing_masks': True,
+    'overview_measure_smallest_object': 9,
+    'overview_measure_n_jobs': None,
+    'overview_measure_ram_guard': True,
+    'overview_measure_embeddings': False,
+    'overview_embedding_backbone': 'resnet18',
+    'overview_embedding_size': 224,
+    'overview_measure_deep_qc': False,
+    'overview_measure_filter_bank': False,
+}
+
+_OVERVIEW_MEASUREMENT_TYPES = {
+    'overview_measure_intensity': bool,
+    'overview_measure_saturation': bool,
+    'overview_measure_focus': bool,
+    'overview_measure_texture': bool,
+    'overview_measure_coverage': bool,
+    'overview_measure_background_snr': bool,
+    'overview_measure_objects': bool,
+    'overview_measure_cross_channel': bool,
+    'overview_measure_existing_masks': bool,
+    'overview_measure_smallest_object': int,
+    'overview_measure_n_jobs': (int, type(None)),
+    'overview_measure_ram_guard': bool,
+    'overview_measure_embeddings': bool,
+    'overview_embedding_backbone': str,
+    'overview_embedding_size': int,
+    'overview_measure_deep_qc': bool,
+    'overview_measure_filter_bank': bool,
+}
+
+_OVERVIEW_MEASUREMENT_TOOLTIPS = {
+    'overview_measure_intensity': '(bool) - Per-channel raw intensity of each whole image: minimum, maximum, mean, median, sum, spread, skewness and the 1st to 99th percentiles. Cheap. Default True.',
+    'overview_measure_saturation': '(bool) - The fraction of pixels at the saturation level, the dtype maximum for integer images. Flags clipped exposures. Cheap. Default True.',
+    'overview_measure_focus': '(bool) - Sharpness scores per channel (Laplacian variance, Brenner and Tenengrad gradients); they fall when an image is out of focus. Cheap. Default True.',
+    'overview_measure_texture': '(bool) - Haralick (GLCM) texture per channel: contrast, homogeneity, energy, correlation and entropy, computed on a copy reduced to at most 512 pixels. Moderate cost. Default True.',
+    'overview_measure_coverage': '(bool) - How much of the image is covered: the Otsu foreground fraction and mean, and spaCR\'s texture confluency estimate. Moderate cost. Default True.',
+    'overview_measure_background_snr': '(bool) - Background level and spread outside the Otsu foreground, signal-to-noise ratio and signal-to-background ratio per channel. Cheap. Default True.',
+    'overview_measure_objects': '(bool) - Object counts and regionprops summaries (area, eccentricity, solidity, object intensity), from existing spaCR masks when found and otherwise from the Otsu foreground. Moderate cost on dense images. Default True.',
+    'overview_measure_cross_channel': '(bool) - For every pair of selected channels: Pearson correlation, Manders coefficients and foreground overlap. Cost grows with the number of channel pairs. Default True.',
+    'overview_measure_existing_masks': '(bool) - Use existing spaCR masks (masks/<object>_mask_stack beside the images) for the object measurements when they match the image. Off always segments the Otsu foreground. Default True.',
+    'overview_measure_smallest_object': '(int) - Smallest Otsu object, in pixels, counted when no mask is used. Default 9.',
+    'overview_measure_n_jobs': '(int or None) - Parallel worker processes, one image per worker, as in Measure. Blank uses the number of CPU cores minus spaCR\'s usual headroom; the count is capped at the number of images and lowered when RAM is short. Default None.',
+    'overview_measure_ram_guard': '(bool) - Lower the worker count when the estimated memory of the workers exceeds free RAM, and hold the next image while RAM is short. Default True.',
+    'overview_measure_embeddings': '(bool) - Put each image through a pretrained network and store its feature vector (compact float16) with summary columns and principal components for comparisons. Needs torch; downloads the chosen model once into spaCR\'s model cache. Runs on the CPU, roughly 0.2-2 s per image and about 1 GB of RAM per worker. Default False.',
+    'overview_embedding_backbone': '(str) - The network for image embeddings: resnet18 (ImageNet, about 45 MB, needs timm), openphenom (Recursion channel-agnostic ViT, non-commercial licence) or chada_vit (channel-adaptive ViT). Each channel is encoded separately. Default resnet18.',
+    'overview_embedding_size': '(int) - Long side, in pixels, each image is reduced to by block averaging before it is embedded. Larger keeps more detail and costs more time. Default 224.',
+    'overview_measure_deep_qc': '(bool) - Score each channel with spaCR\'s image-quality network (out of focus, saturated, debris, bubble, empty), as in Mask generation\'s image screening. Needs torch; downloads a 0.3 MB model once. Fast on the CPU. Default False.',
+    'overview_measure_filter_bank': '(bool) - Texture filter bank per channel: Gabor magnitude at two frequencies over four orientations and Laplacian-of-Gaussian energy at three scales, on a copy reduced to at most 512 pixels. No download; moderate cost. Default False.',
+}
+
+_OVERVIEW_MEASUREMENT_CATEGORIES = {
+    'Measurements': [
+        'overview_measure_intensity', 'overview_measure_saturation', 'overview_measure_focus',
+        'overview_measure_texture', 'overview_measure_coverage', 'overview_measure_background_snr',
+        'overview_measure_objects', 'overview_measure_cross_channel', 'overview_measure_existing_masks',
+        'overview_measure_smallest_object', 'overview_measure_n_jobs', 'overview_measure_ram_guard'],
+    'Advanced Measurements': [
+        'overview_measure_embeddings', 'overview_embedding_backbone', 'overview_embedding_size',
+        'overview_measure_deep_qc', 'overview_measure_filter_bank'],
+}
+
+_OVERVIEW_MEASUREMENT_PARENTS = {'Advanced Measurements': 'Measurements'}
+
+_OVERVIEW_MEASUREMENT_CATEGORY_TOOLTIPS = {
+    'MEASUREMENTS': 'Which image-level measurements Overview computes for each whole image, grouped as intensity, saturation, focus, texture, coverage, background and SNR, objects and cross-channel, and how many images are measured in parallel. Rows go to the fov table of measurements/measurements.db.',
+    'ADVANCED MEASUREMENTS': 'Optional image operations that put each image through a network or a filter bank: foundation-model embeddings, deep image-quality scores and texture filter banks. All are off by default; each states its cost and any one-time model download.',
+}
+
+
+def _overview_measurement_defaults(settings=None):
+    """Fill the Overview Measurements settings into ``settings``.
+
+    :param settings: caller's settings, completed in place.
+    :returns: the completed settings dict.
+    """
+    settings = settings if settings is not None else {}
+    for key, value in _OVERVIEW_MEASUREMENT_DEFAULTS.items():
+        settings.setdefault(key, value)
+    return settings
+
+
+def _overview_measurement_declarations():
+    """Everything a module registration needs for the Measurements category.
+
+    :returns: ``dict`` with ``defaults``, ``expected_types``, ``tooltips``,
+        ``categories``, ``parents`` and ``category_tooltips``, each a fresh
+        copy to pass to :func:`register_defaults` and the settings panel.
+    """
+    return dict(defaults=dict(_OVERVIEW_MEASUREMENT_DEFAULTS),
+                expected_types=dict(_OVERVIEW_MEASUREMENT_TYPES),
+                tooltips=dict(_OVERVIEW_MEASUREMENT_TOOLTIPS),
+                categories={name: list(keys) for name, keys in _OVERVIEW_MEASUREMENT_CATEGORIES.items()},
+                parents=dict(_OVERVIEW_MEASUREMENT_PARENTS),
+                category_tooltips=dict(_OVERVIEW_MEASUREMENT_CATEGORY_TOOLTIPS))
+
 def set_default_plot_merge_settings():
     """Return the default settings dict for plotting merged mask overlays.
 
