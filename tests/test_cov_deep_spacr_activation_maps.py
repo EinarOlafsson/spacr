@@ -597,6 +597,9 @@ def test_counterfactual_crops_are_collected_up_to_the_limit(tmp_path,
 
 def test_counterfactual_handoff_preserves_saved_class_order_and_actual_pixel_contract(tmp_path, monkeypatch):
     """Saved classifier semantics travel with actual crops without running a generator."""
+    # The handoff is checked on the CPU; on an Apple Silicon Mac the
+    # resolver would otherwise pick Metal.
+    monkeypatch.setenv("SPACR_DEVICE", "cpu")
     import copy
     from pathlib import Path
     import spacr.deep_spacr as ds
