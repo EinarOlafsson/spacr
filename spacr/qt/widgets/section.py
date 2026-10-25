@@ -111,6 +111,15 @@ class _BodyBackOnShow(QObject):
         return False
 
 
+#: Dynamic property on a category body that is out of the page, waiting to
+#: be seen (:meth:`Section._detach_body_while_hidden`). Such a body is
+#: unstyled on purpose and takes the page's sheet when it is put back, so
+#: anything auditing the theme counts it as deferred, not missed. A Qt
+#: property rather than a Python attribute, so it is read the same through
+#: any wrapper of the widget.
+_DETACHED_BODY = "spacrDetachedBody"
+
+
 #: The one filter every category with a body away carries.
 _BACK_ON_SHOW: Optional[_BodyBackOnShow] = None
 
@@ -312,6 +321,7 @@ class Section(QFrame):
         count = len(self._body.findChildren(QWidget)) + 1
         layout.removeWidget(self._body)
         self._body._spacr_detached_from = self
+        self._body.setProperty(_DETACHED_BODY, True)
         self._body.setParent(None)
         self._body.setVisible(False)
         self.destroyed.connect(self._body.deleteLater)
@@ -347,6 +357,7 @@ class Section(QFrame):
             self.removeEventFilter(_BACK_ON_SHOW)
         body.setParent(self)
         body._spacr_detached_from = None
+        body.setProperty(_DETACHED_BODY, None)
         self.layout().insertWidget(index, body)
         body.setVisible(self._expanded)
         heard = self._body_came_back

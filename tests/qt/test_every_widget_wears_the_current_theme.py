@@ -385,11 +385,18 @@ def test_the_real_window_wears_one_theme_everywhere(sheeted, qtbot):
     # takes it on its own `showEvent`, before it is painted -- which is
     # what makes leaving it out of the change cheap AND correct. The
     # companion test below shows one and checks it arrives themed.
+    # A CATEGORY BODY OUT OF THE PAGE IS DEFERRED THE SAME WAY. A closed
+    # category's body leaves the page, unstyled, until it is opened, and
+    # takes the sheet when it is put back; one built in idle time leaves
+    # while this test is probing, so a host counted on the page can be in
+    # such a body by the time it is judged. The body says so itself.
     def deferred(host):
         node = host
         while node is not None and node is not window:
             if node.property("_spacr_is_a_sheet_target") \
                     and not node.isVisible():
+                return True
+            if node.property("spacrDetachedBody") and not node.isVisible():
                 return True
             node = node.parentWidget()
         return False
