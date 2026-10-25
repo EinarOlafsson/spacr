@@ -146,3 +146,15 @@ def test_channel_targets_are_one_switch_per_line(mask, qtbot, source, key):
     assert not first.isChecked() and second.isChecked()
     tab._overview_page._retire_browser()
     assert _row_shown(model._widgets[key])
+
+
+def test_settings_open_wide_with_the_tab_and_stay_open_after_next(mask, qtbot, source):
+    tab = _open_tab(mask, source)
+    body = tab._body_splitter
+    qtbot.waitUntil(lambda: sum(body.sizes()) > 0, timeout=5000)
+    assert not body.is_collapsed("Settings")
+    assert body.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(body.sizes()) // 2)
+    tab, _view = _browse(mask, qtbot, source)
+    qtbot.wait(50)
+    assert not body.is_collapsed("Settings")
+    assert body.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(body.sizes()) // 2)

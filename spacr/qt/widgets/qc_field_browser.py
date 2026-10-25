@@ -8698,6 +8698,7 @@ class _OverviewModulePage(QWidget):
         self._drop_wizard(wizard)
         browser._indexed(fields)
         self._sync_back()
+        _overview_open_settings(self._screen)
 
     def _mount_rows(self, browser):
         """Lay the browser's navigation and action controls out as setting rows.
@@ -8947,6 +8948,7 @@ def _open_overview_module(owner, settings=None):
         owner._overview_tab = tab
     if show_as_page(tab, owner, tr("Overview")) is None:
         return _open_field_overview(owner, settings)
+    _overview_open_settings(tab)
     source = settings.get("src") or settings.get("source")
     model = tab._settings_model
     if source:
@@ -8956,6 +8958,32 @@ def _open_overview_module(owner, settings=None):
         model.set_value_for_key("overview_percentile_low", float(percentiles[0]))
         model.set_value_for_key("overview_percentile_high", float(percentiles[1]))
     return tab._overview_page.run(model.collect())
+
+
+_OVERVIEW_SETTINGS_WIDTH = 520
+
+
+def _overview_open_settings(screen):
+    """Open the Overview tab's settings column, at least :data:`_OVERVIEW_SETTINGS_WIDTH` wide.
+
+    The figures card is a focus pane, so showing the plate folded the
+    settings away to the left -- on opening the tab and again after Next.
+    Opening it as the user would pins it open for the visit.
+
+    :param screen: the Overview module screen.
+    """
+    from .collapsible_splitter import CollapsibleSplitter
+
+    body = getattr(screen, "_body_splitter", None)
+    if not isinstance(body, CollapsibleSplitter) or body.pane("Settings") is None:
+        return
+    body.set_collapsed("Settings", False, by_user=True)
+    sizes = body.sizes()
+    total = sum(sizes)
+    if len(sizes) == 2 and total > 0:
+        wide = min(max(sizes[0], _OVERVIEW_SETTINGS_WIDTH), total // 2)
+        if wide != sizes[0]:
+            body.setSizes([wide, total - wide])
 
 
 def _install_overview_module(screen, layout):
