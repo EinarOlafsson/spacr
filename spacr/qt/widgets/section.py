@@ -892,20 +892,9 @@ class Section(QFrame):
         if scroll is None:
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
-            try:
-                from .ambient import CATEGORY_RIPPLE_STRENGTH
-                if self._expanded:
-                    from .ambient import _field_column_ripple_for_widget
-                    ripple = partial(_field_column_ripple_for_widget, self,
-                                     edge="bottom", strength=CATEGORY_RIPPLE_STRENGTH)
-                else:
-                    from .ambient import _publish_widget_ripple
-                    ripple = partial(_publish_widget_ripple, self, None, None,
-                                     CATEGORY_RIPPLE_STRENGTH, vertical=False, rings=True)
-            except ImportError:
-                return
-
-            QTimer.singleShot(0, ripple)
+            ripple = self._category_ripple()
+            if ripple is not None:
+                QTimer.singleShot(0, ripple)
             return
 
         depth = int(scroll.property(SETTLING_DEPTH) or 0)
@@ -931,17 +920,36 @@ class Section(QFrame):
                     if saved_policy is not None:
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
-        try:
-            from .ambient import CATEGORY_RIPPLE_STRENGTH
-            if self._expanded:
-                from .ambient import _field_column_ripple_for_widget
-                ripple = partial(_field_column_ripple_for_widget, self,
-                                 edge="bottom", strength=CATEGORY_RIPPLE_STRENGTH)
-            else:
-                from .ambient import _publish_widget_ripple
-                ripple = partial(_publish_widget_ripple, self, None, None,
-                                 CATEGORY_RIPPLE_STRENGTH, vertical=False, rings=True)
-        except ImportError:
-            return
+        ripple = self._category_ripple()
+        if ripple is not None:
+            QTimer.singleShot(0, ripple)
 
-        QTimer.singleShot(0, ripple)
+    def _category_ripple(self):
+        """The field's answer to this category opening or closing, unsent.
+
+        A column wave down from the header on open, rings on close, at the
+        ambient module's category strength. Only the two ripple entry points
+        are required of the module: one that predates the strength constant,
+        or a stand-in for it, still answers the toggle at full strength
+        rather than not at all.
+
+        :returns: a callable to run on the next turn, or ``None`` when there
+            is no ambient module.
+        """
+        from importlib import import_module
+
+        try:
+            ambient = import_module(".ambient", __package__)
+        except ImportError:
+            return None
+        strength = getattr(ambient, "CATEGORY_RIPPLE_STRENGTH", 1.0)
+        if self._expanded:
+            column = getattr(ambient, "_field_column_ripple_for_widget", None)
+            if column is None:
+                return None
+            return partial(column, self, edge="bottom", strength=strength)
+        publish = getattr(ambient, "_publish_widget_ripple", None)
+        if publish is None:
+            return None
+        return partial(publish, self, None, None, strength,
+                       vertical=False, rings=True)
