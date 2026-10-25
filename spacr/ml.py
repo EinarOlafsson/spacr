@@ -4186,6 +4186,15 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     return model
 
 
+#: NUTS settings for the horseshoe regression: target acceptance 0.995 with
+#: 4,000 warmup and 4,000 draws per chain on the diagonal mass matrix
+#: (item 718, 2026-10-25). Over 12 seeds of the planted-gene screen this
+#: keeps the hit's posterior tail at or below 0.009 and divergences at or
+#: below the maintainer's 0.1 % of draws; the former 0.9 with 1,000/1,000
+#: had 1-4 divergences in every seed and tails up to 0.0135 on CI.
+_HORSESHOE_SAMPLER = {"target_accept": 0.995, "n_warmup": 4000, "n_samples": 4000}
+
+
 def _fit_horseshoe_poisson(X, y, exposure, likelihood_weights=None):
     """Fit spaCRPower's sparse Poisson model through :mod:`spacr.power_model`.
 
@@ -4274,7 +4283,7 @@ def _fit_horseshoe_poisson(X, y, exposure, likelihood_weights=None):
         likelihood_well_ids=(X.attrs.get("likelihood_well_ids")
                              if likelihood_weights is not None else None),
     )
-    fit = fit_model(model_data, seed=0, standardize=True)
+    fit = fit_model(model_data, seed=0, standardize=True, **_HORSESHOE_SAMPLER)
     return _HorseshoeResults(fit, gather_model_estimate(fit))
 
 

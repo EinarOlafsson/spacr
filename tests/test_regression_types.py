@@ -905,6 +905,16 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
         assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
         # p_value here is a posterior tail mass, so it must still be a probability.
         assert out["results"]["p_value"].between(0.0, 1.0).all()
+        # 2026-10-25, THE MAINTAINER'S RULE (item 718): a rare divergent
+        # transition is accepted up to 0.1 % of the post-warmup draws. Tuning
+        # (target_accept 0.995, 4,000/4,000, dense or diagonal mass, the
+        # scale-mixture reparameterisation) left about one divergence per
+        # 16,000 draws in some seeds; the hit-tail and null-tail limits above
+        # are unchanged.
+        sampled = [fit.diagnostics for fit in fits if "n_divergent" in fit.diagnostics]
+        for diagnostics in sampled:
+            draws = diagnostics["n_samples"] * diagnostics["n_chains"]
+            assert diagnostics["n_divergent"] <= 0.001 * draws, diagnostics
 
     except AssertionError:
         try:
