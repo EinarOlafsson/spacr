@@ -1087,13 +1087,17 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
     Inside the Windows pytest run, ``findChildren`` after the sheet handed
     back new ``QWidget`` wrappers, same C++ objects, new ids, for four
     ``QLabel``s the test still held. The replay was keyed by ``id`` and told
-    the watchers about those strangers, so the labels heard nothing and their
-    states were never paired. Simulated here with stand-ins that share the
-    C++ object but not the Python identity.
+    the watchers about those strangers, so the labels' states were never
+    paired and a watcher comparing by identity heard nothing about them.
+    Simulated here by giving the replay stand-ins for the labels that share
+    their C++ object but not their Python identity; ``hub`` records by C++
+    pointer, and a second watcher keeps the object it was handed.
     """
     import shiboken6
 
-    from spacr.qt.gil_priority import _restyle_unheard
+    from spacr.qt.gil_priority import (_restyle_unheard,
+                                       _stop_watching_application_events,
+                                       _watch_application_events)
 
     class Fresh:
         def __init__(self, target):
@@ -1102,6 +1106,17 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
         def __getattr__(self, name):
             return getattr(self.target, name)
 
+    handed = []
+
+    class _Keeper(QObject):
+        def eventFilter(self, watched, event):           # noqa: N802
+            handed.append(watched)
+            return False
+
+    keeper = _Keeper()
+    _watch_application_events(QApplication.instance(), keeper, (
+        QEvent.StyleChange, QEvent.PaletteChange, QEvent.Polish,
+        QEvent.Show, QEvent.Hide, QEvent.Move, QEvent.EnabledChange))
     real_pointer = shiboken6.getCppPointer
     monkeypatch.setattr(shiboken6, "getCppPointer", lambda obj: real_pointer(
         obj.target if isinstance(obj, Fresh) else obj))
@@ -1111,38 +1126,48 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
     qtbot.addWidget(root)
     layout = QVBoxLayout(root)
     shown, hidden, moved, disabled = (QLabel(t, root) for t in "abcd")
-    for label in (shown, hidden, moved, disabled):
+    labels = (shown, hidden, moved, disabled)
+    for label in labels:
         layout.addWidget(label)
     shown.hide()
     root.show()
     qtbot.waitExposed(root)
     _pump()
     hub.clear()
-    with _restyle_unheard(QApplication.instance(), root):
-        root.setStyleSheet("QLabel { font-size: 21px; }")
-        shown.show()
-        hidden.hide()
-        moved.move(moved.pos().x() + 3, moved.pos().y() + 4)
-        disabled.setEnabled(False)
-        born = QLabel("f", root)
-        born.ensurePolished()
-        monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: [
-            Fresh(child) for child in real_children(self, *a)])
-    monkeypatch.setattr(QWidget, "findChildren", real_children)
-    assert not [w for w, _kind in hub if isinstance(w, Fresh)
-                and w.target is not born]
-    heard = {}
-    for watched, kind in hub:
-        heard.setdefault(id(getattr(watched, "target", watched)),
-                         set()).add(kind)
+    try:
+        with _restyle_unheard(QApplication.instance(), root):
+            root.setStyleSheet("QLabel { font-size: 21px; }")
+            shown.show()
+            hidden.hide()
+            moved.move(moved.pos().x() + 3, moved.pos().y() + 4)
+            disabled.setEnabled(False)
+            born = QLabel("f", root)
+            born.ensurePolished()
+            handed.clear()
+            monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: [
+                Fresh(child) if any(child is label for label in labels)
+                else child for child in real_children(self, *a)])
+    finally:
+        monkeypatch.setattr(QWidget, "findChildren", real_children)
+        _stop_watching_application_events(QApplication.instance(), keeper)
+    assert handed, "the replay told the watchers nothing"
+    assert not [w for w in handed if isinstance(w, Fresh)], (
+        "a watcher was handed a wrapper its owner does not hold")
+    for label in labels:
+        assert any(w is label for w in handed), label.text()
+    by_pointer = {}
+    for pointer, kind in hub:
+        by_pointer.setdefault(pointer, set()).add(kind)
+    heard = {id(w): by_pointer.get(real_pointer(w)[0], set())
+             for w in labels + (born,)}
     restyle = {QEvent.StyleChange, QEvent.PaletteChange}
-    for label in (shown, hidden, moved, disabled, born):
+    for label in labels + (born,):
         assert restyle <= heard[id(label)]
     assert QEvent.Show in heard[id(shown)]
     assert QEvent.Hide in heard[id(hidden)]
     assert QEvent.Move in heard[id(moved)]
     assert QEvent.EnabledChange in heard[id(disabled)]
-    for label in (shown, hidden, moved, disabled):
+    for label in labels:
         assert QEvent.Polish not in heard[id(label)], "paired with no state"
     assert QEvent.Polish in heard[id(born)]
     assert QEvent.Show not in heard[id(hidden)]
