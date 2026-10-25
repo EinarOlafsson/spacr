@@ -408,6 +408,37 @@ def test_a_category_opened_late_is_styled_as_one_built_at_once(
     assert _rows(lazy) == _rows(eager)
 
 
+def test_a_screen_whose_backdrop_waits_wears_what_an_earlier_one_wears(
+        qtbot, monkeypatch):
+    """No theme, no sheet: a screen that paints its own page adds none.
+
+    On Windows the eager Mask window was opened while the first window's
+    preload held the heavy-import lock, so its backdrop waited and the
+    screen painted its own page -- with an ``AppScreen`` rule that was the
+    only sheet in the window. Every control under it got a style-sheet
+    proxy the lazy window's controls did not have, and 36 spin boxes
+    measured 19 px against 23. Held here for the eager window on every
+    platform.
+    """
+    from spacr.qt import theme
+    from spacr.qt.screens.app_screen import AppScreen
+
+    app = QApplication.instance()
+    theme._forget_window_stylesheets(app)
+    app.setStyleSheet("")
+    assert theme.window_stylesheet(app) is None and not app.styleSheet()
+    _lazy_window, lazy = _window(qtbot, "mask")
+    monkeypatch.setattr(AppScreen, "_heavy_lock_is_free", lambda self: False)
+    _eager_window, eager = _window(qtbot, "mask", eager=True)
+    assert eager._ambient is None and eager.page_fill() is not None
+    assert lazy.styleSheet() == eager.styleSheet() == ""
+    lazy._open_every_waiting_heading()
+    _pump(10)
+    late, at_once = _styling(lazy), _styling(eager)
+    assert {key for key in late if late[key] != at_once[key]} == set()
+    assert _rows(lazy) == _rows(eager)
+
+
 def test_a_value_written_before_its_category_opens_is_there_when_it_does(
         qtbot):
     _window_, screen = _window(qtbot, "classify_merged")

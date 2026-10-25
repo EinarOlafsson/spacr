@@ -54,7 +54,7 @@ from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (ALPHA_MARK, SPACING, ensure_widget_qss_applied,
                      register_widget_qss,
-                     set_a_sheeted_widgets_own_rule)
+                     set_a_sheeted_widgets_own_rule, window_stylesheet)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
 from ..widgets.flow import FlowLayout
 from .settings_model import (
@@ -880,6 +880,14 @@ def uses_ambient_background(app_key: str) -> bool:
     :returns: True when the ambient backdrop belongs on that screen.
     """
     return app_key not in DNA_RAIN_APPS
+
+
+def _a_spacr_sheet_is_in_force() -> bool:
+    """Whether the application, or its windows, wear a spaCR stylesheet."""
+    app = QApplication.instance()
+    if app is None:
+        return False
+    return bool(app.styleSheet()) or window_stylesheet(app) is not None
 
 
 def _discard_widget(widget) -> None:
@@ -2596,11 +2604,21 @@ class AppScreen(QWidget):
 
         :param event: the state-change event; it is passed to the base
             class, and only its type is read -- ``ApplicationPaletteChange``
-            and ``PaletteChange`` re-theme the backdrops.
+            and ``PaletteChange`` re-theme the backdrops, and a
+            ``StyleChange`` lets the page colour follow a spaCR sheet
+            arriving or going (:meth:`_sync_page_palette`), since the
+            theme's palette is put on before its sheet.
         """
         super().changeEvent(event)
         if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange):
             self._sync_action_status_height()
+        if event.type() == QEvent.StyleChange:
+            if (self._backdrops_ready
+                    and hasattr(self, "_page_applied_over_a_sheet")
+                    and self._page_applied_over_a_sheet
+                    != _a_spacr_sheet_is_in_force()):
+                self._sync_page_palette()
+            return
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
             return
@@ -2796,13 +2814,26 @@ class AppScreen(QWidget):
         of the window's field late (opened while the heavy-import lock was
         held) clears its page here as well; before 2026-10-13 it kept its
         page-colour rule over the field.
+
+        THE RULE GOES ON ONLY OVER A spaCR SHEET. It exists to beat the
+        sheet's blanket ``QWidget { background-color: bg }``; with no
+        spaCR sheet in force there is no slab to cover, and the palette and
+        the fill paint the page alone. A rule there was the only sheet on
+        the page, so it put every control under a style-sheet proxy that
+        nothing else in the window had -- a Mask screen opened while the
+        heavy-import lock was held (its backdrop waiting) had spin boxes
+        4 px shorter than one opened a moment earlier (Windows,
+        2026-10-24). A theme put on later changes the application palette,
+        which brings this back with the sheet in force.
         """
         if getattr(self, "_syncing_page", False):
             return
         colour = self.page_fill()
         applied = getattr(self, "_page_applied", "unset")
+        sheeted = _a_spacr_sheet_is_in_force()
         wanted = None if colour is None else colour.name()
-        if applied == wanted:
+        if (applied == wanted and getattr(self, "_page_applied_over_a_sheet",
+                                          sheeted) == sheeted):
             return
 
         self._syncing_page = True
@@ -2817,8 +2848,10 @@ class AppScreen(QWidget):
                 self.setPalette(palette)
                 self.setAutoFillBackground(True)
                 set_a_sheeted_widgets_own_rule(
-                    self, f"AppScreen {{ background-color: {colour.name()}; }}")
+                    self, f"AppScreen {{ background-color: {colour.name()}; }}"
+                    if sheeted else "")
             self._page_applied = wanted
+            self._page_applied_over_a_sheet = sheeted
         finally:
             self._syncing_page = False
 
