@@ -5,8 +5,10 @@ file to see whether another process wrote it. On the GUI thread that read
 can be anything -- a drop onto a module, a paint, a translation lookup --
 and test_a_folder_drop_makes_no_filesystem_call_on_the_gui_thread caught it
 inside a drop (metadata_table -> theme -> preferences). A daemon thread now
-makes that look for the GUI thread, and a write from another process is
-still seen within one interval. Counted, not timed.
+makes that look for the GUI thread, started from the event loop's first
+turn so that applying the preferences at launch starts no thread, and a
+write from another process is still seen within one interval. Counted, not
+timed.
 """
 from __future__ import annotations
 
@@ -30,7 +32,7 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.fixture
-def fresh_store(monkeypatch):
+def fresh_store(qapp, monkeypatch):
     monkeypatch.setattr(prefs, "_STORE", threading.local())
     monkeypatch.setattr(prefs, "_REMEMBERED", {})
     store = prefs._real_store()
@@ -39,11 +41,27 @@ def fresh_store(monkeypatch):
     path = store.fileName()
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
+        qapp.processEvents()
         seen = prefs._GUI_WATCH["seen"]
         if seen is not None and seen[0] == path:
             break
         time.sleep(0.02)
     return store, path
+
+
+def test_opening_the_store_starts_no_thread_before_the_event_loop_runs(
+        qapp, monkeypatch):
+    monkeypatch.setattr(prefs, "_STORE", threading.local())
+    monkeypatch.setattr(prefs, "_REMEMBERED", {})
+    monkeypatch.setattr(prefs, "_GUI_WATCH",
+                        {"seen": None, "path": None, "thread": None})
+    before = threading.active_count()
+    prefs._real_store()
+    prefs.get_reduce_motion()
+    assert threading.active_count() == before
+    qapp.processEvents()
+    thread = prefs._GUI_WATCH["thread"]
+    assert isinstance(thread, threading.Thread) and thread.is_alive()
 
 
 def _gui_stats(monkeypatch):

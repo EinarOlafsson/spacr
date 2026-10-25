@@ -878,11 +878,33 @@ def _watch_the_gui_store(path: str) -> None:
     answer (:func:`_watched_gui_store_state`). Safe mode starts no thread,
     so its GUI thread looks for itself as before.
 
+    The thread is started from the event loop's first turn, not here:
+    applying the preferences at launch opens the store before the window
+    exists and must start no thread (``test_sound_is_silent_until_asked``),
+    and a process that never runs an event loop has no GUI thread to spare.
+    Until the watcher has looked, the GUI thread looks for itself.
+
     :param path: the GUI thread's store file.
     """
     _GUI_WATCH["path"] = path
     thread = _GUI_WATCH["thread"]
-    if thread is not None and thread.is_alive():
+    if thread is not None and (thread == "queued" or thread.is_alive()):
+        return
+    try:
+        from PySide6.QtCore import QCoreApplication, QTimer
+
+        if QCoreApplication.instance() is None:
+            return
+        _GUI_WATCH["thread"] = "queued"
+        QTimer.singleShot(0, _start_the_gui_store_watch)
+    except Exception:                                        # noqa: BLE001
+        _GUI_WATCH["thread"] = None
+
+
+def _start_the_gui_store_watch() -> None:
+    """Start :func:`_run_the_gui_store_watch` once, on its daemon thread."""
+    thread = _GUI_WATCH["thread"]
+    if isinstance(thread, threading.Thread) and thread.is_alive():
         return
     thread = threading.Thread(target=_run_the_gui_store_watch, daemon=True,
                               name="spacr-preference-watch")
