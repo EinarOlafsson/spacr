@@ -256,6 +256,9 @@ def test_cleanup_that_changed_after_review_is_not_deleted(installation):
 
 @pytest.fixture
 def uv_cache_installation(tmp_path):
+    if sys.platform != "linux":
+        pytest.skip("linux-online UV caches are verified only on Linux "
+                    "(/proc, O_NOFOLLOW, geteuid, symlinks and FIFOs)")
     box = Box(tmp_path)
     root = linux_online(box, "1.5.1.5")
     box.write(root / "cache/CACHEDIR.TAG", "Signature: 8a477f597d28d172789f06886806bc55\n")

@@ -269,7 +269,7 @@ def test_the_guard_is_at_the_root_and_not_in_this_directory():
         f"a test in plain tests/ does not get {THE_GUARD}, so the guard has "
         "stopped covering everything outside tests/flowview/:\n"
         + output[-3000:])
-    where = lines[0].split(" -- ", 1)[1]
+    where = lines[0].split(" -- ", 1)[1].replace("\\", "/")
     assert where.startswith(THE_ROOT_CONFTEST + ":"), (
         f"{THE_GUARD} is defined in {where}, not {THE_ROOT_CONFTEST}. A "
         "conftest covers only the directory beneath it; anywhere but the "

@@ -42,6 +42,9 @@ class _Card:
         # this test is a different machine, so it must start with a fresh
         # hardware answer rather than inheriting the previous test's GPU.
         monkeypatch.setattr(accelerator, "_CACHED", None)
+        # A forced device (CPU-only runners export SPACR_DEVICE=cpu) would
+        # answer before any of the probes this card fakes.
+        monkeypatch.delenv(accelerator.ENV_DEVICE, raising=False)
         monkeypatch.setattr(torch.cuda, "is_available",
                             lambda: self.available)
         # This fixture simulates a CUDA-only machine, including on a host

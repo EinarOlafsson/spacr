@@ -142,8 +142,8 @@ def test_cache_uses_safe_names_and_evicts_oldest_first(tmp_path):
     assert cache.get("second") == second
     assert cache.total_bytes == len(payload) * 2
 
-    os.utime(first, ns=(1, 1))
-    os.utime(second, ns=(2, 2))
+    os.utime(first, (1, 1))
+    os.utime(second, (2, 2))
     third = cache.store("third", gradient((24, 24)))
     assert not first.exists()
     assert second.exists() and third.exists()

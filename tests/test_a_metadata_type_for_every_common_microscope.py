@@ -34,6 +34,7 @@ THREE PROPERTIES ARE WORTH A TEST AND THEY ARE NOT THE OBVIOUS ONE.
 """
 from __future__ import annotations
 
+import os
 import re
 
 import pytest
@@ -408,7 +409,7 @@ def test_imagexpress_wavelength_ends_before_a_fixed_uuid(channel, identifier):
     }
     assert _extract_filename_metadata([name], "/data/Plate", pattern,
                                       "imagexpress") == {
-        ("Plate", "A01", "2", str(channel), None, None): [f"/data/Plate/{name}"],
+        ("Plate", "A01", "2", str(channel), None, None): [os.path.join("/data/Plate", name)],
     }
     for record in _METADATA_CONVENTIONS:
         if record["key"] not in {"imagexpress", "custom"}:
