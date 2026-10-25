@@ -1523,6 +1523,7 @@ def run_v2(
         display intensities are aligned and nonquantitative, never Measure inputs.
         Signed valid-ROI float32 diagnostics live under ``output_root/signed``;
         its application record binds both artifacts and remains incomplete on error.
+
     A nonempty ``unmix_matrix_file`` in ``postprocess_settings`` supplies a
     version-1 JSON matrix instead of estimating one. This requires calibrated
     organized 2D cell V2 processing, no control wells, and ``unmix_per_plate=False``.
