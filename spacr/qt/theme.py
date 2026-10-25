@@ -3780,12 +3780,18 @@ _SHEETS_AT_ABOUT_TO_SHOW = "_spacr_sheets_at_about_to_show"
 
 def _sheet_the_menu_behind(reference) -> None:
     """Sheet the menu ``reference`` still points at, if it is still there."""
+    from .gui_scale import _sheet_a_popup_about_to_open
+
     widget = reference()
     if widget is None:
         return
-    try:
+
+    def apply() -> None:
         for root in _roots_for(widget):
             _sheet_one_window(root)
+
+    try:
+        _sheet_a_popup_about_to_open(widget, apply)
     except (AttributeError, RuntimeError):
         pass
 

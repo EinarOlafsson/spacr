@@ -835,7 +835,7 @@ def _install_application_sheet() -> None:
 
 
 _SHEET_GUARD = {"installed": False, "depth": 0, "posted": False,
-                "kinds": None, "watcher": None}
+                "kinds": None, "watcher": None, "opening": None}
 
 _PENDING_SHEETS: dict = {}
 _PENDING_LOCK = threading.RLock()
@@ -1117,6 +1117,9 @@ def _inside_a_hidden_popup(obj) -> bool:
     from PySide6.QtCore import Qt
 
     top = _top_level_of(obj)
+    opening = _SHEET_GUARD.get("opening")
+    if opening is not None and top is opening:
+        return False
     try:
         if not top.isWindow() or top.isVisible():
             return False
@@ -1125,6 +1128,29 @@ def _inside_a_hidden_popup(obj) -> bool:
         return top.metaObject().className() in _QT_POPUP_CONTAINERS
     except (AttributeError, RuntimeError, TypeError):
         return False
+
+
+def _sheet_a_popup_about_to_open(popup, apply) -> None:
+    """Run ``apply`` with ``popup`` counted as opening, not hidden.
+
+    A menu's ``aboutToShow`` is emitted by ``popup()`` and ``exec()``
+    before Qt measures the menu, and it is the moment the theme sheets a
+    menu at, so its first frame has its styled size. The menu is still
+    hidden then, and :func:`_inside_a_hidden_popup` held its sheet for the
+    ``Show``, after the measuring: Windows and Linux both found a menu
+    unsheeted at ``aboutToShow`` (2026-10-24). Every other rule of the
+    guard -- dead objects, teardown, other threads, delicate moments --
+    still applies.
+
+    :param popup: the popup window about to open.
+    :param apply: what puts its sheet on.
+    """
+    before = _SHEET_GUARD.get("opening")
+    _SHEET_GUARD["opening"] = popup
+    try:
+        apply()
+    finally:
+        _SHEET_GUARD["opening"] = before
 
 
 def _hold_for_the_show(obj, text: str, raw_set) -> None:
