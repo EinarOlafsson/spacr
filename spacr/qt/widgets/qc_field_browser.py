@@ -1724,10 +1724,14 @@ def _overview_channel_info(field):
             axes = {2: "YX", 3: "YXC", 4: "ZYXC", 5: "TZYXC"}.get(image.ndim, "")
         elif suffix in (".tif", ".tiff"):
             import tifffile
-            with tifffile.TiffFile(path) as image:
-                series = image.series[0]
-                shape, dtype, axes = series.shape, series.dtype, series.axes
-                pixel_size = _overview_tiff_pixel_size(image)
+            try:
+                with tifffile.TiffFile(path) as image:
+                    series = image.series[0]
+                    shape, dtype, axes = series.shape, series.dtype, series.axes
+                    pixel_size = _overview_tiff_pixel_size(image)
+            except getattr(tifffile, "TiffFileError", ValueError) as error:
+                raise _OverviewValidationError(tr("This file is not a readable TIFF image: {name}",
+                                                  name=Path(path).name)) from error
         else:
             with Image.open(path) as image:
                 bands = len(image.getbands())
