@@ -2847,13 +2847,19 @@ def _git_state(where: str):
     """``(HEAD, dirty)`` of the checkout at ``where``, ``(None, None)`` if none."""
     import subprocess
 
-    head = subprocess.run(["git", "-C", where, "rev-parse", "HEAD"],
-                          capture_output=True, text=True, timeout=5)
+    try:
+        head = subprocess.run(["git", "-C", where, "rev-parse", "HEAD"],
+                              capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None, None
     if head.returncode != 0 or not head.stdout.strip():
         return None, None
-    status = subprocess.run(
-        ["git", "-C", where, "status", "--porcelain", "--untracked-files=no"],
-        capture_output=True, text=True, timeout=15)
+    try:
+        status = subprocess.run(
+            ["git", "-C", where, "status", "--porcelain", "--untracked-files=no"],
+            capture_output=True, text=True, timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        return head.stdout.strip(), None
     dirty = bool(status.stdout.strip()) if status.returncode == 0 else None
     return head.stdout.strip(), dirty
 
