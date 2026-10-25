@@ -1004,8 +1004,11 @@ def _restyle_unheard(app, root):
         return
     from PySide6.QtWidgets import QWidget
 
-    widgets = [root] + list(root.findChildren(QWidget))
-    before = {id(widget): _widget_state(widget) for widget in widgets}
+    before = {}
+    for widget in [root] + list(root.findChildren(QWidget)):
+        address = _cpp_address(widget)
+        if address is not None:
+            before[address] = (widget, _widget_state(widget))
     app.removeEventFilter(hub)
     try:
         yield
@@ -1014,9 +1017,30 @@ def _restyle_unheard(app, root):
         _tell_the_watchers(hub, root, before)
 
 
+def _cpp_address(widget):
+    """The C++ address behind ``widget``, or ``None`` when it has none.
+
+    What the replay keys a widget by. A wrapper's ``id`` is no key:
+    PySide on Windows answered ``findChildren`` after a sheet with new
+    ``QWidget`` wrappers for ``QLabel``s Python still held, and the id of a
+    wrapper made for one call can be handed to another object once it is
+    collected, pairing one widget's state with another's.
+    """
+    from shiboken6 import getCppPointer
+
+    try:
+        return int(getCppPointer(widget)[0])
+    except (RuntimeError, TypeError, ValueError, IndexError):
+        return None
+
+
 def _tell_the_watchers(hub, root, before) -> None:
     """Hand ``hub`` what it missed under ``root``; see
     :func:`_restyle_unheard`. Only events some watcher asked for are made.
+
+    Each widget seen before the sheet is told about as the wrapper seen
+    then, which is the one its owner holds, so a watcher that compares
+    widgets by identity or keys them by wrapper finds it.
     """
     from PySide6.QtWidgets import QWidget
     from shiboken6 import isValid
@@ -1027,8 +1051,13 @@ def _tell_the_watchers(hub, root, before) -> None:
     if not wanted:
         return
     for widget in [root] + list(root.findChildren(QWidget)):
-        events = _what_was_unheard(before.get(id(widget)),
-                                   _widget_state(widget))
+        seen = before.get(_cpp_address(widget))
+        state = None
+        if seen is not None:
+            if isValid(seen[0]):
+                widget = seen[0]
+            state = seen[1]
+        events = _what_was_unheard(state, _widget_state(widget))
         for event in events:
             if event.type() in wanted:
                 hub.eventFilter(widget, event)

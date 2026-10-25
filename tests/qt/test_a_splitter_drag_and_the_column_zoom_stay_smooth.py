@@ -1080,6 +1080,74 @@ def test_the_hub_hears_after_the_sheet_what_it_did_not_hear_during_it(
     assert QEvent.Show not in heard[root]
 
 
+def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
+        qtbot, hub, monkeypatch):
+    """A fresh wrapper from ``findChildren`` is not a different widget.
+
+    Inside the Windows pytest run, ``findChildren`` after the sheet handed
+    back new ``QWidget`` wrappers, same C++ objects, new ids, for four
+    ``QLabel``s the test still held. The replay was keyed by ``id`` and told
+    the watchers about those strangers, so the labels heard nothing and their
+    states were never paired. Simulated here with stand-ins that share the
+    C++ object but not the Python identity.
+    """
+    import shiboken6
+
+    from spacr.qt.gil_priority import _restyle_unheard
+
+    class Fresh:
+        def __init__(self, target):
+            self.target = target
+
+        def __getattr__(self, name):
+            return getattr(self.target, name)
+
+    real_pointer = shiboken6.getCppPointer
+    monkeypatch.setattr(shiboken6, "getCppPointer", lambda obj: real_pointer(
+        obj.target if isinstance(obj, Fresh) else obj))
+    real_children = QWidget.findChildren
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    layout = QVBoxLayout(root)
+    shown, hidden, moved, disabled = (QLabel(t, root) for t in "abcd")
+    for label in (shown, hidden, moved, disabled):
+        layout.addWidget(label)
+    shown.hide()
+    root.show()
+    qtbot.waitExposed(root)
+    _pump()
+    hub.clear()
+    with _restyle_unheard(QApplication.instance(), root):
+        root.setStyleSheet("QLabel { font-size: 21px; }")
+        shown.show()
+        hidden.hide()
+        moved.move(moved.pos().x() + 3, moved.pos().y() + 4)
+        disabled.setEnabled(False)
+        born = QLabel("f", root)
+        born.ensurePolished()
+        monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: [
+            Fresh(child) for child in real_children(self, *a)])
+    monkeypatch.setattr(QWidget, "findChildren", real_children)
+    assert not [w for w, _kind in hub if isinstance(w, Fresh)
+                and w.target is not born]
+    heard = {}
+    for watched, kind in hub:
+        heard.setdefault(id(getattr(watched, "target", watched)),
+                         set()).add(kind)
+    restyle = {QEvent.StyleChange, QEvent.PaletteChange}
+    for label in (shown, hidden, moved, disabled, born):
+        assert restyle <= heard[id(label)]
+    assert QEvent.Show in heard[id(shown)]
+    assert QEvent.Hide in heard[id(hidden)]
+    assert QEvent.Move in heard[id(moved)]
+    assert QEvent.EnabledChange in heard[id(disabled)]
+    for label in (shown, hidden, moved, disabled):
+        assert QEvent.Polish not in heard[id(label)], "paired with no state"
+    assert QEvent.Polish in heard[id(born)]
+    assert QEvent.Show not in heard[id(hidden)]
+
+
 def test_without_a_hub_or_a_root_the_sheet_simply_goes_on(qapp,
                                                           monkeypatch):
     from spacr.qt import gil_priority
