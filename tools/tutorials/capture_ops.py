@@ -238,6 +238,29 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     folder = Path.home() / '.cache/spacr/example_data/ops_screen'
     proof['cached_before_click'] = (folder / 'manifest.csv').is_file()
     scene_load = drv.begin(capture, settle, '02_load_test_data')
+    if not button.isVisible():
+        # The test-data button sits in the example section of the OPS page; open its (outermost-first)
+        # collapsed sections the way a user would before scrolling to it.
+        sections, w = [], button.parentWidget()
+        while w is not None:
+            if type(w).__name__ == 'Section':
+                sections.append(w)
+            w = w.parentWidget()
+        for section in reversed(sections):
+            if hasattr(section, 'is_expanded') and not section.is_expanded() and section.header().isVisible():
+                capture_ui._h().toggle_section(capture, section, True)
+                settle(.4)
+        for _ in range(20):
+            if button.isVisible():
+                break
+            settle(.25)
+    if not button.isVisible():
+        chain, w = [], button
+        while w is not None and len(chain) < 8:
+            if w.parentWidget() is not None and not w.isVisibleTo(w.parentWidget()):
+                chain.append(f'{type(w).__name__}:{w.objectName() or "-"}')
+            w = w.parentWidget()
+        raise RuntimeError(f'The OPS Load test data button is hidden (hidden ancestors {chain})')
     capture_ui.scroll_to(capture, page._settings_scroll, button, margin=50)
     settle(.3)
     if not capture_ui.live(capture):
