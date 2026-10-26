@@ -105,6 +105,8 @@ class PCAScreen(QWidget):
         self._path: Optional[str] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key="pca")
         self._jobs.job_failed.connect(self._on_load_failed)
+        self._export_jobs = JobRunner(self, threaded=threaded, app_key="pca")
+        self._export_jobs.job_failed.connect(self._on_export_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -287,11 +289,13 @@ class PCAScreen(QWidget):
         two jobs a caller cannot tell apart, and a `waitUntil(active_jobs()
         == 0)` that stopped at the read would return before the plot exists.
         """
-        return self._jobs.active_jobs() + self.pca.active_jobs()
+        return (self._jobs.active_jobs() + self._export_jobs.active_jobs()
+                + self.pca.active_jobs())
 
     def is_busy(self) -> bool:
         """True while a table read or a decomposition is in flight."""
-        return self._jobs.is_busy() or self.pca.is_busy()
+        return (self._jobs.is_busy() or self._export_jobs.is_busy()
+                or self.pca.is_busy())
 
     def _on_table_picked(self, name: str) -> None:
         """Reload the current database at a newly chosen table.
@@ -368,17 +372,30 @@ class PCAScreen(QWidget):
         if not path:
             return
         stem = path[:-4] if path.lower().endswith(".csv") else path
-        try:
-            self.pca.scores_frame.to_csv(f"{stem}_scores.csv", index=False)
-            result.loadings_frame().to_csv(f"{stem}_loadings.csv", index=False)
-            result.variance_frame().to_csv(f"{stem}_variance.csv", index=False)
-        except OSError as exc:
-            LOG.info("could not export the PCA", exc_info=True)
-            self._source.setText(f"could not write those files: {exc}")
+        frames = (self.pca.scores_frame, result.loadings_frame(),
+                  result.variance_frame())
+        self._export_jobs.submit(
+            lambda s=stem, f=frames: _write_pca_export(s, *f),
+            self._on_export_done)
+
+    def _on_export_done(self, outcome) -> None:
+        """Report a finished export on the label. GUI thread only.
+
+        :param outcome: ``(stem, error)`` from :func:`_write_pca_export`;
+            ``error`` is ``None`` when all three files were written.
+        """
+        stem, error = outcome
+        if error is not None:
+            self._source.setText(f"could not write those files: {error}")
             return
         self._source.setText(
             f"wrote {os.path.basename(stem)}_scores / _loadings / "
             f"_variance .csv")
+
+    def _on_export_failed(self, message: str) -> None:
+        """Report an export the worker could not finish. GUI thread only."""
+        LOG.info("could not export the PCA: %s", message)
+        self._source.setText(f"could not write those files: {message}")
 
     def _open_selection(self) -> None:
         """Send the brushed cluster to whatever shows crops.
@@ -412,6 +429,7 @@ class PCAScreen(QWidget):
         :param event: the Qt close event.
         """
         self._jobs.shutdown()
+        self._export_jobs.shutdown()
         self.pca._jobs.shutdown()
         try:
             self._link.filter_changed.disconnect(self._on_filter_changed)
@@ -420,6 +438,32 @@ class PCAScreen(QWidget):
         self._refilter.stop()
         self.pca.close()
         super().closeEvent(event)
+
+
+def _write_pca_export(stem: str, scores: pd.DataFrame, loadings: pd.DataFrame,
+                     variance: pd.DataFrame):
+    """Write the three PCA CSVs beside each other. Safe off the GUI thread.
+
+    The scores frame carries every measurement column, so a full cell table
+    takes most of a second to format; the screen runs this on a worker so
+    the confirmation does not freeze the window.
+
+    :param stem: path without ``.csv``; ``_scores``, ``_loadings`` and
+        ``_variance`` are appended.
+    :param scores: one row per object.
+    :param loadings: one row per feature.
+    :param variance: one row per component.
+    :returns: ``(stem, None)`` on success, or ``(stem, message)`` when the
+        disk refused.
+    """
+    try:
+        scores.to_csv(f"{stem}_scores.csv", index=False)
+        loadings.to_csv(f"{stem}_loadings.csv", index=False)
+        variance.to_csv(f"{stem}_variance.csv", index=False)
+    except OSError as exc:
+        LOG.info("could not export the PCA", exc_info=True)
+        return stem, str(exc)
+    return stem, None
 
 
 def make_pca_screen(app_key: Optional[str] = None) -> QWidget:
