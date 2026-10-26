@@ -249,7 +249,7 @@ def choose_file(capture, dialog, path):
 
 def _settings_section(widget):
     w = widget.parentWidget()
-    while w is not None and type(w).__name__ != 'Section':
+    while w is not None and 'Section' not in [c.__name__ for c in type(w).__mro__]:   # Section or a subclass of it
         w = w.parentWidget()
     return w
 
