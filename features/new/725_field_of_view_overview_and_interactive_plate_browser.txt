@@ -131,6 +131,46 @@ WHAT WAS DONE — round 6, display, normalization and settings
   corrected in Swedish (was GRÖNSAKER), German (Graue) and Hindi (ग्रीन); those were unreviewed
   catalog guesses, so there was no reviewed record to archive.
 
+WHAT WAS DONE — round 6, export (11-17; branch overview-r6-export)
+- Docked section: Guided and Custom export open as an export section at the far right of the Overview
+  (_OverviewExportDock in its own splitter beside the plate, well and image views, three fifths of the width),
+  not a popup window. Opening it folds the Settings column; Close (header button, or the export closing
+  itself) restores the column's previous folded state and width. One export at a time; "Open in Custom
+  export" swaps Guided for Custom in place.
+- Close: the section's header has a visible Close; the Custom export Settings popup has its own Close.
+- Settings popup: the canvas fills the section. The toolbar keeps Select, Draw text box, Add image…, Add
+  selected, Undo, Redo, Previous page / Page n of m / Next page, Settings… and Export PDF…. Settings… opens
+  _CanvasSettingsDialog (a spaCR settings popup, solid card, in the settings-popup inventory test) with Page
+  (paper, orientation, grid, snap), Pages (list, add, remove, reorder), Export (DPI, open and save layout),
+  Text, Image (aspect, scale bar), Import settings and Arrange. Every control applies live to the canvas.
+- Drag and drop from the Overview (_OverviewCanvasDrags, an application filter while the canvas is open, so
+  views opened later take part): a selected well or field drags at once (as before); any plate tile, well
+  tile or image drags after a press and hold of 350 ms (the cursor turns to a copy cursor), while a quick
+  drag still pans an image or selects wells; each image view carries a "Drag to canvas" handle; Alt-drag
+  still drags the shown image.
+- Pick mode: hold Ctrl+Shift and click any plate tile, well tile or image to add it to the current page
+  (named in the section's hint, the handle tooltip and the canvas status). "Add image…" by path stays.
+- Image files: dropped from the file manager or added by path, they open the Settings popup at Import
+  settings: per channel (or All channels) show/hide, percentile normalization (low/high), gamma, background
+  subtraction, denoise, CLAHE and sharpen. They render through the Overview's own _overview_pixels (the file
+  read as an _OverviewField, the per-channel percentiles and enhancement chains, the Overview's colour mode),
+  in the canvas preview and the PDF; files with no import settings are drawn as they are on disk. Settings
+  are undoable and saved with the layout JSON.
+- Guided field picker: extended selection, where the selection is the pick (ticks follow it and it follows
+  the ticks): drag over fields, Shift-click ranges, Ctrl-click toggles, Ctrl+A selects every field, and a
+  right-click menu offers Select, Deselect, Select all fields, Deselect all fields (on a well row, its
+  fields). Picking by hand switches to Pick fields.
+- Back works on every step (each well of the placement step and the preview). DPI: the export's DPI is in
+  Settings… (also on Guided's last page, whose hint says so), defaulting to the Preferences figure DPI, with
+  150/300/600/1200 and "Every source pixel". The DPI caps the pixels an image is embedded at for its printed
+  size (Lanczos down-sampling, never enlarged) and is passed to save_figure.
+- Tests: tests/qt/test_725_overview_export_round6.py (simulated drag and drop end to end, hold and handle
+  drags, pick mode, docked section and Settings folding in the Mask tab, canvas share of the section and live
+  popup changes, import pipeline, field picking with mouse and keys, Back and DPI); settings-popup inventory
+  entry for _CanvasSettingsDialog.
+- Screenshots (light and dark): /nas_mnt/data/sync/overview-r6-export/.
+
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 5) (supersedes conflicting earlier notes)
 Verbatim:
 1. "in the over view plate view the user should be able to collapse columns and rows
