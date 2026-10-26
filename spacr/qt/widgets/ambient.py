@@ -10725,7 +10725,7 @@ class _CardTints(QObject):
         """
         return bool(widget.autoFillBackground()
                     or widget.testAttribute(Qt.WA_OpaquePaintEvent)
-                    or not widget.mask().isEmpty()
+                    or not QWidget.mask(widget).isEmpty()
                     or getattr(widget, "_spacr_covers_its_area", False))
 
     def _add_part(self, widget, rect, visible, lineage, out,
@@ -11200,7 +11200,7 @@ class _HeldRows(QObject):
         if (widget.autoFillBackground()
                 or widget.testAttribute(Qt.WA_OpaquePaintEvent)
                 or widget.testAttribute(Qt.WA_NativeWindow)
-                or not widget.mask().isEmpty()
+                or not QWidget.mask(widget).isEmpty()
                 or getattr(widget, "_spacr_covers_its_area", False)):
             return None
         name, painted = _held_class(type(widget))

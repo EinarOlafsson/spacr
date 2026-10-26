@@ -393,3 +393,34 @@ def test_the_backdrop_rests_on_battery_and_resumes_on_ac(qtbot, monkeypatch,
     _plug(monkeypatch, tmp_path, True)
     qtbot.waitUntil(backdrop.is_running, timeout=2000)
     backdrop.stop()
+
+
+class _CanvasWithAMaskArray(QWidget):
+    """A widget like Make Masks' canvas, whose ``mask`` attribute is image
+    data and so hides ``QWidget.mask()``."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        import numpy as np
+        self.mask = np.zeros((4, 4), dtype=np.uint16)
+
+
+def test_a_widget_whose_mask_attribute_is_data_does_not_break_the_hold(
+        screen, qtbot):
+    """GitHub #168: the hold's walk called ``widget.mask()`` and raised
+    ``'numpy.ndarray' object is not callable`` on every tick when a widget
+    kept its label image in ``self.mask``."""
+    host, backdrop, card, labels = screen
+    panel = QWidget(host)
+    panel.setGeometry(420, 40, 180, 300)
+    canvas = _CanvasWithAMaskArray(panel)
+    canvas.setGeometry(10, 10, 80, 60)
+    QLabel("beside it", panel).setGeometry(10, 90, 120, 20)
+    panel.show()
+    held = backdrop._held_rows
+    held._own_paint(canvas)
+    held._covered()
+    held.stir()
+    qtbot.wait(800)
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    assert held.region.contains(card.geometry().center())
