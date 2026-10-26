@@ -10122,6 +10122,14 @@ class SettingsWidgets:
         section exactly as before.
 
         Anything in no category at all lands in a trailing "Other".
+
+        The breathing budget runs from the open's last breath, not from this
+        loop: inside a window open or a prewarm step the screen has already
+        worked since then, and a fast panel that started its own clock here
+        finished in under one budget with no breath at all, so a Measure
+        prewarm step ran its whole construction without the event loop seeing
+        a close asked for meanwhile (hosted CI run 40321337485). Outside an
+        open the clock starts here.
         """
         from spacr.settings_spec import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
@@ -10139,13 +10147,6 @@ class SettingsWidgets:
                       if parent in hidden)
         may_wait = self._keys_that_may_wait(cats, hidden, variables,
                                             hidden_keys)
-        # The budget runs from the open's last breath, not from this loop:
-        # inside a window open or a prewarm step the screen has already
-        # worked since then, and a fast panel that started its own clock here
-        # finished in under one budget with no breath at all -- a Measure
-        # prewarm step then ran its whole construction, chaining's job
-        # included, without the event loop seeing a close asked for meanwhile
-        # (hosted CI run 40321337485). Outside an open the clock starts here.
         from .. import screens as _screens_package
 
         _BREATH = 0.025
