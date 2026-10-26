@@ -13466,6 +13466,7 @@ SETTING_CONSUMERS = {
     'bystander_measurements': (('spacr.settings', 'get_measure_crop_settings'),),
     'bystander_reach_in_diameters': (('spacr.settings', 'get_measure_crop_settings'),),
     'calculate_correlation': (('spacr.settings', 'get_measure_crop_settings'),),
+    'calculate_diameters': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'calibrate_fraction_threshold': (('spacr.settings', 'get_perform_regression_default_settings'),),
     'cam_type': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.qt.screens.settings_model', 'organelle_morphology_now'), ('spacr.settings', 'get_default_generate_activation_map_settings'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'organelle_measurement_caveats'), ('spacr.utils', 'activation_correlations_to_database'), ('spacr.utils', 'activation_maps_to_database'),),
     'cell_area_outlier_mads': (('spacr.outlier_filter', 'apply'), ('spacr.settings', 'get_perform_regression_default_settings'),),

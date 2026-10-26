@@ -235,3 +235,62 @@ No new tutorial/native acceptance or release claim; those remain with their exis
 2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
 Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.
 2026-10-25 — Mac (Apple M-series MacBook, macOS 27.0 (Darwin 27.0.0), arm64 CPython 3.12.15 venv, PySide6 6.11.2, Cocoa, Retina DPR 2, work area 1710x1074) on nightly f726fb39b+: the diameter-field owning tests (test_696_the_diameter_field_takes_auto, test_cpsam_diameter) all pass on native Cocoa. Programmatic Qt input only; no physical keyboard/clipboard, Cellpose run or settings export/import round trip was done, so the native acceptance steps 2-5 above stay open.
+
+--------------------------------------------------------------------------------
+2026-10-26 - CALCULATE DIAMETERS UNDER MAGNIFICATION (Home, 1.5.1.6)
+--------------------------------------------------------------------------------
+
+Requested: maintainer, 2026-10-26: "when i pick a new magnefication number in
+mask generation, the default diamiters for cell, nucleus and pathogen should
+change acordingly ... there should be a new setting under Magnefication called
+something like Calculate diamiters which is a boolean and if true the
+diamiters of cell, nucleus and pathogen should change with changing
+magnefication. the user may change any of these diamiters after a
+magnification calculation is set of course."
+
+The equation is unchanged: spacr.object_settings_table.
+_diameter_from_magnification (spacr.utils._get_diam answers with it), cell
+2*mag+80, nucleus 0.75*mag+45, pathogen mag, in pixels, int-truncated. It
+first appeared as _get_diam in spacr/utils.py in commit 5d959ac889
+(2025-03-14, "cleanup"), replacing the 2024 lookup table (commit
+f1e5fa3e3, then the 20x/40x/60x table 120/60/20, 160/80/40, 200/90/60). The
+line reproduces that table exactly except the 40x nucleus (75 vs 80). It is
+an empirical fit, not proportional to magnification and with no camera
+pixel size in it; item 696 and the old table agree, so no physical
+correction was made. 10x: 100/52/10; 20x: 120/60/20; 40x: 160/75/40;
+60x: 200/90/60; 100x: 280/120/100.
+
+New setting calculate_diameters (bool, default True), "Calculate diameters",
+directly under Magnification in Make Masks (and Timelapse, which shares the
+form). The rule for a diameter the user sets:
+
+- On: a blank cell/nucleus/pathogen diameter is the calculated value, shown
+  greyed and moved live with Magnification in Per-object settings and in
+  collect(), so the run uses it. A typed number or auto is PINNED: drawn
+  bold, with a tooltip line saying so, and kept across magnification
+  changes until the user clears its cell (that diameter) or turns Calculate
+  diameters off and on again (all three: the reset).
+- Off: turning it off writes the current calculated values into the blank
+  diameters, so magnification changes no longer touch any diameter; a cell
+  cleared while off is refilled with its value at the current magnification.
+- Loading a settings file or preset (panel _applying_settings) neither
+  freezes nor resets anything; only the user's click on the switch resets.
+  A file saved with it off and a blank diameter keeps the blank, which the
+  run reads as the magnification default; the next form edit fills it.
+- No double scaling: a calculated diameter reaches Cellpose once, as itself
+  (Cellpose rescales by 30/diameter); auto still means Cellpose estimates
+  (Cellpose 3) or native scale (Cellpose-SAM), with no magnification in it.
+
+Code: object_settings_table (_calculates_diameters, _calculated_diameters,
+_blank_diameters_held_still, _diameter_is_pinned), ObjectGridBinding
+(_hold_the_diameters_still, _calculate_clicked), ObjectSettingsGrid
+(_follow_calculation, bold pinned cells). Settings defaults/types/tooltip,
+categories and the Mask/Timelapse form specs; consumer map, settings flow,
+notebook settings, help index and catalogs regenerated. Label, tooltip and
+two grid tooltip lines reviewed in nine languages (AI-reviewed, no human
+signoff), spacr-translations 2026-10-26-calculate-diameters.json.
+
+Tests: tests/test_calculate_diameters.py,
+tests/qt/test_calculate_diameters_follows_magnification.py.
+Tutorials that show the Make Masks Input & Metadata rows need a re-record
+(WS lane): one new switch under Magnification.

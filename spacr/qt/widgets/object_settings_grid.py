@@ -53,6 +53,7 @@ from ...object_roles import setting_label
 from ...object_settings_table import (OBJECT_ORDER, _AUTO_DIAMETER,
                                       _DIAMETER_OBJECTS, _FILTER_PREFIX,
                                       _SINGLE_OBJECT_QUESTIONS,
+                                      _calculates_diameters,
                                       _diameter_setting, _filter_text,
                                       _magnification_default,
                                       _parse_filter_text, _settings_key,
@@ -288,6 +289,7 @@ class ObjectSettingsModel(QAbstractTableModel):
         self._questions: Tuple[str, ...] = ()
         self._objects: Tuple[str, ...] = ()
         self._magnification: Any = None
+        self._calculating: bool = True
 
 
     def set_table(self, table: Mapping[str, Mapping[str, Any]]) -> None:
@@ -414,6 +416,14 @@ class ObjectSettingsModel(QAbstractTableModel):
                     font = QFont()
                     font.setItalic(True)
                     return font
+        pinned = (self._calculating and value is not None
+                  and _is_magnification_diameter(question, obj))
+        if pinned and role == Qt.FontRole:
+            from PySide6.QtGui import QFont
+
+            font = QFont()
+            font.setBold(True)
+            return font
         if role == Qt.CheckStateRole and isinstance(value, bool):
             return Qt.Checked if value else Qt.Unchecked
         if role == Qt.DisplayRole:
@@ -443,6 +453,16 @@ class ObjectSettingsModel(QAbstractTableModel):
                     "Pixels. Blank uses the magnification default "
                     "(shown greyed); 0 or auto lets Cellpose estimate "
                     "the diameter.")
+                if pinned:
+                    head += "\n\n" + tr(
+                        "Pinned (bold): you set this diameter, so a "
+                        "magnification change keeps it. Clear the cell, or "
+                        "turn Calculate diameters off and on again, to "
+                        "calculate it from the magnification.")
+                elif not self._calculating:
+                    head += "\n\n" + tr(
+                        "Calculate diameters is off: a magnification "
+                        "change keeps every diameter as it is.")
             return f"{head}\n\n{help_text}" if help_text else head
         return None
 
@@ -1149,6 +1169,7 @@ class ObjectSettingsGrid(QWidget):
         """
         self._base = dict(settings or {})
         self._model._magnification = self._base.get("magnification")
+        self._model._calculating = _calculates_diameters(self._base)
         self._model.set_table(self._visible_table())
         self._announce()
 
@@ -1180,6 +1201,33 @@ class ObjectSettingsGrid(QWidget):
                 self._model.index(row, 0),
                 self._model.index(row, columns - 1),
                 [Qt.DisplayRole, Qt.ForegroundRole, Qt.ToolTipRole])
+        return True
+
+    def _follow_calculation(self, calculating) -> bool:
+        """Show which diameters are pinned under the Calculate diameters switch.
+
+        A diameter the user set is drawn bold while calculating is on, the
+        mark that a magnification change will not move it.
+
+        :param calculating: the form's ``calculate_diameters`` now.
+        :returns: whether anything was redrawn.
+        """
+        calculating = _calculates_diameters(
+            {"calculate_diameters": calculating})
+        self._base["calculate_diameters"] = calculating
+        if self._model._calculating == calculating:
+            return False
+        self._model._calculating = calculating
+        rows = self.questions()
+        if _DIAMETER_QUESTION not in rows:
+            return False
+        row = rows.index(_DIAMETER_QUESTION)
+        columns = self._model.columnCount()
+        if columns:
+            self._model.dataChanged.emit(
+                self._model.index(row, 0),
+                self._model.index(row, columns - 1),
+                [Qt.DisplayRole, Qt.FontRole, Qt.ToolTipRole])
         return True
 
     def _visible_table(self) -> Dict[str, Dict[str, Any]]:

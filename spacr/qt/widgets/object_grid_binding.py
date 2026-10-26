@@ -24,7 +24,11 @@ from typing import Any, Dict, FrozenSet, Mapping, Optional
 
 from PySide6.QtCore import QObject
 
-from spacr.object_settings_table import _FILTER_PREFIX, _settings_key, to_table
+from spacr.object_settings_table import (_CALCULATE_DIAMETERS,
+                                         _DIAMETER_OBJECTS, _FILTER_PREFIX,
+                                         _blank_diameters_held_still,
+                                         _calculates_diameters,
+                                         _settings_key, to_table)
 from spacr.qt.widgets.object_settings_grid import _SWITCH_QUESTIONS
 
 #: The change signals a settings widget might carry, most specific first.
@@ -151,7 +155,16 @@ class ObjectGridBinding(QObject):
         """
         widgets = getattr(self._panel, "_widgets", None) or {}
         connected = 0
-        for key in self.owned_keys() | self._switch_keys() | {"magnification"}:
+        switch = widgets.get(_CALCULATE_DIAMETERS)
+        clicked = getattr(switch, "clicked", None)
+        if clicked is not None and id(switch) not in self._followed:
+            try:
+                clicked.connect(self._calculate_clicked)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not follow %s", _CALCULATE_DIAMETERS,
+                          exc_info=True)
+        for key in (self.owned_keys() | self._switch_keys()
+                    | {"magnification", _CALCULATE_DIAMETERS}):
             widget = widgets.get(key)
             if widget is None or id(widget) in self._followed:
                 continue
@@ -204,6 +217,13 @@ class ObjectGridBinding(QObject):
         keep = getattr(self._grid, "_keep_the_switches", None)
         if callable(keep):
             keep(current)
+        calculation = getattr(self._grid, "_follow_calculation", None)
+        if callable(calculation) and _CALCULATE_DIAMETERS in current:
+            calculation(current[_CALCULATE_DIAMETERS])
+        shown_magnification = getattr(getattr(self._grid, "_model", None),
+                                      "_magnification", None)
+        if self._hold_the_diameters_still(current, shown_magnification):
+            current = self._panel.collect()
         follow = getattr(self._grid, "_follow_magnification", None)
         if callable(follow) and "magnification" in current:
             follow(current["magnification"])
@@ -228,12 +248,77 @@ class ObjectGridBinding(QObject):
         return moved
 
     def _write_back(self) -> None:
-        """Push the grid's edits into the widgets behind them."""
+        """Push the grid's edits into the widgets behind them.
+
+        With "Calculate diameters" off, a diameter cleared in the table is
+        refilled with its value at the current magnification rather than
+        left blank to follow the next one.
+        """
         if self._busy:
             return
         self._busy = True
         try:
             self.write_through()
+            if self._hold_the_diameters_still(self._panel.collect()):
+                self._show_what_the_panel_holds()
+        finally:
+            self._busy = False
+
+    def _hold_the_diameters_still(self, current, magnification=None) -> int:
+        """With calculating off, write numbers into the blank diameters.
+
+        A blank diameter is the magnification default and would move with
+        the next magnification change, which "Calculate diameters" off
+        promises not to do. Each blank one is written as the number it was
+        showing, at ``magnification`` -- the magnification the table drew
+        it at -- so the run segments at what the user saw.
+
+        Skipped while a settings file or preset is being applied: its values
+        arrive one widget at a time, and freezing a diameter halfway would
+        pin it at a magnification the file has not finished setting.
+
+        :param current: the panel's settings now.
+        :param magnification: the magnification the blanks were drawn at;
+            the panel's own when ``None``.
+        :returns: how many diameters were written.
+        """
+        if getattr(self._panel, "_applying_settings", False):
+            return 0
+        held = _blank_diameters_held_still(current, magnification)
+        written = 0
+        for key, number in held.items():
+            if self._panel.set_value_for_key(key, number):
+                written += 1
+        return written
+
+    def _calculate_clicked(self, *_args) -> None:
+        """The user turned "Calculate diameters"; on, recalculate all three.
+
+        Connected to the switch's ``clicked``, which only a user's click or
+        drag sends -- never a settings file or preset being applied.
+
+        Turning it on is the reset for pinned diameters: the cell, nucleus
+        and pathogen diameters go back to blank, which is their
+        magnification default, and follow magnification from here on.
+        Turning it off is handled where every form change is, by
+        :meth:`_hold_the_diameters_still`.
+        """
+        if self._busy:
+            return
+        try:
+            current = self._panel.collect()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the panel", exc_info=True)
+            return
+        if not _calculates_diameters(current):
+            return
+        self._busy = True
+        try:
+            for obj in _DIAMETER_OBJECTS:
+                key = f"{obj}_diameter"
+                if key in current and current[key] is not None:
+                    self._panel.set_value_for_key(key, None)
+            self._show_what_the_panel_holds()
         finally:
             self._busy = False
 

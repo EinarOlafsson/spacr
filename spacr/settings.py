@@ -1210,6 +1210,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('dry_run', False)
     settings.setdefault('test_images', 10)
     settings.setdefault('magnification', 40)
+    settings.setdefault('calculate_diameters', True)
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
     settings.setdefault('n_jobs', _default_worker_count(reserve=4))
@@ -3545,6 +3546,7 @@ expected_types = {
     "experiment": str,
     "channels": list,
     "magnification": int,
+    "calculate_diameters": bool,
     "plaque_model": str,
     "plaque_mode": str,
     "figure_detector": str,
@@ -4895,6 +4897,7 @@ tooltips = {
     "diameter": "(float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30.",
     "filter": "(bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object <object>_min_area, <object>_max_area and <object>_perimeter_fraction settings instead. Default False.",
     "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
+    "calculate_diameters": "(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2*magnification+80 px for cells, 0.75*magnification+45 px for nuclei and magnification px for pathogens), shown greyed in Per-object settings, and moves with every magnification change, in the panel and in the run. A diameter you type, or auto, is pinned: it is drawn bold and kept when magnification changes, until you clear its cell or turn this off and on again, which recalculates all three. When False, turning it off writes the current calculated values into the blank diameters, magnification changes no longer touch any diameter, and a cleared cell is refilled with its value at the current magnification. Default True.",
     "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.",
     "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
     "figure_detector": "(str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
@@ -5762,7 +5765,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters", "real_object_classifier", "real_object_threshold"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "calculate_diameters", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters", "real_object_classifier", "real_object_threshold"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",

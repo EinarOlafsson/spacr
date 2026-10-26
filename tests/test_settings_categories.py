@@ -972,6 +972,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "spatial_bin_um", "spatial_min_qv", "spatial_objects",
     "spatial_pathogen_genes", "spatial_min_pathogen_transcripts",
     "spatial_gene", "spatial_anndata",
+    # NEW SETTING, not a regrouping (item 696, 2026-10-26): "Calculate
+    # diameters", directly under magnification in General.
+    "calculate_diameters",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

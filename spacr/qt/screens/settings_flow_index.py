@@ -100,6 +100,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'bystander_measurements',
     'bystander_reach_in_diameters',
     'calculate_correlation',
+    'calculate_diameters',
     'calibrate_fraction_threshold',
     'cam_type',
     'cell_background',

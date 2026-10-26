@@ -534,3 +534,92 @@ def _default_diameter_of(settings, obj: str):
     :returns: the diameter in pixels, or ``None`` without a magnification.
     """
     return _magnification_default(settings.get("magnification"), obj)
+
+
+_CALCULATE_DIAMETERS = "calculate_diameters"
+"""The Make Masks switch under Magnification (2026-10-26, item 696)."""
+
+
+def _calculates_diameters(settings) -> bool:
+    """Whether ``settings`` calculate the object diameters from magnification.
+
+    On, a blank cell, nucleus or pathogen diameter is the magnification
+    default and moves with every magnification change; a typed number or
+    "auto" is pinned. Off, magnification changes leave every diameter as it
+    stands. Absent means on, the default, so older settings files keep
+    following the magnification as they always did.
+
+    :param settings: a settings dict.
+    :returns: the switch as a bool; text such as ``"false"`` or ``"0"`` is
+        read as off.
+    """
+    settings = settings or {}
+    value = settings.get("calculate_diameters", True)
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip().lower() not in ("false", "0", "no", "off")
+    return bool(value)
+
+
+def _calculated_diameters(magnification) -> "Dict[str, object]":
+    """Each object diameter key at its magnification default.
+
+    What turning "Calculate diameters" off writes into the blank diameters,
+    so the values the run uses stop depending on the magnification.
+
+    :param magnification: the objective magnification.
+    :returns: ``{"cell_diameter": 120, ...}``; empty without a usable
+        magnification.
+    """
+    calculated = {}
+    for obj in _DIAMETER_OBJECTS:
+        default = _magnification_default(magnification, obj)
+        if default is not None:
+            calculated[f"{obj}_diameter"] = (
+                int(default) if float(default).is_integer() else default)
+    return calculated
+
+
+def _blank_diameters_held_still(settings, magnification=None) -> "Dict[str, object]":
+    """The blank diameters a switched-off ``settings`` must fill, and with what.
+
+    :param settings: a settings dict.
+    :param magnification: the magnification the blanks were showing; the
+        settings' own magnification when ``None``.
+    :returns: ``{key: number}`` for each blank cell, nucleus or pathogen
+        diameter, empty while the switch is on.
+    """
+    if _calculates_diameters(settings):
+        return {}
+    if magnification is None:
+        magnification = settings.get("magnification")
+    calculated = _calculated_diameters(magnification)
+    held = {}
+    for key, number in calculated.items():
+        if key not in settings:
+            continue
+        try:
+            blank = _diameter_setting(settings.get(key)) is None
+        except ValueError:
+            blank = False
+        if blank:
+            held[key] = number
+    return held
+
+
+def _diameter_is_pinned(settings, obj: str) -> bool:
+    """Whether ``obj``'s diameter is pinned against magnification changes.
+
+    Pinned means calculating is on and the user gave the diameter a value of
+    their own -- a number or "auto" -- rather than leaving it blank.
+
+    :param settings: a settings dict.
+    :param obj: ``"cell"``, ``"nucleus"`` or ``"pathogen"``.
+    """
+    if obj not in _DIAMETER_OBJECTS or not _calculates_diameters(settings):
+        return False
+    try:
+        return _diameter_setting(settings.get(f"{obj}_diameter")) is not None
+    except ValueError:
+        return False

@@ -1190,6 +1190,20 @@ if app_key == "mask":
         assert ast.literal_eval(claims[0].group("value")) == value
         assert resolve_default_settings("analyze_plaques")[key] == value
     recognized_arrivals |= well_resize_arrivals
+    calculate_arrivals = {pair for pair in compared_pairs
+                          if pair[1] == "calculate_diameters"}
+    assert ("mask", "calculate_diameters") in calculate_arrivals
+    assert not calculate_arrivals & (recognized_arrivals | variants.keys())
+    assert hashlib.sha256(tooltips["calculate_diameters"].encode()).hexdigest() == (
+        "5acf258bde8f90f79c66698069368ffa4623113bff580fb5682c9571b173eb2c")
+    claims = [claim.group(0) for claim in
+              DEFAULT_LITERAL.finditer(tooltips["calculate_diameters"])]
+    assert claims[-1] == "Default True"
+    assert all(claim.startswith("default (2*magnification+80")
+               for claim in claims[:-1])
+    for app, _key in calculate_arrivals:
+        assert resolve_default_settings(app)["calculate_diameters"] is True
+    recognized_arrivals |= calculate_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

@@ -56,6 +56,7 @@ SETTING_API_TARGETS = {
     'bystander_measurements': ('spacr.measure', '', False),
     'bystander_reach_in_diameters': ('spacr.measure', '', False),
     'calculate_correlation': ('spacr.measure', '', False),
+    'calculate_diameters': ('spacr.object_settings_table', '', False),
     'calibrate_fraction_threshold': ('spacr.ml', '', False),
     'cam_type': ('spacr.deep_spacr', 'generate_activation_map', True),
     'cell_area_outlier_mads': ('spacr.outlier_filter', 'apply', True),

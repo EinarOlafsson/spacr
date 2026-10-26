@@ -1190,7 +1190,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "segmentation_backend",
-            "channels", "magnification",
+            "channels", "magnification", "calculate_diameters",
             "metadata_type", "custom_regex",
         )),
         ("Cloud α", (
@@ -1342,7 +1342,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "segmentation_backend",
-            "channels", "magnification",
+            "channels", "magnification", "calculate_diameters",
             "metadata_type", "custom_regex",
         )),
         ("Acquisition & Axes", (
