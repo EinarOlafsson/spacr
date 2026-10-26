@@ -234,6 +234,31 @@ def test_a_rendered_field_follows_the_cubic_across_its_width(qtbot,
     assert (alphas[mid] - alphas[-1]) > 5 * (alphas[0] - alphas[mid])
 
 
+def _outline_over_half_its_fill(alpha: int) -> int:
+    """Row 0's alpha for a ramp of ``alpha``, composited by Qt's raster engine.
+
+    The fill covers the lower half of row 0 and the 1px outline covers all
+    of it, both at ``alpha``, painted antialiased into the same
+    ARGB32_Premultiplied format :func:`_render` uses. Alpha does not depend on
+    colour, so any two colours give the pixel the real widget produces.
+    """
+    from PySide6.QtCore import QPointF, QRectF, Qt
+    from PySide6.QtGui import QPen
+
+    image = QImage(1, 3, QImage.Format_ARGB32_Premultiplied)
+    image.fill(QColor(0, 0, 0, 0))
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(QColor(40, 40, 40, alpha))
+    painter.drawRect(QRectF(-1.0, 0.5, 3.0, 3.0))
+    painter.setBrush(Qt.NoBrush)
+    painter.setPen(QPen(QColor(120, 120, 120, alpha), 1.0))
+    painter.drawLine(QPointF(-1.0, 0.5), QPointF(2.0, 0.5))
+    painter.end()
+    return image.pixelColor(0, 0).alpha()
+
+
 def test_the_outline_fades_on_the_same_ramp_as_the_fill(qtbot, prefs_sandbox,
                                                         qapp):
     _apply(qapp)
@@ -259,10 +284,16 @@ def test_the_outline_fades_on_the_same_ramp_as_the_fill(qtbot, prefs_sandbox,
     # And it is the SAME ramp, not merely some ramp. Row 0 is the 1px
     # stroke sitting over the top half of the fill's own edge pixel, so
     # what lands there is the ramp composited with half of itself —
-    # a + a(1-a)/2 — computed from the fill measured at that same x.
+    # a + a(1-a)/2 — from the fill measured at that same x. The expected
+    # pixel is composited by Qt's raster engine itself, not by the formula:
+    # its blend divides by 255 with SIMD shortcuts that round differently on
+    # ARM NEON than on x86 SSE2, and against the exact formula an Apple
+    # Silicon render lands up to 1.7 levels away. A wrong ramp still misses
+    # by tens.
     for x, (got, under) in zip(_XS, zip(border, fill)):
+        want = _outline_over_half_its_fill(under)
         a = under / 255.0
-        want = 255.0 * (a + 0.5 * a * (1.0 - a))
+        assert abs(want - 255.0 * (a + 0.5 * a * (1.0 - a))) <= 2, (x, want)
         assert abs(got - want) <= 1, (x, got, want)
 
     # The bottom outline goes with it — the whole box, not just one edge.
