@@ -1436,13 +1436,13 @@ def test_native_context_of_a_following_session_is_never_borrowed(configured, tmp
     assert body['screen'] == 'Overview' and 'Measure' not in body['user_note']
 
 
-def test_native_context_drops_paths_addresses_identities_and_unknown_keys(monkeypatch):
+def test_native_context_drops_paths_addresses_identities_and_unknown_keys(monkeypatch, tmp_path):
     from spacr.qt.ai import issue_report
 
     monkeypatch.setattr(issue_report, '_identity_words',
                         lambda: [('privateperson', '<USER>'), ('privatehost', '<HOST>')])
     kept = cr._native_context_values({
-        'screen': '/home/privateperson/plate', 'os_release': 'privatehost 6.8', 'machine': 'x86_64',
+        'screen': str(tmp_path / 'home' / 'privateperson' / 'plate'), 'os_release': 'privatehost 6.8', 'machine': 'x86_64',
         'gpu': '192.168.1.20', 'qt': 'C:\\Users\\privateperson', 'qt_platform': 'me@example.org',
         'pyside6': 'https://example.org/x', 'hostname': 'privatehost', 'accessibility': True,
         'os': 'linux' * 10})
