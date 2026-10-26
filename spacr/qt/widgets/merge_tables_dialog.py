@@ -12,6 +12,7 @@ from pathlib import Path
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -24,6 +25,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
+    QStyledItemDelegate,
     QTableWidget,
     QTextEdit,
     QVBoxLayout,
@@ -40,7 +42,8 @@ from ...merge_tables import MergeError, aggregation_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from .sortable_table import (
-    install_sorting, table_item, _retire_table_cells, _spare_table_item)
+    install_sorting, table_item, _hold_sorting_for_fill, _retire_table_cells,
+    _spare_table_item)
 from ..theme import SPACING
 
 WARNING = (
@@ -62,6 +65,98 @@ def _combo(values, value, parent):
     widget.addItems(values)
     widget.setCurrentText(value)
     return widget
+
+
+#: Item roles on an Aggregation cell: the methods it may offer, and the
+#: ``(table, column)`` whose rule it sets.
+_METHODS_ROLE = Qt.UserRole
+_SOURCE_ROLE = Qt.UserRole + 1
+
+
+class _AggregationDelegate(QStyledItemDelegate):
+    """Edit an Aggregation cell with a choice of its compatible methods.
+
+    The cell is a plain item and gets an editor only while it is changed. A
+    merge of cell, nucleus and pathogen offers about 700 rules, and a combo
+    box per row took seconds to build on the GUI thread every time a table
+    was ticked.
+    """
+
+    def createEditor(self, parent, option, index):
+        """Offer only the methods stored on the cell.
+
+        :param parent: Viewport that owns the editor.
+        :param option: Style options for the cell.
+        :param index: The Aggregation cell being edited.
+        """
+        return _combo(list(index.data(_METHODS_ROLE) or ()), index.data(), parent)
+
+    def setEditorData(self, editor, index):
+        """Show the cell's current method.
+
+        :param editor: The combo box from :meth:`createEditor`.
+        :param index: The Aggregation cell being edited.
+        """
+        editor.setCurrentText(index.data())
+
+    def setModelData(self, editor, model, index):
+        """Write the chosen method back to the cell.
+
+        :param editor: The combo box from :meth:`createEditor`.
+        :param model: The rules table's model.
+        :param index: The Aggregation cell being edited.
+        """
+        if editor.currentText() != index.data():
+            model.setData(index, editor.currentText())
+
+
+def _rule_rows(path, definition, overrides):
+    """List the Aggregation rows a definition offers, on the worker thread.
+
+    Reading each child's sample and testing every column's values took half
+    a second for nucleus and pathogen together, too long to hold the window.
+
+    :param path: Source database the definition is bound to.
+    :param definition: Merge definition whose joins offer rules.
+    :param overrides: ``{table: {column: method}}`` already chosen.
+    :returns: ``(table, column, method, methods, fixed)`` per offered column,
+        where ``fixed`` marks a default one-to-one join that keeps its values.
+    """
+    rows = []
+    for join in definition["joins"]:
+        frame = column_sample(path, join["table"])
+        identifiers = set(join.get("identifiers", []))
+        fixed = definition["mode"] == "default" and join["relationship"] == "one-to-one"
+        for column in frame:
+            if column in join["right_keys"]:
+                continue
+            method = overrides.get(join["table"], {}).get(column, aggregation_for(
+                column, numeric=pd.api.types.is_numeric_dtype(frame[column])))
+            methods = allowed_methods(frame[column], identifier=column in identifiers)
+            rows.append((join["table"], column,
+                         method if method in methods else methods[0], methods, fixed))
+    return rows
+
+
+def _validated_preview(path, definition):
+    """Run the full merge and format its first rows, on the worker thread.
+
+    Formatting belongs here, not on the GUI thread. A merged frame carries
+    its definition in ``attrs`` and pandas deep-copies ``attrs`` into every
+    column it touches, so ``head(12).to_string()`` of the 2,341-row,
+    986-column cell + nucleus + pathogen merge in lesson 58 spent eight
+    seconds copying that definition once per column, and the window froze.
+    The sample drops ``attrs`` before it is formatted.
+
+    :param path: Source database the definition is bound to.
+    :param definition: Merge definition to validate on every row.
+    :returns: ``(definition, (frame, report), preview)`` where ``preview`` is
+        the first twelve output rows as text.
+    """
+    frame, report = execute(path, definition)
+    sample = frame.head(12)
+    sample.attrs = {}
+    return definition, (frame, report), sample.to_string(index=False)
 
 
 def _columns(text):
@@ -192,6 +287,8 @@ class MergeTablesDialog(QDialog):
         self._filename_map = copy.deepcopy((initial_definition or {}).get("original_filenames"))
         self._jobs = JobRunner(self, threaded=threaded)
         self._jobs.job_failed.connect(self._failed)
+        self._rule_jobs = JobRunner(self, threaded=threaded)
+        self._rule_jobs.job_failed.connect(self._failed)
         self.setWindowTitle("Merge tables")
         self.setObjectName("MergeTablesDialog")
         self.setSizeGripEnabled(True)
@@ -255,6 +352,10 @@ class MergeTablesDialog(QDialog):
         install_sorting(self.rules)
         self.rules.setHorizontalHeaderLabels(["Table", "Column", "Aggregation"])
         self.rules.horizontalHeader().setStretchLastSection(True)
+        self.rules.setItemDelegateForColumn(2, _AggregationDelegate(self.rules))
+        self.rules.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.rules.itemChanged.connect(self._aggregation_edited)
+        self._filling = False
         outer.addWidget(self.rules, 1)
         self.preview_text = QTextEdit(self)
         self.preview_text.setReadOnly(True)
@@ -377,32 +478,57 @@ class MergeTablesDialog(QDialog):
         """Offer type-compatible rules for selected children, excluding join keys.
 
         A small sample supplies the choices offered; execution validates the
-        full data.
+        full data. The sample is read and classified on a worker and the
+        table is filled when it answers; a newer request supersedes it.
         """
         definition = self.configuration()
-        _retire_table_cells(self.rules)
-        for join in definition["joins"]:
-            frame = column_sample(self.path, join["table"])
-            identifiers = set(join.get("identifiers", []))
-            for column in frame:
-                if column in join["right_keys"]:
-                    continue
-                row = self.rules.rowCount()
-                self.rules.insertRow(row)
-                for index, text in enumerate((join["table"], column)):
+        overrides = copy.deepcopy(self._overrides)
+        self._rule_jobs.cancel()
+        self._rule_jobs.submit(lambda: _rule_rows(self.path, definition, overrides),
+                               self._show_rules)
+
+    def _show_rules(self, rows):
+        """Fill the rules table from :func:`_rule_rows`, sizing it once.
+
+        Inserting about 700 rows one at a time, each with its own combo box,
+        held the GUI thread for seconds whenever a table was ticked.
+
+        :param rows: ``(table, column, method, methods, fixed)`` per rule.
+        """
+        self._filling = True
+        try:
+            _retire_table_cells(self.rules)
+            _hold_sorting_for_fill(self.rules)
+            self.rules.setRowCount(len(rows))
+            for row, (table, column, method, methods, fixed) in enumerate(rows):
+                for index, text in enumerate((table, column)):
                     item = _spare_table_item(self.rules, text)
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setToolTip("")
                     self.rules.setItem(row, index, item)
-                method = self._overrides.get(join["table"], {}).get(column, aggregation_for(
-                    column, numeric=pd.api.types.is_numeric_dtype(frame[column])))
-                methods = allowed_methods(frame[column], identifier=column in identifiers)
-                combo = _combo(methods, method if method in methods else methods[0], self)
-                if definition["mode"] == "default" and join["relationship"] == "one-to-one":
-                    combo.setEnabled(False)
-                    combo.setToolTip("Default one-to-one rows are attached intact. Customize merging to transform individual values.")
-                combo.currentTextChanged.connect(lambda value, t=join["table"], c=column:
-                                                 self._rule_changed(t, c, value))
-                self.rules.setCellWidget(row, 2, combo)
+                item = _spare_table_item(self.rules, method)
+                item.setData(_METHODS_ROLE, list(methods))
+                item.setData(_SOURCE_ROLE, [table, column])
+                if fixed:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setToolTip("Default one-to-one rows are attached intact. "
+                                    "Customize merging to transform individual values.")
+                else:
+                    item.setFlags(item.flags() | Qt.ItemIsEditable)
+                    item.setToolTip("")
+                self.rules.setItem(row, 2, item)
+        finally:
+            self._filling = False
+
+    def _aggregation_edited(self, item):
+        """Record an Aggregation cell the user changed.
+
+        :param item: The rules-table cell whose value changed.
+        """
+        source = item.data(_SOURCE_ROLE)
+        if self._filling or item.column() != 2 or not source:
+            return
+        self._rule_changed(source[0], source[1], item.text())
 
     def _rule_changed(self, table, column, method):
         """Record a per-column choice and invalidate the previous preview.
@@ -442,14 +568,15 @@ class MergeTablesDialog(QDialog):
             self._failed(str(exc))
             return
         self.preview_text.setPlainText(tr("Validating all rows…"))
-        self._jobs.submit(lambda: (definition, execute(self.path, definition)), self._validated)
+        self._jobs.submit(lambda: _validated_preview(self.path, definition), self._validated)
 
     def _validated(self, payload):
         """Enable creation only for the current successfully validated preview.
 
-        :param payload: Definition and the worker's frame/diagnostics result.
+        :param payload: Definition, the worker's frame/diagnostics result and
+            its formatted first rows.
         """
-        self.definition, (self.result_frame, report) = payload
+        self.definition, (self.result_frame, report), preview = payload
         self.definition = self.result_frame.attrs.get("merge_definition", self.definition)
         if self.definition.get("original_filenames"):
             self._filename_map = copy.deepcopy(self.definition["original_filenames"])
@@ -481,7 +608,7 @@ class MergeTablesDialog(QDialog):
                             matched=metadata["matched_rows"], unmatched=metadata["unmatched_rows"],
                             path=metadata["map_path"]))
         lines.append("\n" + tr("First 12 output rows:") + "\n" +
-                     self.result_frame.head(12).to_string(index=False))
+                     preview)
         self.preview_text.setPlainText("\n\n".join(lines))
         self.create.setEnabled(True)
 
@@ -496,10 +623,12 @@ class MergeTablesDialog(QDialog):
     def accept(self):
         """Apply only a validated current configuration."""
         if self.create.isEnabled() and self.result_frame is not None:
+            self._rule_jobs.shutdown()
             self._jobs.shutdown()
             super().accept()
 
     def reject(self):
         """Cancel outstanding work before dismissing the popup."""
+        self._rule_jobs.shutdown()
         self._jobs.shutdown()
         super().reject()

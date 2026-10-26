@@ -34,6 +34,7 @@ on the same column.
 """
 from __future__ import annotations
 
+import threading
 import weakref
 from typing import Dict, List, Optional
 
@@ -78,6 +79,10 @@ _KINDS_CACHE: Dict[int, tuple] = {}
 #: (raw and filtered) are live at once, so four is generous.
 _KINDS_CACHE_MAX = 4
 
+#: Guards :data:`_KINDS_CACHE`: a table loader warms it on its worker thread
+#: while the GUI thread reads it.
+_KINDS_LOCK = threading.Lock()
+
 
 def classify_columns(frame: pd.DataFrame) -> Dict[str, str]:
     """Sort ``frame``'s columns into ``'category'``, ``'range'`` or ``'skip'``.
@@ -107,22 +112,24 @@ def classify_columns(frame: pd.DataFrame) -> Dict[str, str]:
         (``GraphSpec.kinds_for``) update it in place.
     """
     key = id(frame)
-    entry = _KINDS_CACHE.get(key)
+    with _KINDS_LOCK:
+        entry = _KINDS_CACHE.get(key)
     if entry is not None:
         ref, shape, cached = entry
         if ref() is frame and shape == frame.shape:
             return dict(cached)
     kinds = _classify_columns_uncached(frame)
-    if len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
-        for dead in [k for k, (r, _s, _c) in _KINDS_CACHE.items()
-                     if r() is None]:
-            _KINDS_CACHE.pop(dead, None)
-        while len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
-            _KINDS_CACHE.pop(next(iter(_KINDS_CACHE)), None)
-    try:
-        _KINDS_CACHE[key] = (weakref.ref(frame), frame.shape, kinds)
-    except TypeError:
-        pass
+    with _KINDS_LOCK:
+        if len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+            for dead in [k for k, (r, _s, _c) in _KINDS_CACHE.items()
+                         if r() is None]:
+                _KINDS_CACHE.pop(dead, None)
+            while len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+                _KINDS_CACHE.pop(next(iter(_KINDS_CACHE)), None)
+        try:
+            _KINDS_CACHE[key] = (weakref.ref(frame), frame.shape, kinds)
+        except TypeError:
+            pass
     return dict(kinds)
 
 
