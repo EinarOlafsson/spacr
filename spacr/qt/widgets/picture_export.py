@@ -1342,11 +1342,9 @@ class _CanvasComposer(QDialog):
         self.page_size = QComboBox()
         for name in _CANVAS_PAGE_SIZES:
             self.page_size.addItem(tr(name), name)
-        self.page_size.setToolTip(tr("Paper size of every page."))
         self.orientation = QComboBox()
         self.orientation.addItem(tr("Portrait"), "portrait")
         self.orientation.addItem(tr("Landscape"), "landscape")
-        self.orientation.setToolTip(tr("Page orientation of every page."))
         self.page_size.currentIndexChanged.connect(self._page_changed)
         self.orientation.currentIndexChanged.connect(self._page_changed)
         self.grid_slider = QSlider(Qt.Orientation.Horizontal)
@@ -1395,7 +1393,9 @@ class _CanvasComposer(QDialog):
         self.export_button.setToolTip(tr("Write every page to one PDF: vector text, images at full resolution "
                                          "with the current display settings."))
         self.export_button.clicked.connect(self._ask_export)
-        for widget in (QLabel(tr("Page")), self.page_size, self.orientation, QLabel(tr("Grid")),
+        page_label = QLabel(tr("Page"))
+        page_label.setToolTip(tr("Paper size of every page.") + " " + tr("Page orientation of every page."))
+        for widget in (page_label, self.page_size, self.orientation, QLabel(tr("Grid")),
                        self.grid_slider, self.grid_spin, self.show_grid, self.snap):
             bar.addWidget(widget)
         bar.addSpacing(10)
@@ -1478,12 +1478,13 @@ class _CanvasComposer(QDialog):
         self.align = QComboBox()
         for caption, value in (("Left", "left"), ("Centre", "center"), ("Right", "right")):
             self.align.addItem(tr(caption), value)
-        self.align.setToolTip(tr("Horizontal alignment of the text in its box."))
         self.align.currentIndexChanged.connect(self._font_changed)
         form.addRow(self.text_edit)
         form.addRow(tr("Size"), size_row)
         form.addRow(style_row)
-        form.addRow(tr("Align"), self.align)
+        align_label = QLabel(tr("Align"))
+        align_label.setToolTip(tr("Horizontal alignment of the text in its box."))
+        form.addRow(align_label, self.align)
         self.image_group = QGroupBox(tr("Image"))
         image_form = QVBoxLayout(self.image_group)
         self.image_label = QLabel("")
