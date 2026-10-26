@@ -60,7 +60,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import pandas as pd
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
+from PySide6.QtGui import QBrush, QColor, QFont, QFontDatabase, QPainter, QPen
 from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -825,7 +825,7 @@ class PlateViewScreen(LinkedView, QWidget):
         self._report_view = QPlainTextEdit()
         self._report_view.setReadOnly(True)
         self._report_view.setLineWrapMode(QPlainTextEdit.NoWrap)
-        mono = QFont("monospace")
+        mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         mono.setStyleHint(QFont.Monospace)
         self._report_view.setFont(mono)
         self._report_view.setPlaceholderText(

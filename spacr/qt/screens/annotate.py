@@ -99,7 +99,7 @@ from PySide6.QtCore import (
 )
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
+from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QFontDatabase, QImage,
                            QPainter, QPainterPath, QPen, QPixmap)
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -2190,7 +2190,7 @@ class _TextReportDialog(QDialog):
         view = QPlainTextEdit(self)
         view.setReadOnly(True)
         view.setLineWrapMode(QPlainTextEdit.NoWrap)
-        font = QFont("monospace")
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setStyleHint(QFont.Monospace)
         view.setFont(font)
         view.setPlainText(body)
