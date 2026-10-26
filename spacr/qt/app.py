@@ -8445,7 +8445,7 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             pass
 
-    def _build_screen(self, key: str) -> QWidget:
+    def _build_screen(self, key: str, search: bool = True) -> QWidget:
         """Build one module's screen, timed.
 
         A settings screen built here leaves each closed category unbuilt
@@ -8460,7 +8460,16 @@ class MainWindow(QMainWindow):
         strip after that cost Mask 0.8 s and about 3,000 style changes
         offscreen; before it, nothing is polished and the move is free.
 
+        Only a page that joins the stack gets the strip. A module opened by
+        a fold button (External Masks on Import) is built here too, but the
+        stack never installs a strip on it, and one put on here opened at
+        the module's remembered disclosure, Essentials by default, which
+        hid every category without an essential setting: Object Crops,
+        Measurements and Advanced on External Masks.
+
         :param key: the module to build.
+        :param search: put the settings search strip on the screen; the
+            fold path passes ``False``.
         :returns: the screen widget.
         """
         from . import screens as _screens_package
@@ -8476,9 +8485,10 @@ class MainWindow(QMainWindow):
                 install_folds_on(screen)
                 if key in _CRAMPED_SCREENS:
                     _scroll_when_cramped(screen)
-                from .settings_search import install as _install_settings_search
+                if search:
+                    from .settings_search import install as _install_settings_search
 
-                _install_settings_search(screen)
+                    _install_settings_search(screen)
                 return screen
         finally:
             _screens_package._categories_wait_to_be_opened = waited

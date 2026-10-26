@@ -351,6 +351,10 @@ def build_registered_screen(key: str,
     which is the same knowledge written a second time and free to drift
     from the first.
 
+    The screen is built without the settings search strip a stack page
+    gets: the folded page is not on the stack, and a strip opening at
+    Essentials hid most of its categories.
+
     Falls back to :func:`build_settings_screen` when there is no window
     to ask -- the headless and unit-test path, where a settings screen is
     what the catalogue-driven modules would have produced anyway.
@@ -362,7 +366,7 @@ def build_registered_screen(key: str,
     build = getattr(host_window, "_build_screen", None)
     if callable(build):
         try:
-            return build(key)
+            return build(key, search=False)
         except Exception:
             LOG.debug("The window could not build %s; falling back to its "
                       "settings screen", key, exc_info=True)
