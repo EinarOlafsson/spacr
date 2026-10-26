@@ -117,6 +117,30 @@ def test_real_validator_accepts_measured_one_second_idle_transition():
     assert r['idle_padding_skipped'] and not r['entire_recorded_tail_played']
 
 
+@pytest.mark.parametrize('speech_end', [1., 1.6])
+def test_short_original_gap_cut_fits_near_scene_end_without_padding_or_speech_loss(speech_end):
+    trace,events,visual,spoken=observation(seek_at=1.52)
+    visual['scenes'][0].update(scene_end=1.7,duration=1.7)
+    visual['scenes'][1].update(speech_start=1.7,scene_end=5.7)
+    spoken['scenes'][0].update(speech_end=speech_end,scene_end=1.52)
+    spoken['scenes'][1].update(speech_start=1.52,speech_end=2.52,scene_end=3.04,
+                             sentences=[dict(audible_start=1.62,audible_end=2.34)])
+    for row in trace:
+        if row['video']>=4:
+            row['video']-=2.3
+            row['audio']-=.2
+    events[0]['video']=1.7
+    # .8s original sound gap permits a cut at1.52 before the scene ends1.7;
+    # the old hardcoded1s budget wrongly put it at1.72, outside the scene.
+    if speech_end==1.:
+        result=check_complete_native_trace(trace,events,visual,spoken,0,require_gap=True)
+        assert result['idle_padding_skipped']
+        assert result['actual_sound_gap_seconds']==pytest.approx(.85)
+    else:
+        with pytest.raises(AssertionError,match='missing_or_unplanned_seek'):
+            check_complete_native_trace(trace,events,visual,spoken,0,require_gap=True)
+
+
 def test_real_validator_requires_actual_final_eof_after_trailing_pause():
     args=observation(final=True);r=check_complete_native_trace(*args,0,True)
     assert r['actual_sound_gap_seconds']==pytest.approx(1.03,abs=.03)
