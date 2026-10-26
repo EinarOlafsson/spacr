@@ -1097,6 +1097,47 @@ def check_qt_extra(ctx: Context) -> Result:
     return Result("qt extra", PASS, f"Qt GUI available (PySide6 {version}).")
 
 
+#: PySide6 releases whose Qt crashes on macOS once an assistive client is
+#: attached: VoiceOver, or any app given accessibility rights. The setup pins
+#: keep new macOS installs below 6.11; an environment built earlier keeps the
+#: release it has until it is updated.
+_MACOS_ACCESSIBILITY_CRASH_QT = ((6, 11, 0), (6, 12, 0))
+
+
+@_register("macOS Qt release")
+def check_macos_qt_release(ctx: Context) -> Result:
+    """Warn about a macOS Qt that crashes under an accessibility client.
+
+    Qt 6.11.0 to 6.12.0 free cached accessibility interfaces while the Cocoa
+    bridge still uses them. A table sort or a live GUI-scale change then
+    crashes spaCR, often later and somewhere unrelated, such as while a
+    widget is being created. New installs are pinned below 6.11 on macOS;
+    this row finds an environment built before that pin.
+
+    :param ctx: not read; the installed PySide6 distribution is.
+    """
+    if sys.platform != "darwin":
+        return Result("macOS Qt release", SKIP, "Not macOS.")
+    version = _distribution_version("PySide6")
+    if not version:
+        return Result("macOS Qt release", SKIP, "PySide6 is not installed.")
+    parts = tuple(int(p) for p in re.findall(r"\d+", version)[:3])
+    parts += (0,) * (3 - len(parts))
+    low, high = _MACOS_ACCESSIBILITY_CRASH_QT
+    if low <= parts <= high:
+        return Result(
+            "macOS Qt release",
+            WARN,
+            f"PySide6 {version} crashes on macOS when VoiceOver or another "
+            "accessibility client is attached (table sorts, live GUI-scale "
+            "changes).",
+            fix='python -m pip install "PySide6>=6.6,<6.11"',
+        )
+    return Result("macOS Qt release", PASS,
+                  f"PySide6 {version} is outside the macOS accessibility "
+                  "crash range.")
+
+
 @_register("display")
 def check_display(ctx: Context) -> Result:
     """Check whether the environment provides a display for the GUI.
@@ -1494,6 +1535,11 @@ def check_gpu(ctx: Context) -> Result:
             return _result(WARN,
                            f"{found.label} was detected but spaCR cannot "
                            f"use it.",
+                           fix=("Nothing to install: spaCR runs on the CPU "
+                                "here. For faster segmentation and training, "
+                                "run the batch on a CUDA machine with "
+                                "spacr-remote. The details say why this GPU "
+                                "is not usable."),
                            details=(found.note,) if found.note else ())
     except Exception:                                        # noqa: BLE001
         pass

@@ -2062,3 +2062,22 @@ def test_doctor_is_reachable_through_the_lazy_package_loader():
 
     assert "doctor" in spacr._SUBMODULES
     assert spacr.doctor.main is doctor.main
+
+
+@pytest.mark.parametrize("platform, version, status", [
+    ("darwin", "6.11.2", doctor.WARN),
+    ("darwin", "6.12.0", doctor.WARN),
+    ("darwin", "6.10.3", doctor.PASS),
+    ("darwin", "6.12.1", doctor.PASS),
+    ("linux", "6.11.2", doctor.SKIP),
+])
+def test_macos_qt_release_flags_the_accessibility_crash_range(
+        ctx, monkeypatch, platform, version, status):
+    """Qt 6.11.0-6.12.0 crash on macOS once an accessibility client attaches."""
+    monkeypatch.setattr(doctor.sys, "platform", platform)
+    monkeypatch.setattr(doctor, "_distribution_version",
+                        lambda name: version if name == "PySide6" else None)
+    row = doctor.check_macos_qt_release(ctx)
+    assert row.status == status
+    if status == doctor.WARN:
+        assert "<6.11" in row.fix and version in row.message
