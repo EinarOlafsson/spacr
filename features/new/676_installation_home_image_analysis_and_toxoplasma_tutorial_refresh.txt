@@ -362,5 +362,5 @@ Preserve autonomous recording chain, one app base per lesson, quiet recording wi
 2026-10-26 — All50voices acceptance also requires23missingEnglishvoices for06 and48; preserve their27existingtracks and acceptedvisuals.
 Visiblecatalog59:44alreadyoffer50voices,15offer27. The handed-over15recording/publicationlessons remain, plus these2voice-onlycompletions.
 Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abdfdbe,16GPU saliency maxdifference<=1,22literalerrorifstillfailing.
-74reviewed existing-footage cuts pass71playbackcases/all50voices:500actualsentencegaps0.800–0.837s;publicationpending,36next. Originalaudioandcapturesevidence retained.
+74edited media uploaded/verified and pushedc89e5ae26d;59hostedroutes and64publicationtests pass, website deploymentpending.36reviewed6cuts/17idlefences rendered with original50tracks;finalmedia/browser/publicationpending.
 Sevenpriorpublishednewrecordings also requirepausecuts;13/70/19waitforHomeperformancefixes. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
