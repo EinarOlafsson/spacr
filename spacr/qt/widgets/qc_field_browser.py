@@ -1515,6 +1515,8 @@ class _OverviewField:
     time_id: str = ""
     z_id: str = ""
     axes: tuple = ()
+    source: str = ""
+    plate_id: str = ""
 
     @property
     def identity(self):
@@ -1526,6 +1528,147 @@ class _OverviewField:
     def caption(self):
         """Trace a view back to its plate, well, field and source files."""
         return " / ".join((self.plate, self.well, self.field))
+
+
+def _overview_plate_key(field):
+    """The stable key of a field's plate: its plate folder and its name within it.
+
+    ``field.plate`` is the plate's name in this session, unique across every
+    loaded source and free to be renamed for display; this key is what saved
+    state is filed under, so A01 of one plate never meets A01 of another.
+
+    :param field: an :class:`_OverviewField`.
+    :returns: ``(source, plate_id)``; ``source`` is ``""`` for a field indexed
+        without one.
+    """
+    return (str(field.source or ""), str(field.plate_id or field.plate))
+
+
+def _overview_image_key(field):
+    """The stable key of one image: its plate key, well, field and acquisition axes.
+
+    :param field: an :class:`_OverviewField`.
+    :returns: ``(source, plate_id, well, field, time_id, z_id)``.
+    """
+    return _overview_plate_key(field) + (str(field.well), str(field.field_id or field.field),
+                                         str(field.time_id or ""), str(field.z_id or ""))
+
+
+def _overview_key_text(key):
+    """A plate or image key as the text the saved view state files it under."""
+    import json
+
+    return json.dumps([str(part) for part in key], ensure_ascii=False)
+
+
+_OVERVIEW_VIEW_STATE_VERSION = 1
+
+
+def _overview_view_state_path(source):
+    """Where the Overview's view state for ``source`` is saved."""
+    return Path(source) / "results" / "overview_view.json"
+
+
+def _overview_empty_view_state():
+    """A view state with nothing in it.
+
+    ``plates`` maps :func:`_overview_key_text` of a plate key to
+    ``{"name": display name, "collapsed_rows": [...], "collapsed_columns": [...]}``
+    (zero-based table indices). ``images`` maps the text of an image key to
+    that image's display override, ``{"channels": {channel: {...}},
+    "saturation": 1.0}``, where each channel's entry may hold ``black`` and
+    ``white`` (0-1 display units), ``gamma``, ``brightness``, ``contrast`` and
+    ``visible`` (see :func:`_overview_override_plane`).
+    """
+    return {"version": _OVERVIEW_VIEW_STATE_VERSION, "sources": [], "plates": {}, "images": {}}
+
+
+def _overview_load_view_state(source):
+    """Read the saved view state for ``source``; a missing or unreadable file reads as empty.
+
+    Runs off the GUI thread. A file written by a newer version is not read,
+    so it is never overwritten with less than it held.
+
+    :param source: the folder the Overview was opened on.
+    :returns: the state, always with every top-level entry.
+    """
+    import json
+
+    state = _overview_empty_view_state()
+    path = _overview_view_state_path(source)
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return state
+    if not isinstance(loaded, dict) or int(loaded.get("version") or 0) > _OVERVIEW_VIEW_STATE_VERSION:
+        return state
+    for name in ("plates", "images"):
+        if isinstance(loaded.get(name), dict):
+            state[name] = loaded[name]
+    if isinstance(loaded.get("sources"), list):
+        state["sources"] = [str(value) for value in loaded["sources"]]
+    return state
+
+
+def _overview_save_view_state(source, state):
+    """Write the view state for ``source`` atomically; runs off the GUI thread.
+
+    :param source: the folder the Overview was opened on.
+    :param state: the state, as :func:`_overview_empty_view_state` describes.
+    :returns: the written path.
+    """
+    import json
+    from ... import tabular
+
+    path = _overview_view_state_path(source)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = dict(state, version=_OVERVIEW_VIEW_STATE_VERSION)
+    tabular._publish(str(path), lambda pending: Path(pending).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"))
+    return path
+
+
+def _overview_try_save_view_state(source, state):
+    """:func:`_overview_save_view_state`, answering an unwritable folder with its error text."""
+    try:
+        return _overview_save_view_state(source, state)
+    except OSError as error:
+        return str(error)
+
+
+def _overview_override_plane(plane, settings):
+    """Apply one channel's per-image display override to a 0-1 display plane.
+
+    The last of the three display stages: global normalization, then the
+    scope's channel limits, then this. ``black`` and ``white`` map linearly
+    to 0 and 1, then ``gamma``, ``contrast`` about mid-grey and
+    ``brightness`` are applied and the result clipped; ``visible`` False
+    blanks the channel.
+
+    :param plane: float display plane in 0-1.
+    :param settings: the channel's override, or ``None``.
+    :returns: the adjusted plane.
+    """
+    if not settings:
+        return plane
+    if settings.get("visible") is False:
+        return np.zeros_like(plane)
+    black, white = float(settings.get("black", 0.)), float(settings.get("white", 1.))
+    plane = np.clip((plane - black) / max(white - black, np.finfo(np.float32).eps), 0., 1.)
+    gamma = float(settings.get("gamma", 1.))
+    if gamma > 0 and gamma != 1.:
+        plane = plane ** (1. / gamma)
+    plane = (plane - .5) * float(settings.get("contrast", 1.)) + .5 + float(settings.get("brightness", 0.))
+    return np.clip(plane, 0., 1.)
+
+
+def _overview_saturated(rgb, saturation):
+    """Scale an RGB composite's saturation about its per-pixel luminance."""
+    if saturation is None or float(saturation) == 1.:
+        return rgb
+    values = rgb.astype(np.float32)
+    grey = (values @ np.asarray((.299, .587, .114), dtype=np.float32))[..., None]
+    return np.clip(grey + (values - grey) * float(saturation), 0, 255).astype(np.uint8)
 
 
 def _overview_natural_key(value):
@@ -2336,7 +2479,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      channel_views=False, normalization_context=None, cancelled=None,
                      advanced_normalization=None, region=None, enhancement=None, channel_colors=None,
-                     enhancement_channels=None, percentile_channels=None, color_mode="additive"):
+                     enhancement_channels=None, percentile_channels=None, color_mode="additive",
+                     channel_limits=None, image_overrides=None):
     """Decode canonical display pixels, optionally returning individual channel views.
 
     ``enhancement`` is a Make Masks :class:`spacr.qt.detect_chain.Chain`
@@ -2350,6 +2494,14 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
     in order. ``color_mode`` ``'cmy'`` or ``'cmyk'`` prints up to three or
     four channels as inks on white instead (:func:`_overview_subtractive`).
+
+    Display stages, in order: the global normalization above; then
+    ``channel_limits``, ``{image key: {channel: (low, high)}}`` in raw
+    intensity units, which replaces a channel's bounds for that image (the
+    normalization scope); then ``image_overrides``, ``{image key:
+    override}``, applied to the display planes by
+    :func:`_overview_override_plane` and to the composite by
+    :func:`_overview_saturated`. Both are keyed by :func:`_overview_image_key`.
     """
     from PIL import Image, ImageDraw
 
@@ -2379,6 +2531,11 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         if total_bytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         source_planes.append(item)
+    image_key = _overview_image_key(field) if (channel_limits or image_overrides) else None
+    limits = dict((channel_limits or {}).get(image_key) or {})
+    override = dict((image_overrides or {}).get(image_key) or {})
+    channel_overrides = override.get("channels") or {}
+    raw_planes = {channel: array for channel, _path, array in source_planes if channel in limits}
     if advanced_normalization is not None:
         source_planes = _overview_advanced_planes(field, source_planes, advanced_normalization,
             lambda target, selected: read_selected(target, selected, edge=256), read_selected, cancelled)
@@ -2404,12 +2561,15 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     header = min(16, tile // 4) if len(channels) > 3 else 0
     plane_edge = max(1, tile - header)
     for channel, path, array in source_planes:
+        array = raw_planes.get(channel, array)
         stride = max(1, math.ceil(max(array.shape) / plane_edge))
         plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
         finite = np.isfinite(plane)
         if not finite.any():
             raise _OverviewValidationError(tr("This channel has no finite pixels."))
-        if normalization is not None or advanced_normalization is not None:
+        if channel in limits:
+            low, high = (float(value) for value in limits[channel])
+        elif normalization is not None or advanced_normalization is not None:
             low, high = 0., 1.
         elif percentiles is None or (percentile_channels is not None and channel not in percentile_channels):
             low, high = float(plane[finite].min()), float(plane[finite].max())
@@ -2419,15 +2579,17 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                               nan=0., posinf=1., neginf=0.)
         if enhancement is not None and (enhancement_channels is None or channel in enhancement_channels):
             plane = _overview_enhanced_plane(plane, enhancement, stride, cancelled)
+        plane = _overview_override_plane(plane, channel_overrides.get(channel, channel_overrides.get(str(channel))))
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
         raise _OverviewValidationError(tr("Selected channels must have matching image sizes."))
     if channel_views:
         return tuple((channel, np.repeat(plane[..., None], 3, axis=2))
                      for channel, plane in zip(channels, planes))
+    saturation = override.get("saturation")
     inks = _overview_inks(channels, channel_colors, color_mode)
     if inks is not None:
-        return _overview_subtractive(planes, inks)
+        return _overview_saturated(_overview_subtractive(planes, inks), saturation)
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
     if len(planes) > 3:
@@ -2445,11 +2607,11 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         mixed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
         for plane, weight in zip(planes, weights):
             mixed += plane[..., None].astype(np.float32) * np.asarray(weight, dtype=np.float32)
-        return np.clip(mixed, 0, 255).astype(np.uint8)
+        return _overview_saturated(np.clip(mixed, 0, 255).astype(np.uint8), saturation)
     rgb = np.zeros(planes[0].shape + (3,), dtype=np.uint8)
     for index, plane in enumerate(planes):
         rgb[..., index] = plane
-    return rgb
+    return _overview_saturated(rgb, saturation)
 
 
 def _overview_scaled_chain(chain, stride):
@@ -3392,7 +3554,8 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
                       normalization_context=None, advanced_normalization=None, preview_edge=240,
                       labels=True, enhancement=None, channel_colors=None, enhancement_channels=None,
-                      percentile_channels=None, color_mode="additive"):
+                      percentile_channels=None, color_mode="additive", channel_limits=None,
+                      image_overrides=None):
     """Render one bounded page of field thumbnails, using the shared pixel path.
 
     ``labels`` draws each tile's well and field name above its image.
@@ -3420,7 +3583,8 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                                       advanced_normalization=advanced_normalization,
                                       enhancement=enhancement, channel_colors=channel_colors,
                                       enhancement_channels=enhancement_channels,
-                                      percentile_channels=percentile_channels, color_mode=color_mode)
+                                      percentile_channels=percentile_channels, color_mode=color_mode,
+                                      channel_limits=channel_limits, image_overrides=image_overrides)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -4273,6 +4437,12 @@ class _FieldOverview(QWidget):
         self._plate_fit = True
         self._collapsed = {}
         self._color_mode = "additive"
+        self._channel_limits = {}
+        self._image_overrides = {}
+        self._view_state = _overview_empty_view_state()
+        self._view_state_pending = None
+        self._view_state_writing = False
+        self._main_view_field = None
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
@@ -4968,6 +5138,126 @@ class _FieldOverview(QWidget):
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item, preserve_view=True)
+
+    def _set_display_layers(self, channel_limits=None, image_overrides=None):
+        """Replace the scope limits or the per-image overrides and redraw every view.
+
+        Each mapping is replaced, never changed in place, because workers
+        read the one they were handed; a new mapping is also a new cache key.
+
+        :param channel_limits: ``{image key: {channel: (low, high)}}``, or
+            ``None`` to keep the current one.
+        :param image_overrides: ``{image key: override}``, or ``None`` to keep it.
+        """
+        if channel_limits is not None:
+            self._channel_limits = dict(channel_limits)
+        if image_overrides is not None:
+            self._image_overrides = dict(image_overrides)
+        self._display_generation += 1
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._request_visuals()
+        self._reload_image_views()
+        item = self.fields.currentItem()
+        if item is not None and self._individual:
+            self._field(item, preserve_view=True)
+
+    def _field_shown_in(self, widget, position=None):
+        """The field a view shows: the enlarged image, a stacked image, or a well view's tile.
+
+        :param widget: the image view, a stacked image's view, or a well's field list.
+        :param position: for a field list, the point in its viewport.
+        :returns: the :class:`_OverviewField`, or ``None``.
+        """
+        if widget is self.view:
+            return self._main_view_field
+        panel = next((panel for panel in self._image_views if panel.view is widget), None)
+        if panel is not None:
+            return panel.field
+        if widget in self._field_lists() and position is not None:
+            item = widget.itemAt(position)
+            return item.data(Qt.UserRole) if item is not None else None
+        return None
+
+    def _persist_view_state(self):
+        """Save every plate's collapsed lines and the per-image overrides to ``overview_view.json``."""
+        if not self._metadata_source:
+            return
+        state = dict(self._view_state)
+        plates = dict(state.get("plates") or {})
+        for plate, (rows, columns) in self._collapsed.items():
+            entry = dict(plates.get(_overview_key_text(self._plate_key(plate))) or {})
+            entry.update(collapsed_rows=sorted(rows), collapsed_columns=sorted(columns))
+            plates[_overview_key_text(self._plate_key(plate))] = entry
+        state["plates"] = plates
+        state["images"] = {_overview_key_text(key): value for key, value in self._image_overrides.items()}
+        state["sources"] = sorted({field.source for field in self._fields if field.source}) or [self._metadata_source]
+        self._view_state = state
+        self._view_state_pending = (self._metadata_source, state)
+        if not self._view_state_writing:
+            self._write_view_state()
+
+    def _write_view_state(self):
+        """Write the latest view state; one write at a time, so the newest always lands last."""
+        pending, self._view_state_pending = self._view_state_pending, None
+        if pending is None:
+            return
+        self._view_state_writing = True
+        self._metadata_jobs.submit(functools.partial(_overview_try_save_view_state, *pending),
+                                   self._view_state_written)
+
+    def _view_state_written(self, _result):
+        """Start the next view-state write when one was asked for meanwhile."""
+        self._view_state_writing = False
+        self._write_view_state()
+
+    def _restore_view_state(self):
+        """Read ``overview_view.json`` off the GUI thread and apply it to this source's plates."""
+        if not self._metadata_source:
+            return
+        source, fields, cancelled = self._metadata_source, self._fields, self._cancelled
+        self._metadata_jobs.submit(functools.partial(_overview_load_view_state, source),
+                                   functools.partial(self._view_state_loaded, fields, cancelled))
+
+    def _view_state_loaded(self, fields, cancelled, state):
+        """Install a read view state while the same source generation is shown."""
+        import json
+
+        if cancelled.is_set() or fields is not self._fields:
+            return
+        self._view_state = state
+        restored = False
+        saved = state.get("plates") or {}
+        if saved:
+            plates = {_overview_key_text(self._plate_key(plate)): plate for plate in {field.plate for field in fields}}
+            for text, entry in saved.items():
+                plate = plates.get(text)
+                if plate is None or not isinstance(entry, dict):
+                    continue
+                lines = ({int(value) for value in entry.get("collapsed_rows") or ()},
+                         {int(value) for value in entry.get("collapsed_columns") or ()})
+                restored = restored or any(lines)
+                self._collapsed[plate] = lines
+        overrides = {}
+        for text, value in (state.get("images") or {}).items():
+            try:
+                overrides[tuple(json.loads(text))] = value
+            except (TypeError, ValueError):
+                continue
+        if overrides:
+            self._set_display_layers(image_overrides=overrides)
+        if restored and self._plate_cell_extent is not None:
+            self._relayout_collapsed()
+
+    def _plate_key(self, plate=None):
+        """The stable key (:func:`_overview_plate_key`) of a plate shown in this session.
+
+        :param plate: the plate's session name; the shown plate when ``None``.
+        """
+        plate = self.plates.currentData() if plate is None else plate
+        field = next((field for field in self._fields if field.plate == plate), None)
+        return _overview_plate_key(field) if field is not None else ("", str(plate or ""))
 
     def _set_enhancement(self, chain):
         """Show every view through Make Masks' enhancement chain, or without one.
@@ -6186,6 +6476,7 @@ class _FieldOverview(QWidget):
             rows.discard(item.row())
             columns.discard(item.column())
             self._relayout_collapsed()
+            self._persist_view_state()
             return
         if not self._drag_selected and not getattr(self, "_press_modifiers", Qt.NoModifier) & (Qt.ControlModifier | Qt.ShiftModifier):
             self._well(item)
@@ -6630,6 +6921,7 @@ class _FieldOverview(QWidget):
         else:
             lines.discard(int(index))
         self._relayout_collapsed()
+        self._persist_view_state()
 
     def _toggle_line(self, axis, index):
         """Collapse an open plate row or column, or show a collapsed one."""
@@ -6644,6 +6936,7 @@ class _FieldOverview(QWidget):
         rows.clear()
         columns.clear()
         self._relayout_collapsed()
+        self._persist_view_state()
 
     def _line_actions(self, menu, axis, index):
         """Add the collapse or show action for one row or column to ``menu``."""
@@ -6790,7 +7083,9 @@ class _FieldOverview(QWidget):
         """Keep potentially large immutable advanced plans out of UI cache keys."""
         values = dict(options)
         advanced = values.pop("advanced_normalization", None)
-        return repr(values), id(advanced) if advanced is not None else None
+        layers = tuple(id(values.pop(name)) if values.get(name) is not None else None
+                       for name in ("channel_limits", "image_overrides"))
+        return repr(values), id(advanced) if advanced is not None else None, layers
 
     def _axis_options(self):
         """Capture internal acquisition axes independently from filename identifiers."""
@@ -6823,6 +7118,10 @@ class _FieldOverview(QWidget):
                 extra["enhancement_channels"] = self._enhance_channels
             if self._normalize_channels is not None:
                 extra["percentile_channels"] = self._normalize_channels
+            if self._channel_limits:
+                extra["channel_limits"] = self._channel_limits
+            if self._image_overrides:
+                extra["image_overrides"] = self._image_overrides
         return dict(extra, normalization=self._normalization_plan,
                     normalization_context=self._normalization_context,
                     time_index=time if isinstance(time, int) else 0,
@@ -7387,6 +7686,7 @@ class _FieldOverview(QWidget):
         self._fields = fields
         self._metadata_source = self.source.text().strip()
         self._restore_metadata()
+        self._restore_view_state()
         self._restore_comparison_groups()
         self._populate_axes(fields)
         channel_ids = sorted({channel for field in fields for channel, _ in field.files if channel},
@@ -7668,6 +7968,7 @@ class _FieldOverview(QWidget):
             self.original_toggle.blockSignals(False)
             self._original_image = True
         self._individual = True
+        self._main_view_field = field
         self._update_image_metadata(field)
         self._comparison_signature = None
         self._displayed_montage = None

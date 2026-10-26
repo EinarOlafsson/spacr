@@ -359,3 +359,88 @@ def test_the_colour_mode_setting_is_live_in_the_tab(mask, qtbot, source):
     assert view._color_mode == "cmy"
     model.set_value_for_key("overview_color_mode", "additive")
     assert view._color_mode == "additive"
+
+
+# --- Shared interface: plate-qualified keys, saved view state, display layers ---
+
+
+def _field(source, plate="p1", well="A01", field="1"):
+    return browser._OverviewField(plate, well, "1", 1, field, (), field_id=field, source=source, plate_id=plate)
+
+
+def test_plate_and_image_keys_keep_plates_from_different_sources_apart():
+    first, second = _field("/data/a"), _field("/data/b")
+    assert browser._overview_plate_key(first) == ("/data/a", "p1")
+    assert browser._overview_image_key(first) != browser._overview_image_key(second)
+    assert browser._overview_image_key(first) == ("/data/a", "p1", "A01", "1", "", "")
+    legacy = browser._OverviewField("p1", "A01", "1", 1, "1", ())
+    assert browser._overview_plate_key(legacy) == ("", "p1")
+    import json
+    key = browser._overview_image_key(first)
+    assert tuple(json.loads(browser._overview_key_text(key))) == key
+
+
+def test_the_view_state_saves_and_loads_and_refuses_a_newer_version(tmp_path):
+    assert browser._overview_load_view_state(tmp_path) == browser._overview_empty_view_state()
+    state = browser._overview_empty_view_state()
+    state["plates"]['["/x", "p1"]'] = {"collapsed_rows": [1], "collapsed_columns": []}
+    state["images"]['["/x", "p1", "A01", "1", "", ""]'] = {"channels": {"1": {"black": .1}}}
+    path = browser._overview_save_view_state(tmp_path, state)
+    assert path == tmp_path / "results" / "overview_view.json"
+    loaded = browser._overview_load_view_state(tmp_path)
+    assert loaded["version"] == browser._OVERVIEW_VIEW_STATE_VERSION
+    assert loaded["plates"] == state["plates"] and loaded["images"] == state["images"]
+    path.write_text('{"version": 99, "plates": {"a": {}}}', encoding="utf-8")
+    assert browser._overview_load_view_state(tmp_path)["plates"] == {}
+    path.write_text("not json", encoding="utf-8")
+    assert browser._overview_load_view_state(tmp_path)["plates"] == {}
+
+
+def test_collapsed_lines_are_saved_and_restored_on_reopen(view, qtbot, source):
+    view._set_line_collapsed("row", 1, True)
+    view._set_line_collapsed("column", 2, True)
+    path = source / "results" / "overview_view.json"
+    qtbot.waitUntil(lambda: path.is_file() and '"collapsed_columns": [\n        2' in path.read_text(), timeout=10000)
+    reopened = browser._FieldOverview(settings={
+        "source": str(source), "source_scope": "folder", "custom_regex": PATTERN,
+        "channels": (1, 2), "geometry": (2, 3), "representatives": 1})
+    qtbot.addWidget(reopened, before_close_func=lambda widget: _retire(widget, qtbot))
+    reopened.resize(1300, 950)
+    reopened.show()
+    reopened._scan()
+    qtbot.waitUntil(lambda: reopened._collapsed.get("p1") == ({1}, {2}), timeout=15000)
+    qtbot.waitUntil(lambda: reopened.wells.columnWidth(2) == browser._OVERVIEW_COLLAPSED_STRIP, timeout=5000)
+
+
+def test_display_layers_apply_global_then_scope_limits_then_the_image_override(view):
+    field = view._fields[0]
+    key = browser._overview_image_key(field)
+    raw = dict((channel, values) for channel, _path, values in
+               browser._overview_raw_planes(field, (1,), edge=None))[1].astype(np.float64)
+    low, high = float(raw.min()), float(raw.max())
+    limited = browser._overview_pixels(field, (1,), (0., 100.), edge=None,
+                                       channel_limits={key: {1: (low, (low + high) / 2)}})
+    expected = np.uint8(np.clip((raw - low) / ((high - low) / 2), 0, 1) * 255)
+    assert np.abs(limited[..., 0].astype(int) - expected.astype(int)).max() <= 1
+    override = {key: {"channels": {1: {"black": .25, "white": .75}}}}
+    both = browser._overview_pixels(field, (1,), (0., 100.), edge=None,
+                                    channel_limits={key: {1: (low, high)}}, image_overrides=override)
+    stretched = np.clip((raw - low) / (high - low), 0, 1)
+    expected = np.uint8(np.clip((stretched - .25) / .5, 0, 1) * 255)
+    assert np.abs(both[..., 0].astype(int) - expected.astype(int)).max() <= 1
+    other = view._fields[1]
+    assert browser._overview_image_key(other) != key
+    untouched = browser._overview_pixels(other, (1,), (0., 100.), edge=None, image_overrides=override)
+    plain = browser._overview_pixels(other, (1,), (0., 100.), edge=None)
+    assert (untouched == plain).all()
+
+
+def test_the_shown_field_is_found_from_its_view(view, qtbot):
+    view._well(_item(view, "A01"))
+    view._well(_item(view, "B03"))
+    qtbot.waitUntil(lambda: len(view._image_views) == 2, timeout=15000)
+    panel = view._image_views[1]
+    assert view._field_shown_in(panel.view) is panel.field
+    assert view._plate_key() == ("", "p1")
+    view._set_display_layers(image_overrides={browser._overview_image_key(panel.field): {"saturation": 0.}})
+    assert "image_overrides" in view._display_kwargs(view=True)
