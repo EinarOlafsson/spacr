@@ -173,7 +173,7 @@ def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, sou
     assert view._levels.indexOf(view._plate_panel) == 0
     groups = [label.text() for label in bar.findChildren(QLabel)
               if label.objectName() == "FieldOverviewNavigationGroup"]
-    assert groups == ["Navigation", "Wells", "Fields"]
+    assert groups == ["Navigation", "Plates", "Wells", "Fields"]
     texts = [button.text() for button in bar.findChildren(QPushButton)]
     assert "−" in texts and "+" in texts
     assert "Open selected well" not in texts and "Open selected images" not in texts

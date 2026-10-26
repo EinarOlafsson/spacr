@@ -1578,9 +1578,11 @@ def _overview_empty_view_state():
     that image's display override, ``{"channels": {channel: {...}},
     "saturation": 1.0}``, where each channel's entry may hold ``black`` and
     ``white`` (0-1 display units), ``gamma``, ``brightness``, ``contrast`` and
-    ``visible`` (see :func:`_overview_override_plane`).
+    ``visible`` (see :func:`_overview_override_plane`). ``sources`` are the
+    paths the Overview was given, so reopening the first one brings back every
+    plate, and ``options`` holds ``use_subfolders`` and ``excluded_plates``.
     """
-    return {"version": _OVERVIEW_VIEW_STATE_VERSION, "sources": [], "plates": {}, "images": {}}
+    return {"version": _OVERVIEW_VIEW_STATE_VERSION, "sources": [], "plates": {}, "images": {}, "options": {}}
 
 
 def _overview_load_view_state(source):
@@ -1602,7 +1604,7 @@ def _overview_load_view_state(source):
         return state
     if not isinstance(loaded, dict) or int(loaded.get("version") or 0) > _OVERVIEW_VIEW_STATE_VERSION:
         return state
-    for name in ("plates", "images"):
+    for name in ("plates", "images", "options"):
         if isinstance(loaded.get(name), dict):
             state[name] = loaded[name]
     if isinstance(loaded.get("sources"), list):
@@ -1722,7 +1724,7 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
             if cancelled is not None and cancelled.is_set():
                 return ()
             path = Path(directory) / name
-            if path.suffix.lower() not in (".tif", ".tiff", ".npy", ".png", ".jpg", ".jpeg"):
+            if path.suffix.lower() not in _OVERVIEW_IMAGE_SUFFIXES:
                 continue
             values = {}
             if custom is not None:
@@ -1815,8 +1817,179 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
         axes = tuple((axis, value) for axis, value in (("T", time), ("Z", plane)) if value)
         result.append(_OverviewField(plate, well, row, column, label,
                                      tuple(sorted(files, key=lambda item: (_overview_natural_key(item[0]), item[1]))), unresolved,
-                                     field, str(time), str(plane), axes))
+                                     field, str(time), str(plane), axes, str(root), plate))
     return tuple(result)
+
+
+_OVERVIEW_IMAGE_SUFFIXES = (".tif", ".tiff", ".npy", ".png", ".jpg", ".jpeg")
+
+
+def _overview_source_paths(source):
+    """Split an Overview source into its normalized paths, in order, without repeats.
+
+    :param source: one path, a list of paths, or paths separated by ``;``.
+    :returns: the absolute paths.
+    """
+    items = list(source) if isinstance(source, (list, tuple)) else [source]
+    paths = []
+    for item in items:
+        for part in str(item or "").split(";"):
+            part = part.strip()
+            if part:
+                path = os.path.abspath(os.path.expanduser(part))
+                if path not in paths:
+                    paths.append(path)
+    return paths
+
+
+def _overview_direct_images(folder):
+    """How many images sit directly in ``folder``; hidden files are not counted."""
+    try:
+        with os.scandir(folder) as entries:
+            return sum(1 for entry in entries if not entry.name.startswith(".") and entry.is_file()
+                       and os.path.splitext(entry.name)[1].lower() in _OVERVIEW_IMAGE_SUFFIXES)
+    except OSError:
+        return 0
+
+
+def _overview_plate_subfolders(folder):
+    """The immediate subfolders of ``folder`` that hold images directly.
+
+    spaCR's own output folders (``spacr.validate._PLATE_OUTPUT_FOLDERS``) and
+    hidden folders are skipped.
+
+    :returns: ``[(path, image count), ...]`` in natural name order.
+    """
+    from ...validate import _PLATE_OUTPUT_FOLDERS
+
+    try:
+        with os.scandir(folder) as entries:
+            names = sorted((entry.name for entry in entries if entry.is_dir() and not entry.name.startswith(".")
+                            and entry.name.lower() not in _PLATE_OUTPUT_FOLDERS), key=_overview_natural_key)
+    except OSError:
+        return []
+    found = [(os.path.join(folder, name), _overview_direct_images(os.path.join(folder, name))) for name in names]
+    return [(path, count) for path, count in found if count]
+
+
+def _overview_has_nested_images(folder):
+    """Whether any image sits anywhere below ``folder``, outside spaCR's output folders."""
+    from ...validate import _PLATE_OUTPUT_FOLDERS
+
+    for directory, folders, names in os.walk(folder):
+        folders[:] = [name for name in folders if not name.startswith(".")
+                      and name.lower() not in _PLATE_OUTPUT_FOLDERS]
+        if any(os.path.splitext(name)[1].lower() in _OVERVIEW_IMAGE_SUFFIXES for name in names):
+            return True
+    return False
+
+
+def _overview_detect_plates(source, use_subfolders=(), excluded=(), names=None, source_scope="folder",
+                            cancelled=None):
+    """Find the plates in one or more source paths.
+
+    A folder with images directly in it is a plate; otherwise each immediate
+    subfolder with images directly in it is one. A folder with both is a
+    plate and is flagged as mixed; listed in ``use_subfolders`` its
+    subfolders are the plates instead. With the recursive source scope, a
+    folder whose images sit deeper is one plate, as before.
+
+    :param source: the source paths (see :func:`_overview_source_paths`).
+    :param use_subfolders: mixed folders whose subfolders are the plates.
+    :param excluded: plate folders the user removed.
+    :param names: ``{plate folder: display name}`` the user chose.
+    :param source_scope: ``"folder"`` or ``"recursive"``.
+    :param cancelled: an event that stops the walk.
+    :returns: ``{"plates": [{"path", "name", "images", "mixed", "source"}],
+        "messages": [...]}``; names are unique, the folder name by default and
+        its parent's name before it when two folders share a name.
+    """
+    use_subfolders = {os.path.abspath(path) for path in use_subfolders}
+    excluded = {os.path.realpath(path) for path in excluded}
+    plates, messages = [], []
+    for path in _overview_source_paths(source):
+        if cancelled is not None and cancelled.is_set():
+            break
+        if not os.path.isdir(path):
+            messages.append(tr("{path} is not a folder.", path=path))
+            continue
+        direct = _overview_direct_images(path)
+        subfolders = _overview_plate_subfolders(path)
+        if direct and not (subfolders and path in use_subfolders):
+            found = [(path, direct, bool(subfolders))]
+        elif subfolders:
+            found = [(folder, count, False) for folder, count in subfolders]
+        elif source_scope == "recursive" and _overview_has_nested_images(path):
+            found = [(path, 0, False)]
+        else:
+            messages.append(tr("No images were found in {path} or in its immediate subfolders.", path=path))
+            continue
+        for folder, count, mixed in found:
+            if os.path.realpath(folder) not in excluded and all(plate["path"] != folder for plate in plates):
+                plates.append({"path": folder, "images": count, "mixed": mixed, "source": path})
+    from collections import Counter
+
+    taken = Counter(os.path.basename(plate["path"]) for plate in plates)
+    used = set()
+    for plate in plates:
+        folder = Path(plate["path"])
+        name = folder.name if taken[folder.name] == 1 else folder.parent.name + "/" + folder.name
+        candidate, number = name, 2
+        while candidate in used:
+            candidate, number = f"{name} ({number})", number + 1
+        used.add(candidate)
+        plate["default_name"] = candidate
+        plate["name"] = str((names or {}).get(plate["path"]) or candidate)
+    return {"plates": plates, "messages": messages}
+
+
+def _overview_index_sources(source, pattern="", convention="auto", cancelled=None, source_scope="recursive",
+                            well_layout=None, use_subfolders=(), excluded=(), folder_names=False):
+    """Index every plate of one or more source paths.
+
+    One path that is itself the only plate is indexed as before, so its
+    plate names come from the filenames, unless ``folder_names`` asks for
+    the folder's name, as for plates added to an open Overview. Otherwise each plate folder is
+    indexed on its own and its fields are named after the folder (and after
+    the filename plate as well, when one folder holds several), so A01 of
+    one plate never merges with A01 of another. Every field records its
+    plate folder (``source``) and its plate name within it (``plate_id``).
+
+    :returns: ``(fields, detection)``; ``detection`` is
+        :func:`_overview_detect_plates`'s answer, whose messages say why no
+        plate was found when ``fields`` is empty.
+    :raises _OverviewValidationError: when no source path is a folder.
+    """
+    import dataclasses
+
+    paths = _overview_source_paths(source)
+    if not paths:
+        raise _OverviewValidationError(tr("Choose an existing image folder."))
+    if not any(os.path.isdir(path) for path in paths):
+        raise _OverviewValidationError(tr("Choose an existing image folder."))
+    detection = _overview_detect_plates(paths, use_subfolders, excluded, None, source_scope, cancelled)
+    plates = detection["plates"]
+    if not plates:
+        return (), detection
+    fields = []
+    single = not folder_names and len(paths) == 1 and len(plates) == 1 and plates[0]["path"] == paths[0]
+    for plate in plates:
+        if cancelled is not None and cancelled.is_set():
+            return (), detection
+        scope = source_scope if (single or not plate["images"]) else "folder"
+        found = _overview_index(plate["path"], pattern, convention, cancelled, source_scope=scope,
+                                well_layout=well_layout)
+        identities = sorted({field.plate for field in found}, key=_overview_natural_key)
+        for field in found:
+            if single:
+                name = field.plate
+            elif len(identities) == 1:
+                name = plate["default_name"]
+            else:
+                name = plate["default_name"] + " / " + (Path(field.plate).name if os.path.isabs(field.plate)
+                                                        else field.plate)
+            fields.append(dataclasses.replace(field, plate=name))
+    return tuple(fields), detection
 
 
 def _overview_tiff_pixel_size(image):
@@ -3883,7 +4056,7 @@ def _overview_group_count(fields, annotations, definition):
     """
     def matches(field):
         """Whether the field's well annotations hold every value of the group."""
-        metadata = annotations.get((field.plate, field.well), {})
+        metadata = {"plate": field.plate, **annotations.get((field.plate, field.well), {})}
         return all(str(metadata.get(key)) == str(value) for key, value in definition.items())
     return sum(1 for field in fields if matches(field))
 
@@ -4394,6 +4567,7 @@ class _FieldOverview(QWidget):
         self._native_item = self._native_key = None
         self._native_pending = False
         self._metadata_source = ""
+        self._source_paths = []
         self._annotations = {}
         self._metadata_revision = 0
         self._annotation_write_lock = threading.Lock()
@@ -4800,6 +4974,19 @@ class _FieldOverview(QWidget):
             button.clicked.connect(lambda _checked=False, value=step: self._zoom_plate(value))
             paging.addWidget(button)
             self._plate_zoom_buttons.append(button)
+        self._plate_buttons = []
+        for text, tooltip, handler in (
+                (tr("Previous plate"), tr("Show the previous loaded plate."), functools.partial(self._step_plate, -1)),
+                (tr("Next plate"), tr("Show the next loaded plate."), functools.partial(self._step_plate, 1)),
+                (tr("Add plates…"), tr("Add plate folders, or folders of plates, to this Overview."),
+                 self._choose_plates),
+                (tr("Remove plate"), tr("Remove the shown plate from this Overview; its files are not touched."),
+                 self._remove_shown_plate)):
+            button = QPushButton(text)
+            button.setToolTip(tooltip)
+            button.clicked.connect(handler)
+            paging.addWidget(button)
+            self._plate_buttons.append(button)
         column.addLayout(paging)
         sample_row = QHBoxLayout()
         for widget in (self.grouping, QLabel(tr("Samples per group")), self.count,
@@ -5192,7 +5379,9 @@ class _FieldOverview(QWidget):
             plates[_overview_key_text(self._plate_key(plate))] = entry
         state["plates"] = plates
         state["images"] = {_overview_key_text(key): value for key, value in self._image_overrides.items()}
-        state["sources"] = sorted({field.source for field in self._fields if field.source}) or [self._metadata_source]
+        state["sources"] = list(getattr(self, "_source_paths", ()) or [self._metadata_source])
+        state["options"] = {"use_subfolders": list(self._overview_options.get("use_subfolders") or ()),
+                            "excluded_plates": list(self._overview_options.get("excluded_plates") or ())}
         self._view_state = state
         self._view_state_pending = (self._metadata_source, state)
         if not self._view_state_writing:
@@ -5249,6 +5438,126 @@ class _FieldOverview(QWidget):
             self._set_display_layers(image_overrides=overrides)
         if restored and self._plate_cell_extent is not None:
             self._relayout_collapsed()
+
+    def _sync_plate_buttons(self):
+        """Offer stepping between and removing plates only while several are loaded."""
+        several = self.plates.count() > 1
+        previous, following, _add, remove = self._plate_buttons
+        for button in (previous, following, remove):
+            button.setEnabled(several)
+
+    def _step_plate(self, delta, *_):
+        """Show the next (``delta`` 1) or previous (-1) loaded plate, wrapping around."""
+        count = self.plates.count()
+        if count > 1:
+            self.plates.setCurrentIndex((self.plates.currentIndex() + int(delta)) % count)
+
+    def _choose_plates(self, *_):
+        """Pick one or more plate folders, or folders of plates, and add them.
+
+        :returns: the chosen paths.
+        """
+        from PySide6.QtWidgets import QAbstractItemView, QFileDialog, QListView, QTreeView
+
+        dialog = QFileDialog(self, tr("Add plates…"))
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setOption(QFileDialog.ShowDirsOnly, True)
+        for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
+            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        paths = dialog.selectedFiles() if dialog.exec() else []
+        if paths:
+            self._add_sources(paths)
+        return paths
+
+    def _add_sources(self, paths):
+        """Index more plate folders, or folders of plates, and add their plates.
+
+        Indexing runs on a job thread; a plate whose name is taken gets a
+        number after it.
+
+        :param paths: the folders to add.
+        """
+        known = set(_overview_source_paths(self.source.text()))
+        paths = [path for path in _overview_source_paths(paths) if path not in known]
+        if not paths:
+            return
+        regex, convention = self.regex.text(), self._convention
+        scope = self._overview_options.get("source_scope", "recursive")
+        layout = self._overview_options.get("well_layout")
+        use_subfolders = tuple(self._overview_options.get("use_subfolders") or ())
+        loaded = {field.source for field in self._fields}
+        excluded = tuple(self._overview_options.get("excluded_plates") or ()) + tuple(loaded)
+        self.status.setText(tr("Indexing image metadata…"))
+        self._index_jobs.submit(functools.partial(
+            _overview_index_sources, paths, regex, convention, self._cancelled, scope, layout,
+            use_subfolders, excluded, True), functools.partial(self._sources_added, paths, self._fields))
+
+    def _sources_added(self, paths, fields, result):
+        """Merge newly indexed plates into the Overview, keeping every plate name unique."""
+        import dataclasses
+
+        if fields is not self._fields or self._cancelled.is_set():
+            return
+        added, _detection = result
+        added = _overview_matched_fields(added, self.regex.text())
+        taken = {field.plate for field in fields}
+        renamed = {}
+        for plate in sorted({field.plate for field in added}, key=_overview_natural_key):
+            name, number = plate, 2
+            while name in taken:
+                name, number = f"{plate} ({number})", number + 1
+            taken.add(name)
+            renamed[plate] = name
+        added = tuple(dataclasses.replace(field, plate=renamed[field.plate]) for field in added)
+        self.source.setText("; ".join(_overview_source_paths(self.source.text()) + list(paths)))
+        self._indexed(tuple(fields) + added)
+        self._persist_view_state()
+
+    def _remove_shown_plate(self, *_):
+        """Remove the shown plate; see :meth:`_remove_plate`."""
+        if self.plates.count() > 1:
+            self._remove_plate(self.plates.currentData())
+
+    def _remove_plate(self, plate):
+        """Take one plate out of the Overview and drop everything held for it.
+
+        Its fields, selections, collapsed lines and cached previews go; its
+        saved annotations and measurements stay on disk. A plate that came
+        from a folder of plates is remembered as removed, so a reload does
+        not bring it back.
+
+        :param plate: the plate's session name.
+        """
+        removed = tuple(field for field in self._fields if field.plate == plate)
+        if not removed or len(removed) == len(self._fields):
+            return
+        identities = {field.identity for field in removed}
+        for cache in (self._cache, self._thumbnail_cache):
+            for key in list(cache):
+                head = key[0] if isinstance(key, tuple) and key else key
+                if head in identities or (isinstance(head, tuple) and any(part in identities for part in head)):
+                    cache.pop(key, None)
+        for address in [address for address in self._selected_wells if address[0] == plate]:
+            self._selected_wells.discard(address)
+            self._selected_well_axes.pop(address, None)
+            self._selected_well_options.pop(address, None)
+        for identity in [identity for identity in self._selected_fields if identity in identities]:
+            self._selected_fields.pop(identity, None)
+            self._selected_field_options.pop(identity, None)
+        self._collapsed.pop(plate, None)
+        folders = {os.path.realpath(field.source) for field in removed if field.source}
+        given = _overview_source_paths(self.source.text())
+        kept = [path for path in given if os.path.realpath(path) not in folders]
+        excluded = [path for path in folders if path not in {os.path.realpath(path) for path in given}]
+        options = dict(self._overview_options)
+        options["excluded_plates"] = tuple(dict.fromkeys(
+            tuple(options.get("excluded_plates") or ()) + tuple(excluded)))
+        self._overview_options = options
+        if kept != given:
+            self.source.setText("; ".join(kept))
+        self._indexed(tuple(field for field in self._fields if field.plate != plate))
+        self._persist_view_state()
 
     def _plate_key(self, plate=None):
         """The stable key (:func:`_overview_plate_key`) of a plate shown in this session.
@@ -5878,6 +6187,9 @@ class _FieldOverview(QWidget):
         for metadata in self._annotation_snapshot().values():
             for key, value in metadata.items():
                 values.setdefault(key, set()).add(value)
+        plates = {field.plate for field in self._fields}
+        if len(plates) > 1:
+            values.setdefault("plate", set()).update(plates)
         tree.clear()
         for key in sorted(values):
             parent = tree_item([key])
@@ -6366,7 +6678,8 @@ class _FieldOverview(QWidget):
             return
         self._metadata_revision += 1
         destination = Path(self._metadata_source) / "results" / "overview_annotations.json"
-        payload = dict(wells=[dict(plate=plate, well=well, metadata=metadata)
+        payload = dict(wells=[dict(plate=plate, well=well, metadata=metadata,
+                                   plate_key=list(self._plate_key(plate)))
             for (plate, well), metadata in sorted(self._annotation_snapshot().items())])
         with self._annotation_write_lock:
             self._annotation_pending_snapshot[destination] = payload
@@ -6401,6 +6714,7 @@ class _FieldOverview(QWidget):
         source, fields, cancelled = self._metadata_source, self._fields, self._cancelled
         revision = self._metadata_revision
         known = {(field.plate, field.well) for field in fields if not field.unresolved}
+        by_key = {_overview_plate_key(field): field.plate for field in fields}
         def read():
             """Validate source-relative metadata without GUI-thread file access.
 
@@ -6429,7 +6743,8 @@ class _FieldOverview(QWidget):
             records = json.loads(path.read_text(encoding="utf-8")).get("wells", ())
             stored, values = values, {}
             for record in records:
-                address = str(record["plate"]), str(record["well"])
+                plate = by_key.get(tuple(str(part) for part in record.get("plate_key") or ()), record["plate"])
+                address = str(plate), str(record["well"])
                 if address not in known or address in values or not isinstance(record["metadata"], dict):
                     raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
                 values[address] = {str(key): str(value) for key, value in record["metadata"].items()}
@@ -7668,11 +7983,13 @@ class _FieldOverview(QWidget):
         self.status.setText(tr("Indexing image metadata…"))
         source_scope = self._overview_options.get("source_scope", "recursive")
         well_layout = self._overview_options.get("well_layout")
+        use_subfolders = tuple(self._overview_options.get("use_subfolders") or ())
+        excluded = tuple(self._overview_options.get("excluded_plates") or ())
         def read():
             """Reject unresolved wells on every browser load, retaining honest previews."""
-            fields = _overview_matched_fields(_overview_index(
+            fields = _overview_matched_fields(_overview_index_sources(
                 source, regex, convention, cancelled, source_scope=source_scope,
-                well_layout=well_layout), regex)
+                well_layout=well_layout, use_subfolders=use_subfolders, excluded=excluded)[0], regex)
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
@@ -7684,7 +8001,8 @@ class _FieldOverview(QWidget):
         :param fields: immutable source records returned by the metadata indexer.
         """
         self._fields = fields
-        self._metadata_source = self.source.text().strip()
+        self._source_paths = _overview_source_paths(self.source.text())
+        self._metadata_source = self._source_paths[0] if self._source_paths else ""
         self._restore_metadata()
         self._restore_view_state()
         self._restore_comparison_groups()
@@ -7694,9 +8012,13 @@ class _FieldOverview(QWidget):
         if channel_ids and self.channels.text() == "0":
             self.channels.setText(",".join(channel_ids[:3]))
         self.plates.blockSignals(True)
+        shown = self.plates.currentData()
         self.plates.clear()
-        for plate in sorted({field.plate for field in fields}):
-            self.plates.addItem(plate, plate)
+        names = self._overview_options.get("plate_names") or {}
+        for plate in sorted({field.plate for field in fields}, key=_overview_natural_key):
+            self.plates.addItem(str(names.get(plate) or plate), plate)
+        if shown is not None and self.plates.findData(shown) >= 0:
+            self.plates.setCurrentIndex(self.plates.findData(shown))
         options = self._overview_options.get("normalization") or {}
         reference = options.get("reference")
         if (options.get("mode") == "reference_average"
@@ -7705,6 +8027,7 @@ class _FieldOverview(QWidget):
             if index >= 0:
                 self.plates.setCurrentIndex(index)
         self.plates.blockSignals(False)
+        self._sync_plate_buttons()
         self._back()
         if not self._geometry_valid:
             return
@@ -8540,6 +8863,7 @@ class _FieldOverview(QWidget):
             button.setAccessibleName(tr(tooltip))
         fit.setToolTip(tr("Fit the whole plate in view"))
         groups = (("Navigation", (self._plate_back_button,)),
+                  ("Plates", tuple(self._plate_buttons)),
                   ("Wells", (fit, smaller, larger)),
                   ("Fields", (*self._paging_buttons, self._compare_fields_button)))
         bar = FlowHost(self)
@@ -9521,7 +9845,7 @@ class _OverviewModulePage(QWidget):
         :returns: the metadata step.
         """
         settings = dict(settings or {})
-        source = _overview_source_path(settings.get("src"))
+        source = _overview_source_text(settings.get("src"))
         if source in ("", os.path.abspath("path")):
             source = ""
         wizard = self.wizard
@@ -9878,7 +10202,7 @@ def _open_overview_module(owner, settings=None):
     source = settings.get("src") or settings.get("source")
     model = tab._settings_model
     if source:
-        model.set_value_for_key("src", _overview_source_path(source))
+        model.set_value_for_key("src", _overview_source_text(source))
     percentiles = settings.get("normalization_percentiles")
     if isinstance(percentiles, (list, tuple)) and len(percentiles) == 2:
         model.set_value_for_key("overview_percentile_low", float(percentiles[0]))
@@ -10001,6 +10325,14 @@ def _overview_source_path(source):
     while isinstance(source, (list, tuple)):
         source = source[0] if source else ""
     return os.path.abspath(os.path.expanduser(str(source))) if source else ""
+
+
+def _overview_source_text(source):
+    """Normalize every source path lexically, joined by ``"; "``; one path reads as itself.
+
+    :param source: one path, a list of paths, or paths separated by ``;``.
+    """
+    return "; ".join(_overview_source_paths(source))
 
 
 def _overview_geometry_extent(fields):
@@ -10237,14 +10569,29 @@ def _overview_filename_well(path):
     return match.group("wellID") if match else ""
 
 
-def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder", well_layout=None):
-    """Index names on a worker and inspect only the first field's image headers."""
+def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder", well_layout=None,
+                           use_subfolders=(), excluded=()):
+    """Find the plates, index names on a worker and inspect only the first field's image headers.
+
+    One source path whose saved view state lists more plate folders brings
+    those back too, so reopening an Overview restores every plate it had.
+    """
     import re
     from ...regex_infer import _CQ1_FILENAME, _yokogawa_acquisition
-    fields = _overview_index(source, pattern, convention, cancelled, source_scope=source_scope,
-                             well_layout=well_layout)
-    if cancelled.is_set() or not fields:
+    paths = _overview_source_paths(source)
+    restored = []
+    if len(paths) == 1:
+        saved = _overview_load_view_state(paths[0]).get("sources") or ()
+        restored = [path for path in _overview_source_paths(saved) if path not in paths and os.path.isdir(path)]
+    sources = paths + restored
+    fields, detection = _overview_index_sources(sources, pattern, convention, cancelled, source_scope=source_scope,
+                                                well_layout=well_layout, use_subfolders=use_subfolders,
+                                                excluded=excluded)
+    if cancelled.is_set():
         return fields, None
+    if not fields:
+        return fields, {"channels": (), "plates": detection["plates"], "plate_messages": detection["messages"],
+                        "sources": sources, "restored_sources": restored}
     detected_pattern, detected_label = pattern, convention
     all_names = tuple(Path(path).name for field in fields for _, path in field.files)
     if (convention == "auto" and not pattern
@@ -10258,8 +10605,9 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
                 or not any(re.match(detected_pattern, name, re.I) for name in names)):
             detected_pattern, detected_label = pattern, convention
         if detected_pattern and hits:
-            inferred = _overview_index(source, detected_pattern, "auto", cancelled,
-                                       source_scope=source_scope, well_layout=well_layout)
+            inferred = _overview_index_sources(sources, detected_pattern, "auto", cancelled,
+                                               source_scope=source_scope, well_layout=well_layout,
+                                               use_subfolders=use_subfolders, excluded=excluded)[0]
             by_path = {path: (field, channel) for field in inferred for channel, path in field.files}
             preserves_metadata = all(
                 path in by_path
@@ -10284,6 +10632,10 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     info["detected_label"] = detected_label
     acquisition = _yokogawa_acquisition(Path(first.files[0][1]).parent) if first.files else None
     info["acquisition"] = _overview_acquisition_summary(matched or fields, info, acquisition)
+    info["plates"] = detection["plates"]
+    info["plate_messages"] = detection["messages"]
+    info["sources"] = sources
+    info["restored_sources"] = restored
     return fields, info
 
 
@@ -10351,7 +10703,36 @@ class _OverviewMetadataWizard(QWidget):
         browse = QPushButton(tr("Choose folder…"))
         browse.clicked.connect(self._browse)
         source_row.addWidget(browse)
+        add_plates = QPushButton(tr("Add folders…"))
+        add_plates.setObjectName("OverviewWizardAddFolders")
+        add_plates.setToolTip(tr("Add more plate folders, or folders of plates; several can be selected at once."))
+        add_plates.clicked.connect(self._choose_more_sources)
+        source_row.addWidget(add_plates)
         form.addRow(tr("Image source"), source_row)
+        self._use_subfolders = set(self._settings.get("use_subfolders") or ())
+        self._excluded_plates = set(self._settings.get("excluded_plates") or ())
+        self._plate_names = dict(self._settings.get("plate_names") or {})
+        self._detected_plates = []
+        self.plate_table = QTableWidget(0, 4)
+        self.plate_table.setObjectName("OverviewWizardPlates")
+        self.plate_table.setHorizontalHeaderLabels([tr("Plate"), tr("Images"), tr("Folder"), tr("Use subfolders")])
+        self.plate_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.plate_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.plate_table.setTextElideMode(Qt.ElideMiddle)
+        self.plate_table.setMinimumHeight(110)
+        self.plate_table.setToolTip(tr(
+            "The plates found in the source paths: a folder with images in it is a plate, otherwise each "
+            "subfolder with images is one. Double-click a name to rename the plate."))
+        self.plate_table.itemChanged.connect(self._plate_renamed)
+        self.plate_summary = QLabel("")
+        self.plate_summary.setObjectName("OverviewWizardPlateSummary")
+        self.plate_summary.setWordWrap(True)
+        remove_plates = QPushButton(tr("Remove selected plates"))
+        remove_plates.setObjectName("OverviewWizardRemovePlates")
+        remove_plates.clicked.connect(self._remove_selected_plates)
+        form.addRow(tr("Plates"), self.plate_table)
+        form.addRow(self.plate_summary)
+        form.addRow(remove_plates)
         self.scope = QComboBox()
         self.scope.setObjectName("OverviewWizardSourceScope")
         self.scope.addItem(tr("This folder only (raw images at this level)"), "folder")
@@ -10683,6 +11064,106 @@ class _OverviewMetadataWizard(QWidget):
             self.source.setText(path)
             self._scan()
 
+    def _choose_more_sources(self, *_):
+        """Pick one or more further folders and add them to the source.
+
+        :returns: the chosen paths.
+        """
+        from PySide6.QtWidgets import QAbstractItemView, QFileDialog, QListView, QTreeView
+
+        dialog = QFileDialog(self, tr("Add folders…"))
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setOption(QFileDialog.ShowDirsOnly, True)
+        for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
+            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        paths = dialog.selectedFiles() if dialog.exec() else []
+        if paths:
+            self._add_source_paths(paths)
+        return paths
+
+    def _add_source_paths(self, paths):
+        """Add folders to the source and preview the plates again."""
+        self.source.setText("; ".join(_overview_source_paths([self.source.text(), *paths])))
+        self._scan()
+
+    def _show_plates(self, info):
+        """List the detected plates with their image counts, before Next."""
+        from .sortable_table import table_item
+
+        plates = list((info or {}).get("plates") or ())
+        restored = list((info or {}).get("restored_sources") or ())
+        if restored:
+            self.source.blockSignals(True)
+            self.source.setText("; ".join((info or {}).get("sources") or ()))
+            self.source.blockSignals(False)
+        self._detected_plates = plates
+        self.plate_table.blockSignals(True)
+        self.plate_table.setRowCount(len(plates))
+        for row, plate in enumerate(plates):
+            name = table_item(str(self._plate_names.get(plate["default_name"]) or plate["default_name"]))
+            name.setData(Qt.UserRole, plate["default_name"])
+            name.setToolTip(plate["path"])
+            self.plate_table.setItem(row, 0, name)
+            for column, value in ((1, str(plate["images"]) if plate["images"] else tr("in subfolders")),
+                                  (2, plate["path"])):
+                item = table_item(value)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                item.setToolTip(plate["path"])
+                self.plate_table.setItem(row, column, item)
+            if plate["mixed"] or plate["path"] in self._use_subfolders:
+                toggle = Toggle()
+                toggle.setChecked(plate["path"] in self._use_subfolders)
+                toggle.setToolTip(tr("This folder holds images and also subfolders of images. Switch on to "
+                                     "load each subfolder as a plate instead."))
+                toggle.toggled.connect(functools.partial(self._use_plate_subfolders, plate["path"]))
+                self.plate_table.setCellWidget(row, 3, toggle)
+            else:
+                self.plate_table.removeCellWidget(row, 3)
+        self.plate_table.blockSignals(False)
+        notes = [tr("{count} plates found.", count=len(plates)) if len(plates) != 1 else tr("One plate found.")]
+        mixed = [plate["path"] for plate in plates if plate["mixed"]]
+        if mixed:
+            notes.append(tr("{paths} holds images and subfolders of images; it is loaded as one plate unless "
+                            "Use subfolders is switched on.", paths=", ".join(mixed)))
+        if restored:
+            notes.append(tr("Restored {count} more source paths saved with this Overview.", count=len(restored)))
+        notes.extend((info or {}).get("plate_messages") or ())
+        self.plate_summary.setText(" ".join(notes))
+
+    def _plate_renamed(self, item):
+        """Remember a plate's new display name."""
+        if item.column() != 0:
+            return
+        default = item.data(Qt.UserRole)
+        text = item.text().strip()
+        if default:
+            if text and text != default:
+                self._plate_names[default] = text
+            else:
+                self._plate_names.pop(default, None)
+
+    def _use_plate_subfolders(self, path, on):
+        """Load a mixed folder's subfolders as plates, or the folder itself, and preview again."""
+        if on:
+            self._use_subfolders.add(path)
+        else:
+            self._use_subfolders.discard(path)
+        self._scan()
+
+    def _remove_selected_plates(self, *_):
+        """Drop the selected plates from the source and preview again."""
+        rows = sorted({index.row() for index in self.plate_table.selectedIndexes()})
+        folders = [self._detected_plates[row]["path"] for row in rows if row < len(self._detected_plates)]
+        if not folders:
+            return
+        given = _overview_source_paths(self.source.text())
+        self._excluded_plates.update(path for path in folders if path not in given)
+        kept = [path for path in given if path not in folders]
+        self.source.setText("; ".join(kept))
+        if kept:
+            self._scan()
+
     def _preset_changed(self):
         """Use the exact filename patterns offered by the Generate Masks editor."""
         from ..regex_detect import BUILTIN_REGEXES
@@ -10713,9 +11194,10 @@ class _OverviewMetadataWizard(QWidget):
         cancelled = self._cancelled
         self.status.setText(tr("Reading filename metadata and image headers…"))
         well_layout = self._well_layout if self._layout_explicit else None
+        use_subfolders, excluded = tuple(self._use_subfolders), tuple(self._excluded_plates)
         self._runner.submit(lambda: (generation, _overview_wizard_probe(
             source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope,
-            well_layout)), self._scanned)
+            well_layout, use_subfolders, excluded)), self._scanned)
 
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
@@ -10726,7 +11208,9 @@ class _OverviewMetadataWizard(QWidget):
         if generation != self._generation or self._cancelled.is_set():
             return
         self._fields, self._info = fields, info
+        self._show_plates(info)
         if not fields or not info or not info["channels"]:
+            self._info = None
             self.status.setText(tr("No readable image fields or available channels were found."))
             return
         detected = info.get("detected_pattern", "")
@@ -11045,6 +11529,8 @@ class _OverviewMetadataWizard(QWidget):
             raise _OverviewValidationError(tr("The reference channel must be selected for display."))
         channel_names, channel_colors = self._channel_display()
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
+                "plate_names": dict(self._plate_names), "use_subfolders": tuple(sorted(self._use_subfolders)),
+                "excluded_plates": tuple(sorted(self._excluded_plates)),
                 "well_layout": tuple(self._well_layout) if self._layout_explicit else None,
                 "channel_names": channel_names, "channel_colors": channel_colors,
                 "pixel_size_um": self.pixel_size.value() or None,

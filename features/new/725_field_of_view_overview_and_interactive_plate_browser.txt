@@ -63,6 +63,40 @@ and the hover readout are planned separately.
 - Tests: tests/qt/test_725_overview_round5.py; round-4 settings-width test updated
   for the round-5 rule.
 
+WHAT WAS DONE — round 5, interface (b16967c39): plate-qualified keys
+(_overview_plate_key = (plate folder, plate name in it), _overview_image_key),
+results/overview_view.json (version 1: sources, options, per-plate collapse and name,
+per-image override slot; load/save off the GUI thread, one write at a time) and the
+display layer order global normalization -> scope channel_limits -> image_overrides.
+
+WHAT WAS DONE — round 5, M1 (several plates)
+- Source: one path, a folder of plate folders, or several paths (separated by ";", or
+  added with "Add folders…", which allows multi-select). Per path: a folder with
+  images directly in it is a plate; otherwise each immediate subfolder with images is
+  one (spaCR output folders from spacr.validate._PLATE_OUTPUT_FOLDERS and hidden
+  folders skipped; no deeper search, except that the recursive source scope still
+  reads a folder whose images sit deeper as one plate). A folder with both is one
+  plate, flagged, with a "Use subfolders" switch. Plate names default to the folder
+  name, parent/name when two folders share a name; renamable in the metadata step.
+- The metadata step lists the detected plates with their image counts before Next,
+  and can remove plates; an empty folder says "No images were found in ..." there.
+- One path that is itself the only plate is indexed exactly as before (its plate
+  names come from the filenames). Every field records its plate folder and its
+  plate name in it, so A01 of one plate never merges with A01 of another.
+- Plates group in the navigation bar: Previous plate, Next plate, Add plates…,
+  Remove plate. Removing a plate drops its fields, cached previews, selection and
+  collapse state; files on disk are untouched. Collapse state is per plate.
+- Comparisons: with several plates "plate" is a comparison column, so a group can be
+  "plate A, set x" against "plate B, set x"; tables carry the plate column.
+- Saving: every Overview output of a multi-plate session goes under the first
+  path's results/ and measurements/ folders, with the plate column naming each
+  plate; saved annotations carry the stable plate key, so they follow a plate from
+  a one-path to a several-path session. Reopening the first path alone brings back
+  every plate saved in its overview_view.json.
+- Not done in M1: a side-by-side or stacked view of several plates at once (the
+  plate view shows one plate; Previous/Next plate switch between them).
+- Tests: tests/qt/test_725_overview_multiplate.py.
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
 Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
 _display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.

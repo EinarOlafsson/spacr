@@ -441,6 +441,6 @@ def test_the_shown_field_is_found_from_its_view(view, qtbot):
     qtbot.waitUntil(lambda: len(view._image_views) == 2, timeout=15000)
     panel = view._image_views[1]
     assert view._field_shown_in(panel.view) is panel.field
-    assert view._plate_key() == ("", "p1")
+    assert view._plate_key() == (view._fields[0].source, "p1") and view._fields[0].source
     view._set_display_layers(image_overrides={browser._overview_image_key(panel.field): {"saturation": 0.}})
     assert "image_overrides" in view._display_kwargs(view=True)
