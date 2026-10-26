@@ -9655,7 +9655,7 @@ class _FieldOverview(QWidget):
             item = table_item(tr("{well}\nNot loaded", language=language, well=well))
             item.setFlags(Qt.NoItemFlags)
             item.setData(_OVERVIEW_NOT_LOADED_ROLE, True)
-            item.setToolTip(tr("{well} is not loaded: it is beyond Max wells per plate.", well=well))
+            item.setToolTip(tr("{well} is not loaded: it is beyond Overview max wells.", well=well))
             self.wells.setItem(r - 1, c - 1, item)
         for index in range(columns):
             self.wells.setColumnWidth(index, 180)
