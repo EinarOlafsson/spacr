@@ -1059,8 +1059,8 @@ def test_a_checkout_installed_in_two_environments_is_one_preview_row(monkeypatch
                                 root=str(checkout), version="1.5.1.6", python=python,
                                 running=running, notes=(f"installed in {python}",))
 
-    records = [editable("/opt/rosetta-conda/envs/spacr/bin/python", False),
-               editable("/Users/someone/spacr-arm64/bin/python", True)]
+    records = [editable(str(tmp_path / "rosetta-conda/envs/spacr/bin/python"), False),
+               editable(str(tmp_path / "arm64-venv/bin/python"), True)]
     monkeypatch.setattr(ic, "find_old_installs", lambda *, system=None: list(records))
     monkeypatch.setattr(ic, "_uninstall_data_candidates", lambda machine: [])
     preview = ic._uninstall_preview("one-row-per-checkout")
