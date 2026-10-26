@@ -131,13 +131,20 @@ def _drag(dialog, edge, delta):
                                                Qt.LeftButton, Qt.NoButton, Qt.NoModifier))
 
 
+def _assert_a_sensible_size(dialog):
+    """At least the picker's layout minimum, at most 960 by 640 or three fifths of the screen."""
+    least = dialog.minimumSizeHint()
+    available = dialog.screen().availableGeometry()
+    assert dialog.width() >= least.width() and dialog.height() >= least.height()
+    assert dialog.width() <= max(least.width(), min(960, int(available.width() * .6)))
+    assert dialog.height() <= max(least.height(), min(640, int(available.height() * .6)))
+
+
 def test_the_add_plates_picker_opens_big_with_every_button_shown_and_resizes_by_its_edges(view, monkeypatch):
     monkeypatch.setattr(QFileDialog, "exec", lambda dialog: 0)
     assert view._choose_plates() == []
     dialog = view._add_plates_dialog
-    assert dialog.width() >= 720 and dialog.height() >= 480
-    assert dialog.width() >= dialog.minimumSizeHint().width()
-    assert dialog.height() >= dialog.minimumSizeHint().height()
+    _assert_a_sensible_size(dialog)
     assert getattr(dialog, "_spacr_resizer", None) is not None
     dialog.show()
     QApplication.processEvents()
@@ -160,7 +167,7 @@ def test_the_wizard_add_folders_picker_is_the_same_picker(qtbot, tmp_path, monke
     monkeypatch.setattr(QFileDialog, "exec", lambda dialog: 0)
     assert wizard._choose_more_sources() == []
     dialog = wizard._add_folders_dialog
-    assert dialog.width() >= 720 and dialog.height() >= 480
+    _assert_a_sensible_size(dialog)
     assert getattr(dialog, "_spacr_resizer", None) is not None
 
 

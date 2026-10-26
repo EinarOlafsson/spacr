@@ -104,7 +104,12 @@ def _state(dialog):
 
 def _assert_big_with_every_button(state):
     width, height = state["size"]
-    assert width >= 720 and height >= 480
+    dialog = state["dialog"]
+    least = dialog.minimumSizeHint()
+    available = dialog.screen().availableGeometry()
+    assert width >= least.width() and height >= least.height()
+    assert width <= max(least.width(), min(960, int(available.width() * .6)))
+    assert height <= max(least.height(), min(640, int(available.height() * .6)))
     assert state["glassed"] and state["frameless"]
     mask = state["mask"]
     assert mask.isEmpty() or (mask.width() >= width - 2 and mask.height() >= height - 2), (

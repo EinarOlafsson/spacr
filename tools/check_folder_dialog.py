@@ -10,7 +10,7 @@ saves a screenshot of the screen at 2 s, then closes the picker and spaCR.
     python tools/check_folder_dialog.py [--out DIR] [--keep-open SECONDS] [--drag]
 
 Nothing is chosen in either picker and no preference is written by the
-check itself. Exit status 0 means both pickers stayed big, kept every button
+check itself. Exit status 0 means both pickers opened at a sensible size, kept every button
 visible and can be resized; 1 means at least one did not.
 """
 from __future__ import annotations
@@ -146,8 +146,12 @@ def verdict(record: dict) -> list:
     problems = []
     width, height = record["geometry"][2:]
     available = record["available"]
-    if available and (width < available[0] * .6 or height < available[1] * .6):
-        problems.append(f"only {width}x{height} on a {available[0]}x{available[1]} screen")
+    least = record["minimum"]
+    if width < least[0] or height < least[1]:
+        problems.append(f"only {width}x{height}, below its {least[0]}x{least[1]} layout minimum")
+    if available and (width > max(least[0], min(960, int(available[0] * .6)))
+                      or height > max(least[1], min(640, int(available[1] * .6)))):
+        problems.append(f"{width}x{height} is too big on a {available[0]}x{available[1]} screen")
     mask = record.get("mask") or [0, 0, 0, 0]
     if mask[2] and mask[3] and (mask[2] < width - 2 or mask[3] < height - 2):
         problems.append(f"a window mask cuts it to {mask[2]}x{mask[3]}")

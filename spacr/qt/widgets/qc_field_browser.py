@@ -2243,12 +2243,14 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
 
 
 def _overview_folders_dialog(parent, title):
-    """A folder picker for one or several plate folders that opens big enough and resizes by its edges.
+    """A folder picker for one or several plate folders that opens at a sensible size and resizes by its edges.
 
     The non-native picker opened at Qt's small default, so its buttons were
-    cut off. It opens at four fifths of the screen, never smaller than
-    its own layout needs, and keeps a margin wider than the resize band, so
-    every edge can be dragged the way every spaCR dialog is resized.
+    cut off, and four fifths of the screen was far too big. It opens at
+    960 by 640, at most three fifths of a smaller screen, never smaller than
+    its own layout needs so every button shows, and keeps a margin wider than
+    the resize band, so every edge can be dragged the way every spaCR dialog
+    is resized.
 
     :param parent: the widget the picker belongs to.
     :param title: the translated window title.
@@ -2268,14 +2270,14 @@ def _overview_folders_dialog(parent, title):
     if dialog.layout() is not None:
         dialog.layout().setContentsMargins(margin, margin, margin, margin)
     screen = (parent.screen() if parent is not None else None) or QApplication.primaryScreen()
-    needed = dialog.minimumSizeHint().expandedTo(dialog.sizeHint()).expandedTo(QSize(720, 480))
+    wanted = QSize(960, 640)
     if screen is not None:
         available = screen.availableGeometry()
-        wanted = QSize(max(needed.width(), int(available.width() * .8)),
-                       max(needed.height(), int(available.height() * .8)))
-        dialog.resize(wanted.boundedTo(available.size()))
+        wanted = wanted.boundedTo(QSize(int(available.width() * .6), int(available.height() * .6)))
+        wanted = wanted.expandedTo(dialog.minimumSizeHint()).boundedTo(available.size())
     else:
-        dialog.resize(needed)
+        wanted = wanted.expandedTo(dialog.minimumSizeHint())
+    dialog.resize(wanted)
     dialog.setMinimumSize(dialog.minimumSizeHint())
     dialog.setSizeGripEnabled(True)
     let_the_user_resize(dialog)
