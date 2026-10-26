@@ -194,7 +194,9 @@ def choose_combo(capture, combo, index=None):
             break
         except TimeoutError:
             if attempt == 2:
-                raise
+                raise TimeoutError('combo list did not open (combo %r enabled=%s visible=%s items=%d current=%r window_active=%s)' % (
+                    combo.objectName() or combo.accessibleName(), combo.isEnabled(), combo.isVisible(), combo.count(),
+                    combo.currentText(), combo.window().isActiveWindow()))
     pause(capture, 0.5)
     for attempt in range(3):
         if not view.isVisible():
