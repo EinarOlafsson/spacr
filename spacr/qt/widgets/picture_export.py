@@ -1969,3 +1969,32 @@ class _CanvasComposer(QDialog):
 def _canvas_full_pixels(field_pixels, box):
     """Every pixel of an image box, for the PDF."""
     return _canvas_box_pixels(box, None, field_pixels)
+
+
+_CANVAS_UI_SOURCES = frozenset({
+    "Letter",
+    "Add page",
+    "Add an empty page after this one.",
+    "Remove page",
+    "Remove this page and its boxes.",
+    "Move up",
+    "Move this page one place earlier.",
+    "Move down",
+    "Move this page one place later.",
+    "Bring to front",
+    "Draw the selected boxes above every other box.",
+    "Bring forward",
+    "Draw the selected boxes one step higher.",
+    "Send backward",
+    "Draw the selected boxes one step lower.",
+    "Send to back",
+    "Draw the selected boxes below every other box.",
+    "Left",
+    "Centre",
+    "Right",
+})
+"""Captions the Custom export canvas passes to ``tr`` through loop variables.
+
+The runtime catalog generator cannot see them at a literal call site and
+imports this set instead, as it does ``_DOSE_RESPONSE_UI_SOURCES``.
+"""

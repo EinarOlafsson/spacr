@@ -848,6 +848,7 @@ def _indirect_registry_captions() -> set[str]:
         drift_direction_label,
         drift_direction_note,
     )
+    from spacr.qt.widgets.picture_export import _CANVAS_UI_SOURCES
     from spacr.qt.widgets.preview_contract import (
         PREVIEW_BUSY_MESSAGE,
         PREVIEW_CANCEL_TEXT,
@@ -860,8 +861,11 @@ def _indirect_registry_captions() -> set[str]:
         ALL_CHANNELS,
         MAX_SETS_TOOLTIP,
     )
+    from spacr.qt.widgets.qc_field_browser import _OVERVIEW_UI_SOURCES
 
     found = set(PREFERENCE_TIPS) | set(PREFERENCE_TIPS.values())
+    found.update(_OVERVIEW_UI_SOURCES)
+    found.update(_CANVAS_UI_SOURCES)
     found.update(MODE_LABELS.values())
     found.update(MODE_NOTES.values())
     found.update(value for value in MODE_WARNINGS.values() if value)

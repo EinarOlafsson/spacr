@@ -11320,6 +11320,10 @@ class _OverviewChannelToggles(QWidget):
             self._writing = False
 
 
+_OVERVIEW_SCOPE_CHOICES = (("image", "Each image"), ("well", "Each well"),
+                           ("plate", "Each plate"), ("all", "All loaded plates"))
+
+
 class _OverviewChannelScopes(QWidget):
     """One scope choice per channel, each on its own line, for ``overview_normalization_scope``.
 
@@ -11363,8 +11367,7 @@ class _OverviewChannelScopes(QWidget):
         self._channels = channels
         for channel in channels:
             choice = QComboBox()
-            for value, caption in (("image", "Each image"), ("well", "Each well"),
-                                   ("plate", "Each plate"), ("all", "All loaded plates")):
+            for value, caption in _OVERVIEW_SCOPE_CHOICES:
                 choice.addItem(tr(caption), value)
             choice.currentIndexChanged.connect(self._chosen)
             self._layout.addRow(tr("Channel {channel}", channel=channel), choice)
@@ -11406,6 +11409,13 @@ _OVERVIEW_CHANNEL_TARGET_ROWS = (
      "Channels the percentile stretch applies to; a channel switched off keeps its raw display range."),
     ("Enhancement", "overview_enhance_channels", "Enhanced channels",
      "Channels the image enhancement applies to; a channel switched off is shown without enhancement."),
+)
+
+_OVERVIEW_NORMALIZATION_SCOPE_ROW = (
+    "Normalization scope",
+    "Per channel, which images share one display stretch: each image on its own, each well, "
+    "each plate, or all loaded plates. Wider scopes use sampled pixels: at most 64 images "
+    "per scope and 4096 pixels per image.",
 )
 
 
@@ -11696,10 +11706,7 @@ class _OverviewModulePage(QWidget):
             self._hidden_keys.append(key)
         section = _overview_section(self._screen, "Normalization")
         if section is not None and model._widgets.get("overview_normalization_scope") is not None:
-            caption = "Normalization scope"
-            tooltip = ("Per channel, which images share one display stretch: each image on its own, each well, "
-                       "each plate, or all loaded plates. Wider scopes use sampled pixels: at most 64 images "
-                       "per scope and 4096 pixels per image.")
+            caption, tooltip = _OVERVIEW_NORMALIZATION_SCOPE_ROW
             scopes = _OverviewChannelScopes(model, "overview_normalization_scope")
             scopes.setProperty("settingKey", _overview_row_key(caption))
             scopes.setProperty("apiTooltipDescriptionSource", tooltip)
@@ -13654,6 +13661,16 @@ _OVERVIEW_GUIDED_CAPTIONS = {
     "channels": "Channel names", "measurements": "Measurements", "text": "Free text"}
 _OVERVIEW_GUIDED_SIDE_CAPTIONS = {"none": "Not shown", "above": "Above", "below": "Below",
                                   "left": "Left", "right": "Right"}
+_OVERVIEW_GUIDED_WELL_MODES = (
+    ("By condition", "Every well whose annotation or comparison group matches a ticked condition."),
+    ("Choose wells", "Tick the wells to export."),
+    ("One well", "Export a single well."),
+)
+_OVERVIEW_GUIDED_FIELD_MODES = (
+    ("All fields", "Every field of each chosen well at the shown time and Z."),
+    ("First fields", "The first fields of each well, as many as set."),
+    ("Pick fields", "Tick the fields to export in each well."),
+)
 
 
 def _overview_canvas_image(field, pixel_size_um=None):
@@ -14113,10 +14130,7 @@ class _OverviewGuidedExport(QDialog):
         self.mode_group = QButtonGroup(self)
         modes = QHBoxLayout()
         modes.addWidget(QLabel(tr("Choose wells")))
-        for index, (caption, tooltip) in enumerate((
-                ("By condition", "Every well whose annotation or comparison group matches a ticked condition."),
-                ("Choose wells", "Tick the wells to export."),
-                ("One well", "Export a single well."))):
+        for index, (caption, tooltip) in enumerate(_OVERVIEW_GUIDED_WELL_MODES):
             button = QRadioButton(tr(caption))
             button.setToolTip(tr(tooltip))
             self.mode_group.addButton(button, index)
@@ -14160,10 +14174,7 @@ class _OverviewGuidedExport(QDialog):
         column = QVBoxLayout(page)
         self.field_mode = QButtonGroup(self)
         row = QHBoxLayout()
-        for index, (caption, tooltip) in enumerate((
-                ("All fields", "Every field of each chosen well at the shown time and Z."),
-                ("First fields", "The first fields of each well, as many as set."),
-                ("Pick fields", "Tick the fields to export in each well."))):
+        for index, (caption, tooltip) in enumerate(_OVERVIEW_GUIDED_FIELD_MODES):
             button = QRadioButton(tr(caption))
             button.setToolTip(tr(tooltip))
             self.field_mode.addButton(button, index)
@@ -14777,3 +14788,83 @@ def _overview_guided_frame(source):
         return _overview_comparison_frame(source)
     except (_OverviewValidationError, OSError, ValueError):
         return None
+
+
+_OVERVIEW_UI_SOURCES = frozenset({
+    *(text for caption, _key, tooltip in _OVERVIEW_SETTINGS_ROWS for text in (caption, tooltip)),
+    *(text for _title, _key, caption, tooltip in _OVERVIEW_CHANNEL_TARGET_ROWS for text in (caption, tooltip)),
+    *_OVERVIEW_NORMALIZATION_SCOPE_ROW,
+    *(caption for _value, caption in _OVERVIEW_SCOPE_CHOICES),
+    *(text for row in _OVERVIEW_GUIDED_WELL_MODES + _OVERVIEW_GUIDED_FIELD_MODES for text in row),
+    *_OVERVIEW_GUIDED_CAPTIONS.values(),
+    *_OVERVIEW_GUIDED_SIDE_CAPTIONS.values(),
+    "Guided export…",
+    "Choose wells and fields, place each well on the page and choose what is printed around it, "
+    "then preview and write a PDF.",
+    "Custom export…",
+    "Draw text boxes and drop images on a page grid, then write a PDF.",
+    "Contact sheet PDFs",
+    "Twelve fields per page from the export scope, with the display settings printed above them.",
+    "Add selected",
+    "Place the selected fields, or the fields of the selected wells, on this page.",
+    "Add group",
+    "Add a group with the values chosen above; columns left at Any are pooled.",
+    "Remove group",
+    "Remove the selected group.",
+    "Move up",
+    "Move the selected group earlier.",
+    "Move down",
+    "Move the selected group later.",
+    "Name group",
+    "Give the selected group a name; its images and representative are shown under that name.",
+    "Clear groups",
+    "Remove every group; comparisons then use the ticked values.",
+    "Plate",
+    "Plate shown in the plate view.",
+    "Row",
+    "Restrict the plate view to one row, or show every row.",
+    "Column",
+    "Restrict the plate view to one column, or show every column.",
+    "Field",
+    "Field of view shown for each well.",
+    "Time",
+    "Time point shown for time-lapse acquisitions.",
+    "Z plane shown when the Z mode is a single plane.",
+    "Reference group",
+    "Group whose images define the advanced normalization bounds.",
+    "Channel to edit",
+    "Channel the per-channel settings are edited for: the advanced normalization, the percentile stretch, "
+    "every enhancement step and the CMY/CMYK ink intensity. Pick a channel, change its values and press "
+    "Apply settings to channel; channels marked (own settings) have their own values, the others follow "
+    "All channels.",
+    "Annotation dimensions",
+    "Tick annotation columns and the values to compare; every combination of the ticked values is one group.",
+    "Group values",
+    "Value, or Any, of each annotation column in the next group; Any pools that column.",
+    "Groups",
+    "Groups compared, in order, with their labels and image counts; add, remove and reorder them here.",
+    "Group presets",
+    "Fill the groups with every combination of the ticked values, or vary one column and hold the others.",
+    "Compare within",
+    "Compare groups separately within each value of this annotation column.",
+    "Measurement",
+    "Image-level measurement to compare; leave empty to use the first measured column.",
+    "Comparison actions",
+    "Draw the group comparison figure and tables, or show one representative image per group.",
+    "Selection",
+    "Clear every selected field and well.",
+    "PSF deconvolution",
+    "Make Masks' calibrated or measured point spread function, applied to Original images after "
+    "background subtraction.",
+    "Cellpose 3 restoration",
+    "Make Masks' Cellpose 3 denoising, deblurring or one-click restoration, applied to Original images; "
+    "the model is installed and loaded through the Model Zoo.",
+    "Letter",
+    "Rows of the page grid.",
+    "Columns of the page grid.",
+})
+"""Captions this module passes to ``tr`` through tuples, dicts and loop variables.
+
+The runtime catalog generator cannot see them at a literal call site and
+imports this set instead, as it does ``_DOSE_RESPONSE_UI_SOURCES``.
+"""

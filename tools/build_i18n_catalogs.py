@@ -4330,6 +4330,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
         ALL_CHANNELS,
         MAX_SETS_TOOLTIP,
     )
+    from spacr.qt.widgets.picture_export import _CANVAS_UI_SOURCES
+    from spacr.qt.widgets.qc_field_browser import _OVERVIEW_UI_SOURCES
 
     # LOOKUP TABLES THE EXTRACTOR CANNOT SEE, found on 2026-09-13 by
     # searching for the SHAPE rather than the name: every module-level
@@ -4442,6 +4444,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
     for variant in IMPORT_VARIANTS:
         chooser_sources.update((variant.label, variant.description))
     found.update(_INDIRECT_CHROME_UI_SOURCES)
+    # The Overview's settings rows, export menus and guided-export choices,
+    # and the Custom export canvas's page and arrange buttons, reach tr()
+    # through tuples, dicts and loop variables.
+    found.update(_OVERVIEW_UI_SOURCES)
+    found.update(_CANVAS_UI_SOURCES)
     found.update(str(row[1]) for row in COMPARTMENT_FIELDS)
     for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
                    FUNCTION_HELP, TOOL_LABELS, RULE_NAMES, RULE_DETECTS,
