@@ -1237,6 +1237,56 @@ def test_watching_a_parentless_widget_does_not_keep_it_alive(qapp, hub):
     shiboken6.delete(owner)
 
 
+def _refuse_an_address(obj):
+    raise AssertionError(f"asked for the C++ address of {type(obj).__name__}")
+
+
+def test_watching_and_tearing_down_read_no_cpp_address(qapp, hub,
+                                                        monkeypatch):
+    """The hub's watches and the guard's teardown marks ask for no address.
+
+    A full native macOS run (PySide6 6.11.2) crashed in
+    ``Shiboken::Object::cppPointers`` under ``getCppPointer`` from an
+    application event filter, a queued slot, a ``partial`` slot and
+    ``_hub_add_object`` building Model Compare. With the call refusing
+    every request, a watch is added, told, found and discarded, and a
+    window's teardown mark still reaches the widgets inside it.
+    """
+    import shiboken6
+
+    from spacr.qt import gui_scale
+    from spacr.qt.gil_priority import (_stop_watching_object_events,
+                                       _watch_object_events)
+
+    monkeypatch.setattr(gui_scale, "_TORN_DOWN", {})
+    monkeypatch.setattr(shiboken6, "getCppPointer", _refuse_an_address)
+    window = QWidget()
+    inner = QWidget(window)
+    loose = QWidget()
+    keeper = _KeepsWhatItIsHanded()
+    try:
+        _watch_object_events(inner, keeper, (QEvent.Show,))
+        _watch_object_events(loose, keeper, (QEvent.Show,))
+        window.show()
+        loose.show()
+        qapp.processEvents()
+        assert any(w is inner for w in keeper.handed)
+        assert any(w is loose for w in keeper.handed)
+        assert _stop_watching_object_events(inner, keeper)
+        assert _stop_watching_object_events(loose, keeper)
+        assert not _stop_watching_object_events(inner, keeper)
+
+        gui_scale._mark_torn_down(window)
+        assert gui_scale._is_torn_down(inner)
+        assert not gui_scale._is_torn_down(loose)
+        gui_scale._close_without_restyling(window, closing=False)
+        assert not gui_scale._is_torn_down(inner)
+    finally:
+        monkeypatch.undo()
+        shiboken6.delete(window)
+        shiboken6.delete(loose)
+
+
 def test_without_a_hub_or_a_root_the_sheet_simply_goes_on(qapp,
                                                           monkeypatch):
     from spacr.qt import gil_priority

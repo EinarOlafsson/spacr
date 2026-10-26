@@ -991,17 +991,24 @@ def _is_alive(obj) -> bool:
 
 
 def _address_of(obj):
-    """The C++ address behind ``obj``, which outlives a changing wrapper.
+    """The key a torn-down mark files ``obj`` under: its wrapper's ``id``.
+
+    Not its C++ address. ``shiboken6.getCppPointer`` crashed natively on
+    macOS (PySide6 6.11.2) when an application event filter asked it about
+    the object whose ``DeferredDelete`` was being delivered. A mark holds
+    the wrapper it was made with (:func:`_mark_torn_down`), so that wrapper
+    is the one Qt hands back for the object, a parent walk meets the same
+    ``id``, and no other object can be given that ``id`` while the mark
+    stands.
 
     :param obj: a Qt object wrapper.
-    :returns: the address, or ``None`` when it cannot be read.
+    :returns: the key, or ``None`` for anything that is not a Qt object.
     """
     try:
-        from shiboken6 import getCppPointer
-
-        return int(getCppPointer(obj)[0])
-    except Exception:
+        from PySide6.QtCore import QObject
+    except ImportError:
         return None
+    return id(obj) if isinstance(obj, QObject) else None
 
 
 def _prune_torn_down() -> int:
@@ -1009,7 +1016,7 @@ def _prune_torn_down() -> int:
 
     A mark holds the object's wrapper, and a wrapper answers
     ``shiboken6.isValid`` false once the C++ object is gone, so a new
-    object at the same address is never mistaken for the old one.
+    object given the same key is never mistaken for the old one.
 
     :returns: how many marks are still standing.
     """
