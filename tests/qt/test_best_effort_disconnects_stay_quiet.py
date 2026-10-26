@@ -3,8 +3,9 @@
 6.11 answers a disconnect of a slot that is not connected with
 ``RuntimeWarning: libpyside: Failed to disconnect`` instead of raising, so
 spaCR's ``try/except`` disconnects printed it (the Data Manager on every
-close). Checked in a fresh interpreter, because pytest resets warning filters
-around each test.
+close). PySide6 6.10 and older raise instead, which the ``try`` below takes,
+as spaCR's own disconnects do. Checked in a fresh interpreter, because pytest
+resets warning filters around each test.
 """
 import os
 import subprocess
@@ -21,7 +22,10 @@ from PySide6.QtCore import QObject, Signal
 class Source(QObject):
     changed = Signal()
 source = Source()
-source.changed.disconnect(lambda: None)
+try:
+    source.changed.disconnect(lambda: None)
+except (RuntimeError, TypeError):
+    pass
 warnings.warn("an unrelated runtime warning", RuntimeWarning)
 """
 

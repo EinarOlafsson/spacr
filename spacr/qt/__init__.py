@@ -91,11 +91,13 @@ def _quiet_best_effort_disconnects() -> None:
     and emits ``RuntimeWarning: libpyside: Failed to disconnect ...``
     instead, which those handlers cannot catch, so the Data Manager alone
     printed it on every close (86 times in one test run) and it reached the
-    console of a normal session. Only that exact message is filtered.
+    console of a normal session. PySide6 6.10 warns the same way without
+    the ``libpyside:`` prefix, so both spellings are matched; only that
+    message is filtered.
     """
     import warnings
 
-    warnings.filterwarnings("ignore", message=r"libpyside: Failed to disconnect",
+    warnings.filterwarnings("ignore", message=r"(?:libpyside: )?Failed to disconnect",
                             category=RuntimeWarning)
 
 
