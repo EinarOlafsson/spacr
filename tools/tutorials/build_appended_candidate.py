@@ -19,12 +19,26 @@ import tempfile
 
 from apply_translation_review import translated_lesson
 from append_staged_lessons import parse_javascript
+from archive_lessons import full_view, load_tree
 from audit_staged_catalogs import CATALOGS
 from build_navigation import build as navigation
 from build_release_candidate import copy_checked, require_web_receipt
 from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
 from validate_candidate import hosted_web_path, require_consistent_web_hosting, validate
+
+
+def checked_published_sources(published, baseline):
+    """Recover the full publication inventory without changing archived Pages."""
+    full = full_view(load_tree(published))
+    catalogs = {name: full['catalog/' + name] for name in CATALOGS}
+    if any(catalogs[name] != read(baseline / 'web/catalog' / name)
+           for name in CATALOGS):
+        raise ValueError('Published lesson sources differ from the verified media baseline')
+    runtime = full['lesson_catalog.js']
+    if runtime != parse_javascript((baseline / 'web/lesson_catalog.js').read_text(encoding='utf-8')):
+        raise ValueError('Published runtime sources differ from the verified media baseline')
+    return catalogs, runtime
 
 
 def copy_preserved_checked(source, target, records, root, expected, *, hardlink=False):
@@ -534,11 +548,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     roots = re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index)
     if len(roots) != 2 or set(roots) != {receipt['media_root']}:
         raise ValueError('Baseline media revision is not the currently published revision')
-    catalogs = {name: read(published / 'catalog' / name) for name in CATALOGS}
+    catalogs, published_runtime = checked_published_sources(published, baseline)
     original_catalogs = deepcopy(catalogs)
-    for name in CATALOGS:
-        if catalogs[name] != read(baseline / 'web/catalog' / name):
-            raise ValueError('Published lesson sources differ from the verified media baseline')
     withdraw = list(withdraw)
     listed = {lesson['id'] for lesson in catalogs['lessons_en.json']['lessons']}
     if (len(withdraw) != len(set(withdraw)) or set(withdraw) - listed
@@ -663,7 +674,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                browser_report_sha256=digest(browser_path)))
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
-    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text(encoding="utf-8"))
+    js_catalog = published_runtime
     original_js_catalog = deepcopy(js_catalog)
     js_catalog = {**js_catalog, 'lessons': [lesson for lesson in js_catalog['lessons']
                                             if lesson['id'] not in withdraw]}

@@ -9,12 +9,48 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_appended_candidate import (append_catalogs, append_javascript_catalog,
+                                     checked_published_sources,
                                      copy_preserved_web,
                                      complete_translation_compatibility,
                                      require_baseline_receipt, require_no_new_route_gaps,
                                      update_catalogs, synchronize_links,
                                      checked_web_input)
 from audit_staged_catalogs import CATALOGS
+import archive_lessons
+
+
+@pytest.fixture
+def archived_publication(tmp_path):
+    baseline = Path(__file__).resolve().parents[1] / 'release_candidate'
+    original = archive_lessons.load_tree(baseline / 'web')
+    deployed = archive_lessons.archived_view(original)
+    published = tmp_path / 'pages'
+    for name, value in deployed.items():
+        target = published / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(archive_lessons.render(name, value), encoding='utf-8')
+    return published, baseline, original, deployed
+
+
+def test_archived_publication_restores_full_json_and_runtime_without_writing(archived_publication):
+    published, baseline, original, deployed = archived_publication
+    before = {name: (published / name).read_bytes() for name in deployed}
+    catalogs, runtime = checked_published_sources(published, baseline)
+    assert catalogs == {name: original['catalog/' + name] for name in CATALOGS}
+    assert runtime == original['lesson_catalog.js']
+    assert len(runtime['lessons']) > len(deployed['lesson_catalog.js']['lessons'])
+    assert {name: (published / name).read_bytes() for name in deployed} == before
+
+
+@pytest.mark.parametrize('name', ['catalog/lessons_en.json', 'catalog/captions_de.json',
+                                  'lesson_catalog.js'])
+def test_archived_publication_rejects_visible_source_drift(archived_publication, name):
+    published, baseline, _, deployed = archived_publication
+    changed = deepcopy(deployed[name])
+    changed['lessons'][0]['scenes'][0]['narration'] += ' Unreviewed change.'
+    (published / name).write_text(archive_lessons.render(name, changed), encoding='utf-8')
+    with pytest.raises(ValueError, match='sources differ from the verified media baseline'):
+        checked_published_sources(published, baseline)
 
 
 @pytest.mark.parametrize('sentence_hash', [None, 'stale', 'current'])
