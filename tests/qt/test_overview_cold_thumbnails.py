@@ -61,6 +61,17 @@ def test_each_device_keeps_the_faster_read_after_trying_both(tmp_path):
     assert browser._overview_read_method(path) == "full"
 
 
+def _retire_drained(view, qtbot):
+    """Retire ``view`` once its jobs have finished, so no worker outlives the test."""
+    from spacr.qt.bridge import prune_parked_threads
+
+    view._cancel()
+    runners = [value for value in vars(view).values() if isinstance(value, browser.JobRunner)]
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=15000)
+    view._retire()
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0, timeout=15000)
+
+
 def _plate(folder, channels=(1, 2)):
     folder.mkdir()
     for well in ("A01", "A02"):
@@ -111,7 +122,7 @@ def test_the_disk_cache_can_be_turned_off(tmp_path, monkeypatch):
 def test_a_late_representative_result_cannot_replace_a_newer_refusal(qtbot, tmp_path):
     fields = _plate(tmp_path / "images")
     view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
-    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    qtbot.addWidget(view, before_close_func=lambda widget: _retire_drained(widget, qtbot))
     view._indexed(fields)
     older = view._comparison_request()
     newer = view._comparison_request()
@@ -126,7 +137,7 @@ def test_a_late_representative_result_cannot_replace_a_newer_refusal(qtbot, tmp_
 def test_display_preparation_starts_after_the_rebuilt_plate_paints(qtbot, tmp_path, monkeypatch):
     fields = _plate(tmp_path / "images")
     view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
-    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    qtbot.addWidget(view, before_close_func=lambda widget: _retire_drained(widget, qtbot))
     view.show()
     qtbot.waitExposed(view)
     started = []
@@ -147,7 +158,7 @@ def test_display_preparation_starts_after_the_rebuilt_plate_paints(qtbot, tmp_pa
 def test_a_plate_that_never_paints_still_prepares_its_display(qtbot, tmp_path, monkeypatch):
     fields = _plate(tmp_path / "images")
     view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
-    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    qtbot.addWidget(view, before_close_func=lambda widget: _retire_drained(widget, qtbot))
     view.show()
     qtbot.waitExposed(view)
     monkeypatch.setattr(browser._FieldOverview, "_plate_painted",
@@ -160,7 +171,7 @@ def test_a_plate_that_never_paints_still_prepares_its_display(qtbot, tmp_path, m
 def test_decoded_thumbnails_install_within_a_per_turn_budget(qtbot, tmp_path, monkeypatch):
     fields = _plate(tmp_path / "images")
     view = browser._FieldOverview(settings={"source": str(tmp_path / "images"), "channels": (1,)})
-    qtbot.addWidget(view, before_close_func=lambda widget: widget._retire())
+    qtbot.addWidget(view, before_close_func=lambda widget: _retire_drained(widget, qtbot))
     view.show()
     qtbot.waitExposed(view)
     view._indexed(fields)

@@ -109,6 +109,9 @@ def test_a_shown_overview_holds_while_loading_and_not_once_idle_or_retired(tmp_p
     view.show()
     view._retire()
     assert not gil_priority.background_imports_held()
+    from spacr.qt.bridge import prune_parked_threads
+
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0, timeout=15000)
 
 
 def test_the_metadata_step_holds_until_it_finishes(tmp_path, qtbot):
