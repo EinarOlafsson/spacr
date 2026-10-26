@@ -23,11 +23,13 @@ def _activate(widget, qtbot):
     """
     widget.raise_()
     widget.activateWindow()
-    try:
-        qtbot.waitUntil(widget.isActiveWindow, timeout=5000)
-    except Exception:
+    for _ in range(50):
+        if widget.isActiveWindow():
+            break
+        qtbot.wait(100)
+    if not widget.isActiveWindow():
         pytest.skip("the window manager did not make the test window active "
-                    "(macOS cooperative activation); focus needs the active window")
+                    "within 5 s (macOS cooperative activation); focus needs the active window")
     QApplication.processEvents()
 
 
