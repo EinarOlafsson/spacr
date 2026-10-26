@@ -21,11 +21,29 @@
 # State lives in ~/.spacr/gpu/ so every checkout and every session sees the
 # same queue:
 #   lock          flock(1) target; one holder at a time
+#   lock.d        the same lock where flock(1) is missing (macOS): an atomic
+#                 mkdir holding the holder's pid; a dead holder's is reclaimed
 #   holder        who holds it now (label, pid, start, checkout)
 #   last_release  epoch seconds of the last turn handed back
 #   log           one line per wait, start and finish
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
+#
+# Priority (maintainer, 2026-10-25): jobs whose label starts with a prefix in
+# GPU_PRIORITY_PREFIXES (default "plaque-") go first. A job without priority
+# that holds the queue while still waiting hands the lock back as soon as a
+# priority job is queued, and takes it again once no priority job is queued
+# or running. Priority jobs are found from the process table (any copy of
+# gpu_turn.sh with a priority label that uses this same queue directory), so
+# frozen older copies count too. A job
+# that has already started is never stopped.
+#
+# macOS (2026-10-26): there is no flock(1), no nvidia-smi and no /proc, and
+# /bin/bash is 3.2. The queue takes the mkdir lock above through the same
+# lock_queue/unlock_queue the priority hand-back uses, priority_queued answers
+# no because there is no process table to read (and so never reaches the
+# bash 4.4 mapfile below), and the lock and the gap are the only coordination.
+# Timestamps use a date(1) format GNU and BSD date both accept.
 set -uo pipefail
 
 case "${OSTYPE:-}" in
@@ -53,7 +71,82 @@ if [[ $# -lt 2 ]]; then
 fi
 LABEL="$1"; shift
 
-say() { echo "$(date -Is) [$LABEL] $*" | tee -a "$LOG" >&2; }
+stamp() { date +%Y-%m-%dT%H:%M:%S%z; }
+
+say() { echo "$(stamp) [$LABEL] $*" | tee -a "$LOG" >&2; }
+
+HOLDS_MKDIR_LOCK=0
+
+lock_queue() {
+    if command -v flock >/dev/null 2>&1; then
+        flock 9
+        return
+    fi
+    local holder
+    while ! mkdir "$DIR/lock.d" 2>/dev/null; do
+        holder=$(cat "$DIR/lock.d/pid" 2>/dev/null || true)
+        if [[ -n "$holder" ]] && ! kill -0 "$holder" 2>/dev/null; then
+            rm -rf "$DIR/lock.d"
+            continue
+        fi
+        sleep "$POLL_S"
+    done
+    echo "$$" > "$DIR/lock.d/pid"
+    HOLDS_MKDIR_LOCK=1
+}
+
+unlock_queue() {
+    if command -v flock >/dev/null 2>&1; then
+        flock -u 9
+        return
+    fi
+    if (( HOLDS_MKDIR_LOCK )); then
+        rm -rf "$DIR/lock.d"
+        HOLDS_MKDIR_LOCK=0
+    fi
+}
+
+trap '(( HOLDS_MKDIR_LOCK )) && rm -rf "$DIR/lock.d"' EXIT
+
+PRIORITY_PREFIXES=${GPU_PRIORITY_PREFIXES-plaque-}
+
+is_priority() {
+    local prefix
+    for prefix in $PRIORITY_PREFIXES; do
+        [[ "$1" == "$prefix"* ]] && return 0
+    done
+    return 1
+}
+
+same_queue() {
+    local environment entry_variable home=""
+    environment=()
+    mapfile -d '' -t environment < "$1/environ" 2>/dev/null || return 1
+    for entry_variable in "${environment[@]}"; do
+        [[ "$entry_variable" == HOME=* ]] && home=${entry_variable#HOME=}
+    done
+    [[ -n "$home" && "$home/.spacr/gpu" -ef "$DIR" ]]
+}
+
+priority_queued() {
+    local entry argv i
+    [[ -n "$PRIORITY_PREFIXES" ]] || return 1
+    [[ -d /proc/self ]] || return 1
+    for entry in /proc/[0-9]*; do
+        [[ "${entry#/proc/}" == "$$" ]] && continue
+        argv=()
+        mapfile -d '' -t argv < "$entry/cmdline" 2>/dev/null || continue
+        for (( i = 0; i + 1 < ${#argv[@]}; i++ )); do
+            if [[ "${argv[i]}" == *gpu_turn.sh ]]; then
+                if is_priority "${argv[i+1]}" && same_queue "$entry"; then
+                    return 0
+                fi
+                break
+            fi
+        done
+    done
+    return 1
+}
 
 compute_pids() {
     local pid executable
@@ -73,11 +166,22 @@ compute_pids() {
 
 exec 9>"$DIR/lock"
 say "queued (pid $$, $(pwd))"
-flock 9
+lock_queue
 say "holds the queue; waiting for ${IDLE_S}s idle and ${GAP_S}s since the last turn"
 
 idle_since=$(date +%s)
 while true; do
+    if ! is_priority "$LABEL" && priority_queued; then
+        say "hands the queue to a waiting priority job"
+        unlock_queue
+        while priority_queued; do
+            sleep "$POLL_S"
+        done
+        lock_queue
+        say "holds the queue again; waiting for ${IDLE_S}s idle and ${GAP_S}s since the last turn"
+        idle_since=$(date +%s)
+        continue
+    fi
     now=$(date +%s)
     busy=$(compute_pids)
     if [[ -n "$busy" ]]; then
@@ -91,12 +195,12 @@ while true; do
 done
 
 printf 'label=%s pid=%s start=%s checkout=%s\n' \
-    "$LABEL" "$$" "$(date -Is)" "$(pwd)" > "$DIR/holder"
+    "$LABEL" "$$" "$(stamp)" "$(pwd)" > "$DIR/holder"
 say "START: $*"
 "$@"
 rc=$?
 date +%s > "$DIR/last_release"
 : > "$DIR/holder"
 say "FINISH rc=$rc"
-flock -u 9
+unlock_queue
 exit $rc
