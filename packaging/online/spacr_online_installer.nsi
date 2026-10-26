@@ -154,7 +154,8 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   FileWrite $4 "exit=$0$\r$\n"
   FileClose $4
   ${If} $0 != 0
-    MessageBox MB_ICONSTOP "$(SPACR_NSIS_FAILED)"
+    ; /SD answers for a silent (/S) run, which otherwise waits on a dialog nobody sees.
+    MessageBox MB_ICONSTOP "$(SPACR_NSIS_FAILED)" /SD IDOK
     SetErrorLevel $0
     Abort
   ${EndIf}
@@ -204,7 +205,7 @@ Section "Uninstall"
   nsExec::ExecToLog 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\uninstall_spacr_windows.ps1" -InstallRoot "$INSTDIR"'
   Pop $0
   ${If} $0 != 0
-    MessageBox MB_ICONSTOP "$(SPACR_NSIS_UNINSTALL_FAILED)"
+    MessageBox MB_ICONSTOP "$(SPACR_NSIS_UNINSTALL_FAILED)" /SD IDOK
     SetErrorLevel $0
     Abort
   ${EndIf}
