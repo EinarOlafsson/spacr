@@ -94,6 +94,16 @@ def _overview_options(qtbot):
     return overview._options_window
 
 
+def _overview_image_settings(qtbot):
+    from spacr.qt.widgets.qc_field_browser import (_FieldOverview, _OverviewField,
+                                                   _OverviewImageSettings)
+
+    overview = _FieldOverview(settings={})
+    qtbot.addWidget(overview, before_close_func=lambda widget: widget._cancel())
+    field = _OverviewField(plate="p1", well="A01", row="A", column=1, field="1", files=())
+    return _OverviewImageSettings(overview, field, (0,))
+
+
 def _builders():
     """``(source file, class name or objectName) -> builder(qtbot)``."""
 
@@ -229,6 +239,8 @@ def _builders():
         ("spacr/qt/screens/make_masks.py", "_LevelsDialog"): levels,
         ("spacr/qt/widgets/qc_field_browser.py", "OverviewOptionsWindow"):
             _overview_options,
+        ("spacr/qt/widgets/qc_field_browser.py", "_OverviewImageSettings"):
+            _overview_image_settings,
         ("spacr/qt/screens/embeddings.py", "EmbeddingsSubCellChannelsDialog"):
             lambda qtbot: _embeddings(qtbot)._subcell_channels_dialog(),
         ("spacr/qt/screens/embeddings.py", "EmbeddingsCellDinoDialog"):
@@ -292,7 +304,7 @@ def test_every_settings_popup_in_the_source_has_a_builder():
         "settings popups without a builder", sorted(found - built_classes))
     by_marks = {key for key in BUILDERS if key not in found}
     assert {path for path, _ in by_marks} == marked
-    assert len(BUILDERS) == len(found) + len(by_marks) == 23
+    assert len(BUILDERS) == len(found) + len(by_marks) == 24
 
 
 def _open(qtbot, app, dialog):

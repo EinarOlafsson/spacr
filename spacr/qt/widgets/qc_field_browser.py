@@ -1753,6 +1753,136 @@ def _overview_saturated(rgb, saturation):
     return np.clip(grey + (values - grey) * float(saturation), 0, 255).astype(np.uint8)
 
 
+_OVERVIEW_OVERRIDE_DEFAULTS = {"black": 0., "white": 1., "gamma": 1., "brightness": 0.,
+                               "contrast": 1., "visible": True}
+
+
+def _overview_clean_override(override):
+    """Keep only what differs from the defaults in one image's display override.
+
+    :param override: ``{"channels": {channel: {...}}, "saturation": s}``, or ``None``.
+    :returns: the override with string channel keys and no default values, or
+        ``None`` when nothing differs, so an image that was reset has no entry.
+    """
+    channels = {}
+    for channel, settings in ((override or {}).get("channels") or {}).items():
+        kept = {name: value for name, value in dict(settings or {}).items()
+                if name in _OVERVIEW_OVERRIDE_DEFAULTS and value != _OVERVIEW_OVERRIDE_DEFAULTS[name]}
+        if kept:
+            channels[str(channel)] = kept
+    cleaned = {"channels": channels} if channels else {}
+    saturation = (override or {}).get("saturation")
+    if saturation is not None and float(saturation) != 1.:
+        cleaned["saturation"] = float(saturation)
+    return cleaned or None
+
+
+def _overview_channel_override(override, channel):
+    """One channel's full display settings, defaults filled in.
+
+    :param override: the image's override, or ``None``.
+    :param channel: the channel.
+    :returns: every key of :data:`_OVERVIEW_OVERRIDE_DEFAULTS`.
+    """
+    channels = (override or {}).get("channels") or {}
+    return dict(_OVERVIEW_OVERRIDE_DEFAULTS, **dict(channels.get(str(channel), channels.get(channel)) or {}))
+
+
+def _overview_override_targets(fields, field, scope):
+    """The images an override is copied to: the image's well, its plate, or every loaded image.
+
+    :param fields: every loaded field.
+    :param field: the image the override comes from.
+    :param scope: ``'well'``, ``'plate'`` or ``'all'``.
+    :returns: the image keys, in field order, without repeats.
+    """
+    plate = _overview_plate_key(field)
+    return tuple(dict.fromkeys(
+        _overview_image_key(other) for other in fields
+        if scope == "all" or (_overview_plate_key(other) == plate
+                              and (scope == "plate" or other.well == field.well))))
+
+
+def _overview_copied_overrides(overrides, source, targets, channel=None):
+    """Copy one image's override, or one channel of it, onto other images.
+
+    :param overrides: ``{image key: override}``; not changed.
+    :param source: the image key copied from.
+    :param targets: the image keys copied to.
+    :param channel: copy only this channel's settings, or ``None`` for the
+        whole override, saturation included.
+    :returns: the new mapping.
+    """
+    import copy
+
+    origin = overrides.get(source) or {}
+    result = dict(overrides)
+    for key in targets:
+        if key == source:
+            continue
+        if channel is None:
+            merged = copy.deepcopy(origin)
+        else:
+            merged = copy.deepcopy(result.get(key) or {})
+            channels = dict(merged.get("channels") or {})
+            channels.pop(channel, None)
+            channels.pop(str(channel), None)
+            settings = (origin.get("channels") or {}).get(str(channel))
+            if settings:
+                channels[str(channel)] = dict(settings)
+            merged["channels"] = channels
+        cleaned = _overview_clean_override(merged)
+        if cleaned is None:
+            result.pop(key, None)
+        else:
+            result[key] = cleaned
+    return result
+
+
+def _overview_gamma_midpoint(black, white, gamma):
+    """The input level a gamma maps to mid-grey, between the black and white points.
+
+    :param black: the black point, 0-1.
+    :param white: the white point, 0-1.
+    :param gamma: the gamma; 1 puts the midpoint halfway.
+    :returns: the midpoint, 0-1.
+    """
+    return black + (white - black) * .5 ** float(gamma)
+
+
+def _overview_gamma_from_midpoint(black, white, middle):
+    """The gamma that maps ``middle`` to mid-grey; the inverse of :func:`_overview_gamma_midpoint`.
+
+    :param black: the black point, 0-1.
+    :param white: the white point, 0-1.
+    :param middle: the input level that should show as mid-grey.
+    :returns: the gamma, kept within 0.05 to 10.
+    """
+    span = max(white - black, 1e-6)
+    fraction = min(max((middle - black) / span, 1e-3), 1. - 1e-3)
+    return float(min(max(math.log(fraction) / math.log(.5), .05), 10.))
+
+
+def _overview_display_histograms(field, channels, percentiles, options):
+    """Histograms of each channel's display plane before its per-image override.
+
+    Runs off the GUI thread. The planes are the views' own display planes --
+    global normalization and scope limits applied -- so the black and white
+    points sit on what the image shows.
+
+    :param field: the image.
+    :param channels: the shown channels.
+    :param percentiles: the global percentile stretch, or ``None``.
+    :param options: the views' display options without ``image_overrides``.
+    :returns: ``{channel: 256 counts}``, or the reason they cannot be read.
+    """
+    try:
+        views = _overview_pixels(field, channels, percentiles, edge=512, channel_views=True, **options)
+    except Exception as error:
+        return str(error)
+    return {channel: np.bincount(plane[..., 0].ravel(), minlength=256) for channel, plane in views}
+
+
 def _overview_natural_key(value):
     """Order physical field and axis identifiers by their numeric components."""
     import re
@@ -4169,6 +4299,9 @@ def _overview_panel_qss(palette, opacity):
     surface = block_surface("surface_alt", palette["theme"], opacity)
     return (f"QFrame#FieldOverviewPanel {{ background: {surface}; "
             f"border: 1px solid {palette['border']}; border-radius: {RADIUS['md']}px; }}\n"
+            f"QLabel#FieldOverviewAdjustedBadge {{ background: {palette.get('accent', palette['border'])}; "
+            f"color: {palette.get('bg', '#ffffff')}; "
+            f"border-radius: {RADIUS['sm']}px; padding: 1px 6px; }}\n"
             f"QLabel#FieldOverviewImageMetadata {{ background: rgba(0, 0, 0, 150); "
             f"color: white; border-radius: {RADIUS['sm']}px; padding: 4px; }}")
 
@@ -4737,6 +4870,414 @@ class _OverviewAnnotationDialog(QDialog):
         return self.key.currentText().strip(), self.value.text().strip()
 
 
+class _OverviewLevelsHistogram(QWidget):
+    """A channel's display histogram with draggable black, white and gamma points.
+
+    The horizontal axis is the display level, 0 to 1, after the global
+    normalization; the black and white handles map onto it directly and the
+    gamma handle sits at the level shown as mid-grey.
+    """
+
+    levels_changed = Signal(float, float, float)
+    released = Signal()
+
+    def __init__(self, parent=None):
+        """Create an empty histogram with the identity levels.
+
+        :param parent: the image settings panel.
+        """
+        super().__init__(parent)
+        self.setObjectName("OverviewLevelsHistogram")
+        self.setMinimumSize(220, 96)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setMouseTracking(True)
+        self.counts = None
+        self.black, self.white, self.gamma = 0., 1., 1.
+        self._dragging = None
+
+    def set_counts(self, counts):
+        """Draw ``counts`` (256 bins over 0-1), or nothing for ``None``."""
+        self.counts = None if counts is None else np.asarray(counts, dtype=np.float64)
+        self.update()
+
+    def set_levels(self, black, white, gamma):
+        """Move the handles without emitting a change."""
+        self.black, self.white, self.gamma = float(black), float(white), float(gamma)
+        self.update()
+
+    def _plot(self):
+        """The rectangle the histogram fills, inside the handle margins."""
+        return QRect(8, 4, max(1, self.width() - 16), max(1, self.height() - 16))
+
+    def _x(self, level):
+        """The widget x of a 0-1 level."""
+        plot = self._plot()
+        return plot.left() + level * plot.width()
+
+    def _level(self, x):
+        """The 0-1 level at widget x."""
+        plot = self._plot()
+        return min(max((x - plot.left()) / plot.width(), 0.), 1.)
+
+    def _handles(self):
+        """The handles as ``(name, level)``, black, gamma and white."""
+        return (("black", self.black), ("gamma", _overview_gamma_midpoint(self.black, self.white, self.gamma)),
+                ("white", self.white))
+
+    def paintEvent(self, _event):
+        """Draw the bars, the shaded clipped ranges and the three handles."""
+        from PySide6.QtGui import QPainter, QPen, QPolygonF
+        from PySide6.QtCore import QPointF, QRectF
+        from ..theme import _painting_palette
+
+        palette = _painting_palette()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        plot = self._plot()
+        painter.fillRect(plot, QColor(palette["surface_alt"]))
+        painter.setPen(QPen(QColor(palette["border"]), 1))
+        painter.drawRect(plot)
+        if self.counts is not None and self.counts.size and self.counts.max() > 0:
+            heights = np.sqrt(self.counts / self.counts.max())
+            bar = QColor(palette["accent"])
+            bar.setAlpha(170)
+            width = plot.width() / heights.size
+            for index, height in enumerate(heights):
+                if height <= 0:
+                    continue
+                top = plot.bottom() - height * plot.height()
+                painter.fillRect(QRectF(plot.left() + index * width, top, max(width, 1.), plot.bottom() - top), bar)
+        shade = QColor(palette["fg"])
+        shade.setAlpha(40)
+        painter.fillRect(QRectF(plot.left(), plot.top(), self._x(self.black) - plot.left(), plot.height()), shade)
+        painter.fillRect(QRectF(self._x(self.white), plot.top(), plot.right() - self._x(self.white), plot.height()), shade)
+        fills = {"black": QColor("#000000"), "white": QColor("#ffffff"), "gamma": QColor(palette["accent"])}
+        for name, level in self._handles():
+            x = self._x(level)
+            painter.setPen(QPen(QColor(palette["fg"] if name != "gamma" else palette["accent"]), 1))
+            painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
+            painter.setBrush(fills[name])
+            painter.setPen(QPen(QColor(palette["fg"]), 1))
+            painter.drawPolygon(QPolygonF([QPointF(x, plot.bottom() + 1), QPointF(x - 6, self.height() - 2),
+                                           QPointF(x + 6, self.height() - 2)]))
+        painter.end()
+
+    def mousePressEvent(self, event):
+        """Pick the nearest handle within reach."""
+        x = event.position().x()
+        name, level = min(self._handles(), key=lambda handle: abs(self._x(handle[1]) - x))
+        self._dragging = name if abs(self._x(level) - x) <= 10 else None
+        event.accept()
+
+    def mouseMoveEvent(self, event):
+        """Drag the picked handle, keeping black below the midpoint below white."""
+        if self._dragging is None:
+            return
+        level = self._level(event.position().x())
+        if self._dragging == "black":
+            self.black = min(level, self.white - .01)
+        elif self._dragging == "white":
+            self.white = max(level, self.black + .01)
+        else:
+            self.gamma = _overview_gamma_from_midpoint(self.black, self.white, level)
+        self.update()
+        self.levels_changed.emit(self.black, self.white, self.gamma)
+
+    def mouseReleaseEvent(self, event):
+        """End a drag."""
+        if self._dragging is not None:
+            self._dragging = None
+            self.released.emit()
+        event.accept()
+
+
+class _OverviewTileDelegate(QStyledItemDelegate):
+    """Draw a well view's tiles and mark the ones with their own display settings."""
+
+    def __init__(self, browser, parent=None):
+        """Keep the browser that knows which images are adjusted.
+
+        :param browser: the plate browser.
+        :param parent: the well view.
+        """
+        super().__init__(parent)
+        self._browser = browser
+
+    def paint(self, painter, option, index):
+        """Paint the tile, then a small "Adjusted" badge on an adjusted image."""
+        super().paint(painter, option, index)
+        field = index.data(Qt.UserRole)
+        if field is None or not self._browser._is_adjusted(field):
+            return
+        painter.save()
+        text = tr("Adjusted")
+        metrics = option.fontMetrics
+        width, height = metrics.horizontalAdvance(text) + 10, metrics.height() + 2
+        rect = QRect(option.rect.right() - width - 4, option.rect.top() + 4, width, height)
+        painter.setRenderHint(painter.RenderHint.Antialiasing)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(option.palette.color(QPalette.Highlight))
+        painter.drawRoundedRect(rect, height / 2, height / 2)
+        painter.setPen(option.palette.color(QPalette.HighlightedText))
+        painter.drawText(rect, Qt.AlignCenter, text)
+        painter.restore()
+
+
+_OVERVIEW_SETTINGS_ROWS = (
+    ("Black point", "overview_image_black_point", "Display level shown as black for this channel of this image; lower levels are clipped. Drag the black handle under the histogram or type a level from 0 to 1."),
+    ("White point", "overview_image_white_point", "Display level shown at full brightness for this channel of this image; higher levels are clipped. Drag the white handle or type a level from 0 to 1."),
+    ("Gamma", "overview_image_gamma", "Gamma between the black and white points: above 1 brightens the mid-tones, below 1 darkens them. The middle handle is the level shown as mid-grey."),
+    ("Brightness", "overview_image_brightness", "Adds to this channel's display level after the levels, from -100 to 100 percent of the display range."),
+    ("Contrast", "overview_image_contrast", "Stretches this channel about mid-grey after the levels: 100 percent leaves it unchanged, lower flattens, higher steepens."),
+    ("Visible", "overview_image_visible", "Show this channel in this image; switched off, the channel is left out of the composite."),
+    ("Saturation", "overview_image_saturation", "Colour saturation of this image's composite: 0 percent is grey, 100 percent unchanged, higher more vivid."),
+    ("Link all channels", "overview_image_link_channels", "Off: an edit changes only the selected channel. On: the same edit is made to every channel of this image."),
+    ("Apply to", "overview_image_apply_to", "Copy this image's settings, for the selected channel or for all channels, to the other images of its well, its plate or every loaded image."),
+)
+
+
+class _OverviewImageSettings(QDialog):
+    """Right-click settings for one image: per-channel levels, brightness, contrast and visibility.
+
+    Every change is applied at once to that image only, as its entry in the
+    browser's per-image overrides, and saved in ``results/overview_view.json``.
+    """
+
+    def __init__(self, browser, field, channels):
+        """Build the panel for ``field`` and read its histograms in the background.
+
+        :param browser: the plate browser that owns the overrides.
+        :param field: the image the settings belong to.
+        :param channels: the shown channels, in order.
+        """
+        from PySide6.QtWidgets import QDoubleSpinBox, QFormLayout, QSlider, QTabBar
+        from .setup_dialog import _SetupComboBox
+
+        super().__init__(browser, Qt.Tool)
+        self.setObjectName("OverviewImageSettings")
+        self.setProperty("spacrSettingsPopup", True)
+        self.setWindowTitle(tr("Image settings"))
+        self._browser = browser
+        self._loading = False
+        self._pending = None
+        self._histograms = {}
+        self._push_timer = QTimer(self)
+        self._push_timer.setSingleShot(True)
+        self._push_timer.setInterval(40)
+        self._push_timer.timeout.connect(self._push)
+        layout = QVBoxLayout(self)
+        self.caption = QLabel()
+        self.caption.setObjectName("OverviewImageSettingsCaption")
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        self.tabs = QTabBar()
+        self.tabs.setObjectName("OverviewImageSettingsChannels")
+        self.tabs.setExpanding(False)
+        self.tabs.currentChanged.connect(self._channel_changed)
+        layout.addWidget(self.tabs)
+        self.histogram = _OverviewLevelsHistogram(self)
+        self.histogram.levels_changed.connect(self._levels_dragged)
+        self.histogram.released.connect(self._push)
+        layout.addWidget(self.histogram)
+        self.black, self.white, self.gamma = QDoubleSpinBox(), QDoubleSpinBox(), QDoubleSpinBox()
+        for spin, low, high, step, decimals in ((self.black, 0., 1., .01, 3), (self.white, 0., 1., .01, 3),
+                                                (self.gamma, .05, 10., .05, 2)):
+            spin.setRange(low, high)
+            spin.setSingleStep(step)
+            spin.setDecimals(decimals)
+        self.brightness, self.contrast, self.saturation = (QSlider(Qt.Horizontal), QSlider(Qt.Horizontal),
+                                                           QSlider(Qt.Horizontal))
+        for slider, low, high in ((self.brightness, -100, 100), (self.contrast, 0, 300), (self.saturation, 0, 300)):
+            slider.setRange(low, high)
+            slider.setPageStep(10)
+        self.visible = Toggle()
+        self.link = Toggle()
+        self.scope = _SetupComboBox()
+        for text, value in ((tr("This well"), "well"), (tr("This plate"), "plate"), (tr("All images"), "all")):
+            self.scope.addItem(text, value)
+        self.apply_channels = _SetupComboBox()
+        self.apply_channels.addItem(tr("Selected channel"), "selected")
+        self.apply_channels.addItem(tr("All channels"), "all")
+        self.apply_button = QPushButton(tr("Apply"))
+        self.apply_button.clicked.connect(self._apply_to)
+        apply_row = QWidget()
+        apply_layout = QHBoxLayout(apply_row)
+        apply_layout.setContentsMargins(0, 0, 0, 0)
+        for widget in (self.scope, self.apply_channels, self.apply_button):
+            apply_layout.addWidget(widget)
+        form = QFormLayout()
+        keys = {}
+        for (caption, key, tooltip), field_widget in zip(_OVERVIEW_SETTINGS_ROWS, (
+                self.black, self.white, self.gamma, self.brightness, self.contrast,
+                self.visible, self.saturation, self.link, apply_row)):
+            field_widget.setProperty("settingKey", key)
+            field_widget.setProperty("apiTooltipDescriptionSource", tooltip)
+            form.addRow(_overview_row_label(caption, tooltip), field_widget)
+            keys[field_widget] = key
+        layout.addLayout(form)
+        buttons = QHBoxLayout()
+        self.reset_button = QPushButton(tr("Reset"))
+        self.reset_button.setToolTip(tr("Return every channel of this image to the plate's display settings."))
+        self.reset_button.clicked.connect(self._reset)
+        close = QPushButton(tr("Close"))
+        close.clicked.connect(self.close)
+        buttons.addWidget(self.reset_button)
+        buttons.addStretch(1)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
+        for spin, name in ((self.black, "black"), (self.white, "white"), (self.gamma, "gamma")):
+            spin.valueChanged.connect(functools.partial(self._edited, name))
+        self.brightness.valueChanged.connect(functools.partial(self._scaled_edit, "brightness"))
+        self.contrast.valueChanged.connect(functools.partial(self._scaled_edit, "contrast"))
+        self.visible.toggled.connect(functools.partial(self._edited, "visible"))
+        self.saturation.valueChanged.connect(self._saturation_edited)
+        from ..screens.settings_model import install_api_tooltips
+
+        install_api_tooltips(self, "overview", keys)
+        self.show_field(field, channels)
+
+    def show_field(self, field, channels):
+        """Edit ``field`` from now on, starting on its first shown channel.
+
+        :param field: the image.
+        :param channels: the shown channels, in order.
+        """
+        self._push()
+        self.field, self.key = field, _overview_image_key(field)
+        self.channels = tuple(channels) or (0,)
+        names = self._browser._overview_options.get("channel_names") or {}
+        self.caption.setText(tr("Plate {plate}, well {well}, field {field}", plate=field.plate,
+                                well=field.well or tr("Unresolved"), field=field.field))
+        self._loading = True
+        try:
+            while self.tabs.count():
+                self.tabs.removeTab(0)
+            for channel in self.channels:
+                self.tabs.addTab(names.get(channel, names.get(str(channel), "")) or
+                                 tr("Channel {channel}", channel=channel))
+            self.tabs.setCurrentIndex(0)
+        finally:
+            self._loading = False
+        self._histograms = {}
+        self._load_values()
+        self._browser._request_image_histograms(self)
+
+    @property
+    def channel(self):
+        """The channel being edited."""
+        return self.channels[max(0, min(self.tabs.currentIndex(), len(self.channels) - 1))]
+
+    def _override(self):
+        """This image's override as edited so far."""
+        return self._pending if self._pending is not None else self._browser._image_overrides.get(self.key)
+
+    def _load_values(self):
+        """Show the selected channel's settings without writing them back."""
+        override = self._override()
+        settings = _overview_channel_override(override, self.channel)
+        self._loading = True
+        try:
+            self.black.setValue(settings["black"])
+            self.white.setValue(settings["white"])
+            self.gamma.setValue(settings["gamma"])
+            self.brightness.setValue(round(settings["brightness"] * 100))
+            self.contrast.setValue(round(settings["contrast"] * 100))
+            self.visible.setChecked(bool(settings["visible"]))
+            self.saturation.setValue(round(float((override or {}).get("saturation", 1.)) * 100))
+            self.histogram.set_levels(settings["black"], settings["white"], settings["gamma"])
+            self.histogram.set_counts(self._histograms.get(self.channel))
+        finally:
+            self._loading = False
+
+    def _channel_changed(self, *_):
+        """Show the newly selected channel's settings and histogram."""
+        if not self._loading:
+            self._load_values()
+
+    def set_histograms(self, histograms):
+        """Keep the read histograms and draw the selected channel's.
+
+        :param histograms: ``{channel: counts}``, or the reason they are missing.
+        """
+        self._histograms = histograms if isinstance(histograms, dict) else {}
+        self.histogram.set_counts(self._histograms.get(self.channel))
+        self.histogram.setToolTip("" if isinstance(histograms, dict) else str(histograms))
+
+    def _scaled_edit(self, name, value):
+        """A percentage slider moved: edit its setting in display units."""
+        self._edited(name, value / 100.)
+
+    def _levels_dragged(self, black, white, gamma):
+        """A histogram handle moved: edit the three levels together."""
+        self._edit({"black": black, "white": white, "gamma": gamma})
+
+    def _edited(self, name, value):
+        """One control changed: edit that setting."""
+        self._edit({name: bool(value) if name == "visible" else float(value)})
+
+    def _edit(self, values):
+        """Write ``values`` into the selected channel, or every channel when linked, and show them.
+
+        :param values: ``{setting: value}``.
+        """
+        import copy
+
+        if self._loading:
+            return
+        override = copy.deepcopy(self._override() or {})
+        channels = override.setdefault("channels", {})
+        for channel in (self.channels if self.link.isChecked() else (self.channel,)):
+            settings = _overview_channel_override(override, channel)
+            settings.update(values)
+            if settings["white"] <= settings["black"]:
+                if "black" in values and "white" not in values:
+                    settings["black"] = max(0., settings["white"] - .01)
+                else:
+                    settings["white"] = min(1., settings["black"] + .01)
+            channels.pop(channel, None)
+            channels[str(channel)] = settings
+        self._pending = override
+        self._load_values()
+        self._push_timer.start()
+
+    def _saturation_edited(self, value):
+        """The saturation slider moved: edit the composite's saturation."""
+        import copy
+
+        if self._loading:
+            return
+        override = copy.deepcopy(self._override() or {})
+        override["saturation"] = value / 100.
+        self._pending = override
+        self._push_timer.start()
+
+    def _push(self):
+        """Hand the edited override to the browser, which redraws and saves it."""
+        self._push_timer.stop()
+        if self._pending is None:
+            return
+        pending, self._pending = self._pending, None
+        self._browser._set_image_override(self.key, pending)
+
+    def _reset(self):
+        """Return every channel of this image to the plate's display settings."""
+        self._push_timer.stop()
+        self._pending = None
+        self._browser._set_image_override(self.key, None)
+        self._load_values()
+
+    def _apply_to(self):
+        """Copy this image's settings to its well, its plate or every image."""
+        self._push()
+        channel = self.channel if self.apply_channels.currentData() == "selected" else None
+        self._browser._copy_image_override(self.field, self.scope.currentData(), channel)
+
+    def closeEvent(self, event):
+        """Save a last unsent change before closing."""
+        self._push()
+        super().closeEvent(event)
+
+
 class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
@@ -4822,6 +5363,7 @@ class _FieldOverview(QWidget):
         self._normalization_scopes = {"*": "image"}
         self._scope_cache = {}
         self._scope_generation = 0
+        self._image_settings = None
         self._view_state = _overview_empty_view_state()
         self._view_state_pending = None
         self._view_state_writing = False
@@ -5258,6 +5800,7 @@ class _FieldOverview(QWidget):
         self._module_action_fit_timer.start(0)
         self._module_actions.hide()
         self._build_pixel_readout(column)
+        self._build_image_settings()
 
     def _build_pixel_readout(self, column):
         """Add the fixed-height strip that shows raw pixel values under the cursor.
@@ -5278,6 +5821,19 @@ class _FieldOverview(QWidget):
         self._readout_timer.timeout.connect(self._update_pixel_readout)
         self._readout_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._track_readout(self.view.viewport(), self.view)
+
+    def _build_image_settings(self):
+        """Prepare the right-click image settings: the badge, the menu and the debounced save."""
+        self._levels_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._override_save_timer = QTimer(self)
+        self._override_save_timer.setSingleShot(True)
+        self._override_save_timer.setInterval(400)
+        self._override_save_timer.timeout.connect(self._persist_view_state)
+        self._image_adjusted_badge = self._adjusted_badge()
+        header = self._image_panel.header_layout
+        header.insertWidget(header.indexOf(self.resolution_slider), self._image_adjusted_badge)
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(functools.partial(self._image_menu, self.view))
 
     def _track_readout(self, viewport, owner):
         """Show the pixel readout while the cursor moves over ``owner``'s images.
@@ -5334,9 +5890,7 @@ class _FieldOverview(QWidget):
             pixmap = item.pixmap()
             ratio = pixmap.devicePixelRatio()
             return field, local.x() * ratio, local.y() * ratio, (pixmap.height(), pixmap.width())
-        point = position.toPoint()
-        item = next((owner.item(index) for index in range(owner.count())
-                     if owner.visualItemRect(owner.item(index)).contains(point)), None)
+        item = self._tile_at(owner, position.toPoint())
         rendered = item.data(Qt.UserRole + 3) if item is not None else None
         if not rendered or item.icon().isNull():
             return None
@@ -5431,6 +5985,141 @@ class _FieldOverview(QWidget):
         self._readout_planes = (key, planes)
         if self._readout_pending is not None:
             self._update_pixel_readout()
+
+    def _tile_at(self, fields, point):
+        """The well-view tile whose cell holds ``point``, or ``None``.
+
+        A tile's whole grid cell counts, not only the part Qt's own hit test
+        reaches, so the lower half of a tall thumbnail answers too.
+
+        :param fields: the well view.
+        :param point: a point in its viewport.
+        """
+        return next((fields.item(index) for index in range(fields.count())
+                     if fields.visualItemRect(fields.item(index)).contains(point)), None)
+
+    def _is_adjusted(self, field):
+        """Whether ``field`` has its own display settings."""
+        return _overview_image_key(field) in self._image_overrides
+
+    def _adjusted_badge(self):
+        """A small "Adjusted" badge for an image panel's header, hidden until needed."""
+        badge = QLabel(tr("Adjusted"))
+        badge.setObjectName("FieldOverviewAdjustedBadge")
+        badge.setToolTip(tr("This image has its own display settings; right-click it to change or reset them."))
+        badge.hide()
+        return badge
+
+    def _refresh_adjusted_badges(self):
+        """Show the badge on every open image with its own settings and repaint the well views."""
+        main = self._main_view_field
+        self._image_adjusted_badge.setVisible(
+            bool(self._individual and main is not None and self._is_adjusted(main)))
+        for panel in self._image_views:
+            panel.adjusted_badge.setVisible(self._is_adjusted(panel.field))
+        for fields in self._field_lists():
+            fields.viewport().update()
+
+    def _set_image_override(self, key, override):
+        """Replace one image's display override, redraw every view and save it soon.
+
+        :param key: the image key.
+        :param override: the new override, or ``None`` to reset the image.
+        """
+        overrides = dict(self._image_overrides)
+        cleaned = _overview_clean_override(override)
+        if cleaned is None:
+            overrides.pop(key, None)
+        else:
+            overrides[key] = cleaned
+        if overrides == self._image_overrides:
+            return
+        self._set_display_layers(image_overrides=overrides)
+        self._refresh_adjusted_badges()
+        self._override_save_timer.start()
+
+    def _copy_image_override(self, field, scope, channel=None):
+        """Copy ``field``'s settings to the other images of its well, its plate or every image.
+
+        :param field: the image copied from.
+        :param scope: ``'well'``, ``'plate'`` or ``'all'``.
+        :param channel: copy only this channel, or ``None`` for every channel.
+        """
+        key = _overview_image_key(field)
+        targets = _overview_override_targets(self._fields, field, scope)
+        overrides = _overview_copied_overrides(self._image_overrides, key, targets, channel)
+        if overrides != self._image_overrides:
+            self._set_display_layers(image_overrides=overrides)
+            self._refresh_adjusted_badges()
+            self._override_save_timer.start()
+        self.status.setText(tr("Display settings copied to {count} images.", count=max(0, len(targets) - 1)))
+
+    def _open_image_settings(self, field):
+        """Open the image settings panel on ``field``, reusing an open panel.
+
+        :param field: the image to edit.
+        """
+        from shiboken6 import isValid
+
+        try:
+            channels = self._choices()[0]
+        except (ValueError, TypeError) as error:
+            self.status.setText(str(error))
+            return
+        panel = self._image_settings
+        if panel is None or not isValid(panel):
+            panel = self._image_settings = _OverviewImageSettings(self, field, channels)
+        else:
+            panel.show_field(field, channels)
+        panel.show()
+        panel.raise_()
+        panel.activateWindow()
+
+    def _request_image_histograms(self, panel):
+        """Read the panel image's display histograms off the GUI thread.
+
+        :param panel: the image settings panel.
+        """
+        try:
+            limits = self._choices()[1]
+        except (ValueError, TypeError):
+            limits = None
+        options = dict(self._display_kwargs(view=True))
+        options.pop("image_overrides", None)
+        self._levels_jobs.submit(
+            functools.partial(_overview_display_histograms, panel.field, panel.channels, limits, options),
+            functools.partial(self._image_histograms_read, panel.key))
+
+    def _image_histograms_read(self, key, histograms):
+        """Give read histograms to the panel if it still shows that image.
+
+        :param key: the image key they were read for.
+        :param histograms: ``{channel: counts}``, or the reason they are missing.
+        """
+        from shiboken6 import isValid
+
+        panel = self._image_settings
+        if panel is not None and isValid(panel) and panel.key == key:
+            panel.set_histograms(histograms)
+
+    def _image_menu(self, view, position):
+        """Offer the image's own settings on a right click in an image view.
+
+        :param view: the enlarged image or a stacked image's view.
+        :param position: the click in the view's viewport.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        field = self._field_shown_in(view)
+        if field is None or (view is self.view and not self._individual):
+            return
+        menu = QMenu(view)
+        menu.addAction(tr("Image settings…")).triggered.connect(
+            functools.partial(self._open_image_settings, field))
+        reset = menu.addAction(tr("Reset image settings"))
+        reset.setEnabled(self._is_adjusted(field))
+        reset.triggered.connect(functools.partial(self._set_image_override, _overview_image_key(field), None))
+        menu.popup(view.viewport().mapToGlobal(position))
 
     def _fit_module_actions(self):
         """Refresh native action minima after coalesced font and style changes."""
@@ -5555,6 +6244,7 @@ class _FieldOverview(QWidget):
             lambda current, previous, owner=fields: self._current_field_in(owner, current, previous))
         fields._overview_well, fields._overview_page = None, 0
         self._track_readout(fields.viewport(), fields)
+        fields.setItemDelegate(_OverviewTileDelegate(self, fields))
         fields._overview_metadata = False
         fields._overview_original = False
         fields.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -5575,6 +6265,15 @@ class _FieldOverview(QWidget):
         action = menu.addAction(tr("Open selected images"))
         action.setEnabled(bool(self._selected_fields))
         action.triggered.connect(self._open_selected_images)
+        item = self._tile_at(fields, position)
+        if item is not None:
+            field = item.data(Qt.UserRole)
+            menu.addSeparator()
+            menu.addAction(tr("Image settings…")).triggered.connect(
+                functools.partial(self._open_image_settings, field))
+            reset = menu.addAction(tr("Reset image settings"))
+            reset.setEnabled(self._is_adjusted(field))
+            reset.triggered.connect(functools.partial(self._set_image_override, _overview_image_key(field), None))
         menu.popup(fields.viewport().mapToGlobal(position))
 
     def _apply_tile_geometry(self, fields):
@@ -6345,6 +7044,11 @@ class _FieldOverview(QWidget):
         panel.body_layout.addWidget(panel.view)
         panel.view.detail_requested.connect(lambda owner=panel.view: self._sync_image_views(owner))
         self._track_readout(panel.view.viewport(), panel.view)
+        panel.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        panel.view.customContextMenuRequested.connect(functools.partial(self._image_menu, panel.view))
+        panel.adjusted_badge = self._adjusted_badge()
+        panel.adjusted_badge.setVisible(self._is_adjusted(field))
+        panel.header_layout.addWidget(panel.adjusted_badge)
         for bar in (panel.view.horizontalScrollBar(), panel.view.verticalScrollBar()):
             bar.valueChanged.connect(lambda _value, owner=panel.view: self._sync_image_views(owner))
         panel.metadata_label = QLabel(panel.view.viewport())
@@ -8817,6 +9521,7 @@ class _FieldOverview(QWidget):
             self._original_image = True
         self._individual = True
         self._main_view_field = field
+        self._refresh_adjusted_badges()
         self._update_image_metadata(field)
         self._comparison_signature = None
         self._displayed_montage = None
@@ -9456,8 +10161,14 @@ class _FieldOverview(QWidget):
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
                        self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs,
                        self._metadata_jobs, self._measurement_jobs, self._native_jobs,
-                       self._image_stack_jobs, self._group_jobs, self._readout_jobs):
+                       self._image_stack_jobs, self._group_jobs, self._readout_jobs, self._levels_jobs):
             runner.shutdown(timeout_ms=0)
+        if self._image_settings is not None:
+            from shiboken6 import isValid
+
+            if isValid(self._image_settings):
+                self._image_settings.close()
+            self._image_settings = None
         self._clear_pixel_readout()
 
 
