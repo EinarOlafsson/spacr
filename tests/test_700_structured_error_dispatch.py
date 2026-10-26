@@ -1356,3 +1356,163 @@ def test_partial_error_flush_restores_provenance_before_original_flush_even_if_c
     assert stream.flush() == "original flush result"
     assert sink.getvalue() == "ERROR buffered user failure"
     assert flushed == [True]
+
+
+_MAIN = '0x%016x' % threading.main_thread().ident
+
+
+def _two_thread_fault(main=_MAIN):
+    return ('Fatal Python error: Segmentation fault\n\n'
+            'Thread 0x00007f0000000001 (most recent call first):\n'
+            '  File "/home/privateperson/env/spacr/qt/widgets/ambient.py", line 7259 in _pointer_field\n'
+            '  File "/home/privateperson/env/threading.py", line 1012 in run\n\n'
+            'Current thread ' + main + ' (most recent call first):\n'
+            '  File "/home/privateperson/env/spacr/qt/app.py", line 9023 in launch\n\n'
+            'Extension modules: numpy (total: 1)\n')
+
+
+def _session_log(tmp_path, monkeypatch):
+    import faulthandler
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', None)
+    monkeypatch.setattr(cr, '_NATIVE_EXCEPTION_HOOK', object())
+    monkeypatch.setattr(faulthandler, 'enable', lambda **kwargs: None)
+    monkeypatch.setattr(cr, '_spacr_version', lambda: '1.5.1.6')
+    path = tmp_path / 'fatal.log'
+    assert cr._install_native_error_capture(path) == str(path)
+    return path
+
+
+@pytest.mark.parametrize('capabilities', [[], ['native_session_v1']])
+def test_native_report_carries_platform_qt_screens_and_the_crashing_thread_161_164(
+        configured, tmp_path, monkeypatch, capabilities):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': capabilities})]
+    path = _session_log(tmp_path, monkeypatch)
+    assert cr._note_native_context(qt='6.11.2', qt_platform='xcb', accessibility=False, gpu='nvidia')
+    for screen in ('Home', 'Generate Masks', 'Overview'):
+        assert cr._note_native_context(screen=screen)
+    cr._NATIVE_CAPTURE_HANDLE.write(_two_thread_fault())
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    note = body['user_note']
+    assert body.get('screen') == 'Overview', body
+    assert 'Screens before the crash: Home > Generate Masks > Overview.' in note
+    assert 'OS: ' + cr._os_family() in note
+    assert 'Qt v6.11.2 (xcb)' in note and 'Accessibility: off.' in note and 'GPU: nvidia.' in note
+    assert 'Crashed build: spaCR v1.5.1.6' in note
+    assert "Crashing thread's innermost Python frame: app launch line 9023." in note
+    assert body['native_session']['spacr_version'] == '1.5.1.6' if capabilities else 'Crashed session:' in note
+    assert [frame['function'] for frame in body['frames']] == ['launch', '_pointer_field', 'run']
+    if not capabilities:
+        assert 'not the crashed build' in note
+    dumped = json.dumps(body)
+    assert 'privateperson' not in dumped and str(tmp_path) not in dumped and '/home/' not in dumped
+    assert '0x00007f' not in dumped
+
+
+def test_native_report_says_when_the_crashing_thread_had_no_python_frame(configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = _session_log(tmp_path, monkeypatch)
+    cr._NATIVE_CAPTURE_HANDLE.write('Fatal Python error: Segmentation fault\n\n'
+                                    'Current thread ' + _MAIN + ' (most recent call first):\n'
+                                    '  <no Python frame>\n')
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    assert 'Crashing thread had no Python frame (native code only).' in relay.calls_to('/report')[0]['body']['user_note']
+
+
+def test_native_context_of_a_following_session_is_never_borrowed(configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = _session_log(tmp_path, monkeypatch)
+    cr._note_native_context(screen='Overview')
+    cr._NATIVE_CAPTURE_HANDLE.write(_two_thread_fault() + '\n=== spaCR session {"known":false} ===\n'
+                                    '=== spaCR context {"_thread":"' + _MAIN + '","screen":"Measure"} ===\n')
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body['screen'] == 'Overview' and 'Measure' not in body['user_note']
+
+
+def test_native_context_drops_paths_addresses_identities_and_unknown_keys(monkeypatch):
+    from spacr.qt.ai import issue_report
+
+    monkeypatch.setattr(issue_report, '_identity_words',
+                        lambda: [('privateperson', '<USER>'), ('privatehost', '<HOST>')])
+    kept = cr._native_context_values({
+        'screen': '/home/privateperson/plate', 'os_release': 'privatehost 6.8', 'machine': 'x86_64',
+        'gpu': '192.168.1.20', 'qt': 'C:\\Users\\privateperson', 'qt_platform': 'me@example.org',
+        'pyside6': 'https://example.org/x', 'hostname': 'privatehost', 'accessibility': True,
+        'os': 'linux' * 10})
+    assert kept == {'machine': 'x86_64', 'accessibility': 'on'}
+    assert cr._native_context_values({'screen': 'Privateperson'}) == {}
+    assert cr._native_context_values(['screen']) == {}
+
+
+def test_native_context_lines_edited_on_disk_are_validated_when_read(configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = _session_log(tmp_path, monkeypatch)
+    cr._NATIVE_CAPTURE_HANDLE.write('=== spaCR context {"_thread":"' + _MAIN + '","_session":"'
+                                    + cr._NATIVE_SESSION_ID + '","screen":"/home/someone/secret",'
+                                    '"hostname":"box","qt":"6.11.2"} ===\n' + _two_thread_fault())
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    dumped = json.dumps(body)
+    assert 'someone' not in dumped and 'secret' not in dumped and 'box' not in dumped
+    assert 'Qt v6.11.2' in body['user_note'] and 'screen' not in body
+
+
+def test_native_context_is_not_written_without_an_open_crash_log(monkeypatch):
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', None)
+    assert cr._note_native_context(screen='Overview') is False
+
+
+def test_native_context_of_another_process_sharing_the_log_is_never_used(configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    path = _session_log(tmp_path, monkeypatch)
+    own = cr._NATIVE_SESSION_ID
+    cr._note_native_context(screen='Overview')
+    other = {'known': True, 'id': '6ae2c2af-3e47-4bf8-9a19-f346ba655d34', 'started_at': '2026-10-23T18:00:00Z',
+             'spacr_version': '1.2.3', 'python': '3.14.0', 'qt': '6.11.2', 'source_sha256': {}}
+    cr._NATIVE_CAPTURE_HANDLE.write('=== spaCR session ' + json.dumps(other) + ' ===\n'
+                                    '=== spaCR context {"_session":"' + other['id']
+                                    + '","_thread":"0x00007f00000000aa","screen":"Measure"} ===\n')
+    cr._NATIVE_CAPTURE_HANDLE.write(_two_thread_fault())
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body['screen'] == 'Overview' and 'Measure' not in body['user_note']
+    assert body['native_session']['id'] == own and body['native_session']['spacr_version'] == '1.5.1.6'
+
+
+def test_a_real_segmentation_fault_reports_its_own_screen_and_crashing_frame(configured, tmp_path):
+    import subprocess
+    import sys
+
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = tmp_path / 'fatal.log'
+    script = tmp_path / 'crash_probe.py'
+    script.write_text('import faulthandler, sys\n'
+                      'from spacr import crashreport as cr\n'
+                      'cr._install_native_error_capture(sys.argv[1])\n'
+                      'cr._note_native_context(screen="Overview", qt="6.11.2", qt_platform="offscreen")\n'
+                      'faulthandler._sigsegv()\n')
+    import os
+
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(
+        filter(None, (str(cr.Path(cr.__file__).resolve().parents[1]), os.environ.get('PYTHONPATH')))))
+    result = subprocess.run([sys.executable, str(script), str(path)], capture_output=True, timeout=120, env=env)
+    assert result.returncode != 0
+    assert 'Fatal Python error: Segmentation fault' in path.read_text()
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body.get('screen') == 'Overview', body
+    assert "Crashing thread's innermost Python frame: crash_probe <module> line 5." in body['user_note']
+    assert 'Qt v6.11.2 (offscreen)' in body['user_note']
+    assert str(tmp_path) not in json.dumps(body)

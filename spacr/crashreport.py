@@ -3790,6 +3790,195 @@ def _capture_error_line(text, *, origin="terminal"):
             _dispatch_error(line, origin=origin)
 
 
+_NATIVE_CONTEXT_KEYS = {
+    "os": 12, "os_release": 40, "machine": 16, "pyside6": 24, "qt": 24,
+    "qt_platform": 24, "accessibility": 4, "gpu": 16, "screen": MAX_SCREEN_CHARS,
+}
+
+_MAX_NATIVE_SCREENS = 4
+
+_NATIVE_CONTEXT_VALUE_RE = re.compile(r"[^A-Za-z0-9 ._+()-]")
+_NATIVE_IPV4_RE = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}")
+_NATIVE_CONTEXT_LINE_RE = re.compile(r"^=== spaCR context (\{[^\n]*\}) ===$", re.M)
+_NATIVE_THREAD_RE = re.compile(r"^(Current thread|Thread) [^\n]*\(most recent call first\):[^\n]*\n"
+                               r"((?:[ \t]+File [^\n]*\n?)*)", re.M)
+_NATIVE_FRAME_RE = re.compile(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)')
+_NATIVE_THREAD_ID_RE = re.compile(r"^(?:Current thread|Thread) (0x[0-9a-fA-F]+)", re.M)
+_NATIVE_SESSION_ID = ""
+
+
+def _native_context_values(fields):
+    """Keep only the allowlisted context keys, each a short name-like token.
+
+    :data:`_NATIVE_CONTEXT_KEYS` names the facts a crash log's context lines
+    may record and the longest value of each (GitHub #161, #164).
+
+    :param fields: candidate ``{key: value}``; a bool becomes ``on``/``off``.
+    :returns: the public values. A value is dropped, never cut or
+        cleaned, when it is empty or too long, holds any character beyond
+        letters, digits, spaces and ``._+()-`` (so no path, e-mail or URL),
+        looks like an IPv4 address, or names this computer's user or host.
+    """
+    out = {}
+    for key, limit in _NATIVE_CONTEXT_KEYS.items():
+        if not isinstance(fields, Mapping) or key not in fields:
+            continue
+        value = fields[key]
+        if isinstance(value, bool):
+            value = "on" if value else "off"
+        if not isinstance(value, (str, int, float)):
+            continue
+        value = " ".join(str(value).split())
+        if (not value or len(value) > limit or _NATIVE_CONTEXT_VALUE_RE.search(value)
+                or not value[0].isalnum() or _NATIVE_IPV4_RE.search(value)
+                or _identity_scrub(value) != value):
+            continue
+        out[key] = value
+    return out
+
+
+def _note_native_context(**fields):
+    """Record public facts about this session in the native crash log.
+
+    A native crash leaves only faulthandler's Python frames, which say
+    nothing about the platform, the Qt build or what was on screen. These
+    lines let the next start's report say so. They stay in the local crash
+    log and leave only inside a consented report. Never raises.
+
+    Several spaCR processes may append to one crash log, so each line also
+    carries this process's main-thread id and random session id, both kept
+    local: a fault is matched to the lines whose thread id faulthandler
+    lists in that fault's own dump, never to its neighbours in the file.
+
+    :param fields: any of :data:`_NATIVE_CONTEXT_KEYS`, such as
+        ``screen="Overview"``, ``qt="6.11.2"`` or ``accessibility=True``.
+    :returns: whether a line was written.
+    """
+    handle = _NATIVE_CAPTURE_HANDLE
+    values = _native_context_values(fields)
+    if handle is None or not values:
+        return False
+    line = dict(values, _thread=hex(threading.main_thread().ident or 0), _session=_NATIVE_SESSION_ID)
+    try:
+        handle.write("=== spaCR context " + json.dumps(line, separators=(",", ":"), sort_keys=True) + " ===\n")
+    except (OSError, ValueError, AttributeError):
+        return False
+    return True
+
+
+def _native_platform_context():
+    """The operating system, its release, the machine and the installed PySide6."""
+    release = platform.mac_ver()[0] if sys.platform == "darwin" else platform.release()
+    facts = {"os": _os_family(), "os_release": release, "machine": platform.machine(),
+             "pyside6": _distribution_version("PySide6")}
+    qtcore = sys.modules.get("PySide6.QtCore")
+    if qtcore is not None:
+        try:
+            facts["qt"] = qtcore.qVersion()
+        except Exception:
+            pass
+    return facts
+
+
+def _native_contexts(before, observed):
+    """The context lines written by the process that faulted.
+
+    :param before: the crash log up to the fault.
+    :param observed: the fault's own thread dump.
+    :returns: ``(contexts, session id)``: the public values of each line,
+        oldest first, from the newest session whose main-thread id the dump
+        lists, and that session's id, or ``([], "")``.
+    """
+    threads = {int(ident, 16) for ident in _NATIVE_THREAD_ID_RE.findall(observed)}
+    threads.discard(0)
+    lines = []
+    for match in _NATIVE_CONTEXT_LINE_RE.finditer(before):
+        try:
+            line = json.loads(match.group(1))
+            ident = int(str(line.get("_thread", "")), 16)
+        except (ValueError, TypeError, AttributeError):
+            continue
+        if ident in threads:
+            lines.append(line)
+    if not lines:
+        return [], ""
+    owner = str(lines[-1].get("_session", ""))
+    contexts = [_native_context_values(line) for line in lines if str(line.get("_session", "")) == owner]
+    return [values for values in contexts if values], owner if re.fullmatch(r"[0-9a-f-]{36}", owner) else ""
+
+
+def _native_session_by_id(before, owner):
+    """The startup header whose random session id is ``owner``, or unknown."""
+    for match in re.finditer(r"^=== spaCR session (\{.*\}) ===$", before, re.M):
+        try:
+            header = json.loads(match.group(1))
+        except (ValueError, TypeError):
+            continue
+        if isinstance(header, dict) and header.get("id") == owner:
+            return header
+    return {"known": False}
+
+
+def _native_threads(observed):
+    """Split faulthandler's dump into threads, the crashing thread first.
+
+    :param observed: the text after the ``Fatal Python error`` line.
+    :returns: ``[(crashed, frames)]``, ``frames`` as ``(file, line, function)``
+        most recent first.
+    """
+    threads = [(match.group(1) == "Current thread", _NATIVE_FRAME_RE.findall(match.group(2)))
+               for match in _NATIVE_THREAD_RE.finditer(observed)]
+    if not threads:
+        return [(False, _NATIVE_FRAME_RE.findall(observed))]
+    return sorted(threads, key=lambda thread: not thread[0])
+
+
+def _native_crash_note(session, contexts, threads):
+    """Describe the crashed session for the report's note, in public words only.
+
+    :param session: the validated crashed-session header.
+    :param contexts: the session's context lines, oldest first; the last
+        :data:`_MAX_NATIVE_SCREENS` screens shown are named.
+    :param threads: :func:`_native_threads`' answer.
+    :returns: ``(note, last screen)``.
+    """
+    merged, screens = {}, []
+    for values in contexts:
+        merged.update(values)
+        screen = values.get("screen")
+        if screen and (not screens or screens[-1] != screen):
+            screens.append(screen)
+    parts = []
+    if session.get("known"):
+        parts.append("Crashed build: spaCR v" + session["spacr_version"] + ", Python v" + session["python"] + ".")
+    system = " ".join(merged[key] for key in ("os", "os_release", "machine") if merged.get(key))
+    if system:
+        parts.append("OS: " + system + ".")
+    qt = []
+    if merged.get("pyside6"):
+        qt.append("PySide6 v" + merged["pyside6"])
+    if merged.get("qt"):
+        qt.append("Qt v" + merged["qt"] + (" (" + merged["qt_platform"] + ")" if merged.get("qt_platform") else ""))
+    if qt:
+        parts.append(", ".join(qt) + ".")
+    for key, label in (("accessibility", "Accessibility"), ("gpu", "GPU")):
+        if merged.get(key):
+            parts.append(label + ": " + merged[key] + ".")
+    if screens:
+        parts.append("Screens before the crash: " + " > ".join(screens[-_MAX_NATIVE_SCREENS:]) + ".")
+    crashed = [frames for is_current, frames in threads if is_current]
+    if crashed:
+        if crashed[0]:
+            file, line, function = crashed[0][0]
+            parts.append("Crashing thread's innermost Python frame: " + _safe_token(Path(file).stem, 60)
+                         + " " + _safe_token(function, 60) + " line " + line + ".")
+        else:
+            parts.append("Crashing thread had no Python frame (native code only).")
+    elif not contexts and not session.get("known"):
+        parts.append("No crashed-session context was recorded.")
+    return " ".join(parts), (screens[-1] if screens else "")
+
+
 def _consume_native_crash(path):
     """Consume only a new bounded fatal section after startup, never in a signal."""
     try:
@@ -3830,11 +4019,20 @@ def _consume_native_crash(path):
                         session = json.loads(match.group(1))
                     except (ValueError, TypeError):
                         pass
+            observed = raw[fatal.end():].split("\n\n", 1)[-1].split("\n=== spaCR ", 1)[0]
+            threads = _native_threads(observed)
+            contexts, owner = _native_contexts(raw[:fatal.start()], observed)
+            if not session.get("known") and owner:
+                session = _native_session_by_id(raw[:fatal.start()], owner)
             summary["native_session"] = _validated_summary({"native_session": session})["native_session"]
-            observed = raw[fatal.end():].split("\n\n", 1)[-1]
-            frames = re.findall(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)', observed)
+            frames = [frame for _, thread_frames in threads for frame in thread_frames]
             summary["frames"] = [_frame(file, function, line)
                                  for file, line, function in frames[:MAX_FRAMES]]
+            note, screen = _native_crash_note(summary["native_session"], contexts, threads)
+            if note:
+                summary["user_note"] = scrub_public_text(note, MAX_NOTE_CHARS)
+            if screen:
+                summary["screen"] = screen
             record = f"{path.stat().st_ino}:{offset}:{size}"
             event_id = _new_error_occurrence(event_key=record)
             return _dispatch_error(message, summary=summary, event_id=event_id)
@@ -3849,7 +4047,7 @@ _NATIVE_EXCEPTION_HOOK = None
 
 def _install_native_error_capture(path=None):
     """Prepare faulthandler output; consume old records only in normal startup."""
-    global _NATIVE_CAPTURE_HANDLE, _NATIVE_EXCEPTION_HOOK
+    global _NATIVE_CAPTURE_HANDLE, _NATIVE_EXCEPTION_HOOK, _NATIVE_SESSION_ID
     import faulthandler
     try:
         if path is None:
@@ -3919,6 +4117,8 @@ def _install_native_error_capture(path=None):
         handle.write("\n=== spaCR session " + json.dumps(session, separators=(",", ":")) + " ===\n")
         faulthandler.enable(file=handle, all_threads=True)
         _NATIVE_CAPTURE_HANDLE = handle
+        _NATIVE_SESSION_ID = session["id"]
+        _note_native_context(**_native_platform_context())
         if _NATIVE_EXCEPTION_HOOK is None:
             _NATIVE_EXCEPTION_HOOK = install_excepthook()
         return str(path)

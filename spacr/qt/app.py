@@ -3544,6 +3544,7 @@ class MainWindow(QMainWindow):
         self._stack = QStackedWidget()
         self._stack.currentChanged.connect(
             lambda _index: self._refresh_edit_actions())
+        self._stack.currentChanged.connect(lambda _index: _note_native_screen(self))
         central = QWidget()
         central.setObjectName("CentralRow")
         row = QHBoxLayout(central)
@@ -8802,6 +8803,26 @@ def _load_bundled_fonts() -> None:
 
 
 #: Where a fatal signal's stacks are written, beside the ordinary log.
+def _note_native_screen(window) -> None:
+    """Record the shown screen's English title for a native crash report.
+
+    A segmentation fault leaves no record of what was on screen; the next
+    start's report names the last screens shown (GitHub #161, #164).
+
+    :param window: the main window whose stack changed page.
+    """
+    from ..crashreport import _note_native_context
+
+    current = window._stack.currentWidget()
+    title = "Home" if current is not None and current is getattr(window, "_startup", None) else ""
+    for key, widget in getattr(window, "_screens", {}).items():
+        if widget is current:
+            title = next((str(entry[1]) for entry in APPS if entry[0] == key), str(key))
+            break
+    if title:
+        _note_native_context(screen=title)
+
+
 CRASH_DUMP_NAME = "spacr-crash.log"
 
 
@@ -9275,6 +9296,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication([_app_name] if sys.platform == "darwin" else sys.argv[:1])
+    try:
+        from PySide6.QtCore import qVersion
+        from PySide6.QtGui import QAccessible
+        from ..crashreport import _gpu_class, _note_native_context
+        _note_native_context(qt=qVersion(), qt_platform=app.platformName(),
+                            accessibility=QAccessible.isActive(), gpu=_gpu_class())
+    except Exception:
+        LOG.debug("could not record the native crash context", exc_info=True)
     try:
         from .gui_scale import apply_saved_gui_scale
         apply_saved_gui_scale()
