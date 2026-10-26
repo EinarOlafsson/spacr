@@ -116,3 +116,59 @@ def test_the_picker_title_is_still_translated(qapp, dialog_filter, monkeypatch):
     finally:
         picker.close()
         shiboken6.delete(picker)
+
+
+def _save_gates_picker_that(closes_first, opened, monkeypatch):
+    """Stand in for ``QFileDialog.getSaveFileName`` with a real picker.
+
+    The picker is shown, so the dialog filter schedules its deferred pass,
+    and is either destroyed before that pass can run or left open for it.
+    """
+    def ask(parent, caption, directory, filters):
+        picker = QFileDialog(parent, caption, directory, filters)
+        picker.setOption(QFileDialog.DontUseNativeDialog, True)
+        picker.show()
+        opened.append(picker)
+        if closes_first:
+            picker.close()
+            shiboken6.delete(picker)
+        else:
+            for _ in range(5):
+                QApplication.processEvents()
+            picker.reject()
+        return "", ""
+
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", staticmethod(ask))
+
+
+@pytest.mark.parametrize("closes_first", [True, False],
+                         ids=["closed_before_the_pass", "open_for_the_pass"])
+def test_the_save_gates_picker_survives_the_deferred_language_pass(
+        qtbot, dialog_filter, named, monkeypatch, closes_first):
+    """Lesson 64 on the WS capture host: Save gates, then the deferred pass.
+
+    The dialog filter schedules ``_translate_shown_dialog`` on the picker's
+    ``Show`` through ``_after``. A picker destroyed first takes the pending
+    call with it, and one still open for it is walked as itself alone.
+    """
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+
+    screen = GateEditorScreen(threaded=False)
+    qtbot.addWidget(screen)
+    screen.show()
+    opened, walked = [], []
+    real = i18n._translate_shown_dialog
+    monkeypatch.setattr(i18n, "_translate_shown_dialog",
+                        lambda dialog: (walked.append(dialog), real(dialog))[1])
+    _save_gates_picker_that(closes_first, opened, monkeypatch)
+    named.clear()
+    screen.choose_save_gates()
+    for _ in range(10):
+        QApplication.processEvents()
+    assert opened, "the picker was never asked for"
+    if closes_first:
+        assert walked == [], "the pass ran on a picker that was gone"
+    else:
+        assert any(dialog is opened[0] for dialog in walked)
+        assert all(len(widgets) <= 1 for widgets in named), (
+            "the pass wrapped widgets Qt built inside the picker")

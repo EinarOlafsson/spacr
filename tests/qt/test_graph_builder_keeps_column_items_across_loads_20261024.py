@@ -59,3 +59,31 @@ def test_settled_loads_in_a_row_keep_the_well_consistent(qtbot):
         assert _listed(well) == list(frame.columns)
         first = well._list.item(0) if first is None else first
         assert well._list.item(0) is first
+
+
+def test_a_column_dragged_before_the_merged_table_settles_survives_it(qtbot):
+    """Lesson 58 on the WS capture host: a drag, then the merged table's load.
+
+    The tour drags a column out of the well and the merged table's load
+    settles straight after, through ``JobRunner._on_settled`` and
+    ``_on_frame_loaded``. Every item the drag read, and every item the view
+    painted, is still a live item afterwards, whatever the new table's width.
+    """
+    screen = screens.GraphBuilderScreen(threaded=False)
+    qtbot.addWidget(screen)
+    screen.show()
+    well = screen.builder.well
+    screen._on_frame_loaded(screens._Loaded(names=[], chosen=None, frame=_frame(8), problem=None))
+    QApplication.processEvents()
+    held = []
+    for step, width in enumerate((3, 9, 1, 6, 0, 5)):
+        item = well._list.item(well._list.count() - 1)
+        well._list.setCurrentItem(item)
+        mime = well._list.mimeData([item])
+        held.extend([item, mime])
+        frame = _frame(width, step) if width else None
+        screen._on_frame_loaded(screens._Loaded(names=[], chosen=None, frame=frame, problem=None))
+        well._list.viewport().repaint()
+        QApplication.processEvents()
+        assert _listed(well) == list(well.columns())
+        assert all(isValid(obj) for obj in held)
