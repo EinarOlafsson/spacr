@@ -673,12 +673,19 @@ def _prefetch_themed_arrays(paths, theme: Optional[str] = None) -> int:
     then waits only for an icon not finished yet. The pixels are the same:
     the workers run :func:`_themed_array`, which fills the same caches.
 
+    Safe mode starts no background thread, so there nothing is started and
+    the icons are re-inked on the GUI thread as they are asked for.
+
     :param paths: raster artwork paths; SVGs and ``None`` are skipped, since
         SVGs are drawn with Qt's painter on the GUI thread.
     :param theme: the theme, resolved here on the calling thread when omitted.
     :returns: how many icons were started.
     """
     global _PREFETCH_POOL
+    from .preferences import in_safe_mode
+
+    if in_safe_mode():
+        return 0
     theme = theme or active_theme()
     started = 0
     with _PREFETCH_LOCK:

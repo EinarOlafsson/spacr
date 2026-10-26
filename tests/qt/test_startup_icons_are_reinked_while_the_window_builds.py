@@ -57,3 +57,15 @@ def test_the_main_window_starts_the_startup_icons_first(cold_icons, qtbot, monke
     window = app_module.MainWindow()
     qtbot.addWidget(window)
     assert started == [paths]
+
+
+def test_safe_mode_starts_no_icon_worker(cold_icons, monkeypatch):
+    from spacr.qt import preferences
+
+    iconset = cold_icons
+    monkeypatch.setattr(preferences, "_SAFE_MODE", True)
+    monkeypatch.setattr(iconset, "_PREFETCH_POOL", None)
+    paths = list(iconset.bundled_icon_paths()[:3])
+    assert iconset._prefetch_themed_arrays(paths, "dark") == 0
+    assert iconset._PREFETCH_POOL is None and iconset._PREFETCHED == {}
+    assert iconset.themed_array(paths[0], "dark") is not None
