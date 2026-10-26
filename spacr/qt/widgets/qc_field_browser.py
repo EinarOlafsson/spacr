@@ -11508,7 +11508,32 @@ def _overview_regex_qss(palette):
             f"border: 1px solid {palette['border']}; border-radius: {RADIUS['sm']}px; }}\n"
             f"QLineEdit#OverviewWizardRegex:focus {{ border: 1px solid {palette['accent']}; }}\n"
             f"QLineEdit#OverviewWizardRegex:disabled {{ background-color: {palette['surface']}; "
-            f"border-color: {palette['border_soft']}; }}")
+            f"border-color: {palette['border_soft']}; }}\n"
+            + _overview_plate_preview_qss(palette))
+
+
+def _overview_plate_preview_qss(palette):
+    """The metadata step's per-plate preview sections, each with its own coloured edge.
+
+    :param palette: the active palette.
+    :returns: QSS for the plate sections, their titles and errors, and the
+        name of the plate being edited.
+    """
+    from ..theme import RADIUS
+
+    rules = [f"QFrame#OverviewWizardPlatePreview {{ background-color: {palette['surface_alt']}; "
+             f"border: 1px solid {palette['border']}; border-left: 5px solid {palette['accent']}; "
+             f"border-radius: {RADIUS['sm']}px; }}",
+             f"QFrame#OverviewWizardPlatePreview[editing=\"true\"] {{ border-top-color: {palette['accent']}; "
+             f"border-right-color: {palette['accent']}; border-bottom-color: {palette['accent']}; }}",
+             f"QLabel#OverviewWizardPlatePreviewTitle {{ color: {palette['fg']}; font-weight: 600; }}",
+             f"QLabel#OverviewWizardPlatePreviewRegex {{ color: {palette['fg_muted']}; }}",
+             f"QLabel#OverviewWizardPlatePreviewError {{ color: {palette['error']}; font-weight: 600; }}",
+             f"QLabel#OverviewWizardEditingPlate {{ color: {palette['accent']}; font-weight: 600; }}"]
+    for index, key in enumerate(_OVERVIEW_PLATE_TONES):
+        tone = palette.get(key) or palette["accent"]
+        rules.append(f"QFrame#OverviewWizardPlatePreview[plateTone=\"{index}\"] {{ border-left-color: {tone}; }}")
+    return "\n".join(rules)
 
 
 class _OverviewWorkspace(QWidget):
@@ -13367,6 +13392,8 @@ def _open_overview_module(owner, settings=None):
 
 _OVERVIEW_SETTINGS_WIDTH = 520
 
+_OVERVIEW_PLATE_TONES = ("accent", "chip_class", "success", "fg_muted")
+
 
 def _overview_choose_object_masks(edit, page):
     """Pick a folder of Mask generation object masks for the Overview's object measurements.
@@ -13904,29 +13931,44 @@ class _OverviewMetadataWizard(QWidget):
         self._plate_names = dict(self._settings.get("plate_names") or {})
         self._plate_regex = {str(key): str(value) for key, value in
                              dict(self._settings.get("plate_regex") or {}).items() if value}
+        self._plate_regex_errors = {}
+        self._edited_plate = ""
+        self._default_regex = str(self._settings.get("custom_regex") or "")
         self._detected_plates = []
-        self.plate_table = QTableWidget(0, 5)
+        self._plate_sections = []
+        self.plate_table = QTableWidget(0, 6)
         self.plate_table.setObjectName("OverviewWizardPlates")
         install_sorting(self.plate_table)
         self.plate_table.setHorizontalHeaderLabels([tr("Plate"), tr("Images"), tr("Folder"), tr("Use subfolders"),
-                                                    tr("Filename regex")])
+                                                    tr("Filename regex"), tr("Settings")])
         self.plate_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.plate_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
         self.plate_table.setTextElideMode(Qt.ElideMiddle)
+        self.plate_table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Fixed)
+        self.plate_table.horizontalHeader().moveSection(5, 1)
         self.plate_table.setMinimumHeight(110)
         self.plate_table.setToolTip(tr(
             "The plates found in the source paths: a folder with images in it is a plate, otherwise each "
-            "subfolder with images is one. Double-click a name to rename the plate."))
+            "subfolder with images is one. Double-click a name to rename the plate. Select a plate to edit its "
+            "filename settings; Apply settings gives a plate the settings being edited."))
         self.plate_table.itemChanged.connect(self._plate_renamed)
+        self.plate_table.currentCellChanged.connect(self._plate_row_chosen)
         self.plate_summary = QLabel("")
         self.plate_summary.setObjectName("OverviewWizardPlateSummary")
         self.plate_summary.setWordWrap(True)
         remove_plates = QPushButton(tr("Remove selected plates"))
         remove_plates.setObjectName("OverviewWizardRemovePlates")
         remove_plates.clicked.connect(self._remove_selected_plates)
+        apply_all = QPushButton(tr("Apply to all plates"))
+        apply_all.setObjectName("OverviewWizardApplyAll")
+        apply_all.clicked.connect(self._apply_to_all_plates)
+        plate_actions = QHBoxLayout()
+        plate_actions.addWidget(remove_plates)
+        plate_actions.addWidget(apply_all)
+        plate_actions.addStretch(1)
         form.addRow(tr("Plates"), self.plate_table)
         form.addRow(self.plate_summary)
-        form.addRow(remove_plates)
+        form.addRow(plate_actions)
         self.scope = QComboBox()
         self.scope.setObjectName("OverviewWizardSourceScope")
         self.scope.addItem(tr("This folder only (raw images at this level)"), "folder")
@@ -13942,6 +13984,10 @@ class _OverviewMetadataWizard(QWidget):
         self.regex = QLineEdit(str(self._settings.get("custom_regex") or ""))
         self.regex.setObjectName("OverviewWizardRegex")
         self.regex.setProperty("spacrNoFieldFade", True)
+        self.editing_plate = QLabel("")
+        self.editing_plate.setObjectName("OverviewWizardEditingPlate")
+        self.editing_plate.setWordWrap(True)
+        form.addRow(self.editing_plate)
         form.addRow(tr("Microscope preset"), self.preset)
         form.addRow(tr("Filename regex"), self.regex)
         self.preset.currentIndexChanged.connect(self._preset_changed)
@@ -13951,18 +13997,20 @@ class _OverviewMetadataWizard(QWidget):
         source_card = Card(title=tr("Source"), foldable=True)
         source_card.body_layout.addLayout(form)
         outer.addWidget(source_card)
-        self.preview = QTableWidget(0, 9)
-        self.preview.setObjectName("OverviewWizardParsePreview")
-        install_sorting(self.preview)
-        self.preview.setHorizontalHeaderLabels([tr("File"), tr("Plate"), tr("Well"), tr("Row"), tr("Column"),
-                                                tr("Field"), tr("Time"), tr("Z"), tr("Channel")])
-        self.preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        for column, width in ((0, 180), (1, 100)):
-            self.preview.horizontalHeader().setSectionResizeMode(column, QHeaderView.Interactive)
-            self.preview.setColumnWidth(column, width)
+        self.preview = self._new_preview_table("OverviewWizardParsePreview")
         self.preview.setMinimumHeight(240)
-        self.preview.setEditTriggers(QTableWidget.NoEditTriggers)
-        preview_column.addWidget(self.preview, 1)
+        self.plate_previews = QScrollArea()
+        self.plate_previews.setObjectName("OverviewWizardPlatePreviews")
+        self.plate_previews.setWidgetResizable(True)
+        self.plate_previews.setFrameShape(QFrame.NoFrame)
+        sections = QWidget()
+        sections.setObjectName("OverviewWizardPlatePreviewList")
+        self._plate_preview_layout = QVBoxLayout(sections)
+        self._plate_preview_layout.setContentsMargins(0, 0, 0, 0)
+        self._plate_preview_layout.addStretch(1)
+        self.plate_previews.setWidget(sections)
+        preview_column.addWidget(self.plate_previews, 1)
+        self._show_plate_previews({})
         self.axes = QLabel("")
         self.axes.setWordWrap(True)
         preview_column.addWidget(self.axes)
@@ -13982,8 +14030,11 @@ class _OverviewMetadataWizard(QWidget):
         self.channel_table.setMinimumHeight(110)
         self.channel_table.setToolTip(tr(
             "Channel names and display colours, filled from the acquisition metadata or the wavelengths. "
-            "Edit a name or a colour (#rrggbb or a colour name) to override it. In the CMY and CMYK "
+            "They apply to every plate. Edit a name, double-click a colour to pick it from a colour wheel, or "
+            "type a colour (#rrggbb or a colour name) to override it. In the CMY and CMYK "
             "colour modes, cyan, magenta, yellow or black picks the ink a channel prints with."))
+        self.channel_table.setEditTriggers(QTableWidget.EditKeyPressed | QTableWidget.AnyKeyPressed)
+        self.channel_table.cellDoubleClicked.connect(self._channel_cell_double_clicked)
         self.channel_table.itemChanged.connect(self._channel_colour_edited)
         layout.addRow(tr("Channel names and colours"), self.channel_table)
         self.pixel_size = QDoubleSpinBox()
@@ -14290,12 +14341,17 @@ class _OverviewMetadataWizard(QWidget):
             if value:
                 self._plate_regex.setdefault(str(folder), str(value))
         self._detected_plates = plates
+        self._fold_first_plate_regex()
+        if not any(os.path.realpath(plate["path"]) == os.path.realpath(self._edited_plate) for plate in plates):
+            self._edited_plate = ""
         self.plate_table.blockSignals(True)
+        self.plate_table.setSortingEnabled(False)
         self.plate_table.setRowCount(0)
         self.plate_table.setRowCount(len(plates))
         for row, plate in enumerate(plates):
             name = table_item(str(self._plate_names.get(plate["default_name"]) or plate["default_name"]))
             name.setData(Qt.UserRole, plate["default_name"])
+            name.setData(Qt.DecorationRole, self._plate_tone(row))
             name.setToolTip(plate["path"])
             self.plate_table.setItem(row, 0, name)
             for column, value in ((1, str(plate["images"]) if plate["images"] else tr("in subfolders")),
@@ -14319,7 +14375,18 @@ class _OverviewMetadataWizard(QWidget):
             regex.setToolTip(tr("The filename regex this plate is read with; empty uses the filename regex above, "
                                 "the first plate's."))
             self.plate_table.setItem(row, 4, regex)
+            apply = QPushButton(tr("Apply settings"))
+            apply.setObjectName("OverviewWizardApplyPlate")
+            apply.setProperty("platePath", plate["path"])
+            apply.clicked.connect(functools.partial(self._apply_to_plate, plate["path"]))
+            self.plate_table.setCellWidget(row, 5, apply)
+            _fit_overview_action_buttons((apply,))
+            hint = apply.minimumSize().expandedTo(apply.sizeHint())
+            self.plate_table.setColumnWidth(5, max(self.plate_table.columnWidth(5), hint.width() + 8))
+            self.plate_table.setRowHeight(row, max(self.plate_table.rowHeight(row), hint.height() + 4))
+        self.plate_table.setSortingEnabled(True)
         self.plate_table.blockSignals(False)
+        self._mark_edited_plate()
         notes = [tr("{count} plates found.", count=len(plates)) if len(plates) != 1 else tr("One plate found.")]
         mixed = [plate["path"] for plate in plates if plate["mixed"]]
         if mixed:
@@ -14351,15 +14418,21 @@ class _OverviewMetadataWizard(QWidget):
 
         path = str(item.data(Qt.UserRole) or "")
         text = item.text().strip()
+        base = self._base_regex()
         for key in [key for key in self._plate_regex if os.path.realpath(key) == os.path.realpath(path)]:
             self._plate_regex.pop(key)
-        if text and text != self.regex.text().strip():
+        self._plate_regex_errors.pop(path, None)
+        if text and text != base.strip():
             try:
                 re.compile(text)
             except re.error as error:
+                self._plate_regex_errors[path] = (text, str(error))
                 self.status.setText(tr("Invalid filename regex: {error}", error=error))
+                self._show_plate_previews(self._preview_groups)
                 return
             self._plate_regex[path] = text
+        if self._is_edited_plate(path) and not self._editing_first():
+            self._show_editor_regex(text or base)
         self._scan()
 
     def _use_plate_subfolders(self, path, on):
@@ -14391,17 +14464,358 @@ class _OverviewMetadataWizard(QWidget):
         key = self.preset.currentData()
         if key != "custom":
             self.regex.setText(BUILTIN_REGEXES.get(key, ""))
-        self._invalidate()
+        self._edited_regex_changed()
 
     def _custom_regex_changed(self):
         """Mark a typed pattern as custom without replacing its contents."""
         self.preset.blockSignals(True)
         self.preset.setCurrentIndex(self.preset.count() - 1)
         self.preset.blockSignals(False)
+        self._edited_regex_changed()
+
+    def _edited_regex_changed(self):
+        """Give the plate being edited the filename regex typed or chosen for it, then preview again.
+
+        The first plate's regex is the one every plate without its own is
+        read with; another plate keeps the typed regex as its own, unless it
+        is the first plate's. An invalid regex is kept out of the scan and
+        its error shown in that plate's preview section.
+        """
+        import re
+
+        if self._editing_first():
+            self._invalidate()
+            return
+        path = self._edited_plate
+        text = self.regex.text().strip()
+        if self._plate_regex_errors.pop(path, None) is not None:
+            self._show_plate_previews(self._preview_groups)
+        try:
+            re.compile(text)
+        except re.error as error:
+            self._plate_regex_errors[path] = (text, str(error))
+            self.status.setText(tr("Invalid filename regex: {error}", error=error))
+            self.next.setEnabled(False)
+            self._show_plate_previews(self._preview_groups)
+            return
+        self._store_plate_regex(path, text)
         self._invalidate()
+
+    def _first_plate(self):
+        """The first plate's folder, whose filename regex is every other plate's default, or ``""``."""
+        return self._detected_plates[0]["path"] if self._detected_plates else ""
+
+    def _is_edited_plate(self, path):
+        """Whether ``path`` is the plate being edited."""
+        edited = self._edited_plate or self._first_plate()
+        return bool(path) and bool(edited) and os.path.realpath(str(path)) == os.path.realpath(edited)
+
+    def _editing_first(self):
+        """Whether the plate being edited is the first plate, so the regex field holds every plate's default."""
+        first = self._first_plate()
+        return (not self._edited_plate or not first
+                or os.path.realpath(self._edited_plate) == os.path.realpath(first))
+
+    def _base_regex(self):
+        """The first plate's filename regex, which plates without their own are read with."""
+        return self.regex.text() if self._editing_first() else self._default_regex
+
+    def _plate_pattern_of(self, path):
+        """The filename regex one plate is read with: its own, or the first plate's."""
+        return _overview_plate_pattern(self._plate_regex, path, self._base_regex())
+
+    def _store_plate_regex(self, path, text):
+        """Keep ``text`` as one plate's own filename regex, or drop it when it is the first plate's."""
+        for key in [key for key in self._plate_regex if os.path.realpath(key) == os.path.realpath(path)]:
+            self._plate_regex.pop(key)
+        if text and text != self._base_regex().strip():
+            self._plate_regex[path] = text
+
+    def _fold_first_plate_regex(self):
+        """Make a first plate's own filename regex the default regex, which the first plate is read with.
+
+        The other plates without their own regex keep the one they were read
+        with, so nothing but the first plate changes.
+        """
+        first = self._first_plate()
+        own = next((key for key in self._plate_regex
+                    if first and os.path.realpath(key) == os.path.realpath(first)), None)
+        if own is None:
+            return
+        value = self._plate_regex.pop(own)
+        self._set_base_regex(value)
+
+    def _set_base_regex(self, text):
+        """Make ``text`` the first plate's filename regex without changing what the other plates use."""
+        old = self._base_regex()
+        if old and old != text:
+            for plate in self._detected_plates[1:]:
+                if not any(os.path.realpath(key) == os.path.realpath(plate["path"]) for key in self._plate_regex):
+                    self._plate_regex[plate["path"]] = old
+        if self._editing_first():
+            self._show_editor_regex(text)
+        self._default_regex = text
+        for key in [key for key, value in self._plate_regex.items() if value == text]:
+            self._plate_regex.pop(key)
+
+    def _show_editor_regex(self, text):
+        """Show a filename regex in the regex field and the preset it is, without a new preview."""
+        from ..regex_detect import BUILTIN_REGEXES
+
+        key = next((key for key, value in BUILTIN_REGEXES.items() if value == text),
+                   "auto" if not text else "custom")
+        for widget in (self.regex, self.preset):
+            widget.blockSignals(True)
+        self.regex.setText(text)
+        index = self.preset.findData(key)
+        self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
+        for widget in (self.regex, self.preset):
+            widget.blockSignals(False)
+
+    def _plate_row_chosen(self, row, *_):
+        """Edit the plate of the chosen plate list row."""
+        item = self.plate_table.item(row, 2) if row >= 0 else None
+        if item is not None and not self._is_edited_plate(item.text()):
+            self._edit_plate(item.text())
+
+    def _edit_plate(self, path):
+        """Make one plate the plate being edited and show its filename settings.
+
+        :param path: the plate's folder, as the plate list shows it.
+        """
+        base = self._default_regex = self._base_regex()
+        self._edited_plate = str(path)
+        error = self._plate_regex_errors.get(self._edited_plate)
+        first = self._first_plate()
+        own = base if first and os.path.realpath(path) == os.path.realpath(first) else _overview_plate_pattern(
+            self._plate_regex, path, base)
+        self._show_editor_regex(error[0] if error else own)
+        self._mark_edited_plate()
+
+    def _plate_display_name(self, plate):
+        """A detected plate's name as the plate list shows it."""
+        return str(self._plate_names.get(plate["default_name"]) or plate["default_name"])
+
+    def _mark_edited_plate(self):
+        """Show which plate is being edited: bold in the plate list, named in the header, framed in the previews."""
+        edited = self._edited_plate or self._first_plate()
+        self.plate_table.blockSignals(True)
+        current = -1
+        for row in range(self.plate_table.rowCount()):
+            folder = self.plate_table.item(row, 2)
+            chosen = folder is not None and self._is_edited_plate(folder.text())
+            current = row if chosen else current
+            for column in range(5):
+                item = self.plate_table.item(row, column)
+                if item is not None:
+                    font = item.font()
+                    font.setBold(chosen)
+                    item.setFont(font)
+        if current >= 0 and self.plate_table.currentRow() != current:
+            self.plate_table.setCurrentCell(current, 0)
+        self.plate_table.blockSignals(False)
+        plate = next((plate for plate in self._detected_plates if self._is_edited_plate(plate["path"])), None)
+        self.editing_plate.setText(tr("Editing plate: {name}", name=self._plate_display_name(plate))
+                                   if plate is not None else "")
+        self.editing_plate.setVisible(plate is not None)
+        for section in self._plate_sections:
+            path = str(section.property("platePath") or "")
+            section.setProperty("editing", bool(edited) and self._is_edited_plate(path))
+            section.style().unpolish(section)
+            section.style().polish(section)
+
+    def _apply_to_plate(self, path, *_):
+        """Give one plate the filename settings being edited, and preview again.
+
+        :param path: the plate's folder.
+        :returns: whether the settings were applied.
+        """
+        import re
+
+        text = self.regex.text().strip()
+        try:
+            re.compile(text)
+        except re.error as error:
+            self.status.setText(tr("Invalid filename regex: {error}", error=error))
+            return False
+        self._default_regex = self._base_regex()
+        self._plate_regex_errors.pop(path, None)
+        first = self._first_plate()
+        if first and os.path.realpath(path) == os.path.realpath(first):
+            for key in [key for key in self._plate_regex if os.path.realpath(key) == os.path.realpath(first)]:
+                self._plate_regex.pop(key)
+            self._set_base_regex(text)
+        else:
+            self._store_plate_regex(path, text)
+        self._scan()
+        return True
+
+    def _apply_to_all_plates(self, *_):
+        """Read every plate with the filename settings being edited, and preview again.
+
+        :returns: whether the settings were applied.
+        """
+        import re
+
+        text = self.regex.text().strip()
+        try:
+            re.compile(text)
+        except re.error as error:
+            self.status.setText(tr("Invalid filename regex: {error}", error=error))
+            return False
+        self._plate_regex.clear()
+        self._plate_regex_errors.clear()
+        self._default_regex = text
+        self._scan()
+        return True
+
+    @staticmethod
+    def _plate_tone(index):
+        """The palette colour that marks the ``index``-th plate in the plate list and its preview."""
+        from PySide6.QtGui import QColor
+        from ..theme import active_palette
+
+        palette = active_palette()
+        return QColor(palette.get(_OVERVIEW_PLATE_TONES[index % len(_OVERVIEW_PLATE_TONES)]) or palette["accent"])
+
+    @staticmethod
+    def _new_preview_table(name):
+        """A read-only table of filenames and the metadata a filename regex parses from them."""
+        from PySide6.QtWidgets import QHeaderView, QTableWidget
+        from .sortable_table import install_sorting
+
+        table = QTableWidget(0, 9)
+        table.setObjectName(name)
+        install_sorting(table)
+        table.setHorizontalHeaderLabels([tr("File"), tr("Plate"), tr("Well"), tr("Row"), tr("Column"),
+                                         tr("Field"), tr("Time"), tr("Z"), tr("Channel")])
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        for column, width in ((0, 180), (1, 100)):
+            table.horizontalHeader().setSectionResizeMode(column, QHeaderView.Interactive)
+            table.setColumnWidth(column, width)
+        table.setMinimumHeight(160)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        return table
+
+    def _plate_preview_groups(self, fields):
+        """Up to 20 sample files of each plate, keyed by plate folder (``""`` before any plate is found)."""
+        plates = [plate["path"] for plate in self._detected_plates]
+        known = {os.path.realpath(path): path for path in plates}
+        fallback = plates[0] if plates else ""
+        groups = {path: [] for path in plates} if plates else {"": []}
+        for field in fields:
+            source = str(getattr(field, "source", "") or "")
+            key = known.get(os.path.realpath(source), fallback) if source else fallback
+            groups[key].extend(path for _, path in field.files)
+        return {key: tuple(dict.fromkeys(values))[:20] for key, values in groups.items()}
+
+    def _show_plate_previews(self, groups):
+        """Show one labelled section per plate: its name, its filename regex and its sample files parsed by it.
+
+        :param groups: :meth:`_plate_preview_groups`'s sample files.
+        """
+        import re
+
+        self._preview_groups = dict(groups or {})
+        layout = self._plate_preview_layout
+        self.preview.setParent(None)
+        for section in self._plate_sections:
+            layout.removeWidget(section)
+            section.hide()
+            section.deleteLater()
+        self._plate_sections = []
+        plates = list(self._detected_plates) or [{"path": "", "default_name": ""}]
+        for index, plate in enumerate(plates):
+            path = plate["path"]
+            name = self._plate_display_name(plate) if path else tr("Filename preview")
+            error = self._plate_regex_errors.get(path)
+            pattern = error[0] if error else (self._plate_pattern_of(path) if path else self._base_regex())
+            try:
+                re.compile(pattern)
+            except re.error as invalid:
+                error = (pattern, str(invalid))
+            files = self._preview_groups.get(path, ())
+            section = QFrame()
+            section.setObjectName("OverviewWizardPlatePreview")
+            section.setProperty("plateTone", str(index % len(_OVERVIEW_PLATE_TONES)))
+            section.setProperty("platePath", path)
+            section.setProperty("editing", bool(path) and self._is_edited_plate(path))
+            box = QVBoxLayout(section)
+            title = QLabel(name)
+            title.setObjectName("OverviewWizardPlatePreviewTitle")
+            title.setTextFormat(Qt.PlainText)
+            heading = QHBoxLayout()
+            if path:
+                swatch = QLabel()
+                swatch.setPixmap(self._tone_pixmap(index, title.fontMetrics().height()))
+                heading.addWidget(swatch)
+            heading.addWidget(title, 1)
+            box.addLayout(heading)
+            regex = QLabel(tr("Filename regex: {pattern}", pattern=pattern) if pattern
+                           else tr("Filename regex: automatic"))
+            regex.setObjectName("OverviewWizardPlatePreviewRegex")
+            regex.setTextFormat(Qt.PlainText)
+            regex.setWordWrap(True)
+            regex.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            box.addWidget(regex)
+            problem = QLabel(tr("Invalid filename regex: {error}", error=error[1]) if error else "")
+            problem.setObjectName("OverviewWizardPlatePreviewError")
+            problem.setTextFormat(Qt.PlainText)
+            problem.setWordWrap(True)
+            problem.setVisible(bool(error))
+            box.addWidget(problem)
+            table = self.preview if index == 0 else self._new_preview_table("OverviewWizardPlateParsePreview")
+            self._fill_preview_table(table, files, "" if error else pattern)
+            box.addWidget(table, 1)
+            table.show()
+            layout.insertWidget(layout.count() - 1, section, 1 if index == 0 else 0)
+            self._plate_sections.append(section)
+
+    def _tone_pixmap(self, index, size):
+        """A small square of the ``index``-th plate's colour."""
+        from PySide6.QtGui import QPixmap
+
+        pixmap = QPixmap(max(8, size), max(8, size))
+        pixmap.fill(self._plate_tone(index))
+        return pixmap
+
+    def _fill_preview_table(self, table, files, pattern):
+        """Fill a preview table with ``files`` and what ``pattern`` parses from each; misses are dimmed."""
+        from .sortable_table import table_item
+        from PySide6.QtGui import QColor
+        from ..theme import active_palette
+        from ...schema import parse_well, letters_from_row_index
+
+        if pattern:
+            rows, missed = _overview_metadata_preview(files, pattern)
+        else:
+            rows = tuple((Path(path).name, {}) for path in files)
+            missed = ()
+        table.setSortingEnabled(False)
+        table.setRowCount(len(rows))
+        placed = {path: field for field in self._fields for _, path in field.files}
+        for row, (name, values) in enumerate(rows):
+            well = values.get("wellID", "")
+            if str(well).isdigit() and files[row] in placed and placed[files[row]].well:
+                well = placed[files[row]].well
+            try:
+                physical_row, physical_column = parse_well(well, strict=True)
+                row_letters = letters_from_row_index(int(physical_row[1:]))
+                column_number = str(int(physical_column[1:]))
+            except (ValueError, TypeError):
+                row_letters, column_number = "", ""
+            for column, value in enumerate((name, values.get("plateID", ""), well, row_letters, column_number)
+                    + tuple(values.get(key, "") or "" for key in ("fieldID", "timeID", "sliceID", "chanID"))):
+                item = table_item(str(value))
+                item.setToolTip(str(value))
+                if name in missed:
+                    item.setForeground(QColor(active_palette()["fg_dim"]))
+                table.setItem(row, column, item)
+        table.setSortingEnabled(True)
 
     def _scan(self):
         """Queue cancellable indexing and header inspection without decoding images."""
+        import re
         import threading
         if self._finished:
             return
@@ -14409,7 +14823,16 @@ class _OverviewMetadataWizard(QWidget):
         self._rescan_timer.stop()
         self._cancelled = threading.Event()
         generation = self._generation
-        source, pattern = self.source.text(), self.regex.text()
+        source, pattern = self.source.text(), self._base_regex()
+        first = self._first_plate()
+        self._plate_regex_errors.pop(first, None)
+        try:
+            re.compile(pattern)
+        except re.error as error:
+            self._plate_regex_errors[first] = (pattern, str(error))
+            self.status.setText(str(error))
+            self._show_plate_previews(getattr(self, "_preview_groups", {}))
+            return
         source_scope = self.scope.currentData()
         convention = self.preset.currentData()
         cancelled = self._cancelled
@@ -14432,53 +14855,32 @@ class _OverviewMetadataWizard(QWidget):
         self._fields, self._info = fields, info
         self._show_plates(info)
         if refusal:
+            self._show_plate_previews({})
             self.status.setText(refusal)
             self.next.setEnabled(False)
             return
         if not fields or not info or not info["channels"]:
+            self._show_plate_previews(self._plate_preview_groups(fields))
             self._info = None
             self.status.setText(tr("No readable image fields or available channels were found."))
             return
         detected = info.get("detected_pattern", "")
-        if detected and not self.regex.text():
-            self.regex.blockSignals(True)
-            self.regex.setText(detected)
-            self.regex.blockSignals(False)
-            index = self.preset.findData(info.get("detected_label"))
-            self.preset.blockSignals(True)
-            self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
-            self.preset.blockSignals(False)
-        self._fields = _overview_matched_fields(fields, self.regex.text(), self._plate_regex)
+        if detected and not self._base_regex():
+            if self._editing_first():
+                self.regex.blockSignals(True)
+                self.regex.setText(detected)
+                self.regex.blockSignals(False)
+                index = self.preset.findData(info.get("detected_label"))
+                self.preset.blockSignals(True)
+                self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
+                self.preset.blockSignals(False)
+            else:
+                self._default_regex = detected
+        pattern = self._base_regex()
+        self._fields = _overview_matched_fields(fields, pattern, self._plate_regex)
         all_files = tuple(dict.fromkeys(path for field in fields for _, path in field.files))
-        files = all_files[:20]
-        pattern = self.regex.text()
-        if pattern:
-            rows, missed = _overview_metadata_preview(files, pattern)
-        else:
-            rows = tuple((Path(path).name, {}) for path in files)
-            missed = ()
-        self.preview.setRowCount(len(rows))
-        self.preview.setSortingEnabled(False)
-        placed = {path: field for field in self._fields for _, path in field.files}
-        for row, (name, values) in enumerate(rows):
-            from ...schema import parse_well, letters_from_row_index
-            well = values.get("wellID", "")
-            if str(well).isdigit() and files[row] in placed and placed[files[row]].well:
-                well = placed[files[row]].well
-            try:
-                physical_row, physical_column = parse_well(well, strict=True)
-                row_letters = letters_from_row_index(int(physical_row[1:]))
-                column_number = str(int(physical_column[1:]))
-            except (ValueError, TypeError):
-                row_letters, column_number = "", ""
-            for column, value in enumerate((name, values.get("plateID", ""), well, row_letters, column_number)
-                    + tuple(values.get(key, "") or "" for key in ("fieldID", "timeID", "sliceID", "chanID"))):
-                item = table_item(str(value))
-                item.setToolTip(str(value))
-                if name in missed:
-                    item.setForeground(QColor(active_palette()["fg_dim"]))
-                self.preview.setItem(row, column, item)
-        self.preview.setSortingEnabled(True)
+        self._show_plate_previews(self._plate_preview_groups(fields))
+        self._mark_edited_plate()
         available = tuple(info["channels"])
         requested = self._settings.get("channels") or ()
         chosen = tuple(channel for channel in requested if channel in available) or available[:3]
@@ -14537,7 +14939,11 @@ class _OverviewMetadataWizard(QWidget):
         self.conditions.blockSignals(False)
         self._reference_choices()
         import re
-        matched = sum(bool(re.match(pattern, Path(path).name, re.I)) for path in all_files) if pattern else len(all_files)
+        sources = {path: str(getattr(field, "source", "") or "") for field in fields for _, path in field.files}
+        matched = 0
+        for path in all_files:
+            own = _overview_plate_pattern(self._plate_regex, sources.get(path, ""), pattern)
+            matched += bool(re.match(own, Path(path).name, re.I)) if own else 1
         self.status.setText(tr(
             "Source: {source}. Indexed {count} fields; {matched} matched filenames and "
             "{unmatched} unmatched filenames excluded. Available channel IDs in the first field: {channels}.",
@@ -14655,9 +15061,36 @@ class _OverviewMetadataWizard(QWidget):
         if item is None:
             return
         colour = QColor(item.text().strip())
+        item.setData(Qt.BackgroundRole, None)
+        item.setData(Qt.ForegroundRole, None)
+        item.setData(Qt.DecorationRole, colour if colour.isValid() else None)
+
+    def _channel_cell_double_clicked(self, row, column):
+        """Open the colour picker on a double-clicked colour, and the text editor on an editable name."""
+        if column == 3:
+            self._pick_channel_colour(row)
+            return
+        item = self.channel_table.item(row, column)
+        if item is not None and item.flags() & Qt.ItemIsEditable:
+            self.channel_table.editItem(item)
+
+    def _pick_channel_colour(self, row):
+        """Pick one channel's display colour from a colour wheel with RGB and hex fields.
+
+        :param row: the channel table row.
+        :returns: the chosen colour, invalid when the picker was cancelled.
+        """
+        from .colour_picker import pick_colour
+
+        item, channel = self.channel_table.item(row, 3), self.channel_table.item(row, 0)
+        if item is None:
+            from PySide6.QtGui import QColor
+            return QColor()
+        colour = pick_colour(self, item.text().strip() or None,
+                             tr("Channel {channel} colour", channel=channel.text() if channel else row + 1))
         if colour.isValid():
-            item.setBackground(colour)
-            item.setForeground(QColor("#000000") if colour.lightness() > 110 else QColor("#ffffff"))
+            item.setText(colour.name())
+        return colour
 
     def _channel_colour_edited(self, item):
         """Repaint an edited colour cell and remember the user's names and colours."""
@@ -14754,7 +15187,7 @@ class _OverviewMetadataWizard(QWidget):
         if gain is not None and gain not in channels:
             raise _OverviewValidationError(tr("The reference channel must be selected for display."))
         channel_names, channel_colors = self._channel_display()
-        return {"source": self.source.text(), "custom_regex": self.regex.text(),
+        return {"source": self.source.text(), "custom_regex": self._base_regex(),
                 "plate_names": dict(self._plate_names), "use_subfolders": tuple(sorted(self._use_subfolders)),
                 "plate_regex": dict(self._plate_regex),
                 "excluded_plates": tuple(sorted(self._excluded_plates)),
