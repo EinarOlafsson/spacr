@@ -12480,6 +12480,7 @@ class _OverviewMetadataWizard(QWidget):
         self._detected_plates = []
         self.plate_table = QTableWidget(0, 4)
         self.plate_table.setObjectName("OverviewWizardPlates")
+        install_sorting(self.plate_table)
         self.plate_table.setHorizontalHeaderLabels([tr("Plate"), tr("Images"), tr("Folder"), tr("Use subfolders")])
         self.plate_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.plate_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -12865,6 +12866,7 @@ class _OverviewMetadataWizard(QWidget):
             self.source.blockSignals(False)
         self._detected_plates = plates
         self.plate_table.blockSignals(True)
+        self.plate_table.setRowCount(0)
         self.plate_table.setRowCount(len(plates))
         for row, plate in enumerate(plates):
             name = table_item(str(self._plate_names.get(plate["default_name"]) or plate["default_name"]))
@@ -12920,7 +12922,9 @@ class _OverviewMetadataWizard(QWidget):
     def _remove_selected_plates(self, *_):
         """Drop the selected plates from the source and preview again."""
         rows = sorted({index.row() for index in self.plate_table.selectedIndexes()})
-        folders = [self._detected_plates[row]["path"] for row in rows if row < len(self._detected_plates)]
+        chosen = {self.plate_table.item(row, 0).data(Qt.UserRole) for row in rows
+                  if self.plate_table.item(row, 0) is not None}
+        folders = [plate["path"] for plate in self._detected_plates if plate["default_name"] in chosen]
         if not folders:
             return
         given = _overview_source_paths(self.source.text())
