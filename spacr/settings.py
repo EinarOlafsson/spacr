@@ -2192,6 +2192,9 @@ RENAMED_SETTINGS = {
 #: `_fold_toxoplasma` does that. A plain move would put `True` in a field
 #: that expects an organism name.
 SEMANTIC_FOLD_MEANINGS = {
+    "overview_original_on_open": (
+        "true means overview_preview_resolution 0, the original pixels at the "
+        "top of the image-quality slider, and false leaves the resolution as it is"),
     "gradient_accumulation": (
         "false means one batch per optimizer step, and true leaves "
         "gradient_accumulation_steps as it is"),
@@ -2557,6 +2560,25 @@ def _fold_gradient_accumulation(settings):
     legacy = settings.pop('gradient_accumulation')
     if legacy is False or str(legacy).strip().lower() in ('false', '0', 'no'):
         settings['gradient_accumulation_steps'] = 1
+    return settings
+
+
+def _fold_overview_original_on_open(settings):
+    """Turn the retired Overview Original switch into the image-quality setting.
+
+    The Original buttons are gone: the top of the image-quality slider, an
+    ``overview_preview_resolution`` of 0, loads the original pixels in every
+    view. A stored ``true`` therefore becomes that resolution; a stored
+    ``false`` leaves the resolution as it is.
+
+    :param settings: the settings mapping, edited in place.
+    :returns: the same mapping, for chaining.
+    """
+    if 'overview_original_on_open' not in settings:
+        return settings
+    legacy = settings.pop('overview_original_on_open')
+    if legacy is True or str(legacy).strip().lower() in ('true', '1', 'yes'):
+        settings['overview_preview_resolution'] = 0
     return settings
 
 
@@ -8184,7 +8206,6 @@ OVERVIEW_DEFAULTS = {
     'overview_preview_resolution': 1024,
     'overview_tile_size': 128,
     'overview_tile_spacing': 4,
-    'overview_original_on_open': False,
     'overview_z_mode': 'plane',
     'overview_wheel': 'zoom',
     'overview_representatives': 1,
@@ -8227,7 +8248,6 @@ OVERVIEW_TYPES = {
     'overview_preview_resolution': int,
     'overview_tile_size': int,
     'overview_tile_spacing': int,
-    'overview_original_on_open': bool,
     'overview_z_mode': str,
     'overview_wheel': str,
     'overview_representatives': int,
@@ -8267,10 +8287,9 @@ OVERVIEW_TOOLTIPS = {
     'overview_color_mode': "(str) - How the shown channels are combined into one colour image, on black (light adds up) or on white (inks absorb): 'additive' RGB on black, 'rgb_white', 'cmy_black', 'cmy' (CMY on white), 'cmyk_black', 'cmyk' (CMYK on white; the fourth channel is the key, white on black), 'green_magenta' (colour-blind safe), 'greys' (every channel in grey, side by side) or 'custom' (the Custom colours chosen per channel). A channel coloured cyan, magenta, yellow or black keeps that ink. Applies to every view and to exported PDFs. Default 'additive'.",
     'overview_custom_colors': "(str) - The colour of each channel in the 'custom' colour mode, as 'channel=#rrggbb' pairs separated by commas, for example '1=#ff0000, 2=#00ff00'. Pick them with the colour buttons under Channels; a channel without one takes red, green, blue, magenta, cyan, yellow, orange, violet or white by its position. Default ''.",
     'overview_ink_intensity': "(float) - How much ink or light each channel lays down in the CMY and CMYK colour modes: 1 prints the channel's display level as it is, lower values print it paler and higher values deeper. Pick a channel in Advanced normalization > Channel to edit to give that channel its own intensity; the others keep this value. Applies to the CMY and CMYK modes on black and on white; has no effect on the other colour modes. Default 1.0.",
-    'overview_preview_resolution': "(int) - Longest edge, in pixels, of the preview images the plate, well and image views load. Lower values load faster and use less memory; the Original button and zooming in still read original pixels. One of 128, 256, 512, 1024, 2048 or 4096. Default 1024.",
+    'overview_preview_resolution': "(int) - Longest edge, in pixels, of the images the plate, well and image views load: 128, 256, 512, 1024, 2048 or 4096, or 0 for Original, the full source resolution. Lower values load faster and use less memory; zooming in still reads original pixels. The image-quality slider sets it, and its top position is Original. Default 1024.",
     'overview_tile_size': "(int) - Edge length, in screen pixels, of each field image in the well views. The slider in a well view's header changes the same value. Larger tiles show more detail per field and fewer fields at a time. Default 128.",
     'overview_tile_spacing': "(int) - Gap, in screen pixels, between neighbouring field images in the well views. Set it in the field to the left of the image-size slider in a well view's header. Small values keep the images close together so more of the well fits on screen. Default 4.",
-    'overview_original_on_open': "(bool) - When True, an enlarged image is loaded at its original full resolution as soon as it opens, as if the Original button were pressed. When False it opens as a preview at the preview resolution and loads original pixels only when asked. Default False.",
     'overview_z_mode': "(str) - How a Z-stack is shown: 'plane' shows the chosen Z plane, 'max' a maximum-intensity projection and 'mean' a mean projection across all planes. Applies to every view and to exported PDFs. Default 'plane'.",
     'overview_wheel': "(str) - What the mouse wheel does over the enlarged image: 'zoom' zooms, 'field' steps to the next or previous field, 'z' steps through Z planes and 'time' steps through time points. Default 'zoom'.",
     'overview_representatives': "(int) - Number of fields shown for each well on the plate view, from 1 to 24. More fields give a better impression of each well but take longer to load. Exports of whole wells and plates are not limited by this value. Default 1.",
@@ -8312,7 +8331,7 @@ OVERVIEW_DESCRIPTION = (
 
 OVERVIEW_IMAGE_KEYS = (
     'overview_preview_resolution', 'overview_tile_size',
-    'overview_tile_spacing', 'overview_original_on_open',
+    'overview_tile_spacing',
 )
 
 _OVERVIEW_WELL_VIEW_KEYS = ('overview_tile_size', 'overview_tile_spacing')
@@ -8322,8 +8341,7 @@ with the other settings but shown there, not on the form."""
 
 OVERVIEW_CATEGORIES = {
     'Source': ['src', 'custom_regex', 'overview_max_wells', 'overview_max_fields'],
-    'Image': ['overview_preview_resolution', 'overview_original_on_open',
-              *_OVERVIEW_WELL_VIEW_KEYS],
+    'Image': ['overview_preview_resolution', *_OVERVIEW_WELL_VIEW_KEYS],
     'Channels': ['overview_channels', 'overview_color_mode', 'overview_custom_colors',
                  'overview_ink_intensity'],
     'Figure settings': ['overview_z_mode', 'overview_wheel',
@@ -8361,6 +8379,7 @@ def get_overview_default_settings(settings=None):
     :returns: the completed settings dict.
     """
     settings = settings if settings is not None else {}
+    _fold_overview_original_on_open(settings)
     for key, value in OVERVIEW_DEFAULTS.items():
         settings.setdefault(key, value)
     _set_enhancement_defaults(settings)

@@ -325,3 +325,94 @@ def _tooltip_event(widget):
     where = QPoint(320, 240)
     return QHelpEvent(QHelpEvent.Type.ToolTip, where,
                       widget.mapToGlobal(where))
+
+
+LONG_TIP = ("Image quality: the longest edge the plate, well and image views load, from 128 pixels "
+            "up to Original, the full resolution, at the top")
+
+
+def _shown_tip_label(qapp):
+    """The visible tooltip window Qt draws, or ``None``."""
+    for widget in qapp.topLevelWidgets():
+        if widget.inherits("QTipLabel") and widget.isVisible():
+            return widget
+    return None
+
+
+def _assert_spacr_tip(qapp, text):
+    """The tooltip on screen is ``text``, wrapped at a quarter of the screen, in the spaCR style.
+
+    A plain-text tooltip is drawn by Qt on one line as wide as the sentence;
+    this is the check that fails when one reaches the screen that way.
+    """
+    from PySide6.QtGui import Qt as GuiQt
+
+    assert QToolTip.isVisible()
+    assert QToolTip.text() == tooltip_policy._wrapped_tooltip(text)
+    assert GuiQt.mightBeRichText(QToolTip.text()), "a long tooltip reached Qt as plain text"
+    label = _shown_tip_label(qapp)
+    assert label is not None and label.wordWrap(), "the tooltip is not wrapped"
+    quarter = label.screen().geometry().width() // 4
+    assert label.width() <= quarter + 64, (label.width(), quarter)
+    assert label.height() > label.fontMetrics().height() * 1.5, "the long tooltip is one line"
+    rule = qapp.styleSheet().split("QToolTip {", 1)
+    assert len(rule) == 2 and "border-radius" in rule[1].split("}", 1)[0], "the spaCR tooltip style is missing"
+
+
+def test_a_long_plain_tooltip_is_shown_wrapped_in_the_spacr_style(policy, qt_theme_applied, qapp):
+    """Round 7 of item 725: "some tooltips are one line and wide"."""
+    widget = QWidget()
+    widget.resize(200, 80)
+    press = QPushButton("Quality", widget)
+    press.setToolTip(LONG_TIP)
+    widget.show()
+    try:
+        policy.eventFilter(press, _tooltip_event(press))
+        policy._show_now()
+        _assert_spacr_tip(qapp, LONG_TIP)
+        assert tooltip_policy._wrapped_tooltip("Measure the objects") == "Measure the objects"
+        assert tooltip_policy._wrapped_tooltip("a < b " * 20).startswith("<qt>a &lt; b")
+    finally:
+        widget.hide()
+        widget.deleteLater()
+
+
+def test_a_long_menu_action_tooltip_is_shown_wrapped_in_the_spacr_style(policy, qt_theme_applied, qapp):
+    """A menu answers its action's tooltip itself; the replay still wraps it."""
+    from PySide6.QtWidgets import QMenu
+
+    menu = QMenu()
+    menu.setToolTipsVisible(True)
+    action = menu.addAction("Link zoom")
+    action.setToolTip(LONG_TIP)
+    menu.popup(QPoint(400, 300))
+    try:
+        local = menu.actionGeometry(action).center()
+        event = QHelpEvent(QHelpEvent.Type.ToolTip, local, menu.mapToGlobal(local))
+        policy.eventFilter(menu, event)
+        policy._show_now()
+        _assert_spacr_tip(qapp, LONG_TIP)
+    finally:
+        menu.close()
+        menu.deleteLater()
+
+
+def test_a_long_table_cell_tooltip_is_shown_wrapped_in_the_spacr_style(policy, qt_theme_applied, qapp):
+    """A table cell's help comes from its model; the replay still wraps it."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QTableWidget, QTableWidgetItem
+
+    table = QTableWidget(1, 1)
+    cell = QTableWidgetItem("Sample")
+    cell.setData(Qt.ToolTipRole, LONG_TIP)
+    table.setItem(0, 0, cell)
+    table.show()
+    try:
+        local = table.visualItemRect(cell).center()
+        event = QHelpEvent(QHelpEvent.Type.ToolTip, local, table.viewport().mapToGlobal(local))
+        policy.eventFilter(table.viewport(), event)
+        policy._show_now()
+        _assert_spacr_tip(qapp, LONG_TIP)
+    finally:
+        table.hide()
+        table.deleteLater()

@@ -153,7 +153,8 @@ def test_two_open_wells_stack_one_image_from_each(view, qtbot):
     first, second = view._image_views
     first.view.scale(2, 2)
     first.view.horizontalScrollBar().setValue(first.view.horizontalScrollBar().maximum())
-    view._sync_image_views(first.view)
+    assert second.view.transform() != first.view.transform()
+    view._set_link_zoom(first.view, True)
     assert second.view.transform() == first.view.transform()
     assert second.view.horizontalScrollBar().value() == first.view.horizontalScrollBar().value()
 
@@ -161,7 +162,7 @@ def test_two_open_wells_stack_one_image_from_each(view, qtbot):
 def test_the_image_view_has_the_image_quality_slider(view):
     header = view._image_panel.header_layout
     slider = view.resolution_slider
-    assert header.indexOf(slider) >= 0 and header.indexOf(slider) < header.indexOf(view.original_toggle)
+    assert header.indexOf(slider) >= 0 and header.indexOf(slider) < header.indexOf(view.metadata_toggle)
     slider.setValue(0)
     assert view.preview_resolution.currentData() == 128
     view.preview_resolution.setCurrentIndex(view.preview_resolution.count() - 1)

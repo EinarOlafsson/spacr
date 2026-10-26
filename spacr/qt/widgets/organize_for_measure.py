@@ -1132,8 +1132,10 @@ class _CellDelegate(QStyledItemDelegate):
         """
         if index.data(Qt.UserRole) and _close_rect(option.rect).contains(
                 event.pos()):
-            QToolTip.showText(event.globalPos(), tr(
-                "Remove from the table (Delete); the file is not touched."),
+            from ..tooltip_policy import _wrapped_tooltip
+
+            QToolTip.showText(event.globalPos(), _wrapped_tooltip(tr(
+                "Remove from the table (Delete); the file is not touched.")),
                 view)
             return True
         return super().helpEvent(event, view, option, index)

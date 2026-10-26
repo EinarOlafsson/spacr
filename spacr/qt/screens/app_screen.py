@@ -983,12 +983,13 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         for name in ((replacement,) if isinstance(replacement, str)
                      else tuple(replacement)):
             out.setdefault(name, value)
-    from spacr.settings import _fold_object_bounds, _fold_toxoplasma
+    from spacr.settings import (_fold_object_bounds, _fold_overview_original_on_open,
+                                _fold_toxoplasma)
 
     from .settings_model import _image_source_seeded_from_crop_source
 
     return _image_source_seeded_from_crop_source(
-        _fold_object_bounds(_fold_toxoplasma(out)))
+        _fold_object_bounds(_fold_overview_original_on_open(_fold_toxoplasma(out))))
 
 
 def _surviving_name_of(key: str):

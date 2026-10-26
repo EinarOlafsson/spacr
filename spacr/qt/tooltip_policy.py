@@ -77,6 +77,12 @@ LINGER_MS = 1000
 #: which is the same as forever and cannot leak a stuck window.
 HOLD_MS = 3600 * 1000
 
+_WRAP_AFTER_CHARS = 60
+"""Plain tooltip text longer than this many characters is shown wrapped, as rich text.
+
+Qt draws plain text on a single line however long it is.
+"""
+
 #: Dynamic property that bypasses the application-wide native tooltip policy.
 #: Custom hover popups set it alongside their widget-level event suppressor;
 #: other widgets can use it to retain Qt's own tooltip handling.
@@ -323,6 +329,30 @@ def _is_navigation_button(widget) -> bool:
         return _navigation_label(widget.text()) is not None
     except (RuntimeError, AttributeError, TypeError):
         return False
+
+
+def _wrapped_tooltip(text) -> str:
+    """``text`` as the rounded, wrapped spaCR tooltip, never one wide line.
+
+    Qt word-wraps a tooltip only when its text is rich text; plain text is
+    drawn on one line however long it is, so a sentence ran across the
+    screen. Plain text longer than :data:`_WRAP_AFTER_CHARS` is therefore
+    escaped and marked as rich text, which Qt wraps at a quarter of the
+    screen like every API tooltip, inside the same rounded ``QToolTip``
+    style. Shorter plain text already fits on one short line, and rich text
+    is returned unchanged.
+
+    :param text: the tooltip text, plain or rich.
+    :returns: the text as Qt should show it, or ``""`` for no text.
+    """
+    from html import escape
+
+    from PySide6.QtGui import Qt as _GuiQt
+
+    text = str(text or "")
+    if len(text) <= _WRAP_AFTER_CHARS or _GuiQt.mightBeRichText(text):
+        return text
+    return "<qt>" + escape(text, quote=False).replace("\n", "<br>") + "</qt>"
 
 
 def tooltip_text_for(widget) -> str:
@@ -572,7 +602,7 @@ class _TooltipFilter(QObject):
             self._replay(widget)
             return
         try:
-            QToolTip.showText(self._pos, self._text, None, QRect(), HOLD_MS)
+            QToolTip.showText(self._pos, _wrapped_tooltip(self._text), None, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not show a tooltip", exc_info=True)
             return
@@ -603,7 +633,7 @@ class _TooltipFilter(QObject):
         try:
             delivered = QApplication.sendEvent(widget, again)
             if delivered and QToolTip.isVisible():
-                text = QToolTip.text()
+                text = _wrapped_tooltip(QToolTip.text())
                 QToolTip.showText(self._pos, text, None, QRect(), HOLD_MS)
                 QToolTip.showText(self._pos, text, widget, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001

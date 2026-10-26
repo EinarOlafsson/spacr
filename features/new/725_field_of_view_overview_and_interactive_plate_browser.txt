@@ -5,6 +5,58 @@ Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+MAINTAINER FEEDBACK — 2026-10-26 (round 7, image view, quality and tooltips)
+Verbatim:
+  "origional and the quality slider should be for the plate as well and for the image view it only
+   works when an event occurs. and a new image is loaded, these settings should periodically. only
+   the image the mouse is hovering should be zoomed, currently if i zoom one picture they all zoom.
+   some tooltips are one line and wide, these should either be removed or converted to normal spacr
+   tooltips"
+  "you can remove the origional button the slider max is the same thing, and you can remove the
+   metadata button for the overarching image view as each image gets one anyway"
+
+WHAT WAS DONE — round 7
+- Original is the top of the image-quality slider. The Original buttons (enlarged image, every
+  well view, every stacked image, All images) are gone; the slider (and the Preview resolution box)
+  runs 128, 256, 512, 1024, 2048, 4096, Original, and at Original the plate thumbnails, every well
+  view's tiles, every stacked image and the enlarged image read the source pixels (PSF and
+  restoration still apply to the enlarged and stacked images only, as before). The PDF export keeps
+  its own quality setting. overview_preview_resolution takes 0 for Original; the
+  overview_original_on_open setting is retired, and an old file holding it true is folded into
+  overview_preview_resolution 0 (spacr.settings._fold_overview_original_on_open, run by the Qt
+  loader, the CLI loader and get_overview_default_settings; spacr-doctor names the fold).
+- The slider is on the Plate header as well as the Image header; both move the same setting.
+  Moving it restarts a 200 ms timer, and only the resting position is applied: the plate
+  thumbnails, the well tiles, every stacked image and the enlarged image decode again on worker
+  threads at once (no new image or event needed), each keeping the zoom and centre the user chose.
+  Before, the stacked images kept their old pixels and the enlarged image stayed at its old edge.
+- The All images bar (Original and metadata for every stacked image) is removed; each stacked
+  image keeps its own metadata toggle, the enlarged image keeps its own.
+- Zoom: wheel and touchpad pinch zoom only the image under the pointer. The stacked images used to
+  copy each other's zoom and scroll on every move (_sync_image_views, a deliberate comparison
+  feature); that is now the optional "Link zoom" tick in a stacked image's right-click menu, off
+  by default.
+- Tooltips: Qt draws a plain-text tooltip on one line however long it is. The application tooltip
+  policy now shows any plain tooltip longer than 60 characters as wrapped rich text
+  (tooltip_policy._wrapped_tooltip), so it wraps at a quarter of the screen in the rounded spaCR
+  QToolTip style like every API tooltip. This covers widget tooltips, menu-action tooltips and
+  table/list/header cell tooltips (the replayed path) across spacr/qt, and the one direct
+  QToolTip.showText call (Organize for Measure's remove mark). Navigation buttons still carry no
+  tooltip (tooltip_policy rule). No Overview tooltip only repeated its label, so none was removed.
+- Tests: tests/qt/test_725_overview_round7_quality_zoom.py (8: buttons gone and slider top is
+  Original; quality change redraws open plate, well, stacked and enlarged views; slider drag
+  decodes once; zooming A leaves B; pinch zooms one; Link zoom tick off by default and linking;
+  no Link zoom on the enlarged image; the setting fold); three tooltip checks in
+  tests/qt/test_tooltips_wait_two_seconds.py (a widget, a menu action and a table cell must show
+  wrapped rich text in a word-wrapped label at most a quarter screen wide, multi-line, with the
+  rounded QToolTip rule present); round-2, round-3 and round-6 tests updated for the removals.
+- Screens (light and dark, Xvfb + gnome-shell): /nas_mnt/data/sync/imgview-r7/shots/.
+- Translations: 4 new or rewritten captions (slider tooltip, Link zoom, its tooltip, the
+  overview_preview_resolution help) with AI-reviewed records in nine languages; the 8 captions
+  removed (three Original tooltips, the all-images metadata tooltip, the old slider tooltip,
+  overview_original_on_open label and help, the old preview-resolution help) are archived, never
+  deleted.
+
 MAINTAINER FEEDBACK — 2026-10-26 (round 6) (supersedes conflicting earlier notes)
 Verbatim, display, normalization and settings:
 1. "measure saturation should be appart of intensity and not its own option"

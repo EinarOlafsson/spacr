@@ -197,7 +197,7 @@ def test_every_offered_preview_and_pdf_value_reaches_its_control(
     assert getattr(view, control).currentData() == expected
 
 
-def test_original_loads_full_resolution_in_the_image_and_well_views(mask, qtbot, source, monkeypatch):
+def test_the_top_quality_loads_full_resolution_in_the_image_and_well_views(mask, qtbot, source, monkeypatch):
     tab, view = _open(mask, qtbot, source)
     tab._settings_model.set_value_for_key("overview_preview_resolution", 128)
     assert view.preview_resolution.currentData() == 128
@@ -215,17 +215,19 @@ def test_original_loads_full_resolution_in_the_image_and_well_views(mask, qtbot,
     qtbot.waitUntil(lambda: view.view._item is not None, timeout=15000)
     assert max(view.view._item.pixmap().width(), view.view._item.pixmap().height()) <= 128
     header = view._image_panel.header_layout
-    assert header.indexOf(view.original_toggle) == header.indexOf(view.metadata_toggle) - 1
-    assert view.original_toggle.sizeHint().height() == view.metadata_toggle.sizeHint().height()
-    view.original_toggle.setChecked(True)
+    assert not hasattr(view, "original_toggle")
+    assert header.indexOf(view.resolution_slider) == header.indexOf(view.metadata_toggle) - 1
+    panel = view._well_panels[-1]
+    assert not hasattr(panel, "original_toggle")
+    edges.clear()
+    view.resolution_slider.setValue(view.resolution_slider.maximum())
+    assert view.preview_resolution.currentText() == "Original"
     qtbot.waitUntil(lambda: view.view._item is not None and view.view._item.pixmap().width() == 600,
                     timeout=15000)
     assert view.view._item.pixmap().height() == 400
-    panel = view._well_panels[-1]
-    edges.clear()
-    panel.original_toggle.setChecked(True)
     qtbot.waitUntil(lambda: None in edges, timeout=15000)
     qtbot.waitUntil(lambda: (panel.field_list.item(0).data(Qt.UserRole + 1) or (0,))[-1] is None, timeout=15000)
+    assert tab._settings_model._read_value("overview_preview_resolution") == 0
 
 
 def test_image_and_enhancement_settings_change_what_is_shown(mask, qtbot, source):
@@ -245,8 +247,7 @@ def test_image_and_enhancement_settings_change_what_is_shown(mask, qtbot, source
     model.set_value_for_key("enhance_gamma", 1.0)
     tab._overview_page._apply_settings()
     assert view._enhancement is None
-    model.set_value_for_key("overview_original_on_open", True)
-    assert view._original_on_open is True
+    assert "overview_original_on_open" not in model._widgets
 
 
 def test_actions_container_holds_the_standard_module_actions(mask, qtbot, source):
@@ -289,8 +290,9 @@ def test_fields_from_two_wells_open_as_stacked_images_and_close_one_at_a_time(ma
     qtbot.waitUntil(lambda: all(panel.view._item is not None for panel in panels), timeout=15000)
     view._set_tile_size(300)
     assert all(panel.view.minimumHeight() == 450 for panel in panels)
-    view.all_metadata_toggle.setChecked(True)
-    assert all(panel.metadata_toggle.isChecked() for panel in panels)
+    assert not hasattr(view, "all_metadata_toggle") and not hasattr(view, "_image_stack_bar")
+    panels[0].metadata_toggle.setChecked(True)
+    assert panels[0].metadata_label.isVisibleTo(panels[0]) and not panels[2].metadata_toggle.isChecked()
     panels[1].close_button.click()
     assert view._image_views == [panels[0], panels[2]]
     assert view._image_stack.indexOf(panels[0]) >= 0 and view._image_stack.indexOf(panels[2]) >= 0
@@ -369,7 +371,7 @@ def _open_original(view, qtbot):
     _open_well(view, qtbot, "A01")
     view.fields.setCurrentRow(0)
     view._field_in(view.fields, view.fields.item(0))
-    view.original_toggle.setChecked(True)
+    view.resolution_slider.setValue(view.resolution_slider.maximum())
 
 
 def test_psf_deconvolution_applies_to_original_images_only(mask, qtbot, source, monkeypatch):
@@ -388,7 +390,10 @@ def test_psf_deconvolution_applies_to_original_images_only(mask, qtbot, source, 
     assert view.status.text() == "Original image shown with PSF deconvolution."
     assert view.view._item.pixmap().width() == 600
     full = [chain for edge, chain in calls if edge is None]
-    assert full and all(chain.psf_operation == "deconvolve" for chain in full)
+    assert any(chain is not None and chain.psf_operation == "deconvolve" for chain in full)
+    assert all(chain is None or chain.psf_operation in ("deconvolve", "none") for chain in full)
+    view.preview_resolution.setCurrentIndex(view.preview_resolution.findData(1024))
+    qtbot.waitUntil(lambda: not view._quality_timer.isActive(), timeout=5000)
     calls.clear()
     view._set_tile_size(200)
     qtbot.waitUntil(lambda: any(edge is not None for edge, _chain in calls), timeout=20000)

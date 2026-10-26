@@ -503,7 +503,8 @@ def test_global_normalization_and_enhancement_ticks_are_per_image_and_saved(modu
     view._image_menu(panel.view, QPoint(5, 5))
     ticks = {action.objectName(): action.isChecked() for action in view._image_menu_shown.actions()
              if action.objectName()}
-    assert ticks == {"OverviewImage_global_normalization": False, "OverviewImage_global_enhancement": False}
+    assert ticks == {"OverviewImage_global_normalization": False, "OverviewImage_global_enhancement": False,
+                     "OverviewImage_link_zoom": False}
     view._image_menu_shown.close()
     path = browser._overview_view_state_path(view._metadata_source)
     qtbot.waitUntil(lambda: path.exists() and browser._overview_key_text(key) in json.loads(

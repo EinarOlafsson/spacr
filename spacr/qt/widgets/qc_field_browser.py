@@ -4455,6 +4455,54 @@ class _OverviewImageView(ZoomableImageView):
         self.detail_requested.emit()
 
 
+def _overview_pinch(view, event):
+    """Zoom ``view`` alone on a touchpad pinch, about the pointer.
+
+    :param view: the Overview image view whose viewport received ``event``.
+    :param event: any viewport event; only a zoom gesture is handled.
+    :returns: ``True`` when the pinch zoomed ``view``.
+    """
+    if (event.type() != QEvent.NativeGesture or view.wheel_mode != "zoom"
+            or event.gestureType() != Qt.ZoomNativeGesture or view._item is None):
+        return False
+    from .cursor_zoom import zoom_at_pointer
+
+    factor = max(.5, min(2., 1. + float(event.value())))
+    view._user_zoomed = True
+    zoom_at_pointer(view, factor, event.position())
+    view.detail_requested.emit()
+    event.accept()
+    return True
+
+
+def _overview_set_keeping_view(view, pixmap):
+    """Show ``pixmap`` in ``view``, keeping the zoom and centre the user chose.
+
+    A quality change swaps a preview for a larger or smaller one of the same
+    image, so the zoom is scaled by the size ratio and the same image point
+    stays in the middle of the view.
+
+    :param view: an Overview image view.
+    :param pixmap: the new picture of the same image.
+    """
+    from PySide6.QtCore import QPointF
+
+    previous = view._item
+    if previous is None or not view._user_zoomed or previous.pixmap().isNull() or pixmap.isNull():
+        view.set_pixmap(pixmap)
+        return
+    old = previous.pixmap().size()
+    center = view.mapToScene(view.viewport().rect().center())
+    normalized = QPointF(center.x() / old.width(), center.y() / old.height())
+    transform = view.transform()
+    view.set_pixmap(pixmap)
+    x_ratio, y_ratio = pixmap.width() / old.width(), pixmap.height() / old.height()
+    view.setTransform(transform)
+    view.scale(1. / x_ratio, 1. / y_ratio)
+    view.centerOn(QPointF(normalized.x() * pixmap.width(), normalized.y() * pixmap.height()))
+    view._user_zoomed = True
+
+
 def _fit_overview_action_buttons(buttons):
     """Reserve fresh native text slots without imposing fixed button sizes.
 
@@ -4551,10 +4599,13 @@ def _fit_overview_action_width(button, width, context):
 
 
 _OVERVIEW_METADATA_TOOLTIP = "Show or hide the filename and metadata text over the images."
-_OVERVIEW_ORIGINAL_TOOLTIP = "Load this image at its original full resolution instead of the preview."
-_OVERVIEW_ORIGINAL_WELL_TOOLTIP = "Load this well's images at their original full resolution instead of previews."
-_OVERVIEW_ORIGINAL_ALL_TOOLTIP = "Load every stacked image at its original full resolution."
-_OVERVIEW_METADATA_ALL_TOOLTIP = "Show or hide the filename and metadata text over every stacked image."
+_OVERVIEW_QUALITY_STEPS = (128, 256, 512, 1024, 2048, 4096, 0)
+"""Image-quality positions: the longest edge a view loads, and 0 at the top for the original pixels."""
+_OVERVIEW_QUALITY_DEBOUNCE_MS = 200
+_OVERVIEW_QUALITY_TOOLTIP = ("Image quality: the longest edge the plate, well and image views load, from 128 "
+                             "pixels up to Original, the full resolution, at the top")
+_OVERVIEW_LINK_ZOOM_TOOLTIP = ("Zoom and pan every open image together. Off, only the image under the pointer "
+                               "zooms.")
 _OVERVIEW_MAX_IMAGE_VIEWS = 6
 _OVERVIEW_THUMBNAIL_WORKERS = max(2, min(8, len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity")
                                           else (os.cpu_count() or 2)))
@@ -5634,7 +5685,8 @@ class _FieldOverview(QWidget):
         self._enhance_channels = None
         self._normalize_channels = None
         self._original_image = False
-        self._original_on_open = False
+        self._link_zoom = False
+        self._quality_sliders = []
         self._tile_size = _OVERVIEW_TILE_DEFAULT
         self._tile_spacing = _OVERVIEW_TILE_SPACING
         self._tile_sliders = []
@@ -5823,10 +5875,6 @@ class _FieldOverview(QWidget):
         self.view.verticalScrollBar().valueChanged.connect(self._request_native_detail)
         self._image_panel = _OverviewPanel(tr("Image"), shrink_width=True)
         self._image_panel.body_layout.addWidget(self.view)
-        self.original_toggle = AiToggleLabel(text="Original", tooltip=_OVERVIEW_ORIGINAL_TOOLTIP)
-        self.original_toggle.setObjectName("FieldOverviewImageOriginal")
-        self.original_toggle.toggled.connect(self._original_image_toggled)
-        self._image_panel.header_layout.addWidget(self.original_toggle)
         self.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
         self.metadata_toggle.toggled.connect(self._image_metadata_toggled)
         self._image_panel.header_layout.addWidget(self.metadata_toggle)
@@ -5841,19 +5889,6 @@ class _FieldOverview(QWidget):
         self._image_stack = QSplitter(Qt.Vertical)
         self._image_stack.setObjectName("FieldOverviewImageStack")
         self._image_stack.setChildrenCollapsible(False)
-        self._image_stack_bar = QWidget()
-        bar = QHBoxLayout(self._image_stack_bar)
-        bar.setContentsMargins(0, 0, 0, 0)
-        bar.addWidget(QLabel(tr("All images")), 1)
-        self.all_original_toggle = AiToggleLabel(text="Original", tooltip=_OVERVIEW_ORIGINAL_ALL_TOOLTIP)
-        self.all_original_toggle.setObjectName("FieldOverviewAllOriginal")
-        self.all_original_toggle.toggled.connect(self._all_images_original)
-        self.all_metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_ALL_TOOLTIP)
-        self.all_metadata_toggle.setObjectName("FieldOverviewAllMetadata")
-        self.all_metadata_toggle.toggled.connect(self._all_images_metadata)
-        bar.addWidget(self.all_original_toggle)
-        bar.addWidget(self.all_metadata_toggle)
-        self._image_stack_bar.hide()
         image_column = QWidget()
         image_layout = QVBoxLayout(image_column)
         image_layout.setContentsMargins(0, 0, 0, 0)
@@ -5866,7 +5901,6 @@ class _FieldOverview(QWidget):
         self.comparison_table.setEditTriggers(QTableWidget.NoEditTriggers)
         install_sorting(self.comparison_table)
         self.comparison_table.hide()
-        image_layout.addWidget(self._image_stack_bar)
         image_layout.addWidget(self.comparison_table)
         image_layout.addWidget(self._image_stack, 1)
         self._image_stack.addWidget(self._image_panel)
@@ -5902,28 +5936,24 @@ class _FieldOverview(QWidget):
         axes.addWidget(self.wheel_axis)
         self.preview_resolution = QComboBox()
         self.preview_resolution.setObjectName("OverviewPreviewResolution")
-        for value in (128, 256, 512, 1024, 2048, 4096):
-            self.preview_resolution.addItem(str(value), value)
+        for value in _OVERVIEW_QUALITY_STEPS:
+            self.preview_resolution.addItem(str(value) if value else tr("Original"), value)
         self.preview_resolution.setCurrentIndex(3)
         self.preview_resolution.setToolTip(tr(
             "Maximum preview edge in pixels; lower values load faster. Zoom still loads original pixels."))
+        self._quality_timer = QTimer(self)
+        self._quality_timer.setSingleShot(True)
+        self._quality_timer.setInterval(_OVERVIEW_QUALITY_DEBOUNCE_MS)
+        self._quality_timer.timeout.connect(self._apply_resolution)
         self.preview_resolution.currentIndexChanged.connect(self._resolution_changed)
         axes.addWidget(QLabel(tr("Preview resolution")))
         axes.addWidget(self.preview_resolution)
-        from PySide6.QtWidgets import QSlider
-
-        self.resolution_slider = QSlider(Qt.Horizontal)
-        self.resolution_slider.setObjectName("FieldOverviewImageResolution")
-        self.resolution_slider.setRange(0, self.preview_resolution.count() - 1)
-        self.resolution_slider.setPageStep(1)
-        self.resolution_slider.setValue(self.preview_resolution.currentIndex())
-        self.resolution_slider.setMaximumWidth(140)
-        self.resolution_slider.setToolTip(tr("Image quality: the longest preview edge the views load, from 128 to 4096 pixels"))
-        self.resolution_slider.setAccessibleName(tr("Image quality"))
-        self.resolution_slider.valueChanged.connect(self.preview_resolution.setCurrentIndex)
+        self.resolution_slider = self._quality_slider("FieldOverviewImageResolution")
+        self.plate_resolution_slider = self._quality_slider("FieldOverviewPlateResolution")
         self.preview_resolution.currentIndexChanged.connect(self._sync_resolution_slider)
         header = self._image_panel.header_layout
-        header.insertWidget(header.indexOf(self.original_toggle), self.resolution_slider)
+        header.insertWidget(header.indexOf(self.metadata_toggle), self.resolution_slider)
+        self._plate_panel.header_layout.addWidget(self.plate_resolution_slider)
         compare = QPushButton(tr("Compare selected fields"))
         compare.clicked.connect(self._compare)
         axes.addWidget(compare)
@@ -6464,8 +6494,27 @@ class _FieldOverview(QWidget):
         reset = menu.addAction(tr("Reset image settings"))
         reset.setEnabled(self._is_adjusted(field))
         reset.triggered.connect(functools.partial(self._set_image_override, _overview_image_key(field), None))
+        if any(panel.view is view for panel in self._image_views):
+            menu.addSeparator()
+            link = menu.addAction(tr("Link zoom"))
+            link.setObjectName("OverviewImage_link_zoom")
+            link.setCheckable(True)
+            link.setChecked(self._link_zoom)
+            link.setToolTip(tr(_OVERVIEW_LINK_ZOOM_TOOLTIP))
+            link.toggled.connect(functools.partial(self._set_link_zoom, view))
         menu.popup(view.viewport().mapToGlobal(position))
         self._image_menu_shown = menu
+
+    def _set_link_zoom(self, view, on):
+        """Zoom and pan the stacked images together, or each on its own.
+
+        :param view: the stacked image whose menu changed it; the others take
+            its zoom and position when the link is switched on.
+        :param on: whether the stacked images move together.
+        """
+        self._link_zoom = bool(on)
+        if self._link_zoom:
+            self._sync_image_views(view)
 
     def _add_global_layer_actions(self, menu, field):
         """Add the Global normalization and Global enhancement ticks of ``field`` to ``menu``.
@@ -6633,7 +6682,6 @@ class _FieldOverview(QWidget):
         self._track_readout(fields.viewport(), fields)
         fields.setItemDelegate(_OverviewTileDelegate(self, fields))
         fields._overview_metadata = False
-        fields._overview_original = False
         fields.setContextMenuPolicy(Qt.CustomContextMenu)
         fields.customContextMenuRequested.connect(
             lambda position, owner=fields: self._field_menu(owner, position))
@@ -6681,12 +6729,41 @@ class _FieldOverview(QWidget):
         fields.setIconSize(QSize(edge, height))
         fields.setGridSize(QSize(edge + self._tile_spacing, height + self._tile_spacing + text))
 
+    def _quality_slider(self, name):
+        """Build one image-quality slider that moves the shared preview resolution.
+
+        :param name: the slider's object name.
+        :returns: a slider whose top position loads the original pixels.
+        """
+        from PySide6.QtWidgets import QSlider
+
+        slider = QSlider(Qt.Horizontal)
+        slider.setObjectName(name)
+        slider.setRange(0, self.preview_resolution.count() - 1)
+        slider.setPageStep(1)
+        slider.setValue(self.preview_resolution.currentIndex())
+        slider.setMaximumWidth(140)
+        slider.setToolTip(tr(_OVERVIEW_QUALITY_TOOLTIP))
+        slider.setAccessibleName(tr("Image quality"))
+        slider.valueChanged.connect(self.preview_resolution.setCurrentIndex)
+        self._quality_sliders.append(slider)
+        return slider
+
     def _sync_resolution_slider(self, index):
-        """Keep the image view's quality slider on the chosen preview resolution."""
-        if self.resolution_slider.value() != index:
-            self.resolution_slider.blockSignals(True)
-            self.resolution_slider.setValue(index)
-            self.resolution_slider.blockSignals(False)
+        """Keep every image-quality slider on the chosen preview resolution."""
+        for slider in self._quality_sliders:
+            if slider.value() != index:
+                slider.blockSignals(True)
+                slider.setValue(index)
+                slider.blockSignals(False)
+
+    def _quality_original(self):
+        """Whether the image-quality slider is at its top, the original pixels."""
+        return not self.preview_resolution.currentData()
+
+    def _quality_cap(self):
+        """The longest preview edge the views load; the largest step at Original."""
+        return self.preview_resolution.currentData() or _OVERVIEW_QUALITY_STEPS[-2]
 
     def _set_tile_size(self, edge):
         """Resize the images of every well view and reload them at that size.
@@ -6728,31 +6805,6 @@ class _FieldOverview(QWidget):
         if changed and callable(self._tile_spacing_changed):
             self._tile_spacing_changed(spacing)
 
-    def _well_original_toggled(self, fields, on):
-        """Load one well view's images at their original full resolution.
-
-        :param fields: the well view's list.
-        :param on: whether its tiles read original pixels.
-        """
-        fields._overview_original = bool(on)
-        for index in range(fields.count()):
-            fields.item(index).setData(Qt.UserRole + 1, None)
-        self._request_visuals()
-
-    def _original_image_toggled(self, on):
-        """Show the enlarged image at its original full resolution, or as a preview.
-
-        :param on: whether the enlarged image reads original pixels.
-        """
-        self._original_image = bool(on)
-        self._displayed_field = None
-        if self._native_item is not None and self.view._item is not None:
-            self.view.scene().removeItem(self._native_item)
-            self._native_item = self._native_key = None
-        item = self.fields.currentItem()
-        if item is not None and self._individual:
-            self._field(item, preserve_view=True)
-
     def _original_chain(self, options):
         """The chain for an image opened with Original, PSF and restoration included.
 
@@ -6774,9 +6826,8 @@ class _FieldOverview(QWidget):
         item = self.fields.currentItem()
         if self._original_image and item is not None and self._individual:
             self._field(item, preserve_view=True)
-        for panel in self._image_views:
-            if panel.original_toggle.isChecked():
-                self._load_image_view(panel)
+        if self._original_image:
+            self._reload_image_views()
 
     def _set_channel_targets(self, enhance=None, normalize=None):
         """Restrict enhancement and the percentile stretch to chosen channels.
@@ -7519,11 +7570,6 @@ class _FieldOverview(QWidget):
         panel.tile_spacing.setMaximumWidth(64)
         panel.header_layout.addWidget(panel.tile_spacing)
         panel.header_layout.addWidget(panel.tile_slider)
-        panel.original_toggle = AiToggleLabel(text="Original", tooltip=_OVERVIEW_ORIGINAL_WELL_TOOLTIP)
-        panel.original_toggle.setObjectName("FieldOverviewWellOriginal")
-        panel.original_toggle.toggled.connect(
-            lambda on, owner=fields: self._well_original_toggled(owner, on))
-        panel.header_layout.addWidget(panel.original_toggle)
         panel.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
         panel.metadata_toggle.toggled.connect(
             lambda on, owner=fields: self._well_metadata_toggled(owner, on))
@@ -7739,7 +7785,6 @@ class _FieldOverview(QWidget):
             if len(self._image_views) >= _OVERVIEW_MAX_IMAGE_VIEWS:
                 self._close_image_view(self._image_views[0])
             self._image_views.append(self._new_image_view(field))
-        self._image_stack_bar.setVisible(bool(self._image_views))
         self._show_image_column()
 
     def _new_image_view(self, field):
@@ -7774,31 +7819,28 @@ class _FieldOverview(QWidget):
         names = "\n".join(Path(path).name for _channel, path in field.files)
         panel.metadata_label.setText(field.caption + ("\n" + names if names else ""))
         panel.metadata_label.hide()
-        panel.original_toggle = AiToggleLabel(text="Original", tooltip=_OVERVIEW_ORIGINAL_TOOLTIP)
-        panel.original_toggle.setChecked(self.all_original_toggle.isChecked())
-        panel.original_toggle.toggled.connect(lambda _on, owner=panel: self._load_image_view(owner))
         panel.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
         panel.metadata_toggle.toggled.connect(lambda on, owner=panel: self._image_view_metadata(owner, on))
-        panel.metadata_toggle.setChecked(self.all_metadata_toggle.isChecked())
         panel.close_button = QToolButton()
         apply_close_mark(panel.close_button, tooltip=tr("Close this image"))
         panel.close_button.setAccessibleName(tr("Close this image"))
         panel.close_button.clicked.connect(lambda _checked=False, owner=panel: self._close_image_view(owner))
-        for widget in (panel.original_toggle, panel.metadata_toggle, panel.close_button):
+        for widget in (panel.metadata_toggle, panel.close_button):
             panel.header_layout.addWidget(widget)
         self._image_stack.addWidget(panel)
         self._load_image_view(panel)
         return panel
 
     def _sync_image_views(self, source):
-        """Give every stacked image the zoom and position of the one being moved.
+        """Give every stacked image the zoom and position of the one being moved, with Link zoom on.
 
-        The stacked images share display settings and size, so the same region
-        of every well lines up for comparison by eye.
+        Off by default, so a wheel or pinch zooms only the image under the
+        pointer. With Link zoom ticked in an image's right-click menu, the
+        same region of every stacked image lines up for comparison by eye.
 
         :param source: the image view the user zoomed or scrolled.
         """
-        if getattr(self, "_syncing_views", False):
+        if not self._link_zoom or getattr(self, "_syncing_views", False):
             return
         self._syncing_views = True
         try:
@@ -7830,22 +7872,6 @@ class _FieldOverview(QWidget):
             panel.metadata_label.move(8, 8)
             panel.metadata_label.raise_()
 
-    def _all_images_original(self, on):
-        """Switch every stacked image between preview and original resolution.
-
-        :param on: whether every image reads original pixels.
-        """
-        for panel in self._image_views:
-            panel.original_toggle.setChecked(on)
-
-    def _all_images_metadata(self, on):
-        """Show or hide the metadata text of every stacked image.
-
-        :param on: whether the text is visible.
-        """
-        for panel in self._image_views:
-            panel.metadata_toggle.setChecked(on)
-
     def _load_image_view(self, panel):
         """Decode one stacked image at preview or original resolution.
 
@@ -7858,7 +7884,7 @@ class _FieldOverview(QWidget):
             return
         panel.generation += 1
         generation, field = panel.generation, panel.field
-        edge = None if panel.original_toggle.isChecked() else self.preview_resolution.currentData()
+        edge = None if self._quality_original() else self._quality_cap()
         options, cancelled = self._display_kwargs(view=True), self._cancelled
         plain_options = options
         heavy = self._original_chain(options) if edge is None else None
@@ -7880,7 +7906,7 @@ class _FieldOverview(QWidget):
                                                steps=_overview_heavy_steps(heavy)))
             image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                            pixels.strides[0], QImage.Format_RGB888).copy()
-            panel.view.set_pixmap(QPixmap.fromImage(image))
+            _overview_set_keeping_view(panel.view, QPixmap.fromImage(image))
         def read():
             """Read one detached image without Qt access."""
             try:
@@ -7915,7 +7941,6 @@ class _FieldOverview(QWidget):
         panel.hide()
         panel.setParent(None)
         panel.deleteLater()
-        self._image_stack_bar.setVisible(bool(self._image_views))
         if not self._image_views and self._image_panel.isHidden():
             self._image_column.hide()
 
@@ -9160,8 +9185,8 @@ class _FieldOverview(QWidget):
                 continue
             viewport = fields.viewport()
             ratio = device_ratio(viewport)
-            edge = (None if getattr(fields, "_overview_original", False)
-                    else min(math.ceil(self._tile_size * ratio), self.preview_resolution.currentData()))
+            edge = (None if self._quality_original()
+                    else min(math.ceil(self._tile_size * ratio), self._quality_cap()))
             loaded, waiting = 0, []
             for index in range(fields.count()):
                 item = fields.item(index)
@@ -9754,15 +9779,38 @@ class _FieldOverview(QWidget):
             self.status.setText(tr("No field exists for this well and acquisition-axis selection."))
 
     def _resolution_changed(self, *_):
-        """Rebuild bounded previews without changing raw data or learned display limits."""
+        """Redraw the open views at the new image quality once the slider rests.
+
+        Dragging the slider restarts a short timer, so only its resting
+        position is decoded; every decode runs on a worker thread.
+        """
+        self._original_image = self._quality_original()
+        self._quality_timer.start()
+
+    def _apply_resolution(self):
+        """Rebuild the plate, well and image views at the chosen quality.
+
+        The plate thumbnails, every well view's tiles, every stacked image and
+        the enlarged image load again at once, keeping each image's zoom; the
+        top position loads the original pixels. Raw data and learned display
+        limits are unchanged.
+        """
+        if self._controls_lost or self._cancelled.is_set():
+            return
+        self._original_image = self._quality_original()
         self._cache.clear()
         self._thumbnail_cache.clear()
         self._displayed_montage = None
         self._displayed_field = None
+        self._preview_edge = self._quality_cap()
+        if self._native_item is not None and self.view._item is not None:
+            self.view.scene().removeItem(self._native_item)
+            self._native_item = self._native_key = None
         self._request_visuals()
+        self._reload_image_views()
         item = self.fields.currentItem()
         if self._individual and item is not None:
-            self._field(item)
+            self._field(item, preserve_view=True)
 
     def _wheel_mode_changed(self):
         """Apply the explicit wheel action without modifying any acquisition value."""
@@ -9785,7 +9833,7 @@ class _FieldOverview(QWidget):
         width = self.view._item.pixmap().width()
         displayed = width * self.view.transform().m11()
         desired = min(4096, max(256, int(math.ceil(displayed * device_ratio(self.view.viewport())))))
-        desired = min(self.preview_resolution.currentData(),
+        desired = min(self._quality_cap(),
             next((edge for edge in (256, 512, 1024, 2048, 4096) if edge >= desired), 4096))
         self._request_native_detail()
         if desired > self._preview_edge:
@@ -10495,11 +10543,6 @@ class _FieldOverview(QWidget):
             return
         field = item.data(Qt.UserRole)
         self._show_image_panel()
-        if self._original_on_open and not self._original_image:
-            self.original_toggle.blockSignals(True)
-            self.original_toggle.setChecked(True)
-            self.original_toggle.blockSignals(False)
-            self._original_image = True
         self._individual = True
         self._main_view_field = field
         self._refresh_adjusted_badges()
@@ -10519,10 +10562,10 @@ class _FieldOverview(QWidget):
             same_image = (self._displayed_field is not None and self._displayed_field[:2] == source_key[:2]
                           and self.view._item is not None)
             if same_image:
-                self._preview_edge = min(self._preview_edge, self.preview_resolution.currentData())
+                self._preview_edge = min(self._preview_edge, self._quality_cap())
                 preserve_view = True
             else:
-                self._preview_edge = min(256, self.preview_resolution.currentData())
+                self._preview_edge = min(256, self._quality_cap())
                 preserve_view = False
             self._displayed_field = source_key
         edge = None if self._original_image else self._preview_edge
@@ -10538,7 +10581,7 @@ class _FieldOverview(QWidget):
             self._show_pixels(self._cache[key], preserve_view)
             return
         cancelled, signature = self._cancelled, self._visual_context()
-        target_edge = self.preview_resolution.currentData()
+        target_edge = self._quality_cap()
         def done(result):
             """Cache bounded pixels and accept only the exact current axis/view.
 
@@ -10605,6 +10648,10 @@ class _FieldOverview(QWidget):
                 and not getattr(self, "_module_actions_retired", True)
                 and not getattr(self, "_fitting_module_actions", False)):
             self._module_action_fit_timer.start(0)
+        if event.type() == QEvent.NativeGesture:
+            owner = getattr(self, "_readout_viewports", {}).get(watched)
+            if isinstance(owner, _OverviewImageView) and _overview_pinch(owner, event):
+                return True
         if event.type() in (QEvent.MouseMove, QEvent.Leave):
             owner = getattr(self, "_readout_viewports", {}).get(watched)
             if owner is not None and getattr(self, "_pixel_readout", None) is not None:
@@ -10721,7 +10768,7 @@ class _FieldOverview(QWidget):
         self._visual_signature = signature
         cancelled = self._cancelled
         options = self._display_kwargs(view=True)
-        resolution = self.preview_resolution.currentData()
+        resolution = self._quality_cap()
         self._update_field_thumbnails(signature, channels, limits, options)
         self._update_plate_thumbnails(channels, limits, options, resolution, cancelled)
         if self._comparison_signature is not None:
@@ -10811,7 +10858,8 @@ class _FieldOverview(QWidget):
         for plate, (table, first_row, last_row, first_column, last_column) in spans.items():
             ratio = device_ratio(table.viewport())
             extent = self._plate_extents.get(table, self._plate_cell_extent)
-            edge = min(resolution, max(64, math.ceil(max(extent or (160, 160)) * ratio)))
+            edge = (None if self._quality_original()
+                    else min(resolution, max(64, math.ceil(max(extent or (160, 160)) * ratio))))
             folded_rows, folded_columns = self._collapsed_lines(plate)
             for row in range(first_row, last_row + 1):
                 for column in range(first_column, last_column + 1):
@@ -11846,7 +11894,7 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
     "overview_percentile_high"})
 
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
-                            "overview_original_on_open", "overview_enhance_channels",
+                            "overview_enhance_channels",
                             "overview_normalize_channels", "overview_color_mode",
                             "overview_custom_colors",
                             "overview_max_wells", "overview_max_fields", "overview_normalization_scope",
@@ -12235,7 +12283,6 @@ class _OverviewSettingsBridge:
                 browser._set_tile_size(int(values["overview_tile_size"]))
         except (TypeError, ValueError):
             pass
-        browser._original_on_open = bool(values.get("overview_original_on_open"))
         browser._set_color_mode(values.get("overview_color_mode"),
                                 _overview_custom_colors(values.get("overview_custom_colors")))
         browser._set_load_limits(values.get("overview_max_wells"), values.get("overview_max_fields"))

@@ -1536,6 +1536,7 @@ def _under_todays_names(settings: Dict[str, Any],
     :returns: the same mapping, for chaining.
     """
     from .settings import (_fold_gradient_accumulation, _fold_object_bounds,
+                           _fold_overview_original_on_open,
                            _fold_renamed_settings, _fold_toxoplasma)
     from .validate import _check_retired_keys
 
@@ -1568,6 +1569,7 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_renamed_settings(settings)
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
+    _fold_overview_original_on_open(settings)
     _fold_object_bounds(settings)
     legacy_png_dims = settings.get('png_dims')
     if ('png_channel_mapping' not in settings
