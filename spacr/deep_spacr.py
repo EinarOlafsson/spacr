@@ -4215,6 +4215,7 @@ def annotate_filter_vision(settings):
         :param csv_file: Path to the score CSV.
         :returns: Filtered DataFrame.
         """
+        csv_file = os.path.normpath(csv_file)
         marker = os.sep + "datasets" + os.sep
         if marker not in csv_file:
             raise ValueError(

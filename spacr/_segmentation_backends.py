@@ -1440,6 +1440,8 @@ def _pid_alive(pid):
         psutil = None
     if psutil is not None:
         return bool(psutil.pid_exists(pid))
+    if os.name == "nt":
+        return True
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
