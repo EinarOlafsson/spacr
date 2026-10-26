@@ -171,6 +171,28 @@ def test_pdf_images_sit_where_the_boxes_are_and_keep_every_pixel(tmp_path):
     assert np.array_equal(stored[::-1], pixels)
 
 
+@pytest.mark.parametrize("theme", ["light", "dark"])
+def test_canvas_text_uses_print_ink_on_its_white_page(theme, monkeypatch):
+    from matplotlib.colors import to_rgba
+    from spacr.figures import style
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "resolve_effective_theme", lambda: theme)
+    monkeypatch.setattr(preferences, "get_figure_color_tokens", lambda: ("auto", "auto"))
+    layout = _CanvasLayout()
+    layout.add_box(0, "text", 36, 36, 160, 80, text="Cell measurements")
+    figure, images, records, errors = export._canvas_page_figure(layout, 0, lambda box: _pixels())
+    try:
+        assert figure.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
+        assert to_rgba(figure.texts[0].get_color()) == to_rgba(style.INK_PRINT)
+        assert figure.texts[0].get_text() == "Cell measurements"
+        figure.canvas.draw()
+        assert np.any(np.asarray(figure.canvas.buffer_rgba())[..., :3] < 128)
+        assert not images and not errors and records[0]["text"] == "Cell measurements"
+    finally:
+        figure.clear()
+
+
 def test_pdf_text_is_vector_text_wrapped_inside_its_box(tmp_path):
     layout = _CanvasLayout()
     layout.add_box(0, "text", 36, 36, 160, 80, font_size=12, bold=True,

@@ -1127,10 +1127,10 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
     monkeypatch.setattr(shiboken6, "getCppPointer", lambda obj: real_pointer(
         obj.target if isinstance(obj, _FreshWrapper) else obj))
     pointer_of = lambda obj: shiboken6.getCppPointer(obj)[0]   # noqa: E731
-    real_children = QWidget.findChildren
+    real_children = QObject.findChildren
     snapshot = {}
     phase = ["before"]
-    monkeypatch.setattr(QWidget, "findChildren", lambda self, *a: (
+    monkeypatch.setattr(QObject, "findChildren", lambda self, *a: (
         [snapshot.setdefault(pointer_of(c), c)
          for c in real_children(self, *a)]
         if phase[0] == "before" else
@@ -1168,7 +1168,7 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
             keeper.handed.clear()
             phase[0] = "after"
     finally:
-        monkeypatch.setattr(QWidget, "findChildren", real_children)
+        monkeypatch.setattr(QObject, "findChildren", real_children)
         _stop_watching_application_events(QApplication.instance(), keeper)
     handed = keeper.handed
     assert handed, "the replay told the watchers nothing"

@@ -112,7 +112,7 @@ is kept; buttons that do work (Run, Export, Measure, Apply, Add plates,
 Remove plate) keep theirs.
 """
 
-_NAVIGATION_ARROWS = "←→‹›◀▶«»⟨⟩"
+_NAVIGATION_ARROWS = "←→‹›◀▶«»"
 """Horizontal arrows and chevrons that decorate a navigation label.
 
 A label made only of them is a pager arrow. Vertical arrows are absent on

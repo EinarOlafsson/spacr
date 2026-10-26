@@ -261,14 +261,14 @@ def test_the_pid_check_uses_psutil_or_signal_zero(monkeypatch):
         if answer is not None:
             raise answer
 
-    monkeypatch.setattr(SB.os, "kill", _kill)
-    monkeypatch.setattr(SB.os, "name", "posix")
+    platform_os = types.SimpleNamespace(getpid=os.getpid, kill=_kill, name="posix")
+    monkeypatch.setattr(SB, "os", platform_os)
     assert SB._pid_alive(10**7) is True
     assert SB._pid_alive(10**7) is False
     assert SB._pid_alive(10**7) is True
     assert calls == [10**7] * 3
     # On Windows os.kill(pid, 0) terminates the process, so it is never sent.
-    monkeypatch.setattr(SB.os, "name", "nt")
+    platform_os.name = "nt"
     assert SB._pid_alive(10**7) is True
     assert calls == [10**7] * 3
 

@@ -293,6 +293,8 @@ def test_the_settings_section_folds_while_the_export_section_is_open(qtbot, sour
     wizard._scan()
     qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
     wizard._next()
+    qtbot.waitUntil(lambda: page.browser is not None, timeout=15000)
+    tab._settings_model.set_value_for_key("overview_max_fields", "all")
     qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == 12
                     and page.browser._normalization_ready, timeout=15000)
     overview = page.browser

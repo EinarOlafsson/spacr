@@ -90,6 +90,8 @@ def module(mask, qtbot, source):
     qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
     wizard._next()
     page = tab._overview_page
+    qtbot.waitUntil(lambda: page.browser is not None, timeout=15000)
+    tab._settings_model.set_value_for_key("overview_max_fields", "all")
     qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == 2 * len(WELLS)
                     and page.browser._normalization_ready and len(page.browser._channel_buttons) == 2,
                     timeout=15000)
@@ -161,6 +163,8 @@ def test_the_colour_modes_offer_rgb_cmy_and_cmyk_on_black_and_on_white_presets_a
     ("rgb_white", 0, [255, 0, 0]), ("rgb_white", 1, [0, 255, 0]), ("rgb_white", 2, [0, 0, 255]),
     ("cmy_black", 0, [0, 255, 255]), ("cmy_black", 1, [255, 0, 255]), ("cmy_black", 2, [255, 255, 0]),
     ("cmy", 0, [0, 255, 255]), ("cmy", 1, [255, 0, 255]), ("cmy", 2, [255, 255, 0]),
+    ("green_magenta", 0, [0, 255, 0]), ("green_magenta", 1, [255, 0, 255]),
+    ("green_magenta", 2, [0, 255, 255]),
 ])
 def test_one_full_channel_shows_exactly_its_colour_on_either_background(mode, index, expected):
     values = [0, 0, 0]

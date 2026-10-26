@@ -1061,6 +1061,7 @@ class TestStylesheet:
         semantic Run/Propagate and Stop/Close buttons likewise use an
         explicitly requested 18% blue/red hover tint.
         The Help search popup has the maintainer's fixed 80% surface.
+        The image metadata caption has its own fixed black overlay.
         The assertion names them and demands they are the only ones,
         which is the same guarantee stated precisely rather than a
         blanket ban that a rule about something else happened to trip.
@@ -1088,7 +1089,14 @@ class TestStylesheet:
                 allowed.add(theme.css_color(hue, 0.40))
                 allowed.add(theme.css_color(hue, 0.72))
                 allowed.add(theme.css_color(hue, 0.14))
-            found = set(re.findall(r"rgba\([^)]*\)", qss))
+            metadata = re.search(r"QLabel#FieldOverviewImageMetadata\s*\{([^}]+)\}", qss)
+            assert metadata is not None
+            assert re.findall(r"(?:^|;)\s*background(?:-color)?:\s*([^;]+);", metadata[1]) == [
+                "rgba(0, 0, 0, 150)"]
+            assert re.findall(r"(?:^|;)\s*color:\s*([^;]+);", metadata[1]) == ["white"]
+            assert re.findall(r"rgba\([^)]*\)", metadata[1]) == ["rgba(0, 0, 0, 150)"]
+            remaining = qss[:metadata.start()] + qss[metadata.end():]
+            found = set(re.findall(r"rgba\([^)]*\)", remaining))
             search = re.search(r"QFrame#HelpSearchResults\s*\{([^}]+)\}", qss)
             assert search is not None
             assert f'background-color: {theme.css_color(palette["surface_hi"], 0.8)};' in search[1]

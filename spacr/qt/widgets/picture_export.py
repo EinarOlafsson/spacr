@@ -779,6 +779,8 @@ def _canvas_text_width(figure, renderer, size, weight, style, text):
 
 def _canvas_draw_text(figure, renderer, box, page_width, page_height):
     """Draw a text box as vector text, wrapped to the box's width."""
+    from ...figures.style import resolve_ink
+
     weight = "bold" if box.get("bold") else "normal"
     style = "italic" if box.get("italic") else "normal"
     size = float(box.get("font_size") or 10.0)
@@ -791,7 +793,7 @@ def _canvas_draw_text(figure, renderer, box, page_width, page_height):
          "right": box["x"] + box["w"] - _CANVAS_TEXT_PAD}[align]
     figure.text(x / page_width, 1.0 - (box["y"] + _CANVAS_TEXT_PAD) / page_height, "\n".join(lines),
                 fontsize=size, fontweight=weight, fontstyle=style, ha=align, va="top",
-                multialignment=align, linespacing=_CANVAS_LINE_SPACING, color="black")
+                multialignment=align, linespacing=_CANVAS_LINE_SPACING, color=resolve_ink("print"))
 
 
 def _canvas_draw_scale_bar(axis, pixels, pixel_size_um):
@@ -1678,7 +1680,7 @@ class _CanvasComposer(QDialog):
         image_form = QVBoxLayout(self.image_group)
         self.image_label = QLabel("")
         self.image_label.setWordWrap(True)
-        self.lock_aspect = Toggle(tr("Keep aspect ratio"))
+        self.lock_aspect = Toggle(tr("Keep proportions"))
         self.lock_aspect.setToolTip(tr("Resize images without stretching them; turn off to stretch."))
         self.lock_aspect.toggled.connect(self._image_changed)
         self.scale_bar = Toggle(tr("Scale bar"))
