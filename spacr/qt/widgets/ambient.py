@@ -1877,14 +1877,43 @@ class _GraphicsBackend:
         ``build``, when given, returns the arguments; it runs only once a
         renderer has accepted the frame, so the CPU path pays nothing for
         graphics-only preparation.
+
+        A graphics frame holds the interpreter lock from submission to
+        readback (moderngl does not release it), so a GPU that is busy
+        elsewhere -- a screen recorder encoding, a run on the same card --
+        freezes the GUI thread for as long as the readback waits: the
+        tutorial capture host saw 0.13-0.18 s GUI stalls with the impulse
+        lens on the GPU (item 728). A frame that takes longer than
+        :data:`_GRAPHICS_HOLD_BUDGET_S` therefore sends the engine to its
+        CPU path, whose kernels release the lock, for
+        :data:`_GRAPHICS_SLOW_BACKOFF_S` before the GPU is tried again. The
+        budget is about one 60 Hz frame; the RTX 3090 Ti audit's slowest
+        impulse-lens frame was 9.2 ms at 3840x2160. The first frame of a
+        renderer compiles its shaders and is not judged.
         """
+        now = time.monotonic()
+        if now < self.__dict__.get("_graphics_slow_until", float("-inf")):
+            self._graphics_refusal = "the GPU held the interpreter lock too long"
+            return None
         renderer = self._graphics_renderer(width, height, work)
         if renderer is None:
             return None
         try:
             if build is not None:
                 args = tuple(build())
-            return getattr(renderer, method)(width, height, *args)
+            started = time.perf_counter()
+            frame = getattr(renderer, method)(width, height, *args)
+            held = time.perf_counter() - started
+            judged = self.__dict__.get("_graphics_judged")
+            if judged is not renderer:
+                self._graphics_judged = renderer
+            elif held > _GRAPHICS_HOLD_BUDGET_S:
+                self._graphics_slow_until = time.monotonic() + _GRAPHICS_SLOW_BACKOFF_S
+                LOG.info("%s: a GPU frame held the interpreter lock %.0f ms; "
+                         "shading on the CPU for %.0f s",
+                         getattr(self, "name", type(self).__name__),
+                         held * 1000.0, _GRAPHICS_SLOW_BACKOFF_S)
+            return frame
         except Exception as error:
             LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
             self._release_point_graphics()
@@ -1895,6 +1924,9 @@ class _GraphicsBackend:
             return self._refuse(f'{method} failed in {where.name} line {where.lineno}: '
                                 f'{type(error).__name__}: {str(error)[:600]}')
 
+
+_GRAPHICS_HOLD_BUDGET_S = 0.020
+_GRAPHICS_SLOW_BACKOFF_S = 30.0
 
 #: ``(theme, reason)`` pairs already logged, so each is reported once.
 _GRAPHICS_REFUSALS_LOGGED: set = set()
