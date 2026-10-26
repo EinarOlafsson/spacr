@@ -250,6 +250,8 @@ def module(qtbot, source):
     qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
     wizard._next()
     page = tab._overview_page
+    qtbot.waitUntil(lambda: page.browser is not None, timeout=15000)
+    tab._settings_model.set_value_for_key("overview_max_fields", "all")
     qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == 2 * len(WELLS)
                     and page.browser._normalization_ready and page.browser.norm_channel.count() >= 3,
                     timeout=15000)

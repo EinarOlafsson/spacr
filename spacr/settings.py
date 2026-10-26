@@ -8198,7 +8198,7 @@ OVERVIEW_DEFAULTS = {
     'src': 'path',
     'custom_regex': None,
     'overview_max_wells': 'all',
-    'overview_max_fields': 'all',
+    'overview_max_fields': '1',
     'overview_channels': '0',
     'overview_color_mode': 'additive',
     'overview_custom_colors': '',
@@ -8283,7 +8283,7 @@ OVERVIEW_TYPES = {
 OVERVIEW_TOOLTIPS = {
     'overview_channels': "(str) - Channels shown in the overview, comma-separated. Use the filename channel IDs when each channel is a separate file, and zero-based indices for multichannel images. Up to three channels are shown as red, green and blue; more are shown side by side. Default '0'.",
     'overview_max_wells': "(str or int) - Most wells loaded from each plate: 'all', or a number. Each loaded plate is capped on its own, always with its first wells in plate order (A01, A02, ... B01, ...). Wells beyond the cap stay on the plate view marked as not loaded and are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Changing it adds or drops only the wells concerned. Default 'all'.",
-    'overview_max_fields': "(str or int) - Most fields loaded from each well: 'all', or a number. The first fields in field-number order are kept, with every time point and Z plane of each. Fields beyond the cap are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Default 'all'.",
+    'overview_max_fields': "(str or int) - Most fields loaded from each well: 'all', or a number. The first fields in field-number order are kept, with every time point and Z plane of each. Fields beyond the cap are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Default 1.",
     'overview_color_mode': "(str) - How the shown channels are combined into one colour image, on black (light adds up) or on white (inks absorb): 'additive' RGB on black, 'rgb_white', 'cmy_black', 'cmy' (CMY on white), 'cmyk_black', 'cmyk' (CMYK on white; the fourth channel is the key, white on black), 'green_magenta' (colour-blind safe), 'greys' (every channel in grey, side by side) or 'custom' (the Custom colours chosen per channel). A channel coloured cyan, magenta, yellow or black keeps that ink. Applies to every view and to exported PDFs. Default 'additive'.",
     'overview_custom_colors': "(str) - The colour of each channel in the 'custom' colour mode, as 'channel=#rrggbb' pairs separated by commas, for example '1=#ff0000, 2=#00ff00'. Pick them with the colour buttons under Channels; a channel without one takes red, green, blue, magenta, cyan, yellow, orange, violet or white by its position. Default ''.",
     'overview_ink_intensity': "(float) - How much ink or light each channel lays down in the CMY and CMYK colour modes: 1 prints the channel's display level as it is, lower values print it paler and higher values deeper. Pick a channel in Advanced normalization > Channel to edit to give that channel its own intensity; the others keep this value. Applies to the CMY and CMYK modes on black and on white; has no effect on the other colour modes. Default 1.0.",

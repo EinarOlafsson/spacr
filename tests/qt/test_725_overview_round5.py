@@ -291,7 +291,8 @@ def _open_tab(mask, source):
     return mask._overview_tab
 
 
-def _next(tab, qtbot):
+def _next(tab, qtbot, max_fields="all"):
+    """Go past the metadata step; ``max_fields`` None keeps the setting's default of one field per well."""
     wizard = tab._overview_page.wizard
     wizard.preset.setCurrentIndex(wizard.preset.count() - 1)
     wizard.regex.setText(PATTERN)
@@ -299,7 +300,11 @@ def _next(tab, qtbot):
     qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
     wizard._next()
     page = tab._overview_page
-    qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == 2 * len(WELLS)
+    if max_fields is not None:
+        qtbot.waitUntil(lambda: page.browser is not None, timeout=15000)
+        tab._settings_model.set_value_for_key("overview_max_fields", max_fields)
+    expected = len(WELLS) if max_fields is None else 2 * len(WELLS)
+    qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == expected
                     and page.browser._normalization_ready, timeout=15000)
     return page.browser
 
@@ -461,12 +466,16 @@ def test_the_shown_field_is_found_from_its_view(view, qtbot):
 
 def test_the_load_limits_are_source_settings_and_live_in_the_tab(mask, qtbot, source):
     tab = _open_tab(mask, source)
-    view = _next(tab, qtbot)
+    view = _next(tab, qtbot, max_fields=None)
     model = tab._settings_model
     from spacr.qt.screens.settings_model import categories_for_app, get_categories
 
     assert {"overview_max_wells", "overview_max_fields"} <= set(categories_for_app("overview", get_categories())["Source"])
     assert model._read_value("overview_max_wells") == "all"
+    assert str(model._read_value("overview_max_fields")) == "1"
+    assert view._load_limits == (None, 1) and len(view._fields) == len(WELLS)
+    model.set_value_for_key("overview_max_fields", "all")
+    assert view._load_limits == (None, None) and len(view._fields) == 2 * len(WELLS)
     model.set_value_for_key("overview_max_wells", "2")
     assert view._load_limits == (2, None)
     assert {field.well for field in view._fields} == {"A01", "A02"}
