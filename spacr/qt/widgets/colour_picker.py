@@ -60,8 +60,9 @@ def pick_colour(parent: Optional[QWidget] = None,
         start = QColor("#ffffff")
     from ..dialogs import detach_from_window_manager
 
-    dialog = QColorDialog(start, parent)
+    dialog = QColorDialog(parent)
     dialog.setOption(QColorDialog.ColorDialogOption.DontUseNativeDialog, True)
+    dialog.setCurrentColor(start)
     if title:
         dialog.setWindowTitle(title)
     detach_from_window_manager(dialog)

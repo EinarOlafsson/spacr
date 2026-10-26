@@ -24,6 +24,9 @@ import ast
 from pathlib import Path
 
 import pytest
+from PySide6.QtWidgets import QDialog
+
+_REAL_DIALOG_EXEC = QDialog.exec
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "spacr"
 
@@ -200,3 +203,70 @@ def test_the_owned_picker_centers_after_detachment_and_preserves_parent(qtbot, m
     assert not pick_colour(parent, "#55aa77").isValid()
     assert len(observed) == 1
     assert parent.isVisible()
+
+
+@pytest.mark.parametrize("theme", ("light", "dark"))
+@pytest.mark.parametrize("accept", (False, True), ids=("cancel", "accept"))
+def test_the_shown_picker_preserves_initial_colour_and_real_button_result(qtbot, monkeypatch, theme, accept):
+    import os
+    from pathlib import Path
+    from PySide6.QtCore import QTimer, Qt
+    from PySide6.QtGui import QColor
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QColorDialog, QDialogButtonBox, QWidget
+    from spacr.qt import preferences
+    from spacr.qt.app import install_the_dialog_filters
+    from spacr.qt.widgets.colour_picker import pick_colour
+
+    app = QApplication.instance()
+    monkeypatch.setattr(QColorDialog, "exec", _REAL_DIALOG_EXEC)
+    install_the_dialog_filters(app)
+    old_theme = preferences.get_theme()
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    observed = []
+
+    def inspect_and_choose():
+        dialog = app.activeModalWidget()
+        try:
+            assert isinstance(dialog, QColorDialog) and dialog.isVisible()
+            qtbot.waitExposed(dialog)
+            assert dialog.parentWidget() is parent
+            assert dialog.testOption(QColorDialog.DontUseNativeDialog)
+            assert dialog.currentColor() == QColor("#55aa77")
+            assert (dialog.frameGeometry().center() - parent.frameGeometry().center()).manhattanLength() <= 2
+            observed.append(dialog.currentColor().name())
+            output = os.environ.get("SPACR_PICKER_NATIVE_ARTIFACTS")
+            if output:
+                app.primaryScreen().grabWindow(0).save(str(Path(output) / (
+                    "picker-initial-" + theme + ("-accept-after.png" if accept else "-cancel-after.png"))))
+            dialog.setCurrentColor(QColor("#123456"))
+            buttons = dialog.findChild(QDialogButtonBox)
+            selected = QDialogButtonBox.Ok if accept else QDialogButtonBox.Cancel
+            QTest.mouseClick(buttons.button(selected), Qt.LeftButton)
+        finally:
+            if isinstance(dialog, QColorDialog) and dialog.isVisible():
+                dialog.reject()
+
+    timer = QTimer(parent)
+    timer.setSingleShot(True)
+    timer.timeout.connect(inspect_and_choose)
+    try:
+        preferences.set_theme(theme)
+        preferences.apply_preferences_to_app(app)
+        parent.resize(1100, 800)
+        parent.move(180, 120)
+        parent.show()
+        qtbot.waitExposed(parent)
+        timer.start(0)
+        result = pick_colour(parent, "#55aa77", "Line colour")
+        assert observed == ["#55aa77"]
+        if accept:
+            assert result.name() == "#123456"
+        else:
+            assert not result.isValid()
+        assert parent.isVisible()
+    finally:
+        timer.stop()
+        preferences.set_theme(old_theme)
+        preferences.apply_preferences_to_app(app)
