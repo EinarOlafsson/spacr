@@ -643,7 +643,7 @@ class _CanvasLayout:
         :raises ValueError: when the mapping is not a canvas layout.
         """
         if not isinstance(data, dict) or data.get("schema") != _CANVAS_LAYOUT_SCHEMA:
-            raise ValueError("not a spaCR canvas layout")
+            raise ValueError(tr("This file is not a spaCR canvas layout."))
         layout = cls()
         layout._apply(data)
         return layout
@@ -723,7 +723,7 @@ def _canvas_file_pixels(path, edge=None):
     if pixels.ndim == 3 and pixels.shape[-1] not in (3, 4):
         pixels = pixels[..., 0]
     if pixels.ndim not in (2, 3) or pixels.size == 0:
-        raise ValueError(f"{os.path.basename(path)} holds no image")
+        raise ValueError(tr("{name} holds no image.", name=os.path.basename(path)))
     if pixels.dtype != np.uint8:
         values = pixels.astype(np.float64)
         low, high = float(np.nanmin(values)), float(np.nanmax(values))
