@@ -1630,6 +1630,86 @@ def _overview_save_view_state(source, state):
     return path
 
 
+_OVERVIEW_SCOPES = ("image", "well", "plate", "all")
+_OVERVIEW_SCOPE_IMAGES = 64
+_OVERVIEW_SCOPE_PIXELS = 4096
+
+
+def _overview_channel_scopes(value):
+    """Read the normalization scope setting into ``{channel: scope}``.
+
+    :param value: one scope for every channel (``'plate'``), or per channel
+        (``'1=plate, 2=image'``).
+    :returns: ``{"*": scope}`` for one value, else ``{channel text: scope}``;
+        unknown scopes read as ``'image'``.
+    """
+    text = str(value or "image").strip().lower()
+    if "=" not in text:
+        return {"*": text if text in _OVERVIEW_SCOPES else "image"}
+    scopes = {}
+    for part in text.split(","):
+        channel, _, scope = part.partition("=")
+        if channel.strip():
+            scope = scope.strip()
+            scopes[channel.strip()] = scope if scope in _OVERVIEW_SCOPES else "image"
+    return scopes
+
+
+def _overview_scope_text(scopes):
+    """Write ``{channel: scope}`` back as the setting's text, one value when all agree."""
+    values = set(scopes.values())
+    if len(values) <= 1:
+        return next(iter(values), "image")
+    return ", ".join(f"{channel}={scope}" for channel, scope in scopes.items())
+
+
+def _overview_scope_of(scopes, channel):
+    """The scope one channel is normalized over."""
+    return scopes.get(str(channel), scopes.get("*", "image"))
+
+
+def _overview_scope_group(field, scope):
+    """The images a field shares its bounds with: its well, its plate, or every plate."""
+    if scope == "well":
+        return _overview_plate_key(field) + (str(field.well),)
+    if scope == "plate":
+        return _overview_plate_key(field)
+    return ()
+
+
+def _overview_scope_statistics(groups, percentiles, axes, cancelled=None):
+    """Display bounds per channel over each group's sampled pixels; runs off the GUI thread.
+
+    At most :data:`_OVERVIEW_SCOPE_IMAGES` evenly spaced images per group
+    are read at 256 pixels, and at most :data:`_OVERVIEW_SCOPE_PIXELS`
+    evenly spaced finite pixels of each, so a wide scope costs about as
+    much as a few thumbnails.
+
+    :param groups: ``{cache key: (channel, fields)}``.
+    :param percentiles: ``(low, high)`` percentiles.
+    :param axes: ``time_index``, ``z_mode`` and ``z_index``.
+    :returns: ``{cache key: (low, high)}`` in raw intensity units.
+    """
+    result = {}
+    for key, (channel, fields) in groups.items():
+        if cancelled is not None and cancelled.is_set():
+            break
+        fields = tuple(fields)
+        step = max(1, math.ceil(len(fields) / _OVERVIEW_SCOPE_IMAGES))
+        samples = []
+        for field in fields[::step]:
+            for _channel, _path, values in _overview_cached_raw_planes(field, (channel,), edge=256, **axes):
+                finite = np.asarray(values, dtype=np.float64).ravel()
+                finite = finite[np.isfinite(finite)]
+                if finite.size:
+                    samples.append(finite[::max(1, finite.size // _OVERVIEW_SCOPE_PIXELS)])
+        if samples:
+            pooled = np.concatenate(samples)
+            low, high = np.percentile(pooled, percentiles)
+            result[key] = (float(low), float(high))
+    return result
+
+
 def _overview_try_save_view_state(source, state):
     """:func:`_overview_save_view_state`, answering an unwritable folder with its error text."""
     try:
@@ -4672,6 +4752,9 @@ class _FieldOverview(QWidget):
         self._color_mode = "additive"
         self._channel_limits = {}
         self._image_overrides = {}
+        self._normalization_scopes = {"*": "image"}
+        self._scope_cache = {}
+        self._scope_generation = 0
         self._view_state = _overview_empty_view_state()
         self._view_state_pending = None
         self._view_state_writing = False
@@ -5384,6 +5467,85 @@ class _FieldOverview(QWidget):
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item, preserve_view=True)
+
+    def _set_normalization_scopes(self, scopes):
+        """Normalize each channel over its image, well, plate or every loaded plate.
+
+        :param scopes: ``{channel text or "*": scope}``, as
+            :func:`_overview_channel_scopes` reads the setting.
+        """
+        scopes = dict(scopes or {"*": "image"})
+        if scopes == self._normalization_scopes:
+            return
+        self._normalization_scopes = scopes
+        self._refresh_scope_limits()
+
+    def _scope_request(self):
+        """The scoped channels, percentiles and acquisition axes the limits depend on now."""
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError):
+            return None
+        scoped = {channel: _overview_scope_of(self._normalization_scopes, channel) for channel in channels}
+        scoped = {channel: scope for channel, scope in scoped.items() if scope != "image"}
+        if not scoped or not self._fields:
+            return None
+        options = self._display_kwargs()
+        axes = {key: options[key] for key in ("time_index", "z_mode", "z_index")}
+        return scoped, tuple(limits) if limits is not None else (0., 100.), axes
+
+    def _refresh_scope_limits(self, *_):
+        """Bring the per-channel scope bounds up to date, computing missing ones off the GUI thread.
+
+        Bounds are cached per channel, scope group, percentiles, axes and the
+        group's loaded images, so a change to any of them is a new entry.
+        """
+        request = self._scope_request()
+        if request is None:
+            if self._channel_limits:
+                self._set_display_layers(channel_limits={})
+            return
+        scoped, percentiles, axes = request
+        axis_key = tuple(sorted(axes.items()))
+        members = {}
+        for field in self._fields:
+            if field.unresolved or not field.well:
+                continue
+            for channel, scope in scoped.items():
+                members.setdefault((channel, scope, _overview_scope_group(field, scope)), []).append(field)
+        keys = {group: group + (percentiles, axis_key, frozenset(field.identity for field in fields))
+                for group, fields in members.items()}
+        missing = {keys[group]: (group[0], tuple(fields)) for group, fields in members.items()
+                   if keys[group] not in self._scope_cache}
+        self._scope_generation += 1
+        if not missing:
+            self._install_scope_limits(scoped, keys)
+            return
+        self._metadata_jobs.submit(
+            functools.partial(_overview_scope_statistics, missing, percentiles, axes, self._cancelled),
+            functools.partial(self._scope_statistics_ready, self._scope_generation, scoped, keys))
+
+    def _scope_statistics_ready(self, generation, scoped, keys, result):
+        """Cache computed bounds and apply them while the request is still current."""
+        self._scope_cache.update(result)
+        if generation == self._scope_generation:
+            self._install_scope_limits(scoped, keys)
+
+    def _install_scope_limits(self, scoped, keys):
+        """Give every loaded image its channels' scope bounds; redraw only when they changed."""
+        limits = {}
+        for field in self._fields:
+            if field.unresolved or not field.well:
+                continue
+            entry = {}
+            for channel, scope in scoped.items():
+                bounds = self._scope_cache.get(keys.get((channel, scope, _overview_scope_group(field, scope))))
+                if bounds is not None and bounds[1] > bounds[0]:
+                    entry[channel] = bounds
+            if entry:
+                limits[_overview_image_key(field)] = entry
+        if limits != self._channel_limits:
+            self._set_display_layers(channel_limits=limits)
 
     def _set_display_layers(self, channel_limits=None, image_overrides=None):
         """Replace the scope limits or the per-image overrides and redraw every view.
@@ -7693,6 +7855,7 @@ class _FieldOverview(QWidget):
         individual = self._individual
         self._displayed_montage = None
         self._preview_edge = 256
+        self._refresh_scope_limits()
         self._filter()
         if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
@@ -8125,6 +8288,7 @@ class _FieldOverview(QWidget):
         if not self._geometry_valid:
             return
         self._prepare_display_after_paint()
+        self._refresh_scope_limits()
         self.status.setText(tr("{count} fields; {unresolved} with unresolved metadata.",
                                count=len(fields), unresolved=sum(f.unresolved for f in fields)))
 
@@ -8360,6 +8524,7 @@ class _FieldOverview(QWidget):
         """
         if self._controls_lost:
             return
+        self._refresh_scope_limits()
         self._displayed_montage = None
         self._comparison_signature = None
         self._reload_image_views()
@@ -9428,7 +9593,7 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
                             "overview_original_on_open", "overview_enhance_channels",
                             "overview_normalize_channels", "overview_color_mode",
-                            "overview_max_wells", "overview_max_fields")
+                            "overview_max_wells", "overview_max_fields", "overview_normalization_scope")
 
 
 def _overview_channel_targets(value):
@@ -9658,6 +9823,7 @@ class _OverviewSettingsBridge:
         browser._original_on_open = bool(values.get("overview_original_on_open"))
         browser._set_color_mode(values.get("overview_color_mode"))
         browser._set_load_limits(values.get("overview_max_wells"), values.get("overview_max_fields"))
+        browser._set_normalization_scopes(_overview_channel_scopes(values.get("overview_normalization_scope")))
         browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
                                      _overview_channel_targets(values.get("overview_normalize_channels")))
         try:
@@ -9751,6 +9917,77 @@ class _OverviewChannelToggles(QWidget):
         """Write the switched-on channels back into the setting."""
         on = [str(channel) for channel, toggle in self._toggles.items() if toggle.isChecked()]
         value = "all" if len(on) == len(self._toggles) else (",".join(on) or "none")
+        self._writing = True
+        try:
+            self._model.set_value_for_key(self._key, value)
+        finally:
+            self._writing = False
+
+
+class _OverviewChannelScopes(QWidget):
+    """One scope choice per channel, each on its own line, for ``overview_normalization_scope``.
+
+    The setting stays the record (``"image"`` or ``"1=plate, 2=image"``) and
+    this writes it.
+    """
+
+    def __init__(self, model, key, parent=None):
+        """Follow one setting row.
+
+        :param model: the Overview tab's settings model.
+        :param key: the scope setting it writes.
+        :param parent: the owning widget.
+        """
+        from PySide6.QtWidgets import QFormLayout
+        from ..screens.settings_model import _connect_value_changed
+
+        super().__init__(parent)
+        self._model, self._key = model, key
+        self._channels = ()
+        self._choices = {}
+        self._writing = False
+        self._layout = QFormLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        row = model._widgets.get(key)
+        if row is not None:
+            _connect_value_changed(row, self._row_changed)
+
+    def set_channels(self, channels):
+        """Show one scope choice per channel, set from the setting's value.
+
+        :param channels: the source's channel IDs, in order.
+        """
+        channels = tuple(channels)
+        if channels == self._channels:
+            self._row_changed()
+            return
+        while self._layout.rowCount():
+            self._layout.removeRow(0)
+        self._choices = {}
+        self._channels = channels
+        for channel in channels:
+            choice = QComboBox()
+            for value, caption in (("image", "Each image"), ("well", "Each well"),
+                                   ("plate", "Each plate"), ("all", "All loaded plates")):
+                choice.addItem(tr(caption), value)
+            choice.currentIndexChanged.connect(self._chosen)
+            self._layout.addRow(tr("Channel {channel}", channel=channel), choice)
+            self._choices[channel] = choice
+        self._row_changed()
+
+    def _row_changed(self, *_):
+        """Follow the setting row's value."""
+        if self._writing:
+            return
+        scopes = _overview_channel_scopes(self._model._read_value(self._key))
+        for channel, choice in self._choices.items():
+            choice.blockSignals(True)
+            choice.setCurrentIndex(max(0, choice.findData(_overview_scope_of(scopes, channel))))
+            choice.blockSignals(False)
+
+    def _chosen(self, *_):
+        """Write the chosen scopes back into the setting."""
+        value = _overview_scope_text({str(channel): choice.currentData() for channel, choice in self._choices.items()})
         self._writing = True
         try:
             self._model.set_value_for_key(self._key, value)
@@ -10061,6 +10298,22 @@ class _OverviewModulePage(QWidget):
             keys[toggles] = _overview_row_key(caption)
             self._rows.append((section, toggles, ()))
             self._hidden_keys.append(key)
+        section = _overview_section(self._screen, "Normalization")
+        if section is not None and model._widgets.get("overview_normalization_scope") is not None:
+            caption = "Normalization scope"
+            tooltip = ("Per channel, which images share one display stretch: each image on its own, each well, "
+                       "each plate, or all loaded plates. Wider scopes use sampled pixels: at most 64 images "
+                       "per scope and 4096 pixels per image.")
+            scopes = _OverviewChannelScopes(model, "overview_normalization_scope")
+            scopes.setProperty("settingKey", _overview_row_key(caption))
+            scopes.setProperty("apiTooltipDescriptionSource", tooltip)
+            browser._channels_found.connect(scopes.set_channels)
+            if browser._channel_buttons:
+                scopes.set_channels(tuple(browser._channel_buttons))
+            section.add_prose_row(_overview_row_label(caption, tooltip), scopes)
+            keys[scopes] = _overview_row_key(caption)
+            self._rows.append((section, scopes, ()))
+            self._hidden_keys.append("overview_normalization_scope")
         if self._hidden_keys:
             self._screen_hides = model.rows_the_screen_hides
             model.rows_the_screen_hides = functools.partial(

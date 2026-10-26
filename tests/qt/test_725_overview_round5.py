@@ -462,3 +462,20 @@ def test_the_load_limits_are_source_settings_and_live_in_the_tab(mask, qtbot, so
     model.set_value_for_key("overview_max_wells", "all")
     model.set_value_for_key("overview_max_fields", "all")
     assert len(view._fields) == 2 * len(WELLS)
+
+
+def test_the_normalization_scope_is_one_choice_per_channel_in_the_tab(mask, qtbot, source):
+    tab = _open_tab(mask, source)
+    view = _next(tab, qtbot)
+    model = tab._settings_model
+    scopes = next(field for _section, field, _widgets in tab._overview_page._rows
+                  if isinstance(field, browser._OverviewChannelScopes))
+    qtbot.waitUntil(lambda: len(scopes._choices) == 2, timeout=15000)
+    assert model._read_value("overview_normalization_scope") == "image"
+    first, second = scopes._choices.values()
+    first.setCurrentIndex(first.findData("plate"))
+    assert model._read_value("overview_normalization_scope") == "1=plate, 2=image"
+    assert view._normalization_scopes == {"1": "plate", "2": "image"}
+    model.set_value_for_key("overview_normalization_scope", "well")
+    assert first.currentData() == "well" and second.currentData() == "well"
+    assert view._normalization_scopes == {"*": "well"}

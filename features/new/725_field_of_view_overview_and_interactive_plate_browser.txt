@@ -111,6 +111,25 @@ WHAT WAS DONE — round 5, M2 (Max wells per plate, Max fields per well)
 - Tests: tests/qt/test_725_overview_load_limits.py, plus the live-setting test in
   test_725_overview_round5.py.
 
+WHAT WAS DONE — round 5, M3 (per-channel normalization scope)
+- New setting overview_normalization_scope (Image > Normalization), shown as one
+  choice per channel: Each image (today's behaviour, the default), Each well, Each
+  plate, All loaded plates. Stored as one value for every channel or per channel as
+  '1=plate, 2=image'.
+- For a wider scope, the display percentiles are computed per channel over the
+  scope's loaded images and applied to every image in it, so brightness is
+  comparable across the scope. They use sampled pixels (at most 64 evenly spaced
+  images per scope, 4096 pixels per image, read at 256 pixels), computed on a job
+  thread; the tooltip says so.
+- The bounds are cached per channel, scope group, percentiles, acquisition axes and
+  the group's loaded images, so changing images, plates, caps, channels,
+  percentiles or axes computes new ones; nothing is recomputed otherwise.
+- They reach the plate thumbnails, well view and image view through the interface's
+  channel_limits layer: global normalization, then the scope, then any per-image
+  override.
+- Tests: tests/qt/test_725_overview_scope.py, plus the per-channel choice test in
+  test_725_overview_round5.py.
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
 Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
 _display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.
