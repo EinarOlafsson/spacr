@@ -2771,6 +2771,73 @@ def _overview_subtractive(planes, inks):
     return np.clip(255. - absorbed, 0, 255).astype(np.uint8)
 
 
+_OVERVIEW_READOUT_INTERVAL_MS = 33
+
+
+def _overview_source_pixel(u, v, rendered, source, count=1, mosaic=False):
+    """Map a point on a rendered Overview image back to its original source pixel.
+
+    A composite is the source plane sampled every ``stride`` pixels, so a
+    rendered pixel covers ``source / rendered`` source pixels in each
+    direction. A mosaic (more than three channels side by side) lays the
+    channels out as :func:`_overview_pixels` does: square tiles, a caption
+    strip on top of each, and one downsampled plane per tile.
+
+    :param u: horizontal position on the rendered image, in rendered pixels.
+    :param v: vertical position on the rendered image, in rendered pixels.
+    :param rendered: ``(height, width)`` of the rendered image.
+    :param source: ``(height, width)`` of the original channel planes.
+    :param count: the number of channels drawn.
+    :param mosaic: whether the channels are drawn as a mosaic.
+    :returns: ``(x, y)`` in original pixels, or ``None`` off the image.
+    """
+    rows, columns = rendered
+    height, width = source
+    if mosaic:
+        across = math.ceil(math.sqrt(count))
+        tile = max(1, columns // across)
+        header = min(16, tile // 4)
+        column, row = int(u // tile), int(v // tile)
+        if u < 0 or v < 0 or column >= across or row * across + column >= count:
+            return None
+        u, v = u - column * tile, v - row * tile - header
+        stride = max(1, math.ceil(max(height, width) / max(1, tile - header)))
+        rows, columns = math.ceil(height / stride), math.ceil(width / stride)
+    if not (0 <= u < columns and 0 <= v < rows):
+        return None
+    return min(width - 1, int(u * width / columns)), min(height - 1, int(v * height / rows))
+
+
+def _overview_readout_planes(field, axes):
+    """Read every channel of one field at original resolution for the hover readout.
+
+    Runs off the GUI thread; the planes come from the shared plane cache when
+    the views already read them.
+
+    :param field: the hovered field.
+    :param axes: ``time_index``, ``z_mode`` and ``z_index``.
+    :returns: ``{channel: raw plane}``, or the reason they cannot be read.
+    """
+    try:
+        channels = tuple(_overview_channel_info(field)["channels"])
+        return {channel: array for channel, _path, array
+                in _overview_cached_raw_planes(field, channels, edge=None, **axes)}
+    except Exception as error:
+        return tr("Pixel values unavailable: {error}", error=error)
+
+
+def _overview_raw_value(value):
+    """Show one stored pixel value exactly: integers whole, floats to six significant digits."""
+    values = np.ravel(np.asarray(value))
+    texts = []
+    for item in values:
+        if np.issubdtype(values.dtype, np.integer) or np.issubdtype(values.dtype, np.bool_):
+            texts.append(str(int(item)))
+        else:
+            texts.append(format(float(item), ".6g"))
+    return texts[0] if len(texts) == 1 else "(" + ", ".join(texts) + ")"
+
+
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      channel_views=False, normalization_context=None, cancelled=None,
@@ -4760,6 +4827,11 @@ class _FieldOverview(QWidget):
         self._view_state_writing = False
         self._main_view_field = None
         self._displayed_field = None
+        self._readout_viewports = {}
+        self._well_viewport = None
+        self._readout_pending = None
+        self._readout_planes = None
+        self._readout_loading = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
         self._fields, self._visible = (), ()
@@ -5185,6 +5257,180 @@ class _FieldOverview(QWidget):
             widget.installEventFilter(self)
         self._module_action_fit_timer.start(0)
         self._module_actions.hide()
+        self._build_pixel_readout(column)
+
+    def _build_pixel_readout(self, column):
+        """Add the fixed-height strip that shows raw pixel values under the cursor.
+
+        :param column: the browser's main layout; the strip goes at its bottom left.
+        """
+        self._pixel_readout = QLabel()
+        self._pixel_readout.setObjectName("FieldOverviewPixelReadout")
+        self._pixel_readout.setTextFormat(Qt.PlainText)
+        self._pixel_readout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self._pixel_readout.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self._pixel_readout.setFixedHeight(self._pixel_readout.fontMetrics().height() + 8)
+        self._pixel_readout.setAccessibleName(tr("Pixel values under the cursor"))
+        column.addWidget(self._pixel_readout)
+        self._readout_timer = QTimer(self)
+        self._readout_timer.setSingleShot(True)
+        self._readout_timer.setInterval(_OVERVIEW_READOUT_INTERVAL_MS)
+        self._readout_timer.timeout.connect(self._update_pixel_readout)
+        self._readout_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._track_readout(self.view.viewport(), self.view)
+
+    def _track_readout(self, viewport, owner):
+        """Show the pixel readout while the cursor moves over ``owner``'s images.
+
+        :param viewport: the viewport that receives the mouse moves.
+        :param owner: the image view or well view that draws the images.
+        """
+        viewport.setMouseTracking(True)
+        viewport.installEventFilter(self)
+        self._readout_viewports[viewport] = owner
+
+    def _readout_event(self, owner, event):
+        """Throttle cursor moves over an image and clear the readout when it leaves.
+
+        :param owner: the image view or well view under the cursor.
+        :param event: the mouse move or leave event.
+        """
+        if event.type() == QEvent.Leave:
+            self._clear_pixel_readout()
+            return
+        self._readout_pending = (owner, event.position())
+        if not self._readout_timer.isActive():
+            self._readout_timer.start()
+
+    def _clear_pixel_readout(self):
+        """Empty the readout strip; its height stays, so nothing moves."""
+        self._readout_pending = None
+        if getattr(self, "_pixel_readout", None) is None:
+            return
+        self._readout_timer.stop()
+        self._pixel_readout.clear()
+
+    def _readout_target(self, owner, position):
+        """Find the field and rendered-image position under the cursor.
+
+        :param owner: the image view or well view under the cursor.
+        :param position: the cursor in the owner's viewport, in logical pixels.
+        :returns: ``(field, u, v, (rendered height, rendered width))`` with
+            ``u, v`` in rendered image pixels, or ``None`` off every image.
+        """
+        from PySide6.QtCore import QRectF
+
+        if isinstance(owner, ZoomableImageView):
+            item = owner._item
+            if item is None or item.pixmap().isNull():
+                return None
+            field = self._field_shown_in(owner)
+            if field is None or (owner is self.view and not self._individual):
+                return None
+            inverse, invertible = owner.viewportTransform().inverted()
+            if not invertible:
+                return None
+            local = item.mapFromScene(inverse.map(position))
+            pixmap = item.pixmap()
+            ratio = pixmap.devicePixelRatio()
+            return field, local.x() * ratio, local.y() * ratio, (pixmap.height(), pixmap.width())
+        point = position.toPoint()
+        item = next((owner.item(index) for index in range(owner.count())
+                     if owner.visualItemRect(owner.item(index)).contains(point)), None)
+        rendered = item.data(Qt.UserRole + 3) if item is not None else None
+        if not rendered or item.icon().isNull():
+            return None
+        option = QStyleOptionViewItem()
+        option.initFrom(owner.viewport())
+        option.rect = owner.visualItemRect(item)
+        option.decorationSize = owner.iconSize()
+        option.decorationPosition = QStyleOptionViewItem.Top
+        option.decorationAlignment = Qt.AlignCenter
+        option.displayAlignment = Qt.AlignHCenter | Qt.AlignTop
+        option.features = QStyleOptionViewItem.HasDecoration | (
+            QStyleOptionViewItem.HasDisplay if item.text() else QStyleOptionViewItem.None_)
+        option.text = item.text()
+        option.icon = item.icon()
+        decoration = owner.style().subElementRect(QStyle.SE_ItemViewItemDecoration, option, owner)
+        size = item.icon().actualSize(owner.iconSize())
+        shown = QRectF(decoration.x() + (decoration.width() - size.width()) / 2,
+                       decoration.y() + (decoration.height() - size.height()) / 2,
+                       size.width(), size.height())
+        if shown.isEmpty() or not shown.contains(position):
+            return None
+        height, width = rendered
+        return (item.data(Qt.UserRole), (position.x() - shown.x()) / shown.width() * width,
+                (position.y() - shown.y()) / shown.height() * height, (height, width))
+
+    def _update_pixel_readout(self):
+        """Show the raw value of every channel at the source pixel under the cursor."""
+        if self._readout_pending is None or self._cancelled.is_set():
+            return
+        owner, position = self._readout_pending
+        target = self._readout_target(owner, position)
+        if target is None:
+            self._pixel_readout.clear()
+            return
+        field, u, v, rendered = target
+        axes = self._axis_options()
+        key = (field.identity, tuple(sorted(axes.items())))
+        place = "   ·   ".join((tr("Plate {plate}", plate=field.plate),
+                                tr("Well {well}", well=field.well or tr("Unresolved")),
+                                tr("Image {image}", image=field.field)))
+        if self._readout_planes is None or self._readout_planes[0] != key:
+            self._load_readout_planes(field, key, axes)
+            self._pixel_readout.setText(place + "   ·   " + tr("reading pixel values…"))
+            return
+        planes = self._readout_planes[1]
+        if isinstance(planes, str):
+            self._pixel_readout.setText(place + "   ·   " + planes)
+            return
+        try:
+            channels = self._choices()[0]
+        except (ValueError, TypeError):
+            channels = ()
+        mosaic = (len(channels) > 3 and _overview_inks(channels, self._overview_options.get("channel_colors"),
+                                                         self._color_mode) is None)
+        shape = next(iter(planes.values())).shape[:2]
+        point = _overview_source_pixel(u, v, rendered, shape, len(channels), mosaic)
+        if point is None:
+            self._pixel_readout.clear()
+            return
+        x, y = point
+        names = self._overview_options.get("channel_names") or {}
+        values = []
+        for channel, plane in planes.items():
+            name = names.get(channel, names.get(str(channel), "")) or tr("Channel {channel}", channel=channel)
+            values.append(f"{name}: {_overview_raw_value(plane[y, x])}")
+        self._pixel_readout.setText("   ·   ".join((tr("x {x}, y {y}", x=x, y=y), place, *values)))
+
+    def _load_readout_planes(self, field, key, axes):
+        """Read every channel of ``field`` at original resolution for the readout, once.
+
+        :param field: the hovered field.
+        :param key: the field identity and acquisition axes the planes belong to.
+        :param axes: the time, Z and projection the views show.
+        """
+        if self._readout_loading == key:
+            return
+        self._readout_loading = key
+        self._readout_jobs.submit(functools.partial(_overview_readout_planes, field, axes),
+                                  functools.partial(self._readout_planes_read, key, self._cancelled))
+
+    def _readout_planes_read(self, key, cancelled, planes):
+        """Keep the read planes and refresh the readout if the cursor is still on an image.
+
+        :param key: the field identity and axes the planes belong to.
+        :param cancelled: the source generation the read started in.
+        :param planes: ``{channel: raw plane}``, or the reason they are missing.
+        """
+        if self._readout_loading == key:
+            self._readout_loading = None
+        if cancelled.is_set():
+            return
+        self._readout_planes = (key, planes)
+        if self._readout_pending is not None:
+            self._update_pixel_readout()
 
     def _fit_module_actions(self):
         """Refresh native action minima after coalesced font and style changes."""
@@ -5308,6 +5554,7 @@ class _FieldOverview(QWidget):
         fields.currentItemChanged.connect(
             lambda current, previous, owner=fields: self._current_field_in(owner, current, previous))
         fields._overview_well, fields._overview_page = None, 0
+        self._track_readout(fields.viewport(), fields)
         fields._overview_metadata = False
         fields._overview_original = False
         fields.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -6097,6 +6344,7 @@ class _FieldOverview(QWidget):
         panel.view.setMinimumHeight(self._image_view_height())
         panel.body_layout.addWidget(panel.view)
         panel.view.detail_requested.connect(lambda owner=panel.view: self._sync_image_views(owner))
+        self._track_readout(panel.view.viewport(), panel.view)
         for bar in (panel.view.horizontalScrollBar(), panel.view.verticalScrollBar()):
             bar.valueChanged.connect(lambda _value, owner=panel.view: self._sync_image_views(owner))
         panel.metadata_label = QLabel(panel.view.viewport())
@@ -6240,6 +6488,9 @@ class _FieldOverview(QWidget):
         if panel not in self._image_views:
             return
         self._image_views.remove(panel)
+        self._readout_viewports.pop(panel.view.viewport(), None)
+        if self._readout_pending is not None and self._readout_pending[0] is panel.view:
+            self._clear_pixel_readout()
         panel.hide()
         panel.setParent(None)
         panel.deleteLater()
@@ -7368,6 +7619,7 @@ class _FieldOverview(QWidget):
                 if current.data(Qt.UserRole).identity != field.identity:
                     continue
                 current.setData(Qt.UserRole + 1, key)
+                current.setData(Qt.UserRole + 3, None if pixels is None else tuple(pixels.shape[:2]))
                 if pixels is None:
                     current.setIcon(QIcon())
                 else:
@@ -8222,6 +8474,8 @@ class _FieldOverview(QWidget):
         self._thumbnail_cache.clear()
         self._displayed_montage = None
         self._visual_signature = None
+        self._readout_planes = self._readout_loading = None
+        self._clear_pixel_readout()
         self._individual = False
         self._selected_fields.clear()
         self._selected_wells.clear()
@@ -8665,6 +8919,10 @@ class _FieldOverview(QWidget):
                 and not getattr(self, "_module_actions_retired", True)
                 and not getattr(self, "_fitting_module_actions", False)):
             self._module_action_fit_timer.start(0)
+        if event.type() in (QEvent.MouseMove, QEvent.Leave):
+            owner = getattr(self, "_readout_viewports", {}).get(watched)
+            if owner is not None and getattr(self, "_pixel_readout", None) is not None:
+                self._readout_event(owner, event)
         if watched is self._well_viewport:
             if event.type() == QEvent.MouseButtonPress:
                 self._drag_start = event.position().toPoint()
@@ -9198,8 +9456,9 @@ class _FieldOverview(QWidget):
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
                        self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs,
                        self._metadata_jobs, self._measurement_jobs, self._native_jobs,
-                       self._image_stack_jobs, self._group_jobs):
+                       self._image_stack_jobs, self._group_jobs, self._readout_jobs):
             runner.shutdown(timeout_ms=0)
+        self._clear_pixel_readout()
 
 
 def _overview_workspace_qss(palette, opacity):
