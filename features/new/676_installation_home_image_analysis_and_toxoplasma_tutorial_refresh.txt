@@ -352,3 +352,9 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-24 — Tutorial78 final native playback now reserves two genuine source frames before EOF, preventing last-frame seeks from restarting playback. Seven focused player regressions and13 recovery-tool cases passed (12 retained and one corrected preservation-fixture case); source-bound audio/native production is retained. Fresh50-offering and84-route acceptance/publication remain pending. Item676 remains open.
 
 2026-10-24 — Tutorial78 feature-focused prose now has source-bound mixed audio for all50 existing offerings, normal onset checks, unchanged native master with reviewed original fences and exact current timing. Actual50 offering/caption/native-boundary checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.
+
+2026-10-26 — Codex takes over the current live re-record campaign from paused Claude WS.
+Scope:59 visible lessons;25 archived lessons stay hidden/preserved. Deliver all50 voices in the spaCR field theme.
+Seven new-look lessons are published; remaining15:74,36,41,58,64,16,22,31,50,13,70,19,10,04,01.
+Publish74 then36; stage41 after compatible10. Home owns app fixes;01 waits for1.5.1.6 onPyPI.
+Preserve autonomous recording chain, one app base per lesson, quiet recording windows, unrelated work and no-deletion/no-env-change rules.
