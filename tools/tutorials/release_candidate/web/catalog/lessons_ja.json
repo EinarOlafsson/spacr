@@ -7436,12 +7436,12 @@
           "narration": "手元にあるものに応じて取り込みツールを選びます。画像だけならImport ImagesかFormat Converter、マスク付きの画像ならExternal Masksを使います。この画面では、画像、マスク、測定テーブルをまとめて取り込みます。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
-          "speech_text": "手元にあるものに応じて取り込みツールを選びます。画像だけならImport ImagesかFormat Converter、マスク付きの画像ならExternal Masksを使います。この画面では、画像、マスク、測定テーブルをまとめて取り込みます。",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "手元にあるものに応じて取り込みツールを選びます。画像だけならImport ImagesかFormat Converter、マスク付きの画像ならExternal Masksを使います。この画面では、画像、マスク、測定テーブルをまとめて取り込みます。"
         },
         {
           "visual": "org_organize_popup",
@@ -7453,10 +7453,10 @@
           "visual": "03_choose_images",
           "narration": "画像フォルダーを選びます。この例では、強度チャネルが一つの顕微鏡フィールド二つと、対応する細胞ラベルを使います。各ファイルの元のプレート、ウェル、フィールドを記録しておきます。",
           "hold_after": 0.7,
-          "speech_text": "画像フォルダーを選びます。この例では、強度チャネルが一つの顕微鏡フィールド二つと、対応する細胞ラベルを使います。各ファイルの元のプレート、ウェル、フィールドを記録しておきます。",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "画像フォルダーを選びます。この例では、強度チャネルが一つの顕微鏡フィールド二つと、対応する細胞ラベルを使います。各ファイルの元のプレート、ウェル、フィールドを記録しておきます。"
         },
         {
           "visual": "04_choose_masks",
@@ -7552,34 +7552,57 @@
             3450,
             195
           ],
-          "speech_text": "プロジェクトを開き、取り込んだ測定値を確認します。foreignの列の表には、その由来が記録されています。スペーカーに画像から新しい特徴量を計算させたいときは、Measureを使います。",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "プロジェクトを開き、取り込んだ測定値を確認します。foreignの列の表には、その由来が記録されています。スペーカーに画像から新しい特徴量を計算させたいときは、Measureを使います。"
         },
         {
           "visual": "14_import_scope",
           "narration": "変換の対応表はプロジェクトと一緒に保管し、プレート、ウェル、フィールドの割り当てを確認します。一般的なファイル名には新しい座標が割り当てられることがあるので、プレート単位の解析の前に元の識別を確かめてください。",
           "hold_after": 0.7,
-          "speech_text": "変換の対応表はプロジェクトと一緒に保管し、プレート、ウェル、フィールドの割り当てを確認します。一般的なファイル名には新しい座標が割り当てられることがあるので、プレート単位の解析の前に元の識別を確かめてください。",
           "related_lessons": [
             "74_import_images"
-          ]
+          ],
+          "speech_text": "変換の対応表はプロジェクトと一緒に保管し、プレート、ウェル、フィールドの割り当てを確認します。一般的なファイル名には新しい座標が割り当てられることがあるので、プレート単位の解析の前に元の識別を確かめてください。"
         },
         {
           "visual": "14_import_scope",
           "narration": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。",
           "hold_after": 0.7,
-          "speech_text": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ]
+          ],
+          "speech_text": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
