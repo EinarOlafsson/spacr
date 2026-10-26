@@ -87,6 +87,7 @@ def fill_annotation_controls(dialog, capture, settle, timeout, extras=None, hold
             raise RuntimeError(f'Missing annotation column token: {column}')
         reveal(palette)
         if live:
+            palette.scrollToItem(items[0]); settle(0.3)   # the row must be inside the viewport for the real click
             capture_ui.select_row(capture, palette, palette.row(items[0]))
         else:
             palette.scrollToItem(items[0])
