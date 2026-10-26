@@ -54,9 +54,23 @@ def _open_make_masks(qtbot, folder, size):
     assert screen._open_folder(str(folder))
     qtbot.waitUntil(lambda: screen._image_container.isVisible())
     qtbot.waitUntil(lambda: (window.width(), window.height()) == size)
+    qtbot.waitUntil(lambda: not _loading(window), timeout=30_000)
     qtbot.wait(60)
     QApplication.processEvents()
     return window, screen
+
+
+def _loading(window):
+    """Whether the startup loading screen still covers ``window``.
+
+    Offscreen it is never shown; on a real display it stays over the window
+    for a few seconds after the first show, and every widget beneath it then
+    has an empty visible region, which is not what a user waiting for it
+    would ever measure.
+    """
+    from spacr.qt.widgets.loading_screen import LoadingScreen
+
+    return any(cover.isVisible() for cover in window.findChildren(LoadingScreen))
 
 
 def _close(screen):
@@ -360,7 +374,8 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
             state.update(window=window, timer=timer, phase='startup', started=time.perf_counter())
             try:
                 assert QApplication.platformName() == 'cocoa' and window.windowHandle().isExposed()
-                assert window.windowHandle().screen().availableGeometry().size() == QSize(1440, 870)
+                work = window.windowHandle().screen().availableGeometry().size()
+                assert work.width() >= 1200 and work.height() >= 640, work
                 assert window.windowHandle().devicePixelRatio() == 2.
                 assert not preferences.get_ai_on_by_default()
                 assert gui_scale.current_scale() == preferences.get_gui_scale() == preferences.get_font_scale() == 2.
@@ -1724,8 +1739,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 'actual_subtitle_pixels': witness.font().pixelSize() if witness is not None else None}
             persist()
             assert app.platformName() == 'cocoa' and handle.isExposed()
-            assert handle.screen().geometry().size() == QSize(1440, 900)
-            assert handle.screen().availableGeometry().size() == QSize(1440, 870)
+            work = handle.screen().availableGeometry().size()
+            assert work.width() >= 1200 and work.height() >= 640, work
             assert handle.devicePixelRatio() == 2.
             assert gui_scale.current_scale() == preferences.get_gui_scale() == 2.
             assert preferences.get_font_scale() == 2.
@@ -2574,3 +2589,18 @@ def test_the_threshold_is_in_logical_pixels_at_device_pixel_ratio_two():
     assert done.returncode == 0, done.stderr[-2000:]
     line = done.stdout.strip().splitlines()[-1]
     assert line == "2.0 (True, True) (False, True)", line
+
+
+def test_a_long_folder_path_does_not_widen_make_masks(qtbot, qt_theme_applied, tmp_path):
+    """The masthead source line elides; it cannot set the window's minimum."""
+    deep = tmp_path / ("a_rather_long_experiment_folder_name_" * 4) / ("plate_" * 20)
+    deep.mkdir(parents=True)
+    for index in range(2):
+        imageio.imwrite(deep / f"field_{index}.tif", np.full((64, 64), index + 1, dtype=np.uint16))
+    window, screen = _open_make_masks(qtbot, deep, WORK_AREAS[0])
+    label = screen._src_label
+    assert str(deep) in label.text()
+    assert label.fontMetrics().horizontalAdvance(label.text()) > WORK_AREAS[0][0]
+    assert window.minimumSizeHint().width() <= WORK_AREAS[0][0]
+    assert label.minimumSizeHint().width() < label.sizeHint().width()
+    _close(screen)

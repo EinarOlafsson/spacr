@@ -149,6 +149,7 @@ from PySide6.QtGui import (
     QBrush,
     QColor,
     QCursor,
+    QFontMetrics,
     QIcon,
     QImage,
     QPainter,
@@ -1173,6 +1174,57 @@ class _ImageContainer(CollapsibleSplitter):
         self._refit_pending = False
         if isValid(self) and self._laid_out:
             self.rebalance(refit=True)
+
+
+class _SourceLabel(QLabel):
+    """The masthead's source line: the whole text kept, as much painted as fits.
+
+    It shows the opened folder or file, so its length is the length of a
+    path, and a plain non-wrapping ``QLabel`` asks the layout for all of it:
+    ``qSmartMinSize`` takes a shrinkable widget's minimum from
+    ``minimumSizeHint()``, and ``setMinimumWidth(0)`` does not override that.
+    Measured on a Retina Mac at the 1280 x 680 work area of item 707, a
+    pytest folder path made the Make Masks minimum 1336 px wide, so the window
+    could not fit and the tools beside the image were cut; shorter paths gave
+    895-1255 px, which is why it came and went.
+
+    ``text()`` still returns the full text -- callers, retranslation and the
+    accessibility tree read it -- while the painted copy is elided in the
+    middle, which keeps the start of the path and the "N images" count at its
+    end. The minimum is the first dozen characters plus the ellipsis, measured
+    in the label's own font: a path has no spaces, so the first-word floor of
+    :class:`spacr.qt.widgets.ApiHelpLabel` would be the whole path again.
+    """
+
+    _FLOOR_CHARACTERS = 12
+
+    def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
+        """Ask for the first few characters, not the whole path."""
+        base = super().minimumSizeHint()
+        text = self.text().strip()
+        if self.wordWrap() or not text:
+            return base
+        margins = self.contentsMargins()
+        head = text[:self._FLOOR_CHARACTERS] + "\u2026"
+        floor = (QFontMetrics(self.font()).horizontalAdvance(head)
+                 + margins.left() + margins.right())
+        return QSize(max(1, min(base.width(), floor)), base.height())
+
+    def paintEvent(self, event):                   # noqa: N802 (Qt naming)
+        """Paint the text elided to the width the layout granted.
+
+        :param event: the paint event; the full text is painted by the base
+            class when it fits.
+        """
+        rect = self.contentsRect()
+        metrics = QFontMetrics(self.font())
+        if self.wordWrap() or metrics.horizontalAdvance(self.text()) <= rect.width():
+            super().paintEvent(event)
+            return
+        painter = QPainter(self)
+        shown = metrics.elidedText(self.text(), Qt.ElideMiddle, rect.width())
+        self.style().drawItemText(painter, rect, int(self.alignment()), self.palette(),
+                                  self.isEnabled(), shown, self.foregroundRole())
 
 
 class _ImageViewTabBar(QTabBar):
@@ -13943,7 +13995,7 @@ class MakeMasksScreen(QWidget):
             instruction=HEADER_INSTRUCTION,
             app_key=APP_KEY,
         )
-        self._src_label = QLabel(tr(
+        self._src_label = _SourceLabel(tr(
             "No folder selected — click Open File / Folder…"))
         self._src_label.setObjectName("SubtitleSmall")
         self._src_label.setSizePolicy(QSizePolicy.Maximum,
