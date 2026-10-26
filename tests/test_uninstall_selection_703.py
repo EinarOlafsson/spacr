@@ -1043,3 +1043,29 @@ def test_frozen_macos_authorizes_nonwritable_bundle_even_with_writable_applicati
     adapter = ic._macos_frozen_uninstall_adapter({"cleanup": []}, [record], machine)
     assert adapter["adapter"] == "macos-frozen-native" and checked == ["trusted"]
     assert adapter["roots"] == [str(app)]
+
+
+def test_a_checkout_installed_in_two_environments_is_one_preview_row(monkeypatch, tmp_path):
+    """Seen on an Apple Silicon Mac: a Rosetta Conda env and a native venv
+    both held the same editable checkout, and the uninstall dialog listed the
+    path twice under one key, the second row replacing the first."""
+    from spacr import install_cleanup as ic
+
+    checkout = tmp_path / "spacr-checkout"
+    checkout.mkdir()
+
+    def editable(python, running):
+        return ic.InstallRecord(kind="checkout", layout="editable", platform="macos",
+                                root=str(checkout), version="1.5.1.6", python=python,
+                                running=running, notes=(f"installed in {python}",))
+
+    records = [editable("/opt/rosetta-conda/envs/spacr/bin/python", False),
+               editable("/Users/someone/spacr-arm64/bin/python", True)]
+    monkeypatch.setattr(ic, "find_old_installs", lambda *, system=None: list(records))
+    monkeypatch.setattr(ic, "_uninstall_data_candidates", lambda machine: [])
+    preview = ic._uninstall_preview("one-row-per-checkout")
+    rows = [row for row in preview["installations"] if row["record"]["root"] == str(checkout)]
+    assert len(rows) == 1
+    keys = [row["key"] for row in preview["installations"]]
+    assert len(keys) == len(set(keys))
+    assert rows[0]["current"] and not rows[0]["selectable"]

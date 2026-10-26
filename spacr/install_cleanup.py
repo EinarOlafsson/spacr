@@ -2524,7 +2524,16 @@ def _uninstall_data_candidates(machine):
 
 
 def _uninstall_preview(operation_id, *, system=None):
-    """Discover exact current/all installation scopes and separately selectable spaCR data paths."""
+    """Discover exact current/all installation scopes and separately selectable spaCR data paths.
+
+    One row per installation key. A source checkout installed editable into
+    two environments is found once per environment -- on an Apple Silicon Mac
+    with both a Rosetta Conda env and a native venv, the checkout came back
+    twice -- and both records share the key, the root and the current flag.
+    The dialog keys its rows by that key, so the second silently replaced the
+    first while the reader saw the same path listed twice; the duplicate is
+    dropped here, before any scope or confirmation reads the list.
+    """
     if not isinstance(operation_id, str) or not operation_id.strip():
         raise ValueError("operation_id")
     machine = system or _Machine()
@@ -2538,9 +2547,13 @@ def _uninstall_preview(operation_id, *, system=None):
                                   for record in records)):
         current.add(mac_apps[0].root)
     installations = []
+    listed_keys = set()
     for record in records:
-        data = json.loads(json.dumps(asdict(record)))
         key = hashlib.sha256((record.kind + "\0" + _norm(record.root)).encode()).hexdigest()
+        if key in listed_keys:
+            continue
+        listed_keys.add(key)
+        data = json.loads(json.dumps(asdict(record)))
         try:
             identity = _uninstall_path_state(record.root)
             reason = "checkout" if record.kind == "checkout" else ""
