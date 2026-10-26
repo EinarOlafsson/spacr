@@ -104,6 +104,14 @@ def _overview_image_settings(qtbot):
     return _OverviewImageSettings(overview, field, (0,))
 
 
+def _canvas_settings(qtbot):
+    from spacr.qt.widgets.picture_export import _CanvasComposer
+
+    composer = _CanvasComposer()
+    qtbot.addWidget(composer)
+    return composer.settings_dialog
+
+
 def _builders():
     """``(source file, class name or objectName) -> builder(qtbot)``."""
 
@@ -241,6 +249,8 @@ def _builders():
             _overview_options,
         ("spacr/qt/widgets/qc_field_browser.py", "_OverviewImageSettings"):
             _overview_image_settings,
+        ("spacr/qt/widgets/picture_export.py", "_CanvasSettingsDialog"):
+            _canvas_settings,
         ("spacr/qt/screens/embeddings.py", "EmbeddingsSubCellChannelsDialog"):
             lambda qtbot: _embeddings(qtbot)._subcell_channels_dialog(),
         ("spacr/qt/screens/embeddings.py", "EmbeddingsCellDinoDialog"):
@@ -304,7 +314,7 @@ def test_every_settings_popup_in_the_source_has_a_builder():
         "settings popups without a builder", sorted(found - built_classes))
     by_marks = {key for key in BUILDERS if key not in found}
     assert {path for path, _ in by_marks} == marked
-    assert len(BUILDERS) == len(found) + len(by_marks) == 24
+    assert len(BUILDERS) == len(found) + len(by_marks) == 25
 
 
 def _open(qtbot, app, dialog):

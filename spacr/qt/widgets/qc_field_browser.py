@@ -5725,6 +5725,8 @@ class _FieldOverview(QWidget):
         self._image_pending = False
         self._page = 0
         self._comparison_signature = None
+        self._export_dock = None
+        self._export_settings_state = None
         column = QVBoxLayout(self)
         source_row = QHBoxLayout()
         source = (settings or {}).get("source") or (settings or {}).get("src") or ""
@@ -11147,35 +11149,150 @@ class _FieldOverview(QWidget):
         slot()
 
     def _open_guided_export(self):
-        """Open the guided export for the loaded plates; returns the dialog."""
+        """Open the guided export in the export section at the far right; returns it."""
         if not self._fields:
             self.status.setText(tr("Select fields or load a plate before exporting."))
             return None
         dialog = _OverviewGuidedExport(self)
         self._guided_export = dialog
-        dialog.show()
+        self._show_export_dock(tr("Guided export"), dialog)
         return dialog
 
     def _open_custom_export(self, layout=None):
-        """Open the Custom export canvas, empty or with ``layout``; returns it.
+        """Open the Custom export canvas in the export section, empty or with ``layout``; returns it.
 
-        While it is open, selected wells and fields drag from the plate and
-        well views onto it, and the shown image drags with Alt held.
+        While it is open, Overview images come to it in every way
+        :class:`_OverviewCanvasDrags` lists.
         """
         from .picture_export import _CanvasComposer
 
         composer = _CanvasComposer(layout, _OverviewCanvasSource(self), self._metadata_source or "", self,
                                    actions=(("Add selected", "Place the selected fields, or the fields of the "
                                              "selected wells, on this page.", self._canvas_add_selection),))
-        composer.setAttribute(Qt.WA_DeleteOnClose)
         drags = getattr(self, "_canvas_drags", None)
         if drags is None:
             drags = self._canvas_drags = _OverviewCanvasDrags(self)
-        drags.watch()
         composer.finished.connect(drags.unwatch)
         self._canvas_composer = composer
-        composer.show()
+        self._show_export_dock(tr("Custom export"), composer, tr(
+            "Drag images from the plate, well or image views onto the page; press and hold an image, or use the "
+            "Drag to canvas handle, when a plain drag would pan. Hold {keys} and click any image to add it. Image "
+            "files can be dropped here from the file manager.", keys=_overview_pick_keys()))
+        drags.watch()
+        composer.status.setText(tr("Hold {keys} and click any image in the Overview to add it to this page.",
+                                   keys=_overview_pick_keys()))
         return composer
+
+    def _canvas_pick(self, images):
+        """Add images clicked in pick mode to the open Custom export page; returns the boxes."""
+        composer = getattr(self, "_canvas_composer", None)
+        if composer is None or self._export_dock is None or self._export_dock.content is not composer:
+            return []
+        boxes = composer.add_images(images)
+        composer.status.setText(tr("Added {count} images to page {page}.", count=len(boxes),
+                                   page=composer.page_index + 1))
+        return boxes
+
+    def _export_settings_body(self):
+        """The Overview tab's settings splitter, or ``None`` outside the tab."""
+        from .collapsible_splitter import CollapsibleSplitter
+
+        widget = self.parentWidget()
+        while widget is not None and not isinstance(widget, _OverviewModulePage):
+            widget = widget.parentWidget()
+        body = getattr(getattr(widget, "_screen", None), "_body_splitter", None)
+        return body if isinstance(body, CollapsibleSplitter) and body.pane("Settings") is not None else None
+
+    def _show_export_dock(self, title, content, hint=""):
+        """Show ``content`` as the export section at the far right and fold the settings away.
+
+        Any export already shown is closed first; the settings' state from
+        before the first export is what Close restores.
+
+        :returns: the :class:`_OverviewExportDock`.
+        """
+        self._close_export_dock(restore=False)
+        dock = _OverviewExportDock(title, content, hint)
+        dock.closed.connect(self._close_export_dock)
+        content.finished.connect(functools.partial(self._export_content_closed, content))
+        self._export_dock = dock
+        body = self._export_settings_body()
+        if body is not None and self._export_settings_state is None:
+            self._export_settings_state = (body.is_collapsed("Settings"), body.sizes())
+            body.set_collapsed("Settings", True)
+        from ..theme import ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("OverviewExportDock", _overview_export_qss, replace=True)
+        ensure_widget_qss_applied("OverviewExportDock", root=self)
+        host = self._export_host()
+        host.addWidget(dock)
+        host.setCollapsible(host.indexOf(dock), False)
+        self._size_export_dock()
+        QTimer.singleShot(0, self._size_export_dock)
+        return dock
+
+    def _export_host(self):
+        """The splitter that holds the plate, well and image views on the left and the export section on the right.
+
+        It is put in the views' place the first time an export opens, so the
+        views keep their own splitter and sizes.
+        """
+        from PySide6.QtWidgets import QSplitter
+
+        host = getattr(self, "_export_splitter", None)
+        if host is None:
+            host = QSplitter(Qt.Horizontal)
+            host.setObjectName("OverviewExportSplitter")
+            host.setChildrenCollapsible(False)
+            self.layout().replaceWidget(self._splitter, host)
+            host.addWidget(self._splitter)
+            host.show()
+            self._export_splitter = host
+        return host
+
+    def _size_export_dock(self):
+        """Give the export section three fifths of the width, and at least what its controls need."""
+        from shiboken6 import isValid
+
+        dock = self._export_dock
+        host = getattr(self, "_export_splitter", None)
+        if dock is None or host is None or not isValid(dock) or host.indexOf(dock) < 0:
+            return
+        total = max(sum(host.sizes()), host.width(), 1)
+        wide = min(max(total * 3 // 5, _OVERVIEW_EXPORT_DOCK_MIN_WIDTH), total * 4 // 5)
+        host.setSizes([total - wide, wide])
+
+    def _export_content_closed(self, content, *_):
+        """Take the export section away when the export in it closes itself."""
+        dock = self._export_dock
+        if dock is not None and dock.content is content:
+            self._close_export_dock()
+
+    def _close_export_dock(self, restore=True):
+        """Close the export section; with ``restore`` the settings come back as they were."""
+        from shiboken6 import isValid
+
+        dock, self._export_dock = self._export_dock, None
+        if dock is not None and isValid(dock):
+            content = dock.content
+            drags = getattr(self, "_canvas_drags", None)
+            if drags is not None and content is getattr(self, "_canvas_composer", None):
+                drags.unwatch()
+            if isValid(content):
+                content.close()
+            dock.hide()
+            dock.setParent(None)
+            dock.deleteLater()
+        if not restore or self._export_settings_state is None:
+            return
+        collapsed, sizes = self._export_settings_state
+        self._export_settings_state = None
+        body = self._export_settings_body()
+        if body is None:
+            return
+        body.set_collapsed("Settings", collapsed, by_user=True)
+        if not collapsed and len(sizes) == len(body.sizes()):
+            body.setSizes(sizes)
 
     def _canvas_add_selection(self, composer):
         """Place the selected fields, or the selected wells' fields, on the canvas page."""
@@ -11292,6 +11409,10 @@ class _FieldOverview(QWidget):
         self._module_actions_retired = True
         self._module_action_fit_timer.stop()
         self._options_window.close()
+        self._close_export_dock()
+        drags = getattr(self, "_canvas_drags", None)
+        if drags is not None:
+            drags.unwatch()
         self._cancel()
         self._visual_timer.stop()
         self._prepare_timer.stop()
@@ -14965,14 +15086,73 @@ def _overview_canvas_image(field, pixel_size_um=None):
             "label": field.caption, "pixel_size_um": float(pixel_size_um) if pixel_size_um else None}
 
 
+def _overview_file_field(path):
+    """An image file from disk as an :class:`_OverviewField` the display pipeline can read.
+
+    :param path: a PNG, JPEG, BMP, TIFF or NumPy file; its channels are the
+        file's own channel axis.
+    """
+    return _OverviewField(plate="", well="", row="", column=0, field=os.path.basename(str(path)),
+                          files=(("", str(path)),), source=str(path))
+
+
+def _overview_file_channel_count(path):
+    """How many channels an image file has, read from its header only."""
+    return max(1, len(_overview_channel_info(_overview_file_field(path))["channels"]))
+
+
+def _overview_import_chain(entry):
+    """The enhancement chain one channel's import settings ask for, or ``None``."""
+    from ..detect_chain import Chain
+
+    chain = Chain(background="rolling_ball" if entry.get("background") else "none",
+                  denoise="gaussian" if entry.get("denoise") else "none",
+                  gamma=float(entry.get("gamma") or 1.0), clahe=bool(entry.get("clahe")),
+                  sharpen=bool(entry.get("sharpen")))
+    return None if chain == Chain() else chain
+
+
+def _overview_import_pixels(box, edge, display=None):
+    """An image file placed on the export canvas, through :func:`_overview_pixels`.
+
+    The box's import settings (``box["import"]["channels"]``, one entry per
+    channel; see ``picture_export._CANVAS_IMPORT_DEFAULTS``) choose which
+    channels are drawn and set each one's percentile normalization and its
+    enhancement chain, as the Overview does for its own images; the
+    Overview's colour mode applies too.
+
+    :param box: an image box whose source is a file.
+    :param edge: longest side wanted, or ``None`` for every source pixel.
+    :param display: the Overview's display keywords; only ``color_mode`` is used.
+    :returns: an 8-bit RGB array.
+    """
+    from .picture_export import _canvas_import_entry
+
+    field = _overview_file_field((box.get("source") or {}).get("path", ""))
+    available = tuple(_overview_channel_info(field)["channels"])
+    entries = {channel: _canvas_import_entry(box, channel) for channel in available}
+    shown = tuple(channel for channel in available if entries[channel]["shown"]) or available[:1]
+    normalized = [channel for channel in shown if entries[channel]["normalize"]]
+    pixels = _overview_pixels(
+        field, shown, (1., 99.9), edge=edge, percentile_channels=normalized,
+        channel_percentiles={channel: (float(entries[channel]["low"]), float(entries[channel]["high"]))
+                             for channel in normalized},
+        channel_enhancement={channel: _overview_import_chain(entries[channel]) for channel in shown},
+        color_mode=str((display or {}).get("color_mode") or "additive"))
+    return np.ascontiguousarray(pixels[..., :3] if pixels.ndim == 3 else pixels)
+
+
 class _OverviewCanvasSnapshot:
     """What the browser shows, frozen on the GUI thread, for rendering fields elsewhere.
 
     Images go through :func:`_overview_pixels` with the browser's display
     keywords, its scope limits and per-image overrides, so a canvas image
     matches the screen; the display-only enhancement chain stays out, as in
-    every export.
+    every export. Image files with import settings go through the same
+    function (:func:`_overview_import_pixels`).
     """
+
+    imports = True
 
     def __init__(self, fields, channels, limits, display):
         """Keep the fields by image key and the display settings."""
@@ -14994,6 +15174,8 @@ class _OverviewCanvasSnapshot:
         :param edge: longest side wanted, or ``None`` for every source pixel.
         :raises ValueError: when the field is not in the loaded plates.
         """
+        if (box.get("source") or {}).get("type") == "file":
+            return _overview_import_pixels(box, edge, self._display)
         field = self.field_of(box)
         if field is None:
             raise ValueError(tr("The image source is not loaded: {label}", label=box.get("label") or "?"))
@@ -15003,6 +15185,8 @@ class _OverviewCanvasSnapshot:
 
 class _OverviewCanvasSource:
     """Hands the composer a fresh snapshot of the browser's display whenever it renders."""
+
+    imports = True
 
     def __init__(self, browser):
         """Follow ``browser`` without keeping it alive."""
@@ -15017,96 +15201,317 @@ class _OverviewCanvasSource:
             return _OverviewCanvasSnapshot((), (0,), None, {})
         return browser._canvas_snapshot()
 
+    @staticmethod
+    def file_channels(path):
+        """How many channels an image file has, for its import settings."""
+        return _overview_file_channel_count(path)
+
+
+_OVERVIEW_CANVAS_HOLD_MS = 350
+_OVERVIEW_EXPORT_DOCK_MIN_WIDTH = 600
+
+
+class _OverviewExportDock(QFrame):
+    """The export section docked at the far right of the Overview: a heading, Close and the export itself.
+
+    :param title: the heading, already translated.
+    :param content: the Guided export or the Custom export canvas.
+    :param hint: an optional line under the heading, already translated.
+    """
+
+    closed = Signal()
+
+    def __init__(self, title, content, hint=""):
+        """Lay out the heading row, the hint and ``content``."""
+        super().__init__()
+        self.setObjectName("OverviewExportDock")
+        self.setFrameShape(QFrame.StyledPanel)
+        self.content = content
+        column = QVBoxLayout(self)
+        column.setContentsMargins(6, 6, 6, 6)
+        column.setSpacing(4)
+        header = QHBoxLayout()
+        self.title = QLabel(title)
+        self.title.setObjectName("OverviewExportDockTitle")
+        font = self.title.font()
+        font.setBold(True)
+        self.title.setFont(font)
+        self.close_button = QPushButton(tr("Close"))
+        self.close_button.setObjectName("OverviewExportClose")
+        self.close_button.setToolTip(tr("Close the export section; the settings section returns as it was."))
+        self.close_button.clicked.connect(self.closed)
+        header.addWidget(self.title, 1)
+        header.addWidget(self.close_button)
+        column.addLayout(header)
+        self.hint = QLabel(hint)
+        self.hint.setObjectName("OverviewExportDockHint")
+        self.hint.setWordWrap(True)
+        self.hint.setVisible(bool(hint))
+        column.addWidget(self.hint)
+        content.setWindowFlags(Qt.Widget)
+        column.addWidget(content, 1)
+        content.show()
+
 
 class _OverviewCanvasDrags(_QObject):
-    """Start canvas drags from the plate, the well views and the image views.
+    """Bring Overview images to the Custom export canvas while it is open.
 
-    A press on a selected well or field that moves starts the drag of the
-    selection; in an image view the drag starts with Alt held, since a plain
-    drag pans the image.
+    Every way works from the plate tiles, the well views and the image views:
+
+    - press on a selected well or field and move: the selection is dragged;
+    - press and hold any image for :data:`_OVERVIEW_CANVAS_HOLD_MS`, then
+      move: that image (or the selection it belongs to) is dragged, while a
+      plain drag still pans an image or selects wells;
+    - drag the "Drag to canvas" handle in an image view's corner, or drag
+      the shown image with Alt held;
+    - pick mode: hold Ctrl+Shift and click any image to add it straight away.
+
+    The filter sits on the application while the canvas is open, so wells
+    and images opened afterwards take part too.
     """
 
     def __init__(self, browser):
-        """Watch ``browser``'s views."""
+        """Follow ``browser``'s views."""
         super().__init__(browser)
         self._browser = browser
         self._press = None
         self._watched = []
+        self._handles = {}
+        self._armed = False
+        self._hold = QTimer(self)
+        self._hold.setSingleShot(True)
+        self._hold.setInterval(_OVERVIEW_CANVAS_HOLD_MS)
+        self._hold.timeout.connect(self._arm)
 
     def watch(self):
-        """Install on every view the browser shows now."""
-        browser = self._browser
-        views = [table.viewport() for table in browser._plate_table_list()]
-        views.extend(field_list.viewport() for field_list in browser._field_lists())
-        views.append(browser.view.viewport())
-        views.extend(panel.view.viewport() for panel in browser._image_views)
-        for view in views:
-            if view not in self._watched:
-                view.installEventFilter(self)
-                self._watched.append(view)
+        """Start listening, and put a drag handle on every image view shown now."""
+        from PySide6.QtWidgets import QApplication
 
-    def unwatch(self):
-        """Remove the filter from every view."""
+        application = QApplication.instance()
+        if application is not None and application not in self._watched:
+            application.installEventFilter(self)
+            self._watched.append(application)
+        self._sync_handles()
+
+    def unwatch(self, *_):
+        """Stop listening and remove the drag handles."""
         from shiboken6 import isValid
 
-        for view in self._watched:
-            if isValid(view):
-                view.removeEventFilter(self)
+        for watched in self._watched:
+            if isValid(watched):
+                watched.removeEventFilter(self)
         self._watched = []
+        self._hold.stop()
+        self._press = None
+        self._armed = False
+        for handle in list(self._handles):
+            if isValid(handle):
+                handle.hide()
+                handle.deleteLater()
+        self._handles = {}
 
-    def _images_at(self, viewport, position, alt):
-        """The canvas images a press at ``position`` would drag, or ``[]``."""
+    def _image_viewports(self):
+        """The viewports of the enlarged image and of every stacked image."""
+        browser = self._browser
+        return [browser.view.viewport()] + [panel.view.viewport() for panel in browser._image_views]
+
+    def _viewports(self):
+        """Every viewport an image can be taken from."""
+        browser = self._browser
+        return ([table.viewport() for table in browser._plate_table_list()]
+                + [field_list.viewport() for field_list in browser._field_lists()]
+                + self._image_viewports())
+
+    def _sync_handles(self):
+        """Give each image view a handle in its top-right corner; drop handles of closed views."""
+        from shiboken6 import isValid
+
+        viewports = self._image_viewports()
+        for handle, viewport in list(self._handles.items()):
+            if not isValid(handle) or not isValid(viewport) or viewport not in viewports:
+                self._handles.pop(handle, None)
+                if isValid(handle):
+                    handle.deleteLater()
+        known = set(self._handles.values())
+        for viewport in viewports:
+            if viewport in known:
+                continue
+            handle = QToolButton(viewport)
+            handle.setObjectName("OverviewCanvasHandle")
+            handle.setText(tr("Drag to canvas"))
+            handle.setCursor(Qt.OpenHandCursor)
+            handle.setToolTip(tr("Drag this image onto the export canvas. You can also press and hold any image "
+                                 "and then drag it, or hold {keys} and click an image to add it.",
+                                 keys=_overview_pick_keys()))
+            handle.adjustSize()
+            self._handles[handle] = viewport
+            handle.show()
+        for handle, viewport in self._handles.items():
+            handle.move(max(0, viewport.width() - handle.width() - 6), 6)
+            handle.raise_()
+
+    def _images_at(self, viewport, position, alt, any_image=False):
+        """The canvas images a press at ``position`` would bring, or ``[]``.
+
+        :param alt: whether Alt is held, which lets the shown image of an
+            image view drag at once.
+        :param any_image: also take an unselected well, field or image (press
+            and hold, pick mode); otherwise only a selection, or an image
+            view's image with ``alt``.
+        """
         browser = self._browser
         widget = viewport.parentWidget()
         pixel_size = browser._overview_options.get("pixel_size_um")
         if widget in browser._plate_table_list():
             item = widget.itemAt(position)
-            if item is None or not item.isSelected():
+            if item is None or not (item.isSelected() or any_image):
                 return []
             plate = widget._overview_plate
             positions = {value: address for address, value in browser._well_positions.items() if address[0] == plate}
             fields = []
-            for cell in widget.selectedItems():
+            for cell in (widget.selectedItems() if item.isSelected() else [item]):
                 address = positions.get((cell.row(), cell.column()))
                 if address is not None:
                     fields.extend(browser._canvas_well_fields(*address))
             return [_overview_canvas_image(field, pixel_size) for field in fields[:_OVERVIEW_GUIDED_MAX_WELL_FIELDS]]
         if widget in browser._field_lists():
             item = widget.itemAt(position)
-            if item is None or not item.isSelected():
+            if item is None or not (item.isSelected() or any_image):
                 return []
-            fields = [chosen.data(Qt.UserRole) for chosen in widget.selectedItems()]
+            chosen = widget.selectedItems() if item.isSelected() else [item]
+            fields = [entry.data(Qt.UserRole) for entry in chosen]
             return [_overview_canvas_image(field, pixel_size) for field in fields if field is not None]
-        if not alt:
+        if not (alt or any_image):
             return []
         field = browser._field_shown_in(widget)
         return [] if field is None else [_overview_canvas_image(field, pixel_size)]
 
+    def _arm(self):
+        """The press was held: the next move drags the image."""
+        if self._press is None:
+            return
+        self._armed = True
+        self._press[0].setCursor(Qt.DragCopyCursor)
+        composer = getattr(self._browser, "_canvas_composer", None)
+        if composer is not None:
+            composer.status.setText(tr("Move the pointer to drag the image onto the canvas."))
+
+    def _disarm(self):
+        """Forget the press and restore the cursor."""
+        from shiboken6 import isValid
+
+        self._hold.stop()
+        if self._press is not None and self._armed and isValid(self._press[0]):
+            self._press[0].unsetCursor()
+        self._press = None
+        self._armed = False
+
+    def _run_drag(self, drag):
+        """Run the drag until it is dropped or abandoned."""
+        return drag.exec(Qt.CopyAction)
+
+    def _start_drag(self, watched, images, position):
+        """Drag ``images`` from ``watched``; returns the drop action.
+
+        A view that saw the press gets a release afterwards, so it does not
+        go on panning or selecting once the drag is over.
+        """
+        from PySide6.QtGui import QDrag, QMouseEvent
+        from PySide6.QtWidgets import QApplication
+        from shiboken6 import isValid
+        from .picture_export import _canvas_mime
+
+        drag = QDrag(watched)
+        drag.setMimeData(_canvas_mime(images))
+        result = self._run_drag(drag)
+        if isValid(watched) and watched not in self._handles:
+            release = QMouseEvent(QEvent.MouseButtonRelease, position.toPointF(),
+                                  watched.mapToGlobal(position).toPointF(),
+                                  Qt.LeftButton, Qt.NoButton, Qt.NoModifier)
+            QApplication.sendEvent(watched, release)
+        return result
+
     def eventFilter(self, watched, event):
-        """Turn a press-and-move on a selection into a canvas drag."""
-        from PySide6.QtGui import QDrag
+        """Start canvas drags and picks from presses on the Overview's images."""
+        from PySide6.QtWidgets import QApplication
+
+        kind = event.type()
+        if kind not in (QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.MouseButtonRelease,
+                        QEvent.Enter, QEvent.Resize):
+            return False
+        if watched in self._handles:
+            return self._handle_event(watched, event)
+        if kind in (QEvent.Enter, QEvent.Resize):
+            if watched in self._image_viewports():
+                self._sync_handles()
+            return False
+        if kind == QEvent.MouseButtonPress:
+            if event.button() != Qt.LeftButton or watched not in self._viewports():
+                return False
+            self._disarm()
+            position = event.position().toPoint()
+            modifiers = event.modifiers()
+            if modifiers & Qt.ControlModifier and modifiers & Qt.ShiftModifier:
+                images = self._images_at(watched, position, False, any_image=True)
+                if images:
+                    self._browser._canvas_pick(images)
+                    return True
+                return False
+            alt = bool(modifiers & Qt.AltModifier)
+            images = self._images_at(watched, position, alt)
+            if images:
+                self._press = (watched, position, images, True)
+                return alt
+            images = self._images_at(watched, position, False, any_image=True)
+            if images:
+                self._press = (watched, position, images, False)
+                self._hold.start()
+            return False
+        if kind == QEvent.MouseMove and self._press is not None and self._press[0] is watched:
+            start, images, ready = self._press[1], self._press[2], self._press[3]
+            moved = (event.position().toPoint() - start).manhattanLength() >= QApplication.startDragDistance()
+            if ready or self._armed:
+                if not moved:
+                    return True
+                self._disarm()
+                self._start_drag(watched, images, start)
+                return True
+            if moved:
+                self._disarm()
+            return False
+        if kind == QEvent.MouseButtonRelease and self._press is not None:
+            self._disarm()
+        return False
+
+    def _handle_event(self, handle, event):
+        """Drag the image of the view a handle sits on."""
+        from PySide6.QtCore import QPoint
         from PySide6.QtWidgets import QApplication
 
         kind = event.type()
         if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
-            alt = bool(event.modifiers() & Qt.AltModifier)
-            images = self._images_at(watched, event.position().toPoint(), alt)
-            self._press = (watched, event.position().toPoint(), images) if images else None
-            return bool(images) and alt
-        if kind == QEvent.MouseMove and self._press is not None and self._press[0] is watched:
+            viewport = self._handles[handle]
+            images = self._images_at(viewport, QPoint(0, 0), False, any_image=True)
+            self._press = (handle, event.position().toPoint(), images, True) if images else None
+            return True
+        if kind == QEvent.MouseMove and self._press is not None and self._press[0] is handle:
             if (event.position().toPoint() - self._press[1]).manhattanLength() < QApplication.startDragDistance():
                 return True
-            images = self._press[2]
+            images, start = self._press[2], self._press[1]
             self._press = None
-            from .picture_export import _canvas_mime
-
-            drag = QDrag(watched)
-            drag.setMimeData(_canvas_mime(images))
-            drag.exec(Qt.CopyAction)
+            self._start_drag(handle, images, start)
             return True
         if kind == QEvent.MouseButtonRelease:
             self._press = None
+            return True
         return False
+
+
+def _overview_pick_keys():
+    """The keys held to add an image by clicking it, as the keyboard shows them."""
+    from .picture_export import _CANVAS_PICK_KEYS
+
+    return _CANVAS_PICK_KEYS
 
 
 def _overview_guided_lines(text, width):
@@ -15471,7 +15876,16 @@ class _OverviewGuidedExport(QDialog):
         self.field_tree = QTreeWidget()
         self.field_tree.setObjectName("OverviewGuidedFields")
         self.field_tree.setHeaderHidden(True)
-        self.field_tree.setToolTip(tr("Fields of each chosen well; tick the ones to export."))
+        self.field_tree.setToolTip(tr("Fields of each chosen well; the selected ones are exported. Drag over fields "
+                                      "to select them, Shift-click for a range, Ctrl-click to add or remove one, "
+                                      "Ctrl+A for every field, or right-click to select and deselect."))
+        self.field_tree.setSelectionMode(QTreeWidget.ExtendedSelection)
+        self.field_tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.field_tree.customContextMenuRequested.connect(self._field_menu)
+        self.field_tree.itemSelectionChanged.connect(self._field_selection_changed)
+        self.field_tree.itemChanged.connect(self._field_ticked)
+        self._field_syncing = False
+        self._field_menu_shown = None
         from .sortable_table import install_sorting
 
         install_sorting(self.field_tree)
@@ -15707,11 +16121,13 @@ class _OverviewGuidedExport(QDialog):
         """List each chosen well's fields, ticking the ones the field mode takes."""
         from .sortable_table import SortableTreeItem
 
+        self._field_syncing = True
         self.field_tree.clear()
         mode, count = self.field_mode.checkedId(), self.first_count.value()
         for address in self._wells:
             parent = SortableTreeItem([address[0] + " / " + address[1]])
             parent.setData(0, Qt.UserRole, list(address))
+            parent.setFlags(parent.flags() & ~Qt.ItemIsSelectable)
             self.field_tree.addTopLevelItem(parent)
             for index, field in enumerate(self._well_fields(address)):
                 child = SortableTreeItem([tr("Field {field}", field=field.field)])
@@ -15721,7 +16137,95 @@ class _OverviewGuidedExport(QDialog):
                                     and index == 0 else Qt.Unchecked)
                 parent.addChild(child)
             parent.setExpanded(True)
-        self.field_tree.setEnabled(mode == 2)
+        self._field_syncing = False
+        self._select_ticked()
+
+    def _field_children(self):
+        """Every field row of the field tree, well by well."""
+        return [parent.child(index) for row in range(self.field_tree.topLevelItemCount())
+                for parent in (self.field_tree.topLevelItem(row),) for index in range(parent.childCount())]
+
+    def _select_ticked(self):
+        """Select exactly the ticked field rows."""
+        self._field_syncing = True
+        try:
+            for child in self._field_children():
+                child.setSelected(child.checkState(0) == Qt.Checked)
+        finally:
+            self._field_syncing = False
+
+    def _to_pick_mode(self):
+        """Switch to Pick fields without retiking, once the user picks by hand."""
+        if self.field_mode.checkedId() != 2:
+            self.field_mode.blockSignals(True)
+            self.field_mode.button(2).setChecked(True)
+            self.field_mode.blockSignals(False)
+
+    def _field_selection_changed(self):
+        """Tick the selected fields and untick the others: selecting is picking."""
+        if self._field_syncing:
+            return
+        self._field_syncing = True
+        try:
+            for child in self._field_children():
+                child.setCheckState(0, Qt.Checked if child.isSelected() else Qt.Unchecked)
+        finally:
+            self._field_syncing = False
+        self._to_pick_mode()
+
+    def _field_ticked(self, item, _column=0):
+        """A ticked or unticked field is selected or deselected with it."""
+        if self._field_syncing or item.parent() is None:
+            return
+        self._field_syncing = True
+        try:
+            item.setSelected(item.checkState(0) == Qt.Checked)
+        finally:
+            self._field_syncing = False
+        self._to_pick_mode()
+
+    def pick_fields(self, items, chosen):
+        """Select (``chosen``) or deselect field rows; a well row stands for all of its fields.
+
+        :returns: the field rows changed.
+        """
+        rows = []
+        for item in items:
+            rows.extend([item.child(index) for index in range(item.childCount())] if item.parent() is None else [item])
+        self.field_tree.blockSignals(True)
+        try:
+            for row in rows:
+                row.setSelected(bool(chosen))
+        finally:
+            self.field_tree.blockSignals(False)
+        self._field_selection_changed()
+        self.field_tree.viewport().update()
+        return rows
+
+    def _field_menu(self, position):
+        """Right-click menu of the field tree: select or deselect, here or everywhere; returns it."""
+        from PySide6.QtWidgets import QMenu
+
+        item = self.field_tree.itemAt(position)
+        if item is not None and item.parent() is not None and item.isSelected():
+            targets = [child for child in self._field_children() if child.isSelected()]
+        else:
+            targets = [item] if item is not None else []
+        menu = QMenu(self.field_tree)
+        menu.setObjectName("OverviewGuidedFieldMenu")
+        for caption, items, chosen in (("Select", targets, True), ("Deselect", targets, False),
+                                       ("Select all fields", self._field_children(), True),
+                                       ("Deselect all fields", self._field_children(), False)):
+            action = menu.addAction(tr(caption))
+            action.setEnabled(bool(items))
+            action.triggered.connect(functools.partial(self._menu_pick, items, chosen))
+        menu.popup(self.field_tree.viewport().mapToGlobal(position))
+        self._field_menu_shown = menu
+        return menu
+
+    def _menu_pick(self, items, chosen, *_):
+        """Run a Select or Deselect entry of the field menu."""
+        self.pick_fields(items, chosen)
 
     def _field_mode_changed(self, *_):
         """Retick the fields for the chosen mode."""
@@ -15750,7 +16254,10 @@ class _OverviewGuidedExport(QDialog):
                 wanted = {str(name) for name in (picks or {}).get(address, ())}
                 for child in children:
                     field = fields[child.data(0, Qt.UserRole)]
+                    self._field_syncing = True
                     child.setCheckState(0, Qt.Checked if str(field.field) in wanted else Qt.Unchecked)
+                    self._field_syncing = False
+            self._select_ticked()
 
     def _chosen_fields(self):
         """``{(plate, well): [fields]}`` from the field tree, in the order of the chosen wells."""
@@ -15776,7 +16283,7 @@ class _OverviewGuidedExport(QDialog):
             self.hint.setText(tr("Choose where this well's images go on the page and what is printed around them."))
         else:
             self.heading.setText(tr("Step 4 of 4: preview"))
-            self.hint.setText(tr("Check the pages, adjust any box, then export the PDF."))
+            self.hint.setText(tr("Check the pages, adjust any box, choose the DPI under Settings…, then export the PDF."))
         self.back_button.setEnabled(step > 0)
         self.next_button.setVisible(step < 3)
         self.export_button.setVisible(step == 3)
@@ -16009,6 +16516,7 @@ class _OverviewGuidedExport(QDialog):
         self._composer = _CanvasComposer(self.canvas_layout(), _OverviewCanvasSource(self._browser),
                                          self._browser._metadata_source or "", self.preview_page)
         self._composer.setWindowFlags(Qt.Widget)
+        self._composer.export_button.hide()
         holder.addWidget(self._composer)
         self._composer.show()
         self._show_step(3)
@@ -16031,9 +16539,15 @@ class _OverviewGuidedExport(QDialog):
         return composer
 
     def _ask_export(self):
-        """Write the preview through the canvas."""
+        """Write the preview through the canvas, at the DPI chosen in its Settings…."""
         if self._composer is not None:
             self._composer._ask_export()
+
+    def export_pdf(self, path):
+        """Write the preview to ``path`` at the DPI chosen in the canvas's Settings…; returns whether it started."""
+        if self._composer is None:
+            return False
+        return self._composer.export_pdf(path)
 
     def closeEvent(self, event):
         """Stop the measurement read with the window."""
@@ -16050,6 +16564,28 @@ def _overview_guided_qss(palette, opacity):
     return (f"{views} {{ width: 14px; height: 14px; border: 1px solid {palette['border']}; border-radius: 3px; "
             f"background: {palette['surface_alt']}; }} "
             f"{checked} {{ background: {palette['accent']}; border-color: {palette['accent']}; }}")
+
+
+def _overview_export_qss(palette, opacity):
+    """The docked export section's surface, the canvas drag handle and ticks on picked rows.
+
+    :param palette: the active palette with rendered surface roles.
+    :param opacity: the page-opacity preference, passed through unchanged.
+    """
+    from ..theme import RADIUS, block_surface
+
+    surface = block_surface("surface_alt", palette["theme"], opacity)
+    return (f"QFrame#OverviewExportDock {{ background: {surface}; border: 1px solid {palette['border']}; "
+            f"border-radius: {RADIUS['md']}px; }}\n"
+            "QFrame#OverviewExportDock QDialog#OverviewGuidedExport, "
+            "QFrame#OverviewExportDock QDialog#CanvasComposer, "
+            "QFrame#OverviewExportDock QWidget#CanvasComposerSettings { background: transparent; }\n"
+            f"QToolButton#OverviewCanvasHandle {{ background: {palette['button_accent']}; "
+            f"color: {palette['button_accent_ink']}; border: none; border-radius: {RADIUS['sm']}px; "
+            "padding: 2px 8px; }\n"
+            f"QToolButton#OverviewCanvasHandle:hover {{ background: {palette['button_accent_hi']}; }}\n"
+            "QDialog#OverviewGuidedExport QTreeView::indicator:checked:selected "
+            f"{{ background: {palette['button_accent_ink']}; border-color: {palette['button_accent_ink']}; }}")
 
 
 def _overview_guided_frame(source):
@@ -16143,6 +16679,10 @@ _OVERVIEW_UI_SOURCES = frozenset({
     "Columns of the page grid.",
     *(caption for _value, caption in _OVERVIEW_PLATES_VIEWS),
     _OVERVIEW_PLATES_VIEW_TOOLTIP,
+    "Select",
+    "Deselect",
+    "Select all fields",
+    "Deselect all fields",
 })
 """Captions this module passes to ``tr`` through tuples, dicts and loop variables.
 

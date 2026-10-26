@@ -682,14 +682,15 @@ def _canvas_box(id, kind, x, y, w, h, **properties):
         ``label``, ``lock_aspect``, ``aspect`` (width over height),
         ``native`` (pixel width and height), ``scale_bar``,
         ``pixel_size_um`` and ``fit`` (drawn whole inside the box, centred,
-        without stretching) for images.
+        without stretching) for images; image files also keep ``import``
+        (per-channel import settings) and ``channels`` (their channel count).
     """
     box = {"id": int(id), "kind": "image" if kind == "image" else "text",
            "x": float(x), "y": float(y), "w": float(w), "h": float(h),
            "text": "", "font_size": 10.0, "bold": False, "italic": False, "align": "left",
            "source": None, "label": "", "lock_aspect": True, "aspect": None, "native": None,
            "scale_bar": False, "pixel_size_um": None, "fit": False}
-    box.update({key: value for key, value in properties.items() if key in box or key == "role"})
+    box.update({key: value for key, value in properties.items() if key in box or key in ("role", "import", "channels")})
     if box["align"] not in _CANVAS_ALIGNMENTS:
         box["align"] = "left"
     return box
@@ -814,11 +815,13 @@ def _canvas_draw_scale_bar(axis, pixels, pixel_size_um):
     return length_um
 
 
-def _canvas_page_figure(layout, page_index, pixels_for, cancelled=None):
+def _canvas_page_figure(layout, page_index, pixels_for, cancelled=None, dpi=None):
     """Draw one page of ``layout`` on a Matplotlib figure the page's size.
 
     :param pixels_for: called with an image box; returns its pixels at full
         resolution as an 8-bit array of rows by columns (by channels).
+    :param dpi: the most pixels per inch an image is embedded at (see
+        :func:`_canvas_capped_pixels`); ``None`` keeps every source pixel.
     :returns: ``(figure, images, records, errors)``.
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -840,7 +843,7 @@ def _canvas_page_figure(layout, page_index, pixels_for, cancelled=None):
                                 box["w"] / width, box["h"] / height])
         axis.set_axis_off()
         try:
-            pixels = pixels_for(box)
+            pixels = _canvas_capped_pixels(pixels_for(box), box, dpi)
         except Exception as exc:
             axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True, fontsize=8)
             errors.append((box.get("label") or "", str(exc)))
@@ -865,7 +868,35 @@ def _canvas_page_figure(layout, page_index, pixels_for, cancelled=None):
     return figure, images, records, errors
 
 
-def _canvas_pdf(layout, path, pixels_for, cancelled=None):
+def _canvas_capped_pixels(pixels, box, dpi):
+    """``pixels`` resampled down so the box prints them at no more than ``dpi``.
+
+    An image with fewer pixels than the box holds at ``dpi`` keeps every
+    pixel; it is never enlarged.
+
+    :param pixels: an 8-bit array of rows by columns (by channels).
+    :param box: the image box, its size in points.
+    :param dpi: pixels per inch, or ``None`` to keep every pixel.
+    :returns: the array, resampled with a Lanczos filter when it was larger.
+    """
+    import numpy as np
+
+    if not dpi or pixels is None:
+        return pixels
+    rows, columns = pixels.shape[:2]
+    width = max(1, int(round(float(box["w"]) / 72.0 * float(dpi))))
+    height = max(1, int(round(float(box["h"]) / 72.0 * float(dpi))))
+    scale = min(width / float(columns), height / float(rows))
+    if scale >= 1.0:
+        return pixels
+    from PIL import Image
+
+    size = (max(1, int(round(columns * scale))), max(1, int(round(rows * scale))))
+    resampled = Image.fromarray(np.ascontiguousarray(pixels)).resize(size, Image.Resampling.LANCZOS)
+    return np.ascontiguousarray(np.asarray(resampled))
+
+
+def _canvas_pdf(layout, path, pixels_for, cancelled=None, dpi=None):
     """Write every page of ``layout`` to one PDF through spaCR's figure writer.
 
     Text is vector; each image is embedded with all of the pixels
@@ -876,6 +907,8 @@ def _canvas_pdf(layout, path, pixels_for, cancelled=None):
 
     :param pixels_for: called with an image box; returns its full pixels.
     :param cancelled: an optional ``threading.Event``; once set no file is written.
+    :param dpi: the most pixels per inch an image is embedded at, and the
+        resolution of anything rasterized; ``None`` keeps every source pixel.
     :returns: ``(path written or None when cancelled, errors)``.
     """
     import shutil
@@ -895,9 +928,9 @@ def _canvas_pdf(layout, path, pixels_for, cancelled=None):
         for index in range(len(layout.pages)):
             if cancelled is not None and cancelled.is_set():
                 return None, errors
-            figure, _images, _records, page_errors = _canvas_page_figure(layout, index, pixels_for, cancelled)
+            figure, _images, _records, page_errors = _canvas_page_figure(layout, index, pixels_for, cancelled, dpi)
             pages.append(save_figure(figure, os.path.join(staging, f"page_{index + 1:04d}.pdf"),
-                                     fmt="pdf", close=True))
+                                     fmt="pdf", dpi=dpi, close=True))
             errors.extend(page_errors)
         if cancelled is not None and cancelled.is_set():
             return None, errors
@@ -923,6 +956,43 @@ _CANVAS_HANDLE = 8.0
 _CANVAS_GRID_INK = "#c9d5e3"
 _CANVAS_PAPER = "#ffffff"
 _CANVAS_FILE_SUFFIXES = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff")
+_CANVAS_DPI_CHOICES = (150, 300, 600, 1200)
+_CANVAS_IMPORT_DEFAULTS = {"shown": True, "normalize": True, "low": 1.0, "high": 99.9, "gamma": 1.0,
+                           "background": False, "denoise": False, "clahe": False, "sharpen": False}
+_CANVAS_IMPORT_STEPS = (
+    ("background", "Background subtraction", "Subtract a rolling-ball background from this channel."),
+    ("denoise", "Denoise", "Smooth this channel with a small Gaussian before it is shown."),
+    ("clahe", "CLAHE", "Contrast-limited adaptive histogram equalization of this channel."),
+    ("sharpen", "Sharpen", "Sharpen this channel with an unsharp mask."),
+)
+_CANVAS_PICK_KEYS = "Ctrl+Shift"
+
+
+def _canvas_dpi_combo():
+    """A DPI choice for a PDF export, set to the application's figure DPI.
+
+    Each entry's data is the most pixels per inch an image is embedded at;
+    ``0`` keeps every source pixel.
+
+    :returns: a ``QComboBox``.
+    """
+    app = picture_dpi()
+    combo = QComboBox()
+    combo.setObjectName("CanvasExportDpi")
+    for dpi in sorted(set(_CANVAS_DPI_CHOICES) | {app}):
+        caption = (tr("{dpi} DPI (application setting)", dpi=dpi) if dpi == app else tr("{dpi} DPI", dpi=dpi))
+        combo.addItem(caption, dpi)
+    combo.addItem(tr("Every source pixel"), 0)
+    combo.setCurrentIndex(combo.findData(app))
+    combo.setToolTip(tr("Most pixels per inch an image is written at; images with fewer pixels keep every "
+                        "pixel. Starts at the figure DPI of Preferences."))
+    return combo
+
+
+def _canvas_import_entry(box, channel):
+    """The import settings of one channel of a file box, with defaults filled in."""
+    channels = (box.get("import") or {}).get("channels") or {}
+    return dict(_CANVAS_IMPORT_DEFAULTS, **(channels.get(str(channel)) or {}))
 
 
 def _canvas_mime(images):
@@ -966,6 +1036,10 @@ def _canvas_dropped_images(mime):
 def _canvas_box_pixels(box, edge, field_pixels):
     """An image box's pixels: a file read here, anything else from ``field_pixels``.
 
+    A file box that carries import settings (``box["import"]``) goes to
+    ``field_pixels`` as well when that reader declares ``imports``, so the
+    Overview's display pipeline normalizes and enhances it.
+
     :param edge: the longest side wanted, or ``None`` for every pixel.
     :param field_pixels: called with ``(box, edge)`` for sources that are
         not files, or ``None`` when there are none.
@@ -973,6 +1047,8 @@ def _canvas_box_pixels(box, edge, field_pixels):
     """
     source = box.get("source") or {}
     if source.get("type") == "file":
+        if box.get("import") and getattr(field_pixels, "imports", False):
+            return field_pixels(box, edge)
         return _canvas_file_pixels(source.get("path", ""), edge)
     if field_pixels is None:
         raise ValueError(tr("The image source is not loaded: {label}", label=box.get("label") or "?"))
@@ -1237,6 +1313,51 @@ class _CanvasView(QGraphicsView):
         self.fit()
 
 
+class _CanvasSettingsDialog(QDialog):
+    """Every Custom export setting in one popup beside the canvas.
+
+    Page and grid, the pages, the export's DPI and layouts, the selected
+    boxes' text, image and import settings, and their arrangement. Each
+    control acts on the canvas as it changes, so the popup can stay open
+    while the canvas takes the whole export section.
+
+    :param composer: the :class:`_CanvasComposer` the settings belong to.
+    """
+
+    def __init__(self, composer):
+        """An empty, scrolling column of sections with a Close button."""
+        from PySide6.QtWidgets import QFrame, QScrollArea
+
+        super().__init__(composer, Qt.WindowType.Tool)
+        self.setObjectName("CanvasSettingsDialog")
+        self.setWindowTitle(tr("Export settings"))
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(12, 12, 12, 12)
+        self.scroll = QScrollArea()
+        self.scroll.setObjectName("CanvasComposerSettingsScroll")
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        panel = QWidget()
+        panel.setObjectName("CanvasComposerSettings")
+        self.scroll.setWidget(panel)
+        self.sections = QVBoxLayout(panel)
+        self.sections.setContentsMargins(0, 0, 8, 0)
+        outer.addWidget(self.scroll, 1)
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self.close_button = QPushButton(tr("Close"))
+        self.close_button.setToolTip(tr("Hide the export settings; the canvas keeps every change."))
+        self.close_button.clicked.connect(self.hide)
+        row.addWidget(self.close_button)
+        outer.addLayout(row)
+        self.resize(440, 720)
+
+    def add_section(self, widget):
+        """Append one section of settings."""
+        self.sections.addWidget(widget)
+
+
 class _CanvasComposer(QDialog):
     """Compose PDF pages from text boxes and images on a snap grid.
 
@@ -1293,23 +1414,20 @@ class _CanvasComposer(QDialog):
     def _build(self):
         """Lay out the toolbar, the page list, the view and the box settings."""
         root = QVBoxLayout(self)
-        root.setContentsMargins(10, 10, 10, 10)
-        root.setSpacing(8)
-        root.addLayout(self._build_toolbar())
-        body = QHBoxLayout()
-        body.setSpacing(8)
-        body.addLayout(self._build_pages())
+        root.setContentsMargins(4, 4, 4, 4)
+        root.setSpacing(6)
+        root.addWidget(self._build_toolbar())
         self.scene = _CanvasScene(self)
         self.scene.selectionChanged.connect(self._selection_changed)
         self.view = _CanvasView(self.scene, self)
-        body.addWidget(self.view, 1)
-        body.addWidget(self._build_settings())
-        root.addLayout(body, 1)
+        root.addWidget(self.view, 1)
+        self._build_settings()
         self.status = QLabel("")
         self.status.setObjectName("CanvasComposerStatus")
         self.status.setWordWrap(True)
         root.addWidget(self.status)
         self.resize(1280, 860)
+        self._sync_import_group()
         for keys, slot in ((QKeySequence.StandardKey.Undo, self.undo),
                            (QKeySequence.StandardKey.Redo, self.redo),
                            (QKeySequence.StandardKey.Delete, self.delete_selected),
@@ -1335,10 +1453,24 @@ class _CanvasComposer(QDialog):
             return
         slot()
 
+    @staticmethod
+    def _toolbar_group(widgets):
+        """Controls kept together on one line of the wrapping toolbar."""
+        group = QWidget()
+        row = QHBoxLayout(group)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        for widget in widgets:
+            row.addWidget(widget)
+        return group
+
     def _build_toolbar(self):
-        """Page, grid, tools, history and file controls."""
-        bar = QHBoxLayout()
-        bar.setSpacing(6)
+        """The essential actions on a compact, wrapping toolbar; the page and grid controls for the popup."""
+        from .flow import FlowHost, FlowLayout
+
+        host = FlowHost()
+        host.setObjectName("CanvasComposerToolbar")
+        bar = FlowLayout(host, 6)
         self.page_size = QComboBox()
         for name in _CANVAS_PAGE_SIZES:
             self.page_size.addItem(tr(name), name)
@@ -1374,7 +1506,6 @@ class _CanvasComposer(QDialog):
         self.select_tool.clicked.connect(functools.partial(self.set_tool, "select"))
         self.text_tool.clicked.connect(functools.partial(self.set_tool, "text"))
         add_image = QPushButton(tr("Add image…"))
-        add_image.setToolTip(tr("Place an image file from disk on the page."))
         add_image.clicked.connect(self._choose_images)
         self.undo_button = QPushButton(tr("Undo"))
         self.undo_button.setToolTip(tr("Undo the last change (Ctrl+Z)."))
@@ -1393,57 +1524,107 @@ class _CanvasComposer(QDialog):
         self.export_button.setToolTip(tr("Write every page to one PDF: vector text, images at full resolution "
                                          "with the current display settings."))
         self.export_button.clicked.connect(self._ask_export)
-        page_label = QLabel(tr("Page"))
-        page_label.setToolTip(tr("Paper size of every page.") + " " + tr("Page orientation of every page."))
-        for widget in (page_label, self.page_size, self.orientation, QLabel(tr("Grid")),
-                       self.grid_slider, self.grid_spin, self.show_grid, self.snap):
-            bar.addWidget(widget)
-        bar.addSpacing(10)
-        for widget in (self.select_tool, self.text_tool, add_image):
-            bar.addWidget(widget)
+        self.dpi = _canvas_dpi_combo()
+        add_image.setToolTip(tr("Place an image file from disk on the page; its import settings then "
+                                "normalize and enhance it."))
+        extra = []
         for caption, tooltip, callback in self._actions:
             button = QPushButton(tr(caption))
             button.setToolTip(tr(tooltip))
             button.clicked.connect(functools.partial(self._run_action, callback))
-            bar.addWidget(button)
-        for widget in (self.undo_button, self.redo_button):
-            bar.addWidget(widget)
-        bar.addStretch(1)
-        for widget in (open_button, save_button, self.export_button):
-            bar.addWidget(widget)
-        return bar
+            extra.append(button)
+        self._layout_buttons = (open_button, save_button)
+        self.previous_page = QPushButton(tr("Previous page"))
+        self.previous_page.setToolTip(tr("Edit the page before this one."))
+        self.previous_page.clicked.connect(functools.partial(self.turn_page, -1))
+        self.next_page = QPushButton(tr("Next page"))
+        self.next_page.setToolTip(tr("Edit the page after this one."))
+        self.next_page.clicked.connect(functools.partial(self.turn_page, 1))
+        self.page_label = QLabel("")
+        self.page_label.setObjectName("CanvasComposerPageLabel")
+        self.settings_button = QPushButton(tr("Settings…"))
+        self.settings_button.setObjectName("CanvasComposerSettingsButton")
+        self.settings_button.setToolTip(tr("Page, grid, pages, DPI, layouts and the selected boxes' text, image "
+                                           "and import settings, in a popup that applies every change at once."))
+        self.settings_button.clicked.connect(self.show_settings)
+        for widgets in ((self.select_tool, self.text_tool, add_image, *extra),
+                        (self.undo_button, self.redo_button),
+                        (self.previous_page, self.page_label, self.next_page),
+                        (self.settings_button, self.export_button)):
+            bar.addWidget(self._toolbar_group(widgets))
+        return host
+
+    def turn_page(self, step):
+        """Edit the page ``step`` places away."""
+        self.show_page(self._page + int(step))
+
+    def show_settings(self):
+        """Open the settings popup below the Settings button; returns it."""
+        dialog = self.settings_dialog
+        if not dialog.isVisible():
+            anchor = self.settings_button
+            point = anchor.mapToGlobal(anchor.rect().bottomRight())
+            dialog.move(max(0, point.x() - dialog.width()), point.y() + 4)
+        dialog.show()
+        dialog.raise_()
+        return dialog
 
     def _build_pages(self):
-        """The page list and its add, remove and reorder buttons."""
-        column = QVBoxLayout()
+        """The Pages section: the page list and its add, remove and reorder buttons."""
+        group = QGroupBox(tr("Pages"))
+        column = QGridLayout(group)
         column.setSpacing(4)
-        title = QLabel(tr("Pages"))
-        title.setObjectName("CanvasComposerHeading")
         self.pages = QListWidget()
         self.pages.setObjectName("CanvasComposerPages")
-        self.pages.setFixedWidth(150)
+        self.pages.setFixedHeight(110)
         self.pages.setToolTip(tr("Pages of the PDF, in order; click one to edit it."))
         self.pages.currentRowChanged.connect(self._page_chosen)
-        column.addWidget(title)
-        column.addWidget(self.pages, 1)
-        for caption, tooltip, slot in (
+        column.addWidget(self.pages, 0, 0, 1, 2)
+        for index, (caption, tooltip, slot) in enumerate((
                 ("Add page", "Add an empty page after this one.", self.add_page),
                 ("Remove page", "Remove this page and its boxes.", self.remove_page),
                 ("Move up", "Move this page one place earlier.", functools.partial(self.move_page, -1)),
-                ("Move down", "Move this page one place later.", functools.partial(self.move_page, 1))):
+                ("Move down", "Move this page one place later.", functools.partial(self.move_page, 1)))):
             button = QPushButton(tr(caption))
             button.setToolTip(tr(tooltip))
             button.clicked.connect(slot)
-            column.addWidget(button)
-        return column
+            column.addWidget(button, 1 + index // 2, index % 2)
+        return group
+
+    def _build_page_group(self):
+        """The Page section: paper, orientation, grid and snapping."""
+        group = QGroupBox(tr("Page"))
+        form = QFormLayout(group)
+        grid = QHBoxLayout()
+        grid.addWidget(self.grid_slider, 1)
+        grid.addWidget(self.grid_spin)
+        toggles = QHBoxLayout()
+        toggles.addWidget(self.show_grid)
+        toggles.addWidget(self.snap)
+        form.addRow(tr("Paper"), self.page_size)
+        form.addRow(tr("Orientation"), self.orientation)
+        form.addRow(tr("Grid"), grid)
+        form.addRow(toggles)
+        return group
+
+    def _build_export_group(self):
+        """The Export section: the DPI and the layout files."""
+        group = QGroupBox(tr("Export"))
+        form = QFormLayout(group)
+        form.addRow(tr("DPI"), self.dpi)
+        files = QHBoxLayout()
+        for button in self._layout_buttons:
+            files.addWidget(button)
+        form.addRow(files)
+        return group
 
     def _build_settings(self):
-        """Settings of the selected boxes: text, image and arrangement."""
-        panel = QWidget()
-        panel.setObjectName("CanvasComposerSettings")
-        panel.setFixedWidth(270)
-        column = QVBoxLayout(panel)
-        column.setContentsMargins(0, 0, 0, 0)
+        """The settings popup: page, pages, export, then the selected boxes' text, image, import and arrangement."""
+        self.settings_dialog = _CanvasSettingsDialog(self)
+        self.settings_scroll = self.settings_dialog.scroll
+        self.page_group = self._build_page_group()
+        self.pages_group = self._build_pages()
+        self.export_group = self._build_export_group()
         self.text_group = QGroupBox(tr("Text"))
         form = QFormLayout(self.text_group)
         self.text_edit = QPlainTextEdit()
@@ -1512,10 +1693,172 @@ class _CanvasComposer(QDialog):
         delete.setToolTip(tr("Delete the selected boxes (Delete key)."))
         delete.clicked.connect(self.delete_selected)
         arrange.addWidget(delete, 2, 0, 1, 2)
-        for group in (self.text_group, self.image_group, self.arrange_group):
-            column.addWidget(group)
-        column.addStretch(1)
-        return panel
+        self._build_import_group()
+        for group in (self.page_group, self.pages_group, self.export_group, self.text_group, self.image_group,
+                      self.import_group, self.arrange_group):
+            self.settings_dialog.add_section(group)
+        self.settings_dialog.sections.addStretch(1)
+        return self.settings_dialog
+
+    def _build_import_group(self):
+        """Per-channel normalization and enhancement of image files added by path or by a drop."""
+        from PySide6.QtWidgets import QDoubleSpinBox
+
+        self.import_group = QGroupBox(tr("Import settings"))
+        self.import_group.setObjectName("CanvasComposerImport")
+        self.import_group.setToolTip(tr("Normalize and enhance image files added by path or dropped from disk, "
+                                        "channel by channel, through the Overview's display pipeline."))
+        form = QFormLayout(self.import_group)
+        self.import_channel = QComboBox()
+        self.import_channel.setToolTip(tr("Channel the import settings below are edited for; All channels "
+                                          "sets every channel at once."))
+        self.import_channel.currentIndexChanged.connect(self._import_channel_chosen)
+        self.import_shown = Toggle(tr("Show channel"))
+        self.import_shown.setToolTip(tr("Draw this channel; turn off to leave it out of the image."))
+        self.import_normalize = Toggle(tr("Percentile normalization"))
+        self.import_normalize.setToolTip(tr("Stretch the channel between the low and high percentiles; off "
+                                            "stretches it between its minimum and maximum."))
+        self.import_low, self.import_high, self.import_gamma = QDoubleSpinBox(), QDoubleSpinBox(), QDoubleSpinBox()
+        for spin, low, high, step, tooltip in (
+                (self.import_low, 0.0, 100.0, .5, "Percentile shown as black."),
+                (self.import_high, 0.0, 100.0, .1, "Percentile shown as full intensity."),
+                (self.import_gamma, .1, 5.0, .05, "Gamma applied after normalization; below 1 lifts faint signal.")):
+            spin.setRange(low, high)
+            spin.setSingleStep(step)
+            spin.setDecimals(2)
+            spin.setToolTip(tr(tooltip))
+            spin.valueChanged.connect(self._import_changed)
+        self.import_steps = {}
+        form.addRow(tr("Channel"), self.import_channel)
+        form.addRow(self.import_shown)
+        form.addRow(self.import_normalize)
+        form.addRow(tr("Low percentile"), self.import_low)
+        form.addRow(tr("High percentile"), self.import_high)
+        form.addRow(tr("Gamma"), self.import_gamma)
+        for key, caption, tooltip in _CANVAS_IMPORT_STEPS:
+            toggle = Toggle(tr(caption))
+            toggle.setToolTip(tr(tooltip))
+            toggle.toggled.connect(self._import_changed)
+            self.import_steps[key] = toggle
+            form.addRow(toggle)
+        for toggle in (self.import_shown, self.import_normalize):
+            toggle.toggled.connect(self._import_changed)
+        reset = QPushButton(tr("Reset import settings"))
+        reset.setToolTip(tr("Show the selected files as they are on disk again."))
+        reset.clicked.connect(self.reset_import)
+        form.addRow(reset)
+
+    def _imports_supported(self):
+        """Whether the image reader can render import settings."""
+        return bool(getattr(self._field_pixels, "imports", False))
+
+    def _selected_files(self):
+        """The selected image boxes whose source is a file."""
+        boxes = [self.canvas.find(box_id)[1] for box_id in self.selected_ids()]
+        return [box for box in boxes if box["kind"] == "image" and (box.get("source") or {}).get("type") == "file"]
+
+    def _file_channels(self, box):
+        """How many channels a file box's image has; read once from its header and kept on the box."""
+        if not box.get("channels"):
+            count = getattr(self._field_pixels, "file_channels", None)
+            try:
+                box["channels"] = int(count(box["source"]["path"])) if callable(count) else 1
+            except Exception:
+                box["channels"] = 1
+        return int(box["channels"])
+
+    def _sync_import_group(self):
+        """Show the import settings of the selected files, or hide them."""
+        files = self._selected_files() if self._imports_supported() else []
+        self.import_group.setVisible(bool(files))
+        if not files:
+            return
+        count = max(self._file_channels(box) for box in files)
+        chosen = self.import_channel.currentData()
+        self._syncing = True
+        try:
+            self.import_channel.clear()
+            self.import_channel.addItem(tr("All channels"), -1)
+            for channel in range(count):
+                self.import_channel.addItem(tr("Channel {number}", number=channel + 1), channel)
+            self.import_channel.setCurrentIndex(max(0, self.import_channel.findData(chosen)))
+        finally:
+            self._syncing = False
+        self._show_import_values()
+
+    def _import_channel_chosen(self, *_):
+        """Show the chosen channel's import settings."""
+        if not self._syncing:
+            self._show_import_values()
+
+    def _show_import_values(self):
+        """Fill the import controls from the first selected file and the chosen channel."""
+        files = self._selected_files()
+        if not files:
+            return
+        channel = max(0, int(self.import_channel.currentData() or 0))
+        entry = _canvas_import_entry(files[0], channel)
+        self._syncing = True
+        try:
+            self.import_shown.setChecked(bool(entry["shown"]))
+            self.import_normalize.setChecked(bool(entry["normalize"]))
+            self.import_low.setValue(float(entry["low"]))
+            self.import_high.setValue(float(entry["high"]))
+            self.import_gamma.setValue(float(entry["gamma"]))
+            for key, toggle in self.import_steps.items():
+                toggle.setChecked(bool(entry[key]))
+            enabled = bool(entry["normalize"])
+            self.import_low.setEnabled(enabled)
+            self.import_high.setEnabled(enabled)
+        finally:
+            self._syncing = False
+
+    def import_values(self):
+        """The import settings the controls show, as one channel's entry."""
+        values = {"shown": self.import_shown.isChecked(), "normalize": self.import_normalize.isChecked(),
+                  "low": float(self.import_low.value()), "high": float(self.import_high.value()),
+                  "gamma": float(self.import_gamma.value())}
+        values.update({key: toggle.isChecked() for key, toggle in self.import_steps.items()})
+        return values
+
+    def _import_changed(self, *_):
+        """Apply the import controls to the selected files."""
+        if self._syncing:
+            return
+        self.set_import(self.import_values(), self.import_channel.currentData())
+
+    def set_import(self, values, channel=-1, ids=None):
+        """Set import settings of file boxes; returns the boxes changed.
+
+        :param values: keys of :data:`_CANVAS_IMPORT_DEFAULTS` to set.
+        :param channel: the channel, from 0, or ``-1`` for every channel.
+        :param ids: the boxes; the selected files by default.
+        """
+        boxes = ([self.canvas.find(box_id)[1] for box_id in ids] if ids is not None else self._selected_files())
+        boxes = [box for box in boxes if box is not None and (box.get("source") or {}).get("type") == "file"]
+        if not boxes:
+            return []
+        self.canvas.checkpoint()
+        for box in boxes:
+            count = self._file_channels(box)
+            settings = dict(box.get("import") or {})
+            channels = {key: dict(value) for key, value in (settings.get("channels") or {}).items()}
+            targets = range(count) if channel is None or int(channel) < 0 else (int(channel),)
+            for target in targets:
+                channels[str(target)] = dict(_canvas_import_entry(box, target), **values)
+            box["import"] = {"channels": channels}
+        self._commit()
+        return boxes
+
+    def reset_import(self):
+        """Drop the import settings of the selected files."""
+        boxes = self._selected_files()
+        if not boxes:
+            return
+        self.canvas.checkpoint()
+        for box in boxes:
+            box.pop("import", None)
+        self._commit()
 
     def _sync_controls(self):
         """Show the page and grid settings of the layout in the toolbar."""
@@ -1541,6 +1884,10 @@ class _CanvasComposer(QDialog):
             for index, page in enumerate(self.canvas.pages):
                 self.pages.addItem(tr("Page {number} ({count} boxes)", number=index + 1, count=len(page)))
             self.pages.setCurrentRow(self._page)
+            self.page_label.setText(tr("Page {number} of {total}", number=self._page + 1,
+                                       total=len(self.canvas.pages)))
+            self.previous_page.setEnabled(self._page > 0)
+            self.next_page.setEnabled(self._page + 1 < len(self.canvas.pages))
             self.scene.clear()
             self._items = {}
             width, height = self.canvas.page_points
@@ -1605,6 +1952,7 @@ class _CanvasComposer(QDialog):
                                           else tr("The pixel size of this image is not known, so no scale bar can be drawn."))
         finally:
             self._syncing = False
+        self._sync_import_group()
 
     def _commit(self):
         """Redraw after a change to the layout."""
@@ -1694,6 +2042,11 @@ class _CanvasComposer(QDialog):
                 x, y = self.canvas.grid * 2, box["y"] + box["h"] + self.canvas.grid
         self._commit()
         self.select([box["id"] for box in boxes])
+        if self._imports_supported() and any((box.get("source") or {}).get("type") == "file" for box in boxes):
+            self.show_settings()
+            self.settings_scroll.ensureWidgetVisible(self.import_group)
+            self.status.setText(tr("Use the import settings in Settings… to normalize and enhance the added "
+                                   "files, channel by channel."))
         return boxes
 
     def _choose_images(self):
@@ -1706,9 +2059,7 @@ class _CanvasComposer(QDialog):
 
     def _preview_of(self, box):
         """The box's preview image, asking for it off the GUI thread the first time."""
-        import json
-
-        key = json.dumps(box.get("source"), sort_keys=True)
+        key = self._source_key(box)
         if key in self._previews:
             return self._previews[key]
         if key not in self._requested:
@@ -1734,9 +2085,11 @@ class _CanvasComposer(QDialog):
 
     @staticmethod
     def _source_key(box):
-        """The cache key of a box's image source."""
+        """The cache key of a box's image source and its import settings."""
         import json
 
+        if box.get("import"):
+            return json.dumps([box.get("source"), box.get("import")], sort_keys=True)
         return json.dumps(box.get("source"), sort_keys=True)
 
     def _text_edited(self):
@@ -1918,8 +2271,15 @@ class _CanvasComposer(QDialog):
         if path:
             self.export_pdf(path if path.lower().endswith(".pdf") else path + ".pdf")
 
-    def export_pdf(self, path):
-        """Write the layout to ``path`` off the GUI thread; returns whether it started."""
+    def export_pdf(self, path, dpi=-1):
+        """Write the layout to ``path`` off the GUI thread; returns whether it started.
+
+        :param dpi: the most pixels per inch an image is embedded at; ``0``
+            or ``None`` keeps every source pixel; left out, the DPI choice
+            in the toolbar.
+        """
+        if dpi is not None and int(dpi) < 0:
+            dpi = self.dpi.currentData()
         if self._export_jobs.is_busy():
             self.status.setText(tr("Wait for the current export to finish or cancel it."))
             return False
@@ -1929,7 +2289,8 @@ class _CanvasComposer(QDialog):
         self.export_button.setEnabled(False)
         self.status.setText(tr("Writing {path}…", path=path))
         return self._export_jobs.submit(
-            functools.partial(_canvas_pdf, layout, path, reader, self._cancelled), self._exported)
+            functools.partial(_canvas_pdf, layout, path, reader, self._cancelled, int(dpi) if dpi else None),
+            self._exported)
 
     def _reader(self):
         """The image reader for work off the GUI thread.
@@ -1964,6 +2325,7 @@ class _CanvasComposer(QDialog):
         self._cancelled.set()
         for runner in (self._preview_jobs, self._export_jobs):
             runner.cancel()
+        self.settings_dialog.close()
         super().closeEvent(event)
 
 
@@ -1993,6 +2355,10 @@ _CANVAS_UI_SOURCES = frozenset({
     "Left",
     "Centre",
     "Right",
+    *(text for _key, caption, tooltip in _CANVAS_IMPORT_STEPS for text in (caption, tooltip)),
+    "Percentile shown as black.",
+    "Percentile shown as full intensity.",
+    "Gamma applied after normalization; below 1 lifts faint signal.",
 })
 """Captions the Custom export canvas passes to ``tr`` through loop variables.
 
