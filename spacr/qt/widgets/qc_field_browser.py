@@ -2883,21 +2883,25 @@ def _overview_inks(channels, channel_colors, mode):
     return [_OVERVIEW_INKS[ink or free.pop(0)] for ink in chosen]
 
 
-def _overview_subtractive(planes, inks):
+def _overview_subtractive(planes, inks, strengths=None):
     """Print display planes as inks on white paper.
 
     Each channel absorbs the complement of its ink from white:
-    ``out = 255 - sum(plane * (1 - ink))``, clipped to 0-255, so no signal is
-    white, one full channel is its ink and full cyan, magenta and yellow
-    together are black; a black (key) ink darkens every component equally.
+    ``out = 255 - sum(plane * strength * (1 - ink))``, clipped to 0-255, so no
+    signal is white, one full channel is its ink and full cyan, magenta and
+    yellow together are black; a black (key) ink darkens every component
+    equally. A channel's strength (its ink intensity) scales how much ink it
+    lays down; 1 is the plain print.
 
     :param planes: uint8 display planes of one shape.
     :param inks: one ``(r, g, b)`` ink in 0-1 per plane.
+    :param strengths: one ink intensity per plane, or ``None`` for 1 each.
     :returns: the uint8 RGB print.
     """
     absorbed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
-    for plane, ink in zip(planes, inks):
-        absorbed += plane[..., None].astype(np.float32) * (1. - np.asarray(ink, dtype=np.float32))
+    for plane, ink, strength in zip(planes, inks, strengths or (1.,) * len(planes)):
+        absorbed += (plane[..., None].astype(np.float32) * float(strength)
+                     * (1. - np.asarray(ink, dtype=np.float32)))
     return np.clip(255. - absorbed, 0, 255).astype(np.uint8)
 
 
@@ -2973,7 +2977,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      channel_views=False, normalization_context=None, cancelled=None,
                      advanced_normalization=None, region=None, enhancement=None, channel_colors=None,
                      enhancement_channels=None, percentile_channels=None, color_mode="additive",
-                     channel_limits=None, image_overrides=None):
+                     channel_limits=None, image_overrides=None, channel_percentiles=None,
+                     channel_enhancement=None, ink_intensity=None):
     """Decode canonical display pixels, optionally returning individual channel views.
 
     ``enhancement`` is a Make Masks :class:`spacr.qt.detect_chain.Chain`
@@ -2987,6 +2992,14 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
     in order. ``color_mode`` ``'cmy'`` or ``'cmyk'`` prints up to three or
     four channels as inks on white instead (:func:`_overview_subtractive`).
+
+    Each channel can be treated on its own: ``channel_percentiles``,
+    ``{channel: (low, high)}``, replaces the percentile stretch for that
+    channel; ``channel_enhancement``, ``{channel: chain or None}``, replaces
+    the enhancement chain for that channel (``None`` shows it unenhanced);
+    ``ink_intensity``, ``{channel: strength}``, scales each channel's ink in
+    the CMY and CMYK modes. A channel missing from a mapping uses the global
+    value, so leaving them out is the plain behaviour.
 
     Display stages, in order: the global normalization above; then
     ``channel_limits``, ``{image key: {channel: (low, high)}}`` in raw
@@ -3012,12 +3025,14 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         for channel, path, values in _overview_raw_planes(target, selected, edge=edge,
                 region=region, **axes):
             yield channel, path, values
+    own_percentiles = dict(channel_percentiles or {}) if percentiles is not None else {}
     if region is not None and normalization is None and advanced_normalization is None:
         bounds = {}
         for channel, path, raw in read_selected(field, channels, edge=1024):
             finite = np.asarray(raw)[np.isfinite(raw)]
             if finite.size:
-                bounds[channel] = (float(finite.min()), float(finite.max())) if percentiles is None else tuple(np.percentile(finite, percentiles))
+                bounds[channel] = ((float(finite.min()), float(finite.max())) if percentiles is None else
+                                   tuple(np.percentile(finite, own_percentiles.get(channel, percentiles))))
         normalization = dict(mode="shared", bounds=bounds, gains={}, percentiles=percentiles)
     for item in read_selected(field, channels):
         total_bytes += item[2].nbytes
@@ -3067,11 +3082,13 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         elif percentiles is None or (percentile_channels is not None and channel not in percentile_channels):
             low, high = float(plane[finite].min()), float(plane[finite].max())
         else:
-            low, high = np.percentile(plane[finite], percentiles)
+            low, high = np.percentile(plane[finite], own_percentiles.get(channel, percentiles))
         plane = np.nan_to_num((plane - low) / max(float(high - low), np.finfo(np.float32).eps),
                               nan=0., posinf=1., neginf=0.)
-        if enhancement is not None and (enhancement_channels is None or channel in enhancement_channels):
-            plane = _overview_enhanced_plane(plane, enhancement, stride, cancelled)
+        chain = (channel_enhancement[channel] if channel_enhancement and channel in channel_enhancement
+                 else enhancement)
+        if chain is not None and (enhancement_channels is None or channel in enhancement_channels):
+            plane = _overview_enhanced_plane(plane, chain, stride, cancelled)
         plane = _overview_override_plane(plane, channel_overrides.get(channel, channel_overrides.get(str(channel))))
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
@@ -3082,7 +3099,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     saturation = override.get("saturation")
     inks = _overview_inks(channels, channel_colors, color_mode)
     if inks is not None:
-        return _overview_saturated(_overview_subtractive(planes, inks), saturation)
+        strengths = [float((ink_intensity or {}).get(channel, 1.)) for channel in channels]
+        return _overview_saturated(_overview_subtractive(planes, inks, strengths), saturation)
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
     if len(planes) > 3:
@@ -3799,6 +3817,48 @@ def _overview_pdf_header(channels, percentiles, seed, normalization, color_mode=
     return tuple(part for line in lines for part in (textwrap.wrap(line, 112) or [""]))
 
 
+def _overview_channel_display_record(channels, percentiles, channel_percentiles=None, ink_intensity=None):
+    """Each exported channel's own display values, for ``overview_selection.json``.
+
+    :param channels: the exported channels.
+    :param percentiles: the global percentile stretch, or ``None``.
+    :param channel_percentiles: ``{channel: (low, high)}`` channel overrides.
+    :param ink_intensity: ``{channel: strength}`` for the CMY and CMYK modes.
+    :returns: ``{channel: {"percentiles": [low, high] or None, "ink_intensity": s}}``.
+    """
+    record = {}
+    for channel in channels:
+        own = (channel_percentiles or {}).get(channel) if percentiles is not None else None
+        chosen = own if own is not None else percentiles
+        record[str(channel)] = {"percentiles": None if chosen is None else [float(value) for value in chosen],
+                                "ink_intensity": float((ink_intensity or {}).get(channel, 1.))}
+    return record
+
+
+def _overview_channel_display_lines(channels, channel_percentiles=None, ink_intensity=None,
+                                    color_mode="additive"):
+    """PDF header lines naming the channels that have their own display values.
+
+    :returns: the wrapped lines; none when every channel uses the global values.
+    """
+    import textwrap
+
+    parts = []
+    for channel in channels:
+        values = []
+        own = (channel_percentiles or {}).get(channel)
+        if own is not None:
+            values.append(tr("percentiles {low}-{high}", low=f"{float(own[0]):g}", high=f"{float(own[1]):g}"))
+        strength = float((ink_intensity or {}).get(channel, 1.))
+        if str(color_mode or "additive") != "additive" and strength != 1.:
+            values.append(tr("ink intensity {value}", value=f"{strength:g}"))
+        if values:
+            parts.append(f"{channel}: " + ", ".join(values))
+    if not parts:
+        return ()
+    return tuple(textwrap.wrap(tr("Channel display") + ": " + "; ".join(parts), 112))
+
+
 def _overview_pdf_pixels(pixels, axis, dpi):
     """Thin a field's pixels to at most ``dpi`` pixels per printed inch on its page.
 
@@ -3834,8 +3894,14 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      conditions=None, normalization_context=None, annotations=None,
                      advanced_normalization=None, field_options=None, channel_colors=None,
-                     color_mode="additive", load_limits=None):
-    """Write twelve bounded images per styled PDF with reproducible provenance."""
+                     color_mode="additive", load_limits=None, channel_percentiles=None,
+                     ink_intensity=None):
+    """Write twelve bounded images per styled PDF with reproducible provenance.
+
+    ``channel_percentiles`` and ``ink_intensity`` are the per-channel display
+    values (see :func:`_overview_pixels`); they are applied to the pages and
+    recorded in the header and in ``overview_selection.json``.
+    """
     import json
     from matplotlib.figure import Figure
     from ...plot import save_figure
@@ -3869,6 +3935,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                               if normalization_context is not None else normalization)
         header = _overview_pdf_header(channels, percentiles, seed,
             None if advanced_normalization is not None else page_normalization, color_mode)
+        header = tuple(header) + _overview_channel_display_lines(channels, channel_percentiles,
+                                                                 ink_intensity, color_mode)
         if advanced_normalization is not None:
             settings = advanced_normalization.get("options", advanced_normalization)
             header = tuple(header) + (tr("Channels: {channels}; normalization: {method}; scope: {scope}; seed: {seed}",
@@ -3946,7 +4014,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                 if len(channels) > 3:
                     views = _overview_pixels(field, channels, percentiles, edge=quality_edge,
                         normalization=normalization, normalization_context=normalization_context,
-                        cancelled=cancelled,
+                        cancelled=cancelled, channel_percentiles=channel_percentiles,
                         channel_views=True, advanced_normalization=advanced_normalization, **selected_axes)
                     channel_columns = math.ceil(math.sqrt(len(views)))
                     channel_rows = math.ceil(len(views) / channel_columns)
@@ -3966,7 +4034,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                                               normalization_context=normalization_context,
                                               cancelled=cancelled, advanced_normalization=advanced_normalization,
                                               channel_colors=channel_colors, color_mode=color_mode,
-                                              **selected_axes)
+                                              channel_percentiles=channel_percentiles,
+                                              ink_intensity=ink_intensity, **selected_axes)
                     axis = figure.add_subplot(panel)
                     pixels = _overview_pdf_pixels(pixels, axis, None if quality_edge is None else dpi)
                     axis.imshow(pixels, interpolation="none")
@@ -4026,6 +4095,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                 "field_options": field_options, "color_mode": str(color_mode or "additive"),
                 "load_limits": {"max_wells_per_plate": (load_limits or (None, None))[0],
                                 "max_fields_per_well": (load_limits or (None, None))[1]},
+                "channel_display": _overview_channel_display_record(channels, percentiles,
+                                                                    channel_percentiles, ink_intensity),
                 "fields": provenance, "errors": errors, "cancelled": stopped,
                 "requested_field_count": len(fields), "written_field_count": len(provenance),
                 "quality_edge": quality_edge, "dpi": dpi,
@@ -4050,7 +4121,8 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization_context=None, advanced_normalization=None, preview_edge=240,
                       labels=True, enhancement=None, channel_colors=None, enhancement_channels=None,
                       percentile_channels=None, color_mode="additive", channel_limits=None,
-                      image_overrides=None):
+                      image_overrides=None, channel_percentiles=None, channel_enhancement=None,
+                      ink_intensity=None):
     """Render one bounded page of field thumbnails, using the shared pixel path.
 
     ``labels`` draws each tile's well and field name above its image.
@@ -4079,7 +4151,9 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                                       enhancement=enhancement, channel_colors=channel_colors,
                                       enhancement_channels=enhancement_channels,
                                       percentile_channels=percentile_channels, color_mode=color_mode,
-                                      channel_limits=channel_limits, image_overrides=image_overrides)
+                                      channel_limits=channel_limits, image_overrides=image_overrides,
+                                      channel_percentiles=channel_percentiles,
+                                      channel_enhancement=channel_enhancement, ink_intensity=ink_intensity)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -5030,7 +5104,7 @@ _OVERVIEW_SETTINGS_ROWS = (
     ("Brightness", "overview_image_brightness", "Adds to this channel's display level after the levels, from -100 to 100 percent of the display range."),
     ("Contrast", "overview_image_contrast", "Stretches this channel about mid-grey after the levels: 100 percent leaves it unchanged, lower flattens, higher steepens."),
     ("Visible", "overview_image_visible", "Show this channel in this image; switched off, the channel is left out of the composite."),
-    ("Saturation", "overview_image_saturation", "Colour saturation of this image's composite: 0 percent is grey, 100 percent unchanged, higher more vivid."),
+    ("Saturation", "overview_image_saturation", "Colour saturation of this image's combined colour image, all channels together (it is not set per channel): 0 percent is grey, 100 percent unchanged, higher more vivid."),
     ("Link all channels", "overview_image_link_channels", "Off: an edit changes only the selected channel. On: the same edit is made to every channel of this image."),
     ("Apply to", "overview_image_apply_to", "Copy this image's settings, for the selected channel or for all channels, to the other images of its well, its plate or every loaded image."),
 )
@@ -5364,6 +5438,11 @@ class _FieldOverview(QWidget):
         self._scope_cache = {}
         self._scope_generation = 0
         self._image_settings = None
+        self._ink_intensity = 1.
+        self._enhance_values = {}
+        self._display_draft = {}
+        self._global_display = {}
+        self._write_display_rows = None
         self._view_state = _overview_empty_view_state()
         self._view_state_pending = None
         self._view_state_writing = False
@@ -7700,14 +7779,24 @@ class _FieldOverview(QWidget):
         options = dict(self._global_normalization_options)
         if self._editing_channel is None:
             options = self._editor_options()
+        advanced = set(self._editor_options())
         options.update(scope=self.normalization_scope.currentData(),
-                       per_channel={str(key): dict(value) for key, value in self._channel_overrides.items()})
+                       per_channel={str(key): {name: setting for name, setting in value.items() if name in advanced}
+                                    for key, value in self._channel_overrides.items()})
         return options
 
     def _normalization_target_changed(self, *_):
-        """Load the effective settings for one channel without changing others."""
+        """Load the effective settings for one channel without changing others.
+
+        Every per-channel value follows the choice: the advanced
+        normalization, the percentile stretch, the enhancement steps and the
+        ink intensity. Picking a channel shows that channel's values, its own
+        where it has them and the global ones otherwise; picking All channels
+        shows the global values again.
+        """
         if self._editing_channel is None:
             self._global_normalization_options = self._editor_options()
+            self._global_display = self._display_editor_values()
         self._editing_channel = self.norm_channel.currentData()
         options = dict(self._global_normalization_options)
         options.update(self._channel_overrides.get(self._editing_channel, {}))
@@ -7723,6 +7812,7 @@ class _FieldOverview(QWidget):
             self.reference_epsilon.setValue(options["epsilon"])
         finally:
             self._loading_controls = False
+        self._load_display_editor()
         self._normalization_control_states()
 
     def _normalization_control_states(self):
@@ -7736,19 +7826,162 @@ class _FieldOverview(QWidget):
         self.reference_epsilon.setEnabled(method == "ratio")
 
     def _apply_channel_normalization(self):
-        """Commit editor settings to exactly the selected channel."""
+        """Commit editor settings to exactly the selected channel.
+
+        The channel keeps the advanced normalization editor's values, as
+        before, and every display value -- percentiles, enhancement steps, ink
+        intensity -- that differs from the global one; the others keep
+        following the global values.
+        """
         channel = self.norm_channel.currentData()
         if channel is None:
             self._global_normalization_options = self._editor_options()
         else:
-            self._channel_overrides[int(channel)] = self._editor_options()
+            entry = self._editor_options()
+            edited = dict(self._display_editor_values(), **self._display_draft)
+            entry.update({name: value for name, value in edited.items()
+                          if (name in self._global_display or name.startswith("enhance_"))
+                          and value != self._global_display.get(name)})
+            self._channel_overrides[int(channel)] = entry
+        self._channel_display_changed()
         self._advanced_invalidate()
 
     def _clear_channel_normalization(self):
         """Reset channel overrides and reload the retained global transform."""
         self._channel_overrides.clear()
         self._normalization_target_changed()
+        self._channel_display_changed()
         self._advanced_invalidate()
+
+    def _reset_channel_override(self):
+        """Return the selected channel to the global values and show them."""
+        channel = self.norm_channel.currentData()
+        if channel is None or self._channel_overrides.pop(int(channel), None) is None:
+            return
+        self._normalization_target_changed()
+        self._channel_display_changed()
+        self._advanced_invalidate()
+
+    def _display_editor_values(self):
+        """The per-channel display values the editor rows show now.
+
+        :returns: ``percentile_low``, ``percentile_high``, ``ink`` and every
+            ``enhance_*`` value, as the rows hold them.
+        """
+        values = {"percentile_low": float(self.low.value()), "percentile_high": float(self.high.value()),
+                  "ink": float(self._ink_intensity)}
+        values.update(self._enhance_values)
+        return values
+
+    def _load_display_editor(self):
+        """Show the edited channel's display values in the rows, or the global ones for All channels."""
+        values = dict(self._global_display)
+        channel = self._editing_channel
+        if channel is not None:
+            override = self._channel_overrides.get(int(channel), {})
+            values.update({name: value for name, value in override.items() if name in values})
+        self._display_draft = {}
+        if not values:
+            return
+        self._loading_controls = True
+        try:
+            self.low.setValue(values["percentile_low"])
+            self.high.setValue(values["percentile_high"])
+        finally:
+            self._loading_controls = False
+        if callable(self._write_display_rows):
+            self._write_display_rows({name: value for name, value in values.items()
+                                      if name == "ink" or name.startswith("enhance_")})
+        self._refresh_channel_markers()
+
+    def _channel_display_draft(self, values):
+        """Hold row edits made while a channel is picked until Apply settings to channel.
+
+        :param values: ``ink`` and the ``enhance_*`` values the rows hold.
+        """
+        self._display_draft = dict(values)
+
+    def _set_channel_display_globals(self, ink, enhance_values):
+        """Take the global ink intensity and enhancement values from the settings rows.
+
+        :param ink: the global ink intensity for the CMY and CMYK modes.
+        :param enhance_values: every ``enhance_*`` setting's global value.
+        """
+        ink = float(ink if ink is not None else 1.)
+        enhance_values = dict(enhance_values)
+        if ink == self._ink_intensity and enhance_values == self._enhance_values:
+            return
+        self._ink_intensity, self._enhance_values = ink, enhance_values
+        if self._editing_channel is None:
+            self._global_display = self._display_editor_values()
+        self._channel_display_changed()
+
+    def _channel_display_options(self, view=False):
+        """The per-channel display values as :func:`_overview_pixels` takes them.
+
+        :param view: also carry the per-channel enhancement chains, for the
+            on-screen views; exports never receive enhancement.
+        :returns: ``channel_percentiles``, ``ink_intensity`` and, for views,
+            ``channel_enhancement``; each only when some channel differs from
+            the global value, so the plain views keep their cache keys.
+        """
+        options = {}
+        percentiles, inks, chains = {}, {}, {}
+        for channel, entry in self._channel_overrides.items():
+            if "percentile_low" in entry or "percentile_high" in entry:
+                low = float(entry.get("percentile_low", self._global_display.get("percentile_low", self.low.value())))
+                high = float(entry.get("percentile_high", self._global_display.get("percentile_high", self.high.value())))
+                if 0 <= low < high <= 100:
+                    percentiles[channel] = (low, high)
+            if "ink" in entry:
+                inks[channel] = float(entry["ink"])
+            enhance = {name: value for name, value in entry.items() if name.startswith("enhance_")}
+            if enhance and view:
+                try:
+                    chains[channel] = _overview_chain(dict(self._enhance_values, **enhance))
+                except ValueError as error:
+                    self.status.setText(tr("Channel {channel} enhancement is not applied: {error}",
+                                           channel=channel, error=error))
+        if percentiles:
+            options["channel_percentiles"] = percentiles
+        if inks or self._ink_intensity != 1.:
+            try:
+                shown = self._choices()[0]
+            except (ValueError, TypeError):
+                shown = tuple(inks)
+            options["ink_intensity"] = {channel: inks.get(channel, self._ink_intensity)
+                                        for channel in dict.fromkeys(shown + tuple(inks))}
+        if chains:
+            options["channel_enhancement"] = chains
+        return options
+
+    def _refresh_channel_markers(self):
+        """Mark the channels with their own settings in the Channel to edit choice."""
+        for index in range(self.norm_channel.count()):
+            channel = self.norm_channel.itemData(index)
+            if channel is None:
+                continue
+            text = (tr("{channel} (own settings)", channel=channel)
+                    if int(channel) in self._channel_overrides else str(channel))
+            if self.norm_channel.itemText(index) != text:
+                self.norm_channel.setItemText(index, text)
+        if hasattr(self, "_reset_channel_button"):
+            channel = self.norm_channel.currentData()
+            self._reset_channel_button.setEnabled(channel is not None and int(channel) in self._channel_overrides)
+
+    def _channel_display_changed(self):
+        """Redraw every view after a per-channel display value changed."""
+        self._refresh_channel_markers()
+        self._display_generation += 1
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._request_visuals()
+        self._reload_image_views()
+        item = self.fields.currentItem()
+        if item is not None and self._individual:
+            self._field(item, preserve_view=True)
 
     def _build_advanced_controls(self, column):
         """Keep independent channel editing distinct from the existing reference modes."""
@@ -7811,10 +8044,14 @@ class _FieldOverview(QWidget):
         apply.clicked.connect(self._apply_channel_normalization)
         reset = QPushButton(tr("Reset channel overrides"))
         reset.clicked.connect(self._clear_channel_normalization)
-        self._channel_override_buttons = (apply, reset)
+        self._reset_channel_button = QPushButton(tr("Reset this channel"))
+        self._reset_channel_button.setToolTip(tr("Return the selected channel to the global values."))
+        self._reset_channel_button.setEnabled(False)
+        self._reset_channel_button.clicked.connect(self._reset_channel_override)
+        self._channel_override_buttons = (apply, self._reset_channel_button, reset)
         override_host = FlowHost(widget)
         row = FlowLayout(override_host)
-        for control in (self.norm_channel, apply, reset):
+        for control in (self.norm_channel, apply, self._reset_channel_button, reset):
             row.addWidget(control)
         layout.addWidget(override_host)
         column.addWidget(widget)
@@ -8038,6 +8275,7 @@ class _FieldOverview(QWidget):
             self.norm_channel.addItem(str(channel), channel)
         self.norm_channel.blockSignals(False)
         self._normalization_target_changed()
+        self._refresh_channel_markers()
         self._channels_found.emit(available)
 
     def _sample_fields(self, fields):
@@ -8645,6 +8883,7 @@ class _FieldOverview(QWidget):
                 extra["channel_limits"] = self._channel_limits
             if self._image_overrides:
                 extra["image_overrides"] = self._image_overrides
+        extra.update(self._channel_display_options(view))
         return dict(extra, normalization=self._normalization_plan,
                     normalization_context=self._normalization_context,
                     time_index=time if isinstance(time, int) else 0,
@@ -9128,7 +9367,10 @@ class _FieldOverview(QWidget):
             raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices.")) from None
         if not channels or min(channels) < 0:
             raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices."))
-        limits = (self.low.value(), self.high.value()) if self.normalise.isChecked() else None
+        low, high = self.low.value(), self.high.value()
+        if self._editing_channel is not None and "percentile_low" in self._global_display:
+            low, high = self._global_display["percentile_low"], self._global_display["percentile_high"]
+        limits = (low, high) if self.normalise.isChecked() else None
         if limits is not None and limits[0] >= limits[1]:
             raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
         return channels, limits
@@ -10584,7 +10826,8 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
                             "overview_original_on_open", "overview_enhance_channels",
                             "overview_normalize_channels", "overview_color_mode",
-                            "overview_max_wells", "overview_max_fields", "overview_normalization_scope")
+                            "overview_max_wells", "overview_max_fields", "overview_normalization_scope",
+                            "overview_ink_intensity")
 
 
 def _overview_channel_targets(value):
@@ -10716,6 +10959,7 @@ class _OverviewSettingsBridge:
             if row is not None:
                 self._listen(row, self._image_row_changed)
         browser._tile_size_changed = lambda edge: self._write("overview_tile_size", edge)
+        browser._write_display_rows = self._write_display_rows
         from spacr.settings import _overview_measurement_declarations
 
         measurement_keys = tuple(_overview_measurement_declarations()["defaults"])
@@ -10800,12 +11044,37 @@ class _OverviewSettingsBridge:
         if value is not None:
             self._write(key, value)
 
+    def _write_display_rows(self, values):
+        """Show a channel's (or the global) ink intensity and enhancement values in their rows.
+
+        :param values: ``ink`` and ``enhance_*`` values.
+        """
+        if not self._live():
+            return
+        for name, value in values.items():
+            key = "overview_ink_intensity" if name == "ink" else name
+            if self._model._widgets.get(key) is not None and self._value(key) != value:
+                self._model.set_value_for_key(key, value)
+
     def apply_image_settings(self):
-        """Apply the Image and Enhancement settings to every view."""
+        """Apply the Image and Enhancement settings to every view.
+
+        While a channel is picked in Channel to edit, the ink intensity and
+        enhancement rows hold that channel's draft instead, applied by Apply
+        settings to channel.
+        """
         if not self._live():
             return
         browser = self._browser
         values = {key: self._value(key) for key in self._image_keys}
+        from spacr.settings import _enhancement_keys
+
+        enhance_values = {key: values.get(key) for key in _enhancement_keys()}
+        editing = browser._editing_channel is not None
+        if editing:
+            browser._channel_display_draft(dict(enhance_values, ink=values.get("overview_ink_intensity")))
+        else:
+            browser._set_channel_display_globals(values.get("overview_ink_intensity"), enhance_values)
         try:
             browser._set_tile_spacing(int(values.get("overview_tile_spacing") or 0))
             browser._set_tile_size(int(values.get("overview_tile_size") or _OVERVIEW_TILE_DEFAULT))
@@ -10817,6 +11086,8 @@ class _OverviewSettingsBridge:
         browser._set_normalization_scopes(_overview_channel_scopes(values.get("overview_normalization_scope")))
         browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
                                      _overview_channel_targets(values.get("overview_normalize_channels")))
+        if editing:
+            return
         try:
             chain = _overview_chain(values)
         except ValueError as error:
@@ -11049,7 +11320,7 @@ def _overview_module_rows(browser):
         ],
         "Normalization": [
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
-            ("Channel to edit", "Channel the advanced normalization settings are applied to; All channels edits the shared settings.",
+            ("Channel to edit", "Channel the per-channel settings are edited for: the advanced normalization, the percentile stretch, every enhancement step and the CMY/CMYK ink intensity. Pick a channel, change its values and press Apply settings to channel; channels marked (own settings) have their own values, the others follow All channels.",
              (browser.norm_channel, *browser._channel_override_buttons)),
         ],
         "Comparisons": [
