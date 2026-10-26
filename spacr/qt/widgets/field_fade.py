@@ -234,8 +234,17 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
         state are read.
     :param painter: an active painter whose coordinates are the widget's.
     :param theme: theme name; ``None`` resolves the effective one.
+
+    The pixel ratio is read from the paint engine's own device, the image
+    actually being drawn into. ``painter.device()`` is the widget while
+    ``QWidget.render`` redirects it, so on a Retina screen a render into a
+    1x image built a 2x chrome and Qt squeezed it into the 1x target,
+    changing the outline and fill alpha the image recorded.
     """
-    pixmap = _chrome_of(widget, painter.device().devicePixelRatioF(), theme)
+    engine = painter.paintEngine()
+    target = engine.paintDevice() if engine is not None else None
+    ratio = (target if target is not None else painter.device()).devicePixelRatioF()
+    pixmap = _chrome_of(widget, ratio, theme)
     if pixmap is not None:
         painter.drawPixmap(0, 0, pixmap)
 

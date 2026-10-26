@@ -674,3 +674,49 @@ def test_repaint_fields_counts_only_visible_fields_and_never_walks_every_widget(
     assert count >= len(shown)
     assert all(field in updated for field in shown)
     assert not any(field in updated for field in hidden)
+
+
+def test_a_render_into_a_1x_image_on_a_2x_screen_draws_1x_chrome(tmp_path):
+    """``QWidget.render`` redirects the painter, so ``painter.device()`` is the
+    2x widget while the image is 1x; the chrome must follow the image.
+
+    Found on an Apple Silicon Mac (Retina, Cocoa), where six of this file's
+    renders recorded a 2x chrome squeezed into 1x pixels.
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    code = r"""
+from PySide6.QtCore import QEvent, QObject, QPoint
+from PySide6.QtGui import QColor, QImage, QPainter, QRegion
+from PySide6.QtWidgets import QApplication, QLineEdit, QWidget
+app = QApplication([])
+from spacr.qt.widgets import field_fade as ff
+field = QLineEdit(); field.resize(240, 32); field.show(); app.processEvents()
+assert field.devicePixelRatioF() == 2.0, field.devicePixelRatioF()
+def blank():
+    image = QImage(field.size(), QImage.Format_ARGB32_Premultiplied); image.fill(QColor(0, 0, 0, 0)); return image
+direct = blank(); painter = QPainter(direct); ff.paint_field_fade(field, painter, "dark"); painter.end()
+rendered = blank(); painter = QPainter(rendered)
+seen = []
+real = ff._chrome_of
+ff._chrome_of = lambda w, ratio, theme=None: (seen.append(ratio), real(w, ratio, "dark"))[1]
+class Paint(QObject):
+    def eventFilter(self, obj, event):
+        if obj is field and event.type() == QEvent.Paint:
+            inner = QPainter(field); ff.paint_field_fade(field, inner, "dark"); inner.end(); return True
+        return False
+spy = Paint(); field.installEventFilter(spy)
+field.render(painter, QPoint(0, 0), QRegion(field.rect()), QWidget.RenderFlags(QWidget.DrawChildren))
+painter.end()
+print("RATIOS", sorted(set(seen)))
+row = lambda image: [image.pixelColor(x, 0).alpha() for x in range(8, 232, 8)]
+print("SAME", row(direct) == row(rendered))
+"""
+    done = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True,
+                          timeout=120, env={**os.environ, "QT_QPA_PLATFORM": "offscreen",
+                                            "QT_SCALE_FACTOR": "2", "PYTHONPATH": str(root)})
+    assert "RATIOS [1.0]" in done.stdout, (done.stdout, done.stderr[-2000:])
+    assert "SAME True" in done.stdout, (done.stdout, done.stderr[-2000:])
