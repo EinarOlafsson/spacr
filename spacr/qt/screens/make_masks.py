@@ -14050,7 +14050,7 @@ class MakeMasksScreen(QWidget):
         self._layer_outline_thickness = self._outline_thickness_box(section)
         self._layer_outline_thickness.setObjectName("MakeMasksLayerOutlineThickness")
         form.addRow(tr("Outline thickness"), self._layer_outline_thickness)
-        self._layer_only_flagged_box = QCheckBox(tr("Show only flagged"), section)
+        self._layer_only_flagged_box = Toggle(tr("Show only flagged"), section)
         self._layer_only_flagged_box.setObjectName("MakeMasksLayerOnlyFlagged")
         self._layer_only_flagged_box.setToolTip(tr(
             "Draw only the flagged layers, and fill only the curated objects "
