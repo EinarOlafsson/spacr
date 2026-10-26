@@ -815,7 +815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 9636,
+    "line": 9652,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -2072,7 +2072,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "baseline",
-    "line": 2592,
+    "line": 2645,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_channel_normalization"
@@ -2081,7 +2081,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "baseline",
-    "line": 2618,
+    "line": 2671,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_transform"
@@ -2090,7 +2090,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "baseline",
-    "line": 3163,
+    "line": 3225,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_export"
@@ -2099,7 +2099,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "baseline",
-    "line": 5809,
+    "line": 5911,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._normalization_target_changed"
@@ -7923,7 +7923,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 4269,
+    "line": 4341,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -8641,7 +8641,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13666,
+    "line": 13682,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8650,7 +8650,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13677,
+    "line": 13693,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8659,7 +8659,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 9314,
+    "line": 9200,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8668,7 +8668,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 9316,
+    "line": 9202,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8677,7 +8677,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18881,
+    "line": 18686,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8686,7 +8686,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18881,
+    "line": 18686,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8695,7 +8695,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18998,
+    "line": 18803,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8704,7 +8704,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18998,
+    "line": 18803,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8713,7 +8713,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19284,
+    "line": 19089,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -10757,7 +10757,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 13990,
+    "line": 14006,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -10766,7 +10766,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5330,
+    "line": 5333,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -11979,7 +11979,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 4265,
+    "line": 4337,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -11988,7 +11988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 8989,
+    "line": 9233,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -12015,7 +12015,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -13440,7 +13440,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 22135,
+    "line": 21940,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -15375,7 +15375,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 9433,
+    "line": 9449,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -16800,7 +16800,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 13567,
+    "line": 13481,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -17113,7 +17113,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 4740,
+    "line": 4626,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "load_cellpose_model"
@@ -17564,7 +17564,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 9671,
+    "line": 9687,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18095,7 +18095,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 9672,
+    "line": 9688,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18189,7 +18189,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 9654,
+    "line": 9670,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -21333,7 +21333,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 9635,
+    "line": 9651,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -22998,7 +22998,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9670,
+    "line": 9686,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -23007,7 +23007,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9723,
+    "line": 9739,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -24747,7 +24747,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 4579,
+    "line": 4655,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -25932,7 +25932,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 8100,
+    "line": 7986,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
@@ -25941,7 +25941,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 6669,
+    "line": 6910,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -25950,7 +25950,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 7158,
+    "line": 7399,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._indexed"
@@ -25959,7 +25959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 9457,
+    "line": 9726,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -25968,7 +25968,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 10521,
+    "line": 10814,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -26834,7 +26834,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12560,
+    "line": 12576,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -27467,7 +27467,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11016,
+    "line": 11032,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27476,7 +27476,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11019,
+    "line": 11035,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27485,7 +27485,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11032,
+    "line": 11048,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -28418,7 +28418,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4280,
+    "line": 4352,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28427,7 +28427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 9310,
+    "line": 9570,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -28762,7 +28762,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 10883,
+    "line": 10899,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -28798,7 +28798,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4277,
+    "line": 4349,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -37443,7 +37443,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_high",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37454,7 +37454,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_low",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37465,7 +37465,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_normalization",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37485,7 +37485,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_background",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37496,7 +37496,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 8985,
+    "line": 9229,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -37505,7 +37505,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37556,7 +37556,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_enhance_channels",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37567,7 +37567,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_export_scope",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37578,7 +37578,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_export_selection",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37589,7 +37589,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_fixed_high",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37600,7 +37600,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_fixed_low",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37611,7 +37611,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_gamma",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38018,7 +38018,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measurements_csv",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38029,7 +38029,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalization_method",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38049,7 +38049,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 8990,
+    "line": 9234,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38058,7 +38058,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38069,7 +38069,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalize_channels",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38229,7 +38229,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_original_on_open",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38240,7 +38240,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_pdf_dpi",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38251,7 +38251,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_pdf_quality",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38262,7 +38262,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 8992,
+    "line": 9236,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38271,7 +38271,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38282,7 +38282,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 8991,
+    "line": 9235,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38291,7 +38291,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38302,7 +38302,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_preview_resolution",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38313,7 +38313,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_random_sample",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38486,7 +38486,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38515,7 +38515,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_epsilon",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38526,7 +38526,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_representative_method",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38546,7 +38546,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_representatives",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38557,7 +38557,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_count",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38568,7 +38568,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_grouping",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38579,7 +38579,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_seed",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38590,7 +38590,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_selected",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38601,7 +38601,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_tile_size",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38612,7 +38612,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_tile_spacing",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38623,7 +38623,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_wheel",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38634,7 +38634,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_z_mode",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38804,7 +38804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 13985,
+    "line": 14001,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -38813,7 +38813,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5323,
+    "line": 5326,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -38822,7 +38822,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5420,
+    "line": 5423,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
@@ -41398,7 +41398,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 6658,
+    "line": 6899,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -41407,7 +41407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 9461,
+    "line": 9730,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -41416,7 +41416,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 10554,
+    "line": 10847,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
@@ -45066,7 +45066,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11000,
+    "line": 11016,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -45075,7 +45075,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11035,
+    "line": 11051,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -46055,7 +46055,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 9724,
+    "line": 9740,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -46340,7 +46340,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9714,
+    "line": 9730,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -46349,7 +46349,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12559,
+    "line": 12575,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -52771,7 +52771,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9345,
+    "line": 9361,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -52780,7 +52780,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9448,
+    "line": 9464,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -52789,7 +52789,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9462,
+    "line": 9478,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -52798,7 +52798,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9474,
+    "line": 9490,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -52807,7 +52807,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10931,
+    "line": 10947,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -52816,7 +52816,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11024,
+    "line": 11040,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -52825,7 +52825,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11722,
+    "line": 11738,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -52834,7 +52834,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12633,
+    "line": 12649,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -52843,7 +52843,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13010,
+    "line": 13026,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -53050,7 +53050,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4256,
+    "line": 4328,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -53059,7 +53059,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8365,
+    "line": 8607,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_field_overview"
@@ -53068,7 +53068,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 8976,
+    "line": 9220,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -53077,7 +53077,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9306,
+    "line": 9566,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -53464,7 +53464,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "src",
-    "line": 8277,
+    "line": 8280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -54460,7 +54460,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stitch_threshold",
-    "line": 6563,
+    "line": 6449,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "cellpose_detect_volume"
@@ -54469,7 +54469,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stitch_threshold",
-    "line": 6616,
+    "line": 6502,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_detect_volume_snapshot"
@@ -61369,7 +61369,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 10894,
+    "line": 10910,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -63628,7 +63628,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 9473,
+    "line": 9489,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -63753,7 +63753,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 9479,
+    "line": 9495,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"

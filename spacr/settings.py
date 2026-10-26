@@ -8112,6 +8112,7 @@ OVERVIEW_DEFAULTS = {
     'src': 'path',
     'custom_regex': None,
     'overview_channels': '0',
+    'overview_color_mode': 'additive',
     'overview_preview_resolution': 1024,
     'overview_tile_size': 128,
     'overview_tile_spacing': 4,
@@ -8149,6 +8150,7 @@ OVERVIEW_DEFAULTS = {
 
 OVERVIEW_TYPES = {
     'overview_channels': (str, int, list, type(None)),
+    'overview_color_mode': str,
     'overview_preview_resolution': int,
     'overview_tile_size': int,
     'overview_tile_spacing': int,
@@ -8186,6 +8188,7 @@ OVERVIEW_TYPES = {
 
 OVERVIEW_TOOLTIPS = {
     'overview_channels': "(str) - Channels shown in the overview, comma-separated. Use the filename channel IDs when each channel is a separate file, and zero-based indices for multichannel images. Up to three channels are shown as red, green and blue; more are shown side by side. Default '0'.",
+    'overview_color_mode': "(str) - How the shown channels are combined into one colour image. 'additive' adds up to three channels in their display colours on black. 'cmy' prints up to three channels as cyan, magenta and yellow inks on white, so overlapping signal reads as red, green or blue and full overlap as black. 'cmyk' adds a fourth channel as black (key) ink. A channel whose colour is set to cyan, magenta, yellow or black keeps that ink; the others take the unused inks in that order. Applies to the plate, well and image views and to exported PDFs. Default 'additive'.",
     'overview_preview_resolution': "(int) - Longest edge, in pixels, of the preview images the plate, well and image views load. Lower values load faster and use less memory; the Original button and zooming in still read original pixels. One of 128, 256, 512, 1024, 2048 or 4096. Default 1024.",
     'overview_tile_size': "(int) - Edge length, in screen pixels, of each field image in the well views. The slider in a well view's header changes the same value. Larger tiles show more detail per field and fewer fields at a time. Default 128.",
     'overview_tile_spacing': "(int) - Gap, in screen pixels, between neighbouring field images in the well views. Small values keep the images close together so more of the well fits on screen. Default 4.",
@@ -8236,7 +8239,7 @@ OVERVIEW_IMAGE_KEYS = (
 OVERVIEW_CATEGORIES = {
     'Source': ['src', 'custom_regex'],
     'Image': ['overview_preview_resolution', 'overview_original_on_open'],
-    'Channels': ['overview_channels'],
+    'Channels': ['overview_channels', 'overview_color_mode'],
     'Display': ['overview_tile_size', 'overview_tile_spacing'],
     'Figure settings': ['overview_z_mode', 'overview_wheel',
                         'overview_representatives'],

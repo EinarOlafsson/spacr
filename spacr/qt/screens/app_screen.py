@@ -6651,7 +6651,8 @@ class AppScreen(QWidget):
         hidden_stages = set()
         gated = (self._dimension_hidden_sections()
                  | self._headings_the_run_lacks()
-                 | self._alpha_hidden_sections())
+                 | self._alpha_hidden_sections()
+                 | self._headings_held_back())
         for section in self.rendered_settings_sections():
             visible = (maturity_is_visible(section.maturity())
                        or (alpha_feature and section.maturity() == "alpha"))
@@ -6890,6 +6891,21 @@ class AppScreen(QWidget):
                           "_widgets", None) or {}
         return {key for key in _alpha_names("settings", self.app_key)
                 if key in widgets}
+
+    def _headings_held_back(self) -> set:
+        """``id()`` of the headings the module's own page holds back for now.
+
+        The Overview shows its categories only after its metadata step's
+        Next; before it, its page answers with every heading.
+        """
+        page = getattr(self, "_overview_page", None)
+        held = getattr(page, "_held_back_sections", None)
+        if not callable(held):
+            return set()
+        try:
+            return set(held())
+        except RuntimeError:
+            return set()
 
     def _alpha_hidden_sections(self) -> set:
         """``id()`` of every category made only of settings the alpha gate hides.

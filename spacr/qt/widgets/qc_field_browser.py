@@ -2283,11 +2283,60 @@ def _overview_channel_rgb(channels, channel_colors):
     return weights
 
 
+_OVERVIEW_INKS = {"cyan": (0., 1., 1.), "magenta": (1., 0., 1.), "yellow": (1., 1., 0.), "black": (0., 0., 0.)}
+_OVERVIEW_INK_NAMES = {"#00ffff": "cyan", "#ff00ff": "magenta", "#ffff00": "yellow", "#000000": "black"}
+_OVERVIEW_COLOR_MODES = {"additive": (), "cmy": ("cyan", "magenta", "yellow"),
+                         "cmyk": ("cyan", "magenta", "yellow", "black")}
+
+
+def _overview_inks(channels, channel_colors, mode):
+    """The ink each channel prints with in a subtractive colour mode.
+
+    A channel whose display colour is one of the mode's inks keeps it; the
+    others take the unused inks in cyan, magenta, yellow, black order.
+
+    :param channels: the shown channels, in order.
+    :param channel_colors: ``{channel: '#rrggbb'}``, or ``None``.
+    :param mode: ``'additive'``, ``'cmy'`` or ``'cmyk'``.
+    :returns: one ``(r, g, b)`` ink per channel, or ``None`` in the additive
+        mode or when there are more channels than inks.
+    """
+    inks = _OVERVIEW_COLOR_MODES.get(str(mode or "additive"), ())
+    if not inks or len(channels) > len(inks):
+        return None
+    colours = channel_colors or {}
+    chosen = []
+    for channel in channels:
+        value = colours.get(channel, colours.get(str(channel)))
+        ink = _OVERVIEW_INK_NAMES.get(str(value or "").lower())
+        chosen.append(ink if ink in inks and ink not in chosen else None)
+    free = [ink for ink in inks if ink not in chosen]
+    return [_OVERVIEW_INKS[ink or free.pop(0)] for ink in chosen]
+
+
+def _overview_subtractive(planes, inks):
+    """Print display planes as inks on white paper.
+
+    Each channel absorbs the complement of its ink from white:
+    ``out = 255 - sum(plane * (1 - ink))``, clipped to 0-255, so no signal is
+    white, one full channel is its ink and full cyan, magenta and yellow
+    together are black; a black (key) ink darkens every component equally.
+
+    :param planes: uint8 display planes of one shape.
+    :param inks: one ``(r, g, b)`` ink in 0-1 per plane.
+    :returns: the uint8 RGB print.
+    """
+    absorbed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
+    for plane, ink in zip(planes, inks):
+        absorbed += plane[..., None].astype(np.float32) * (1. - np.asarray(ink, dtype=np.float32))
+    return np.clip(255. - absorbed, 0, 255).astype(np.uint8)
+
+
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      channel_views=False, normalization_context=None, cancelled=None,
                      advanced_normalization=None, region=None, enhancement=None, channel_colors=None,
-                     enhancement_channels=None, percentile_channels=None):
+                     enhancement_channels=None, percentile_channels=None, color_mode="additive"):
     """Decode canonical display pixels, optionally returning individual channel views.
 
     ``enhancement`` is a Make Masks :class:`spacr.qt.detect_chain.Chain`
@@ -2299,7 +2348,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
 
     Up to three channels are composited additively in ``channel_colors``
     (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
-    in order.
+    in order. ``color_mode`` ``'cmy'`` or ``'cmyk'`` prints up to three or
+    four channels as inks on white instead (:func:`_overview_subtractive`).
     """
     from PIL import Image, ImageDraw
 
@@ -2375,6 +2425,9 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     if channel_views:
         return tuple((channel, np.repeat(plane[..., None], 3, axis=2))
                      for channel, plane in zip(channels, planes))
+    inks = _overview_inks(channels, channel_colors, color_mode)
+    if inks is not None:
+        return _overview_subtractive(planes, inks)
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
     if len(planes) > 3:
@@ -3030,12 +3083,20 @@ def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
     return tuple(result)
 
 
-def _overview_pdf_header(channels, percentiles, seed, normalization):
+def _overview_color_mode_caption(mode):
+    """The colour mode's name as the settings list it."""
+    return {"cmy": tr("CMY inks on white"), "cmyk": tr("CMYK inks on white")}.get(
+        str(mode or "additive"), tr("Additive colours"))
+
+
+def _overview_pdf_header(channels, percentiles, seed, normalization, color_mode="additive"):
     """Describe the selected display transform and its actual sampled reference."""
     import textwrap
 
     lines = [tr("Channels: {channels}; percentiles: {percentiles}; seed: {seed}",
                 channels=str(channels), percentiles=str(percentiles), seed=seed)]
+    if str(color_mode or "additive") != "additive":
+        lines.append(tr("Colour mode: {mode}", mode=_overview_color_mode_caption(color_mode)))
     if normalization is not None:
         modes = {"image": tr("Percentiles per image"),
                  "shared": tr("Shared channel percentile bounds"),
@@ -3117,7 +3178,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      conditions=None, normalization_context=None, annotations=None,
-                     advanced_normalization=None, field_options=None, channel_colors=None):
+                     advanced_normalization=None, field_options=None, channel_colors=None,
+                     color_mode="additive"):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -3151,7 +3213,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         page_normalization = (normalization_context.provenance()
                               if normalization_context is not None else normalization)
         header = _overview_pdf_header(channels, percentiles, seed,
-            None if advanced_normalization is not None else page_normalization)
+            None if advanced_normalization is not None else page_normalization, color_mode)
         if advanced_normalization is not None:
             settings = advanced_normalization.get("options", advanced_normalization)
             header = tuple(header) + (tr("Channels: {channels}; normalization: {method}; scope: {scope}; seed: {seed}",
@@ -3248,7 +3310,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                                               normalization=normalization,
                                               normalization_context=normalization_context,
                                               cancelled=cancelled, advanced_normalization=advanced_normalization,
-                                              channel_colors=channel_colors, **selected_axes)
+                                              channel_colors=channel_colors, color_mode=color_mode,
+                                              **selected_axes)
                     axis = figure.add_subplot(panel)
                     pixels = _overview_pdf_pixels(pixels, axis, None if quality_edge is None else dpi)
                     axis.imshow(pixels, interpolation="none")
@@ -3305,7 +3368,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         errors.extend((field.caption, row["error"]) for field, row in zip(fields, measurement_rows)
                       if row["status"] == "error" and field.caption not in known)
     metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
-                "field_options": field_options,
+                "field_options": field_options, "color_mode": str(color_mode or "additive"),
                 "fields": provenance, "errors": errors, "cancelled": stopped,
                 "requested_field_count": len(fields), "written_field_count": len(provenance),
                 "quality_edge": quality_edge, "dpi": dpi,
@@ -3329,7 +3392,7 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
                       normalization_context=None, advanced_normalization=None, preview_edge=240,
                       labels=True, enhancement=None, channel_colors=None, enhancement_channels=None,
-                      percentile_channels=None):
+                      percentile_channels=None, color_mode="additive"):
     """Render one bounded page of field thumbnails, using the shared pixel path.
 
     ``labels`` draws each tile's well and field name above its image.
@@ -3357,7 +3420,7 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                                       advanced_normalization=advanced_normalization,
                                       enhancement=enhancement, channel_colors=channel_colors,
                                       enhancement_channels=enhancement_channels,
-                                      percentile_channels=percentile_channels)
+                                      percentile_channels=percentile_channels, color_mode=color_mode)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -3383,6 +3446,12 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
         """
         opts = QStyleOptionViewItem(option)
         self.initStyleOption(opts, index)
+        collapsed = getattr(option.widget, "_overview_collapsed", None)
+        if collapsed and (index.row() in collapsed[0] or index.column() in collapsed[1]):
+            strip = QColor(opts.palette.color(QPalette.Highlight))
+            strip.setAlpha(110)
+            painter.fillRect(option.rect.adjusted(1, 1, -1, -1), strip)
+            return
         option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
         painter.save()
         rect = option.rect.adjusted(1, 1, -1, -1)
@@ -3542,6 +3611,7 @@ _OVERVIEW_INSTALL_BUDGET_S = 0.006
 _OVERVIEW_THUMBNAIL_BATCH = 8
 _OVERVIEW_THUMBNAIL_CACHE = 64
 _OVERVIEW_TILE_DEFAULT = 128
+_OVERVIEW_COLLAPSED_STRIP = 10
 _OVERVIEW_TILE_SPACING = 4
 _OVERVIEW_TILE_RANGE = (48, 768)
 _OVERVIEW_MAX_WELL_VIEWS = 6
@@ -4201,6 +4271,8 @@ class _FieldOverview(QWidget):
         self._geometry_error = None
         self._plate_cell_extent = None
         self._plate_fit = True
+        self._collapsed = {}
+        self._color_mode = "additive"
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
@@ -4322,6 +4394,10 @@ class _FieldOverview(QWidget):
         self.wells.viewport().setMouseTracking(True)
         self.wells.setContextMenuPolicy(Qt.CustomContextMenu)
         self.wells.customContextMenuRequested.connect(self._well_menu)
+        for axis, header in (("row", self.wells.verticalHeader()), ("column", self.wells.horizontalHeader())):
+            header.setContextMenuPolicy(Qt.CustomContextMenu)
+            header.customContextMenuRequested.connect(functools.partial(self._header_menu, axis))
+            header.sectionDoubleClicked.connect(functools.partial(self._toggle_line, axis))
         self.fields = self._new_field_list()
         self._well_viewport = self.wells.viewport()
         self._well_viewport.installEventFilter(self)
@@ -4872,6 +4948,27 @@ class _FieldOverview(QWidget):
         self._displayed_montage = None
         self._refresh_image()
 
+    def _set_color_mode(self, mode):
+        """Composite the shown channels additively or as CMY or CMYK inks on white.
+
+        :param mode: ``'additive'``, ``'cmy'`` or ``'cmyk'``; anything else is additive.
+        """
+        mode = str(mode or "additive").lower()
+        mode = mode if mode in _OVERVIEW_COLOR_MODES else "additive"
+        if mode == self._color_mode:
+            return
+        self._color_mode = mode
+        self._display_generation += 1
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._request_visuals()
+        self._reload_image_views()
+        item = self.fields.currentItem()
+        if item is not None and self._individual:
+            self._field(item, preserve_view=True)
+
     def _set_enhancement(self, chain):
         """Show every view through Make Masks' enhancement chain, or without one.
 
@@ -5342,6 +5439,11 @@ class _FieldOverview(QWidget):
         action = menu.addAction(tr("Annotate the whole plate…"))
         action.setEnabled(bool(whole))
         action.triggered.connect(functools.partial(self._annotate_wells, whole))
+        menu.addSeparator()
+        if item is not None:
+            self._line_actions(menu, "row", item.row())
+            self._line_actions(menu, "column", item.column())
+        self._show_all_action(menu)
         menu.addSeparator()
         menu.addAction(tr("Import annotation scheme…")).triggered.connect(self._import_annotation_scheme)
         menu.addAction(tr("Save annotations…")).triggered.connect(self._save_annotations)
@@ -6075,7 +6177,16 @@ class _FieldOverview(QWidget):
             self._selected_well_options[address] = self._axis_options()
 
     def _clicked_well(self, item):
-        """Open ordinary clicks while retaining drag and modifier selections."""
+        """Open ordinary clicks while retaining drag and modifier selections.
+
+        A click on a collapsed row's or column's strip shows it again instead.
+        """
+        rows, columns = self._collapsed_lines()
+        if item.row() in rows or item.column() in columns:
+            rows.discard(item.row())
+            columns.discard(item.column())
+            self._relayout_collapsed()
+            return
         if not self._drag_selected and not getattr(self, "_press_modifiers", Qt.NoModifier) & (Qt.ControlModifier | Qt.ShiftModifier):
             self._well(item)
 
@@ -6421,8 +6532,14 @@ class _FieldOverview(QWidget):
             width, height = (max(2, min(512, round(value * factor)))
                              for value in self._plate_cell_extent)
         else:
-            width = max(1, self.wells.viewport().width() // columns)
-            height = max(1, self.wells.viewport().height() // rows)
+            folded_rows, folded_columns = (
+                sum(1 for index in lines if index < count)
+                for lines, count in zip(self._collapsed_lines(), (rows, columns)))
+            strip = _OVERVIEW_COLLAPSED_STRIP
+            width = max(1, (self.wells.viewport().width() - strip * folded_columns)
+                        // max(1, columns - folded_columns))
+            height = max(1, (self.wells.viewport().height() - strip * folded_rows)
+                         // max(1, rows - folded_rows))
         self.wells.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
         self.wells.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
         self._plate_cell_extent = width, height
@@ -6432,12 +6549,138 @@ class _FieldOverview(QWidget):
         """Restore the same native well size after source-axis or annotation changes."""
         width, height = self._plate_cell_extent
         from PySide6.QtCore import QSize
+        rows, columns = self._collapsed_lines()
+        self.wells._overview_collapsed = (frozenset(rows), frozenset(columns))
+        strip = _OVERVIEW_COLLAPSED_STRIP
         self.wells.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
         for column in range(self.wells.columnCount()):
-            self.wells.setColumnWidth(column, width)
+            self.wells.setColumnWidth(column, strip if column in columns else width)
         for row in range(self.wells.rowCount()):
-            self.wells.setRowHeight(row, height)
+            self.wells.setRowHeight(row, strip if row in rows else height)
+        self._label_collapsed_lines(rows, columns)
+        self.wells.viewport().update()
         self._request_visuals()
+
+    def _collapsed_lines(self):
+        """The shown plate's collapsed rows and columns.
+
+        :returns: ``(rows, columns)``, two sets of zero-based table indices
+            kept per plate, so each plate remembers its own.
+        """
+        plate = self.plates.currentData()
+        if plate is None:
+            return set(), set()
+        return self._collapsed.setdefault(plate, (set(), set()))
+
+    def _line_name(self, axis, index):
+        """The header name of plate row or column ``index``, such as ``B`` or ``3``."""
+        item = (self.wells.verticalHeaderItem(index) if axis == "row"
+                else self.wells.horizontalHeaderItem(index))
+        if item is None:
+            return str(index + 1)
+        name = item.data(Qt.UserRole)
+        return str(item.text() if name is None else name)
+
+    def _label_collapsed_lines(self, rows, columns):
+        """Blank collapsed headers and give every header its collapse help."""
+        for axis, count, item_of, lines in (
+                ("row", self.wells.rowCount(), self.wells.verticalHeaderItem, rows),
+                ("column", self.wells.columnCount(), self.wells.horizontalHeaderItem, columns)):
+            for index in range(count):
+                item = item_of(index)
+                if item is None:
+                    continue
+                if item.data(Qt.UserRole) is None:
+                    item.setData(Qt.UserRole, item.text())
+                name = str(item.data(Qt.UserRole))
+                folded = index in lines
+                item.setText("" if folded else name)
+                if axis == "row":
+                    item.setToolTip(tr("Row {row} is collapsed; double-click it or its strip to show it again.", row=name)
+                                    if folded else
+                                    tr("Double-click to collapse row {row} and bring the other rows closer; "
+                                       "right-click for more.", row=name))
+                else:
+                    item.setToolTip(tr("Column {column} is collapsed; double-click it or its strip to show it again.",
+                                       column=name) if folded else
+                                    tr("Double-click to collapse column {column} and bring the other columns closer; "
+                                       "right-click for more.", column=name))
+
+    def _relayout_collapsed(self):
+        """Close the plate up around the collapsed rows and columns, or open it again."""
+        if self._plate_fit or self._plate_cell_extent is None:
+            self._zoom_plate()
+        else:
+            self._apply_plate_extent()
+
+    def _set_line_collapsed(self, axis, index, collapsed, *_):
+        """Collapse plate row or column ``index`` to a thin strip, or show it again.
+
+        Only the table geometry changes: selection, annotations, comparison
+        groups and measurements are untouched.
+
+        :param axis: ``"row"`` or ``"column"``.
+        :param index: the zero-based table index.
+        :param collapsed: True collapses, False shows it again.
+        """
+        rows, columns = self._collapsed_lines()
+        lines = rows if axis == "row" else columns
+        if collapsed:
+            lines.add(int(index))
+        else:
+            lines.discard(int(index))
+        self._relayout_collapsed()
+
+    def _toggle_line(self, axis, index):
+        """Collapse an open plate row or column, or show a collapsed one."""
+        if index < 0:
+            return
+        lines = self._collapsed_lines()[0 if axis == "row" else 1]
+        self._set_line_collapsed(axis, index, index not in lines)
+
+    def _show_all_lines(self, *_):
+        """Show every collapsed row and column of the shown plate again."""
+        rows, columns = self._collapsed_lines()
+        rows.clear()
+        columns.clear()
+        self._relayout_collapsed()
+
+    def _line_actions(self, menu, axis, index):
+        """Add the collapse or show action for one row or column to ``menu``."""
+        name = self._line_name(axis, index)
+        folded = index in self._collapsed_lines()[0 if axis == "row" else 1]
+        if axis == "row":
+            caption = tr("Show row {row}", row=name) if folded else tr("Collapse row {row}", row=name)
+        else:
+            caption = (tr("Show column {column}", column=name) if folded
+                       else tr("Collapse column {column}", column=name))
+        menu.addAction(caption).triggered.connect(
+            functools.partial(self._set_line_collapsed, axis, index, not folded))
+
+    def _show_all_action(self, menu):
+        """Add "Show all rows and columns", enabled while anything is collapsed."""
+        action = menu.addAction(tr("Show all rows and columns"))
+        action.setEnabled(any(self._collapsed_lines()))
+        action.triggered.connect(self._show_all_lines)
+
+    def _header_menu(self, axis, position):
+        """Offer collapsing a plate row or column from its header.
+
+        :param axis: ``"row"`` or ``"column"``.
+        :param position: the click position in header coordinates.
+        :returns: the shown menu.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        header = self.wells.verticalHeader() if axis == "row" else self.wells.horizontalHeader()
+        index = header.logicalIndexAt(position)
+        menu = QMenu(header)
+        if index >= 0:
+            self._line_actions(menu, axis, index)
+        self._show_all_action(menu)
+        self._header_context_menu = menu
+        menu.popup(header.mapToGlobal(position))
+        return menu
 
     def _open_selected_well(self):
         """Open the selected well without conflating selection with navigation."""
@@ -6586,7 +6829,8 @@ class _FieldOverview(QWidget):
                     z_index=z if isinstance(z, int) else 0,
                     z_mode=self.z_mode.currentData() or "plane",
                     advanced_normalization=self._advanced_model if self.advanced.isChecked() else None,
-                    channel_colors=self._overview_options.get("channel_colors") or None)
+                    channel_colors=self._overview_options.get("channel_colors") or None,
+                    color_mode=self._color_mode)
 
     @staticmethod
     def _natural(value):
@@ -7691,11 +7935,12 @@ class _FieldOverview(QWidget):
         shown = self.representatives.value()
         edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
         display_key = self._display_options_key(options)
+        folded_rows, folded_columns = self._collapsed_lines()
         requests, later = [], []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
                 item = self.wells.item(row, column)
-                if item is None:
+                if item is None or row in folded_rows or column in folded_columns:
                     continue
                 well = item.data(Qt.UserRole)
                 field = self._well_representatives.get(well)
@@ -8450,7 +8695,7 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
 
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
                             "overview_original_on_open", "overview_enhance_channels",
-                            "overview_normalize_channels")
+                            "overview_normalize_channels", "overview_color_mode")
 
 
 def _overview_channel_targets(value):
@@ -8678,6 +8923,7 @@ class _OverviewSettingsBridge:
         except (TypeError, ValueError):
             pass
         browser._original_on_open = bool(values.get("overview_original_on_open"))
+        browser._set_color_mode(values.get("overview_color_mode"))
         browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
                                      _overview_channel_targets(values.get("overview_normalize_channels")))
         try:
@@ -8912,6 +9158,7 @@ class _OverviewModulePage(QWidget):
         self.placeholder.setAlignment(Qt.AlignCenter)
         self.stack.addWidget(self.placeholder)
         self.stack.currentChanged.connect(self._sync_back)
+        self.stack.currentChanged.connect(self._sync_categories)
         layout.addWidget(self.stack, 1)
         from ..theme import ensure_widget_qss_applied, register_widget_qss
 
@@ -9144,6 +9391,31 @@ class _OverviewModulePage(QWidget):
         if browser is not None:
             browser.deleteLater()
 
+    def _held_back_sections(self):
+        """``id()`` of the settings headings held back until Next opens the browser.
+
+        Before Run only Source is on the form, since it names what Run
+        opens; while the metadata step is shown it carries the settings that
+        apply itself, so every category stays off the form.
+        """
+        current = self.stack.currentWidget()
+        if self.browser is not None and current is self.browser:
+            return set()
+        keep = "Source" if current is self.placeholder else None
+        return {id(section) for section in self._screen.rendered_settings_sections()
+                if str(section.property("settingsCategorySource") or "") != keep}
+
+    def _metadata_step_shown(self):
+        """Whether the metadata step, before its Next, fills the page."""
+        return self.wizard is not None and self.stack.currentWidget() is self.wizard
+
+    def _sync_categories(self, *_):
+        """Show the categories and the settings column only once the browser is shown."""
+        refresh = getattr(self._screen, "refresh_maturity_visibility", None)
+        if callable(refresh):
+            refresh()
+        _overview_open_settings(self._screen)
+
     def _sync_back(self, *_):
         """Show Back only while a well or an image is open."""
         browser = self.browser
@@ -9302,7 +9574,6 @@ def _open_overview_module(owner, settings=None):
         owner._overview_tab = tab
     if show_as_page(tab, owner, tr("Overview")) is None:
         return _open_field_overview(owner, settings)
-    _overview_open_settings(tab)
     source = settings.get("src") or settings.get("source")
     model = tab._settings_model
     if source:
@@ -9311,7 +9582,9 @@ def _open_overview_module(owner, settings=None):
     if isinstance(percentiles, (list, tuple)) and len(percentiles) == 2:
         model.set_value_for_key("overview_percentile_low", float(percentiles[0]))
         model.set_value_for_key("overview_percentile_high", float(percentiles[1]))
-    return tab._overview_page.run(model.collect())
+    wizard = tab._overview_page.run(model.collect())
+    tab._overview_page._sync_categories()
+    return wizard
 
 
 _OVERVIEW_SETTINGS_WIDTH = 520
@@ -9354,7 +9627,9 @@ def _overview_open_settings(screen):
 
     The figures card is a focus pane, so showing the plate folded the
     settings away to the left -- on opening the tab and again after Next.
-    Opening it as the user would pins it open for the visit.
+    Opening it as the user would pins it open for the visit. Before Next
+    its categories are held back, so the empty column is folded instead
+    and the metadata step, with its own settings, has the width.
 
     :param screen: the Overview module screen.
     """
@@ -9362,6 +9637,10 @@ def _overview_open_settings(screen):
 
     body = getattr(screen, "_body_splitter", None)
     if not isinstance(body, CollapsibleSplitter) or body.pane("Settings") is None:
+        return
+    page = getattr(screen, "_overview_page", None)
+    if page is not None and page._metadata_step_shown():
+        body.set_collapsed("Settings", True)
         return
     body.set_collapsed("Settings", False, by_user=True)
     sizes = body.sizes()
@@ -9383,6 +9662,7 @@ def _install_overview_module(screen, layout):
     splitter.setChildrenCollapsible(False)
     page = _OverviewModulePage(screen)
     screen._overview_page = page
+    page._sync_categories()
     screen._figure_queue.hide()
     screen._figures_card.body_layout.addWidget(page, 1)
     screen._figures_card.show()
@@ -9750,11 +10030,14 @@ class _OverviewMetadataWizard(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setWidget(body)
         split = QSplitter()
+        split.setChildrenCollapsible(False)
         split.addWidget(scroll)
         preview_body = QWidget()
         preview_column = QVBoxLayout(preview_body)
         split.addWidget(preview_body)
         split.setStretchFactor(1, 2)
+        self._settings_dragged = False
+        split.splitterMoved.connect(self._settings_moved)
         shell.addWidget(split, 1)
         self.resize(920, 760)
         form = QFormLayout()
@@ -9822,7 +10105,8 @@ class _OverviewMetadataWizard(QWidget):
         self.channel_table.setMinimumHeight(110)
         self.channel_table.setToolTip(tr(
             "Channel names and display colours, filled from the acquisition metadata or the wavelengths. "
-            "Edit a name or a colour (#rrggbb or a colour name) to override it."))
+            "Edit a name or a colour (#rrggbb or a colour name) to override it. In the CMY and CMYK "
+            "colour modes, cyan, magenta, yellow or black picks the ink a channel prints with."))
         self.channel_table.itemChanged.connect(self._channel_colour_edited)
         layout.addRow(tr("Channel names and colours"), self.channel_table)
         self.pixel_size = QDoubleSpinBox()
@@ -10030,6 +10314,7 @@ class _OverviewMetadataWizard(QWidget):
         """
         if self._finished or self._fitting_actions:
             return
+        self._widen_settings()
         self._fitting_actions = True
         try:
             self._fit_action_buttons()
@@ -10263,7 +10548,28 @@ class _OverviewMetadataWizard(QWidget):
     def resizeEvent(self, event):
         """Reflow metadata messages when the normal module pane changes width."""
         super().resizeEvent(event)
+        self._widen_settings()
         self._readout_timer.start(0)
+
+    def _settings_moved(self, *_):
+        """Keep the width the user dragged the settings column to."""
+        self._settings_dragged = True
+
+    def _widen_settings(self):
+        """Open the settings column :data:`_OVERVIEW_SETTINGS_WIDTH` wide.
+
+        The splitter otherwise gives it its minimum, which cut its labels
+        and choices off. At most three fifths of the step's width go to it,
+        and a width the user dragged it to is kept.
+        """
+        split = self._wizard_content
+        sizes = split.sizes()
+        total = sum(sizes)
+        if self._settings_dragged or len(sizes) != 2 or total <= 0:
+            return
+        wide = min(_OVERVIEW_SETTINGS_WIDTH, total * 3 // 5)
+        if sizes[0] < wide:
+            split.setSizes([wide, total - wide])
 
     def _choose_geometry(self):
         """Keep an explicit user geometry across subsequent metadata previews."""

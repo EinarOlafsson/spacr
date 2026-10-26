@@ -152,8 +152,9 @@ def test_settings_open_wide_with_the_tab_and_stay_open_after_next(mask, qtbot, s
     tab = _open_tab(mask, source)
     body = tab._body_splitter
     qtbot.waitUntil(lambda: sum(body.sizes()) > 0, timeout=5000)
-    assert not body.is_collapsed("Settings")
-    assert body.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(body.sizes()) // 2)
+    split = tab._overview_page.wizard._wizard_content
+    assert body.is_collapsed("Settings")
+    assert split.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(split.sizes()) * 3 // 5)
     tab, _view = _browse(mask, qtbot, source)
     qtbot.wait(50)
     assert not body.is_collapsed("Settings")
@@ -211,7 +212,8 @@ def test_annotation_lives_in_the_plate_menu_and_its_category_is_gone(mask, qtbot
     assert not {"overview_metadata", "overview_value", "overview_annotation_actions"} & keys
     actions = _menu_actions(view, "A01")
     assert list(actions) == ["Annotate selected wells…", "Annotate row A…", "Annotate column 1…",
-                             "Annotate the whole plate…", "Import annotation scheme…",
+                             "Annotate the whole plate…", "Collapse row A", "Collapse column 1",
+                             "Show all rows and columns", "Import annotation scheme…",
                              "Save annotations…", "Load annotations…"]
     actions["Annotate row A…"].trigger()
     dialog = view._annotation_dialog

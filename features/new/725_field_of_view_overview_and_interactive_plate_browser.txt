@@ -5,6 +5,64 @@ Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+MAINTAINER FEEDBACK — 2026-10-25 (round 5) (supersedes conflicting earlier notes)
+Verbatim:
+1. "in the over view plate view the user should be able to collapse columns and rows
+   to bring other columns and rows closer together. the settings categories should
+   only be visable after clicking next. and the other settings should start out
+   wider, the settings that go with the overview tab before the next button is
+   pressed."
+2. "to overview add a cmyk and a cmy mode"
+3. "for the overvie i need to be able to load several plates"
+4. "there should be normalization options for normalizing on different levels. like
+   the image (this is what is currently possible i think), on the well level, plate
+   level, and all.
+   also the user should be able to right cklick on an image and change its settings,
+   those settings should include a levels histagram, brightness, contranst,
+   saturation and so on.
+   when the user hoves a picture the values for each channel should be shown in a
+   designated place in the botom left."
+5. "for any normalization or other operations to the image, the user must be able to
+   treat each channel individually."
+6. "in sourse settings category the user should be able to choose max number of wells
+   and fields per well that are loaded. wells is per plate"
+7. "the sourse should be able to be one path (one plate), or one path with
+   subdirectories that are plates, or several paths where each is either a plate or a
+   folder with plates. here plate is a folder with images."
+Round 5 supersedes round 4 point 4's "Settings open wider when the Overview tab
+opens": before Next the categories are held back and the empty settings column is
+folded; the metadata step's own settings column opens wide instead.
+
+WHAT WAS DONE — round 5, part 1 (collapse, categories after Next, wider metadata
+settings, CMY/CMYK); multi-plate loading, normalization scope, per-image settings
+and the hover readout are planned separately.
+- Plate rows and columns collapse to a 10-pixel highlighted strip (double-click a
+  header, the header's right-click menu, or the plate's right-click menu: Collapse
+  row B / Collapse column 3 / Show all rows and columns); clicking a strip or
+  double-clicking its header shows it again. In "Fit plate" the open rows and
+  columns take the freed space; zoomed, the neighbours move together. Collapsed
+  wells get no thumbnail reads. Selection, annotations, groups and measurements
+  are untouched. The state is kept per plate for the session; the Overview has no
+  saved view state yet, so it is not written to disk.
+- The Overview's settings categories are held back until Next opens the browser
+  (AppScreen._headings_held_back, honoured by refresh_maturity_visibility and the
+  settings search): before Run only Source shows; while the metadata step is shown
+  every category is held back and the settings column is folded so the step has
+  the width. After Next the column opens 520 px wide as in round 4.
+- The metadata step's settings column opens _OVERVIEW_SETTINGS_WIDTH (520 px) wide,
+  at most three fifths of the step, and keeps a width the user drags it to; its
+  labels, choices and buttons are no longer cut off.
+- New setting overview_color_mode (Image > Channels): Additive colours (default),
+  CMY inks on white, CMYK inks on white. Subtractive print:
+  out = 255 - sum(plane * (1 - ink)), clipped; one full channel is its ink, no
+  signal is white, full C+M+Y is black, K darkens every component alike. A channel
+  whose colour (the metadata step's colour cell) is cyan, magenta, yellow or black
+  keeps that ink, the others take the unused inks in C, M, Y, K order; with more
+  channels than inks the side-by-side view is kept. Live in the plate, well and
+  image views; recorded in the PDF header and overview_selection.json.
+- Tests: tests/qt/test_725_overview_round5.py; round-4 settings-width test updated
+  for the round-5 rule.
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
 Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
 _display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.

@@ -947,9 +947,11 @@ class SettingsSearchBar(QWidget):
         kept_before = self._sections_kept
         self._sections_kept = {
             id(s) for s in self._sections if shown.get(id(s), 0) > 0}
+        held_back = getattr(self._screen, "_headings_held_back", None)
+        held_back = held_back() if callable(held_back) else set()
         for section in self._sections:
             count = shown.get(id(section), 0)
-            visible = count > 0
+            visible = count > 0 and id(section) not in held_back
             if not visible and not narrowing:
                 if id(section) in self._sections_hidden:
                     section.setVisible(True)

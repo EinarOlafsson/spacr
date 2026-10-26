@@ -2097,6 +2097,9 @@ _APP_CATEGORY_SPECS["overview"] = _overview_category_spec()
 _APP_CATEGORY_PARENTS["overview"] = _overview_category_parents()
 _APP_COMBO_OPTIONS["overview"] = {
     "overview_preview_resolution": [128, 256, 512, 1024, 2048, 4096],
+    "overview_color_mode": [("additive", "Additive colours"),
+                            ("cmy", "CMY inks on white"),
+                            ("cmyk", "CMYK inks on white")],
     "overview_z_mode": [("plane", "Z plane"), ("max", "Maximum Z projection"),
                         ("mean", "Mean Z projection")],
     "overview_wheel": [("zoom", "Wheel: zoom"), ("field", "Wheel: field"),
