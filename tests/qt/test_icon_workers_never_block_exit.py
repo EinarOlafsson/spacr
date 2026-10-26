@@ -51,5 +51,8 @@ def test_a_process_that_builds_and_closes_the_window_exits(tmp_path):
     )
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", CUDA_VISIBLE_DEVICES="",
                SPACR_HOME=str(tmp_path))
-    subprocess.run([sys.executable, "-c", code], env=env, timeout=120, check=True,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    started = time.monotonic()
+    done = subprocess.run([sys.executable, "-c", code], env=env, timeout=120,
+                          stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    assert done.returncode == 0, done.stderr[-2000:]
+    assert time.monotonic() - started < 120
