@@ -161,6 +161,9 @@ def test_thumbnails_follow_the_scope(view, qtbot):
     qtbot.waitUntil(lambda: bool(_limits(view, "plateA", "A01")), timeout=15000)
     qtbot.waitUntil(lambda: view.wells.item(*view._well_positions["A01"]).data(Qt.UserRole + 1) not in (None, before)
                     and not view.wells.item(*view._well_positions["A01"]).icon().isNull(), timeout=20000)
+    after = view.wells.item(*view._well_positions["A01"]).data(Qt.UserRole + 1)
+    assert after is not None and after != before
+    assert _limits(view, "plateA", "A01") == _limits(view, "plateA", "A02")
 
 
 def test_a_scoped_channel_with_its_own_percentiles_is_stretched_at_them(view, qtbot):

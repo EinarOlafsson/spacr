@@ -133,6 +133,9 @@ def test_the_zoomed_view_maps_the_cursor_to_the_exact_source_pixel(view, qtbot):
     corner = view.view.viewportTransform().map(QPointF(53.95, 17.05))
     _move(view.view, corner)
     qtbot.waitUntil(lambda: _shows(view, 53, 17), timeout=10000)
+    assert view.view.transform().m11() == pytest.approx(7.5)
+    text = view._pixel_readout.text()
+    assert text.startswith("x 53, y 17") and all(value in text for value in _expected(53, 17))
 
 
 def test_moves_are_throttled_to_one_readout_per_interval(view, qtbot, monkeypatch):
@@ -207,6 +210,9 @@ def test_a_device_pixel_ratio_two_image_maps_logical_cursor_points_to_device_pix
     QApplication.processEvents()
     _move(view.view, view.view.viewportTransform().map(view.view._item.mapToScene(QPointF(15.25, 10.25))))
     qtbot.waitUntil(lambda: _shows(view, 30, 20), timeout=10000)
+    text = view._pixel_readout.text()
+    assert text.startswith("x 30, y 20") and all(value in text for value in _expected(30, 20))
+    assert view.view._item.pixmap().devicePixelRatio() == 2.
 
 
 def test_raw_values_print_exactly():
