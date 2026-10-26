@@ -408,7 +408,9 @@ def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
         if key in wrappers or key in hub._objects:
             _hub_drop_object(hub, key)
         try:
-            owned_by_qt = watched.parent() is not None
+            from PySide6.QtCore import QObject
+
+            owned_by_qt = QObject.parent(watched) is not None
         except (AttributeError, RuntimeError, TypeError):
             owned_by_qt = False
         wrappers[key] = (watched if owned_by_qt else weakref.ref(
@@ -783,7 +785,7 @@ def _application_event_hub_class():
                 return False
             if kind == update_request and self._paints_unheard:
                 app = self.parent()
-                if app is not None and watched.isWidgetType():
+                if app is not None and QObject.isWidgetType(watched):
                     if (kind in self._object_kinds
                             and _hub_ask_object_watchers(self, watched, event, kind)):
                         return True
@@ -927,14 +929,14 @@ def _watch_object_events(watched, watcher, kinds, replay=True) -> bool:
     """
     if watched is None or watcher is None:
         return False
-    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject
 
     kinds = frozenset(kinds)
     hub = None
     if not kinds & {QEvent.Type.Paint, QEvent.Type.UpdateRequest}:
         hub = _application_event_hub(QCoreApplication.instance())
     if hub is None:
-        watched.installEventFilter(watcher)
+        QObject.installEventFilter(watched, watcher)
         return True
     _hub_add_object(hub, watched, watcher, kinds, replay)
     return True
@@ -1000,7 +1002,7 @@ def _stop_watching_object_events(watched, watcher) -> bool:
     """Undo :func:`_watch_object_events`; ``True`` if it was watching."""
     if watched is None or watcher is None:
         return False
-    from PySide6.QtCore import QCoreApplication
+    from PySide6.QtCore import QCoreApplication, QObject
 
     hub = _application_event_hub(QCoreApplication.instance(), create=False)
     found = False
@@ -1010,8 +1012,8 @@ def _stop_watching_object_events(watched, watcher) -> bool:
         except RuntimeError:
             found = False
     try:
-        watched.removeEventFilter(watcher)
-    except RuntimeError:
+        QObject.removeEventFilter(watched, watcher)
+    except (RuntimeError, TypeError):
         pass
     return found
 
@@ -1051,11 +1053,12 @@ def _application_watchers(app) -> tuple:
 
 def _widget_state(widget) -> tuple:
     """What a watcher could have heard change about ``widget``."""
-    from PySide6.QtCore import Qt
+    from PySide6.QtCore import QObject, Qt
+    from PySide6.QtWidgets import QWidget
 
-    return (widget.isVisible(), widget.testAttribute(Qt.WA_WState_Polished),
-            widget.pos(), widget.size(), widget.isEnabled(),
-            widget.parent())
+    return (QWidget.isVisible(widget), QWidget.testAttribute(widget, Qt.WA_WState_Polished),
+            QWidget.pos(widget), QWidget.size(widget), QWidget.isEnabled(widget),
+            QObject.parent(widget))
 
 
 def _what_was_unheard(before, after) -> list:
@@ -1115,10 +1118,11 @@ def _restyle_unheard(app, root):
     if hub is None or root is None:
         yield
         return
+    from PySide6.QtCore import QObject
     from PySide6.QtWidgets import QWidget
 
     before = {}
-    for widget in [root] + list(root.findChildren(QWidget)):
+    for widget in [root] + list(QObject.findChildren(root, QWidget)):
         address = _cpp_address(widget)
         if address is not None:
             before[address] = (widget, _widget_state(widget))
@@ -1157,6 +1161,7 @@ def _tell_the_watchers(hub, root, before) -> None:
     then, which is the one its owner holds, so a watcher that compares
     widgets by identity or keys them by wrapper finds it.
     """
+    from PySide6.QtCore import QObject
     from PySide6.QtWidgets import QWidget
     from shiboken6 import isValid
 
@@ -1165,7 +1170,7 @@ def _tell_the_watchers(hub, root, before) -> None:
     wanted = set(hub._by_kind) | set(getattr(hub, "_object_kinds", ()))
     if not wanted:
         return
-    for widget in [root] + list(root.findChildren(QWidget)):
+    for widget in [root] + list(QObject.findChildren(root, QWidget)):
         seen = before.get(_cpp_address(widget))
         state = None
         if seen is not None:

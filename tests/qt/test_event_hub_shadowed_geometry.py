@@ -36,3 +36,49 @@ def test_shadowed_geometry_keeps_real_move_resize_and_show_replay(qapp):
     gil._hub_geometry_after(hub, gil._hub_geometry_before(hub))
     assert events == []
     widget.close()
+
+
+_QT_NAMES_THE_HUB_READS = ("geometry", "isHidden", "x", "y", "width", "height", "isWindow",
+                           "isVisible", "testAttribute", "pos", "size", "isEnabled", "parent",
+                           "isWidgetType", "installEventFilter", "removeEventFilter", "findChildren")
+
+
+def _hiding_qt_methods(widget):
+    for name in _QT_NAMES_THE_HUB_READS:
+        setattr(widget, name, QComboBox())
+    return widget
+
+
+def test_attributes_hiding_qt_methods_never_reach_the_hub_169(qapp):
+    """GitHub #169 (as #162): every Qt call the hub makes on a watched object
+    goes through the Qt class, so an instance attribute holding a control
+    under a Qt method's name is never called."""
+    from PySide6.QtWidgets import QApplication
+
+    root = QWidget()
+    child = QWidget(root)
+    _hiding_qt_methods(root)
+    _hiding_qt_methods(child)
+    events = []
+
+    class Watcher(QObject):
+        def eventFilter(self, watched, event):
+            events.append(event.type())
+            return False
+
+    watcher = Watcher()
+    hub = SimpleNamespace(_objects={})
+    gil._hub_add_object(hub, child, watcher, {QEvent.Type.Move, QEvent.Type.Show})
+    before = gil._hub_geometry_before(hub)
+    assert len(before) == 1
+    QWidget.move(child, 17, 19)
+    gil._hub_geometry_after(hub, before)
+    assert QEvent.Type.Move in events
+    state = gil._widget_state(child)
+    assert state[5] is root and state[2] == QWidget.pos(child)
+    lone = Watcher()
+    assert gil._watch_object_events(child, lone, {QEvent.Type.Paint})
+    gil._stop_watching_object_events(child, lone)
+    with gil._restyle_unheard(QApplication.instance(), root):
+        QWidget.setStyleSheet(root, "QWidget { color: #abc; }")
+    QWidget.close(root)

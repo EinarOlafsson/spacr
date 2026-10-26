@@ -424,3 +424,45 @@ def test_a_widget_whose_mask_attribute_is_data_does_not_break_the_hold(
     qtbot.wait(800)
     qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
     assert held.region.contains(card.geometry().center())
+
+
+_QT_NAMES_THE_WALK_READS = (
+    "geometry", "children", "isWidgetType", "isWindow", "isHidden", "autoFillBackground",
+    "testAttribute", "rect", "width", "height", "frameWidth", "frameShape", "render")
+
+
+class _PanelHidingQtMethods(QFrame):
+    """A framed panel whose attributes hide every Qt method the hold's walk
+    reads, as Overview's ``geometry`` combo box once hid ``QWidget.geometry``
+    (GitHub #162, #169)."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFrameShape(QFrame.Box)
+        self.setLineWidth(2)
+        self.setAttribute(ambient.Qt.WA_StyledBackground, True)
+        for name in _QT_NAMES_THE_WALK_READS:
+            setattr(self, name, object())
+
+
+def test_attributes_hiding_qt_methods_never_break_the_hold_169(screen, qtbot):
+    """Every Qt call the walk makes on a page's widget goes through the Qt
+    class itself, so no instance attribute can stand in for it."""
+    host, backdrop, card, labels = screen
+    panel = _PanelHidingQtMethods(host)
+    QFrame.setGeometry(panel, 420, 40, 180, 300)
+    QLabel("inside it", panel).setGeometry(10, 10, 120, 20)
+    leaf = _PanelHidingQtMethods(host)
+    QFrame.setGeometry(leaf, 420, 350, 60, 40)
+    QFrame.show(panel)
+    QFrame.show(leaf)
+    held = backdrop._held_rows
+    held._own_paint(panel)
+    held._own_paint(leaf)
+    held._painted_tiles(leaf)
+    held._paints_a_background(leaf)
+    held._covered()
+    held.stir()
+    qtbot.wait(800)
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    assert held.region.contains(card.geometry().center())

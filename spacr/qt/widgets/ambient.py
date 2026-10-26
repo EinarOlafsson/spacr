@@ -10887,8 +10887,8 @@ class _QuietBackgrounds(QObject):
         :returns: ``False``; nothing is consumed.
         """
         if event.type() == QEvent.Show:
-            if (watched.isWidgetType()
-                    and watched.window() is self.parent().window()):
+            if (QObject.isWidgetType(watched)
+                    and QWidget.window(watched) is self.parent().window()):
                 self._unsettle()
             return False
         widget = self._quieted.pop(id(watched), None)
@@ -11171,11 +11171,11 @@ class _HeldRows(QObject):
 
     def _walk(self, parent, backdrop, offset: QPoint, clip: QRect, box) -> None:
         """Add what ``parent``'s children draw over the field to ``box[0]``."""
-        for child in parent.children():
-            if (not child.isWidgetType() or child is backdrop
-                    or child.isWindow() or child.isHidden()):
+        for child in QObject.children(parent):
+            if (not QObject.isWidgetType(child) or child is backdrop
+                    or QWidget.isWindow(child) or QWidget.isHidden(child)):
                 continue
-            rect = child.geometry().translated(offset)
+            rect = QWidget.geometry(child).translated(offset)
             visible = clip.intersected(rect)
             if visible.isEmpty():
                 continue
@@ -11197,16 +11197,16 @@ class _HeldRows(QObject):
             own coordinates, that its background, frame and paint event
             cover -- empty for a plain layout container.
         """
-        if (widget.autoFillBackground()
-                or widget.testAttribute(Qt.WA_OpaquePaintEvent)
-                or widget.testAttribute(Qt.WA_NativeWindow)
+        if (QWidget.autoFillBackground(widget)
+                or QWidget.testAttribute(widget, Qt.WA_OpaquePaintEvent)
+                or QWidget.testAttribute(widget, Qt.WA_NativeWindow)
                 or not QWidget.mask(widget).isEmpty()
                 or getattr(widget, "_spacr_covers_its_area", False)):
             return None
         name, painted = _held_class(type(widget))
         plain = name in _HOLD_CONTAINERS and not painted
-        children = any(child.isWidgetType() and not child.isWindow()
-                       and not child.isHidden() for child in widget.children())
+        children = any(QObject.isWidgetType(child) and not QWidget.isWindow(child)
+                       and not QWidget.isHidden(child) for child in QObject.children(widget))
         if not children:
             return (QRegion() if plain and name == "QWidget"
                     and not self._paints_a_background(widget) else None)
@@ -11216,19 +11216,19 @@ class _HeldRows(QObject):
             return self._painted_tiles(widget)
         if self._paints_a_background(widget):
             return None
-        if isinstance(widget, QFrame) and widget.frameWidth() > 0:
-            if widget.frameShape() not in _HOLD_RING_SHAPES:
+        if isinstance(widget, QFrame) and QFrame.frameWidth(widget) > 0:
+            if QFrame.frameShape(widget) not in _HOLD_RING_SHAPES:
                 return None
-            width = widget.frameWidth()
-            return QRegion(widget.rect()).subtracted(QRegion(
-                widget.rect().adjusted(width, width, -width, -width)))
+            width = QFrame.frameWidth(widget)
+            return QRegion(QWidget.rect(widget)).subtracted(QRegion(
+                QWidget.rect(widget).adjusted(width, width, -width, -width)))
         return QRegion()
 
     def _painted_tiles(self, widget) -> QRegion:
         """The :data:`_HOLD_TILE` tiles ``widget`` paints any pixel in,
         rendered once without its children and cached per widget and size.
         """
-        width, height = widget.width(), widget.height()
+        width, height = QWidget.width(widget), QWidget.height(widget)
         key = ("tiles", id(widget))
         known = self._probes.get(key)
         if (known is not None and known[0] == (width, height)
@@ -11238,7 +11238,7 @@ class _HeldRows(QObject):
         if width > 0 and height > 0:
             image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
             image.fill(0)
-            widget.render(image, QPoint(), QRegion(0, 0, width, height),
+            QWidget.render(widget, image, QPoint(), QRegion(0, 0, width, height),
                           QWidget.RenderFlag.DrawWindowBackground)
             np = _numpy()
             alpha = np.frombuffer(image.constBits(), np.uint8).reshape(
@@ -11260,17 +11260,17 @@ class _HeldRows(QObject):
                         col += 1
                     region = region.united(QRect(first * tile, row * tile,
                                                  (col - first) * tile, tile))
-            region = region.intersected(widget.rect())
+            region = region.intersected(QWidget.rect(widget))
         self._probes[key] = ((width, height), weakref.ref(widget), region)
         return region
 
     def _paints_a_background(self, widget) -> bool:
         """Whether ``widget``'s style sheet background paints any pixel."""
-        if (not widget.testAttribute(Qt.WA_StyledBackground)
-                or widget.testAttribute(Qt.WA_NoSystemBackground)):
+        if (not QWidget.testAttribute(widget, Qt.WA_StyledBackground)
+                or QWidget.testAttribute(widget, Qt.WA_NoSystemBackground)):
             return False
-        size = (min(widget.width(), _CARD_PROBE),
-                min(widget.height(), _CARD_PROBE))
+        size = (min(QWidget.width(widget), _CARD_PROBE),
+                min(QWidget.height(widget), _CARD_PROBE))
         if size[0] <= 0 or size[1] <= 0:
             return False
         key = ("background", id(widget))
