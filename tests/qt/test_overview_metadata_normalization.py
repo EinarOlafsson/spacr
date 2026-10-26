@@ -957,7 +957,7 @@ def test_actual_export_button_forks_well_mean_generation_and_preserves_raw_data(
             monkeypatch.setattr(browser, "_overview_raw_planes", paused_full_source)
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_args, **_kwargs: str(output))
         export = next(button for button in dialog.findChildren(QPushButton)
-                      if button.text() == browser.tr("Export PDFs"))
+                      if button.text() == browser.tr("Contact sheet PDFs"))
         qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
         dialog._controls_scroll.ensureWidgetVisible(export)
         qtbot.mouseClick(export, browser.Qt.LeftButton)
@@ -1072,7 +1072,7 @@ def test_export_waits_for_real_channel_relearning_before_asking_for_destination(
         assert not dialog._normalization_ready and dialog._normalization_context is old_context
         status = dialog.status.text()
         export = next(button for button in dialog.findChildren(QPushButton)
-                      if button.text() == browser.tr("Export PDFs"))
+                      if button.text() == browser.tr("Contact sheet PDFs"))
         dialog._controls_scroll.ensureWidgetVisible(export)
         qtbot.mouseClick(export, browser.Qt.LeftButton)
         assert destinations == [] and not tuple(output.iterdir())

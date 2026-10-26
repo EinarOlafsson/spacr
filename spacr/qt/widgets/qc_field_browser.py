@@ -5793,7 +5793,12 @@ class _FieldOverview(QWidget):
             "Measure original-resolution selected channels as one whole-image ROI, not segmented objects. "
             "Geometry is in pixels; intensity statistics use finite stored pixel values without display "
             "normalization. Nonfinite pixel counts and read errors are recorded."))
-        export, cancel = QPushButton(tr("Export PDFs")), QPushButton(tr("Cancel loading or export"))
+        export, cancel = QPushButton(tr("Contact sheet PDFs")), QPushButton(tr("Cancel loading or export"))
+        export.setToolTip(tr("Twelve fields per page from the export scope, with the display settings printed above them."))
+        exports = QPushButton(tr("Export…"))
+        exports.setObjectName("OverviewExportMenuButton")
+        exports.setToolTip(tr("Guided export, Custom export or contact sheet PDFs."))
+        exports.clicked.connect(functools.partial(self._export_menu, exports))
         clear_selection = QPushButton(tr("Clear selections"))
         clear_selection.clicked.connect(self._clear_selection)
         export.clicked.connect(self._export)
@@ -5829,7 +5834,7 @@ class _FieldOverview(QWidget):
             sample_row.addWidget(widget)
         column.addLayout(sample_row)
         export_row = QHBoxLayout()
-        for widget in (self.use_selection, self.sample_selected, clear_selection, export, cancel):
+        for widget in (self.use_selection, self.sample_selected, clear_selection, exports, export, cancel):
             export_row.addWidget(widget)
         column.addLayout(export_row)
         column.addWidget(self.measurements)
@@ -5861,11 +5866,12 @@ class _FieldOverview(QWidget):
         action_row = FlowLayout(self._module_action_content)
         self._module_actions.setWidget(self._module_action_content)
         self._module_action_buttons = []
-        for caption, callback in ((tr("Export PDFs"), self._export),
+        for caption, callback in ((tr("Export…"), self._export_menu),
                 (tr("Export image-level measurements"), self._measure),
                 (tr("Cancel loading or export"), self._cancel)):
             button = QPushButton(caption)
-            button.clicked.connect(callback)
+            button.clicked.connect(functools.partial(callback, button) if callback == self._export_menu
+                                   else callback)
             action_row.addWidget(button)
             self._module_action_buttons.append(button)
         self._module_actions_retired = False
@@ -10290,6 +10296,128 @@ class _FieldOverview(QWidget):
             selected, folder, channels, limits, seed, cancelled, measurements, **options),
             lambda result: self._exported(result, measurements, folder, cancelled))
 
+    def _canvas_snapshot(self):
+        """What the views show now, frozen for rendering canvas images off the GUI thread."""
+        try:
+            channels, limits = self._choices()
+        except _OverviewValidationError:
+            channels, limits = (0,), None
+        display = self._display_kwargs()
+        shown = self._display_kwargs(view=True)
+        for key in ("channel_limits", "image_overrides"):
+            if key in shown:
+                display[key] = shown[key]
+        return _OverviewCanvasSnapshot(self._fields, channels, limits, display)
+
+    def _canvas_well_fields(self, plate, well):
+        """The fields of one well at the shown time and Z, in field order."""
+        time, z = self.time_axis.currentData(), self.z_axis.currentData()
+        fields = [field for field in self._fields if field.plate == plate and field.well == well
+                  and (not field.time_id or field.time_id == time) and (not field.z_id or field.z_id == z)]
+        return sorted(fields, key=lambda field: self._natural(field.field_id or field.field))
+
+    def _canvas_channel_names(self):
+        """The shown channels by the names on their buttons."""
+        try:
+            channels = self._choices()[0]
+        except _OverviewValidationError:
+            return []
+        buttons = getattr(self, "_channel_buttons", {}) or {}
+        return [buttons[channel].text() if channel in buttons else str(channel) for channel in channels]
+
+    def _canvas_display_note(self):
+        """Lines describing the display settings, for the last page of a guided export."""
+        try:
+            channels, limits = self._choices()
+        except _OverviewValidationError:
+            return ()
+        plan = (self._normalization_context.provenance() if self._normalization_context is not None
+                else self._normalization_plan)
+        try:
+            lines = list(_overview_pdf_header(channels, limits, self.seed.value(),
+                                              None if self.advanced.isChecked() else plan, self._color_mode))
+        except (KeyError, TypeError, ValueError):
+            lines = list(_overview_pdf_header(channels, limits, self.seed.value(), None, self._color_mode))
+        pixel = self._overview_options.get("pixel_size_um")
+        if pixel:
+            lines.append(tr("Pixel size: {size} µm", size=f"{pixel:g}"))
+        return tuple([tr("Display settings")] + lines)
+
+    def _export_menu(self, anchor=None):
+        """Offer the exports: guided, custom canvas, contact sheet; returns the menu.
+
+        :param anchor: the button the menu opens under; the pointer otherwise.
+        """
+        from PySide6.QtGui import QCursor
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        menu.setObjectName("OverviewExportMenu")
+        menu.setToolTipsVisible(True)
+        for caption, tooltip, slot in (
+                ("Guided export…", "Choose wells and fields, place each well on the page and choose what is "
+                 "printed around it, then preview and write a PDF.", self._open_guided_export),
+                ("Custom export…", "Draw text boxes and drop images on a page grid, then write a PDF.",
+                 self._open_custom_export),
+                ("Contact sheet PDFs", "Twelve fields per page from the export scope, with the display "
+                 "settings printed above them.", self._export)):
+            action = menu.addAction(tr(caption))
+            action.setToolTip(tr(tooltip))
+            action.triggered.connect(functools.partial(self._run_export_action, slot))
+        if anchor is not None and anchor.isVisible():
+            menu.popup(anchor.mapToGlobal(anchor.rect().bottomLeft()))
+        else:
+            menu.popup(QCursor.pos())
+        self._export_menu_shown = menu
+        return menu
+
+    def _run_export_action(self, slot, *_):
+        """Run an export chosen from the Export menu."""
+        slot()
+
+    def _open_guided_export(self):
+        """Open the guided export for the loaded plates; returns the dialog."""
+        if not self._fields:
+            self.status.setText(tr("Select fields or load a plate before exporting."))
+            return None
+        dialog = _OverviewGuidedExport(self)
+        self._guided_export = dialog
+        dialog.show()
+        return dialog
+
+    def _open_custom_export(self, layout=None):
+        """Open the Custom export canvas, empty or with ``layout``; returns it.
+
+        While it is open, selected wells and fields drag from the plate and
+        well views onto it, and the shown image drags with Alt held.
+        """
+        from .picture_export import _CanvasComposer
+
+        composer = _CanvasComposer(layout, _OverviewCanvasSource(self), self._metadata_source or "", self,
+                                   actions=(("Add selected", "Place the selected fields, or the fields of the "
+                                             "selected wells, on this page.", self._canvas_add_selection),))
+        composer.setAttribute(Qt.WA_DeleteOnClose)
+        drags = getattr(self, "_canvas_drags", None)
+        if drags is None:
+            drags = self._canvas_drags = _OverviewCanvasDrags(self)
+        drags.watch()
+        composer.finished.connect(drags.unwatch)
+        self._canvas_composer = composer
+        composer.show()
+        return composer
+
+    def _canvas_add_selection(self, composer):
+        """Place the selected fields, or the selected wells' fields, on the canvas page."""
+        fields = list(self._selected_fields.values())
+        if not fields:
+            for plate, well in sorted(self._selected_wells):
+                fields.extend(self._canvas_well_fields(plate, well)[:_OVERVIEW_GUIDED_MAX_WELL_FIELDS])
+        if not fields:
+            composer.status.setText(tr("Select fields or wells in the Overview first."))
+            return []
+        pixel = self._overview_options.get("pixel_size_um")
+        return composer.add_images([_overview_canvas_image(field, pixel) for field in fields])
+
     def _exported(self, result, measurements=False, folder="", cancelled=None):
         """Report output and unreadable fields without hiding either."""
         paths, errors = result
@@ -11693,9 +11821,15 @@ class _OverviewModulePage(QWidget):
             self.browser._cancel()
 
     def export_pdfs(self):
-        """Export PDFs of the current browser selection."""
+        """Write contact sheet PDFs of the current browser's export scope."""
         if self.browser is not None:
             self.browser._export()
+
+    def export_menu(self, anchor=None):
+        """Offer the browser's exports under ``anchor``; returns the menu, or ``None`` before Run."""
+        if self.browser is None:
+            return None
+        return self.browser._export_menu(anchor)
 
     def export_measurements(self):
         """Export image-level measurements of the current browser."""
@@ -11932,10 +12066,10 @@ def _install_overview_actions(screen, buttons):
     :param screen: the Overview module screen.
     :param buttons: the Actions container's button strip.
     """
-    screen._btn_overview_pdfs = QPushButton(tr("Export PDFs"))
+    screen._btn_overview_pdfs = QPushButton(tr("Export…"))
     screen._btn_overview_pdfs.setObjectName("OverviewExportPdfs")
-    screen._btn_overview_pdfs.setToolTip(tr("Write PDFs of the export scope to the results folder."))
-    screen._btn_overview_pdfs.clicked.connect(lambda: screen._overview_page.export_pdfs())
+    screen._btn_overview_pdfs.setToolTip(tr("Guided export, Custom export or contact sheet PDFs, written to the results folder."))
+    screen._btn_overview_pdfs.clicked.connect(lambda: screen._overview_page.export_menu(screen._btn_overview_pdfs))
     screen._btn_overview_measure = QPushButton(tr("Export image-level measurements"))
     screen._btn_overview_measure.setObjectName("OverviewExportMeasurements")
     screen._btn_overview_measure.setToolTip(tr(
@@ -13491,3 +13625,1144 @@ from ..theme import register_widget_qss as _register_widget_qss
 
 _register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
 _register_widget_qss("FieldOverviewPanel", _overview_panel_qss, replace=True)
+
+
+from PySide6.QtCore import QObject as _QObject
+
+_OVERVIEW_CANVAS_SOURCE = "overview_field"
+_OVERVIEW_GUIDED_SIDES = ("none", "above", "below", "left", "right")
+_OVERVIEW_GUIDED_ITEMS = ("plate", "well", "condition", "field", "channels", "measurements", "text")
+_OVERVIEW_GUIDED_DEFAULT_SIDES = {"plate": "above", "well": "above", "condition": "above"}
+_OVERVIEW_GUIDED_MARGIN = 36.0
+_OVERVIEW_GUIDED_GAP = 10.0
+_OVERVIEW_GUIDED_IMAGE_GAP = 4.0
+_OVERVIEW_GUIDED_FONT = 9.0
+_OVERVIEW_GUIDED_SIDE_WIDTH = 108.0
+_OVERVIEW_GUIDED_MAX_WELL_FIELDS = 24
+_OVERVIEW_GUIDED_CAPTIONS = {
+    "plate": "Plate", "well": "Well", "condition": "Condition", "field": "Field",
+    "channels": "Channel names", "measurements": "Measurements", "text": "Free text"}
+_OVERVIEW_GUIDED_SIDE_CAPTIONS = {"none": "Not shown", "above": "Above", "below": "Below",
+                                  "left": "Left", "right": "Right"}
+
+
+def _overview_canvas_image(field, pixel_size_um=None):
+    """The canvas image entry of one Overview field.
+
+    :param field: an :class:`_OverviewField`.
+    :param pixel_size_um: the field's pixel size, when known.
+    :returns: a dictionary for :meth:`_CanvasComposer.add_images`.
+    """
+    return {"source": {"type": _OVERVIEW_CANVAS_SOURCE, "key": list(_overview_image_key(field)),
+                       "plate": field.plate, "well": field.well, "field": field.field},
+            "label": field.caption, "pixel_size_um": float(pixel_size_um) if pixel_size_um else None}
+
+
+class _OverviewCanvasSnapshot:
+    """What the browser shows, frozen on the GUI thread, for rendering fields elsewhere.
+
+    Images go through :func:`_overview_pixels` with the browser's display
+    keywords, its scope limits and per-image overrides, so a canvas image
+    matches the screen; the display-only enhancement chain stays out, as in
+    every export.
+    """
+
+    def __init__(self, fields, channels, limits, display):
+        """Keep the fields by image key and the display settings."""
+        self._fields = {_overview_key_text(_overview_image_key(field)): field for field in fields}
+        self._channels = tuple(channels)
+        self._limits = limits
+        self._display = dict(display)
+
+    def field_of(self, box):
+        """The field an image box shows, or ``None``."""
+        source = box.get("source") or {}
+        if source.get("type") != _OVERVIEW_CANVAS_SOURCE:
+            return None
+        return self._fields.get(_overview_key_text(tuple(source.get("key") or ())))
+
+    def __call__(self, box, edge):
+        """The box's field rendered with the frozen display settings.
+
+        :param edge: longest side wanted, or ``None`` for every source pixel.
+        :raises ValueError: when the field is not in the loaded plates.
+        """
+        field = self.field_of(box)
+        if field is None:
+            raise ValueError(tr("The image source is not loaded: {label}", label=box.get("label") or "?"))
+        pixels = _overview_pixels(field, self._channels, self._limits, edge=edge, **self._display)
+        return np.ascontiguousarray(pixels[..., :3] if pixels.ndim == 3 else pixels)
+
+
+class _OverviewCanvasSource:
+    """Hands the composer a fresh snapshot of the browser's display whenever it renders."""
+
+    def __init__(self, browser):
+        """Follow ``browser`` without keeping it alive."""
+        import weakref
+
+        self._browser = weakref.ref(browser)
+
+    def fresh(self):
+        """A :class:`_OverviewCanvasSnapshot` of the browser now, taken on the GUI thread."""
+        browser = self._browser()
+        if browser is None:
+            return _OverviewCanvasSnapshot((), (0,), None, {})
+        return browser._canvas_snapshot()
+
+
+class _OverviewCanvasDrags(_QObject):
+    """Start canvas drags from the plate, the well views and the image views.
+
+    A press on a selected well or field that moves starts the drag of the
+    selection; in an image view the drag starts with Alt held, since a plain
+    drag pans the image.
+    """
+
+    def __init__(self, browser):
+        """Watch ``browser``'s views."""
+        super().__init__(browser)
+        self._browser = browser
+        self._press = None
+        self._watched = []
+
+    def watch(self):
+        """Install on every view the browser shows now."""
+        browser = self._browser
+        views = [browser.wells.viewport()]
+        views.extend(field_list.viewport() for field_list in browser._field_lists())
+        views.append(browser.view.viewport())
+        views.extend(panel.view.viewport() for panel in browser._image_views)
+        for view in views:
+            if view not in self._watched:
+                view.installEventFilter(self)
+                self._watched.append(view)
+
+    def unwatch(self):
+        """Remove the filter from every view."""
+        from shiboken6 import isValid
+
+        for view in self._watched:
+            if isValid(view):
+                view.removeEventFilter(self)
+        self._watched = []
+
+    def _images_at(self, viewport, position, alt):
+        """The canvas images a press at ``position`` would drag, or ``[]``."""
+        browser = self._browser
+        widget = viewport.parentWidget()
+        pixel_size = browser._overview_options.get("pixel_size_um")
+        if widget is browser.wells:
+            item = widget.itemAt(position)
+            if item is None or not item.isSelected():
+                return []
+            wells = [cell for cell in widget.selectedItems()]
+            positions = {value: key for key, value in browser._well_positions.items()}
+            fields = []
+            for cell in wells:
+                well = positions.get((cell.row(), cell.column()))
+                if well is not None:
+                    fields.extend(browser._canvas_well_fields(browser.plates.currentData(), well))
+            return [_overview_canvas_image(field, pixel_size) for field in fields[:_OVERVIEW_GUIDED_MAX_WELL_FIELDS]]
+        if widget in browser._field_lists():
+            item = widget.itemAt(position)
+            if item is None or not item.isSelected():
+                return []
+            fields = [chosen.data(Qt.UserRole) for chosen in widget.selectedItems()]
+            return [_overview_canvas_image(field, pixel_size) for field in fields if field is not None]
+        if not alt:
+            return []
+        field = browser._field_shown_in(widget)
+        return [] if field is None else [_overview_canvas_image(field, pixel_size)]
+
+    def eventFilter(self, watched, event):
+        """Turn a press-and-move on a selection into a canvas drag."""
+        from PySide6.QtGui import QDrag
+        from PySide6.QtWidgets import QApplication
+
+        kind = event.type()
+        if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            alt = bool(event.modifiers() & Qt.AltModifier)
+            images = self._images_at(watched, event.position().toPoint(), alt)
+            self._press = (watched, event.position().toPoint(), images) if images else None
+            return bool(images) and alt
+        if kind == QEvent.MouseMove and self._press is not None and self._press[0] is watched:
+            if (event.position().toPoint() - self._press[1]).manhattanLength() < QApplication.startDragDistance():
+                return True
+            images = self._press[2]
+            self._press = None
+            from .picture_export import _canvas_mime
+
+            drag = QDrag(watched)
+            drag.setMimeData(_canvas_mime(images))
+            drag.exec(Qt.CopyAction)
+            return True
+        if kind == QEvent.MouseButtonRelease:
+            self._press = None
+        return False
+
+
+def _overview_guided_lines(text, width):
+    """How many caption lines ``text`` needs in a band ``width`` points wide."""
+    per_line = max(4, int(width / (_OVERVIEW_GUIDED_FONT * .5)))
+    return sum(max(1, math.ceil(len(line) / per_line)) for line in str(text).split("\n"))
+
+
+def _overview_guided_cell_rect(layout, rows, columns, cell):
+    """A placement's rectangle on the page, in points.
+
+    :param cell: ``(row, column, row span, column span)``.
+    :returns: ``(x, y, width, height)``.
+    """
+    width, height = layout.page_points
+    cell_width = (width - 2 * _OVERVIEW_GUIDED_MARGIN - (columns - 1) * _OVERVIEW_GUIDED_GAP) / columns
+    cell_height = (height - 2 * _OVERVIEW_GUIDED_MARGIN - (rows - 1) * _OVERVIEW_GUIDED_GAP) / rows
+    row, column, row_span, column_span = cell
+    row, column = min(row, rows - 1), min(column, columns - 1)
+    row_span, column_span = max(1, min(row_span, rows - row)), max(1, min(column_span, columns - column))
+    return (_OVERVIEW_GUIDED_MARGIN + column * (cell_width + _OVERVIEW_GUIDED_GAP),
+            _OVERVIEW_GUIDED_MARGIN + row * (cell_height + _OVERVIEW_GUIDED_GAP),
+            column_span * cell_width + (column_span - 1) * _OVERVIEW_GUIDED_GAP,
+            row_span * cell_height + (row_span - 1) * _OVERVIEW_GUIDED_GAP)
+
+
+def _overview_guided_layout(entries, page_size="A4", orientation="portrait", rows=3, columns=2, note=()):
+    """The canvas layout of a guided export.
+
+    :param entries: one per well, in order: ``page``, ``cell`` (row,
+        column, row span, column span on the page grid), ``images`` (canvas
+        image entries) and ``captions`` (``{side: text}`` for ``above``,
+        ``below``, ``left`` and ``right``).
+    :param rows: rows of the page grid.
+    :param columns: columns of the page grid.
+    :param note: lines describing the display settings, written on a last
+        page when given.
+    :returns: a :class:`_CanvasLayout` whose undo history starts empty.
+    """
+    from .picture_export import _CanvasLayout
+
+    layout = _CanvasLayout(page_size, orientation)
+    layout.snap = False
+    pages = max([int(entry["page"]) + 1 for entry in entries] or [1])
+    layout.pages = [[] for _ in range(pages)]
+    band = _OVERVIEW_GUIDED_FONT * 1.2
+    for entry in entries:
+        page = int(entry["page"])
+        x, y, width, height = _overview_guided_cell_rect(layout, rows, columns, entry["cell"])
+        captions = {side: str(text) for side, text in (entry.get("captions") or {}).items() if str(text or "").strip()}
+        side_width = min(width * .3, _OVERVIEW_GUIDED_SIDE_WIDTH)
+        left = side_width if "left" in captions else 0.0
+        right = side_width if "right" in captions else 0.0
+        inner = width - left - right
+        above = (_overview_guided_lines(captions["above"], inner) * band + 4) if "above" in captions else 0.0
+        below = (_overview_guided_lines(captions["below"], inner) * band + 4) if "below" in captions else 0.0
+        for side, rect in (("above", (x + left, y, inner, above)), ("below", (x + left, y + height - below, inner, below)),
+                           ("left", (x, y + above, left, height - above - below)),
+                           ("right", (x + width - right, y + above, right, height - above - below))):
+            if side in captions:
+                layout.add_box(page, "text", *rect, text=captions[side], font_size=_OVERVIEW_GUIDED_FONT,
+                               align={"left": "right", "right": "left"}.get(side, "center"), role=side)
+        images = list(entry.get("images") or ())
+        if not images:
+            continue
+        area_x, area_y = x + left, y + above
+        area_width, area_height = inner, height - above - below
+        image_columns = max(1, math.ceil(math.sqrt(len(images) * max(area_width, 1.) / max(area_height, 1.))))
+        image_columns = min(image_columns, len(images))
+        image_rows = math.ceil(len(images) / image_columns)
+        tile_width = (area_width - (image_columns - 1) * _OVERVIEW_GUIDED_IMAGE_GAP) / image_columns
+        tile_height = (area_height - (image_rows - 1) * _OVERVIEW_GUIDED_IMAGE_GAP) / image_rows
+        for index, image in enumerate(images):
+            row, column = divmod(index, image_columns)
+            layout.add_box(page, "image", area_x + column * (tile_width + _OVERVIEW_GUIDED_IMAGE_GAP),
+                           area_y + row * (tile_height + _OVERVIEW_GUIDED_IMAGE_GAP), tile_width, tile_height,
+                           fit=True, lock_aspect=False, **image)
+    if note:
+        width, height = layout.page_points
+        layout.pages.append([])
+        layout.add_box(len(layout.pages) - 1, "text", _OVERVIEW_GUIDED_MARGIN, _OVERVIEW_GUIDED_MARGIN,
+                       width - 2 * _OVERVIEW_GUIDED_MARGIN, height - 2 * _OVERVIEW_GUIDED_MARGIN,
+                       text="\n".join(note), font_size=8.0, role="note")
+    layout.snap = True
+    layout._undo.clear()
+    return layout
+
+
+def _overview_free_slot(occupied, rows, columns, span, page=0):
+    """The first place a ``span`` block fits, scanning pages from ``page`` in reading order.
+
+    :param occupied: ``{page: set of (row, column)}``.
+    :param span: ``(row span, column span)``.
+    :returns: ``(page, (row, column, row span, column span))``.
+    """
+    row_span, column_span = max(1, min(span[0], rows)), max(1, min(span[1], columns))
+    while True:
+        taken = occupied.get(page, set())
+        for row in range(rows - row_span + 1):
+            for column in range(columns - column_span + 1):
+                block = {(row + r, column + c) for r in range(row_span) for c in range(column_span)}
+                if not block & taken:
+                    return page, (row, column, row_span, column_span)
+        page += 1
+
+
+class _OverviewCellPicker(QWidget):
+    """A page preview whose grid cells are clicked or dragged over to place a well.
+
+    Cells already given to earlier wells are shaded and labelled.
+    """
+
+    changed = Signal()
+
+    def __init__(self, parent=None):
+        """An empty 3 by 2 portrait page."""
+        super().__init__(parent)
+        self.setObjectName("OverviewGuidedCellPicker")
+        self.setMinimumSize(240, 300)
+        self.setToolTip(tr("Click a cell, or drag over several, to choose where this well's images go on the page."))
+        self.rows, self.columns, self.aspect = 3, 2, 595.2756 / 841.8898
+        self.occupied = {}
+        self.selection = (0, 0, 1, 1)
+        self._anchor = None
+
+    def configure(self, rows, columns, aspect, occupied):
+        """Set the grid, the page's width over height and the labelled taken cells."""
+        self.rows, self.columns, self.aspect = max(1, rows), max(1, columns), aspect
+        self.occupied = dict(occupied)
+        row, column, row_span, column_span = self.selection
+        row, column = min(row, self.rows - 1), min(column, self.columns - 1)
+        self.selection = (row, column, min(row_span, self.rows - row), min(column_span, self.columns - column))
+        self.update()
+
+    def _paper(self):
+        """The page rectangle inside the widget."""
+        from PySide6.QtCore import QRectF
+
+        width, height = self.width() - 16, self.height() - 16
+        if width / max(height, 1) > self.aspect:
+            width = height * self.aspect
+        else:
+            height = width / self.aspect
+        return QRectF((self.width() - width) / 2, (self.height() - height) / 2, width, height)
+
+    def _cell_at(self, point):
+        """The ``(row, column)`` under ``point``, kept inside the grid."""
+        paper = self._paper()
+        column = int((point.x() - paper.x()) / max(paper.width(), 1) * self.columns)
+        row = int((point.y() - paper.y()) / max(paper.height(), 1) * self.rows)
+        return min(max(row, 0), self.rows - 1), min(max(column, 0), self.columns - 1)
+
+    def mousePressEvent(self, event):
+        """Start choosing cells."""
+        self._anchor = self._cell_at(event.position())
+        self._choose(self._anchor)
+
+    def mouseMoveEvent(self, event):
+        """Grow the chosen block of cells."""
+        if self._anchor is not None:
+            self._choose(self._cell_at(event.position()))
+
+    def mouseReleaseEvent(self, event):
+        """Finish choosing."""
+        self._anchor = None
+
+    def _choose(self, cell):
+        """Choose the block from the anchor to ``cell``."""
+        top, bottom = sorted((self._anchor[0], cell[0]))
+        left, right = sorted((self._anchor[1], cell[1]))
+        self.selection = (top, left, bottom - top + 1, right - left + 1)
+        self.update()
+        self.changed.emit()
+
+    def paintEvent(self, event):
+        """Draw the paper, its grid, the taken cells and the chosen block."""
+        from PySide6.QtCore import QRectF
+        from PySide6.QtGui import QColor, QPainter, QPen
+        from ..iconset import active_theme
+        from ..theme import palette_for
+
+        palette = palette_for(active_theme())
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        paper = self._paper()
+        painter.fillRect(paper.translated(2, 2), QColor(0, 0, 0, 50))
+        painter.fillRect(paper, QColor("#ffffff"))
+        cell_width, cell_height = paper.width() / self.columns, paper.height() / self.rows
+        for (row, column), label in self.occupied.items():
+            rect = QRectF(paper.x() + column * cell_width, paper.y() + row * cell_height, cell_width, cell_height)
+            painter.fillRect(rect.adjusted(2, 2, -2, -2), QColor("#d4ece9"))
+            painter.setPen(QColor("#0a6f6a"))
+            painter.drawText(rect.adjusted(4, 4, -4, -4), Qt.AlignCenter | Qt.TextWordWrap, label)
+        painter.setPen(QPen(QColor("#c9d5e3"), 1))
+        for column in range(1, self.columns):
+            painter.drawLine(paper.x() + column * cell_width, paper.y(), paper.x() + column * cell_width, paper.bottom())
+        for row in range(1, self.rows):
+            painter.drawLine(paper.x(), paper.y() + row * cell_height, paper.right(), paper.y() + row * cell_height)
+        row, column, row_span, column_span = self.selection
+        chosen = QRectF(paper.x() + column * cell_width, paper.y() + row * cell_height,
+                        column_span * cell_width, row_span * cell_height).adjusted(2, 2, -2, -2)
+        accent = QColor(palette["accent"])
+        fill = QColor(accent)
+        fill.setAlpha(60)
+        painter.fillRect(chosen, fill)
+        painter.setPen(QPen(accent, 2))
+        painter.drawRect(chosen)
+        painter.end()
+
+
+class _OverviewGuidedExport(QDialog):
+    """Export chosen wells to PDF step by step: wells, fields, placement and captions, preview.
+
+    The result is a :class:`spacr.qt.widgets.picture_export._CanvasLayout`,
+    the same model the Custom export edits, so the preview can be refined
+    there before it is written.
+
+    :param browser: the Overview plate browser the wells come from.
+    """
+
+    def __init__(self, browser):
+        """Build the four steps, starting from the wells selected in the plate."""
+        from PySide6.QtWidgets import QStackedWidget
+
+        super().__init__(browser)
+        self.setObjectName("OverviewGuidedExport")
+        self.setWindowTitle(tr("Guided export"))
+        self._browser = browser
+        self._source = browser._canvas_snapshot()
+        self._wells = []
+        self._fields = {}
+        self._placements = []
+        self._index = 0
+        self._frame = None
+        self._page = 0
+        self._composer = None
+        self._jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        self.heading = QLabel("")
+        self.heading.setObjectName("OverviewGuidedHeading")
+        font = self.heading.font()
+        font.setBold(True)
+        font.setPointSizeF(font.pointSizeF() * 1.15)
+        self.heading.setFont(font)
+        self.hint = QLabel("")
+        self.hint.setWordWrap(True)
+        root.addWidget(self.heading)
+        root.addWidget(self.hint)
+        self.steps = QStackedWidget()
+        self.steps.addWidget(self._build_wells_step())
+        self.steps.addWidget(self._build_fields_step())
+        self.steps.addWidget(self._build_place_step())
+        self.preview_page = QWidget()
+        QVBoxLayout(self.preview_page).setContentsMargins(0, 0, 0, 0)
+        self.steps.addWidget(self.preview_page)
+        root.addWidget(self.steps, 1)
+        self.status = QLabel("")
+        self.status.setWordWrap(True)
+        root.addWidget(self.status)
+        buttons = QHBoxLayout()
+        self.custom_button = QPushButton(tr("Open in Custom export"))
+        self.custom_button.setToolTip(tr("Continue in the Custom export canvas with the wells placed so far."))
+        self.custom_button.clicked.connect(self.open_custom)
+        self.back_button = QPushButton(tr("Back"))
+        self.back_button.setToolTip(tr("Go back one step or one well."))
+        self.back_button.clicked.connect(self.back)
+        self.next_button = QPushButton(tr("Next"))
+        self.next_button.setObjectName("OverviewGuidedNext")
+        self.next_button.clicked.connect(self.next)
+        self.export_button = QPushButton(tr("Export PDF…"))
+        self.export_button.setToolTip(tr("Write the previewed pages to one PDF."))
+        self.export_button.clicked.connect(self._ask_export)
+        buttons.addWidget(self.custom_button)
+        buttons.addStretch(1)
+        for button in (self.back_button, self.next_button, self.export_button):
+            buttons.addWidget(button)
+        root.addLayout(buttons)
+        self.resize(1100, 780)
+        from ..theme import ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("OverviewGuidedExport", _overview_guided_qss, replace=True)
+        ensure_widget_qss_applied("OverviewGuidedExport", root=self)
+        self._prefill()
+        self._show_step(0)
+
+    def _build_wells_step(self):
+        """Step 1: plates, then wells by condition, by multi-select or one well."""
+        from PySide6.QtWidgets import QButtonGroup, QGridLayout, QListWidget, QRadioButton
+
+        page = QWidget()
+        grid = QGridLayout(page)
+        self.plates = QListWidget()
+        self.plates.setObjectName("OverviewGuidedPlates")
+        self.plates.setToolTip(tr("Plates the wells are chosen from."))
+        self.plates.setFixedWidth(200)
+        for plate in dict.fromkeys(field.plate for field in self._browser._fields):
+            item = self._checkable(self.plates, plate, plate)
+            item.setCheckState(Qt.Checked)
+        self.plates.itemChanged.connect(self._plates_changed)
+        self.mode_group = QButtonGroup(self)
+        modes = QHBoxLayout()
+        modes.addWidget(QLabel(tr("Choose wells")))
+        for index, (caption, tooltip) in enumerate((
+                ("By condition", "Every well whose annotation or comparison group matches a ticked condition."),
+                ("Choose wells", "Tick the wells to export."),
+                ("One well", "Export a single well."))):
+            button = QRadioButton(tr(caption))
+            button.setToolTip(tr(tooltip))
+            self.mode_group.addButton(button, index)
+            modes.addWidget(button)
+        modes.addStretch(1)
+        self.mode_group.idToggled.connect(self._mode_changed)
+        self.conditions = QListWidget()
+        self.conditions.setObjectName("OverviewGuidedConditions")
+        self.conditions.setToolTip(tr("Annotation values and comparison groups; tick one or more."))
+        self.conditions.itemChanged.connect(self._conditions_changed)
+        self.well_list = QListWidget()
+        self.well_list.setObjectName("OverviewGuidedWells")
+        self.well_list.setToolTip(tr("Wells to export, in this order."))
+        self.well_list.itemChanged.connect(self._conditions_changed)
+        self.single = QComboBox()
+        self.single.setToolTip(tr("The one well to export."))
+        self.single.currentIndexChanged.connect(self._conditions_changed)
+        self.well_count = QLabel("")
+        self.well_count.setObjectName("OverviewGuidedCount")
+        grid.addLayout(modes, 0, 0, 1, 3)
+        grid.addWidget(QLabel(tr("Plates")), 1, 0)
+        grid.addWidget(QLabel(tr("Conditions")), 1, 1)
+        grid.addWidget(QLabel(tr("Wells")), 1, 2)
+        grid.addWidget(self.plates, 2, 0, 2, 1)
+        grid.addWidget(self.conditions, 2, 1, 2, 1)
+        wells = QVBoxLayout()
+        wells.addWidget(self.single)
+        wells.addWidget(self.well_list, 1)
+        grid.addLayout(wells, 2, 2, 2, 1)
+        grid.addWidget(self.well_count, 4, 0, 1, 3)
+        grid.setRowStretch(3, 1)
+        grid.setColumnStretch(1, 1)
+        grid.setColumnStretch(2, 1)
+        return page
+
+    def _build_fields_step(self):
+        """Step 2: every field, the first N, or picked fields per well."""
+        from PySide6.QtWidgets import QButtonGroup, QRadioButton, QSpinBox, QTreeWidget
+
+        page = QWidget()
+        column = QVBoxLayout(page)
+        self.field_mode = QButtonGroup(self)
+        row = QHBoxLayout()
+        for index, (caption, tooltip) in enumerate((
+                ("All fields", "Every field of each chosen well at the shown time and Z."),
+                ("First fields", "The first fields of each well, as many as set."),
+                ("Pick fields", "Tick the fields to export in each well."))):
+            button = QRadioButton(tr(caption))
+            button.setToolTip(tr(tooltip))
+            self.field_mode.addButton(button, index)
+            row.addWidget(button)
+            if index == 1:
+                self.first_count = QSpinBox()
+                self.first_count.setRange(1, 99)
+                self.first_count.setValue(1)
+                self.first_count.setToolTip(tr("How many fields of each well First fields takes."))
+                self.first_count.valueChanged.connect(self._field_mode_changed)
+                row.addWidget(self.first_count)
+        row.addStretch(1)
+        self.field_mode.button(0).setChecked(True)
+        self.field_mode.idToggled.connect(self._field_mode_changed)
+        self.field_tree = QTreeWidget()
+        self.field_tree.setObjectName("OverviewGuidedFields")
+        self.field_tree.setHeaderHidden(True)
+        self.field_tree.setToolTip(tr("Fields of each chosen well; tick the ones to export."))
+        from .sortable_table import install_sorting
+
+        install_sorting(self.field_tree)
+        column.addLayout(row)
+        column.addWidget(self.field_tree, 1)
+        return page
+
+    def _build_place_step(self):
+        """Step 3: where the well goes on the page and what is printed around it."""
+        from PySide6.QtWidgets import QGridLayout, QLineEdit, QListWidget, QSpinBox
+
+        page = QWidget()
+        outer = QHBoxLayout(page)
+        left = QVBoxLayout()
+        sizes = QHBoxLayout()
+        self.page_size = QComboBox()
+        for name in ("A4", "Letter"):
+            self.page_size.addItem(tr(name), name)
+        self.page_size.setToolTip(tr("Paper size of every page."))
+        self.orientation = QComboBox()
+        self.orientation.addItem(tr("Portrait"), "portrait")
+        self.orientation.addItem(tr("Landscape"), "landscape")
+        self.orientation.setToolTip(tr("Page orientation of every page."))
+        self.grid_rows, self.grid_columns = QSpinBox(), QSpinBox()
+        for spin, value, tooltip in ((self.grid_rows, 3, "Rows of the page grid."),
+                                     (self.grid_columns, 2, "Columns of the page grid.")):
+            spin.setRange(1, 12)
+            spin.setValue(value)
+            spin.setToolTip(tr(tooltip))
+        for widget in (self.page_size, self.orientation, QLabel(tr("Rows")), self.grid_rows,
+                       QLabel(tr("Columns")), self.grid_columns):
+            sizes.addWidget(widget)
+        for control in (self.page_size, self.orientation):
+            control.currentIndexChanged.connect(self._sync_picker)
+        for control in (self.grid_rows, self.grid_columns):
+            control.valueChanged.connect(self._sync_picker)
+        self.picker = _OverviewCellPicker()
+        paging = QHBoxLayout()
+        self.page_label = QLabel("")
+        earlier, later = QPushButton(tr("Previous page")), QPushButton(tr("Next page"))
+        earlier.setToolTip(tr("Place this well on the previous page."))
+        later.setToolTip(tr("Place this well on the next page."))
+        earlier.clicked.connect(functools.partial(self._turn_page, -1))
+        later.clicked.connect(functools.partial(self._turn_page, 1))
+        for widget in (earlier, self.page_label, later):
+            paging.addWidget(widget)
+        left.addLayout(sizes)
+        left.addWidget(self.picker, 1)
+        left.addLayout(paging)
+        right = QGridLayout()
+        right.addWidget(QLabel(tr("Print")), 0, 0)
+        right.addWidget(QLabel(tr("Where")), 0, 1)
+        self.sides = {}
+        for row, item in enumerate(_OVERVIEW_GUIDED_ITEMS, start=1):
+            combo = QComboBox()
+            combo.setObjectName("OverviewGuidedSide_" + item)
+            for side in _OVERVIEW_GUIDED_SIDES:
+                combo.addItem(tr(_OVERVIEW_GUIDED_SIDE_CAPTIONS[side]), side)
+            combo.setCurrentIndex(combo.findData(_OVERVIEW_GUIDED_DEFAULT_SIDES.get(item, "none")))
+            combo.setToolTip(tr("Where {item} is printed around this well's images.",
+                                item=tr(_OVERVIEW_GUIDED_CAPTIONS[item]).lower()))
+            self.sides[item] = combo
+            right.addWidget(QLabel(tr(_OVERVIEW_GUIDED_CAPTIONS[item])), row, 0)
+            right.addWidget(combo, row, 1)
+        self.free_text = QLineEdit()
+        self.free_text.setPlaceholderText(tr("Free text for this well"))
+        self.free_text.setToolTip(tr("Printed where Free text is placed."))
+        right.addWidget(self.free_text, len(_OVERVIEW_GUIDED_ITEMS) + 1, 0, 1, 2)
+        self.measurement_list = QListWidget()
+        self.measurement_list.setObjectName("OverviewGuidedMeasurements")
+        self.measurement_list.setMaximumHeight(110)
+        self.measurement_list.setToolTip(tr("Image-level measurements to print, averaged over the well's chosen fields."))
+        right.addWidget(QLabel(tr("Measurements")), len(_OVERVIEW_GUIDED_ITEMS) + 2, 0, 1, 2)
+        right.addWidget(self.measurement_list, len(_OVERVIEW_GUIDED_ITEMS) + 3, 0, 1, 2)
+        self.apply_rest = Toggle(tr("Apply this layout to the remaining wells"))
+        self.apply_rest.setToolTip(tr("Place every remaining well the same way, in the next free cells, "
+                                      "with the same information around it."))
+        self.display_note = Toggle(tr("Add a page with the display settings"))
+        self.display_note.setToolTip(tr("End the PDF with a page listing channels, normalization and colour mode."))
+        self.scale_bars = Toggle(tr("Scale bars"))
+        known = bool(self._browser._overview_options.get("pixel_size_um"))
+        self.scale_bars.setEnabled(known)
+        self.scale_bars.setToolTip(tr("Draw a scale bar on every image.") if known else
+                                   tr("The pixel size of these images is not known, so no scale bar can be drawn."))
+        right.addWidget(self.apply_rest, len(_OVERVIEW_GUIDED_ITEMS) + 4, 0, 1, 2)
+        right.addWidget(self.scale_bars, len(_OVERVIEW_GUIDED_ITEMS) + 5, 0, 1, 2)
+        right.addWidget(self.display_note, len(_OVERVIEW_GUIDED_ITEMS) + 6, 0, 1, 2)
+        right.setRowStretch(len(_OVERVIEW_GUIDED_ITEMS) + 7, 1)
+        outer.addLayout(left, 3)
+        outer.addLayout(right, 2)
+        return page
+
+    @staticmethod
+    def _checkable(widget, text, data, checked=False):
+        """Add a checkable item carrying ``data`` to a list widget."""
+        from PySide6.QtWidgets import QListWidgetItem
+
+        item = QListWidgetItem(text)
+        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        item.setCheckState(Qt.Checked if checked else Qt.Unchecked)
+        item.setData(Qt.UserRole, data)
+        widget.addItem(item)
+        return item
+
+    def _prefill(self):
+        """Offer conditions and wells; start from the plate's selected wells, if any."""
+        selected = set(self._browser._selected_wells)
+        self.mode_group.button(1 if selected else 0).setChecked(True)
+        self._fill_wells(selected)
+        self._fill_conditions()
+        self._mode_changed()
+
+    def _chosen_plates(self):
+        """The ticked plates."""
+        return [self.plates.item(index).data(Qt.UserRole) for index in range(self.plates.count())
+                if self.plates.item(index).checkState() == Qt.Checked]
+
+    def _all_wells(self):
+        """Every ``(plate, well)`` of the ticked plates, in plate then reading order."""
+        plates = self._chosen_plates()
+        wells = dict.fromkeys((field.plate, field.well) for field in self._browser._fields if field.plate in plates)
+        return sorted(wells, key=lambda address: (plates.index(address[0]), self._browser._natural(address[1])))
+
+    def _well_caption(self, address):
+        """``plate / well`` and its annotations, for the well lists."""
+        annotations = self._browser._annotations.get(address) or {}
+        text = address[0] + " / " + address[1]
+        if annotations:
+            text += " — " + ", ".join(f"{key}: {value}" for key, value in sorted(annotations.items()))
+        return text
+
+    def _fill_wells(self, checked=()):
+        """List the wells of the ticked plates, ticking ``checked``."""
+        self.well_list.blockSignals(True)
+        self.well_list.clear()
+        self.single.clear()
+        for address in self._all_wells():
+            self._checkable(self.well_list, self._well_caption(address), address, address in checked)
+            self.single.addItem(self._well_caption(address), address)
+        self.well_list.blockSignals(False)
+
+    def _condition_options(self):
+        """Every annotation value and comparison group, with the wells each matches."""
+        wells = self._all_wells()
+        options = {}
+        for address in wells:
+            for key, value in sorted((self._browser._annotations.get(address) or {}).items()):
+                options.setdefault(f"{key}: {value}", []).append(address)
+        builder = self._browser.group_builder
+        for definition, name in zip(builder.definitions(), builder.names()):
+            label = tr("Group") + ": " + (name or _overview_group_label(definition))
+            options[label] = [address for address in wells if all(
+                str((self._browser._annotations.get(address) or {}).get(key)) == str(value)
+                for key, value in definition.items())]
+        return options
+
+    def _fill_conditions(self):
+        """List the conditions of the ticked plates."""
+        self.conditions.blockSignals(True)
+        self.conditions.clear()
+        for label, wells in self._condition_options().items():
+            self._checkable(self.conditions, tr("{condition} ({count} wells)", condition=label, count=len(wells)),
+                            label)
+        self.conditions.blockSignals(False)
+        if not self.conditions.count():
+            self.conditions.addItem(tr("Annotate wells, or define comparison groups, to choose by condition."))
+
+    def _plates_changed(self, *_):
+        """Refill the conditions and wells for the ticked plates."""
+        self._fill_wells(set(self.chosen_wells()))
+        self._fill_conditions()
+
+    def _mode_changed(self, *_):
+        """Enable the controls of the chosen way of picking wells."""
+        mode = self.mode_group.checkedId()
+        self.conditions.setEnabled(mode == 0)
+        self.well_list.setEnabled(mode == 1)
+        self.single.setEnabled(mode == 2)
+        self.single.setVisible(mode == 2)
+        self._update_count()
+
+    def _conditions_changed(self, *_):
+        """Count the wells the ticked conditions match."""
+        self._update_count()
+
+    def _update_count(self):
+        """Say how many wells are chosen."""
+        self.well_count.setText(tr("{count} wells chosen", count=len(self.chosen_wells())))
+
+    def chosen_wells(self):
+        """The wells step 1 chooses, in plate then reading order."""
+        mode = self.mode_group.checkedId()
+        if mode == 2:
+            address = self.single.currentData()
+            return [tuple(address)] if address is not None else []
+        if mode == 1:
+            return [tuple(self.well_list.item(index).data(Qt.UserRole)) for index in range(self.well_list.count())
+                    if self.well_list.item(index).checkState() == Qt.Checked]
+        options = self._condition_options()
+        ticked = [self.conditions.item(index).data(Qt.UserRole) for index in range(self.conditions.count())
+                  if self.conditions.item(index).checkState() == Qt.Checked]
+        matched = {address for label in ticked for address in options.get(label, ())}
+        return [address for address in self._all_wells() if address in matched]
+
+    def choose_wells(self, mode, values=()):
+        """Choose wells as step 1 does: ``"condition"``, ``"wells"`` or ``"one"``.
+
+        :param values: condition labels, ``(plate, well)`` pairs, or one pair.
+        """
+        index = {"condition": 0, "wells": 1, "one": 2}[mode]
+        self.mode_group.button(index).setChecked(True)
+        wanted = list(values) if mode != "one" else [tuple(values)]
+        if mode == "condition":
+            for row in range(self.conditions.count()):
+                item = self.conditions.item(row)
+                if item.flags() & Qt.ItemIsUserCheckable:
+                    item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in wanted else Qt.Unchecked)
+        elif mode == "wells":
+            for row in range(self.well_list.count()):
+                item = self.well_list.item(row)
+                item.setCheckState(Qt.Checked if tuple(item.data(Qt.UserRole)) in {tuple(w) for w in wanted}
+                                   else Qt.Unchecked)
+        else:
+            matches = [index for index in range(self.single.count()) if tuple(self.single.itemData(index)) == wanted[0]]
+            self.single.setCurrentIndex(matches[0] if matches else 0)
+        self._update_count()
+        return self.chosen_wells()
+
+    def _well_fields(self, address):
+        """The fields of one well at the shown time and Z, in field order."""
+        return self._browser._canvas_well_fields(*address)
+
+    def _fill_fields(self):
+        """List each chosen well's fields, ticking the ones the field mode takes."""
+        from .sortable_table import SortableTreeItem
+
+        self.field_tree.clear()
+        mode, count = self.field_mode.checkedId(), self.first_count.value()
+        for address in self._wells:
+            parent = SortableTreeItem([address[0] + " / " + address[1]])
+            parent.setData(0, Qt.UserRole, list(address))
+            self.field_tree.addTopLevelItem(parent)
+            for index, field in enumerate(self._well_fields(address)):
+                child = SortableTreeItem([tr("Field {field}", field=field.field)])
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setData(0, Qt.UserRole, _overview_key_text(_overview_image_key(field)))
+                child.setCheckState(0, Qt.Checked if mode == 0 or (mode == 1 and index < count) or mode == 2
+                                    and index == 0 else Qt.Unchecked)
+                parent.addChild(child)
+            parent.setExpanded(True)
+        self.field_tree.setEnabled(mode == 2)
+
+    def _field_mode_changed(self, *_):
+        """Retick the fields for the chosen mode."""
+        self._fill_fields()
+
+    def _tree_wells(self):
+        """``[(address, {image key text: field}, [child items])]`` for each well in the field tree."""
+        wells = []
+        for row in range(self.field_tree.topLevelItemCount()):
+            parent = self.field_tree.topLevelItem(row)
+            address = tuple(parent.data(0, Qt.UserRole))
+            fields = {_overview_key_text(_overview_image_key(field)): field for field in self._well_fields(address)}
+            wells.append((address, fields, [parent.child(index) for index in range(parent.childCount())]))
+        return wells
+
+    def set_fields(self, mode, count=1, picks=None):
+        """Choose fields as step 2 does: ``"all"``, ``"first"`` (``count``) or ``"pick"``.
+
+        :param picks: for ``"pick"``, ``{(plate, well): [field names]}``.
+        """
+        self.first_count.setValue(int(count))
+        self.field_mode.button({"all": 0, "first": 1, "pick": 2}[mode]).setChecked(True)
+        self._fill_fields()
+        if mode == "pick":
+            for address, fields, children in self._tree_wells():
+                wanted = {str(name) for name in (picks or {}).get(address, ())}
+                for child in children:
+                    field = fields[child.data(0, Qt.UserRole)]
+                    child.setCheckState(0, Qt.Checked if str(field.field) in wanted else Qt.Unchecked)
+
+    def _chosen_fields(self):
+        """``{(plate, well): [fields]}`` from the field tree, in the order of the chosen wells."""
+        chosen = {}
+        for address, fields, children in self._tree_wells():
+            chosen[address] = [fields[child.data(0, Qt.UserRole)] for child in children
+                               if child.checkState(0) == Qt.Checked]
+        return {address: chosen.get(address, []) for address in self._wells}
+
+    def _show_step(self, step):
+        """Show step ``step`` with its heading, hint and buttons."""
+        self.steps.setCurrentIndex(step)
+        if step == 0:
+            self.heading.setText(tr("Step 1 of 4: choose wells"))
+            self.hint.setText(tr("Choose wells from one or several plates: by condition, by ticking wells, or one well."))
+        elif step == 1:
+            self.heading.setText(tr("Step 2 of 4: choose fields"))
+            self.hint.setText(tr("Export every field, the first fields, or pick fields in each well."))
+        elif step == 2:
+            address = self._wells[self._index]
+            self.heading.setText(tr("Step 3 of 4: well {number} of {total}, {well}", number=self._index + 1,
+                                    total=len(self._wells), well=address[0] + " / " + address[1]))
+            self.hint.setText(tr("Choose where this well's images go on the page and what is printed around them."))
+        else:
+            self.heading.setText(tr("Step 4 of 4: preview"))
+            self.hint.setText(tr("Check the pages, adjust any box, then export the PDF."))
+        self.back_button.setEnabled(step > 0)
+        self.next_button.setVisible(step < 3)
+        self.export_button.setVisible(step == 3)
+        self.next_button.setText(tr("Next well") if step == 2 and self._index + 1 < len(self._wells)
+                                 else tr("Preview") if step == 2 else tr("Next"))
+        self.next_button.setToolTip(tr("Go on to the next step or well."))
+
+    def next(self):
+        """Go on: from the wells to the fields, from well to well, then to the preview."""
+        step = self.steps.currentIndex()
+        if step == 0:
+            self._wells = self.chosen_wells()
+            if not self._wells:
+                self.status.setText(tr("Choose at least one well."))
+                return False
+            self._fill_fields()
+            self.status.setText("")
+            self._show_step(1)
+            return True
+        if step == 1:
+            self._fields = self._chosen_fields()
+            if not any(self._fields.values()):
+                self.status.setText(tr("Choose at least one field."))
+                return False
+            self._placements = []
+            self._index = 0
+            self._page = 0
+            self._load_measurements()
+            self.status.setText("")
+            self._enter_well()
+            return True
+        if step == 2:
+            self._record_current()
+            if self.apply_rest.isChecked():
+                self._place_remaining()
+            if self._index + 1 < len(self._wells) and not self.apply_rest.isChecked():
+                self._index += 1
+                self._enter_well()
+                return True
+            self._show_preview()
+            return True
+        return False
+
+    def back(self):
+        """Go back one well, or one step."""
+        step = self.steps.currentIndex()
+        if step == 3:
+            self._index = len(self._placements) - 1
+            self._placements = self._placements[:-1]
+            self._enter_well()
+        elif step == 2 and self._index > 0:
+            self._index -= 1
+            self._placements = self._placements[:self._index]
+            self._enter_well()
+        elif step > 0:
+            self._show_step(step - 1)
+
+    def _occupied(self):
+        """``{page: {(row, column): label}}`` of the wells placed so far."""
+        taken = {}
+        for placement in self._placements:
+            row, column, row_span, column_span = placement["cell"]
+            for r in range(row, row + row_span):
+                for c in range(column, column + column_span):
+                    taken.setdefault(placement["page"], {})[(r, c)] = placement["well"][1]
+        return taken
+
+    def _page_aspect(self):
+        """The page's width over height."""
+        from .picture_export import _CANVAS_PAGE_SIZES
+
+        width, height = _CANVAS_PAGE_SIZES[self.page_size.currentData()]
+        return height / width if self.orientation.currentData() == "landscape" else width / height
+
+    def _sync_picker(self, *_):
+        """Show the current page's grid and taken cells."""
+        self.picker.configure(self.grid_rows.value(), self.grid_columns.value(), self._page_aspect(),
+                              self._occupied().get(self._page, {}))
+        self.page_label.setText(tr("Page {number}", number=self._page + 1))
+
+    def _turn_page(self, step):
+        """Place the current well on another page."""
+        self._page = max(0, self._page + int(step))
+        self._sync_picker()
+
+    def _enter_well(self):
+        """Show the placement step for the current well, in the next free cell."""
+        previous = self._placements[-1] if self._placements else None
+        span = previous["cell"][2:] if previous else (1, 1)
+        taken = {page: set(cells) for page, cells in self._occupied().items()}
+        self._page, cell = _overview_free_slot(taken, self.grid_rows.value(), self.grid_columns.value(), span,
+                                               previous["page"] if previous else 0)
+        self.picker.selection = cell
+        self.free_text.clear()
+        self._sync_picker()
+        self._show_step(2)
+
+    def place(self, cell=None, sides=None, text=None, measurements=None, apply_rest=None, page=None):
+        """Set the current well's placement as step 3 does; any argument left out keeps its value.
+
+        :param cell: ``(row, column, row span, column span)`` on the page grid.
+        :param sides: ``{item: side}`` for the items in ``_OVERVIEW_GUIDED_ITEMS``.
+        :param text: the free text.
+        :param measurements: measurement columns to print.
+        :param apply_rest: place the remaining wells the same way on Next.
+        :param page: the page, from 0.
+        """
+        if page is not None:
+            self._page = int(page)
+        if cell is not None:
+            self.picker.selection = tuple(cell)
+        for item, side in (sides or {}).items():
+            self.sides[item].setCurrentIndex(self.sides[item].findData(side))
+        if text is not None:
+            self.free_text.setText(text)
+        if measurements is not None:
+            for row in range(self.measurement_list.count()):
+                item = self.measurement_list.item(row)
+                item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in measurements else Qt.Unchecked)
+        if apply_rest is not None:
+            self.apply_rest.setChecked(bool(apply_rest))
+        self._sync_picker()
+
+    def _current_sides(self):
+        """``{item: side}`` of the information printed around the current well."""
+        return {item: combo.currentData() for item, combo in self.sides.items() if combo.currentData() != "none"}
+
+    def _chosen_measurements(self):
+        """The ticked measurement columns."""
+        return [self.measurement_list.item(row).data(Qt.UserRole) for row in range(self.measurement_list.count())
+                if self.measurement_list.item(row).checkState() == Qt.Checked]
+
+    def _record_current(self):
+        """Keep the current well's placement and captions."""
+        self._placements = self._placements[:self._index]
+        self._placements.append({"well": self._wells[self._index], "page": self._page,
+                                 "cell": tuple(self.picker.selection), "sides": self._current_sides(),
+                                 "text": self.free_text.text(), "measurements": self._chosen_measurements()})
+
+    def _place_remaining(self):
+        """Place every remaining well like the current one, in the next free cells."""
+        current = self._placements[-1]
+        while len(self._placements) < len(self._wells):
+            taken = {page: set(cells) for page, cells in self._occupied().items()}
+            page, cell = _overview_free_slot(taken, self.grid_rows.value(), self.grid_columns.value(),
+                                             current["cell"][2:], current["page"])
+            self._placements.append(dict(current, well=self._wells[len(self._placements)], page=page, cell=cell))
+        self._index = len(self._wells) - 1
+
+    def _load_measurements(self):
+        """Read the image-level measurements off the GUI thread, if they were exported."""
+        self.measurement_list.clear()
+        self._frame = None
+        source = self._browser._metadata_source
+        self.sides["measurements"].setEnabled(False)
+        self.sides["measurements"].setToolTip(tr("Export image-level measurements first to print them here."))
+        if source:
+            self._jobs.submit(functools.partial(_overview_guided_frame, source), self._measurements_loaded)
+
+    def _measurements_loaded(self, frame):
+        """Offer the numeric measurement columns."""
+        if frame is None:
+            return
+        self._frame = frame
+        reserved = {"plate", "plateID", "well", "wellID", "field", "fieldID", "row", "column", "time_id", "z_id"}
+        for name in frame.select_dtypes("number").columns:
+            if name not in reserved:
+                self._checkable(self.measurement_list, str(name), str(name))
+        self.sides["measurements"].setEnabled(True)
+        self.sides["measurements"].setToolTip(tr("Where measurements are printed around this well's images."))
+
+    def _measurement_text(self, address, fields, columns):
+        """``name: mean`` over the well's chosen fields for each measurement column."""
+        frame = self._frame
+        if frame is None or not columns:
+            return ""
+        plate_column = "plateID" if "plateID" in frame.columns else "plate"
+        well_column = "wellID" if "wellID" in frame.columns else "well"
+        plate_ids = {str(field.plate_id or field.plate) for field in fields} | {address[0]}
+        names = {str(field.field_id or field.field) for field in fields}
+        rows = frame[frame[plate_column].astype(str).isin(plate_ids) & (frame[well_column].astype(str) == address[1])]
+        if "fieldID" in rows.columns:
+            rows = rows[rows["fieldID"].astype(str).isin(names)]
+        lines = []
+        for column in columns:
+            values = rows[column].dropna() if column in rows.columns else ()
+            lines.append(f"{column}: {float(values.mean()):.4g}" if len(values) else f"{column}: –")
+        return "\n".join(lines)
+
+    def _caption_texts(self, placement):
+        """``{side: text}`` printed around one placed well."""
+        address = placement["well"]
+        fields = self._fields.get(address, [])
+        annotations = self._browser._annotations.get(address) or {}
+        condition = ", ".join(f"{key}: {value}" for key, value in sorted(annotations.items()))
+        channels = ", ".join(self._browser._canvas_channel_names())
+        values = {"plate": tr("Plate {plate}", plate=address[0]), "well": tr("Well {well}", well=address[1]),
+                  "condition": condition,
+                  "field": tr("Fields {fields}", fields=", ".join(str(field.field) for field in fields)),
+                  "channels": tr("Channels: {channels}", channels=channels),
+                  "measurements": self._measurement_text(address, fields, placement.get("measurements") or ()),
+                  "text": placement.get("text") or ""}
+        texts = {}
+        for item in _OVERVIEW_GUIDED_ITEMS:
+            side = placement["sides"].get(item)
+            if side and values[item]:
+                separator = "\n" if item == "measurements" or side in ("left", "right") else " · "
+                texts[side] = texts[side] + separator + values[item] if side in texts else values[item]
+        return texts
+
+    def canvas_layout(self):
+        """The canvas layout of the wells placed so far."""
+        pixel_size = self._browser._overview_options.get("pixel_size_um")
+        bars = bool(pixel_size) and self.scale_bars.isChecked()
+        entries = [{"page": placement["page"], "cell": placement["cell"],
+                    "images": [dict(_overview_canvas_image(field, pixel_size), scale_bar=bars)
+                               for field in self._fields.get(placement["well"], [])],
+                    "captions": self._caption_texts(placement)} for placement in self._placements]
+        note = self._browser._canvas_display_note() if self.display_note.isChecked() else ()
+        return _overview_guided_layout(entries, self.page_size.currentData(), self.orientation.currentData(),
+                                       self.grid_rows.value(), self.grid_columns.value(), note)
+
+    def _show_preview(self):
+        """Show the pages in an embedded canvas where boxes can still be adjusted."""
+        from .picture_export import _CanvasComposer
+
+        holder = self.preview_page.layout()
+        if self._composer is not None:
+            self._composer.close()
+            self._composer.deleteLater()
+        self._composer = _CanvasComposer(self.canvas_layout(), _OverviewCanvasSource(self._browser),
+                                         self._browser._metadata_source or "", self.preview_page)
+        self._composer.setWindowFlags(Qt.Widget)
+        holder.addWidget(self._composer)
+        self._composer.show()
+        self._show_step(3)
+
+    @property
+    def composer(self):
+        """The preview's canvas, once the preview is shown."""
+        return self._composer
+
+    def open_custom(self):
+        """Hand the wells placed so far to the Custom export canvas; returns the canvas."""
+        if self.steps.currentIndex() == 2:
+            self._record_current()
+        layout = (self._composer.canvas if self._composer is not None and self.steps.currentIndex() == 3
+                  else self.canvas_layout())
+        from .picture_export import _CanvasLayout
+
+        composer = self._browser._open_custom_export(_CanvasLayout.from_dict(layout.to_dict()))
+        self.close()
+        return composer
+
+    def _ask_export(self):
+        """Write the preview through the canvas."""
+        if self._composer is not None:
+            self._composer._ask_export()
+
+    def closeEvent(self, event):
+        """Stop the measurement read with the window."""
+        self._jobs.cancel()
+        if self._composer is not None:
+            self._composer.close()
+        super().closeEvent(event)
+
+
+def _overview_guided_qss(palette, opacity):
+    """Tick boxes for the guided export's lists, in the theme's colours."""
+    views = ", ".join(f"QDialog#OverviewGuidedExport {kind}::indicator" for kind in ("QListView", "QTreeView"))
+    checked = ", ".join(f"QDialog#OverviewGuidedExport {kind}::indicator:checked" for kind in ("QListView", "QTreeView"))
+    return (f"{views} {{ width: 14px; height: 14px; border: 1px solid {palette['border']}; border-radius: 3px; "
+            f"background: {palette['surface_alt']}; }} "
+            f"{checked} {{ background: {palette['accent']}; border-color: {palette['accent']}; }}")
+
+
+def _overview_guided_frame(source):
+    """The source's image-level measurements, or ``None`` before they were exported.
+
+    The measurement database is looked for first, so a source never measured
+    does not import the measurement module at all.
+    """
+    if not (Path(source) / "measurements" / "measurements.db").is_file():
+        return None
+    try:
+        return _overview_comparison_frame(source)
+    except (_OverviewValidationError, OSError, ValueError):
+        return None

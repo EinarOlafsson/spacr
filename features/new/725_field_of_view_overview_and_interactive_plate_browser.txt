@@ -29,6 +29,18 @@ Verbatim:
 7. "the sourse should be able to be one path (one plate), or one path with
    subdirectories that are plates, or several paths where each is either a plate or a
    folder with plates. here plate is a folder with images."
+8. "the export tool is currently pretty useless. what should be is the user should
+   see a canvas whith a grid they should be able to draw text boxes on this grid or
+   drag and drop images to this grid. then export the canvas as pdf. this should be
+   a Custom export option in export. the other way export should work is the user
+   should be able to choose conditions or wells in one or several plates, several
+   wells, or one well, several fields or one, and export them to pdf. so the user
+   hits export, then gets prompted with what wells to choose , then if they want to
+   pick specific fields, then they get asked where on the pdf to put the image, and
+   what information to print above below to the left or to the right. then moove on
+   the the next chosen well."
+9. "in the figure settings there are a bunch of variables plate, Row, Column but
+   with no field or anything to their right"
 Round 5 supersedes round 4 point 4's "Settings open wider when the Overview tab
 opens": before Next the categories are held back and the empty settings column is
 folded; the metadata step's own settings column opens wide instead.
@@ -129,6 +141,39 @@ WHAT WAS DONE — round 5, M3 (per-channel normalization scope)
   override.
 - Tests: tests/qt/test_725_overview_scope.py, plus the per-channel choice test in
   test_725_overview_round5.py.
+
+WHAT WAS DONE — round 5, export (points 8 and 9; branch overview-r5c)
+- Point 9: the empty Plate/Row/Column/Field/Time/Z rows were the leftover labels
+  fixed in a3ebf8430 (rows now removed by index before their controls move back).
+  Reproduced before that commit and confirmed clean after it; no further change.
+- Export is one "Export…" button (browser row, module actions, Actions strip)
+  with three entries: Guided export…, Custom export…, Contact sheet PDFs.
+- Custom export (spacr.qt.widgets.picture_export._CanvasComposer): A4/Letter,
+  portrait/landscape pages with a snap grid (spacing, show, snap); draw text
+  boxes (text, size, bold, italic, alignment); drop image files from disk or
+  Overview fields (drag a selected well or field from the plate or a well view,
+  Alt-drag the shown image, or "Add selected"); move, resize, multi-select,
+  z-order, delete, arrow nudges, undo/redo; add, remove and reorder pages;
+  aspect ratio kept unless unlocked; per-image scale bar when the pixel size is
+  known; layouts save and reopen as JSON in results/.
+- PDF (_canvas_pdf): every page through spacr.plot.save_figure (house style,
+  print colours, integrity check), pages joined with pypdf; text is vector,
+  images are embedded with every source pixel, rendered through
+  _overview_pixels with the browser's display keywords, scope limits and
+  per-image overrides (not the display-only enhancement chain).
+- Guided export (_OverviewGuidedExport): 1 wells from one or several plates by
+  condition (annotation values and comparison groups), by ticking wells, or one
+  well (selected plate wells preselect); 2 all fields, the first N, or picked
+  fields per well; 3 per well, a cell (or block of cells) on a page-grid preview
+  and what is printed above, below, left or right (plate, well, condition,
+  field, channel names, measurements, free text), "Apply this layout to the
+  remaining wells", scale bars, an optional display-settings page; 4 preview in
+  the same canvas, export, or "Open in Custom export" with the same layout.
+- Kept: Contact sheet PDFs (the old twelve-per-page writer and its scope,
+  sampling, quality, DPI and CSV options) and Export image-level measurements.
+  Removed: the separate "Export PDFs" buttons, replaced by the Export menu.
+- Tests: tests/qt/test_725_overview_export_canvas.py,
+  tests/qt/test_725_overview_export_guided.py.
 
 MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
 Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from

@@ -249,7 +249,7 @@ def test_image_and_enhancement_settings_change_what_is_shown(mask, qtbot, source
 def test_actions_container_holds_the_standard_module_actions(mask, qtbot, source):
     tab, _view = _open(mask, qtbot, source)
     texts = [button.text() for button in tab._actions_row.findChildren(QPushButton)]
-    for wanted in ("Run", "Stop", "Import settings…", "Export settings…", "Export PDFs",
+    for wanted in ("Run", "Stop", "Import settings…", "Export settings…", "Export…",
                    "Export image-level measurements"):
         assert wanted in texts
     assert tab._actions_section.isVisible()

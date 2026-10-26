@@ -1140,7 +1140,7 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     dialog.options_button.click()
     dialog._controls_scroll.ensureWidgetVisible(dialog.channels)
     export = next(button for button in dialog.findChildren(QPushButton)
-                  if button.text() == browser.tr("Export PDFs"))
+                  if button.text() == browser.tr("Contact sheet PDFs"))
     output = tmp_path / "real-worker"
     folders, workers, delivered = [], [], []
     started, release = threading.Event(), threading.Event()
@@ -1320,7 +1320,7 @@ def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_im
                          pos=dialog.fields.visualItemRect(item).center())
         assert dialog.status.text() == expected
         export = next(button for button in dialog.findChildren(QPushButton)
-                      if button.text() == browser.tr("Export PDFs"))
+                      if button.text() == browser.tr("Contact sheet PDFs"))
         qtbot.mouseClick(export, browser.Qt.LeftButton)
         assert dialog.status.text() == expected and not dialog._export_jobs.is_busy()
         assert dialog._visual_context() is None

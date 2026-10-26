@@ -903,7 +903,7 @@ def test_ui_cancellation_during_first_real_pdf_field_discards_partial_outputs(tm
     dialog._export_jobs.job_finished.connect(lambda ok: completed.append((ok, QThread.currentThread())))
     dialog._export_jobs.job_failed.connect(failures.append)
     export = next(button for button in dialog.findChildren(QPushButton)
-                  if button.text() == browser.tr("Export PDFs"))
+                  if button.text() == browser.tr("Contact sheet PDFs"))
     cancel = next(button for button in dialog.findChildren(QPushButton)
                   if button.text() == browser.tr("Cancel loading or export"))
     try:
