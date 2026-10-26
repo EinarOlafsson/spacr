@@ -377,7 +377,11 @@ def test_long_gene_horseshoe_passes_full_composition_and_weights_before_sampling
     np.testing.assert_array_equal(data.likelihood_weights, np.full(len(frame), .5))
     assert data.likelihood_well_ids == tuple(
         frame[["plateID", "rowID", "columnID", "prc"]].itertuples(index=False, name=None))
-    assert captured["settings"] == {"seed": 0, "standardize": True}
+    # 2026-10-25, item 718: the horseshoe fit asks fit_model for the tuned NUTS
+    # settings (target_accept 0.995, 4,000 warmup, 4,000 draws per chain).
+    assert captured["settings"] == {
+        "seed": 0, "standardize": True,
+        "target_accept": 0.995, "n_warmup": 4000, "n_samples": 4000}
 
 
 def test_long_gene_ols_passes_native_row_interactions_to_the_real_estimator(tmp_path):
