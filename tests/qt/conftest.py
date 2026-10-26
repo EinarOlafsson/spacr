@@ -172,6 +172,26 @@ def _font_scale_starts_at_one():
     yield
 
 
+def _start_the_queued_store_watch(preferences):
+    """Start the preference-store watcher this session's first read queued.
+
+    The first preference read with a QApplication alive queues the watcher's
+    thread for the event loop's next turn (``preferences._watch_the_gui_store``).
+    That read is one of these autouse fixtures, and no event loop runs while
+    fixtures are set up, so the start waited for the first test's setup to end,
+    when pytest-qt processes events -- inside whatever that test had patched.
+    ``test_data_art_startup_compilers`` replaces ``threading.Thread`` with a
+    recorder that only accepts non-daemon compiler threads, so whenever it
+    was the first test of a process (alone, or first on an xdist worker) the
+    watcher's daemon thread was born in its patch and its setup errored.
+    Starting the queued watcher here keeps it out of every test.
+
+    :param preferences: :mod:`spacr.qt.preferences`.
+    """
+    if preferences._GUI_WATCH.get("thread") == "queued":
+        preferences._start_the_gui_store_watch()
+
+
 @pytest.fixture(autouse=True)
 def _restore_font_scale(deferred_deletions_flushed):
     """Put the font scale back the way the test found it.
@@ -1336,3 +1356,16 @@ def _trace_owned_qc_native_jobs(request, monkeypatch):
         return original_submit(runner, traced, *args, **kwargs)
 
     monkeypatch.setattr(JobRunner, "submit", submit)
+
+
+@pytest.fixture(autouse=True)
+def _the_preference_watch_starts_before_the_test():
+    """Start a preference-store watcher the fixtures above queued, before the test's own fixtures.
+
+    Defined last so it runs after every autouse fixture in this file that
+    reads preferences; see :func:`_start_the_queued_store_watch`.
+    """
+    from spacr.qt import preferences
+
+    _start_the_queued_store_watch(preferences)
+    yield

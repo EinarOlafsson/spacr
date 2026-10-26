@@ -902,9 +902,14 @@ def _watch_the_gui_store(path: str) -> None:
 
 
 def _start_the_gui_store_watch() -> None:
-    """Start :func:`_run_the_gui_store_watch` once, on its daemon thread."""
+    """Start :func:`_run_the_gui_store_watch` once, on its daemon thread.
+
+    The running watcher is recognised by being one, not by its class: a test
+    that replaces ``threading.Thread`` while the queued start is delivered
+    must not make the live watcher look absent and start a second.
+    """
     thread = _GUI_WATCH["thread"]
-    if isinstance(thread, threading.Thread) and thread.is_alive():
+    if thread not in (None, "queued") and thread.is_alive():
         return
     thread = threading.Thread(target=_run_the_gui_store_watch, daemon=True,
                               name="spacr-preference-watch")
