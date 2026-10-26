@@ -191,6 +191,18 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     accept = None if box is None else box.button(QDialogButtonBox.Open)
                     if accept is None:
                         raise RuntimeError('The real directory picker has no Open button')
+                    if capture_ui.live(capture):
+                        # The Choose/Open button turns on only after the picker has listed the typed folder (and is
+                        # hidden while the dialog is still being laid out): wait for the visible, enabled one.
+                        from PySide6.QtWidgets import QPushButton
+                        until = time.monotonic() + 15
+                        while time.monotonic() < until:
+                            ready = [b for b in dialog.findChildren(QPushButton)
+                                     if b.isVisible() and b.isEnabled() and b.text().replace('&', '') in ('Choose', 'Open')]
+                            if ready:
+                                accept = ready[0]
+                                break
+                            settle(.2)
                     click(accept)
                 except Exception as exc:
                     errors.append(str(exc))
