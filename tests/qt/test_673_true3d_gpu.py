@@ -237,17 +237,25 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             (fixture / 'masks/cells.tif').rename(fixture / 'masks' / volume_name)
         required = (volume_name, 'masks/'+volume_name)
     else:
-        retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
-            Path.home() / 'Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
+        # The default is the cache `spacr-download fibsem` fills; the earlier
+        # default was one Mac's own mktemp folder. corrected_masks/ is what the
+        # editor creates from ground_truth_masks/ on first open, so a fresh
+        # download is completed the same way.
+        from spacr.qt.make_masks_demo import fibsem_example_folder
+        retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE', fibsem_example_folder()))
         required = ('hela_fibsem.tif', 'manifest.csv', 'ground_truth_masks/hela_fibsem.tif',
                     'corrected_masks/hela_fibsem.tif')
-        assert all((retained / name).is_file() for name in required), retained
+        sources = {name: retained / name for name in required}
+        if not sources['corrected_masks/hela_fibsem.tif'].is_file():
+            sources['corrected_masks/hela_fibsem.tif'] = retained / 'ground_truth_masks/hela_fibsem.tif'
+        if not all(path.is_file() for path in sources.values()):
+            pytest.skip(f'the FIB-SEM test volume is not in {retained}; run spacr-download fibsem')
         fixture = tmp_path / 'fibsem'
         fixture.mkdir()
         for name in required:
             target = fixture / name
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(retained / name, target)
+            shutil.copy2(sources[name], target)
     checksums = {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required}
     source = ast.parse((root / 'tests/qt/test_the_macos_application_menu.py').read_text())
     bootstrap = next(node.value.args[0] for node in source.body if isinstance(node, ast.Assign)
