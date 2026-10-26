@@ -1328,7 +1328,7 @@ class _CanvasSettingsDialog(QDialog):
         """An empty, scrolling column of sections with a Close button."""
         from PySide6.QtWidgets import QFrame, QScrollArea
 
-        super().__init__(composer, Qt.WindowType.Tool)
+        super().__init__(composer, Qt.WindowType.Window)
         self.setObjectName("CanvasSettingsDialog")
         self.setWindowTitle(tr("Export settings"))
         outer = QVBoxLayout(self)

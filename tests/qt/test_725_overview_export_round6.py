@@ -218,7 +218,7 @@ def test_the_canvas_fills_the_section_and_the_settings_popup_drives_it(view, qtb
     for hidden in (composer.page_size, composer.grid_spin, composer.dpi, composer.scale_bar, composer.import_group,
                    composer.pages):
         assert not hidden.isVisible()
-    assert composer.settings_dialog.windowFlags() & Qt.WindowType.Tool
+    assert composer.settings_dialog.isWindow() and composer.settings_dialog.parent() is composer
     from spacr.qt.widgets.glass import _is_settings_popup
 
     assert _is_settings_popup(composer.settings_dialog)
