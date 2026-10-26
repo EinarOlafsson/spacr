@@ -531,7 +531,7 @@ def test_the_sliders_still_read_and_write_as_checkboxes(screen):
     """A Toggle is a QCheckBox subclass, so nothing wired to one moved."""
     for box in (screen._otsu_bright, screen._cp_normalize,
                 screen._otsu_fill_holes, screen._otsu_split,
-                screen._cp_invert):
+                screen._cp_invert, screen._layer_only_flagged_box):
         was = box.isChecked()
         box.setChecked(not was)
         assert box.isChecked() is (not was)

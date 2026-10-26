@@ -5125,3 +5125,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-26 — Mac: live GUI-scale changes still segfault with PySide6 6.10.3 (2/4 runs, accessibility client attached; 0/4 with QT_ACCESSIBILITY=0), always while constructing a Qt object (QTextDocument in HintBar/NewsTitleFit), so this is not the Qt 6.11 accessibility-cache bug alone. Python-owned QAccessibleWidget factory interfaces were suspected but a double free could not be demonstrated; root cause still open. Doctor's macOS Qt row now names only the table-sort crash.
 
 2026-10-26 — Exercise the offered green/magenta display mode with actual green, magenta and cyan composite pixels; the three colour controls and unchanged every-mode census pass (4 checks, 7.78s). No production, assertion or ratchet change.
+
+2026-10-26 — Release-blocking CI followup owned by easy_n79/root: isolate PID-platform mocks from host os, use real QWidget coverage controls, and restore the package Toggle for Show only flagged; preserve existing assertions; all seven owning CPU/offscreen checks pass (9.35s), root integration/publication pending.

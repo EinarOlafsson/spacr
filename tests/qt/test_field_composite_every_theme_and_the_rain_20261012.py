@@ -276,24 +276,15 @@ def test_what_overlaps_a_classic_background_stays_classic(qtbot):
         backdrop._card_tints.invalidate()
 
 
-def test_a_widget_that_says_it_covers_its_area_paints_over():
-    class Covering:
-        _spacr_covers_its_area = True
-
-        @staticmethod
-        def autoFillBackground():
-            return False
-
-        testAttribute = staticmethod(lambda _attribute: False)
-
-        @staticmethod
-        def mask():
-            from PySide6.QtGui import QRegion
-            return QRegion()
-
-    assert ambient._CardTints._paints_over(Covering())
-    Covering._spacr_covers_its_area = False
-    assert not ambient._CardTints._paints_over(Covering())
+def test_a_widget_that_says_it_covers_its_area_paints_over(qtbot):
+    covering = QWidget()
+    qtbot.addWidget(covering)
+    covering.setAutoFillBackground(False)
+    covering.setAttribute(Qt.WA_OpaquePaintEvent, False)
+    covering._spacr_covers_its_area = True
+    assert ambient._CardTints._paints_over(covering)
+    covering._spacr_covers_its_area = False
+    assert not ambient._CardTints._paints_over(covering)
 
 
 def _translucent_pixmap():
