@@ -2286,6 +2286,21 @@ _ICON_OVERRIDES = {
 _FORCE_GLYPH: set = set()
 
 
+def _startup_icon_paths() -> List[str]:
+    """The artwork the dock and Home draw as the window first shows.
+
+    Handed to :func:`spacr.qt.iconset._prefetch_themed_arrays` when the main
+    window starts building, so the icons are re-inked while the rest of it
+    is built.
+
+    :returns: Home's and every dock row's bundled PNG, and the logo.
+    """
+    keys = ["home"] + [row[0] for row in dock_rows() if row[0] not in _FORCE_GLYPH]
+    paths = [iconset.bundled_icon_path(key, _ICON_OVERRIDES.get(key)) for key in keys]
+    logo = os.path.join(iconset.RESOURCE_DIR, "logo_spacr.png")
+    return [path for path in paths + [logo] if path and os.path.isfile(path)]
+
+
 def _icon_for_app(key: str) -> Optional[QIcon]:
     """Return a QIcon for an app key.
 
@@ -3407,6 +3422,10 @@ class MainWindow(QMainWindow):
         :param initial_app: the module to open on startup; ``None`` opens Home.
         """
         super().__init__()
+        try:
+            iconset._prefetch_themed_arrays(_startup_icon_paths())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not start re-inking the startup icons early", exc_info=True)
         self._gs_main_window_floor = True
         self._closing = False
         from .widgets.loading_screen import splash_role

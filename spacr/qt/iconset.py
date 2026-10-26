@@ -647,7 +647,53 @@ def themed_array(path: str, theme: Optional[str] = None):
 
     :param path: path to the icon artwork (PNG or SVG); its modification time and size invalidate the in-memory cache. The on-disk cache key uses the source content digest, theme and cache version.
     """
-    return _themed_array(_file_stamp(path), theme or active_theme())
+    key = (_file_stamp(path), theme or active_theme())
+    with _PREFETCH_LOCK:
+        pending = _PREFETCHED.pop(key, None)
+    if pending is not None:
+        try:
+            return pending.result()
+        except Exception:                                    # noqa: BLE001
+            pass
+    return _themed_array(*key)
+
+
+_PREFETCH_LOCK = threading.Lock()
+_PREFETCHED: dict = {}
+_PREFETCH_POOL = None
+
+
+def _prefetch_themed_arrays(paths, theme: Optional[str] = None) -> int:
+    """Start re-inking ``paths`` on two worker threads before they are asked for.
+
+    A cold start decodes, downsizes and re-inks the dock's and Home's icons
+    (about thirty, 1.7 s on two cores) one after another on the GUI thread.
+    PIL releases the interpreter lock while it decodes and resamples, so the
+    window is built while two workers do that work; :func:`themed_array`
+    then waits only for an icon not finished yet. The pixels are the same:
+    the workers run :func:`_themed_array`, which fills the same caches.
+
+    :param paths: raster artwork paths; SVGs and ``None`` are skipped, since
+        SVGs are drawn with Qt's painter on the GUI thread.
+    :param theme: the theme, resolved here on the calling thread when omitted.
+    :returns: how many icons were started.
+    """
+    global _PREFETCH_POOL
+    theme = theme or active_theme()
+    started = 0
+    with _PREFETCH_LOCK:
+        if _PREFETCH_POOL is None:
+            from concurrent.futures import ThreadPoolExecutor
+
+            _PREFETCH_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="spacr-icons")
+        for path in paths:
+            if not path or str(path).lower().endswith(".svg"):
+                continue
+            key = (_file_stamp(path), theme)
+            if key not in _PREFETCHED:
+                _PREFETCHED[key] = _PREFETCH_POOL.submit(_themed_array, *key)
+                started += 1
+    return started
 
 
 def _warm_the_bundled_icons(theme: str) -> int:
