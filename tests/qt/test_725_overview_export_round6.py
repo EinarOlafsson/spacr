@@ -246,6 +246,34 @@ def test_the_canvas_fills_the_section_and_the_settings_popup_drives_it(view, qtb
     assert not dialog.isVisible()
 
 
+def test_the_glass_treatment_never_lifts_the_export_out_of_its_section(view, qtbot, qapp):
+    from spacr.qt.widgets.glass import install_glass_everywhere, uninstall_glass_everywhere
+
+    was = uninstall_glass_everywhere(qapp)
+    install_glass_everywhere(qapp)
+    try:
+        composer = view._open_custom_export()
+        qtbot.wait(100)
+        assert not composer.isWindow() and composer.window() is view.window()
+        settings = composer.show_settings()
+        qtbot.wait(100)
+        assert settings.isWindow() and settings.isVisible()
+        guided = view._open_guided_export()
+        qtbot.wait(100)
+        assert not guided.isWindow() and guided.window() is view.window()
+        guided.choose_wells("one", ("p1", "A01"))
+        guided.next()
+        guided.next()
+        guided.next()
+        qtbot.wait(100)
+        assert not guided.composer.isWindow() and guided.composer.window() is view.window()
+    finally:
+        view._close_export_dock()
+        uninstall_glass_everywhere(qapp)
+        if was:
+            install_glass_everywhere(qapp)
+
+
 def test_the_settings_section_folds_while_the_export_section_is_open(qtbot, source):
     from spacr.qt.screens.app_screen import AppScreen
 

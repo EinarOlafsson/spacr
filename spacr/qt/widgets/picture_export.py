@@ -1362,6 +1362,10 @@ class _CanvasSettingsDialog(QDialog):
 class _CanvasComposer(QDialog):
     """Compose PDF pages from text boxes and images on a snap grid.
 
+    It is built as a plain widget that the glass treatment leaves alone, so
+    it stays inside the Overview's export section or the Guided preview
+    instead of being lifted into a frameless window of its own.
+
     :param layout: a :class:`_CanvasLayout` to edit; a new one by default.
     :param field_pixels: called with ``(box, edge)`` for image sources that
         are not files (Overview fields); ``edge`` ``None`` means every pixel.
@@ -1377,7 +1381,10 @@ class _CanvasComposer(QDialog):
         """Build the toolbar, the pages, the page view and the box settings."""
         super().__init__(parent)
         from ..job_runner import JobRunner
+        from .glass import NO_GLASS
 
+        self.setWindowFlags(Qt.WindowType.Widget)
+        self.setProperty(NO_GLASS, True)
         self.setObjectName("CanvasComposer")
         self.setWindowTitle(tr("Custom export"))
         self.canvas = layout if layout is not None else _CanvasLayout()

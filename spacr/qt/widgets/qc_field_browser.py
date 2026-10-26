@@ -15737,6 +15737,10 @@ class _OverviewGuidedExport(QDialog):
         from PySide6.QtWidgets import QStackedWidget
 
         super().__init__(browser)
+        from .glass import NO_GLASS
+
+        self.setWindowFlags(Qt.WindowType.Widget)
+        self.setProperty(NO_GLASS, True)
         self.setObjectName("OverviewGuidedExport")
         self.setWindowTitle(tr("Guided export"))
         self._browser = browser
