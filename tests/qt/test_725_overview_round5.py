@@ -2,6 +2,7 @@
 
 Item 725, maintainer feedback 2026-10-25 round 5.
 """
+import json
 import sys
 
 import numpy as np
@@ -410,6 +411,13 @@ def test_collapsed_lines_are_saved_and_restored_on_reopen(view, qtbot, source):
     reopened._scan()
     qtbot.waitUntil(lambda: reopened._collapsed.get("p1") == ({1}, {2}), timeout=15000)
     qtbot.waitUntil(lambda: reopened.wells.columnWidth(2) == browser._OVERVIEW_COLLAPSED_STRIP, timeout=5000)
+    saved = json.loads(path.read_text())
+    assert [(entry["collapsed_rows"], entry["collapsed_columns"]) for entry in saved["plates"].values()] == [([1], [2])]
+    assert reopened._collapsed["p1"] == ({1}, {2})
+    assert reopened.wells.columnWidth(2) == browser._OVERVIEW_COLLAPSED_STRIP
+    assert reopened.wells.rowHeight(1) == browser._OVERVIEW_COLLAPSED_STRIP
+    assert reopened.wells.columnWidth(1) > browser._OVERVIEW_COLLAPSED_STRIP
+    assert reopened.wells.rowHeight(0) > browser._OVERVIEW_COLLAPSED_STRIP
 
 
 def test_display_layers_apply_global_then_scope_limits_then_the_image_override(view):
