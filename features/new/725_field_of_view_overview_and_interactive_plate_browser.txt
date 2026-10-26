@@ -57,6 +57,45 @@ WHAT WAS DONE — round 7
   overview_original_on_open label and help, the old preview-resolution help) are archived, never
   deleted.
 
+MAINTAINER FEEDBACK — 2026-10-26 (metadata step, per plate) (supersedes conflicting earlier notes)
+Verbatim:
+"i cant seem to pick which plate the settings are applied to in the overview first screen after adding 2
+plates. i should be able to select them and apply settings to them, so add a apply settings button beside
+each plate in the plate list to control this. also add a view of the regex applied to a sample in the right
+container for the second plate clearly distinguished from the first. also in channel names and colors in
+dark mode the colour text is black and i can barely see it and double clicking the color sould allow the
+user to pick a color from a color wheel and with rgm numbers not just the color cod text"
+
+WHAT WAS DONE — metadata step, per plate (branch perplate-meta)
+- Choosing a plate in the metadata step's plate list makes it the plate being edited: its name is bold
+  and selected in the list, "Editing plate: <name>" heads the filename settings, and the Microscope
+  preset and Filename regex show that plate's own regex (or the first plate's, which it inherits).
+  Typing a regex or choosing a preset edits that plate only; the first plate's regex stays every other
+  plate's default. Channel names and colours, geometry and display settings stay shared by all plates
+  (one channel legend in the pooled view); their tooltip says so.
+- Plate list: a Settings column beside the plate name with an "Apply settings" button on every row
+  gives that plate the settings being edited; "Apply to all plates" beside "Remove selected plates"
+  reads every plate with them. Applying to the first plate keeps the other plates on the regex they
+  were read with. Each plate's regex is saved in overview_view.json (options.plate_regex) and restored
+  on reopen.
+- Right-hand container: one section per plate, headed by the plate name with a coloured swatch that
+  matches the swatch beside the plate in the list and a coloured left edge (accent, teal, green, grey in
+  turn), the regex it is read with, and up to 20 of its files parsed by that regex (plate, well, row,
+  column, field, time, Z, channel; misses dimmed). The edited plate's section is framed in the accent.
+  An invalid regex shows "Invalid filename regex: …" in that plate's own section and is never scanned.
+- Channel colours: the swatch is drawn as the cell's decoration and the text uses the theme's text
+  colour, so it reads on every theme (the stylesheet had suppressed the cell background while the
+  black text remained). Double-clicking a colour opens spaCR's colour picker (Qt's own dialog, not the
+  platform one: colour field with hue strip, RGB and HSV number fields and #rrggbb); the choice is
+  written back. Typing a colour name or #rrggbb still works.
+- Tests: tests/qt/test_725_overview_perplate_metadata.py (choosing plates, typing per plate, Apply
+  settings and Apply to all, applying to the first plate, per-plate previews, invalid regex in its own
+  section, colour text contrast >= 4.5:1 on dark, light, cell, glass and high contrast, double-click
+  picker write-back, the real picker call, save and reopen).
+- Screenshots (light and dark, Xvfb + gnome-shell): /nas_mnt/data/sync/perplate-meta/shots/.
+- Translations: 9 captions x 9 languages, two reworded tooltips archived; spacr-translations 5b8520c.
+
+
 MAINTAINER FEEDBACK — 2026-10-26 (round 6) (supersedes conflicting earlier notes)
 Verbatim, display, normalization and settings:
 1. "measure saturation should be appart of intensity and not its own option"
