@@ -6171,6 +6171,8 @@ class MainWindow(QMainWindow):
         prewarm = getattr(self, "_screen_prewarm", None)
         if prewarm is not None:
             prewarm.stop()
+        from ..crashreport import _note_native_context
+        _note_native_context(action="close stops running jobs")
         from .bridge import registry
         remaining = registry().cancel_all(
             timeout_ms=5000, reason="application shutdown")
@@ -6190,6 +6192,7 @@ class MainWindow(QMainWindow):
             event.ignore()
             self._closing = False
             return
+        _note_native_context(action="close closes the screens")
         seen_screens = set()
         for screen in list(getattr(self, "_screens", {}).values()):
             if not isinstance(screen, QWidget) or id(screen) in seen_screens:
@@ -6233,22 +6236,27 @@ class MainWindow(QMainWindow):
                 self._closing = False
                 return
         from .gui_scale import _close_without_restyling
+        _note_native_context(action="close ends the session")
         _close_without_restyling(self)
         self._end_session_cleanly()
         self._closing = True
         from .widgets.console_panel import ConsolePanel
+        _note_native_context(action="close shuts the consoles")
         for panel in self.findChildren(ConsolePanel):
             try:
                 panel.shutdown()
             except Exception:
                 pass
+        _note_native_context(action="close releases update workers")
         self._release_update_workers()
+        _note_native_context(action="close closes the window")
         super().closeEvent(event)
         if not event.isAccepted():
             _close_without_restyling(self, closing=False)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
+                _note_native_context(action="close ends the event loop")
                 _end_the_event_loop(app)
 
     _UPDATE_WORKER_WAIT_MS = 5000
@@ -9501,7 +9509,10 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _TimingQTimer.singleShot(0, _timing.event_loop_started)
     try:
         code = app.exec()
+        from ..crashreport import _note_native_context
+        _note_native_context(action="exit tears down after the event loop")
         _tear_down_before_finalization()
+        _note_native_context(action="exit finished its teardown")
         try:
             from .crash_recovery import note_a_clean_shutdown
 

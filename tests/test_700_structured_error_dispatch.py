@@ -1516,3 +1516,31 @@ def test_a_real_segmentation_fault_reports_its_own_screen_and_crashing_frame(con
     assert "Crashing thread's innermost Python frame: crash_probe <module> line 5." in body['user_note']
     assert 'Qt v6.11.2 (offscreen)' in body['user_note']
     assert str(tmp_path) not in json.dumps(body)
+
+
+def test_native_report_names_the_last_teardown_step_only_when_it_is_the_last_line_170(
+        configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = _session_log(tmp_path, monkeypatch)
+    cr._note_native_context(screen='Overview')
+    cr._note_native_context(action='close stops running jobs')
+    cr._note_native_context(action='close ends the session')
+    cr._NATIVE_CAPTURE_HANDLE.write(_two_thread_fault())
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    note = relay.calls_to('/report')[0]['body']['user_note']
+    assert 'Last step recorded before the crash: close ends the session.' in note
+    assert 'close stops running jobs' not in note
+
+
+def test_a_deferred_close_is_not_named_once_a_screen_is_shown_again_170(configured, tmp_path, monkeypatch):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': []})]
+    path = _session_log(tmp_path, monkeypatch)
+    cr._note_native_context(action='close stops running jobs')
+    cr._note_native_context(screen='Measure')
+    cr._NATIVE_CAPTURE_HANDLE.write(_two_thread_fault())
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    joined(cr._consume_native_crash(path))
+    assert 'Last step' not in relay.calls_to('/report')[0]['body']['user_note']

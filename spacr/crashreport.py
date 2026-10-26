@@ -3793,6 +3793,7 @@ def _capture_error_line(text, *, origin="terminal"):
 _NATIVE_CONTEXT_KEYS = {
     "os": 12, "os_release": 40, "machine": 16, "pyside6": 24, "qt": 24,
     "qt_platform": 24, "accessibility": 4, "gpu": 16, "screen": MAX_SCREEN_CHARS,
+    "action": 48,
 }
 
 _MAX_NATIVE_SCREENS = 4
@@ -3851,7 +3852,10 @@ def _note_native_context(**fields):
     lists in that fault's own dump, never to its neighbours in the file.
 
     :param fields: any of :data:`_NATIVE_CONTEXT_KEYS`, such as
-        ``screen="Overview"``, ``qt="6.11.2"`` or ``accessibility=True``.
+        ``screen="Overview"``, ``qt="6.11.2"``, ``accessibility=True`` or
+        ``action="close ends the session"``, a fixed step of the window's
+        teardown that the report names when it is the last line before a
+        fault (GitHub #170).
     :returns: whether a line was written.
     """
     handle = _NATIVE_CAPTURE_HANDLE
@@ -3966,6 +3970,8 @@ def _native_crash_note(session, contexts, threads):
             parts.append(label + ": " + merged[key] + ".")
     if screens:
         parts.append("Screens before the crash: " + " > ".join(screens[-_MAX_NATIVE_SCREENS:]) + ".")
+    if contexts and contexts[-1].get("action"):
+        parts.append("Last step recorded before the crash: " + contexts[-1]["action"] + ".")
     crashed = [frames for is_current, frames in threads if is_current]
     if crashed:
         if crashed[0]:

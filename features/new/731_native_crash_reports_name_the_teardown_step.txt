@@ -1,0 +1,47 @@
+================================================================================
+NATIVE CRASH REPORTS NAME THE TEARDOWN STEP A CLOSE CRASHED IN
+================================================================================
+
+Status:    done (nightly, 2026-10-26; ships in 1.5.1.6)
+Requested: maintainer, 2026-10-26 (AGENTS.md rule 39): an issue without the
+           information to find its cause gets a reporter change so the next
+           report of that kind carries it, then a comment and a close.
+Owner:     Home
+Related:   730 (native crash context), 709 (GitHub issues). GitHub #170.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+#170 was a macOS segmentation fault on closing the window. Its line numbers
+(app.py closeEvent 5393, launch 8035) match builds of 2026-10-13..15, which
+wrote none of item 730's context lines, so the report could not name the
+crashed session's versions or screens. Item 730's replay did name the
+crashing thread (the main thread, in closeEvent), but closeEvent runs many
+steps, and line 5393 is a different statement in each build of that span,
+so the step that faulted could not be told.
+
+Now the main window records each step of its close as an allowlisted
+"action" context line (spacr/qt/app.py MainWindow.closeEvent): stops running
+jobs, closes the screens, ends the session, shuts the consoles, releases
+update workers, closes the window, ends the event loop; and launch records
+the teardown after the event loop and its end. A native crash report names
+the step when it is the last line before the fault ("Last step recorded
+before the crash: ..."), and not when a screen was shown again after it, so
+a deferred close is never blamed for a later crash.
+
+--------------------------------------------------------------------------------
+PRIVACY
+--------------------------------------------------------------------------------
+
+The steps are fixed English phrases in the code. The "action" key passes the
+same validation as every item 730 key: letters, digits, spaces and ._+()-
+only, at most 48 characters, no IPv4 address, no user or host name.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_native_crash_screen_context_161_164.py
+::test_closing_the_window_records_each_teardown_step_170 and the two
+*_170 tests in tests/test_700_structured_error_dispatch.py pass.
