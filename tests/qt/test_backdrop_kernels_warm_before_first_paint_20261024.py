@@ -21,7 +21,11 @@ from spacr.qt.widgets import ambient
 
 def _warm():
     assert ambient._start_kernel_warmup_before_first_paint()
+    deadline = time.monotonic() + 240
     ready = ambient._finish_kernel_warmup_before_first_paint(timeout_s=240)
+    while not ready and time.monotonic() < deadline and not ambient._PACKED_SCATTER_FAILED:
+        time.sleep(0.2)
+        ready = ambient._finish_kernel_warmup_before_first_paint(timeout_s=1)
     if not ready or ambient._PACKED_SCATTER_FAILED:
         pytest.skip("the CPU kernels could not be compiled here")
 
@@ -83,3 +87,31 @@ def test_a_running_field_leaves_the_gui_thread_its_turn(qapp):
     assert longest < 0.040 + baseline, (
         f"the GUI thread waited {longest * 1000:.0f} ms "
         f"(idle machine gap {baseline * 1000:.0f} ms)")
+
+
+def test_a_cold_cache_filled_by_the_helper_does_not_hold_the_first_paint(monkeypatch, tmp_path):
+    """The helper compiles out of process; waiting for it only delays Home.
+
+    Apple Silicon, item 641: the helper needs 6.8 s, so the 3 s join always
+    timed out and cold Home missed its 5 s budget by the wait.
+    """
+    stop = threading.Event()
+    compiling = threading.Thread(target=stop.wait, args=(10,), daemon=True)
+    compiling.start()
+    monkeypatch.setattr(ambient, "_priming_allowed", lambda: True)
+    monkeypatch.setattr(ambient, "_numba_cache_directory", lambda: tmp_path)
+    monkeypatch.setattr(ambient, "_COMPILER_THREADS", {compiling})
+    try:
+        started = time.monotonic()
+        assert ambient._finish_kernel_warmup_before_first_paint(timeout_s=3.0) is False
+        assert time.monotonic() - started < 0.5
+
+        marker = ambient._primed_marker(tmp_path)
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text("primed")
+        started = time.monotonic()
+        ambient._finish_kernel_warmup_before_first_paint(timeout_s=0.6)
+        assert time.monotonic() - started >= 0.5, "a primed cache keeps its bounded join"
+    finally:
+        stop.set()
+        compiling.join(2)

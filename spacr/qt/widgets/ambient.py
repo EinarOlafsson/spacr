@@ -5336,9 +5336,22 @@ def _finish_kernel_warmup_before_first_paint(timeout_s: float = _WARM_BEFORE_PAI
     nothing. A cold cache whose helper compile outlasts ``timeout_s`` keeps
     warming in the background; the first frames then use the exact NumPy path.
 
+    No wait at all while a helper process is still filling an unprimed disk
+    cache. The helper compiles in another interpreter, so joining the compile
+    thread holds off nothing from the GUI thread; it only waits out
+    ``timeout_s``, because the helper takes longer. Measured on an Apple
+    Silicon MacBook: 6.8 s for the thirteen kernels, so every cold launch paid
+    the whole 3 s before Home first painted -- most of the 5.36 s cold Home of
+    item 641 against its 5 s budget. The marker hashes the backdrop sources,
+    so every update that touches them starts cold again.
+
     :param timeout_s: longest wait before the window is shown.
     :returns: True when every startup kernel is ready.
     """
+    if _priming_allowed():
+        folder = _numba_cache_directory()
+        if folder is not None and not _primed_marker(folder).exists():
+            return False
     deadline = time.monotonic() + max(0.0, float(timeout_s))
     with _COMPILER_LIFECYCLE_LOCK:
         workers = list(_COMPILER_THREADS)
