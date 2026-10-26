@@ -4164,10 +4164,9 @@ class GateTree(QWidget):
         self.tree.setColumnCount(4)
         self.tree.setHeaderLabels(["Gate", "n", "% parent", "% all"])
         header = self.tree.header()
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
-        for column in range(1, 4):
+        for column in range(4):
             header.setSectionResizeMode(column, QHeaderView.ResizeToContents)
-        header.setStretchLastSection(False)
+        header.setStretchLastSection(True)
         header.setMinimumSectionSize(44)
         self.tree.setToolTip(
             "The gates you have drawn. Tick one to show it on the plot and "
@@ -4413,7 +4412,13 @@ class GateTree(QWidget):
                    for i in range(item.childCount()))
 
     def _on_double_clicked(self, item: QTreeWidgetItem, column: int) -> None:
-        """Ask for a new name for the gate whose name was double-clicked."""
+        """Ask for a new name for the gate whose name was double-clicked.
+
+        The Gate column is sized to its names rather than stretched into what
+        the count columns leave. Stretched, it shrank in the narrow Gate table
+        panel to the tick box and an ellipsis, so a double-click aimed at a
+        gate's row landed on its count and no Rename gate dialog opened.
+        """
         if column != 0 or item is None:
             return
         old = str(item.data(0, Qt.UserRole) or item.text(0)).strip()
