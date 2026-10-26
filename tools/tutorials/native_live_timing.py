@@ -235,6 +235,9 @@ def checked_native_timing(stage, identity):
     if (stage / 'production' / identity / 'published-native-mix.json').exists():
         from published_native_mix import checked_mixed_native_timing
         return checked_mixed_native_timing(stage, identity)
+    if (stage / 'production' / identity / 'staged-native-edit.json').exists():
+        from published_native_edit import checked_staged_native_timing
+        return checked_staged_native_timing(stage, identity)
     if (stage / 'production' / identity / 'published-native-edit.json').exists():
         from published_native_edit import checked_edited_native_timing
         return checked_edited_native_timing(stage, identity)

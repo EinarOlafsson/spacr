@@ -26,14 +26,15 @@ def finish(stage, identity, *, retain_visual_from=None):
         raise ValueError('Visual specification and current authored narration differ')
     published_reuse = (root / 'published-native-reuse.json').exists()
     published_edit = (root / 'published-native-edit.json').exists()
+    staged_edit = (root / 'staged-native-edit.json').exists()
     published_mix = (root / 'published-native-mix.json').exists()
     published_legacy_header = (root / 'published-hit-list-picture-refresh.json').exists()
     published_legacy = (root / 'published-legacy-picture-mix.json').exists() or published_legacy_header
     if published_legacy_header and (identity != '48_hit_list' or (root / 'published-legacy-picture-mix.json').exists()):
         raise ValueError('Choose the explicit48 legacy header record only')
-    if sum([published_reuse, published_edit, published_mix, published_legacy]) > 1:
+    if sum([published_reuse, published_edit, staged_edit, published_mix, published_legacy]) > 1:
         raise ValueError('Choose unchanged reuse or explicit published edit, not both')
-    if (published_reuse or published_edit or published_mix or published_legacy) and retain_visual_from is not None:
+    if (published_reuse or published_edit or staged_edit or published_mix or published_legacy) and retain_visual_from is not None:
         raise ValueError('Choose published-native narration reuse or retained visual overlay, not both')
     if published_legacy:
         from published_legacy_picture_mix import checked_legacy_picture_timing
@@ -46,7 +47,7 @@ def finish(stage, identity, *, retain_visual_from=None):
         native = checked_native_timing(stage, identity)
     timing_path = legacy_clock if published_legacy else native or root / 'audio/en/af_heart.json'
     timing = read(timing_path)
-    if not (published_reuse or published_edit or published_mix or published_legacy):
+    if not (published_reuse or published_edit or staged_edit or published_mix or published_legacy):
         for scene in spec['scenes']:
             source = root / scene['image']
             if hashlib.sha256(source.read_bytes()).hexdigest() != scene['capture_sha256']:
@@ -108,6 +109,10 @@ def finish(stage, identity, *, retain_visual_from=None):
         receipt['raw_capture_revalidated'] = False
     if published_edit:
         receipt['published_native_intervals_edited'] = True
+        receipt['fresh_capture'] = False
+        receipt['raw_capture_revalidated'] = False
+    if staged_edit:
+        receipt['staged_native_intervals_edited'] = True
         receipt['fresh_capture'] = False
         receipt['raw_capture_revalidated'] = False
     if published_reuse:
