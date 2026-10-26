@@ -24,6 +24,45 @@ class FakeHost:
         self.warps.append(self.pointer)
 
 
+@pytest.mark.parametrize('legacy_manager', [True, False])
+def test_private_host_selects_a_video_only_session_manager(tmp_path, monkeypatch, legacy_manager):
+    from types import SimpleNamespace
+    import gnome_capture_host as host
+
+    seen = []
+    is_file = Path.is_file
+    monkeypatch.setattr(Path, 'is_file', lambda path: legacy_manager
+                        if str(path) == '/usr/bin/pipewire-media-session' else is_file(path))
+    monkeypatch.setenv('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/tmp/private-test-bus')
+    monkeypatch.setattr(host, 'wait_for', lambda *args: None)
+    monkeypatch.setattr(host.subprocess, 'run', lambda *args, **kwargs:
+                        SimpleNamespace(stdout='Linked with libwireplumber 0.4.17\n'))
+
+    def start(argv, **kwargs):
+        if '/usr/bin/gnome-shell' in argv:
+            raise RuntimeError('stop before starting a compositor')
+        seen.append((argv, kwargs['env']))
+        return SimpleNamespace(poll=lambda: 0)
+
+    monkeypatch.setattr(host.subprocess, 'Popen', start)
+    args = SimpleNamespace(stage=tmp_path, cursor_theme='Yaru', cursor_size=32,
+                           show_top_bar=False, compositor_gpu='all', size='2560x1440',
+                           refresh=60, shell_env=[])
+    with pytest.raises(RuntimeError, match='stop before starting a compositor'):
+        host.inner(args)
+    expected = '/usr/bin/pipewire-media-session' if legacy_manager else '/usr/bin/wireplumber'
+    assert [argv[0] for argv, _env in seen] == ['/usr/bin/python3', '/usr/bin/pipewire', expected]
+    manager_env = seen[-1][1]
+    assert manager_env['XDG_CONFIG_HOME'] == str(tmp_path / 'config')
+    assert manager_env['XDG_RUNTIME_DIR'] == str(tmp_path / 'run')
+    main = (tmp_path / 'config/wireplumber/main.lua.d/89-video-only.lua').read_text()
+    bluetooth = (tmp_path / 'config/wireplumber/bluetooth.lua.d/89-video-only.lua').read_text()
+    for monitor in ('alsa_monitor', 'v4l2_monitor', 'libcamera_monitor'):
+        assert f'{monitor}.enabled = false' in main
+    for monitor in ('bluez_monitor', 'bluez_midi_monitor'):
+        assert f'{monitor}.enabled = false' in bluetooth
+
+
 def test_min_jerk_starts_and_stops_at_rest():
     assert min_jerk(0.0) == 0.0 and min_jerk(1.0) == 1.0
     eps = 1e-4

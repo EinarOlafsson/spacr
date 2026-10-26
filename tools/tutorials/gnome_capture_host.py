@@ -7,8 +7,8 @@ mouse. A bare Xvfb has no compositor, so spaCR's rounded, translucent windows
 
 This host starts, in a session bus of its own (``dbus-run-session``):
 
-* ``pipewire`` + ``pipewire-media-session`` (video linking only: no ALSA,
-  Bluetooth, V4L2, portal or flatpak modules, so no audio device is touched);
+* ``pipewire`` + ``pipewire-media-session`` or WirePlumber 0.4, with ALSA,
+  Bluetooth and camera monitors disabled so no audio/camera device is opened;
 * ``gnome-shell --headless --wayland --virtual-monitor WxH@R`` -- the real
   GNOME compositor drawing to a virtual monitor, with its own Xwayland;
 
@@ -131,6 +131,12 @@ def private_dirs(stage: Path) -> dict:
     conf = dirs['config'] / 'pipewire' / 'media-session.d'
     conf.mkdir(parents=True, exist_ok=True)
     (conf / 'media-session.conf').write_text(MEDIA_SESSION_CONF)
+    for name, monitors in (('main.lua.d', ('alsa_monitor', 'v4l2_monitor', 'libcamera_monitor')),
+                           ('bluetooth.lua.d', ('bluez_monitor', 'bluez_midi_monitor'))):
+        wireplumber = dirs['config'] / 'wireplumber' / name
+        wireplumber.mkdir(parents=True, exist_ok=True)
+        (wireplumber / '89-video-only.lua').write_text(
+            ''.join(f'{monitor}.enabled = false\n' for monitor in monitors))
     extension = dirs['data'] / 'gnome-shell' / 'extensions' / CHROME_EXTENSION_UUID
     extension.mkdir(parents=True, exist_ok=True)
     (extension / 'metadata.json').write_text(json.dumps(CHROME_EXTENSION_METADATA, indent=2) + '\n')
@@ -290,7 +296,14 @@ def inner(args) -> int:
         wait_for(lambda: bus_has('org.freedesktop.systemd1', env), 10, 'systemd stub on the private bus')
         start('pipewire', ['/usr/bin/pipewire'])
         wait_for(lambda: (dirs['run'] / 'pipewire-0').exists(), 10, 'pipewire socket')
-        start('media-session', ['/usr/bin/pipewire-media-session'])
+        session_manager = ('/usr/bin/pipewire-media-session'
+                           if Path('/usr/bin/pipewire-media-session').is_file() else '/usr/bin/wireplumber')
+        if session_manager.endswith('/wireplumber'):
+            version = subprocess.run([session_manager, '--version'], env=env,
+                                     text=True, capture_output=True, check=True).stdout
+            if 'Linked with libwireplumber 0.4.' not in version:
+                raise RuntimeError('The video-only capture profile requires WirePlumber 0.4')
+        start('media-session', [session_manager])
         shell_argv = ['/usr/bin/gnome-shell']
         if args.compositor_gpu != 'all':
             # Hide the other GPU's DRM nodes from gnome-shell (and so from
