@@ -3,7 +3,87 @@ from pathlib import Path
 import sys
 import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from verify_staged_lesson import check_complete_native_trace
+from verify_staged_lesson import (check_complete_native_trace, staged_idle_binding,
+                                  require_loaded_idle_timings)
+from stage_lesson import write
+from copy import deepcopy
+import hashlib
+
+
+@pytest.fixture
+def idle_sources(tmp_path):
+    master, clock = tmp_path / 'master.mp4', tmp_path / 'clock.json'
+    master.write_bytes(b'accepted native master')
+    timing = dict(lesson='74_import_images', kind='native_visual_timing', native_live_video=True,
+                  coverage=dict(accepted=True), scenes=[dict(scene=i + 1, visual='repeated',
+                  speech_start=i * 4, scene_end=(i + 1) * 4, duration=4, native_live_video=True)
+                  for i in range(2)])
+    write(clock, timing)
+    lesson = dict(id='74_import_images', silent='74_import_images/video/master.mp4',
+                  visual_timings='74_import_images/video/clock.json')
+    policy = dict(schema=1, lessons=[dict(lesson=lesson['id'],
+        master_sha256=hashlib.sha256(master.read_bytes()).hexdigest(),
+        visual_timing_sha256=hashlib.sha256(clock.read_bytes()).hexdigest(),
+        scenes=[dict(visual='repeated', source_start=i * 4, source_end=(i + 1) * 4,
+                     idle_tail_start=.8) for i in range(2)])])
+    spoken = dict(scenes=[dict(speech_start=i * 2, speech_end=i * 2 + 1) for i in range(2)])
+    return lesson, master, clock, policy, spoken
+
+
+def test_staged_policy_binds_repeated_visuals_to_exact_master_and_clocks(idle_sources):
+    lesson, master, clock, policy, spoken = idle_sources
+    before = deepcopy(policy)
+    bound, timing = staged_idle_binding(lesson, master, clock, policy, required=True)
+    assert bound['native_idle_tails']['scenes'] == policy['lessons'][0]['scenes']
+    assert [scene['idle_tail_start'] for scene in timing['scenes']] == [.8, .8]
+    require_loaded_idle_timings(deepcopy(timing), timing, spoken)
+    assert policy == before and 'native_idle_tails' not in lesson
+
+
+@pytest.mark.parametrize('source', ['master', 'clock'])
+def test_stale_default_policy_is_rejected_not_silently_omitted(idle_sources, source):
+    lesson, master, clock, policy, _ = idle_sources
+    field = 'master_sha256' if source == 'master' else 'visual_timing_sha256'
+    policy['lessons'][0][field] = '0' * 64
+    with pytest.raises(ValueError, match='source bytes changed'):
+        staged_idle_binding(lesson, master, clock, policy)
+
+
+def test_strict_idle_acceptance_requires_all_reviewed_scene_fences(idle_sources):
+    lesson, master, clock, policy, _ = idle_sources
+    policy['lessons'][0]['scenes'].pop()
+    with pytest.raises(ValueError, match='every scene'):
+        staged_idle_binding(lesson, master, clock, policy, required=True)
+
+
+@pytest.mark.parametrize('change', ['loaded_fence', 'short_speech'])
+def test_actual_loaded_fences_and_selected_full_speech_are_required(idle_sources, change):
+    lesson, master, clock, policy, spoken = idle_sources
+    _, expected = staged_idle_binding(lesson, master, clock, policy, required=True)
+    actual = deepcopy(expected)
+    if change == 'loaded_fence':
+        actual['scenes'][0].pop('idle_tail_start')
+    else:
+        spoken['scenes'][0]['speech_end'] = .5
+    with pytest.raises(ValueError):
+        require_loaded_idle_timings(actual, expected, spoken)
+
+
+def test_strict_gap_rejects_unplanned_long_tail_which_old_scope_retains():
+    visual = dict(scenes=[dict(speech_start=0, scene_end=4, duration=4),
+                          dict(speech_start=4, scene_end=8, duration=4)])
+    spoken = dict(scenes=[dict(speech_start=0, speech_end=1, sentences=[dict(audible_end=.82)]),
+                          dict(speech_start=1.72, speech_end=2.72,
+                               sentences=[dict(audible_start=1.82)])])
+    rows = []
+    for tick in range(110):
+        now = tick * .05
+        rows.append(dict(wall=now * 1000, video=now, audio=min(now, 1) if now < 4 else 1.72 + now - 4,
+                         rate=1, audioRate=1, audioPaused=1 <= now < 4, videoPaused=False,
+                         videoEnded=False, seeking=False, correcting=False, error=None))
+    assert check_complete_native_trace(rows, [], visual, spoken, 0)['actual_sound_gap_seconds'] > 3
+    with pytest.raises(AssertionError, match='actual_sound_gap_outside_policy'):
+        check_complete_native_trace(rows, [], visual, spoken, 0, require_gap=True)
 
 
 def observation(final=False,seek_at=None):

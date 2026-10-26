@@ -362,5 +362,5 @@ Preserve autonomous recording chain, one app base per lesson, quiet recording wi
 2026-10-26 — All50voices acceptance also requires23missingEnglishvoices for06 and48; preserve their27existingtracks and acceptedvisuals.
 Visiblecatalog59:44alreadyoffer50voices,15offer27. The handed-over15recording/publicationlessons remain, plus these2voice-onlycompletions.
 Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abdfdbe,16GPU saliency maxdifference<=1,22literalerrorifstillfailing.
-Actual13firstattemptfailsall15clips despitebothlensfixes;stacksin t18/FOR_HOME_pending.md;plannedretryrunning,noacceptanceclaim.
-Codex ownsdelivery;Home ownsappfixes;01stillwaitsforPyPI1.5.1.6.
+Hold74/36publication: native scene waits can exceed1second despite shortenedAAC; bind reviewed idle-tail cuts and verify actual sound gaps, retaining recordings/audio.
+Loaded-policy and every-boundary gap verification passes38focusedtests; sevenpublishednewrecordings also requirepausecuts. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.

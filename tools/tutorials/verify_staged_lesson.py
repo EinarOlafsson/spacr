@@ -8,6 +8,7 @@ This verifies playback/synchronization, not human pronunciation or translation.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import functools
 import hashlib
 import http.server
@@ -28,6 +29,43 @@ from playwright.sync_api import sync_playwright
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 WORKSPACE = DEFAULT_STAGE.parent
+
+
+def staged_idle_binding(lesson, master, timing_path, policy, *, required=False):
+    """Bind the selected policy to actual staged bytes, never drop stale fences."""
+    from idle_tail_policy import bind_policy
+    if (not isinstance(policy, dict) or set(policy) != {'schema', 'lessons'}
+            or policy['schema'] != 1 or not isinstance(policy['lessons'], list)
+            or any(not isinstance(entry, dict) for entry in policy['lessons'])):
+        raise ValueError('Invalid staged idle-tail policy')
+    selected = [entry for entry in policy['lessons'] if entry.get('lesson') == lesson['id']]
+    timing = read(timing_path)
+    records = [dict(path='media_host/' + lesson[key], sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+               for key, path in [('silent', master), ('visual_timings', timing_path)]]
+    bound = bind_policy(dict(schema=1, lessons=selected), records, [lesson], lambda _path: timing)[0]
+    expected = deepcopy(timing)
+    for fence in bound.get('native_idle_tails', {}).get('scenes', []):
+        matches = [scene for scene in expected['scenes'] if scene['visual'] == fence['visual']
+                   and abs(scene['speech_start'] - fence['source_start']) <= 1e-7
+                   and abs(scene['scene_end'] - fence['source_end']) <= 1e-7]
+        # bind_policy already enforces exactly one immutable interval match.
+        matches[0]['idle_tail_start'] = fence['idle_tail_start']
+    if required and any('idle_tail_start' not in scene for scene in expected['scenes']):
+        raise ValueError('One-second acceptance requires reviewed fences for every scene')
+    return bound, expected
+
+
+def require_loaded_idle_timings(actual, expected, spoken):
+    """Check the real player's policy and complete selected-voice speech fit."""
+    if actual != expected:
+        raise ValueError('Loaded native clocks or idle fences differ from bound staged sources')
+    if len(spoken['scenes']) != len(expected['scenes']):
+        raise ValueError('Native idle acceptance requires every spoken scene')
+    for scene, speech in zip(expected['scenes'], spoken['scenes']):
+        fence = scene.get('idle_tail_start')
+        if (type(fence) not in (int, float) or not math.isfinite(fence)
+                or not 0 <= fence <= float(speech['speech_end']) - float(speech['speech_start'])):
+            raise ValueError('Reviewed action fence exceeds complete selected-voice speech')
 
 
 def check_related_links(actual, expected):
@@ -96,7 +134,7 @@ def check_native_boundary_playback(page, visual, spoken):
             'independent_staged_timing_comparison':True,'native_animation_stretched_or_looped':False}
 
 
-def check_complete_native_trace(trace, events, visual, spoken, index, final=False):
+def check_complete_native_trace(trace, events, visual, spoken, index, final=False, *, require_gap=False):
     """Check actual sound gaps and only the selected voice's planned idle seek."""
     scene, speech = visual['scenes'][index], spoken['scenes'][index]
     start, end = float(scene['speech_start']), float(scene['scene_end'])
@@ -186,7 +224,7 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
     # Shorten long gaps without padding an already brief source pause. Final
     # EOF has no following sound: retain its existing one-second end policy.
     expected_gap = 1.0 if final else min(next_sound - last_sound, 1.0)
-    if planned_cut and not expected_gap - .15 <= gap <= expected_gap + .15:
+    if (planned_cut or require_gap) and not expected_gap - .15 <= gap <= expected_gap + .15:
         raise AssertionError({'actual_sound_gap_outside_policy': gap,
                               'expected_sound_gap_seconds': expected_gap,
                               'planned_idle_cut': planned_cut})
@@ -201,22 +239,25 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
         'actual_video_speed': 1, 'native_animation_stretched_or_looped': False}
 
 
-def check_complete_native_boundary_playback(page, visual, spoken):
+def check_complete_native_boundary_playback(page, visual, spoken, *, all_boundaries=False,
+                                          require_gap=False, raw_path=None):
     """Observe complete speech, one-second idle cuts, and actual final EOF."""
     preserve = visual.get('preserve_visual_intervals') is True
     candidates = [i for i in range(len(visual['scenes']) - 1)
                   if visual['scenes'][i].get('native_live_video')
                   and (preserve or visual['scenes'][i + 1].get('native_live_video'))
-                  and float(visual['scenes'][i]['duration'])
-                  - (float(spoken['scenes'][i]['speech_end'])
-                     - float(spoken['scenes'][i]['speech_start'])) > .8]
+                  and (all_boundaries or float(visual['scenes'][i]['duration'])
+                       - (float(spoken['scenes'][i]['speech_end'])
+                          - float(spoken['scenes'][i]['speech_start'])) > .8)]
     if not candidates or (not preserve and not visual['scenes'][-1].get('native_live_video')):
         raise ValueError('Complete native verification needs a boundary and final recorded tail')
     index = max(candidates, key=lambda i: float(visual['scenes'][i]['duration'])
                 - (float(spoken['scenes'][i]['speech_end'])
                    - float(spoken['scenes'][i]['speech_start'])))
     results = []
-    for current, final in [(index, False), (len(visual['scenes']) - 1, True)]:
+    observed = []
+    selected = candidates if all_boundaries else [index]
+    for current, final in [*((i, False) for i in selected), (len(visual['scenes']) - 1, True)]:
         scene, speech = visual['scenes'][current], spoken['scenes'][current]
         speech_length = float(speech['speech_end']) - float(speech['speech_start'])
         target = float(scene['speech_start']) + max(0, speech_length - .7)
@@ -285,12 +326,19 @@ def check_complete_native_boundary_playback(page, visual, spoken):
             events = page.evaluate('window.__completeNativeEvents')
         finally:
             page.evaluate('clearInterval(window.__completeNativeTimer); window.__completeNativeObserve=false')
-        results.append(check_complete_native_trace(trace, events, visual, spoken, current, final))
-    return {'complete_native_clips': visual.get('complete_native_clips') is True,
+        observed.append(dict(scene=current + 1, final=final, trace=trace, events=events))
+        if raw_path is not None:
+            write(raw_path, dict(visual=visual, spoken=spoken, observations=observed))
+        results.append(check_complete_native_trace(trace, events, visual, spoken, current, final,
+                                                   require_gap=require_gap))
+    result = {'complete_native_clips': visual.get('complete_native_clips') is True,
             'preserve_visual_intervals': visual.get('preserve_visual_intervals') is True,
-            'boundary': results[0], 'final_tail': results[1],
+            'boundary': results[0], 'final_tail': results[-1],
             'actual_video_speed': 1, 'independent_wall_clock_comparison': True,
             'native_animation_stretched_or_looped': False}
+    if all_boundaries:
+        result['boundaries'] = results[:-1]
+    return result
 
 
 def find_host_lesson(lessons, navigation, host_key):
@@ -394,11 +442,21 @@ def main(argv=None):
                         help='Serve the exact private authoring player source, including native timing and lesson redirects; no publication')
     parser.add_argument('--native-boundary-clocks', action='store_true',
                         help='Measure actual normal-speed media clocks across a recorded scene boundary')
+    parser.add_argument('--idle-tail-policy', type=Path,
+                        help='Explicit reviewed source-bound policy; defaults to the canonical policy')
+    parser.add_argument('--require-idle-cuts', action='store_true',
+                        help='Require bound fences and measure every native boundary and final one-second gap')
+    parser.add_argument('--output-suffix', default='',
+                        help='Fresh report suffix to preserve earlier playback evidence')
     args = parser.parse_args(argv)
     if args.retain_visual_from is not None and args.retained_media:
         parser.error('A visual refresh cannot also retain unchanged whole media')
     if args.sentence_cues and (args.language != 'en' or args.caption_language):
         parser.error('--sentence-cues requires English narration and its native captions')
+    if args.require_idle_cuts and not (args.native_boundary_clocks and args.candidate_player):
+        parser.error('--require-idle-cuts requires --native-boundary-clocks and --candidate-player')
+    if args.output_suffix and not re.fullmatch('[a-zA-Z0-9_-]+', args.output_suffix):
+        parser.error('Use a safe output suffix')
     DEFAULT_STAGE = args.stage.resolve()
     WORKSPACE = DEFAULT_STAGE.parent
     retained = None
@@ -422,6 +480,7 @@ def main(argv=None):
         validate_caption_structure(english, read(caption_path), args.caption_language)
     from build_navigation import build
     navigation = build(english)
+    expected_native = None
     for item in english['lessons']:
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
@@ -436,6 +495,11 @@ def main(argv=None):
                 if not args.candidate_player:
                     raise ValueError('Native footage acceptance requires the source-bound candidate player')
                 item['visual_timings'] = f"{item['id']}/video/{native_timings.name}"
+                from idle_tail_policy import load_policy
+                bound, expected_native = staged_idle_binding(
+                    item, DEFAULT_STAGE / 'production' / item['silent'], native_timings,
+                    load_policy(REPO, args.idle_tail_policy), required=args.require_idle_cuts)
+                item.update(bound)
     source = (REPO / 'docs/source/_extra/tutorials/index.html').read_text(encoding='utf-8')
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
@@ -454,7 +518,11 @@ def main(argv=None):
         tag += f'-captions-{args.caption_language}'
     if args.sentence_cues:
         tag += '-sentence-cues'
+    if args.output_suffix:
+        tag += '-' + args.output_suffix
     output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag
+    if args.output_suffix and output.exists():
+        raise FileExistsError('Preserve existing suffixed playback evidence')
     output.mkdir(parents=True, exist_ok=True)
     errors = []
     handler = type('StagedPlayerHandler', (Handler,), {
@@ -627,7 +695,16 @@ def main(argv=None):
                 if not args.candidate_player or not native_path.exists():
                     raise ValueError('Native boundary verification needs its accepted sidecar and candidate player')
                 spoken=read(DEFAULT_STAGE/'production'/args.lesson/'audio'/args.language/(args.voice+'.json'))
-                evidence['native_boundary_clock_checks']=check_native_boundary_playback(page,read(native_path),spoken)
+                actual_native = page.evaluate('visualTimings')
+                if expected_native is None or actual_native != expected_native:
+                    raise ValueError('Loaded native clocks differ from the source-bound stage policy')
+                if args.require_idle_cuts:
+                    require_loaded_idle_timings(actual_native, expected_native, spoken)
+                    evidence['native_boundary_clock_checks'] = check_complete_native_boundary_playback(
+                        page, actual_native, spoken, all_boundaries=True, require_gap=True,
+                        raw_path=output / 'native-boundary-raw.json')
+                else:
+                    evidence['native_boundary_clock_checks']=check_native_boundary_playback(page,actual_native,spoken)
             if rendition:
                 video = page.evaluate('''async () => {
                     const bytes = await (await fetch(elements.video.currentSrc)).arrayBuffer();
