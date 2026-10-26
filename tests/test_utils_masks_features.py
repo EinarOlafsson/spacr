@@ -162,9 +162,16 @@ def test_additional_reducers_produce_clusterable_2d_embeddings(
 
 
 def test_requested_gpu_never_silently_falls_back_to_cpu(monkeypatch):
-    from spacr import gpu_reduce
+    """A CUDA machine whose cuML cannot build the reducer refuses, never runs CPU.
+
+    The accelerator is pinned to a non-Apple GPU: on Apple Silicon PCA and
+    KMeans run on the CPU by design when a GPU is requested (Accelerate is
+    faster than Metal there), which is a chosen route, not a fallback.
+    """
+    from spacr import accelerator, gpu_reduce
     from spacr.utils import reduction_and_clustering
 
+    monkeypatch.setattr(accelerator, "_apple_gpu", lambda *_a, **_k: False)
     monkeypatch.setattr(
         gpu_reduce, "make_reducer", lambda *_a, **_k: (object(), "cpu"))
     with pytest.raises(RuntimeError, match="No CPU fallback"):

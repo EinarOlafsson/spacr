@@ -15458,6 +15458,11 @@ def _import_well_annotation_scheme(db_path, path, fields, *, source=None, name=N
         the scheme's ``(plate, well)`` pairs with no images.
     :raises ValueError: for an unreadable scheme or an invalid annotation name,
         before anything is written.
+
+    Each value is cleaned again with :func:`_scheme_text`: pandas 3 infers its
+    string dtype for a column of text and ``None``, whose missing value comes
+    back from ``to_dict`` as NaN, so an empty cell reached the sort as a float
+    beside strings and the import raised ``TypeError``.
     """
     scheme = _read_well_annotation_scheme(path, name=name)
     originals = list(scheme.columns[2:])
@@ -15478,8 +15483,9 @@ def _import_well_annotation_scheme(db_path, path, fields, *, source=None, name=N
     for column, original in zip(columns, originals):
         by_value = {}
         for address, entry in targets:
-            if entry[original] is not None:
-                by_value.setdefault(entry[original], []).append((address[0], present[address]))
+            value = _scheme_text(entry[original])
+            if value is not None:
+                by_value.setdefault(value, []).append((address[0], present[address]))
         for value, addresses in sorted(by_value.items()):
             images += _set_image_annotations(db_path, fields, column, value, source=source,
                                              wells=addresses)['count']
