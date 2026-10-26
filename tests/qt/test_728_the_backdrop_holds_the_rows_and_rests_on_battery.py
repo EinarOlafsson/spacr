@@ -30,7 +30,7 @@ pytest.importorskip("PySide6")
 pytest.importorskip("pytestqt")
 
 from PySide6.QtCore import QEvent, QObject, QRect               # noqa: E402
-from PySide6.QtGui import QImage                                 # noqa: E402
+from PySide6.QtGui import QImage, QRegion                        # noqa: E402
 from PySide6.QtWidgets import (QFrame, QLabel, QPushButton,      # noqa: E402
                                QVBoxLayout, QWidget)
 
@@ -191,8 +191,57 @@ def test_held_rows_look_as_a_per_frame_paint_of_the_held_frame(
     host.repaint()
     reference = _on_screen(host)
 
-    assert _largest_difference(shown, reference, card.geometry()) <= 2, (
+    assert _largest_difference(shown, reference, card.geometry()) == 0, (
         "the card and its rows look as they did under the per-frame paint")
+
+
+def test_the_moving_field_around_the_rows_is_the_per_frame_paint(
+        screen, qtbot, monkeypatch):
+    """The live part, drawn a rectangle at a time, is pixel-exact."""
+    host, backdrop, card, labels = screen
+    held = backdrop._held_rows
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    start = backdrop.frames_painted
+    qtbot.waitUntil(lambda: backdrop.frames_painted >= start + 3,
+                    timeout=5000)
+    producer = backdrop._producer_box[0]
+    newest = backdrop._last_frame
+    monkeypatch.setattr(producer, "latest", lambda: newest)
+    live = QRegion(held.live)
+    assert live.rectCount() > 1
+    backdrop.repaint(live)
+    shown = _on_screen(host)
+
+    monkeypatch.setattr(ambient._HeldRows, "enabled", False)
+    held.release(fade=False)
+    backdrop.repaint()
+    reference = _on_screen(host)
+    for part in live:
+        assert _largest_difference(shown, reference, part) == 0, part
+
+
+def test_pausing_a_held_field_paints_nothing_more(screen, qtbot, monkeypatch):
+    """A run pausing the backdrop must not cost a frame, held or not
+    (test_a_run_still_pauses_the_backdrop), and the rows keep the pixels
+    under them."""
+    host, backdrop, card, labels = screen
+    held = backdrop._held_rows
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    start = backdrop.frames_painted
+    qtbot.waitUntil(lambda: backdrop.frames_painted >= start + 3,
+                    timeout=5000)
+    held_frame = held.frame
+    backdrop.set_animating(False)
+    paused = backdrop.frames_painted
+    qtbot.wait(400)
+    assert backdrop.frames_painted == paused, "a paused field paints nothing"
+    assert held.frame is None and held.fade is None
+    assert backdrop._still is not None and backdrop._still[1] is held_frame, (
+        "the still is the frame under the rows")
+    shown = _on_screen(host)
+    labels[4].repaint()
+    after = _on_screen(host)
+    assert _largest_difference(shown, after, card.geometry()) == 0
 
 
 def test_a_stirred_or_changed_field_is_painted_whole_again(screen, qtbot):

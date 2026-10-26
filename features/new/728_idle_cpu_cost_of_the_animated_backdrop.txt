@@ -156,6 +156,48 @@ D7. The measuring tool is tools/measure_idle_repaint.py: the real MainWindow
     CPU (user + system over wall). Offscreen, because under Xvfb without a
     window manager the window is never exposed and the backdrop never ticks.
 
+D8. Second round (2026-10-26, coordinator: Home and Measure clearly under
+    10 %, attack the backdrop's own cost, cap stays at 20 fps). Profiling
+    the held field showed the cost was not the shading (about 1 ms a frame
+    on the shading thread, 1.5-2 % of a core) but the GUI drawing the
+    uncovered page: the data-art frame is shaded at the Detail preference's
+    resolution (1038x616 for a 1600x949 window here) and upscaled with
+    bilinear filtering on every paint, and Qt's raster engine split that
+    large blend across its thread pool (eight "Thread (pooled)" threads at
+    0.8 % each on Home). Done:
+    - _blit_by_rectangle: with a flat page and the buffered blit, the live
+      region is painted in stripes of at most 64 rows, each clipped and drawn
+      with the same whole-widget transform, so the pool is not woken and
+      every pixel equals the region-wide paint (tested exactly). Home's live
+      region: 2.17 ms of CPU a frame through the region, 2.00 ms a rectangle
+      at a time, 1.17 ms in 64-row stripes (best of six interleaved rounds).
+    - The covered region is snapped outward to an 8 px grid: the few-pixel
+      gaps between neighbouring rows and tiles are held with them, and the
+      live region falls from 160 to 71 rectangles on Home and from 83 to 22
+      on Measure; fewer layout containers are crossed (Mask 13.1 -> 6.6,
+      Measure 14.1 -> 10.3 paints per frame).
+    Evaluated and not done, with the numbers:
+    - Shading only the uncovered region: the whole shade is about 1 ms a
+      frame (fill 0.2 ms, dot stamping the rest), so culling saves well under
+      1 % of a core, and the frame is also the still a paused field shows.
+    - Skipping frames whose uncovered pixels are unchanged: in the default
+      field 3 % of the pixels but 85 % of the 16 px tiles change every frame
+      (the lens moves every dot a little), so almost nothing is skipped.
+    - A lower internal resolution: the frame is already shaded below the
+      window size and upscaled; the upscale is the cost, so going lower
+      would not remove it.
+
+D9. A paused field no longer paints. test_a_run_still_pauses_the_backdrop
+    failed once under load because, when a held field stopped, the release
+    asked for a repaint (so a run pausing the backdrop cost one frame), and
+    under load the window could reach the hold before the pause. Now a field
+    that stops while held (stop(), or its timer found stopped) settles into
+    the still without a repaint: the held frame becomes the frame the
+    stopped field shows (its still and partial-frame cache), so the rows keep
+    exactly the pixels under them and nothing is painted. Pinned by
+    test_pausing_a_held_field_paints_nothing_more (a mutation that repaints
+    on the pause fails it). The hold also waits 1.5 s after the field starts.
+
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA
 --------------------------------------------------------------------------------
@@ -231,15 +273,43 @@ whether the cap goes lower or the shading itself is next.
 Status of the acceptance criteria on 2026-10-26: A2-A7 met on Linux; A1 met on
 Mask, at the line on Measure, and 10-14 % on Home; A8 open (Mac lane).
 
+Second round (D8, D9), same machine and tool, 40 s warm-up, two runs (load
+average 11-15):
+
+Screen   Build                          fps   paints/frame  CPU % run 1 (GUI/other)  CPU % run 2 (GUI/other)
+-------  -----------------------------  ----  ------------  -----------------------  -----------------------
+Home     control: backdrop off          0      -             0.0                      -
+Home     before (nightly 7a777989e)     40.6   157.0        85.5 (54.9 / 27.8)        -
+Home     after, round 2                 20.0   31.0          7.4 (6.0 / 1.5)          8.9 (7.1 / 1.8)
+Mask     control: backdrop off          0      -             0.4                      -
+Mask     before                         41.4   161.9        78.9 (46.3 / 6.8)         -
+Mask     after, round 2                 21.5    6.6          5.9 (4.2 / 1.8)          4.9 (3.3 / 1.6)
+Measure  control: backdrop off          0      -             0.5                      -
+Measure  before                         37.0   161.4        81.0 (50.3 / 27.8)        -
+Measure  after, round 2                 21.4   10.3          5.2 (3.8 / 1.4)          8.1 (5.8 / 2.2)
+
+Status after round 2: A1 met on Linux on all three screens in both runs
+(Home 7.4-8.9 %, Mask 4.9-5.9 %, Measure 5.2-8.1 %); A8 open (Mac lane).
+
 Tests 2026-10-26 (CUDA_VISIBLE_DEVICES='', -n 4, tools/run_capped.sh,
 offscreen): tests/qt/test_728_the_backdrop_holds_the_rows_and_rests_on_battery.py
-7 passed (paint count with its control, pixel equivalence under a row that
+7 passed in round 1, 9 in round 2 (paint count with its control, exact
+pixel equivalence (now zero tolerance) under a row that
 repaints itself (a mutation painting the live frame under the rows fails it),
 release on stir and on an engine change, pacing, battery on Linux sysfs with
-a Bluetooth-mouse decoy, macOS/Windows psutil, rest-and-resume on a widget).
+a Bluetooth-mouse decoy, macOS/Windows psutil, rest-and-resume on a widget;
+round 2 added: the striped live paint equals the per-frame paint exactly, and
+a paused held field paints nothing).
 Cohort of 196 files (ambient, backdrop, theme, accessibility, field, paint,
 Home, app-screen and layout tests): 4,539 passed, 3 skipped, 1 failed; the
 failure (test_accessibility_item_views StorageCacheTable 'Cache') fails the
 same way on the untouched nightly 7a777989e. Code-rule meta tests (no #
 comments, every callable documented, valid RST, ledgers, instruction index):
 passed after regenerating features/00_INDEX.txt.
+
+Tests, round 2 (2026-10-26): the 196-file cohort plus the code-rule meta tests
+(no # comments, every callable documented, valid RST, documented assignments,
+instruction index, ledgers): 5,277 passed, 3 skipped, 1 failed, the same
+pre-existing StorageCacheTable 'Cache' failure as on nightly 7a777989e.
+test_the_theme_keeps_moving_while_a_dialog_is_open.py with the 728 tests, eight
+copies in parallel on the loaded machine: 8 x 12 passed.

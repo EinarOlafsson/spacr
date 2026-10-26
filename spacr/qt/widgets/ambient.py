@@ -10952,6 +10952,8 @@ _HOLD_SETTLE_S = 1.5
 _HOLD_RECHECK_S = 1.0
 _HOLD_FADE_S = 0.25
 _HOLD_FPS = 20
+_HOLD_GRID = 8
+_BLIT_STRIPE = 64
 _HOLD_CONTAINERS = frozenset(("QWidget", "QFrame", "QScrollArea",
                               "QAbstractScrollArea", "QStackedWidget",
                               "QSplitter"))
@@ -11039,11 +11041,13 @@ class _HeldRows(QObject):
         self._stirred = time.monotonic()
         self.release()
 
-    def release(self, fade: bool = True) -> None:
+    def release(self, fade: bool = True, repaint: bool = True) -> None:
         """Paint the whole field again from the next frame.
 
         :param fade: cross-fade a held frame into the live one; ``False``
             drops it at once, for a change that repaints everything anyway.
+        :param repaint: ask for that paint now; ``False`` when the field is
+            stopping (:meth:`settle_into_still`).
         """
         held = self.frame
         if held is None and not self.arming and (fade or self.fade is None):
@@ -11058,7 +11062,25 @@ class _HeldRows(QObject):
         self.live = QRegion()
         if not fade:
             self._probes.clear()
-        backdrop.update()
+        if repaint:
+            backdrop.update()
+
+    def settle_into_still(self) -> None:
+        """End a hold because the field stopped, without a repaint.
+
+        A stopped field paints nothing more on its own, and a pause must
+        not cost a frame: a run pausing the backdrop is pinned to paint
+        none. So the held frame becomes the frame the stopped field shows
+        (its ``_last_frame``, which the still and the partial-frame cache
+        are made from), and nothing is repainted. Every row repainting
+        later finds the very pixels already under it. Only the uncovered
+        page keeps the newer frame it last showed, until something there
+        is painted again.
+        """
+        backdrop = self.parent()
+        if self.frame is not None:
+            backdrop._last_frame = self.frame
+        self.release(fade=False, repaint=False)
 
     def _usable(self, producer) -> bool:
         """Whether this backdrop paints in a way a hold can follow."""
@@ -11118,7 +11140,14 @@ class _HeldRows(QObject):
                     and self.live.subtracted(region).isEmpty())
 
     def _covered(self) -> QRegion:
-        """The part of the field something is drawn over, in its coordinates."""
+        """The part of the field something is drawn over, in its coordinates.
+
+        Snapped outward to :data:`_HOLD_GRID` pixels: the gaps of a few
+        pixels between neighbouring rows and tiles are held with them, and
+        the live region is left in far fewer, larger rectangles (Home 160
+        became 71, Measure 83 became 22), which is what each frame's paint
+        pays per.
+        """
         backdrop = self.parent()
         host = backdrop.parentWidget()
         box = [QRegion()]
@@ -11126,7 +11155,15 @@ class _HeldRows(QObject):
             if len(self._probes) > _HOLD_PROBES_MAX:
                 self._probes.clear()
             self._walk(host, backdrop, -backdrop.pos(), backdrop.rect(), box)
-        return box[0]
+        grid = _HOLD_GRID
+        snapped = QRegion()
+        for part in box[0]:
+            left, top = part.x() // grid * grid, part.y() // grid * grid
+            right = -(-(part.x() + part.width()) // grid) * grid
+            bottom = -(-(part.y() + part.height()) // grid) * grid
+            snapped = snapped.united(QRect(left, top, right - left,
+                                           bottom - top))
+        return snapped.intersected(backdrop.rect())
 
     def _walk(self, parent, backdrop, offset: QPoint, clip: QRect, box) -> None:
         """Add what ``parent``'s children draw over the field to ``box[0]``."""
@@ -12213,6 +12250,9 @@ class AmbientWidget(QWidget):
         self._partial_frame = None
         self._field_grab = None
         self._timer.stop()
+        held = self.__dict__.get("_held_rows")
+        if held is not None:
+            held.settle_into_still()
         self._sync_interaction_filter()
         producer = self._producer_box[0]
         self._holds_still = bool(self.isVisible()
@@ -13010,6 +13050,9 @@ class AmbientWidget(QWidget):
         inside it, the held frame, and while a release fades, the newest
         frame over it at rising opacity.
 
+        The newest frame goes down one rectangle of the region at a time
+        where it can (:meth:`_blit_by_rectangle`).
+
         :param painter: the widget painter, nothing drawn yet.
         :param event: the paint event; only its region is painted.
         :param width: the widget width.
@@ -13019,7 +13062,7 @@ class AmbientWidget(QWidget):
         frame = self._last_frame
         opacity = None
         if not self._timer.isActive():
-            held.release(fade=False)
+            held.settle_into_still()
             return False
         if held.frame is not None:
             under, region = held.frame, held.region
@@ -13035,7 +13078,8 @@ class AmbientWidget(QWidget):
         asked = QRegion(event.region())
         live = asked.subtracted(region)
         covered = asked.intersected(region)
-        if not live.isEmpty():
+        if not live.isEmpty() and not self._blit_by_rectangle(
+                painter, live, frame, width, height):
             painter.setClipRegion(live)
             self._paint_base(painter, rect)
             self._engine.blit(painter, frame, width, height)
@@ -13048,6 +13092,52 @@ class AmbientWidget(QWidget):
                 painter.setOpacity(opacity)
                 painter.drawImage(QPoint(0, 0), layer)
                 painter.setOpacity(1.0)
+        painter.setClipping(False)
+        return True
+
+    def _blit_by_rectangle(self, painter, region: QRegion, frame: QImage,
+                           width: int, height: int) -> bool:
+        """Put the page and ``frame`` down in ``region``, one rectangle at a
+        time; False when this frame cannot be drawn that way.
+
+        Drawn through the whole region at once, Qt's raster engine splits
+        the blend of a large region across its thread pool, which on the
+        idle field cost more CPU than the same pixels drawn in pieces too
+        short for it to split: Home's live region (71 rectangles, 48 % of
+        1600x949, the frame upscaled from 1038x616) took 2.17 ms of CPU a
+        frame through the region, 2.00 ms a rectangle at a time and 1.17 ms
+        in stripes of at most :data:`_BLIT_STRIPE` rows (best of six
+        interleaved rounds, offscreen). Each stripe is clipped, and the frame is drawn
+        with the same whole-widget transform :meth:`_BufferedEngine.blit`
+        uses, so every pixel is the one the region-wide paint gives. Only a
+        flat page and an engine with the buffered blit qualify.
+
+        :param painter: the widget painter, with no clip set.
+        :param region: the part of the widget to paint.
+        :param frame: the frame to put down.
+        :param width: the widget width.
+        :param height: the widget height.
+        """
+        engine = self._engine
+        if (self._backdrop is not None
+                or type(engine).blit is not _BufferedEngine.blit
+                or frame is None or frame.isNull()):
+            return False
+        stripe = _BLIT_STRIPE
+        parts = [QRect(part.x(), top, part.width(),
+                       min(stripe, part.y() + part.height() - top))
+                 for part in region
+                 for top in range(part.y(), part.y() + part.height(), stripe)]
+        background = self._background
+        for part in parts:
+            painter.fillRect(part, background)
+        target = QRect(0, 0, int(width), int(height))
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(engine.mode)
+        for part in parts:
+            painter.setClipRect(part)
+            painter.drawImage(target, frame)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         painter.setClipping(False)
         return True
 
