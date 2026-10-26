@@ -445,6 +445,31 @@ except Exception:
     LOG.debug("Could not register the fold page QSS at import", exc_info=True)
 
 
+def _page_layout(screen: QWidget):
+    """The layout that holds the host's page body.
+
+    Usually the screen's own top-level layout. A host that scrolls on a
+    small display (:func:`spacr.qt.app._scroll_when_cramped`) has moved that
+    layout onto a content widget inside a ``CrampedScreenScroll``; its
+    body lives there, and looking only at the outer layout found nothing,
+    so Import's and Graph Builder's folds opened as 1180 x 760 windows.
+
+    :param screen: the host module's screen.
+    :returns: the layout, or ``None`` when the screen has none.
+    """
+    layout = screen.layout() if screen is not None else None
+    if layout is None or layout.count() != 1:
+        return layout
+    item = layout.itemAt(0)
+    scroll = item.widget() if item is not None else None
+    if (isinstance(scroll, QScrollArea)
+            and scroll.objectName() == "CrampedScreenScroll"
+            and scroll.widget() is not None
+            and scroll.widget().layout() is not None):
+        return scroll.widget().layout()
+    return layout
+
+
 def _page_body(screen: QWidget) -> Optional[QWidget]:
     """The widget that IS the host's page -- everything below its masthead.
 
@@ -455,7 +480,7 @@ def _page_body(screen: QWidget) -> Optional[QWidget]:
     attribute name so a screen that renames its body does not silently
     lose its pages.
     """
-    layout = screen.layout() if screen is not None else None
+    layout = _page_layout(screen)
     if layout is None or not hasattr(layout, "stretch"):
         return None
     for index in range(layout.count()):
@@ -520,7 +545,7 @@ def host_pages(screen: QWidget, title: str = "",
         _ensure_pages_qss(screen)
         return existing
     body = _page_body(screen)
-    layout = screen.layout() if screen is not None else None
+    layout = _page_layout(screen)
     if body is None or layout is None:
         return None
     index = layout.indexOf(body)
@@ -565,7 +590,7 @@ def _host_pages_in_steps(screen: QWidget) -> Optional[QTabWidget]:
     existing = getattr(screen, "_fold_pages", None)
     if isinstance(existing, QTabWidget):
         return host_pages(screen)
-    if _page_body(screen) is None or screen.layout() is None:
+    if _page_body(screen) is None or _page_layout(screen) is None:
         return None
     _ensure_pages_qss(screen)
     _start_pages(screen)

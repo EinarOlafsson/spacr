@@ -410,7 +410,14 @@ class ForeignScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay out the input rows over the mapping table and the report."""
+        """Lay out the input rows over the mapping table and the report.
+
+        Everything under the masthead sits on one page widget, the one the
+        layout stretches, so a folded module (External Masks, Format
+        Converter, Import Images) opened from the fold strip takes that
+        whole page rather than the room the mapping table had between the
+        input rows and the Import button.
+        """
         self.app_key = "foreign"
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -426,6 +433,14 @@ class ForeignScreen(QWidget):
         self._header = header
         outer.addWidget(header)
 
+        page = QWidget(self)
+        page.setObjectName("ImportPage")
+        form = QVBoxLayout(page)
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setSpacing(SPACING["md"])
+        outer.addWidget(page, 1)
+        self._import_page = page
+
         subtitle = QLabel(
             "Turn somebody else's images, label masks and measurement table "
             "into a spaCR project: Yokogawa-named TIFFs, merged arrays, and a "
@@ -435,9 +450,9 @@ class ForeignScreen(QWidget):
             "mapping is shown for review and applied only by Import.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        form.addWidget(subtitle)
 
-        outer.addWidget(Divider())
+        form.addWidget(Divider())
 
         img_row = QHBoxLayout()
         img_row.setSpacing(SPACING["sm"])
@@ -460,7 +475,7 @@ class ForeignScreen(QWidget):
         img_row.addWidget(self._images_edit, 1)
         img_row.addWidget(self._btn_pick_images)
         img_row.addWidget(self._btn_test_data)
-        outer.addLayout(img_row)
+        form.addLayout(img_row)
 
         naming_row = QHBoxLayout()
         naming_row.setSpacing(SPACING["sm"])
@@ -482,7 +497,7 @@ class ForeignScreen(QWidget):
         naming_row.addWidget(QLabel(tr("Naming")))
         naming_row.addWidget(self._naming_box, 1)
         naming_row.addWidget(self._regex_edit, 1)
-        outer.addLayout(naming_row)
+        form.addLayout(naming_row)
 
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
@@ -504,12 +519,12 @@ class ForeignScreen(QWidget):
         mask_row.addWidget(self._btn_pick_mask)
         mask_row.addWidget(self._btn_add_mask)
         mask_row.addWidget(self._btn_remove_mask)
-        outer.addLayout(mask_row)
+        form.addLayout(mask_row)
 
         self._mask_list = QListWidget(self)
         self._mask_list.setObjectName("Masks")
         self._mask_list.setMaximumHeight(76)
-        outer.addWidget(self._mask_list)
+        form.addWidget(self._mask_list)
 
         table_row = QHBoxLayout()
         table_row.setSpacing(SPACING["sm"])
@@ -523,7 +538,7 @@ class ForeignScreen(QWidget):
         table_row.addWidget(QLabel("Measurements"))
         table_row.addWidget(self._table_edit, 1)
         table_row.addWidget(self._btn_pick_table)
-        outer.addLayout(table_row)
+        form.addLayout(table_row)
 
         opt_row = QHBoxLayout()
         opt_row.setSpacing(SPACING["sm"])
@@ -542,7 +557,7 @@ class ForeignScreen(QWidget):
         opt_row.addWidget(QLabel("On name conflict"))
         opt_row.addWidget(self._conflict_box, 1)
         opt_row.addWidget(self._btn_preview)
-        outer.addLayout(opt_row)
+        form.addLayout(opt_row)
 
         self._model = ColumnMapModel(self)
         self._model.mapping_edited.connect(self._on_mapping_edited)
@@ -568,7 +583,7 @@ class ForeignScreen(QWidget):
         split.add_section(self._report, "Import report",
                           persist_key="foreign/Import report", stretch=0,
                           extent=190)
-        outer.addWidget(split, 1)
+        form.addWidget(split, 1)
         self._body_splitter = split
 
         dst_row = QHBoxLayout()
@@ -592,7 +607,7 @@ class ForeignScreen(QWidget):
         dst_row.addWidget(self._btn_save_map)
         dst_row.addWidget(self._btn_load_map)
         dst_row.addWidget(self._btn_import)
-        outer.addLayout(dst_row)
+        form.addLayout(dst_row)
 
         from ..widgets.eliding import ProgressLine
 
@@ -600,12 +615,12 @@ class ForeignScreen(QWidget):
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setValue(0)
         self._progress_bar.setVisible(False)
-        outer.addWidget(self._progress_bar)
+        form.addWidget(self._progress_bar)
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")
         self._status.setWordWrap(True)
-        outer.addWidget(self._status)
+        form.addWidget(self._status)
 
 
     def _set_status(self, text: str, error: bool = False) -> None:
