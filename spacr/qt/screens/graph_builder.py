@@ -407,10 +407,6 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         sleeping share, or dropping a project folder that resolves onto one,
         would freeze the whole window with no traceback.
 
-        The column classification every panel asks for on delivery is
-        computed here too and memoised on the frame: for the 986-column
-        merge of lesson 58 it held the GUI thread for 0.4 s.
-
         So the listing goes to the worker with the read, as one job, and the
         picker is populated by :meth:`_on_frame_loaded` when the answer
         arrives. A ``path_probe`` pre-flight would not help: it answers
