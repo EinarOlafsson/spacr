@@ -9203,9 +9203,30 @@ class _FieldOverview(QWidget):
 
 
 def _overview_workspace_qss(palette, opacity):
-    """Let embedded overview content inherit the owning module's backdrop."""
+    """Let embedded overview content inherit the owning module's backdrop.
+
+    The metadata step's filename regex keeps a full frame: a long pattern
+    runs to the field's right end, where the field fade would leave it with
+    no visible edge.
+    """
     return ("QWidget#FieldOverviewWorkspace, QWidget#FieldOverviewBody, "
-            "QWidget#FieldOverviewMetadata { background: transparent; }")
+            "QWidget#FieldOverviewMetadata { background: transparent; }\n"
+            + _overview_regex_qss(palette))
+
+
+def _overview_regex_qss(palette):
+    """The framed look of the metadata step's filename regex field.
+
+    :param palette: the active palette.
+    :returns: QSS for ``QLineEdit#OverviewWizardRegex``.
+    """
+    from ..theme import RADIUS
+
+    return (f"QLineEdit#OverviewWizardRegex {{ background-color: {palette['surface_alt']}; "
+            f"border: 1px solid {palette['border']}; border-radius: {RADIUS['sm']}px; }}\n"
+            f"QLineEdit#OverviewWizardRegex:focus {{ border: 1px solid {palette['accent']}; }}\n"
+            f"QLineEdit#OverviewWizardRegex:disabled {{ background-color: {palette['surface']}; "
+            f"border-color: {palette['border_soft']}; }}")
 
 
 class _OverviewWorkspace(QWidget):
@@ -10452,7 +10473,8 @@ class _OverviewModulePage(QWidget):
 def _overview_module_qss(palette, opacity):
     """Let the Overview module page show the module's own backdrop."""
     return ("QWidget#FieldOverviewModulePage, QWidget#FieldOverviewBody, "
-            "QWidget#FieldOverviewMetadata { background: transparent; }")
+            "QWidget#FieldOverviewMetadata { background: transparent; }\n"
+            + _overview_regex_qss(palette))
 
 
 class _OverviewHeightGrip(QFrame):
@@ -11109,6 +11131,7 @@ class _OverviewMetadataWizard(QWidget):
         self.preset.addItem(tr("Custom filename regex"), "custom")
         self.regex = QLineEdit(str(self._settings.get("custom_regex") or ""))
         self.regex.setObjectName("OverviewWizardRegex")
+        self.regex.setProperty("spacrNoFieldFade", True)
         form.addRow(tr("Microscope preset"), self.preset)
         form.addRow(tr("Filename regex"), self.regex)
         self.preset.currentIndexChanged.connect(self._preset_changed)
@@ -12226,3 +12249,4 @@ class _OverviewWellMeanContext:
 from ..theme import register_widget_qss as _register_widget_qss
 
 _register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
+_register_widget_qss("FieldOverviewPanel", _overview_panel_qss, replace=True)
