@@ -230,6 +230,6 @@ DELIBERATELY NOT DONE
 
 2026-10-26 — Isolated post-1.5.1.6 delivery; preserve original worktrees and the final release pin. No cluster submissions or external messages were made.
 Remote/SSH/Qt owning cohort: 394 passed, two Windows-only skips; three scheduler-path cases and three hygiene checks also passed. Only affected failures were rerun; the old full-suite outcome remains unverified.
-Fixed stale cluster probes, log draining/UTF-8, duplicate error capture, allocation ownership/cancellation, profile-connection binding, terminal accounting and quoted scheduler output paths; existing safety guards remain.
+Fixed stale cluster probes, log draining/UTF-8, duplicate error capture, allocation ownership/cancellation, profile-connection binding, terminal accounting and quoted scheduler output paths; existing safety guards remain. Removing all seven GUI closures also retires its now-empty nested-helper rollout entry, without weakening the zero-helper guard.
 Nine-locale remote review records and normal API retirements must be grafted onto a separate branch from the final release review pin; generated outputs remain pending that coordinated closure.
 OPEN: maintainer Great Lakes sign-in/allocation/compute-node/live-log acceptance is still required; complex LSF path escaping is not natively qualified.
