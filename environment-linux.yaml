@@ -1,0 +1,36 @@
+# environment-linux.yaml: environment.yaml plus the X11 libraries Qt's xcb
+# display plugin loads on Linux.
+#
+# A pip-installed PySide6 does not carry them. On a desktop the system
+# usually has them; on a cluster node or a minimal server it often lacks
+# libxcb-cursor.so.0, and Qt then aborts with "Could not load the Qt
+# platform plugin xcb". These conda-forge packages put the libraries into
+# the environment, so no root is needed. `spacr` finds them there and adds
+# the environment's lib folder to LD_LIBRARY_PATH when it starts.
+#
+# conda has no per-platform selectors in environment files, so these live
+# here rather than in environment.yaml, which macOS and Windows also use.
+# setup.py stays the single source of truth for spaCR's Python dependencies.
+#
+#   conda env create -f environment-linux.yaml
+#   conda activate spacr
+#
+# Already have an environment? Add the libraries to it:
+#   mamba install -c conda-forge xcb-util-cursor xcb-util-wm xcb-util-image \
+#       xcb-util-keysyms xcb-util-renderutil xcb-util libxkbcommon
+
+name: spacr
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10,<3.14
+  - pip
+  - xcb-util-cursor
+  - xcb-util-wm
+  - xcb-util-image
+  - xcb-util-keysyms
+  - xcb-util-renderutil
+  - xcb-util
+  - libxkbcommon
+  - pip:
+      - -e .[dev]

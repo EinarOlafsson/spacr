@@ -40,6 +40,10 @@
 #   conda env create -f environment.yaml
 #   conda activate spacr
 #
+# On Linux, use environment-linux.yaml instead: it adds xcb-util-cursor and
+# the other X11 libraries Qt's display plugin needs, which a cluster node
+# without root often lacks.
+#
 # For a non-conda install see requirements.txt, or:
 #   pip install spacr            # users; desktop + pipelines
 #   pip install "spacr[all]"     # every optional feature

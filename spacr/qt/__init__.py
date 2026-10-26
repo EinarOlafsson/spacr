@@ -530,6 +530,242 @@ def _give_offscreen_qt_the_windows_fonts(environ=None, *, windows=None) -> str:
     return folder
 
 
+_X11_LIBRARIES = (
+    ("libxcb-cursor.so.0", "xcb-util-cursor", "libxcb-cursor0"),
+    ("libxcb-icccm.so.4", "xcb-util-wm", "libxcb-icccm4"),
+    ("libxcb-image.so.0", "xcb-util-image", "libxcb-image0"),
+    ("libxcb-keysyms.so.1", "xcb-util-keysyms", "libxcb-keysyms1"),
+    ("libxcb-render-util.so.0", "xcb-util-renderutil", "libxcb-render-util0"),
+    ("libxcb-util.so.1", "xcb-util", "libxcb-util1"),
+    ("libxkbcommon.so.0", "libxkbcommon", "libxkbcommon0"),
+    ("libxkbcommon-x11.so.0", "libxkbcommon", "libxkbcommon-x11-0"),
+)
+
+_X11_RELAUNCH_FLAG = "SPACR_X11_LIBRARIES_RELAUNCHED"
+
+_SYSTEM_LIBRARY_DIRS = (
+    "/lib", "/lib64", "/usr/lib", "/usr/lib64", "/usr/local/lib",
+    "/lib/x86_64-linux-gnu", "/usr/lib/x86_64-linux-gnu",
+    "/lib/aarch64-linux-gnu", "/usr/lib/aarch64-linux-gnu",
+)
+
+_X11_MISSING_MESSAGE = """\
+spaCR cannot open its window: Qt's X11 (xcb) display plugin needs {libraries},
+which this machine does not have.
+
+Install them into this conda or mamba environment (no root needed):
+
+    mamba install -c conda-forge {conda_packages}
+
+or, with administrator rights, system-wide:
+
+    sudo apt install {apt_packages}
+
+Then run `spacr` again. The pipelines run without a window: `spacr-run --list`.\
+"""
+
+
+def _qt_will_use_xcb(environ=None, *, linux=None) -> bool:
+    """Whether Qt is about to load its X11 (xcb) platform plugin.
+
+    :param environ: the environment to read; this process's by default.
+    :param linux: whether to answer for Linux; this system by default.
+    :returns: ``True`` on Linux when ``QT_QPA_PLATFORM`` names ``xcb`` first,
+        or names nothing and an X display is set. Without one Qt has no X
+        server to connect to, and says so itself.
+    """
+    environ = os.environ if environ is None else environ
+    if not (sys.platform.startswith("linux") if linux is None else linux):
+        return False
+    platform = str(environ.get("QT_QPA_PLATFORM", "")).strip().lower()
+    if platform:
+        return platform.split(";", 1)[0].split(":", 1)[0].strip() == "xcb"
+    return bool(environ.get("DISPLAY"))
+
+
+def _qt_library_dirs() -> list[str]:
+    """The folders Qt's own xcb library finds its dependencies in.
+
+    A pip PySide6 keeps Qt in ``PySide6/Qt/lib`` and a conda-forge one in
+    the environment's ``lib``; either way the library looks beside itself.
+    """
+    import importlib.util
+
+    candidates = []
+    try:
+        spec = importlib.util.find_spec("PySide6")
+    except (ImportError, ValueError):
+        spec = None
+    for location in (getattr(spec, "submodule_search_locations", None) or ()):
+        candidates.append(os.path.join(location, "Qt", "lib"))
+    candidates.append(os.path.join(sys.prefix, "lib"))
+    return [folder for folder in candidates
+            if os.path.isfile(os.path.join(folder, "libQt6XcbQpa.so.6"))]
+
+
+def _loader_cache() -> frozenset | None:
+    """The library names the system loader's cache knows, from ``ldconfig -p``.
+
+    :returns: the names, or ``None`` when no ``ldconfig`` answers.
+    """
+    import shutil
+    import subprocess
+
+    for program in ("/sbin/ldconfig", "/usr/sbin/ldconfig",
+                    shutil.which("ldconfig")):
+        if not program or not os.path.isfile(program):
+            continue
+        try:
+            listing = subprocess.run(
+                [program, "-p"], capture_output=True, text=True,
+                timeout=10, check=False).stdout
+        except (OSError, subprocess.SubprocessError):
+            continue
+        names = frozenset(line.split()[0] for line in listing.splitlines()
+                          if "=>" in line and line.split())
+        if names:
+            return names
+    return None
+
+
+def _missing_x11_libraries(environ=None, *, qt_dirs=None, cache=None,
+                           system_dirs=_SYSTEM_LIBRARY_DIRS) -> list[tuple]:
+    """The rows of :data:`_X11_LIBRARIES` that Qt's xcb plugin cannot load.
+
+    A library counts as found in ``LD_LIBRARY_PATH``, beside Qt's own
+    libraries, or in the system loader's cache. The executable's own search
+    path does not count: a conda Python finds libraries in its environment
+    that Qt's plugin, which carries its own search path, never looks at.
+
+    :param environ: the environment to read; this process's by default.
+    :param qt_dirs: Qt's library folders; found when omitted.
+    :param cache: the loader cache's names; read when omitted, and the
+        standard system folders are searched when there is none.
+    :returns: the missing rows, in table order.
+    """
+    environ = os.environ if environ is None else environ
+    folders = [part for part in str(environ.get("LD_LIBRARY_PATH", "")).split(":")
+               if part]
+    folders.extend(_qt_library_dirs() if qt_dirs is None else qt_dirs)
+    if cache is None:
+        cache = _loader_cache()
+    if cache is None:
+        folders.extend(system_dirs)
+        cache = frozenset()
+    return [row for row in _X11_LIBRARIES
+            if row[0] not in cache
+            and not any(os.path.isfile(os.path.join(folder, row[0]))
+                        for folder in folders)]
+
+
+def _conda_library_dirs(environ=None) -> list[str]:
+    """The ``lib`` folders of the active conda or mamba environment.
+
+    :param environ: the environment to read; this process's by default.
+    """
+    environ = os.environ if environ is None else environ
+    roots = [environ.get("CONDA_PREFIX", "")]
+    if os.path.isdir(os.path.join(sys.prefix, "conda-meta")):
+        roots.append(sys.prefix)
+    found = []
+    for root in roots:
+        folder = os.path.join(root, "lib") if root else ""
+        if folder and os.path.isdir(folder) and folder not in found:
+            found.append(folder)
+    return found
+
+
+def _relaunch_with_conda_x11_libraries(missing, environ=None, *,
+                                       execv=None) -> bool:
+    """Start this command again with the environment's ``lib`` on the path.
+
+    The dynamic loader reads ``LD_LIBRARY_PATH`` once, when the process
+    starts, so setting it now would not reach Qt's plugin; the process is
+    replaced by a fresh copy of itself instead. It happens at most once: the
+    copy carries :data:`_X11_RELAUNCH_FLAG` and never relaunches again.
+
+    :param missing: rows from :func:`_missing_x11_libraries`.
+    :param environ: the environment to change; this process's by default.
+    :param execv: the replacement call; :func:`os.execv` by default.
+    :returns: ``False`` when no environment folder holds a missing library,
+        this is already the relaunched copy, or the relaunch failed and the
+        environment was put back. A real relaunch never returns.
+    """
+    environ = os.environ if environ is None else environ
+    if environ.get(_X11_RELAUNCH_FLAG):
+        return False
+    folder = next((candidate for candidate in _conda_library_dirs(environ)
+                   if any(os.path.isfile(os.path.join(candidate, row[0]))
+                          for row in missing)), "")
+    if not folder:
+        return False
+    current = environ.get("LD_LIBRARY_PATH")
+    environ["LD_LIBRARY_PATH"] = folder + (":" + current if current else "")
+    environ[_X11_RELAUNCH_FLAG] = "1"
+    arguments = list(getattr(sys, "orig_argv", None) or [sys.executable, *sys.argv])
+    arguments[0] = sys.executable
+    sys.stdout.flush()
+    sys.stderr.flush()
+    try:
+        (os.execv if execv is None else execv)(sys.executable, arguments)
+    except OSError:
+        environ.pop(_X11_RELAUNCH_FLAG, None)
+        if current is None:
+            environ.pop("LD_LIBRARY_PATH", None)
+        else:
+            environ["LD_LIBRARY_PATH"] = current
+        return False
+    return True
+
+
+def _x11_library_message(missing) -> str:
+    """The instructions printed when Qt's xcb plugin cannot be loaded.
+
+    :param missing: rows from :func:`_missing_x11_libraries`.
+    """
+    conda = list(dict.fromkeys(row[1] for row in missing))
+    apt = list(dict.fromkeys(row[2] for row in missing))
+    return _X11_MISSING_MESSAGE.format(
+        libraries=", ".join(row[0] for row in missing),
+        conda_packages=" ".join(conda), apt_packages=" ".join(apt))
+
+
+def _check_the_x11_libraries(environ=None, *, linux=None, execv=None) -> int:
+    """Make sure Qt's X11 plugin can load before Qt tries and aborts.
+
+    Without ``libxcb-cursor.so.0`` and its neighbours Qt prints a fatal error
+    and the process dies on SIGABRT, leaving a core dump and nothing to act
+    on. A missing library that the active conda environment holds is fixed
+    by one relaunch; otherwise one message names what to install. This is a
+    known environment problem, so it is logged and never reported as a crash.
+
+    :param environ: the environment to read; this process's by default.
+    :param linux: whether to answer for Linux; this system by default.
+    :param execv: passed to :func:`_relaunch_with_conda_x11_libraries`.
+    :returns: ``0`` when Qt may start, else ``1`` after the message.
+    """
+    import logging
+
+    environ = os.environ if environ is None else environ
+    try:
+        if not _qt_will_use_xcb(environ, linux=linux):
+            return 0
+        missing = _missing_x11_libraries(environ)
+        if not missing:
+            return 0
+        if _relaunch_with_conda_x11_libraries(missing, environ, execv=execv):
+            return 0
+    except Exception:
+        logging.getLogger("spacr.qt").debug(
+            "could not check the X11 libraries", exc_info=True)
+        return 0
+    logging.getLogger("spacr.qt").info(
+        "known environment problem, not a crash: Qt's xcb plugin is missing %s",
+        ", ".join(row[0] for row in missing))
+    print(_x11_library_message(missing), file=sys.stderr)
+    return 1
+
+
 def run_without_setup(argv: list[str] | None = None) -> int:
     """Launch the GUI without the first-run setup screen.
 
@@ -587,6 +823,9 @@ def run(argv: list[str] | None = None) -> int:
         return 0
 
     _say_when_running_translated()
+
+    if _check_the_x11_libraries():
+        return 1
 
     try:
         from .app import launch

@@ -1176,6 +1176,42 @@ def check_display(ctx: Context) -> Result:
     )
 
 
+@_register("X11 libraries")
+def _check_x11_libraries(ctx: Context) -> Optional[Result]:
+    """On Linux, whether Qt's X11 (xcb) plugin finds every library it needs.
+
+    ``libxcb-cursor.so.0`` is the one most often missing on a cluster node,
+    where the user has no root. Without it Qt aborts with "no Qt platform
+    plugin could be initialized". It is checked with or without a display,
+    so a node can be checked before a desktop session is opened on it. No
+    row is added off Linux, or when Qt is told to use another platform plugin.
+    """
+    from .qt import _conda_library_dirs, _missing_x11_libraries, _qt_will_use_xcb
+
+    if not _qt_will_use_xcb({**os.environ, "DISPLAY": os.environ.get("DISPLAY") or ":0"}):
+        return None
+    missing = _missing_x11_libraries()
+    if not missing:
+        return Result("X11 libraries", PASS,
+                      "Qt's xcb plugin finds every X11 library it needs.")
+    names = ", ".join(row[0] for row in missing)
+    in_conda = [row[0] for row in missing
+                if any(os.path.isfile(os.path.join(folder, row[0]))
+                       for folder in _conda_library_dirs())]
+    if len(in_conda) == len(missing):
+        return Result("X11 libraries", PASS,
+                      f"{names} come from this conda environment; `spacr` "
+                      "adds its lib folder to LD_LIBRARY_PATH when it starts.")
+    conda = " ".join(dict.fromkeys(row[1] for row in missing))
+    apt = " ".join(dict.fromkeys(row[2] for row in missing))
+    return Result(
+        "X11 libraries", WARN,
+        f"Qt's xcb plugin cannot load {names}, so the GUI cannot open a "
+        "window here. The pipelines still run.",
+        fix=(f"mamba install -c conda-forge {conda}   # no root needed\n"
+             f"sudo apt install {apt}"))
+
+
 @_register("offscreen fonts")
 def _check_offscreen_fonts(ctx: Context) -> Optional[Result]:
     """On Windows, whether off-screen Qt has a font folder to draw text with.
