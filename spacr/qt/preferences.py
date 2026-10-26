@@ -9286,6 +9286,14 @@ def _preferences_draft(dialog) -> tuple:
     not show. Scroll bars are not edits; the dialog is scrolled back to the
     top before it is shown again.
 
+    The controls are listed in tab order and, within a tab, in the order
+    the page holds them, whether the page is in its tab or waiting away, so
+    two drafts of one dialog line up. Nothing asks shiboken for a widget's
+    C++ address: on macOS some wrappers ``findChildren`` hands back are
+    stale, and sorting by ``getCppPointer`` read them all -- the one native
+    crash left in a full Apple Silicon run (PySide6 6.11.2). Only a live
+    control is read, and only what the loop below reads anyway.
+
     :param dialog: a Preferences window.
     :returns: a comparable tuple.
     """
@@ -9294,12 +9302,30 @@ def _preferences_draft(dialog) -> tuple:
         QDialog, QLineEdit, QPlainTextEdit, QScrollBar, QTextEdit, QWidget,
     )
 
-    from shiboken6 import getCppPointer
+    from shiboken6 import isValid
 
-    widgets = list(QDialog.findChildren(dialog, QWidget))
-    for page in list(getattr(dialog, "_pages_away", {}).values()):
-        widgets.extend(page.findChildren(QWidget))
-    widgets.sort(key=lambda widget: getCppPointer(widget)[0])
+    controls = (QAbstractButton, QAbstractSlider, QAbstractSpinBox,
+                QComboBox, QLineEdit, QPlainTextEdit, QTextEdit)
+    pages = dict(getattr(dialog, "_pages_away", {}) or {})
+    tabs = getattr(dialog, "_page_tabs", None)
+    for index in range(tabs.count() if tabs is not None else 0):
+        scroll = tabs.widget(index)
+        page = getattr(scroll, "widget", lambda: None)()
+        if index not in pages and page is not None:
+            pages[index] = page
+    pages = {index: page for index, page in pages.items() if isValid(page)}
+    readable = [
+        widget for widget in QDialog.findChildren(dialog, QWidget)
+        if isinstance(widget, controls)
+        and not isinstance(widget, QScrollBar) and isValid(widget)]
+    widgets = [widget for widget in readable
+               if not any(page.isAncestorOf(widget)
+                          for page in pages.values())]
+    for index in sorted(pages):
+        widgets.extend(
+            widget for widget in pages[index].findChildren(QWidget)
+            if isinstance(widget, controls)
+            and not isinstance(widget, QScrollBar) and isValid(widget))
     held = []
     for widget in widgets:
         if isinstance(widget, QComboBox):

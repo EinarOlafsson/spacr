@@ -403,6 +403,65 @@ def test_a_store_changed_elsewhere_is_shown_on_the_next_open(owner, qtbot):
     dialog.deleteLater()
 
 
+def _no_address(obj):
+    raise AssertionError(f"asked for the address of {type(obj).__name__}")
+
+
+def _a_draft_asking_no_address(dialog, monkeypatch):
+    """``_preferences_draft`` with ``getCppPointer`` refusing every call."""
+    import shiboken6
+
+    with monkeypatch.context() as patch:
+        patch.setattr(shiboken6, "getCppPointer", _no_address)
+        return preferences._preferences_draft(dialog)
+
+
+def test_the_draft_reads_no_wrapper_address_and_skips_a_destroyed_page(
+        owner, qtbot, monkeypatch):
+    """Opening, closing and a store changed elsewhere, with wrappers gone.
+
+    A native Apple Silicon run (macOS, PySide6 6.11.2) crashed in
+    ``_preferences_draft``: it sorted every widget ``findChildren`` handed
+    back by ``shiboken6.getCppPointer``, and some of those wrappers were
+    stale. The draft now never asks for a wrapper's address, skips a page
+    whose C++ object is gone, and still lines two drafts of one dialog up
+    whether a page is in its tab or waiting away.
+    """
+    import shiboken6
+    from PySide6.QtWidgets import QWidget
+
+    draft = lambda dialog: _a_draft_asking_no_address(  # noqa: E731
+        dialog, monkeypatch)
+    kept = _warm(owner, qtbot)
+    before = draft(kept)
+    assert before[0], "the draft read no control at all"
+    kept._send_the_unseen_pages_away()
+    assert kept._pages_away, "no page went away, so this proves nothing"
+    assert draft(kept) == before, (
+        "a page waiting away changed the draft of an unchanged dialog")
+
+    gone = QWidget()
+    shiboken6.delete(gone)
+    away = max(kept._pages_away) + 1000
+    kept._pages_away[away] = gone
+    try:
+        assert draft(kept) == before
+    finally:
+        kept._pages_away.pop(away)
+
+    preferences.set_theme_choice("light")
+    dialog = preferences._a_preferences_for(owner)
+    assert dialog is not kept, "a dialog built before the change was shown"
+    assert _theme_combo(dialog).currentData() == "light"
+    dialog.show()
+    _close(dialog, QDialogButtonBox.Cancel)
+    preferences._put_the_preferences_away(owner, dialog)
+    _settle(owner, qtbot)
+    again = preferences._a_preferences_for(owner)
+    assert _theme_combo(again).currentData() == "light"
+    again.deleteLater()
+
+
 def test_save_writes_and_the_next_open_shows_what_was_saved(owner, qtbot):
     _warm(owner, qtbot)
     dialog = preferences._a_preferences_for(owner)
