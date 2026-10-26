@@ -48,6 +48,8 @@ from __future__ import annotations
 
 import json
 import logging
+import multiprocessing.pool
+import multiprocessing.util
 import os
 import sys
 import threading
@@ -1382,13 +1384,39 @@ class _WorkerStartGate:
 
     def start(self, call):
         """Start immediately once, then wait between deployment attempts."""
+        return self._start(call, True)
+
+    def start_now(self, call):
+        """Start without waiting; the next paced start still waits a full delay."""
+        return self._start(call, False)
+
+    def wait_turn(self, stop):
+        """Wait outside the start lock until the next start is due.
+
+        :param stop: predicate checked between short sleeps; once it holds
+            the wait is abandoned.
+        :returns: ``True`` when a start is due, ``False`` when ``stop`` held.
+        """
+        while not stop():
+            with self._lock:
+                last = self._last
+            if last is None:
+                return True
+            remaining = last + self.delay - self._clock()
+            if remaining <= 0:
+                return True
+            self._sleep(min(0.05, remaining))
+        return False
+
+    def _start(self, call, paced):
+        """Run one start attempt under the lock, waiting first when ``paced``."""
         from .cancellation import checkpoint
 
         with self._lock:
             checkpoint()
             if self._token is not None:
                 self._token.checkpoint()
-            if self._last is not None:
+            if paced and self._last is not None:
                 deadline = self._last + self.delay
                 while True:
                     remaining = deadline - self._clock()
@@ -1426,7 +1454,11 @@ class _StaggeredProcess:
 
     def start(self):
         """Deploy this real process after the previous pool start attempt."""
-        result = self._gate.start(self._process.start)
+        return self._gate.start(self._start_now)
+
+    def _start_now(self):
+        """Start the real process at once and bind it to the parent's job."""
+        result = self._process.start()
         _bind_to_parent_job(self._process.pid)
         return result
 
@@ -1460,12 +1492,167 @@ class _StaggeredContext(BaseContext):
         return process
 
     def Pool(self, processes=None, initializer=None, initargs=(),
-             maxtasksperchild=None):
-        """Build a normal pool with this context's paced process factory."""
-        from multiprocessing.pool import Pool
+             maxtasksperchild=None, *, burst=1):
+        """Build a pool that runs tasks on its first worker while the rest start.
 
-        return Pool(processes, initializer, initargs, maxtasksperchild,
-                    context=self)
+        :param burst: how many of the first workers may start back to back,
+            see :func:`_start_burst`; later starts wait for this context's gate.
+        """
+        return _PacedPool(processes, initializer, initargs, maxtasksperchild,
+                          context=self, burst=burst)
+
+
+class _PacedPool(multiprocessing.pool.Pool):
+    """A stock pool whose first worker starts at once and the rest in the background.
+
+    The stock constructor starts every worker before it returns, so through a
+    paced context it returned only after every gate interval and no task ran
+    meanwhile: (N-1) x 10 s idle before the first image. Here the constructor
+    starts one worker; a starter thread brings the pool up to size through the
+    gate and replaces workers that exit, while tasks already run on the started
+    ones. The stock worker handler only reaps, so the pool list holds started
+    processes only and join and terminate never meet one that never started.
+    The starter stops before the handler sends its exit sentinels:
+    ``terminate`` stops and joins it first, and ``close`` lets it serve the
+    queued work and hand the close to the handler itself. A set ``idle``
+    predicate on the gate, such as the Overview's cancel event, and the run's
+    cancellation token hold further starts while a worker is alive.
+    """
+
+    def __init__(self, processes=None, initializer=None, initargs=(),
+                 maxtasksperchild=None, context=None, *, burst=1):
+        """Start the first worker, then the starter thread for the others."""
+        self._starts_lock = threading.Lock()
+        self._starts_stop = threading.Event()
+        self._closing = False
+        self._starts_done = False
+        self._start_error = None
+        self._burst_left = max(1, int(burst)) - 1
+        self._starter = None
+        super().__init__(processes, initializer, initargs, maxtasksperchild,
+                         context)
+        self._gate = getattr(self._ctx, '_gate', None) or _WorkerStartGate()
+        self._starter = threading.Thread(target=self._keep_workers,
+                                         name='spacr-pool-starter', daemon=True)
+        self._starter.start()
+        self._stop_at_exit = multiprocessing.util.Finalize(
+            self, _PacedPool._stop_starter,
+            args=(self._starts_stop, self._starter), exitpriority=16)
+
+    def _repopulate_pool(self):
+        """Start only the first worker; the handler is left to reap exits."""
+        self._target, self._processes = self._processes, 0
+        return self._repopulate_pool_static(
+            self._ctx, self.Process, 1, self._pool, self._inqueue,
+            self._outqueue, self._initializer, self._initargs,
+            self._maxtasksperchild, self._wrap_exception)
+
+    def _map_async(self, func, iterable, mapper, chunksize=None, callback=None,
+                   error_callback=None):
+        """Size default chunks for the full pool, not the workers started so far."""
+        if chunksize is None:
+            if not hasattr(iterable, '__len__'):
+                iterable = list(iterable)
+            chunksize, extra = divmod(len(iterable), self._target * 4)
+            chunksize += bool(extra)
+        return super()._map_async(func, iterable, mapper, chunksize, callback,
+                                  error_callback)
+
+    def _live_workers(self):
+        """Count the started workers that have not exited."""
+        return sum(1 for worker in list(self._pool) if worker.exitcode is None)
+
+    def _starts_stopped(self):
+        """Whether a waiting start should be given up now."""
+        if self._starts_stop.is_set() or (self._closing and not self._cache):
+            return True
+        idle = self._gate.idle
+        return idle is not None and bool(idle()) and self._live_workers() > 0
+
+    def _keep_workers(self):
+        """Bring the pool up to size and replace exits until stopped or closed."""
+        try:
+            while not self._starts_stop.is_set():
+                if self._closing and not self._cache:
+                    break
+                if (self._live_workers() < self._target
+                        and not self._starts_stopped()
+                        and (self._burst_left > 0
+                             or self._gate.wait_turn(self._starts_stopped))):
+                    self._start_once()
+                    continue
+                self._starts_stop.wait(0.05)
+        finally:
+            with self._starts_lock:
+                self._starts_done = True
+                closing = self._closing
+            if closing:
+                self._hand_over_close()
+
+    def _start_once(self):
+        """Make one start attempt; a failure leaves the pool at its live size."""
+        from .cancellation import PipelineCancelled
+
+        try:
+            if self._burst_left > 0:
+                self._burst_left -= 1
+                self._gate.start_now(self._start_worker)
+            else:
+                self._gate.start(self._start_worker)
+        except Exception as error:
+            self._start_error = error
+            self._burst_left = 0
+            self._target = max(1, self._live_workers())
+            if not isinstance(error, PipelineCancelled):
+                LOG.warning('A processing worker failed to start (%s); the pool '
+                            'continues with %d worker(s)', error, self._target)
+            self._starts_stop.wait(0.05)
+
+    def _start_worker(self):
+        """Start one worker unless the pool stopped wanting it; called under the gate."""
+        if self._starts_stopped():
+            return
+        process = self.Process(
+            self._ctx, target=multiprocessing.pool.worker,
+            args=(self._inqueue, self._outqueue, self._initializer,
+                  self._initargs, self._maxtasksperchild, self._wrap_exception))
+        process.name = process.name.replace('Process', 'PoolWorker')
+        process.daemon = True
+        getattr(process, '_start_now', process.start)()
+        self._pool.append(process)
+
+    def _hand_over_close(self):
+        """Let the stock worker handler finish the close once no start can follow."""
+        self._worker_handler._state = multiprocessing.pool.CLOSE
+        self._change_notifier.put(None)
+
+    @staticmethod
+    def _stop_starter(stop, starter):
+        """Stop the starter thread and wait for a start already under way."""
+        stop.set()
+        if starter is not None and starter is not threading.current_thread():
+            starter.join()
+
+    def close(self):
+        """Refuse new work; queued work still gets the workers still to start."""
+        if self._state != multiprocessing.pool.RUN:
+            return
+        with self._starts_lock:
+            self._state = multiprocessing.pool.CLOSE
+            self._closing = True
+            done = self._starts_done
+        if done:
+            self._hand_over_close()
+
+    def terminate(self):
+        """Stop pending starts before the stock pool stops its workers."""
+        _PacedPool._stop_starter(self._starts_stop, self._starter)
+        super().terminate()
+
+    def join(self):
+        """Join the stock pool, then the finished starter thread."""
+        super().join()
+        _PacedPool._stop_starter(self._starts_stop, self._starter)
 
 
 def _invoke_parallel_task(payload):
@@ -1869,13 +2056,48 @@ def _parallel_pool(processes=None, initializer=None, initargs=(),
 
     Worker count and start method remain the caller's decision. A gate may
     be injected for deterministic tests; the production default is ten seconds.
+    The pool returns once its first worker has started and tasks run on it
+    while the others start in the background (see :class:`_PacedPool`). With
+    the default gate, RAM headroom for every worker lets them all start
+    without waiting (see :func:`_start_burst`).
     """
     import multiprocessing
 
     context = context or multiprocessing.get_context()
+    burst = 1 if gate is not None else _start_burst(processes or os.cpu_count() or 1)
     paced = _StaggeredContext(context, gate)
     return _ParallelPool(paced.Pool(
-        processes, initializer, initargs, maxtasksperchild), workers=paced._owned_processes)
+        processes, initializer, initargs, maxtasksperchild, burst=burst),
+        workers=paced._owned_processes)
+
+
+_START_BURST_WORKER_BYTES = 2 * 1024 ** 3
+_START_BURST_FREE_BYTES = 10 * 1024 ** 3
+
+
+def _start_burst(workers: int, psutil_module=None,
+                 platform: Optional[str] = None) -> int:
+    """How many of a pool's first workers may start back to back, unstaggered.
+
+    The stagger keeps simultaneous worker starts from overrunning RAM. When
+    the available RAM, less the larger of spaCR's reserve and 10 GiB, covers
+    a 2 GiB start for every worker (times the platform's import-commit
+    factor), all of them start without waiting. Otherwise, and whenever RAM
+    cannot be read or the RAM guard is off, only the first does. Workers
+    that later replace exited ones are always staggered.
+
+    :param workers: the pool's worker count.
+    :returns: ``workers`` or ``1``.
+    """
+    if workers <= 1 or not _ram_guard_enabled():
+        return 1
+    snapshot = _ram_snapshot(psutil_module)
+    if snapshot is None:
+        return 1
+    available, total = snapshot
+    spare = available - max(_ram_reserve_bytes(total), _START_BURST_FREE_BYTES)
+    factor = _RAM_IMPORT_PLATFORM_FACTOR.get(platform or sys.platform, 1.0)
+    return workers if spare >= workers * int(_START_BURST_WORKER_BYTES * factor) else 1
 
 
 def _call_parallel_task(task):

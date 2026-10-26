@@ -35,6 +35,11 @@ def _invalid_field_in_child(value):
     raise ValueError('invalid scientific field')
 
 
+def _hold_then_echo(pair):
+    time.sleep(pair[0])
+    return pair[1]
+
+
 def _slow_echo(value):
     time.sleep(0.2)
     return value
@@ -287,7 +292,7 @@ def test_real_worker_process_deployments_are_ten_seconds_apart():
                 return call()
             return super().start(deploy)
     with _parallel_pool(2, context=multiprocessing.get_context('spawn'), gate=ObservedGate()) as pool:
-        assert pool.map(_echo, [1, 2]) == [1, 2]
+        assert pool.map(_hold_then_echo, [(12, 1), (0, 2)], chunksize=1) == [1, 2]
     assert len(starts) == 2 and starts[1] - starts[0] >= 10
 
 

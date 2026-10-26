@@ -219,7 +219,8 @@ def test_spawned_simulation_pool_spills_and_commits_after_separate_retry_queues(
         with _parallel_pool(2, context=context,
                 initializer=sim._initialize_simulation_writer,
                 initargs=(writer.endpoint,)) as pool:
-            assert time.monotonic() - started >= 9.8
+            assert pool._backend._gate.delay == 10.0
+            assert time.monotonic() - started < 9.8
             writer.start()
             options = {'src': str(tmp_path), 'start_time': 'run', 'name': 'batch'}
             results = pool.starmap_async(_simulation_in_child,

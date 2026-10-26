@@ -167,7 +167,7 @@ def test_every_pool_site_is_listed():
         for function in ast.walk(tree) if isinstance(function, ast.FunctionDef)
         for call in ast.walk(function) if isinstance(call, ast.Call)
         if (isinstance(call.func, ast.Name) and call.func.id in (
-            'Pool', 'ProcessPoolExecutor')) or (
+            'Pool', '_PacedPool', 'ProcessPoolExecutor')) or (
                 isinstance(call.func, ast.Attribute) and call.func.attr == 'Pool')
     }
     assert factories == {'Pool', '_parallel_pool', '_parallel_process_executor'}
