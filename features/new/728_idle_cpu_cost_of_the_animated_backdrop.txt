@@ -198,6 +198,67 @@ D9. A paused field no longer paints. test_a_run_still_pauses_the_backdrop
     test_pausing_a_held_field_paints_nothing_more (a mutation that repaints
     on the pause fails it). The hold also waits 1.5 s after the field starts.
 
+D10. GUI stalls during the impulse lens (third round, 2026-10-26; WS tutorial
+    lane, spacr/resources/AI/HANDOFF.md item 4: 0.13-0.18 s GUI stalls with
+    the paint rate dipping in lessons 13, 34, 60, 68 and 70, the other thread
+    always in _shade -> _frame_impulse_lens, field density 0.1).
+    - The CPU path does not hold the interpreter lock for long. Its grain
+      kernels are numba nogil; with a sampler thread timing every 1 ms wait
+      for the lock while impulse-lens frames shade with impulses and ripples
+      firing, the longest wait was 2.0 ms with the kernel and 4.2 ms on the
+      NumPy fallback used before the kernel compiles (1038x616 and 2560x1440
+      requests). At density 0.1 a whole frame shades in about 1 ms.
+    - The GPU path does. At density 0.1 Automatic sends the impulse lens to
+      the GPU (cost table: 6.06 ms CPU against 0.82 ms GPU at 1920x1080,
+      density 0.25), and a GPU frame holds the lock from submission to the
+      framebuffer readback, because moderngl does not release it. On a card
+      that is busy elsewhere -- the capture host records and encodes the
+      screen -- the readback waits, and the GUI thread waits with it. That
+      matches the dumps: the shading thread inside _frame_impulse_lens, the
+      GUI stalled for one frame's readback at a time.
+    - Fix: _graphics_frame times each GPU frame; one that holds the lock
+      longer than 20 ms (about one 60 Hz frame; the RTX 3090 Ti audit's
+      slowest impulse-lens frame was 9.2 ms at 3840x2160) sends the engine
+      to its CPU path for 30 s, then the GPU is tried again. The first frame
+      of a renderer compiles its shaders and is not judged. No GPU was used
+      at Home: the GPU path was exercised with a stand-in renderer whose
+      frame holds the lock for 150 ms (a C-level loop), which reproduces the
+      reported shape.
+    - Tried and dropped: lowering the interpreter switch interval to 1 ms
+      while a frame shades (a "shading turn" in gil_priority). It made no
+      difference on the CPU path (stalls the same within noise), because
+      that path is not where the lock is held.
+    - Also measured: with a pure-Python worker holding the responsive-GUI
+      claim (a stand-in for a Python-bound run) and the pointer clicking and
+      moving over Home at 2560x1440 every 0.4 s, the GUI stalls up to
+      160 ms with the backdrop on (p95 66, p99 80 ms) against 13 ms with it
+      off. That is the GUI's own per-frame Python waiting for the lock
+      behind the worker, not the lens. Keeping the hold through a run and
+      repainting only the live region on field input were tried: p95 fell
+      to about 40 ms but the count of gaps over 100 ms rose, so neither was
+      kept. Kept: the hold's once-a-second walk is not repeated while a run
+      paces the field. This contention is left for 641/gil_priority work.
+
+    GUI-thread heartbeat (2 ms QTimer) gaps, offscreen, Home's workstation,
+    impulse lens with impulses firing:
+
+    Case                                                   p95     p99     max     gaps>60 ms
+    -----------------------------------------------------  ------  ------  ------  ----------
+    GPU stand-in holding the lock 150 ms/frame, no backoff 164.1   171.7   188.1   51 of 138
+    same, with the backoff (this change)                     3.4     4.6    50.4    0 of 3,773
+    CPU path, 2560x1440 window, clicks every 0.4 s          14.1    17.5    32.9    0
+    control: backdrop off, same clicks                       2.1     2.1     5.4    0
+    (1600x949 host for the stand-in rows, 8 s; 20 s for the window rows;
+    times in ms.) Without the backoff the field painted 51 frames in 8 s;
+    with it, 519.
+
+    Pinned by test_a_slow_gpu_frame_sends_the_lens_to_the_cpu and
+    test_the_gui_never_waits_long_on_the_lens_during_impulses (stand-in GPU
+    at 150 ms a frame, impulses every 0.2 s, 3 s: at most the first two
+    frames reach 100 ms; both tests fail with the backoff disabled), in
+    tests/qt/test_a_slow_gpu_frame_sends_the_lens_to_the_cpu.py. The
+    WS capture host should re-record lessons 13, 34, 60, 68 and 70 on this
+    commit and check spacr.log for "a GPU frame held the interpreter lock".
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA
 --------------------------------------------------------------------------------
@@ -313,3 +374,10 @@ instruction index, ledgers): 5,277 passed, 3 skipped, 1 failed, the same
 pre-existing StorageCacheTable 'Cache' failure as on nightly 7a777989e.
 test_the_theme_keeps_moving_while_a_dialog_is_open.py with the 728 tests, eight
 copies in parallel on the loaded machine: 8 x 12 passed.
+
+Tests, round 3 (2026-10-26): the 728 file 11 passed; the 196-file cohort plus
+the code-rule meta tests 4,565 passed, 3 skipped, 2 failed: the pre-existing
+StorageCacheTable 'Cache' failure, and test_home_v2's job-pause test ("the job
+never reached its first checkpoint" within 10 s) in a run the shared machine
+stretched to 38 minutes; it passed 3 of 3 alone and does not touch the
+backdrop.

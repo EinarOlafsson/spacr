@@ -258,6 +258,27 @@ def test_a_stirred_or_changed_field_is_painted_whole_again(screen, qtbot):
         "an engine change shows at once, everywhere")
 
 
+def test_a_run_pacing_the_field_skips_the_held_walk(screen, qtbot,
+                                                    monkeypatch):
+    """The once-a-second walk over the window is Python over every widget;
+    while a run paces the field it is not repeated, and it resumes after."""
+    host, backdrop, card, labels = screen
+    held = backdrop._held_rows
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    producer = backdrop._producer_box[0]
+    walks = []
+    covered = held._covered
+    monkeypatch.setattr(held, "_covered",
+                        lambda: walks.append(1) or covered())
+    monkeypatch.setattr(backdrop, "_run_paced", True)
+    held._walked = float("-inf")
+    assert held.tick(producer) is not None
+    assert walks == [], "the walk ran while a run paced the field"
+    monkeypatch.setattr(backdrop, "_run_paced", False)
+    held.tick(producer)
+    assert walks == [1], "the walk comes back once the run ends"
+
+
 def _sensor(plugged):
     reading = collections.namedtuple("sbattery",
                                      "percent secsleft power_plugged")

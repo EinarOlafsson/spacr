@@ -11012,7 +11012,10 @@ class _HeldRows(QObject):
     a popup wave, the field starting), when the engine, size, background or
     run state changes, when the field's timer is found stopped,
     and when a walk every :data:`_HOLD_RECHECK_S` finds the covered part
-    moved; it comes back :data:`_HOLD_SETTLE_S` after the last stir. A
+    moved; it comes back :data:`_HOLD_SETTLE_S` after the last stir. While a
+    run paces the field the walk is not repeated: it is Python over every
+    widget in the window, and against a run's worker it took long enough
+    to be a stall of its own. A
     release with a held frame on screen cross-fades it into the live one
     over :data:`_HOLD_FADE_S` (:attr:`fade`), so the field under the rows
     never jumps.
@@ -11111,7 +11114,8 @@ class _HeldRows(QObject):
             return None
         if self.arming:
             return None
-        if now - self._walked >= _HOLD_RECHECK_S:
+        if (now - self._walked >= _HOLD_RECHECK_S
+                and not self.parent().__dict__.get("_run_paced")):
             self._walked = now
             if self._covered() != self.region:
                 self.release()
