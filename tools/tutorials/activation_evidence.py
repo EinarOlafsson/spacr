@@ -173,6 +173,13 @@ def reference(prepared, *, device='cpu'):
     model, _ = load_model_artifact(prepared['model'], map_location=device)
     for module in model.modules():
         if hasattr(module, 'use_checkpoint'): module.use_checkpoint = False
+    # Same full-float32, fixed-algorithm kernels the app uses for attribution
+    # (spacr.deep_spacr imports with cudnn.benchmark on, and cuDNN defaults to
+    # TF32), set here directly so the reference stays independent of spaCR.
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.allow_tf32 = False
+    torch.backends.cuda.matmul.allow_tf32 = False
     model.to(device).eval(); x = torch.stack(inputs).to(device).requires_grad_(True); logits = model(x)
     if logits.shape != (4,2): raise ValueError('Expected the recorded two-class model head')
     targets = logits.detach().argmax(1)

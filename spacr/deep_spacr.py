@@ -258,6 +258,45 @@ def _empty_device_cache() -> None:
         torch.cuda.empty_cache()
 
 
+@contextlib.contextmanager
+def _deterministic_attribution(seed: int = 0):
+    """Compute attribution maps with reproducible kernels, then restore Torch.
+
+    This module turns on ``cudnn.benchmark`` at import, which lets cuDNN time
+    several convolution algorithms per shape and keep the fastest. Each
+    algorithm accumulates in its own order, and on Ampere and newer cards
+    convolutions also default to TF32 with a 10-bit mantissa. A backward pass
+    to the input therefore changed from one run to the next, and after
+    min-max scaling to 8 bits the Activation Maps tutorial saw saved saliency
+    pixels move by 17 between two runs on the same crops and settings. Inside this block cuDNN uses fixed
+    deterministic algorithms in full float32, Torch refuses (with a warning)
+    any kernel it cannot run deterministically, and the random streams that
+    noise-based methods draw from start from ``seed``. Every flag and stream
+    is put back afterwards so training keeps its speed.
+
+    :param seed: seed for the Torch CPU and CUDA random streams in the block.
+    """
+    cudnn = torch.backends.cudnn
+    matmul = torch.backends.cuda.matmul
+    saved = (cudnn.benchmark, cudnn.deterministic, cudnn.allow_tf32, matmul.allow_tf32,
+             torch.are_deterministic_algorithms_enabled(),
+             torch.is_deterministic_algorithms_warn_only_enabled())
+    devices = list(range(torch.cuda.device_count())) if torch.cuda.is_available() else []
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    with torch.random.fork_rng(devices=devices):
+        torch.manual_seed(int(seed))
+        cudnn.benchmark = False
+        cudnn.deterministic = True
+        cudnn.allow_tf32 = False
+        matmul.allow_tf32 = False
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        try:
+            yield
+        finally:
+            cudnn.benchmark, cudnn.deterministic, cudnn.allow_tf32, matmul.allow_tf32 = saved[:4]
+            torch.use_deterministic_algorithms(saved[4], warn_only=saved[5])
+
+
 def _classifier_model_input(settings, name):
     """Resolve one named classifier input without rewriting its recorded request.
 
@@ -3152,12 +3191,13 @@ def generate_activation_map(settings):
             cf_names.extend(list(filenames)[:cf_limit - taken])
         inputs = inputs.to(device)
 
-        if use_attribution:
-            activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
-        elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
-            activation_maps, predicted_classes = cam_generator.compute_gradcam_and_predictions(inputs)
-        else:
-            activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
+        with _deterministic_attribution(settings.get('seed') or 0):
+            if use_attribution:
+                activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
+            elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
+                activation_maps, predicted_classes = cam_generator.compute_gradcam_and_predictions(inputs)
+            else:
+                activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
 
         activation_maps = activation_maps.cpu()
 
