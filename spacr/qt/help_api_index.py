@@ -4951,7 +4951,6 @@ API_ENTRIES = (
     ('spacr.qt.iconset.icon_contrast', "Worst-case contrast of a themed icon against the theme's surfaces."),
     ('spacr.qt.iconset.icon_ink_color', 'Alpha-weighted mean colour of the re-inked artwork, as hex.'),
     ('spacr.qt.iconset.reink', 'Re-ink an RGBA array for ``theme``. Returns a uint8 RGBA array.'),
-    ('spacr.qt.iconset.retire_prefetch_pool', 'Release the icon workers without waiting for them.'),
     ('spacr.qt.iconset.themed_array', 'Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``.'),
     ('spacr.qt.iconset.themed_pixmap', ':func:`themed_qimage` as a ``QPixmap``, or ``None``.'),
     ('spacr.qt.iconset.themed_qimage', 'Return the bundled PNG at ``path``, re-inked for ``theme``.'),
