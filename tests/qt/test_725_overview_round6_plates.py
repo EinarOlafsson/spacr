@@ -162,3 +162,74 @@ def test_the_wizard_add_folders_picker_is_the_same_picker(qtbot, tmp_path, monke
     dialog = wizard._add_folders_dialog
     assert dialog.width() >= 720 and dialog.height() >= 480
     assert getattr(dialog, "_spacr_resizer", None) is not None
+
+
+@pytest.fixture
+def mixed(tmp_path):
+    return (_plate(tmp_path / "screen" / "plate1", ("A01", "A02")),
+            _plate(tmp_path / "screen" / "plate2", ("B01", "B02", "B03"), name="q2_{well}_s1_w{channel}.tif"))
+
+
+def test_each_plate_is_read_with_its_own_regex_or_the_first_plates(mixed):
+    first, second = (str(path) for path in mixed)
+    fields, _detection = browser._overview_index_sources([first, second], PATTERN, "auto", source_scope="folder")
+    assert {field.well for field in browser._overview_matched_fields(fields, PATTERN)} == {"A01", "A02"}
+    fields, _detection = browser._overview_index_sources([first, second], PATTERN, "auto", source_scope="folder",
+                                                         patterns={second: OTHER})
+    kept = browser._overview_matched_fields(fields, PATTERN, {second: OTHER})
+    assert {(field.plate, field.well) for field in kept} == {
+        ("plate1", "A01"), ("plate1", "A02"), ("plate2", "B01"), ("plate2", "B02"), ("plate2", "B03")}
+
+
+def _wizard(qtbot, parent, **settings):
+    wizard = browser._OverviewMetadataWizard(str(parent), {"custom_regex": PATTERN, **settings})
+    wizard._startup_timer.stop()
+    qtbot.addWidget(wizard)
+    wizard.scope.setCurrentIndex(wizard.scope.findData("folder"))
+    wizard._scan()
+    return wizard
+
+
+def _regex_item(wizard, folder):
+    rows = [wizard.plate_table.item(row, 2).text() for row in range(wizard.plate_table.rowCount())]
+    return wizard.plate_table.item(rows.index(str(folder)), 4)
+
+
+def _plates_read(wizard):
+    return {field.plate for field in wizard._fields}
+
+
+def test_the_metadata_step_edits_one_plates_regex_and_saves_it(qtbot, mixed):
+    wizard = _wizard(qtbot, mixed[0].parent)
+    qtbot.waitUntil(lambda: wizard.plate_table.rowCount() == 2 and bool(wizard._fields), timeout=15000)
+    assert wizard.plate_table.horizontalHeaderItem(4).text() == "Filename regex"
+    assert [wizard.plate_table.item(row, 4).text() for row in range(2)] == ["", ""]
+    assert _plates_read(wizard) == {"plate1"}
+    _regex_item(wizard, mixed[1]).setText(OTHER)
+    assert wizard._plate_regex == {str(mixed[1]): OTHER}
+    qtbot.waitUntil(lambda: _plates_read(wizard) == {"plate1", "plate2"}, timeout=15000)
+    assert wizard.configuration()["plate_regex"] == {str(mixed[1]): OTHER}
+    assert _regex_item(wizard, mixed[1]).text() == OTHER
+
+
+def test_an_empty_or_invalid_plate_regex_falls_back_to_the_first_plates(qtbot, mixed):
+    wizard = _wizard(qtbot, mixed[0].parent, plate_regex={str(mixed[1]): OTHER})
+    qtbot.waitUntil(lambda: _plates_read(wizard) == {"plate1", "plate2"}, timeout=15000)
+    _regex_item(wizard, mixed[1]).setText("(unclosed")
+    assert "Invalid filename regex" in wizard.status.text()
+    assert wizard._plate_regex == {}
+    _regex_item(wizard, mixed[1]).setText("")
+    qtbot.waitUntil(lambda: _plates_read(wizard) == {"plate1"}, timeout=15000)
+
+
+def test_the_browser_reads_each_plate_with_its_regex_and_saves_it(qtbot, mixed):
+    first, second = (str(path) for path in mixed)
+    view = _open(qtbot, f"{first}; {second}", plate_regex={second: OTHER})
+    assert {field.plate for field in view._fields} == {"plate1", "plate2"}
+    view._set_line_collapsed("row", 0, True)
+    path = mixed[0] / "results" / "overview_view.json"
+    qtbot.waitUntil(lambda: path.is_file() and "plate_regex" in path.read_text(), timeout=10000)
+    assert json.loads(path.read_text())["options"]["plate_regex"] == {second: OTHER}
+    fields, info = browser._overview_wizard_probe(first, PATTERN, "auto", threading.Event(), "folder")
+    assert info["plate_regex"] == {second: OTHER}
+    assert {field.plate for field in fields} == {"plate1", "plate2"}

@@ -2164,8 +2164,22 @@ def _overview_detect_plates(source, use_subfolders=(), excluded=(), names=None, 
     return {"plates": plates, "messages": messages}
 
 
+def _overview_plate_pattern(patterns, folder, pattern):
+    """The filename regex one plate folder is read with: its own, or ``pattern``.
+
+    :param patterns: ``{plate folder: regex}``; folders are compared by real path.
+    :param folder: the plate folder.
+    :param pattern: the regex every other plate uses, the first plate's.
+    """
+    if not patterns or not folder:
+        return pattern
+    wanted = os.path.realpath(str(folder))
+    return next((str(value) for key, value in patterns.items()
+                 if value and os.path.realpath(str(key)) == wanted), pattern)
+
+
 def _overview_index_sources(source, pattern="", convention="auto", cancelled=None, source_scope="recursive",
-                            well_layout=None, use_subfolders=(), excluded=(), folder_names=False):
+                            well_layout=None, use_subfolders=(), excluded=(), folder_names=False, patterns=None):
     """Index every plate of one or more source paths.
 
     One path that is itself the only plate is indexed as before, so its
@@ -2176,6 +2190,8 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
     one plate never merges with A01 of another. Every field records its
     plate folder (``source``) and its plate name within it (``plate_id``).
 
+    :param patterns: ``{plate folder: regex}`` for plates read with their
+        own filename regex; every other plate uses ``pattern``.
     :returns: ``(fields, detection)``; ``detection`` is
         :func:`_overview_detect_plates`'s answer, whose messages say why no
         plate was found when ``fields`` is empty.
@@ -2198,8 +2214,9 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
         if cancelled is not None and cancelled.is_set():
             return (), detection
         scope = source_scope if (single or not plate["images"]) else "folder"
-        found = _overview_index(plate["path"], pattern, convention, cancelled, source_scope=scope,
-                                well_layout=well_layout)
+        own = _overview_plate_pattern(patterns, plate["path"], pattern)
+        found = _overview_index(plate["path"], own, "auto" if own != pattern else convention, cancelled,
+                                source_scope=scope, well_layout=well_layout)
         identities = sorted({field.plate for field in found}, key=_overview_natural_key)
         for field in found:
             if single:
@@ -6720,7 +6737,9 @@ class _FieldOverview(QWidget):
         state["options"] = {"use_subfolders": list(self._overview_options.get("use_subfolders") or ()),
                             "excluded_plates": list(self._overview_options.get("excluded_plates") or ()),
                             "max_wells_per_plate": self._load_limits[0],
-                            "max_fields_per_well": self._load_limits[1]}
+                            "max_fields_per_well": self._load_limits[1],
+                            "plate_regex": {str(key): str(value) for key, value in
+                                            dict(self._overview_options.get("plate_regex") or {}).items() if value}}
         state["view"] = {"plates_view": self._plates_view,
                          "shown_plates": [_overview_key_text(self._plate_key(plate))
                                           for plate in self._plates_subset or ()]}
@@ -7091,9 +7110,10 @@ class _FieldOverview(QWidget):
         loaded = {field.source for field in self._fields}
         excluded = tuple(self._overview_options.get("excluded_plates") or ()) + tuple(loaded)
         self.status.setText(tr("Indexing image metadata…"))
+        patterns = dict(self._overview_options.get("plate_regex") or {})
         self._index_jobs.submit(functools.partial(
             _overview_index_sources, paths, regex, convention, self._cancelled, scope, layout,
-            use_subfolders, excluded, True), functools.partial(self._sources_added, paths, self._fields))
+            use_subfolders, excluded, True, patterns), functools.partial(self._sources_added, paths, self._fields))
 
     def _sources_added(self, paths, fields, result):
         """Merge newly indexed plates into the Overview, keeping every plate name unique."""
@@ -7102,7 +7122,7 @@ class _FieldOverview(QWidget):
         if fields is not self._fields or self._cancelled.is_set():
             return
         added, _detection = result
-        added = _overview_matched_fields(added, self.regex.text())
+        added = _overview_matched_fields(added, self.regex.text(), self._overview_options.get("plate_regex"))
         taken = {field.plate for field in self._all_fields}
         renamed = {}
         for plate in sorted({field.plate for field in added}, key=_overview_natural_key):
@@ -9846,11 +9866,13 @@ class _FieldOverview(QWidget):
         well_layout = self._overview_options.get("well_layout")
         use_subfolders = tuple(self._overview_options.get("use_subfolders") or ())
         excluded = tuple(self._overview_options.get("excluded_plates") or ())
+        patterns = dict(self._overview_options.get("plate_regex") or {})
         def read():
             """Reject unresolved wells on every browser load, retaining honest previews."""
             fields = _overview_matched_fields(_overview_index_sources(
                 source, regex, convention, cancelled, source_scope=source_scope,
-                well_layout=well_layout, use_subfolders=use_subfolders, excluded=excluded)[0], regex)
+                well_layout=well_layout, use_subfolders=use_subfolders, excluded=excluded,
+                patterns=patterns)[0], regex, patterns)
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
@@ -12758,14 +12780,25 @@ def _overview_metadata_preview(filenames, pattern):
     return tuple((name, dict(by_name.get(name, {}))) for name in names), tuple(missed)
 
 
-def _overview_matched_fields(fields, pattern):
-    """Exclude filename nonmatches while retaining invalid matched well identities."""
+def _overview_matched_fields(fields, pattern, patterns=None):
+    """Exclude filename nonmatches while retaining invalid matched well identities.
+
+    :param pattern: the filename regex of every plate without its own.
+    :param patterns: ``{plate folder: regex}`` of plates with their own regex.
+    """
     import re
-    if not pattern:
-        return tuple(fields)
-    expression = re.compile(pattern, re.I)
-    return tuple(field for field in fields if all(
-        expression.match(Path(path).name) for _, path in field.files))
+    compiled = {}
+    kept = []
+    for field in fields:
+        own = _overview_plate_pattern(patterns, getattr(field, "source", ""), pattern)
+        if not own:
+            kept.append(field)
+            continue
+        if own not in compiled:
+            compiled[own] = re.compile(own, re.I)
+        if all(compiled[own].match(Path(path).name) for _, path in field.files):
+            kept.append(field)
+    return tuple(kept)
 
 
 def _overview_acquisition_summary(fields, info, acquisition):
@@ -12823,7 +12856,7 @@ def _overview_filename_well(path):
 
 
 def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder", well_layout=None,
-                           use_subfolders=(), excluded=()):
+                           use_subfolders=(), excluded=(), patterns=None):
     """Find the plates, index names on a worker and inspect only the first field's image headers.
 
     One source path whose saved view state lists more plate folders brings
@@ -12833,18 +12866,22 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     from ...regex_infer import _CQ1_FILENAME, _yokogawa_acquisition
     paths = _overview_source_paths(source)
     restored = []
+    patterns = dict(patterns or {})
     if len(paths) == 1:
-        saved = _overview_load_view_state(paths[0]).get("sources") or ()
+        state = _overview_load_view_state(paths[0])
+        saved = state.get("sources") or ()
         restored = [path for path in _overview_source_paths(saved) if path not in paths and os.path.isdir(path)]
+        for folder, value in dict((state.get("options") or {}).get("plate_regex") or {}).items():
+            patterns.setdefault(str(folder), str(value))
     sources = paths + restored
     fields, detection = _overview_index_sources(sources, pattern, convention, cancelled, source_scope=source_scope,
                                                 well_layout=well_layout, use_subfolders=use_subfolders,
-                                                excluded=excluded)
+                                                excluded=excluded, patterns=patterns)
     if cancelled.is_set():
         return fields, None
     if not fields:
         return fields, {"channels": (), "plates": detection["plates"], "plate_messages": detection["messages"],
-                        "sources": sources, "restored_sources": restored}
+                        "sources": sources, "restored_sources": restored, "plate_regex": patterns}
     detected_pattern, detected_label = pattern, convention
     all_names = tuple(Path(path).name for field in fields for _, path in field.files)
     if (convention == "auto" and not pattern
@@ -12877,7 +12914,7 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
                 detected_pattern, detected_label = pattern, convention
     if cancelled.is_set() or not fields:
         return fields, None
-    matched = _overview_matched_fields(fields, detected_pattern)
+    matched = _overview_matched_fields(fields, detected_pattern, patterns)
     first = next((field for field in matched if field.well and not field.unresolved),
                  next(iter(matched), fields[0]))
     info = dict(_overview_channel_info(first))
@@ -12889,11 +12926,12 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     info["plate_messages"] = detection["messages"]
     info["sources"] = sources
     info["restored_sources"] = restored
+    info["plate_regex"] = patterns
     return fields, info
 
 
 def _overview_wizard_scan(source, pattern, convention, cancelled, source_scope="folder", well_layout=None,
-                          use_subfolders=(), excluded=()):
+                          use_subfolders=(), excluded=(), patterns=None):
     """Probe the wizard's source and return a refused source as a message, not an exception.
 
     A source that is not yet a folder (while a path is typed, or after it was
@@ -12907,7 +12945,7 @@ def _overview_wizard_scan(source, pattern, convention, cancelled, source_scope="
     """
     try:
         fields, info = _overview_wizard_probe(source, pattern, convention, cancelled, source_scope, well_layout,
-                                              use_subfolders, excluded)
+                                              use_subfolders, excluded, patterns)
     except _OverviewValidationError as error:
         return (), None, str(error)
     return fields, info, ""
@@ -12986,11 +13024,14 @@ class _OverviewMetadataWizard(QWidget):
         self._use_subfolders = set(self._settings.get("use_subfolders") or ())
         self._excluded_plates = set(self._settings.get("excluded_plates") or ())
         self._plate_names = dict(self._settings.get("plate_names") or {})
+        self._plate_regex = {str(key): str(value) for key, value in
+                             dict(self._settings.get("plate_regex") or {}).items() if value}
         self._detected_plates = []
-        self.plate_table = QTableWidget(0, 4)
+        self.plate_table = QTableWidget(0, 5)
         self.plate_table.setObjectName("OverviewWizardPlates")
         install_sorting(self.plate_table)
-        self.plate_table.setHorizontalHeaderLabels([tr("Plate"), tr("Images"), tr("Folder"), tr("Use subfolders")])
+        self.plate_table.setHorizontalHeaderLabels([tr("Plate"), tr("Images"), tr("Folder"), tr("Use subfolders"),
+                                                    tr("Filename regex")])
         self.plate_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.plate_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
         self.plate_table.setTextElideMode(Qt.ElideMiddle)
@@ -13367,6 +13408,9 @@ class _OverviewMetadataWizard(QWidget):
             self.source.blockSignals(True)
             self.source.setText("; ".join((info or {}).get("sources") or ()))
             self.source.blockSignals(False)
+        for folder, value in dict((info or {}).get("plate_regex") or {}).items():
+            if value:
+                self._plate_regex.setdefault(str(folder), str(value))
         self._detected_plates = plates
         self.plate_table.blockSignals(True)
         self.plate_table.setRowCount(0)
@@ -13391,6 +13435,12 @@ class _OverviewMetadataWizard(QWidget):
                 self.plate_table.setCellWidget(row, 3, toggle)
             else:
                 self.plate_table.removeCellWidget(row, 3)
+            own = _overview_plate_pattern(self._plate_regex, plate["path"], "")
+            regex = table_item(own)
+            regex.setData(Qt.UserRole, plate["path"])
+            regex.setToolTip(tr("The filename regex this plate is read with; empty uses the filename regex above, "
+                                "the first plate's."))
+            self.plate_table.setItem(row, 4, regex)
         self.plate_table.blockSignals(False)
         notes = [tr("{count} plates found.", count=len(plates)) if len(plates) != 1 else tr("One plate found.")]
         mixed = [plate["path"] for plate in plates if plate["mixed"]]
@@ -13403,7 +13453,10 @@ class _OverviewMetadataWizard(QWidget):
         self.plate_summary.setText(" ".join(notes))
 
     def _plate_renamed(self, item):
-        """Remember a plate's new display name."""
+        """Remember a plate's new display name, or its own filename regex."""
+        if item.column() == 4:
+            self._plate_regex_changed(item)
+            return
         if item.column() != 0:
             return
         default = item.data(Qt.UserRole)
@@ -13413,6 +13466,23 @@ class _OverviewMetadataWizard(QWidget):
                 self._plate_names[default] = text
             else:
                 self._plate_names.pop(default, None)
+
+    def _plate_regex_changed(self, item):
+        """Read one plate with its own filename regex, or with the first plate's again, and preview again."""
+        import re
+
+        path = str(item.data(Qt.UserRole) or "")
+        text = item.text().strip()
+        for key in [key for key in self._plate_regex if os.path.realpath(key) == os.path.realpath(path)]:
+            self._plate_regex.pop(key)
+        if text and text != self.regex.text().strip():
+            try:
+                re.compile(text)
+            except re.error as error:
+                self.status.setText(tr("Invalid filename regex: {error}", error=error))
+                return
+            self._plate_regex[path] = text
+        self._scan()
 
     def _use_plate_subfolders(self, path, on):
         """Load a mixed folder's subfolders as plates, or the folder itself, and preview again."""
@@ -13468,9 +13538,10 @@ class _OverviewMetadataWizard(QWidget):
         self.status.setText(tr("Reading filename metadata and image headers…"))
         well_layout = self._well_layout if self._layout_explicit else None
         use_subfolders, excluded = tuple(self._use_subfolders), tuple(self._excluded_plates)
+        patterns = dict(self._plate_regex)
         self._runner.submit(lambda: (generation, _overview_wizard_scan(
             source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope,
-            well_layout, use_subfolders, excluded)), self._scanned)
+            well_layout, use_subfolders, excluded, patterns)), self._scanned)
 
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
@@ -13499,7 +13570,7 @@ class _OverviewMetadataWizard(QWidget):
             self.preset.blockSignals(True)
             self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
             self.preset.blockSignals(False)
-        self._fields = _overview_matched_fields(fields, self.regex.text())
+        self._fields = _overview_matched_fields(fields, self.regex.text(), self._plate_regex)
         all_files = tuple(dict.fromkeys(path for field in fields for _, path in field.files))
         files = all_files[:20]
         pattern = self.regex.text()
@@ -13807,6 +13878,7 @@ class _OverviewMetadataWizard(QWidget):
         channel_names, channel_colors = self._channel_display()
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
                 "plate_names": dict(self._plate_names), "use_subfolders": tuple(sorted(self._use_subfolders)),
+                "plate_regex": dict(self._plate_regex),
                 "excluded_plates": tuple(sorted(self._excluded_plates)),
                 "well_layout": tuple(self._well_layout) if self._layout_explicit else None,
                 "channel_names": channel_names, "channel_colors": channel_colors,
