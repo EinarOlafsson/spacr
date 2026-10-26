@@ -169,6 +169,12 @@ WHAT WAS DONE — round 6, export (11-17; branch overview-r6-export)
   popup changes, import pipeline, field picking with mouse and keys, Back and DPI); settings-popup inventory
   entry for _CanvasSettingsDialog.
 - Screenshots (light and dark): /nas_mnt/data/sync/overview-r6-export/.
+- Real window manager (Xvfb + gnome-shell, the real app launched with --no-setup): the glass
+  treatment had lifted the embedded Custom and Guided exports (QDialogs) into frameless windows of their own,
+  which offscreen tests could not see; both are now built as plain widgets the glass leaves alone. Checked:
+  the section docks at the far right, the Settings column folds and comes back on Close, the Settings popup
+  is a solid rounded card and its changes reach the canvas. Screens and reports:
+  /nas_mnt/data/sync/overview-r6-export/realwm/.
 
 
 MAINTAINER FEEDBACK — 2026-10-25 (round 5) (supersedes conflicting earlier notes)
