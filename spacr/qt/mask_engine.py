@@ -7672,6 +7672,38 @@ def _inner_edge_steps(crop: np.ndarray, pad: int, reach: int):
     return tuple(steps)
 
 
+def _band_share(distance, half, per, band):
+    """How much of each screen pixel falls inside an outline band.
+
+    A screen pixel spans ``distance - half`` to ``distance + half`` image
+    pixels from the object's edge; the part of that span inside ``[0, band]``,
+    divided by the span's width, is the pixel's coverage.
+
+    :param distance: float32 distance of each screen pixel's centre to the
+        edge, in image pixels.
+    :param half: half a screen pixel's width, in image pixels.
+    :param per: a screen pixel's width, in image pixels.
+    :param band: the band's width, in image pixels, as float32.
+    :returns: the coverage, float32 in ``[0, 1]``, computed in place of a new
+        array.
+    """
+    inside = np.minimum(distance + half, band)
+    inside -= np.maximum(distance - half, np.float32(0.0))
+    inside *= np.float32(1.0 / per)
+    return np.clip(inside, np.float32(0.0), np.float32(1.0), out=inside)
+
+
+def _screen_pick(steps, row_at, col_at):
+    """Sample a field-sized array at the image pixel under each screen pixel.
+
+    :param steps: a 2-D array over the field shown.
+    :param row_at: the field row under each screen row.
+    :param col_at: the field column under each screen column.
+    :returns: a ``(len(row_at), len(col_at))`` array.
+    """
+    return np.take(np.take(steps, row_at, axis=0), col_at, axis=1)
+
+
 def _layer_outline_view(layers, curated: np.ndarray, base_index: Optional[int],
                         bounds, size, thickness: float,
                         removed=None) -> Optional[np.ndarray]:
@@ -7722,13 +7754,6 @@ def _layer_outline_view(layers, curated: np.ndarray, base_index: Optional[int],
     half_x = np.float32(0.5 * per_x)
     half_y = np.float32(0.5 * per_y)
     band32 = np.float32(band)
-
-    def share(distance, half, per):
-        inside = np.minimum(distance + half, band32)
-        inside -= np.maximum(distance - half, np.float32(0.0))
-        inside *= np.float32(1.0 / per)
-        return np.clip(inside, np.float32(0.0), np.float32(1.0), out=inside)
-
     colour_sum = None
     alpha = None
     for index in reversed(range(len(layers))):
@@ -7747,13 +7772,13 @@ def _layer_outline_view(layers, curated: np.ndarray, base_index: Optional[int],
                 grid_r, grid_c = np.ogrid[y0:y1, x0:x1]
                 dash = ((grid_r + grid_c) // 3) % 2 == 0
                 keep &= ~gone | dash
-        def pick(steps):
-            return np.take(np.take(steps, row_at, axis=0), col_at, axis=1)
-
-        across = np.minimum(pick(left) + frac_x, pick(right) + (1.0 - frac_x))
-        along = np.minimum(pick(up) + frac_y, pick(down) + (1.0 - frac_y))
-        cover = np.maximum(share(across, half_x, per_x), share(along, half_y, per_y))
-        cover *= pick(keep)
+        across = np.minimum(_screen_pick(left, row_at, col_at) + frac_x,
+                            _screen_pick(right, row_at, col_at) + (1.0 - frac_x))
+        along = np.minimum(_screen_pick(up, row_at, col_at) + frac_y,
+                           _screen_pick(down, row_at, col_at) + (1.0 - frac_y))
+        cover = np.maximum(_band_share(across, half_x, per_x, band32),
+                           _band_share(along, half_y, per_y, band32))
+        cover *= _screen_pick(keep, row_at, col_at)
         rgb = np.array([int(colour[i:i + 2], 16) for i in (1, 3, 5)],
                        dtype=np.float32)
         if colour_sum is None:
