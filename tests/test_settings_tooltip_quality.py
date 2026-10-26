@@ -1195,7 +1195,7 @@ if app_key == "mask":
     assert ("mask", "calculate_diameters") in calculate_arrivals
     assert not calculate_arrivals & (recognized_arrivals | variants.keys())
     assert hashlib.sha256(tooltips["calculate_diameters"].encode()).hexdigest() == (
-        "5acf258bde8f90f79c66698069368ffa4623113bff580fb5682c9571b173eb2c")
+        "8a668bb97bead704ea4914344a4d07a2f9e65d6843b26c54373cce932d80076d")
     claims = [claim.group(0) for claim in
               DEFAULT_LITERAL.finditer(tooltips["calculate_diameters"])]
     assert claims[-1] == "Default True"

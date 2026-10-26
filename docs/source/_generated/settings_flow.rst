@@ -1524,7 +1524,7 @@ Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 calculate_diameters
 -------------------
 
-(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2\*magnification+80 px for cells, 0.75\*magnification+45 px for nuclei and magnification px for pathogens), shown greyed in Per-object settings, and moves with every magnification change, in the panel and in the run. A diameter you type, or auto, is pinned: it is drawn bold and kept when magnification changes, until you clear its cell or turn this off and on again, which recalculates all three. When False, turning it off writes the current calculated values into the blank diameters, magnification changes no longer touch any diameter, and a cleared cell is refilled with its value at the current magnification. Default True.
+(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2\*magnification+80 px for cells, 0.75\*magnification+45 px for nuclei, magnification px for pathogens), greyed in Per-object settings, and follows every magnification change. A diameter you type, or auto, is pinned (bold) and kept until you clear its cell or turn this off and on again, which recalculates all three. When False, magnification changes no longer touch any diameter. Default True.
 
 | ``_blank_diameters_held_still``
 |     ``_calculates_diameters`` **-- reads it**
