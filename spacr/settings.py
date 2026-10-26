@@ -941,7 +941,6 @@ def _takes_an_argument(fn):
 
 _OVERVIEW_MEASUREMENT_DEFAULTS = {
     'overview_measure_intensity': True,
-    'overview_measure_saturation': True,
     'overview_measure_focus': True,
     'overview_measure_texture': True,
     'overview_measure_background_snr': True,
@@ -971,7 +970,6 @@ _OVERVIEW_MEASUREMENT_DEFAULTS = {
 
 _OVERVIEW_MEASUREMENT_TYPES = {
     'overview_measure_intensity': bool,
-    'overview_measure_saturation': bool,
     'overview_measure_focus': bool,
     'overview_measure_texture': bool,
     'overview_measure_background_snr': bool,
@@ -1000,8 +998,7 @@ _OVERVIEW_MEASUREMENT_TYPES = {
 }
 
 _OVERVIEW_MEASUREMENT_TOOLTIPS = {
-    'overview_measure_intensity': '(bool) - Per-channel raw intensity of each whole image: minimum, maximum, mean, median, sum, spread, skewness and the 1st to 99th percentiles. Cheap. Default True.',
-    'overview_measure_saturation': '(bool) - The fraction of pixels at the saturation level, the dtype maximum for integer images, and the fraction at the dtype minimum. Flags clipped and underexposed images. Cheap. Default True.',
+    'overview_measure_intensity': '(bool) - Per-channel raw intensity of each whole image: minimum, maximum, mean, median, sum, spread, skewness and the 1st to 99th percentiles, and saturation: the fraction of pixels at the saturation level (the dtype maximum for integer images) and at the dtype minimum, which flags clipped and underexposed images. Cheap. Default True.',
     'overview_measure_focus': '(bool) - Sharpness scores per channel: Laplacian variance, Brenner and Tenengrad gradients, normalized variance, and the power-spectrum slope and high-frequency share of a full-resolution central crop. They fall when an image is out of focus. Cheap. Default True.',
     'overview_measure_texture': '(bool) - Haralick (GLCM) texture per channel: contrast, homogeneity, energy, correlation and entropy, computed on a copy reduced to at most 512 pixels. Moderate cost. Default True.',
     'overview_measure_background_snr': '(bool) - Background level and spread outside the Otsu foreground, signal-to-noise ratio and signal-to-background ratio per channel. Cheap. Default True.',
@@ -1033,7 +1030,7 @@ _OVERVIEW_MEASUREMENT_CATEGORIES = {
     'Measurements': ['overview_measure_n_jobs', 'overview_measure_ram_guard',
                      'overview_measure_export_format'],
     'Intensity': [
-        'overview_measure_intensity', 'overview_measure_saturation', 'overview_measure_focus',
+        'overview_measure_intensity', 'overview_measure_focus',
         'overview_measure_background_snr', 'overview_measure_cross_channel',
         'overview_measure_distribution', 'overview_measure_radial'],
     'Texture': ['overview_measure_texture', 'overview_measure_granularity',
@@ -6681,7 +6678,71 @@ def get_setting_dependencies():
                 f"timelapse is on. The value is kept and saved."),
         )
 
+    for _key, _test in _OVERVIEW_NORMALIZATION_RULES.items():
+        setting_dependencies[_key] = rule(
+            _OVERVIEW_NORMALIZATION_SOURCES,
+            lambda settings, context, test=_test: _overview_rule_holds(test, settings),
+            lambda settings, context, test=_test, key=_key: _overview_rule_reason(key, test, settings),
+        )
+
     return setting_dependencies
+
+
+_OVERVIEW_NORMALIZATION_RULES = {
+    'overview_percentile_low': {'normalize': True},
+    'overview_percentile_high': {'normalize': True},
+    'overview_normalize_channels': {'plain': True},
+    'overview_normalization_method': {'advanced': True},
+    'overview_advanced_low': {'advanced': True, 'methods': ('percentile', 'log', 'asinh', 'ratio', 'difference')},
+    'overview_advanced_high': {'advanced': True, 'methods': ('percentile', 'log', 'asinh', 'ratio', 'difference')},
+    'overview_fixed_low': {'advanced': True, 'methods': ('manual',)},
+    'overview_fixed_high': {'advanced': True, 'methods': ('manual',)},
+    'overview_background': {'advanced': True},
+    'overview_gamma': {'advanced': True},
+    'overview_reference_channel': {'advanced': True, 'methods': ('ratio', 'difference')},
+    'overview_reference_epsilon': {'advanced': True, 'methods': ('ratio',)},
+}
+"""Overview normalization settings and when they are read: ``normalize`` (the
+percentile stretch is on), ``plain`` (on, without the advanced normalization),
+``advanced`` (the advanced normalization is on) and, with it, ``methods`` (one
+of these advanced methods is chosen)."""
+
+_OVERVIEW_NORMALIZATION_SOURCES = ('overview_normalize', 'overview_advanced_normalization',
+                                   'overview_normalization_method')
+
+
+def _overview_rule_holds(test, settings):
+    """Whether an Overview normalization setting is read under ``settings``.
+
+    :param test: its entry in :data:`_OVERVIEW_NORMALIZATION_RULES`.
+    :param settings: the current Overview settings.
+    :returns: True when the chosen normalization mode reads it.
+    """
+    normalize = bool(settings.get('overview_normalize', True))
+    advanced = bool(settings.get('overview_advanced_normalization', False))
+    method = str(settings.get('overview_normalization_method') or 'percentile').strip().lower()
+    if test.get('normalize') and not normalize:
+        return False
+    if test.get('plain') and (not normalize or advanced):
+        return False
+    if test.get('advanced') and not advanced:
+        return False
+    return method in test.get('methods', (method,))
+
+
+def _overview_rule_reason(key, test, settings):
+    """Why an Overview normalization setting is greyed out under ``settings``."""
+    if test.get('normalize') or test.get('plain'):
+        if not bool(settings.get('overview_normalize', True)):
+            return f"{key} is only read when Overview normalize is on. The value is kept and saved."
+        if test.get('plain'):
+            return (f"{key} is only read by the percentile stretch, and the advanced normalization "
+                    f"replaces it. The value is kept and saved.")
+    if not bool(settings.get('overview_advanced_normalization', False)):
+        return f"{key} is only read by the advanced normalization, which is off. The value is kept and saved."
+    methods = ", ".join(repr(method) for method in test.get('methods', ()))
+    return (f"{key} is only read by the advanced methods {methods}; the chosen method is "
+            f"{settings.get('overview_normalization_method')!r}. The value is kept and saved.")
 
 category_value_dependencies = {
     'organelle_method': {},
@@ -8118,6 +8179,7 @@ OVERVIEW_DEFAULTS = {
     'overview_max_fields': 'all',
     'overview_channels': '0',
     'overview_color_mode': 'additive',
+    'overview_custom_colors': '',
     'overview_ink_intensity': 1.0,
     'overview_preview_resolution': 1024,
     'overview_tile_size': 128,
@@ -8160,6 +8222,7 @@ OVERVIEW_TYPES = {
     'overview_max_wells': (str, int),
     'overview_max_fields': (str, int),
     'overview_color_mode': str,
+    'overview_custom_colors': str,
     'overview_ink_intensity': float,
     'overview_preview_resolution': int,
     'overview_tile_size': int,
@@ -8201,17 +8264,18 @@ OVERVIEW_TOOLTIPS = {
     'overview_channels': "(str) - Channels shown in the overview, comma-separated. Use the filename channel IDs when each channel is a separate file, and zero-based indices for multichannel images. Up to three channels are shown as red, green and blue; more are shown side by side. Default '0'.",
     'overview_max_wells': "(str or int) - Most wells loaded from each plate: 'all', or a number. Each loaded plate is capped on its own, always with its first wells in plate order (A01, A02, ... B01, ...). Wells beyond the cap stay on the plate view marked as not loaded and are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Changing it adds or drops only the wells concerned. Default 'all'.",
     'overview_max_fields': "(str or int) - Most fields loaded from each well: 'all', or a number. The first fields in field-number order are kept, with every time point and Z plane of each. Fields beyond the cap are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Default 'all'.",
-    'overview_color_mode': "(str) - How the shown channels are combined into one colour image. 'additive' adds up to three channels in their display colours on black. 'cmy' prints up to three channels as cyan, magenta and yellow inks on white, so overlapping signal reads as red, green or blue and full overlap as black. 'cmyk' adds a fourth channel as black (key) ink. A channel whose colour is set to cyan, magenta, yellow or black keeps that ink; the others take the unused inks in that order. Applies to the plate, well and image views and to exported PDFs. Default 'additive'.",
-    'overview_ink_intensity': "(float) - How much ink each channel lays down in the CMY and CMYK colour modes: 1 prints the channel's display level as it is, lower values print it paler and higher values deeper. Pick a channel in Normalization > Channel to edit to give that channel its own intensity; the others keep this value. Has no effect on additive colours. Default 1.0.",
+    'overview_color_mode': "(str) - How the shown channels are combined into one colour image, on black (light adds up) or on white (inks absorb): 'additive' RGB on black, 'rgb_white', 'cmy_black', 'cmy' (CMY on white), 'cmyk_black', 'cmyk' (CMYK on white; the fourth channel is the key, white on black), 'green_magenta' (colour-blind safe), 'greys' (every channel in grey, side by side) or 'custom' (the Custom colours chosen per channel). A channel coloured cyan, magenta, yellow or black keeps that ink. Applies to every view and to exported PDFs. Default 'additive'.",
+    'overview_custom_colors': "(str) - The colour of each channel in the 'custom' colour mode, as 'channel=#rrggbb' pairs separated by commas, for example '1=#ff0000, 2=#00ff00'. Pick them with the colour buttons under Channels; a channel without one takes red, green, blue, magenta, cyan, yellow, orange, violet or white by its position. Default ''.",
+    'overview_ink_intensity': "(float) - How much ink or light each channel lays down in the CMY and CMYK colour modes: 1 prints the channel's display level as it is, lower values print it paler and higher values deeper. Pick a channel in Advanced normalization > Channel to edit to give that channel its own intensity; the others keep this value. Applies to the CMY and CMYK modes on black and on white; has no effect on the other colour modes. Default 1.0.",
     'overview_preview_resolution': "(int) - Longest edge, in pixels, of the preview images the plate, well and image views load. Lower values load faster and use less memory; the Original button and zooming in still read original pixels. One of 128, 256, 512, 1024, 2048 or 4096. Default 1024.",
     'overview_tile_size': "(int) - Edge length, in screen pixels, of each field image in the well views. The slider in a well view's header changes the same value. Larger tiles show more detail per field and fewer fields at a time. Default 128.",
-    'overview_tile_spacing': "(int) - Gap, in screen pixels, between neighbouring field images in the well views. Small values keep the images close together so more of the well fits on screen. Default 4.",
+    'overview_tile_spacing': "(int) - Gap, in screen pixels, between neighbouring field images in the well views. Set it in the field to the left of the image-size slider in a well view's header. Small values keep the images close together so more of the well fits on screen. Default 4.",
     'overview_original_on_open': "(bool) - When True, an enlarged image is loaded at its original full resolution as soon as it opens, as if the Original button were pressed. When False it opens as a preview at the preview resolution and loads original pixels only when asked. Default False.",
     'overview_z_mode': "(str) - How a Z-stack is shown: 'plane' shows the chosen Z plane, 'max' a maximum-intensity projection and 'mean' a mean projection across all planes. Applies to every view and to exported PDFs. Default 'plane'.",
     'overview_wheel': "(str) - What the mouse wheel does over the enlarged image: 'zoom' zooms, 'field' steps to the next or previous field, 'z' steps through Z planes and 'time' steps through time points. Default 'zoom'.",
     'overview_representatives': "(int) - Number of fields shown for each well on the plate view, from 1 to 24. More fields give a better impression of each well but take longer to load. Exports of whole wells and plates are not limited by this value. Default 1.",
     'overview_normalize': "(bool) - Stretch each channel between the lower and upper percentiles for display. When False, raw intensities are shown between the image's minimum and maximum. Display scaling never changes measured pixel values. Default True.",
-    'overview_normalize_channels': "(str) - Channels the percentile stretch applies to: 'all', or channel IDs separated by commas. Other shown channels are stretched between their minimum and maximum instead. Display only; measured pixels never change. Default 'all'.",
+    'overview_normalize_channels': "(str) - Channels the percentile stretch applies to: 'all', or channel numbers separated by commas, such as '1,2,3,4'. Each number must be a channel of the source; anything else is refused with the reason and the stretch keeps its previous channels. Other shown channels are stretched between their minimum and maximum instead. Display only; measured pixels never change. Default 'all'.",
     'overview_normalization_scope': "(str) - Which images each channel's display stretch is computed over: 'image' stretches every image on its own, 'well' uses the same bounds for every loaded image of a well, 'plate' for every loaded image of a plate and 'all' for every loaded image of every plate, so brightness can be compared across that scope. Set per channel as '1=plate, 2=image', or one value for all channels. Well, plate and all bounds use the display percentiles over sampled pixels: at most 64 evenly spaced images per scope and 4096 pixels per image, read at 256 pixels. Display only; measured pixels never change. Default 'image'.",
     'overview_enhance_channels': "(str) - Channels the enhancement steps apply to: 'all', or channel IDs separated by commas. Other shown channels are drawn without enhancement. Display only; measured pixels never change. Default 'all'.",
     'overview_percentile_low': "(float) - Lower display percentile, 0 to 100. Intensities at or below this percentile of each channel are shown black. Default 1.0.",
@@ -8251,20 +8315,26 @@ OVERVIEW_IMAGE_KEYS = (
     'overview_tile_spacing', 'overview_original_on_open',
 )
 
+_OVERVIEW_WELL_VIEW_KEYS = ('overview_tile_size', 'overview_tile_spacing')
+"""Image settings the well views set themselves: the size with the slider in a
+well view's header and the spacing with the field to its left. They are kept
+with the other settings but shown there, not on the form."""
+
 OVERVIEW_CATEGORIES = {
     'Source': ['src', 'custom_regex', 'overview_max_wells', 'overview_max_fields'],
-    'Image': ['overview_preview_resolution', 'overview_original_on_open'],
-    'Channels': ['overview_channels', 'overview_color_mode', 'overview_ink_intensity'],
-    'Display': ['overview_tile_size', 'overview_tile_spacing'],
+    'Image': ['overview_preview_resolution', 'overview_original_on_open',
+              *_OVERVIEW_WELL_VIEW_KEYS],
+    'Channels': ['overview_channels', 'overview_color_mode', 'overview_custom_colors',
+                 'overview_ink_intensity'],
     'Figure settings': ['overview_z_mode', 'overview_wheel',
                         'overview_representatives'],
-    'Normalization': ['overview_normalize', 'overview_normalize_channels', 'overview_normalization_scope',
-                'overview_percentile_low',
-                'overview_percentile_high', 'overview_advanced_normalization',
-                'overview_normalization_method', 'overview_advanced_low',
-                'overview_advanced_high', 'overview_fixed_low',
-                'overview_fixed_high', 'overview_background', 'overview_gamma',
-                'overview_reference_channel', 'overview_reference_epsilon'],
+    'Normalization': ['overview_normalize', 'overview_percentile_low', 'overview_percentile_high'],
+    'Advanced normalization': [
+        'overview_normalize_channels', 'overview_normalization_scope',
+        'overview_advanced_normalization', 'overview_normalization_method',
+        'overview_advanced_low', 'overview_advanced_high', 'overview_fixed_low',
+        'overview_fixed_high', 'overview_background', 'overview_gamma',
+        'overview_reference_channel', 'overview_reference_epsilon'],
     'Comparisons': ['overview_representative_method'],
     'Export': ['overview_export_scope', 'overview_pdf_quality',
                'overview_pdf_dpi', 'overview_sample_grouping',

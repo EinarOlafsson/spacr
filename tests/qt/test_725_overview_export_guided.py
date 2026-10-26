@@ -270,7 +270,8 @@ def test_the_export_button_offers_guided_custom_and_contact_sheet(view, qtbot):
     menu.actions()[0].trigger()
     assert view._guided_export.isVisible()
     menu.close()
-    assert [button.text() for button in view._module_action_buttons][0] == browser.tr("Export…")
+    assert [button.text() for button in view._module_action_buttons][:2] == [
+        browser.tr("Export image-level measurements"), browser.tr("Export…")]
 
 
 def test_selected_fields_and_wells_go_on_the_canvas_by_button_and_by_drag(view, qtbot):

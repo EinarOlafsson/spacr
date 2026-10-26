@@ -233,6 +233,8 @@ def test_image_and_enhancement_settings_change_what_is_shown(mask, qtbot, source
     model = tab._settings_model
     assert view._enhancement is None
     model.set_value_for_key("enhance_gamma", 0.5)
+    assert view._enhancement is None
+    tab._overview_page._apply_settings()
     assert view._enhancement is not None and view._enhancement.gamma == 0.5
     field = view._fields[0]
     plain = browser._overview_pixels(field, (1,), (1., 99.), edge=128)
@@ -241,6 +243,7 @@ def test_image_and_enhancement_settings_change_what_is_shown(mask, qtbot, source
     assert view._display_kwargs(view=True)["enhancement"] is view._enhancement
     assert "enhancement" not in view._display_kwargs()
     model.set_value_for_key("enhance_gamma", 1.0)
+    tab._overview_page._apply_settings()
     assert view._enhancement is None
     model.set_value_for_key("overview_original_on_open", True)
     assert view._original_on_open is True

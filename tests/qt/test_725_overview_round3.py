@@ -209,10 +209,12 @@ def test_image_settings_are_one_main_category_with_four_subcategories(qtbot, sou
 
     layout = categories_for_app("overview", get_categories())
     parents = _APP_CATEGORY_PARENTS["overview"]
-    for title in ("Channels", "Display", "Normalization", "Enhancement"):
+    for title in ("Channels", "Normalization", "Advanced normalization", "Enhancement"):
         assert parents[title] == "Image"
+    assert "Display" not in layout and "Display" not in parents
     assert "overview_channels" in layout["Channels"]
     assert "overview_channels" not in layout["Source"]
-    assert {"overview_normalize", "overview_normalize_channels", "overview_percentile_high"} <= set(layout["Normalization"])
+    assert set(layout["Normalization"]) == {"overview_normalize", "overview_percentile_low", "overview_percentile_high"}
+    assert "overview_normalize_channels" in layout["Advanced normalization"]
     assert "overview_enhance_channels" in layout["Enhancement"]
-    assert {"overview_tile_size", "overview_tile_spacing"} <= set(layout["Display"])
+    assert {"overview_tile_size", "overview_tile_spacing"} <= set(layout["Image"])

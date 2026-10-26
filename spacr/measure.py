@@ -14290,7 +14290,7 @@ def _image_feature_groups(selection=None):
 
 _IMAGE_FEATURE_SETTING = {
     'intensity': 'overview_measure_intensity',
-    'saturation': 'overview_measure_saturation',
+    'saturation': 'overview_measure_intensity',
     'focus': 'overview_measure_focus',
     'texture': 'overview_measure_texture',
     'background': 'overview_measure_background_snr',

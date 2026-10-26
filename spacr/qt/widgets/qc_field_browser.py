@@ -1767,11 +1767,22 @@ def _overview_saturated(rgb, saturation):
 _OVERVIEW_OVERRIDE_DEFAULTS = {"black": 0., "white": 1., "gamma": 1., "brightness": 0.,
                                "contrast": 1., "visible": True}
 
+_OVERVIEW_GLOBAL_LAYERS = (
+    ("global_normalization", "Global normalization",
+     "Ticked, this image is drawn with the Normalization and Advanced normalization settings; "
+     "unticked, it is stretched between its own minimum and maximum."),
+    ("global_enhancement", "Global enhancement",
+     "Ticked, this image is drawn with the Enhancement settings; unticked, it is shown without enhancement."),
+)
+"""The per-image switches for the global layers: override key, menu caption and help."""
+
 
 def _overview_clean_override(override):
     """Keep only what differs from the defaults in one image's display override.
 
-    :param override: ``{"channels": {channel: {...}}, "saturation": s}``, or ``None``.
+    :param override: ``{"channels": {channel: {...}}, "saturation": s,
+        "global_normalization": bool, "global_enhancement": bool}``, or ``None``;
+        the two global switches are kept only when off.
     :returns: the override with string channel keys and no default values, or
         ``None`` when nothing differs, so an image that was reset has no entry.
     """
@@ -1785,6 +1796,9 @@ def _overview_clean_override(override):
     saturation = (override or {}).get("saturation")
     if saturation is not None and float(saturation) != 1.:
         cleaned["saturation"] = float(saturation)
+    for name, _caption, _tooltip in _OVERVIEW_GLOBAL_LAYERS:
+        if (override or {}).get(name) is False:
+            cleaned[name] = False
     return cleaned or None
 
 
@@ -2922,23 +2936,42 @@ def _overview_channel_rgb(channels, channel_colors):
 
 _OVERVIEW_INKS = {"cyan": (0., 1., 1.), "magenta": (1., 0., 1.), "yellow": (1., 1., 0.), "black": (0., 0., 0.)}
 _OVERVIEW_INK_NAMES = {"#00ffff": "cyan", "#ff00ff": "magenta", "#ffff00": "yellow", "#000000": "black"}
-_OVERVIEW_COLOR_MODES = {"additive": (), "cmy": ("cyan", "magenta", "yellow"),
-                         "cmyk": ("cyan", "magenta", "yellow", "black")}
+_OVERVIEW_INK_SETS = {"cmy": ("cyan", "magenta", "yellow"), "cmyk": ("cyan", "magenta", "yellow", "black")}
+_OVERVIEW_COLOR_MODES = {
+    "additive": ("rgb", "black"), "rgb_white": ("rgb", "white"),
+    "cmy_black": ("cmy", "black"), "cmy": ("cmy", "white"),
+    "cmyk_black": ("cmyk", "black"), "cmyk": ("cmyk", "white"),
+    "green_magenta": ("green_magenta", "black"), "greys": ("greys", "black"),
+    "custom": ("custom", "black"),
+}
+_OVERVIEW_COLOR_MODE_CAPTIONS = (
+    ("additive", "RGB on black"), ("rgb_white", "RGB on white"),
+    ("cmy_black", "CMY on black"), ("cmy", "CMY on white"),
+    ("cmyk_black", "CMYK on black"), ("cmyk", "CMYK on white"),
+    ("green_magenta", "Green and magenta on black"),
+    ("greys", "Each channel in grey, side by side"),
+    ("custom", "Custom colours"),
+)
+_OVERVIEW_PRESET_PALETTES = {"rgb": ((1., 0., 0.), (0., 1., 0.), (0., 0., 1.)),
+                             "green_magenta": ((0., 1., 0.), (1., 0., 1.), (0., 1., 1.))}
+_OVERVIEW_CUSTOM_DEFAULTS = ("#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#00ffff", "#ffff00",
+                             "#ff8000", "#8000ff", "#ffffff")
 
 
 def _overview_inks(channels, channel_colors, mode):
-    """The ink each channel prints with in a subtractive colour mode.
+    """The ink each channel prints with in a CMY or CMYK colour mode.
 
     A channel whose display colour is one of the mode's inks keeps it; the
     others take the unused inks in cyan, magenta, yellow, black order.
 
     :param channels: the shown channels, in order.
     :param channel_colors: ``{channel: '#rrggbb'}``, or ``None``.
-    :param mode: ``'additive'``, ``'cmy'`` or ``'cmyk'``.
-    :returns: one ``(r, g, b)`` ink per channel, or ``None`` in the additive
-        mode or when there are more channels than inks.
+    :param mode: a key of :data:`_OVERVIEW_COLOR_MODES`.
+    :returns: one ``(r, g, b)`` ink per channel, or ``None`` outside the CMY
+        and CMYK modes or when there are more channels than inks.
     """
-    inks = _OVERVIEW_COLOR_MODES.get(str(mode or "additive"), ())
+    palette = _OVERVIEW_COLOR_MODES.get(str(mode or "additive"), ("rgb", "black"))[0]
+    inks = _OVERVIEW_INK_SETS.get(palette, ())
     if not inks or len(channels) > len(inks):
         return None
     colours = channel_colors or {}
@@ -2949,6 +2982,108 @@ def _overview_inks(channels, channel_colors, mode):
         chosen.append(ink if ink in inks and ink not in chosen else None)
     free = [ink for ink in inks if ink not in chosen]
     return [_OVERVIEW_INKS[ink or free.pop(0)] for ink in chosen]
+
+
+def _overview_hex_rgb(value):
+    """``'#rrggbb'`` as an ``(r, g, b)`` triple in 0-1, or ``None`` when it is not one."""
+    text = str(value or "").strip().lstrip("#")
+    if len(text) != 6:
+        return None
+    try:
+        return tuple(int(text[index:index + 2], 16) / 255. for index in (0, 2, 4))
+    except ValueError:
+        return None
+
+
+def _overview_custom_colors(value):
+    """Read the ``overview_custom_colors`` setting.
+
+    :param value: ``'1=#ff0000, 2=#00ff00'``, or a mapping.
+    :returns: ``{channel text: '#rrggbb'}``; malformed entries are left out.
+    """
+    if isinstance(value, dict):
+        items = value.items()
+    else:
+        items = (part.split("=", 1) for part in str(value or "").split(",") if "=" in part)
+    colours = {}
+    for channel, colour in items:
+        channel, colour = str(channel).strip(), str(colour).strip().lower()
+        if channel and _overview_hex_rgb(colour) is not None:
+            colours[channel] = "#" + colour.lstrip("#")
+    return colours
+
+
+def _overview_custom_text(colours):
+    """Write ``{channel: '#rrggbb'}`` as the ``overview_custom_colors`` setting."""
+    return ", ".join(f"{channel}={colour}" for channel, colour in colours.items())
+
+
+def _overview_custom_color(colours, channel, index):
+    """The custom colour of ``channel``: its own, or the default for its position."""
+    own = (colours or {}).get(str(channel))
+    return own or _OVERVIEW_CUSTOM_DEFAULTS[index % len(_OVERVIEW_CUSTOM_DEFAULTS)]
+
+
+def _overview_color_plan(channels, channel_colors, mode):
+    """How the shown channels are combined: one colour per channel and a background.
+
+    ``'additive'`` keeps the plain behaviour: the channels' display colours,
+    or red, green and blue in order, added on black, one channel in grey and
+    more than three side by side. The RGB, CMY and CMYK modes come on black
+    (light added) and on white (the complement absorbed, as inks on paper);
+    on black the key (black) channel of CMYK is drawn white. ``'custom'``
+    uses ``channel_colors`` as chosen per channel, for any number of channels.
+
+    :param channels: the shown channels, in order.
+    :param channel_colors: ``{channel: '#rrggbb'}``, or ``None``.
+    :param mode: a key of :data:`_OVERVIEW_COLOR_MODES`; anything else is additive.
+    :returns: ``(colours, background, inked)`` with one ``(r, g, b)`` in 0-1
+        per channel, ``'black'`` or ``'white'``, and whether the ink
+        intensities apply; ``None`` when the channels are drawn side by side.
+    """
+    palette, background = _OVERVIEW_COLOR_MODES.get(str(mode or "additive"), ("rgb", "black"))
+    count = len(channels)
+    if palette in _OVERVIEW_INK_SETS:
+        inks = _overview_inks(channels, channel_colors, mode)
+        if inks is None:
+            return None
+        if background == "black":
+            inks = [(1., 1., 1.) if ink == _OVERVIEW_INKS["black"] else ink for ink in inks]
+        return inks, background, True
+    if palette == "custom":
+        colours = {str(channel): value for channel, value in (channel_colors or {}).items()}
+        return [_overview_hex_rgb(_overview_custom_color(colours, channel, index))
+                for index, channel in enumerate(channels)], background, False
+    if palette == "greys":
+        return ([(1., 1., 1.)], background, False) if count == 1 else None
+    if count > 3:
+        return None
+    if count == 1 and palette == "rgb":
+        return [(1., 1., 1.)], background, False
+    weights = _overview_channel_rgb(channels, channel_colors) if palette == "rgb" else None
+    return list(weights or _OVERVIEW_PRESET_PALETTES[palette][:count]), background, False
+
+
+def _overview_composite(planes, colours, background, strengths=None):
+    """Combine display planes in their colours on a black or white background.
+
+    On black each channel adds its colour: ``out = sum(plane * strength *
+    colour)``. On white it absorbs the complement of its colour from white,
+    as an ink on paper: ``out = 255 - sum(plane * strength * (1 - colour))``.
+    Both are clipped to 0-255.
+
+    :param planes: uint8 display planes of one shape.
+    :param colours: one ``(r, g, b)`` in 0-1 per plane.
+    :param background: ``'black'`` or ``'white'``.
+    :param strengths: one intensity per plane, or ``None`` for 1 each.
+    :returns: the uint8 RGB image.
+    """
+    if background == "white":
+        return _overview_subtractive(planes, colours, strengths)
+    mixed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
+    for plane, colour, strength in zip(planes, colours, strengths or (1.,) * len(planes)):
+        mixed += plane[..., None].astype(np.float32) * float(strength) * np.asarray(colour, dtype=np.float32)
+    return np.clip(mixed, 0, 255).astype(np.uint8)
 
 
 def _overview_subtractive(planes, inks, strengths=None):
@@ -3058,8 +3193,10 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
 
     Up to three channels are composited additively in ``channel_colors``
     (``{channel: '#rrggbb'}``); without colours they fill red, green and blue
-    in order. ``color_mode`` ``'cmy'`` or ``'cmyk'`` prints up to three or
-    four channels as inks on white instead (:func:`_overview_subtractive`).
+    in order. ``color_mode`` picks another combination
+    (:func:`_overview_color_plan`): RGB, CMY or CMYK on a black or a white
+    background, green and magenta, every channel in grey side by side, or
+    the custom colours in ``channel_colors``.
 
     Each channel can be treated on its own: ``channel_percentiles``,
     ``{channel: (low, high)}``, replaces the percentile stretch for that
@@ -3076,11 +3213,17 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     override}``, applied to the display planes by
     :func:`_overview_override_plane` and to the composite by
     :func:`_overview_saturated`. Both are keyed by :func:`_overview_image_key`.
+    An override with ``global_normalization`` False skips the global
+    normalization and the scope limits for that image, which is then
+    stretched between its minimum and maximum; one with
+    ``global_enhancement`` False skips the enhancement chains.
     """
     from PIL import Image, ImageDraw
 
     planes = []
-    columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
+    plan = _overview_color_plan(channels, channel_colors, color_mode)
+    mosaic = plan is None and len(channels) > 1
+    columns = math.ceil(math.sqrt(len(channels))) if mosaic else 1
     source_planes = []
     total_bytes = 0
     axes = dict(time_index=time_index, z_mode=z_mode, z_index=z_index)
@@ -3093,6 +3236,13 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         for channel, path, values in _overview_raw_planes(target, selected, edge=edge,
                 region=region, **axes):
             yield channel, path, values
+    image_key = _overview_image_key(field) if (channel_limits or image_overrides) else None
+    override = dict((image_overrides or {}).get(image_key) or {})
+    if override.get("global_normalization") is False:
+        normalization = normalization_context = advanced_normalization = None
+        percentiles, channel_limits, channel_percentiles = None, None, None
+    if override.get("global_enhancement") is False:
+        enhancement = channel_enhancement = None
     own_percentiles = dict(channel_percentiles or {}) if percentiles is not None else {}
     if region is not None and normalization is None and advanced_normalization is None:
         bounds = {}
@@ -3107,9 +3257,7 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         if total_bytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         source_planes.append(item)
-    image_key = _overview_image_key(field) if (channel_limits or image_overrides) else None
     limits = dict((channel_limits or {}).get(image_key) or {})
-    override = dict((image_overrides or {}).get(image_key) or {})
     channel_overrides = override.get("channels") or {}
     raw_planes = {channel: array for channel, _path, array in source_planes if channel in limits}
     if advanced_normalization is not None:
@@ -3132,9 +3280,9 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
             source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
     if edge is None:
         edge = (max((max(array.shape) for _, _, array in source_planes), default=1)
-                + (16 if len(channels) > 3 else 0)) * columns
+                + (16 if mosaic else 0)) * columns
     tile = max(1, edge // columns)
-    header = min(16, tile // 4) if len(channels) > 3 else 0
+    header = min(16, tile // 4) if mosaic else 0
     plane_edge = max(1, tile - header)
     for channel, path, array in source_planes:
         array = raw_planes.get(channel, array)
@@ -3165,32 +3313,25 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         return tuple((channel, np.repeat(plane[..., None], 3, axis=2))
                      for channel, plane in zip(channels, planes))
     saturation = override.get("saturation")
-    inks = _overview_inks(channels, channel_colors, color_mode)
-    if inks is not None:
-        strengths = [float((ink_intensity or {}).get(channel, 1.)) for channel in channels]
-        return _overview_saturated(_overview_subtractive(planes, inks, strengths), saturation)
+    if plan is not None:
+        colours, background, inked = plan
+        strengths = ([float((ink_intensity or {}).get(channel, 1.)) for channel in channels]
+                     if inked else None)
+        if len(planes) == 1 and colours[0] == (1., 1., 1.) and not inked:
+            grey = np.repeat(planes[0][..., None], 3, axis=2)
+            return grey if background == "black" else 255 - grey
+        return _overview_saturated(_overview_composite(planes, colours, background, strengths), saturation)
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
-    if len(planes) > 3:
-        rows = math.ceil(len(planes) / columns)
-        mosaic = Image.new("RGB", (columns * tile, rows * tile))
-        draw = ImageDraw.Draw(mosaic)
-        for index, (channel, plane) in enumerate(zip(channels, planes)):
-            x, y = (index % columns) * tile, (index // columns) * tile
-            mosaic.paste(Image.fromarray(plane).convert("RGB"), (x, y + header))
-            if header:
-                draw.text((x, y), str(channel), fill="white")
-        return np.asarray(mosaic).copy()
-    weights = _overview_channel_rgb(channels, channel_colors)
-    if weights is not None:
-        mixed = np.zeros(planes[0].shape + (3,), dtype=np.float32)
-        for plane, weight in zip(planes, weights):
-            mixed += plane[..., None].astype(np.float32) * np.asarray(weight, dtype=np.float32)
-        return _overview_saturated(np.clip(mixed, 0, 255).astype(np.uint8), saturation)
-    rgb = np.zeros(planes[0].shape + (3,), dtype=np.uint8)
-    for index, plane in enumerate(planes):
-        rgb[..., index] = plane
-    return _overview_saturated(rgb, saturation)
+    rows = math.ceil(len(planes) / columns)
+    mosaic_image = Image.new("RGB", (columns * tile, rows * tile))
+    draw = ImageDraw.Draw(mosaic_image)
+    for index, (channel, plane) in enumerate(zip(channels, planes)):
+        x, y = (index % columns) * tile, (index // columns) * tile
+        mosaic_image.paste(Image.fromarray(plane).convert("RGB"), (x, y + header))
+        if header:
+            draw.text((x, y), str(channel), fill="white")
+    return np.asarray(mosaic_image).copy()
 
 
 def _overview_scaled_chain(chain, stride):
@@ -3826,8 +3967,8 @@ def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
 
 def _overview_color_mode_caption(mode):
     """The colour mode's name as the settings list it."""
-    return {"cmy": tr("CMY inks on white"), "cmyk": tr("CMYK inks on white")}.get(
-        str(mode or "additive"), tr("Additive colours"))
+    captions = dict(_OVERVIEW_COLOR_MODE_CAPTIONS)
+    return tr(captions.get(str(mode or "additive"), captions["additive"]))
 
 
 def _overview_pdf_header(channels, percentiles, seed, normalization, color_mode="additive"):
@@ -4425,6 +4566,7 @@ _OVERVIEW_THUMBNAIL_CACHE = 64
 _OVERVIEW_TILE_DEFAULT = 128
 _OVERVIEW_COLLAPSED_STRIP = 10
 _OVERVIEW_TILE_SPACING = 4
+_OVERVIEW_TILE_SPACING_MAX = 64
 _OVERVIEW_TILE_RANGE = (48, 768)
 _OVERVIEW_MAX_WELL_VIEWS = 6
 
@@ -5033,6 +5175,8 @@ class _OverviewLevelsHistogram(QWidget):
         self.setMinimumSize(220, 96)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.setMouseTracking(True)
+        self.setProperty("spacrOwnsMouseGesture", True)
+        self.setCursor(Qt.SizeHorCursor)
         self.counts = None
         self.black, self.white, self.gamma = 0., 1., 1.
         self._dragging = None
@@ -5195,9 +5339,10 @@ class _OverviewImageSettings(QDialog):
         from PySide6.QtWidgets import QDoubleSpinBox, QFormLayout, QSlider, QTabBar
         from .setup_dialog import _SetupComboBox
 
-        super().__init__(browser, Qt.Tool)
+        super().__init__(browser, Qt.Window)
         self.setObjectName("OverviewImageSettings")
         self.setProperty("spacrSettingsPopup", True)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowTitle(tr("Image settings"))
         self._browser = browser
         self._loading = False
@@ -5211,13 +5356,21 @@ class _OverviewImageSettings(QDialog):
         self.caption = QLabel()
         self.caption.setObjectName("OverviewImageSettingsCaption")
         self.caption.setWordWrap(True)
+        self.caption.setCursor(Qt.SizeAllCursor)
+        self.caption.setToolTip(tr("Drag this title to move the window."))
         layout.addWidget(self.caption)
+        body = QWidget(self)
+        body.setObjectName("OverviewImageSettingsBody")
+        body.setProperty("spacrOwnsMouseGesture", True)
+        outer, layout = layout, QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(body, 1)
         self.tabs = QTabBar()
         self.tabs.setObjectName("OverviewImageSettingsChannels")
         self.tabs.setExpanding(False)
         self.tabs.currentChanged.connect(self._channel_changed)
         layout.addWidget(self.tabs)
-        self.histogram = _OverviewLevelsHistogram(self)
+        self.histogram = _OverviewLevelsHistogram(body)
         self.histogram.levels_changed.connect(self._levels_dragged)
         self.histogram.released.connect(self._push)
         layout.addWidget(self.histogram)
@@ -5500,6 +5653,11 @@ class _FieldOverview(QWidget):
         self._plate_fit = True
         self._collapsed = {}
         self._color_mode = "additive"
+        self._custom_colors = {}
+        self._tile_spacing_changed = None
+        self._tile_spacing_boxes = []
+        self._settings_flush = None
+        self._image_menu_shown = None
         self._channel_limits = {}
         self._image_overrides = {}
         self._normalization_scopes = {"*": "image"}
@@ -5938,8 +6096,8 @@ class _FieldOverview(QWidget):
         action_row = FlowLayout(self._module_action_content)
         self._module_actions.setWidget(self._module_action_content)
         self._module_action_buttons = []
-        for caption, callback in ((tr("Export…"), self._export_menu),
-                (tr("Export image-level measurements"), self._measure),
+        for caption, callback in ((tr("Export image-level measurements"), self._measure),
+                (tr("Export…"), self._export_menu),
                 (tr("Cancel loading or export"), self._cancel)):
             button = QPushButton(caption)
             button.clicked.connect(functools.partial(callback, button) if callback == self._export_menu
@@ -6103,8 +6261,7 @@ class _FieldOverview(QWidget):
             channels = self._choices()[0]
         except (ValueError, TypeError):
             channels = ()
-        mosaic = (len(channels) > 3 and _overview_inks(channels, self._overview_options.get("channel_colors"),
-                                                         self._color_mode) is None)
+        mosaic = self._mosaic(channels)
         shape = next(iter(planes.values())).shape[:2]
         point = _overview_source_pixel(u, v, rendered, shape, len(channels), mosaic)
         if point is None:
@@ -6267,6 +6424,10 @@ class _FieldOverview(QWidget):
             limits = None
         options = dict(self._display_kwargs(view=True))
         options.pop("image_overrides", None)
+        layers = {name: False for name, _caption, _tooltip in _OVERVIEW_GLOBAL_LAYERS
+                  if (self._image_overrides.get(panel.key) or {}).get(name) is False}
+        if layers:
+            options["image_overrides"] = {panel.key: layers}
         self._levels_jobs.submit(
             functools.partial(_overview_display_histograms, panel.field, panel.channels, limits, options),
             functools.partial(self._image_histograms_read, panel.key))
@@ -6297,10 +6458,50 @@ class _FieldOverview(QWidget):
         menu = QMenu(view)
         menu.addAction(tr("Image settings…")).triggered.connect(
             functools.partial(self._open_image_settings, field))
+        self._add_global_layer_actions(menu, field)
         reset = menu.addAction(tr("Reset image settings"))
         reset.setEnabled(self._is_adjusted(field))
         reset.triggered.connect(functools.partial(self._set_image_override, _overview_image_key(field), None))
         menu.popup(view.viewport().mapToGlobal(position))
+        self._image_menu_shown = menu
+
+    def _add_global_layer_actions(self, menu, field):
+        """Add the Global normalization and Global enhancement ticks of ``field`` to ``menu``.
+
+        :param menu: the image's context menu.
+        :param field: the image the ticks belong to.
+        """
+        menu.setToolTipsVisible(True)
+        override = self._image_overrides.get(_overview_image_key(field)) or {}
+        for name, caption, tooltip in _OVERVIEW_GLOBAL_LAYERS:
+            action = menu.addAction(tr(caption))
+            action.setObjectName("OverviewImage_" + name)
+            action.setCheckable(True)
+            action.setChecked(override.get(name) is not False)
+            action.setToolTip(tr(tooltip))
+            action.toggled.connect(functools.partial(self._set_global_layer, field, name))
+
+    def _set_global_layer(self, field, name, on):
+        """Draw ``field`` with or without one global layer and save that with its settings.
+
+        :param field: the image.
+        :param name: ``'global_normalization'`` or ``'global_enhancement'``.
+        :param on: whether the global layer applies to this image.
+        """
+        import copy
+
+        key = _overview_image_key(field)
+        override = copy.deepcopy(self._image_overrides.get(key) or {})
+        if on:
+            override.pop(name, None)
+        else:
+            override[name] = False
+        self._set_image_override(key, override)
+        panel = self._image_settings
+        from shiboken6 import isValid
+
+        if panel is not None and isValid(panel) and panel.key == key:
+            self._request_image_histograms(panel)
 
     def _fit_module_actions(self):
         """Refresh native action minima after coalesced font and style changes."""
@@ -6455,10 +6656,12 @@ class _FieldOverview(QWidget):
             menu.addSeparator()
             menu.addAction(tr("Image settings…")).triggered.connect(
                 functools.partial(self._open_image_settings, field))
+            self._add_global_layer_actions(menu, field)
             reset = menu.addAction(tr("Reset image settings"))
             reset.setEnabled(self._is_adjusted(field))
             reset.triggered.connect(functools.partial(self._set_image_override, _overview_image_key(field), None))
         menu.popup(fields.viewport().mapToGlobal(position))
+        self._image_menu_shown = menu
 
     def _apply_tile_geometry(self, fields):
         """Size one well view's tiles from the tile size and spacing.
@@ -6510,9 +6713,18 @@ class _FieldOverview(QWidget):
 
         :param spacing: the gap in screen pixels.
         """
-        self._tile_spacing = max(0, int(spacing))
+        spacing = max(0, min(_OVERVIEW_TILE_SPACING_MAX, int(spacing)))
+        changed = spacing != self._tile_spacing
+        self._tile_spacing = spacing
+        for box in self._tile_spacing_boxes:
+            if box.value() != spacing:
+                box.blockSignals(True)
+                box.setValue(spacing)
+                box.blockSignals(False)
         for fields in self._field_lists():
             self._apply_tile_geometry(fields)
+        if changed and callable(self._tile_spacing_changed):
+            self._tile_spacing_changed(spacing)
 
     def _well_original_toggled(self, fields, on):
         """Load one well view's images at their original full resolution.
@@ -6577,16 +6789,19 @@ class _FieldOverview(QWidget):
         self._displayed_montage = None
         self._refresh_image()
 
-    def _set_color_mode(self, mode):
-        """Composite the shown channels additively or as CMY or CMYK inks on white.
+    def _set_color_mode(self, mode, custom_colors=None):
+        """Combine the shown channels in one of the colour modes of :data:`_OVERVIEW_COLOR_MODES`.
 
-        :param mode: ``'additive'``, ``'cmy'`` or ``'cmyk'``; anything else is additive.
+        :param mode: a colour mode; anything else is ``'additive'``.
+        :param custom_colors: ``{channel text: '#rrggbb'}`` for the custom
+            mode, or ``None`` to keep the current ones.
         """
         mode = str(mode or "additive").lower()
         mode = mode if mode in _OVERVIEW_COLOR_MODES else "additive"
-        if mode == self._color_mode:
+        colours = self._custom_colors if custom_colors is None else dict(custom_colors)
+        if mode == self._color_mode and colours == self._custom_colors:
             return
-        self._color_mode = mode
+        self._color_mode, self._custom_colors = mode, colours
         self._display_generation += 1
         self._cache.clear()
         self._thumbnail_cache.clear()
@@ -6597,6 +6812,35 @@ class _FieldOverview(QWidget):
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item, preserve_view=True)
+
+    def _apply_display(self):
+        """Redraw every view with the applied display settings.
+
+        The plate thumbnails, every well view, every open image view and the
+        enlarged image are drawn again, so an image that was already open
+        shows the new normalization and enhancement too.
+        """
+        if self._controls_lost:
+            return
+        self._display_generation += 1
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        for fields in self._field_lists():
+            for index in range(fields.count()):
+                fields.item(index).setData(Qt.UserRole + 1, None)
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._refresh_image()
+
+    def _display_colors(self):
+        """The channel colours the views use: the custom ones in the custom mode, else the metadata step's."""
+        if self._color_mode == "custom":
+            return dict(self._custom_colors)
+        return self._overview_options.get("channel_colors") or None
+
+    def _mosaic(self, channels):
+        """Whether ``channels`` are drawn side by side rather than combined into one colour image."""
+        return len(channels) > 1 and _overview_color_plan(channels, self._display_colors(), self._color_mode) is None
 
     def _set_normalization_scopes(self, scopes):
         """Normalize each channel over its image, well, plate or every loaded plate.
@@ -7246,7 +7490,7 @@ class _FieldOverview(QWidget):
         from .ai_toggle_label import AiToggleLabel
         from ..theme import apply_close_mark
 
-        from PySide6.QtWidgets import QSlider
+        from PySide6.QtWidgets import QSlider, QSpinBox
 
         panel = _OverviewPanel("")
         panel.field_list = fields
@@ -7260,6 +7504,18 @@ class _FieldOverview(QWidget):
         panel.tile_slider.setMaximumWidth(160)
         panel.tile_slider.valueChanged.connect(self._set_tile_size)
         self._tile_sliders.append(panel.tile_slider)
+        panel.tile_spacing = QSpinBox()
+        panel.tile_spacing.setObjectName("FieldOverviewTileSpacing")
+        panel.tile_spacing.setRange(0, _OVERVIEW_TILE_SPACING_MAX)
+        panel.tile_spacing.setValue(self._tile_spacing)
+        panel.tile_spacing.setSuffix(tr(" px"))
+        panel.tile_spacing.setToolTip(tr("Overview tile spacing: the gap, in screen pixels, between the images "
+                                         "of every well view."))
+        panel.tile_spacing.setAccessibleName(tr("Overview tile spacing"))
+        panel.tile_spacing.valueChanged.connect(self._set_tile_spacing)
+        self._tile_spacing_boxes.append(panel.tile_spacing)
+        panel.tile_spacing.setMaximumWidth(64)
+        panel.header_layout.addWidget(panel.tile_spacing)
         panel.header_layout.addWidget(panel.tile_slider)
         panel.original_toggle = AiToggleLabel(text="Original", tooltip=_OVERVIEW_ORIGINAL_WELL_TOOLTIP)
         panel.original_toggle.setObjectName("FieldOverviewWellOriginal")
@@ -7335,6 +7591,10 @@ class _FieldOverview(QWidget):
         self._well_panels.remove(panel)
         panel.hide()
         if panel is not self._well_panel:
+            for controls, control in ((self._tile_sliders, panel.tile_slider),
+                                      (self._tile_spacing_boxes, panel.tile_spacing)):
+                if control in controls:
+                    controls.remove(control)
             panel.setParent(None)
             panel.deleteLater()
         if panel.field_list is not self.fields or not refresh:
@@ -8169,8 +8429,11 @@ class _FieldOverview(QWidget):
         normalization, the percentile stretch, the enhancement steps and the
         ink intensity. Picking a channel shows that channel's values, its own
         where it has them and the global ones otherwise; picking All channels
-        shows the global values again.
+        shows the global values again. Display settings still waiting for
+        Apply are applied first, so they are not taken for the channel's.
         """
+        if self._editing_channel is None and callable(self._settings_flush) and not self._loading_controls:
+            self._settings_flush()
         if self._editing_channel is None:
             self._global_normalization_options = self._editor_options()
             self._global_display = self._display_editor_values()
@@ -9316,7 +9579,7 @@ class _FieldOverview(QWidget):
                     z_index=z if isinstance(z, int) else 0,
                     z_mode=self.z_mode.currentData() or "plane",
                     advanced_normalization=self._advanced_model if self.advanced.isChecked() else None,
-                    channel_colors=self._overview_options.get("channel_colors") or None,
+                    channel_colors=self._display_colors(),
                     color_mode=self._color_mode)
 
     @staticmethod
@@ -9451,6 +9714,7 @@ class _FieldOverview(QWidget):
             self._install_channel_buttons(info)
             self._normalization_ready = True
             self._request_visuals()
+            self._reload_image_views()
             if self._individual:
                 item = self.fields.currentItem()
                 if item is not None:
@@ -9562,7 +9826,7 @@ class _FieldOverview(QWidget):
         if not shape:
             return
         channels, limits = self._choices()
-        if len(channels) > 3:
+        if len(channels) > 3 or self._mosaic(channels):
             self.status.setText(tr("For original-resolution detail, toggle up to three channels or inspect one channel individually."))
             return
         preview = self.view._item.pixmap()
@@ -11463,8 +11727,24 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
                             "overview_original_on_open", "overview_enhance_channels",
                             "overview_normalize_channels", "overview_color_mode",
+                            "overview_custom_colors",
                             "overview_max_wells", "overview_max_fields", "overview_normalization_scope",
                             "overview_ink_intensity")
+
+_OVERVIEW_STAGED_SETTINGS = frozenset({
+    "overview_normalize", "overview_percentile_low", "overview_percentile_high",
+    "overview_normalize_channels", "overview_normalization_scope",
+    "overview_advanced_normalization", "overview_normalization_method",
+    "overview_advanced_low", "overview_advanced_high", "overview_fixed_low", "overview_fixed_high",
+    "overview_background", "overview_gamma", "overview_reference_channel", "overview_reference_epsilon",
+    "overview_enhance_channels", "overview_color_mode", "overview_custom_colors", "overview_ink_intensity"})
+"""Display and normalization settings that wait for Apply; the ``enhance_*`` settings wait too.
+
+Every other Overview setting is applied as it changes: the source, the
+shown channels, preview resolution, opening at Original, Z mode, wheel,
+fields per well, load limits, the tile size and spacing, and the
+comparison and export settings.
+"""
 
 
 def _overview_channel_targets(value):
@@ -11486,6 +11766,39 @@ def _overview_channel_targets(value):
         items = [part.strip() for part in text.split(",") if part.strip()]
     targets = tuple(int(item) if str(item).lstrip("-").isdigit() else item for item in items)
     return targets or None
+
+
+def _overview_channel_list_error(value, known=()):
+    """Check a typed channel list, such as ``overview_normalize_channels``.
+
+    :param value: ``'all'``, ``'none'``, or channel numbers separated by
+        commas (``'1,2,3,4'``); an int or a list of ints is accepted too.
+    :param known: the source's channel IDs; when given, every number must be one of them.
+    :returns: ``''`` when the list is valid, otherwise the reason, ready to show.
+    """
+    if isinstance(value, bool):
+        return tr("Type channel numbers separated by commas, such as 1,2,3,4, or all.")
+    if isinstance(value, int):
+        items = [str(value)]
+    elif isinstance(value, (list, tuple)):
+        items = [str(item).strip() for item in value]
+    else:
+        text = str(value or "").strip()
+        if text.lower() in ("all", "none"):
+            return ""
+        items = [part.strip() for part in text.split(",")]
+    if not items or any(not item for item in items):
+        return tr("Type channel numbers separated by commas, such as 1,2,3,4, or all.")
+    channels = [str(channel) for channel in known or ()]
+    wrong = [item for item in items if not item.isdigit() and item not in channels]
+    if wrong:
+        return tr("{value} is not a channel number; type channel numbers separated by commas, "
+                  "such as 1,2,3,4, or all.", value=wrong[0])
+    missing = [item for item in items if channels and item not in channels]
+    if missing:
+        return tr("Channel {channel} is not in this source; its channels are {channels}.",
+                  channel=missing[0], channels=", ".join(channels))
+    return ""
 
 
 def _overview_control_value(control):
@@ -11575,6 +11888,10 @@ class _OverviewSettingsBridge:
         self._pairs = []
         self._connections = []
         self._detached = False
+        self._staged = set()
+        self._applying = False
+        self._writing_display = False
+        self.apply_bar = None
         browser.destroyed.connect(self._detach)
         for key, attribute in _OVERVIEW_SETTING_CONTROLS:
             row = self._model._widgets.get(key)
@@ -11591,12 +11908,15 @@ class _OverviewSettingsBridge:
         from spacr.settings import _enhancement_keys
 
         self._image_keys = (*_OVERVIEW_IMAGE_SETTINGS, *_enhancement_keys())
+        self._staged_keys = _OVERVIEW_STAGED_SETTINGS | set(_enhancement_keys())
         for key in self._image_keys:
             row = self._model._widgets.get(key)
             if row is not None:
-                self._listen(row, self._image_row_changed)
+                self._listen(row, functools.partial(self._image_row_changed, key))
         browser._tile_size_changed = lambda edge: self._write("overview_tile_size", edge)
+        browser._tile_spacing_changed = lambda gap: self._write("overview_tile_spacing", gap)
         browser._write_display_rows = self._write_display_rows
+        browser._settings_flush = self.apply
         from spacr.settings import _overview_measurement_declarations
 
         measurement_keys = tuple(_overview_measurement_declarations()["defaults"])
@@ -11642,12 +11962,83 @@ class _OverviewSettingsBridge:
         return True
 
     def _row_changed(self, key, control, *_):
-        """Follow a changed setting row with its browser control."""
+        """Follow a changed setting row with its browser control, or hold a display change for Apply."""
+        if self._syncing or self._stage(key):
+            return
         self._to_control(key, control)
 
-    def _image_row_changed(self, *_):
-        """Apply a changed Image or Enhancement setting."""
+    def _image_row_changed(self, key, *_):
+        """Apply a changed Image or Enhancement setting, or hold a display change for Apply."""
+        if self._stage(key):
+            return
         self.apply_image_settings()
+
+    def _stage(self, key):
+        """Hold a changed display or normalization setting for Apply.
+
+        Not held: settings outside :data:`_OVERVIEW_STAGED_SETTINGS` and the
+        enhancement settings, values the browser writes itself, and edits
+        while a channel is picked in Channel to edit, which wait for that
+        channel's own Apply settings to channel.
+
+        :param key: the changed setting.
+        :returns: True when the change is held.
+        """
+        if (key not in self._staged_keys or self._applying or self._syncing or self._writing_display
+                or self._detached or self._browser._editing_channel is not None):
+            return False
+        self._staged.add(key)
+        self._show_pending()
+        return True
+
+    def pending(self):
+        """The settings changed since the last Apply, sorted."""
+        return tuple(sorted(self._staged))
+
+    def _show_pending(self):
+        """Show on the Apply button whether changes wait, and whether they can be applied."""
+        if self.apply_bar is None:
+            return
+        from shiboken6 import isValid
+
+        if not isValid(self.apply_bar):
+            self.apply_bar = None
+            return
+        error = _overview_channel_list_error(self._value("overview_normalize_channels"),
+                                             tuple(self._browser._channel_buttons))
+        self.apply_bar.show_state(bool(self._staged), error)
+
+    def apply(self):
+        """Apply every held display and normalization change to every view.
+
+        The plate thumbnails, the well views, every open image view and the
+        enlarged image are redrawn with the new settings, the image already
+        open included.
+
+        :returns: True when the settings were applied; False while Normalized
+            channels holds text that is not a channel list.
+        """
+        if not self._live():
+            return False
+        error = _overview_channel_list_error(self._value("overview_normalize_channels"),
+                                             tuple(self._browser._channel_buttons))
+        if error:
+            self._show_pending()
+            self._browser.status.setText(error)
+            return False
+        staged, self._staged = set(self._staged), set()
+        self._applying = True
+        try:
+            for key, _row, control in self._pairs:
+                if key in staged:
+                    self._to_control(key, control)
+            self.apply_image_settings()
+        finally:
+            self._applying = False
+        if staged:
+            self._browser._apply_display()
+        self._show_pending()
+        return True
 
     def _value(self, key):
         """The setting's current value as its row reads it."""
@@ -11688,10 +12079,14 @@ class _OverviewSettingsBridge:
         """
         if not self._live():
             return
-        for name, value in values.items():
-            key = "overview_ink_intensity" if name == "ink" else name
-            if self._model._widgets.get(key) is not None and self._value(key) != value:
-                self._model.set_value_for_key(key, value)
+        self._writing_display = True
+        try:
+            for name, value in values.items():
+                key = "overview_ink_intensity" if name == "ink" else name
+                if self._model._widgets.get(key) is not None and self._value(key) != value:
+                    self._model.set_value_for_key(key, value)
+        finally:
+            self._writing_display = False
 
     def apply_image_settings(self):
         """Apply the Image and Enhancement settings to every view.
@@ -11713,16 +12108,24 @@ class _OverviewSettingsBridge:
         else:
             browser._set_channel_display_globals(values.get("overview_ink_intensity"), enhance_values)
         try:
-            browser._set_tile_spacing(int(values.get("overview_tile_spacing") or 0))
-            browser._set_tile_size(int(values.get("overview_tile_size") or _OVERVIEW_TILE_DEFAULT))
+            if values.get("overview_tile_spacing") is not None:
+                browser._set_tile_spacing(int(values["overview_tile_spacing"]))
+            if values.get("overview_tile_size") is not None:
+                browser._set_tile_size(int(values["overview_tile_size"]))
         except (TypeError, ValueError):
             pass
         browser._original_on_open = bool(values.get("overview_original_on_open"))
-        browser._set_color_mode(values.get("overview_color_mode"))
+        browser._set_color_mode(values.get("overview_color_mode"),
+                                _overview_custom_colors(values.get("overview_custom_colors")))
         browser._set_load_limits(values.get("overview_max_wells"), values.get("overview_max_fields"))
         browser._set_normalization_scopes(_overview_channel_scopes(values.get("overview_normalization_scope")))
+        normalize = values.get("overview_normalize_channels")
+        if _overview_channel_list_error(normalize, tuple(browser._channel_buttons)):
+            normalize = browser._normalize_channels
+        else:
+            normalize = _overview_channel_targets(normalize)
         browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
-                                     _overview_channel_targets(values.get("overview_normalize_channels")))
+                                     normalize)
         if editing:
             return
         try:
@@ -11897,6 +12300,202 @@ class _OverviewChannelScopes(QWidget):
             self._writing = False
 
 
+_OVERVIEW_CUSTOM_COLORS_ROW = (
+    "Custom colours",
+    "The colour of each channel in the Custom colours colour mode; click a channel's button to pick "
+    "its colour. Saved with the other settings.",
+)
+
+
+class _OverviewCustomColors(QWidget):
+    """One colour button per channel for ``overview_custom_colors``, used by the custom colour mode.
+
+    The setting stays the record (``"1=#ff0000, 2=#00ff00"``) and this
+    writes it; the buttons are greyed out unless the colour mode is custom.
+    """
+
+    def __init__(self, model, key, parent=None):
+        """Follow one setting row and the colour mode.
+
+        :param model: the Overview tab's settings model.
+        :param key: the custom-colour setting it writes.
+        :param parent: the owning widget.
+        """
+        from PySide6.QtWidgets import QFormLayout
+        from ..screens.settings_model import _connect_value_changed
+
+        super().__init__(parent)
+        self._model, self._key = model, key
+        self._channels = ()
+        self._buttons = {}
+        self._writing = False
+        self._layout = QFormLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        for name, slot in ((key, self._row_changed), ("overview_color_mode", self._mode_changed)):
+            row = model._widgets.get(name)
+            if row is not None:
+                _connect_value_changed(row, slot)
+        self._mode_changed()
+
+    def colours(self):
+        """``{channel text: '#rrggbb'}`` as the setting holds them, defaults filled in."""
+        own = _overview_custom_colors(self._model._read_value(self._key))
+        return {str(channel): _overview_custom_color(own, channel, index)
+                for index, channel in enumerate(self._channels)}
+
+    def set_channels(self, channels):
+        """Show one colour button per channel.
+
+        :param channels: the source's channel IDs, in order.
+        """
+        channels = tuple(channels)
+        if channels == self._channels:
+            self._row_changed()
+            return
+        while self._layout.rowCount():
+            self._layout.removeRow(0)
+        self._buttons = {}
+        self._channels = channels
+        for channel in channels:
+            button = QPushButton()
+            button.setObjectName("OverviewCustomColour")
+            button.setMaximumWidth(160)
+            button.setToolTip(tr("Pick the colour of channel {channel}.", channel=channel))
+            button.clicked.connect(functools.partial(self._pick, channel))
+            self._layout.addRow(tr("Channel {channel}", channel=channel), button)
+            self._buttons[str(channel)] = button
+        self._row_changed()
+        self._mode_changed()
+
+    def _row_changed(self, *_):
+        """Show each channel's colour on its button."""
+        for channel, colour in self.colours().items():
+            button = self._buttons.get(channel)
+            if button is not None:
+                button.setText(colour)
+                button.setStyleSheet(f"QPushButton#OverviewCustomColour {{ border-left: 18px solid {colour}; }}")
+
+    def _mode_changed(self, *_):
+        """Grey the buttons out unless the colour mode is custom."""
+        custom = str(self._model._read_value("overview_color_mode") or "") == "custom"
+        self.setEnabled(custom)
+        for channel, button in self._buttons.items():
+            button.setToolTip(tr("Pick the colour of channel {channel}.", channel=channel) if custom
+                              else tr("Used only when the colour mode is Custom colours."))
+
+    def _pick(self, channel, *_):
+        """Ask for one channel's colour with spaCR's colour picker and write it into the setting."""
+        from .colour_picker import pick_colour
+
+        colours = self.colours()
+        chosen = pick_colour(self, colours.get(str(channel)), tr("Colour of channel {channel}", channel=channel))
+        if not chosen.isValid():
+            return
+        self.set_colour(channel, chosen.name())
+
+    def set_colour(self, channel, colour):
+        """Give ``channel`` the colour ``'#rrggbb'`` and save it in the setting."""
+        colours = self.colours()
+        colours[str(channel)] = str(colour).lower()
+        self._writing = True
+        try:
+            self._model.set_value_for_key(self._key, _overview_custom_text(colours))
+        finally:
+            self._writing = False
+        self._row_changed()
+
+
+class _OverviewApplyBar(QFrame):
+    """The Apply button pinned to the bottom of the Overview's settings column.
+
+    Display and normalization settings wait for it; while some do, it says
+    so and the button is highlighted. While Normalized channels holds text
+    that is not a channel list it says why and cannot be pressed.
+    """
+
+    def __init__(self, scroll):
+        """Build the bar on the settings column's scroll area.
+
+        :param scroll: the settings column; the bar sits over its bottom edge.
+        """
+        super().__init__(scroll)
+        self.setObjectName("OverviewApplyBar")
+        self.setAutoFillBackground(True)
+        self._scroll = scroll
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(8, 6, 8, 6)
+        self.state = QLabel(tr("Display settings are applied."))
+        self.state.setObjectName("OverviewApplyState")
+        self.state.setWordWrap(True)
+        self.apply_button = QPushButton(tr("Apply"))
+        self.apply_button.setObjectName("OverviewApplySettings")
+        self.apply_button.setToolTip(tr(
+            "Apply the changed channel, normalization, colour and enhancement settings to the plate, "
+            "every well view and every open image."))
+        layout.addWidget(self.state, 1)
+        layout.addWidget(self.apply_button)
+        from ..theme import ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("OverviewApplyBar", _overview_apply_bar_qss, replace=True)
+        ensure_widget_qss_applied("OverviewApplyBar", root=self)
+
+    def show_state(self, pending, error=""):
+        """Show whether changes wait for Apply, or what stops them being applied.
+
+        :param pending: whether display changes wait.
+        :param error: why they cannot be applied, or ``""``.
+        """
+        if error:
+            text = error
+        elif pending:
+            text = tr("Unapplied changes: press Apply to show them in every view.")
+        else:
+            text = tr("Display settings are applied.")
+        self.state.setText(text)
+        if bool(self.state.property("error")) != bool(error):
+            self.state.setProperty("error", bool(error))
+            self.state.style().unpolish(self.state)
+            self.state.style().polish(self.state)
+        self.apply_button.setEnabled(not error)
+        self.apply_button.setProperty("pending", bool(pending))
+        self.apply_button.setText(tr("Apply changes") if pending else tr("Apply"))
+        self.apply_button.style().unpolish(self.apply_button)
+        self.apply_button.style().polish(self.apply_button)
+        self.place()
+
+    def place(self):
+        """Sit over the bottom of the settings column and keep the settings scrollable above it."""
+        scroll = self._scroll
+        height = self.sizeHint().height()
+        frame = scroll.frameWidth()
+        scroll.setViewportMargins(0, 0, 0, height)
+        self.setGeometry(frame, scroll.height() - frame - height, max(0, scroll.width() - 2 * frame), height)
+        self.raise_()
+
+    def eventFilter(self, watched, event):
+        """Follow the settings column's size."""
+        from PySide6.QtCore import QEvent
+
+        if watched is self._scroll and event.type() in (QEvent.Resize, QEvent.Show):
+            self.place()
+        return False
+
+
+def _overview_apply_bar_qss(palette, opacity):
+    """The Apply bar: the settings surface with a rule above it, and an accent Apply while changes wait."""
+    return (f"QFrame#OverviewApplyBar {{ background-color: {palette['surface']}; "
+            f"border-top: 1px solid {palette['border']}; }}\n"
+            f"QPushButton#OverviewApplySettings[pending=\"true\"] {{ background-color: {palette['accent']}; "
+            f"color: {palette['bg']}; border: 1px solid {palette['accent']}; font-weight: bold; }}\n"
+            f"QLabel#OverviewApplyState {{ color: {palette['fg']}; }}\n"
+            f"QLabel#OverviewApplyState[error=\"true\"] {{ color: {palette['error']}; }}")
+
+
+def _overview_channel_list_qss(palette, opacity):
+    """A Normalized channels field that is not a channel list is framed in the error colour."""
+    return f"QLineEdit[overviewInvalid=\"true\"] {{ border: 1px solid {palette['error']}; }}"
+
+
 def _overview_rows_hidden(previous, keys):
     """The rows the screen hides, plus the text rows the channel switches stand in for.
 
@@ -11908,8 +12507,6 @@ def _overview_rows_hidden(previous, keys):
 
 
 _OVERVIEW_CHANNEL_TARGET_ROWS = (
-    ("Normalization", "overview_normalize_channels", "Normalized channels",
-     "Channels the percentile stretch applies to; a channel switched off keeps its raw display range."),
     ("Enhancement", "overview_enhance_channels", "Enhanced channels",
      "Channels the image enhancement applies to; a channel switched off is shown without enhancement."),
 )
@@ -11965,7 +12562,7 @@ def _overview_module_rows(browser):
             ("Time", "Time point shown for time-lapse acquisitions.", (browser.time_axis,)),
             ("Z", "Z plane shown when the Z mode is a single plane.", (browser.z_axis,)),
         ],
-        "Normalization": [
+        "Advanced normalization": [
             ("Reference group", "Group whose images define the advanced normalization bounds.", (browser.normalization_scope,)),
             ("Channel to edit", "Channel the per-channel settings are edited for: the advanced normalization, the percentile stretch, every enhancement step and the CMY/CMYK ink intensity. Pick a channel, change its values and press Apply settings to channel; channels marked (own settings) have their own values, the others follow All channels.",
              (browser.norm_channel, *browser._channel_override_buttons)),
@@ -12021,6 +12618,8 @@ class _OverviewModulePage(QWidget):
         self._rows = []
         self._hidden_keys = []
         self._screen_hides = None
+        self._apply_bar = None
+        self._channel_list_edit = None
         self.setObjectName("FieldOverviewModulePage")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -12163,6 +12762,7 @@ class _OverviewModulePage(QWidget):
         browser._mount_navigation_bar()
         self._mount_rows(browser)
         self._bridge = _OverviewSettingsBridge(self._screen, browser)
+        self._mount_apply_bar()
         self._drop_wizard(wizard)
         browser._indexed(fields)
         self._sync_back()
@@ -12207,7 +12807,7 @@ class _OverviewModulePage(QWidget):
             keys[toggles] = _overview_row_key(caption)
             self._rows.append((section, toggles, ()))
             self._hidden_keys.append(key)
-        section = _overview_section(self._screen, "Normalization")
+        section = _overview_section(self._screen, "Advanced normalization")
         if section is not None and model._widgets.get("overview_normalization_scope") is not None:
             caption, tooltip = _OVERVIEW_NORMALIZATION_SCOPE_ROW
             scopes = _OverviewChannelScopes(model, "overview_normalization_scope")
@@ -12220,6 +12820,23 @@ class _OverviewModulePage(QWidget):
             keys[scopes] = _overview_row_key(caption)
             self._rows.append((section, scopes, ()))
             self._hidden_keys.append("overview_normalization_scope")
+        section = _overview_section(self._screen, "Channels")
+        if section is not None and model._widgets.get("overview_custom_colors") is not None:
+            caption, tooltip = _OVERVIEW_CUSTOM_COLORS_ROW
+            colours = _OverviewCustomColors(model, "overview_custom_colors")
+            colours.setProperty("settingKey", _overview_row_key(caption))
+            colours.setProperty("apiTooltipDescriptionSource", tooltip)
+            browser._channels_found.connect(colours.set_channels)
+            if browser._channel_buttons:
+                colours.set_channels(tuple(browser._channel_buttons))
+            section.add_prose_row(_overview_row_label(caption, tooltip), colours)
+            keys[colours] = _overview_row_key(caption)
+            self._rows.append((section, colours, ()))
+            self._hidden_keys.append("overview_custom_colors")
+        from spacr.settings import _OVERVIEW_WELL_VIEW_KEYS
+
+        self._hidden_keys.extend(key for key in _OVERVIEW_WELL_VIEW_KEYS if model._widgets.get(key) is not None)
+        self._mount_channel_list_check(browser, model)
         if self._hidden_keys:
             self._screen_hides = model.rows_the_screen_hides
             model.rows_the_screen_hides = functools.partial(
@@ -12237,6 +12854,98 @@ class _OverviewModulePage(QWidget):
 
             _overview_height_grip(section)
 
+    def _mount_channel_list_check(self, browser, model):
+        """Check Normalized channels as it is typed; a wrong list is framed and the Apply bar says why.
+
+        :param browser: the plate browser, whose channels the list must name.
+        :param model: the Overview tab's settings model.
+        """
+        from PySide6.QtWidgets import QLineEdit
+        from ..theme import ensure_widget_qss_applied, register_widget_qss
+
+        edit = model._widgets.get("overview_normalize_channels")
+        edits = [edit] if isinstance(edit, QLineEdit) else (edit.findChildren(QLineEdit) if edit is not None else [])
+        if not edits:
+            return
+        edit = edits[0]
+        register_widget_qss("OverviewChannelList", _overview_channel_list_qss, replace=True)
+        ensure_widget_qss_applied("OverviewChannelList", root=edit)
+        self._channel_list_edit = edit
+        edit.textChanged.connect(self._check_channel_list)
+        browser._channels_found.connect(self._check_channel_list)
+        self._check_channel_list()
+
+    def _check_channel_list(self, *_):
+        """Frame Normalized channels when it does not name channels of this source and say why.
+
+        :returns: the reason, or ``""`` when the list is valid.
+        """
+        from shiboken6 import isValid
+
+        edit = self._channel_list_edit
+        if edit is None or not isValid(edit):
+            return ""
+        browser = self.browser
+        known = tuple(browser._channel_buttons) if browser is not None else ()
+        error = _overview_channel_list_error(edit.text(), known)
+        if bool(edit.property("overviewInvalid")) != bool(error):
+            edit.setProperty("overviewInvalid", bool(error))
+            edit.style().unpolish(edit)
+            edit.style().polish(edit)
+        if error and browser is not None:
+            browser.status.setText(error)
+        if self._bridge is not None:
+            self._bridge._show_pending()
+        return error
+
+    def _drop_channel_list_check(self):
+        """Stop checking Normalized channels and take its error frame off."""
+        from shiboken6 import isValid
+
+        edit, self._channel_list_edit = self._channel_list_edit, None
+        if edit is None or not isValid(edit):
+            return
+        try:
+            edit.textChanged.disconnect(self._check_channel_list)
+        except (RuntimeError, TypeError):
+            pass
+        edit.setProperty("overviewInvalid", False)
+        edit.style().unpolish(edit)
+        edit.style().polish(edit)
+
+    def _mount_apply_bar(self):
+        """Pin the Apply button to the bottom of the settings column while the browser is shown."""
+        scroll = getattr(self._screen, "_settings_scroll", None)
+        if scroll is None or self._bridge is None:
+            return
+        bar = _OverviewApplyBar(scroll)
+        bar.apply_button.clicked.connect(self._apply_settings)
+        self._bridge.apply_bar = bar
+        self._apply_bar = bar
+        scroll.installEventFilter(bar)
+        bar.place()
+        bar.show()
+        self._bridge._show_pending()
+
+    def _apply_settings(self, *_):
+        """Apply the held display and normalization settings to every view."""
+        if self._bridge is not None:
+            self._bridge.apply()
+
+    def _drop_apply_bar(self):
+        """Take the Apply button off the settings column."""
+        from shiboken6 import isValid
+
+        bar, self._apply_bar = getattr(self, "_apply_bar", None), None
+        if bar is None or not isValid(bar):
+            return
+        scroll = bar.parentWidget()
+        if scroll is not None:
+            scroll.removeEventFilter(bar)
+            scroll.setViewportMargins(0, 0, 0, 0)
+        bar.hide()
+        bar.deleteLater()
+
     def _retire_browser(self):
         """Retire the shown browser and take its rows off the settings.
 
@@ -12251,6 +12960,8 @@ class _OverviewModulePage(QWidget):
 
         browser, bridge = self.browser, self._bridge
         self.browser, self._bridge = None, None
+        self._drop_apply_bar()
+        self._drop_channel_list_check()
         if bridge is not None:
             bridge._detach()
         if browser is not None:
@@ -12577,7 +13288,7 @@ def _install_overview_module(screen, layout):
 
 
 def _install_overview_actions(screen, buttons):
-    """Add the Overview exports beside the module's standard actions.
+    """Add the Overview actions beside the module's standard ones: Measure first, then Export.
 
     :param screen: the Overview module screen.
     :param buttons: the Actions container's button strip.
@@ -12591,8 +13302,8 @@ def _install_overview_actions(screen, buttons):
     screen._btn_overview_measure.setToolTip(tr(
         "Measure every image in parallel and write the results to the fov table of measurements.db."))
     screen._btn_overview_measure.clicked.connect(lambda: screen._overview_page.export_measurements())
-    buttons.addWidget(screen._btn_overview_pdfs)
     buttons.addWidget(screen._btn_overview_measure)
+    buttons.addWidget(screen._btn_overview_pdfs)
 
 
 def _overview_source_path(source):
@@ -15366,6 +16077,9 @@ _OVERVIEW_UI_SOURCES = frozenset({
     *(text for caption, _key, tooltip in _OVERVIEW_SETTINGS_ROWS for text in (caption, tooltip)),
     *(text for _title, _key, caption, tooltip in _OVERVIEW_CHANNEL_TARGET_ROWS for text in (caption, tooltip)),
     *_OVERVIEW_NORMALIZATION_SCOPE_ROW,
+    *_OVERVIEW_CUSTOM_COLORS_ROW,
+    *(caption for _mode, caption in _OVERVIEW_COLOR_MODE_CAPTIONS),
+    *(text for _name, caption, tooltip in _OVERVIEW_GLOBAL_LAYERS for text in (caption, tooltip)),
     *(caption for _value, caption in _OVERVIEW_SCOPE_CHOICES),
     *(text for row in _OVERVIEW_GUIDED_WELL_MODES + _OVERVIEW_GUIDED_FIELD_MODES for text in row),
     *_OVERVIEW_GUIDED_CAPTIONS.values(),

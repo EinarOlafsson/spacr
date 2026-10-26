@@ -1119,6 +1119,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "infection_pca_n_clusters": "",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    "overview_measure_saturation": "",
     **{f"{obj}_{bound}": "object_filters"
        for obj in ("cell", "nucleus", "pathogen")
        for bound in ("min_area", "max_area", "min_intensity",

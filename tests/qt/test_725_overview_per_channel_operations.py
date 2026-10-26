@@ -261,6 +261,9 @@ def test_the_enhancement_and_ink_rows_edit_the_picked_channel_and_show_the_globa
     model = tab._settings_model
     assert model._widgets.get("overview_ink_intensity") is not None
     model.set_value_for_key("overview_ink_intensity", .6)
+    assert view._ink_intensity == 1.
+    assert tab._overview_page._bridge.pending() == ("overview_ink_intensity",)
+    tab._overview_page._apply_settings()
     assert view._ink_intensity == .6
     global_gamma = model._read_value("enhance_gamma")
     _pick(view, 1)

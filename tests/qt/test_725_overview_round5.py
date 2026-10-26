@@ -247,7 +247,7 @@ def test_switching_the_colour_mode_updates_the_plate_well_and_image_views(view, 
 
 def test_exports_record_the_colour_mode():
     lines = browser._overview_pdf_header((1, 2), (1., 99.), 0, None, "cmyk")
-    assert any("CMYK inks on white" in line for line in lines)
+    assert any("CMYK on white" in line for line in lines)
     assert not any("Colour mode" in line for line in browser._overview_pdf_header((1,), (1., 99.), 0, None))
 
 
@@ -357,8 +357,11 @@ def test_the_colour_mode_setting_is_live_in_the_tab(mask, qtbot, source):
     model = tab._settings_model
     assert model._widgets.get("overview_color_mode") is not None
     model.set_value_for_key("overview_color_mode", "cmy")
+    assert view._color_mode == "additive"
+    tab._overview_page._apply_settings()
     assert view._color_mode == "cmy"
     model.set_value_for_key("overview_color_mode", "additive")
+    tab._overview_page._apply_settings()
     assert view._color_mode == "additive"
 
 
@@ -483,7 +486,9 @@ def test_the_normalization_scope_is_one_choice_per_channel_in_the_tab(mask, qtbo
     first, second = scopes._choices.values()
     first.setCurrentIndex(first.findData("plate"))
     assert model._read_value("overview_normalization_scope") == "1=plate, 2=image"
+    tab._overview_page._apply_settings()
     assert view._normalization_scopes == {"1": "plate", "2": "image"}
     model.set_value_for_key("overview_normalization_scope", "well")
     assert first.currentData() == "well" and second.currentData() == "well"
+    tab._overview_page._apply_settings()
     assert view._normalization_scopes == {"*": "well"}

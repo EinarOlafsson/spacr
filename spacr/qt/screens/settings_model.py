@@ -2068,7 +2068,9 @@ def _overview_category_spec():
     """The Overview module's categories, measurement keys included.
 
     :returns: ``(title, keys)`` pairs in panel order; the Enhancement and
-        Advanced headings are drawn inside Image and Measurements.
+        Advanced headings are drawn inside Image and Measurements. The
+        Measurements headings come before Export, as Measure comes before
+        Export in the Overview's actions.
     """
     from spacr.settings import (OVERVIEW_CATEGORIES,
                                 _overview_measurement_declarations,
@@ -2076,11 +2078,12 @@ def _overview_category_spec():
 
     measurements = _overview_measurement_declarations()["categories"]
     spec = [(title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
-        "Source", "Image", "Channels", "Display", "Normalization")]
+        "Source", "Image", "Channels", "Normalization", "Advanced normalization")]
     spec.append(("Enhancement", ("overview_enhance_channels", *_enhancement_keys())))
     spec.extend((title, tuple(OVERVIEW_CATEGORIES[title])) for title in (
-        "Figure settings", "Comparisons", "Export"))
+        "Figure settings", "Comparisons"))
     spec.extend((title, tuple(keys)) for title, keys in measurements.items())
+    spec.append(("Export", tuple(OVERVIEW_CATEGORIES["Export"])))
     return tuple(spec)
 
 
@@ -2088,8 +2091,8 @@ def _overview_category_parents():
     """Which Overview headings sit inside another Overview heading."""
     from spacr.settings import _overview_measurement_declarations
 
-    return {"Channels": "Image", "Display": "Image", "Normalization": "Image",
-            "Enhancement": "Image",
+    return {"Channels": "Image", "Normalization": "Image",
+            "Advanced normalization": "Image", "Enhancement": "Image",
             **_overview_measurement_declarations()["parents"]}
 
 
@@ -2097,9 +2100,15 @@ _APP_CATEGORY_SPECS["overview"] = _overview_category_spec()
 _APP_CATEGORY_PARENTS["overview"] = _overview_category_parents()
 _APP_COMBO_OPTIONS["overview"] = {
     "overview_preview_resolution": [128, 256, 512, 1024, 2048, 4096],
-    "overview_color_mode": [("additive", "Additive colours"),
-                            ("cmy", "CMY inks on white"),
-                            ("cmyk", "CMYK inks on white")],
+    "overview_color_mode": [("additive", "RGB on black"),
+                            ("rgb_white", "RGB on white"),
+                            ("cmy_black", "CMY on black"),
+                            ("cmy", "CMY on white"),
+                            ("cmyk_black", "CMYK on black"),
+                            ("cmyk", "CMYK on white"),
+                            ("green_magenta", "Green and magenta on black"),
+                            ("greys", "Each channel in grey, side by side"),
+                            ("custom", "Custom colours")],
     "overview_z_mode": [("plane", "Z plane"), ("max", "Maximum Z projection"),
                         ("mean", "Mean Z projection")],
     "overview_wheel": [("zoom", "Wheel: zoom"), ("field", "Wheel: field"),
@@ -3841,16 +3850,21 @@ def _overview_category_tooltips():
                   "names each file's plate, well, field and channel, and which "
                   "channels are shown. Press Run to check the metadata and open "
                   "the plate.",
-        "IMAGE": "Everything about how the images look, applied live to the plate, "
-                 "well and image views: the preview resolution, original-resolution "
-                 "opening, and the channel, display, normalization and enhancement "
-                 "settings below.",
+        "IMAGE": "Everything about how the images look in the plate, well and image "
+                 "views: the preview resolution, original-resolution opening, and the "
+                 "channel, normalization and enhancement settings below, applied to "
+                 "every view with Apply at the bottom of the settings.",
         "CHANNELS": "Which channels are shown, by filename channel ID or stack index; "
                     "tick or untick a channel below to show or hide it at once.",
-        "NORMALIZATION": "How intensities become brightness: the percentile stretch and "
-                         "the channels it applies to, and the advanced per-channel "
-                         "normalization with its method, bounds, background, gamma and "
-                         "reference group. Display only; measured pixels never change.",
+        "NORMALIZATION": "How intensities become brightness: whether the shown channels "
+                         "are stretched between a lower and an upper percentile, and those "
+                         "percentiles. Display only; measured pixels never change.",
+        "ADVANCED NORMALIZATION": "The channels the percentile stretch applies to, the images "
+                                  "each channel's stretch is computed over, and the advanced "
+                                  "per-channel normalization with its method, bounds, "
+                                  "background, gamma and reference group. Settings the chosen "
+                                  "method does not read are greyed out. Display only; measured "
+                                  "pixels never change.",
         "ENHANCEMENT": "Make Masks' image enhancement steps -- background "
                        "subtraction, denoising, contrast curves and sharpening -- "
                        "applied for display only to every view, or to the channels "
@@ -3860,9 +3874,6 @@ def _overview_category_tooltips():
         "FIGURE SETTINGS": "Which plate, row, column, field, time point and Z "
                            "plane are shown, how Z-stacks are projected, what the "
                            "mouse wheel does, and how many fields each well shows.",
-        "DISPLAY": "The size of and gap between the field images in the well views; "
-                   "the same values apply to every open well and image so they line "
-                   "up for comparison.",
         "COMPARISONS": "Build groups from combinations of annotation values, "
                        "compare an image-level measurement between them, and pick "
                        "one representative image for each group.",

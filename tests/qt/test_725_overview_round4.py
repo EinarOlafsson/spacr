@@ -121,7 +121,7 @@ def test_the_separate_channels_row_is_gone_and_overview_channels_drives_the_view
     assert view.channels.text() == "2"
 
 
-@pytest.mark.parametrize("key", ["overview_normalize_channels", "overview_enhance_channels"])
+@pytest.mark.parametrize("key", ["overview_enhance_channels"])
 def test_channel_targets_are_one_switch_per_line(mask, qtbot, source, key):
     tab, view = _browse(mask, qtbot, source)
     model = tab._settings_model
