@@ -44,3 +44,52 @@ def test_mask_open_preloads_so_run_needs_no_import(qtbot, qt_theme_applied,
     assert app_module._preload_the_pipeline_entry("mask") is None
     assert bridge._import_the_entry_off_the_gui_thread("mask") is None
     assert len(imported) == 1
+
+
+class _Workspace:
+    """An Overview workspace whose visibility the test sets."""
+
+    def __init__(self, visible):
+        self.visible = visible
+
+    def isVisible(self):
+        return self.visible
+
+
+def test_the_preload_waits_while_an_overview_hides_run(monkeypatch):
+    """spacr.core is not imported beside an Overview's loads; it starts on return."""
+    from types import SimpleNamespace
+
+    from spacr.qt import app as app_module
+
+    workspace = _Workspace(True)
+    window = SimpleNamespace(_closing=False, _screens={
+        "mask": SimpleNamespace(_field_overview_workspace=workspace)})
+    later, started = [], []
+    monkeypatch.setattr(app_module, "_after",
+                        lambda msec, owner, callback: later.append((msec, callback)))
+    monkeypatch.setattr(app_module, "_preload_the_pipeline_entry",
+                        lambda key: started.append(key) or "thread")
+    assert app_module._preload_the_entry_once_run_is_reachable(window, "mask") is None
+    assert started == [] and [msec for msec, _ in later] == [app_module._HELD_IMPORT_RETRY_MS]
+    assert later.pop()[1]() is None and len(later) == 1
+    workspace.visible = False
+    assert later.pop()[1]() == "thread"
+    assert started == ["mask"] and later == []
+
+
+def test_the_preload_starts_at_once_without_an_overview(monkeypatch):
+    from types import SimpleNamespace
+
+    from spacr.qt import app as app_module
+
+    started = []
+    monkeypatch.setattr(app_module, "_after", lambda *_: pytest.fail("no retry expected"))
+    monkeypatch.setattr(app_module, "_preload_the_pipeline_entry",
+                        lambda key: started.append(key) or "thread")
+    window = SimpleNamespace(_closing=False, _screens={"mask": SimpleNamespace()})
+    assert app_module._preload_the_entry_once_run_is_reachable(window, "mask") == "thread"
+    window = SimpleNamespace(_closing=False, _screens={
+        "mask": SimpleNamespace(_field_overview_workspace=_Workspace(False))})
+    assert app_module._preload_the_entry_once_run_is_reachable(window, "mask") == "thread"
+    assert started == ["mask", "mask"]

@@ -671,6 +671,38 @@ def _preload_the_pipeline_entry(app_key: str):
         return None
 
 
+def _preload_the_entry_once_run_is_reachable(window, app_key: str):
+    """Preload ``app_key``'s pipeline once its screen is not showing an Overview.
+
+    The preload exists so that Run finds the pipeline imported. An Overview
+    open on the screen hides Run, and Mask's pipeline is ``spacr.core``:
+    torch, cellpose and about 2,900 modules, the largest background import
+    of the session. Run beside an Overview's first plate, field and option
+    loads on a two-CPU machine it took the interpreter lock from them for the
+    whole time it ran. The import now waits, asking again every
+    :data:`_HELD_IMPORT_RETRY_MS`, while the Overview is on show, and starts
+    once the user is back on the screen where Run is.
+
+    :param window: the main window holding the module screens.
+    :param app_key: the module whose pipeline is preloaded.
+    :returns: the importing thread, or ``None`` while it waits or when there
+        is nothing to do.
+    """
+    host = getattr(window, "_screens", {}).get(app_key)
+    workspace = getattr(host, "_field_overview_workspace", None)
+    try:
+        showing = workspace is not None and workspace.isVisible()
+    except RuntimeError:
+        showing = False
+    if showing:
+        _after(_HELD_IMPORT_RETRY_MS, window,
+               lambda: _start_unless_held(
+                   window, lambda: _preload_the_entry_once_run_is_reachable(
+                       window, app_key)))
+        return None
+    return _preload_the_pipeline_entry(app_key)
+
+
 def _warm_the_run_environment() -> None:
     """Read the versions and locks a run records, logging any failure."""
     from .gil_priority import responsive_gui
@@ -7683,7 +7715,8 @@ class MainWindow(QMainWindow):
         if built_now and key in _ENTRY_PRELOADED_FOR:
             _after(int(_ENTRY_PRELOAD_AFTER_S * 1000), self,
                    lambda k=key: _start_unless_held(
-                       self, lambda: _preload_the_pipeline_entry(k)))
+                       self, lambda: _preload_the_entry_once_run_is_reachable(
+                           self, k)))
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
