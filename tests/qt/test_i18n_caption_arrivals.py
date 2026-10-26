@@ -12,7 +12,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools'))
 import build_i18n_catalogs as builder
-from i18n_caption_arrivals import load_arrival_contract, pinned_external_sources
+from i18n_caption_arrivals import LANGUAGES, load_arrival_contract, pinned_external_sources
 
 @pytest.fixture(scope='module')
 def state():
@@ -124,7 +124,23 @@ def test_proof_file_bytes_are_checked_fresh_on_every_validation_call(state,monke
         project(external,declarations)
 
 
-def test_duplicate_source_bound_review_identity_is_rejected(state,monkeypatch):
+@pytest.fixture
+def verified_reviews():
+    """Verify and load the real review inputs before a test fakes their bytes.
+
+    The review-input integrity check and the reviewed-translation loader both
+    read the review files through ``Path.read_bytes`` and remember the result
+    for the process. A test that substitutes those bytes must therefore run
+    them first on the genuine files, or the integrity check (correctly) sees
+    the substitute as a local edit and refuses before the arrival adapter is
+    reached.
+    """
+    builder._REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT, offline=True)
+    for language in LANGUAGES:
+        builder.reviewed_runtime_translations(language)
+
+
+def test_duplicate_source_bound_review_identity_is_rejected(state,verified_reviews,monkeypatch):
     external,declarations,contract = state
     candidate=copy.deepcopy(contract)
     proof=candidate['added'][0]['reviewed_evidence']['sv']['matching_review_records'][0]
