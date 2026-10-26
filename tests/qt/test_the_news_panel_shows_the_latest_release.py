@@ -108,6 +108,7 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
             gui_scale._set_actual_dim(scroll, key, value)
         panel.show()
         qtbot.waitExposed(panel)
+        panel._older.setChecked(True)
         qtbot.waitUntil(lambda: not panel._pending_releases)
         blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                   if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
@@ -332,6 +333,7 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp,
                 assert window._startup is not old_page and window._startup._news is not old_panel
                 qtbot.waitUntil(lambda: not shiboken6.isValid(old_timer))
             page, panel = window._startup, window._startup._news
+            panel._older.setChecked(True)
             qtbot.waitUntil(lambda: not panel._pending_releases)
             blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                 if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
@@ -833,3 +835,43 @@ def test_older_releases_follow_the_first_paint(qtbot, monkeypatch):
 
     panel._fill()
     assert len(drawn()) == total and not panel._pending_releases
+
+
+def test_long_notes_show_the_newest_release_and_scroll_inside_the_card(qtbot, monkeypatch):
+    """1.5.1.5's notes wrap to ~21,000 px; the card stays capped and scrolls.
+
+    Only the newest release is shown; the older ones wait behind the "Show
+    older releases" switch, which sits under the notes box rather than in
+    the scrolled column, so it is never scrolled away.
+    """
+    long_body = "\n".join(f"- line {index}: " + "a long release note sentence " * 6
+                          for index in range(400))
+    releases = [{"tag": f"v1.5.1.{n}", "name": f"spaCR 1.5.1.{n}", "published": f"2026-10-{20 - n:02d}",
+                 "url": "", "body": long_body if n == 5 else f"notes {n}"} for n in (5, 4, 3)]
+    monkeypatch.setattr(NewsPanel, "read_releases", staticmethod(lambda: [dict(r) for r in releases]))
+    monkeypatch.setattr(NewsPanel, "_ask_for_newer_releases", lambda self: None)
+    panel = NewsPanel("1.5.1.5")
+    qtbot.addWidget(panel)
+    panel.resize(420, 600)
+    panel.show()
+    qtbot.waitExposed(panel)
+    qtbot.waitUntil(lambda: not panel._pending_releases)
+
+    view = panel.notes_view
+    blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
+              if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
+    assert len(blocks) == 3
+    assert blocks[0].isVisible() and not any(block.isVisible() for block in blocks[1:])
+    assert panel._older.isVisible() and not view.widget().isAncestorOf(panel._older)
+    assert panel._older.text() == "Show older releases"
+
+    from spacr.qt.preferences import scaled_px
+    assert view.height() <= scaled_px(NewsPanel.NOTES_H_MAX)
+    assert view.widget().height() > 5 * view.height(), "the long notes scroll inside the card"
+    assert view.verticalScrollBar().maximum() > 0
+    assert panel.height() < 2 * scaled_px(NewsPanel.NOTES_H_MAX)
+
+    panel._older.setChecked(True)
+    assert all(block.isVisible() for block in blocks)
+    panel._older.setChecked(False)
+    assert not any(block.isVisible() for block in blocks[1:])

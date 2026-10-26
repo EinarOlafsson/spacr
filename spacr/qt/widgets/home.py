@@ -1863,10 +1863,13 @@ class NewsPanel(Panel):
     switched off in Preferences, or simply finds nothing newer leaves the
     bundled list exactly as it was drawn.
 
-    The panel shows every release newest-first, each one's body rendered with its links
-    live, the whole list inside a scroll area, and a grip along the bottom
-    edge that drags the box taller or shorter. The height is remembered
-    between sessions.
+    The panel shows the newest release, its body rendered with its links
+    live, and the older ones newest-first behind a "Show older releases"
+    switch under the box, all inside a scroll area whose height is capped, with
+    a grip along the bottom edge that drags the box taller or shorter. The
+    height is remembered between sessions. One release's notes can be long
+    -- 1.5.1.5's wrap to about 21,000 px at the aside's width -- so the
+    scroll area, not the page, carries them.
 
     The update check stays a button: installing an update is a decision,
     so it is made only when pressed.
@@ -1906,11 +1909,12 @@ class NewsPanel(Panel):
     NOTES_H_MIN = 90
     NOTES_H_MAX = 720
 
-    #: Releases built with the panel; the rest follow its first paint. Each
-    #: wrapped rich-text body costs several document layouts to size, and all
-    #: of them together were about 0.4 s of Home's first paint on an Intel
-    #: Mac, for a box that shows the newest release at its default height.
-    FIRST_RELEASES = 2
+    #: Releases built with the panel; the rest follow its first paint,
+    #: hidden until the reader switches on the older releases. Each wrapped
+    #: rich-text body costs several document layouts to size, and all of
+    #: them together were about 0.4 s of Home's first paint on an Intel Mac,
+    #: for a box that shows the newest release at its default height.
+    FIRST_RELEASES = 1
 
     #: When a shown panel that has not painted -- scrolled below the fold of
     #: a short aside -- appends the rest anyway, so every release is there
@@ -1948,6 +1952,17 @@ class NewsPanel(Panel):
         self._notes_column.setSpacing(SPACING["sm"])
         self._notes.setWidget(inner)
         self.body_layout.addWidget(self._notes)
+
+        from .toggle import Toggle
+
+        self._older = Toggle(tr("Show older releases"))
+        self._older.setObjectName("HomeNewsOlderReleases")
+        self._older.setChecked(False)
+        self._older_blocks = []
+        self._older.toggled.connect(lambda shown: (
+            self._fill_the_rest(),
+            [block.setVisible(shown) for block in self._older_blocks]))
+        self.body_layout.addWidget(self._older)
 
         self._placeholder = QLabel(
             "No release notes bundled with this build.")
@@ -2007,6 +2022,7 @@ class NewsPanel(Panel):
         """
         self._pending_releases = []
         self._headline_labels = []
+        self._older_blocks = []
         while self._notes_column.count():
             item = self._notes_column.takeAt(0)
             widget = item.widget()
@@ -2017,8 +2033,13 @@ class NewsPanel(Panel):
         self._placeholder.setVisible(not self._releases
                                      and self.content is None)
         drawn = self._releases if count is None else self._releases[:count]
-        for entry in drawn:
-            self._notes_column.addWidget(self._release_block(entry))
+        for index, entry in enumerate(drawn):
+            block = self._release_block(entry)
+            self._notes_column.addWidget(block)
+            if index:
+                self._older_blocks.append(block)
+                block.setVisible(self._older.isChecked())
+        self._older.setVisible(len(self._releases) > 1)
         self._notes_column.addStretch(1)
         self._pending_releases = list(self._releases[len(drawn):])
         fitter = getattr(self, '_news_title_fit', None)
@@ -2047,8 +2068,10 @@ class NewsPanel(Panel):
             return
         stretch = self._notes_column.count() - 1
         for offset, entry in enumerate(pending):
-            self._notes_column.insertWidget(stretch + offset,
-                                            self._release_block(entry))
+            block = self._release_block(entry)
+            self._notes_column.insertWidget(stretch + offset, block)
+            block.setVisible(self._older.isChecked())
+            self._older_blocks.append(block)
         fitter = getattr(self, '_news_title_fit', None)
         if fitter is not None:
             fitter._timer.start(0)

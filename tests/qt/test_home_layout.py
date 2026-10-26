@@ -49,7 +49,7 @@ _DOCK_ROWS = list(dock_rows())
 
 def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtbot, qapp, monkeypatch):
     import json
-    from PySide6.QtCore import QPoint, QSize, Qt
+    from PySide6.QtCore import QPoint, QRect, QSize, Qt
     from PySide6.QtGui import QRegion
     from PySide6.QtWidgets import QAbstractButton, QScrollArea, QStyle, QStyleOptionButton, QTabWidget, QWidget
     from spacr.qt import app, gui_scale, preferences
@@ -145,10 +145,21 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
         print('HOME_AFTER_NORMAL_TAB_POLICY', json.dumps(after), flush=True)
         assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), after
         buttons = [button for button in page._aside.findChildren(QAbstractButton) if button.isVisible()]
-        assert len(buttons) == 5
+        assert len(buttons) == 6
         assert {button.text() for button in buttons} == {
-            'Pipeline overviews', 'Clear', 'Check for updates…', 'Reset', 'Refresh'}
-        for button in buttons:
+            'Pipeline overviews', 'Clear', 'Check for updates…', 'Reset', 'Refresh',
+            'Show older releases'}
+        older = page._aside.findChild(QAbstractButton, 'HomeNewsOlderReleases')
+        ancestor = older.parentWidget()
+        while ancestor is not None and ancestor is not host:
+            if isinstance(ancestor, QScrollArea):
+                ancestor.ensureWidgetVisible(older, 0, 0)
+            ancestor = ancestor.parentWidget()
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        assert host.rect().contains(QRect(older.mapTo(host, QPoint()), older.size()))
+        assert QRegion(older.rect()).subtracted(older.visibleRegion()).isEmpty()
+        for button in [button for button in buttons if button is not older]:
             ancestor = button.parentWidget()
             while ancestor is not None and ancestor is not host:
                 if isinstance(ancestor, QScrollArea):

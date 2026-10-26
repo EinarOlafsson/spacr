@@ -711,8 +711,45 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 assert scroll.horizontalScrollBar().maximum() == 0, row
                 assert row['tile_scroll']['content_width'] <= row['tile_scroll']['viewport_width'], row
             def visible(rect):
-                return (QRegion(rect).subtracted(widget.visibleRegion()).isEmpty()
-                        and window.rect().contains(rect.translated(widget.mapTo(window, QPoint()))))
+                # Inside a scroll area the reader scrolls to it: it must lie in
+                # the scrolled content, and that scroll area's viewport must be
+                # reachable in turn, up to an unscrolled widget that is whole
+                # on screen. Nested scroll areas (Home's body around the aside)
+                # are followed outward.
+                from PySide6.QtWidgets import QScrollArea
+
+                def enclosing(target):
+                    scroll = target.parentWidget()
+                    while scroll is not None and not (isinstance(scroll, QScrollArea)
+                            and scroll.widget() is not None and scroll.widget().isAncestorOf(target)):
+                        scroll = scroll.parentWidget()
+                    return scroll
+
+                def contained(target, area, top):
+                    ancestor = target
+                    while ancestor is not top:
+                        parent = ancestor.parentWidget()
+                        placed = area.translated(target.mapTo(parent, QPoint()))
+                        if not parent.rect().contains(placed):
+                            row['scroll_reach_failure'] = (type(parent).__name__, parent.objectName(),
+                                parent.rect().getRect(), placed.getRect())
+                            return False
+                        ancestor = parent
+                    return True
+
+                target, area = widget, rect
+                while True:
+                    scroll = enclosing(target)
+                    if scroll is None:
+                        if target is widget:
+                            return (QRegion(area).subtracted(widget.visibleRegion()).isEmpty()
+                                    and window.rect().contains(area.translated(widget.mapTo(window, QPoint()))))
+                        return (target.isVisible() and contained(target, area, window)
+                                and window.rect().contains(area.translated(target.mapTo(window, QPoint()))))
+                    if not contained(target, area, scroll.widget()):
+                        return False
+                    target = scroll.viewport()
+                    area = target.rect()
             if isinstance(widget, QLabel):
                 pixmap = widget.pixmap()
                 if pixmap is not None and not pixmap.isNull():
@@ -821,6 +858,18 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 glyphs = widget.findChildren(_AppTileIcon)
                 for glyph in glyphs:
                     assert not glyph.geometry().intersects(widget.name_label.geometry()), row
+            elif type(widget).__name__ == 'Toggle':
+                metrics = widget.fontMetrics()
+                text_x = widget._track_x + widget._track_w + widget._label_gap
+                if widget._word_wrap:
+                    text = metrics.boundingRect(QRect(text_x, 0, max(1, widget.width() - text_x), widget.height()),
+                        int(Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap), widget.text())
+                else:
+                    text = QRect(text_x, (widget.height() - metrics.height()) // 2,
+                                 metrics.horizontalAdvance(widget.text()), metrics.height())
+                row.update(text=widget.text(), text_rect=text.getRect(), word_wrap=widget._word_wrap)
+                persist()
+                assert widget.rect().contains(text) and visible(text), row
             elif isinstance(widget, QPushButton):
                 option = QStyleOptionButton()
                 option.initFrom(widget)
