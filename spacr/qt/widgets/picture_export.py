@@ -1348,7 +1348,6 @@ class _CanvasSettingsDialog(QDialog):
         row = QHBoxLayout()
         row.addStretch(1)
         self.close_button = QPushButton(tr("Close"))
-        self.close_button.setToolTip(tr("Hide the export settings; the canvas keeps every change."))
         self.close_button.clicked.connect(self.hide)
         row.addWidget(self.close_button)
         outer.addLayout(row)

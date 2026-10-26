@@ -15238,7 +15238,6 @@ class _OverviewExportDock(QFrame):
         self.title.setFont(font)
         self.close_button = QPushButton(tr("Close"))
         self.close_button.setObjectName("OverviewExportClose")
-        self.close_button.setToolTip(tr("Close the export section; the settings section returns as it was."))
         self.close_button.clicked.connect(self.closed)
         header.addWidget(self.title, 1)
         header.addWidget(self.close_button)
