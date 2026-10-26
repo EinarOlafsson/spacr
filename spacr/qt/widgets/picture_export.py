@@ -1403,6 +1403,9 @@ class _CanvasComposer(QDialog):
         self._actions = tuple(actions)
         self._build()
         self._rebuild()
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
 
     def _accent(self):
         """The spaCR accent of the current theme, for selection."""
