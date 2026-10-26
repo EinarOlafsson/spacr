@@ -241,8 +241,16 @@ class _DownloadDialog(QDialog):
         """Set the caption above the bar.
 
         :param text: what the download is currently doing.
+
+        The label's minimum height is set to what the wrapped text needs at
+        its current width: PySide6 6.10 did not grow a word-wrapped label
+        inside this row when its text gained a line, so the count line was
+        cut off (6.11 relaid it out on its own).
         """
-        self.spacr_caption.setText(str(text))
+        caption = self.spacr_caption
+        caption.setText(str(text))
+        width = caption.width() if caption.width() > 0 else caption.sizeHint().width()
+        caption.setMinimumHeight(caption.heightForWidth(width))
 
     def setLabel(self, label) -> None:           # noqa: N802
         """Accepted for compatibility; this dialog owns its own label.
