@@ -1,21 +1,21 @@
 {
   "scope": "Pages tree playback against the pinned hosted media, before the Pages deploy",
-  "manifest_sha256": "55a6e997fb549e73fb1bfb42462e46dd8513432cd6de46d667a5df484c1b65b3",
+  "manifest_sha256": "ed24fe5f18a2a3b6333d37dfaf44d057a60cc61b26694fa3f6860ad4b9be3aa8",
   "placeholder_cases": [],
   "ready_playback_cases": [
     {
       "lesson": "01_pypi_github",
       "audio_sha256": "59e4d5786a34d029d1ab75c99ff248ab9e640dc8f488e5b364ec40fb894d2c94",
       "clocks": {
-        "audio": 29.664768,
-        "video": 29.892802,
-        "expected": 29.66384970640156,
+        "audio": 29.755354,
+        "video": 29.9762,
+        "expected": 29.754432902248706,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.735,
-        "seek_elapsed_seconds": 1.5097005278803408,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/01_pypi_github/web/01_pypi_github_silent.mp4"
+        "seek_elapsed_seconds": 1.5093732057139277,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/01_pypi_github/web/01_pypi_github_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -26,15 +26,15 @@
       "lesson": "02_install_spacr",
       "audio_sha256": "5ee0f787e0edf1eae678a6a9ad1d242213257b5801d50d5c360d7257329fb6d2",
       "clocks": {
-        "audio": 31.064621,
-        "video": 47.202981,
-        "expected": 46.798752817787225,
+        "audio": 31.087082,
+        "video": 47.215132,
+        "expected": 46.833292897510844,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 30.09,
-        "seek_elapsed_seconds": 1.510503854136914,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/02_install_spacr/web/02_install_spacr_silent.mp4"
+        "seek_elapsed_seconds": 1.5119553389959037,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/02_install_spacr/web/02_install_spacr_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -45,15 +45,15 @@
       "lesson": "04_platform_installers",
       "audio_sha256": "3259fe5983e8ac4cd940ae18303bc717aae2bdd6f27285ff0409660946810d8f",
       "clocks": {
-        "audio": 28.954723,
-        "video": 41.139609,
-        "expected": 40.689000933139766,
+        "audio": 28.959225,
+        "video": 41.146707,
+        "expected": 40.69668377204773,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.965,
-        "seek_elapsed_seconds": 1.5098501178435981,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/04_platform_installers/web/04_platform_installers_silent.mp4"
+        "seek_elapsed_seconds": 1.5119914468377829,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/04_platform_installers/web/04_platform_installers_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -455,15 +455,15 @@
       "lesson": "05_home",
       "audio_sha256": "5f9156de98abaed8165df825df1b5119b138df54980485b9359e8443f774b915",
       "clocks": {
-        "audio": 23.685745,
-        "video": 47.694608,
-        "expected": 47.43741168471812,
+        "audio": 23.72316,
+        "video": 47.696453,
+        "expected": 47.47482668473236,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.715,
-        "seek_elapsed_seconds": 1.5101383170112967,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/05_home/web/05_home_silent.mp4"
+        "seek_elapsed_seconds": 1.51043044263497,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/05_home/web/05_home_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -474,15 +474,15 @@
       "lesson": "06_api",
       "audio_sha256": "8b0f2c263ca48c0cb2b4a24d6d29ec44dfe291df85d123cf0a418061ed48f339",
       "clocks": {
-        "audio": 32.165669,
-        "video": 32.406438,
-        "expected": 32.16253730211275,
+        "audio": 32.146174,
+        "video": 32.392929,
+        "expected": 32.14304420017526,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.069999999999997,
-        "seek_elapsed_seconds": 1.5100454520434141,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/06_api/web/06_api_silent.mp4"
+        "seek_elapsed_seconds": 1.5124842841178179,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/06_api/web/06_api_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -493,15 +493,15 @@
       "lesson": "07_mask",
       "audio_sha256": "c712a1cc99d20c903dbf6c9eb5d9d8050fc23d90ffae7b8d8e5a5ba203d642bc",
       "clocks": {
-        "audio": 39.791048,
-        "video": 61.888278,
-        "expected": 61.63771466666667,
+        "audio": 39.750333,
+        "video": 61.864071,
+        "expected": 61.59699966666666,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 38.82,
-        "seek_elapsed_seconds": 1.5122260157950222,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/07_mask/web/07_mask_silent.mp4"
+        "seek_elapsed_seconds": 1.5118922987021506,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/07_mask/web/07_mask_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -512,15 +512,15 @@
       "lesson": "08_measure",
       "audio_sha256": "52ccda2fe46a8b1188511e3490ce94d819ac45b434ecd2057cb118eea3b8f711",
       "clocks": {
-        "audio": 49.35683,
-        "video": 81.028254,
-        "expected": 80.77016338965056,
+        "audio": 49.470041,
+        "video": 81.13631,
+        "expected": 80.8833743897295,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 48.52,
-        "seek_elapsed_seconds": 1.504196441732347,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/08_measure/web/08_measure_silent.mp4"
+        "seek_elapsed_seconds": 1.5150148100219667,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/08_measure/web/08_measure_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -531,15 +531,15 @@
       "lesson": "09_annotate",
       "audio_sha256": "b0b3c8fcdae587634207c68d7c01d656ca187c20b818a98215e70a1ce09df072",
       "clocks": {
-        "audio": 19.646005,
-        "video": 37.566732,
-        "expected": 37.331005,
+        "audio": 19.633353,
+        "video": 37.52951,
+        "expected": 37.318353,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.615,
-        "seek_elapsed_seconds": 1.5073809619061649,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/09_annotate/web/09_annotate_silent.mp4"
+        "seek_elapsed_seconds": 1.5097989151254296,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/09_annotate/web/09_annotate_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -550,15 +550,15 @@
       "lesson": "10_classify_cv",
       "audio_sha256": "aebedbd21e43e6ac24ac432b41d4de469cf4e8a858fdc78cfe32e8ce2d58ccff",
       "clocks": {
-        "audio": 29.183395,
-        "video": 29.415211,
-        "expected": 29.18089948408061,
+        "audio": 29.132228,
+        "video": 29.380033,
+        "expected": 29.1297368594476,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 28.12,
-        "seek_elapsed_seconds": 1.513622091151774,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/10_classify_cv/web/10_classify_cv_silent.mp4"
+        "seek_elapsed_seconds": 1.50946378801018,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/10_classify_cv/web/10_classify_cv_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -569,15 +569,15 @@
       "lesson": "11_classify_ml",
       "audio_sha256": "70198a64777588ba5345b5e7fbf0475f275aaf177f851ee953a532e6ad34a251",
       "clocks": {
-        "audio": 25.38369,
-        "video": 47.033936,
-        "expected": 46.780356607719646,
+        "audio": 25.417432,
+        "video": 47.060769,
+        "expected": 46.81409860767713,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.47,
-        "seek_elapsed_seconds": 1.51052828412503,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/11_classify_ml/web/11_classify_ml_silent.mp4"
+        "seek_elapsed_seconds": 1.510805695783347,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/11_classify_ml/web/11_classify_ml_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -588,15 +588,15 @@
       "lesson": "12_map_barcodes",
       "audio_sha256": "e7b1a81de2c57b898826ed8392f28cd32eee3db8ef0b6a50fb72e7676065e557",
       "clocks": {
-        "audio": 26.825293,
-        "video": 48.517736,
-        "expected": 48.26362629407865,
+        "audio": 26.711044,
+        "video": 48.38296,
+        "expected": 48.14937729417158,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.895,
-        "seek_elapsed_seconds": 1.5097824526019394,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/12_map_barcodes/web/12_map_barcodes_silent.mp4"
+        "seek_elapsed_seconds": 1.5079835983924568,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/12_map_barcodes/web/12_map_barcodes_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -958,15 +958,15 @@
       "lesson": "13_regression",
       "audio_sha256": "906875a42f785bfec00fd271775bc0f057b8b6c2c99011a14dc2258e2fec1491",
       "clocks": {
-        "audio": 22.504564,
-        "video": 22.752955,
-        "expected": 22.505503884885663,
+        "audio": 22.349696,
+        "video": 22.601541,
+        "expected": 22.350629416949094,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.49,
-        "seek_elapsed_seconds": 1.5114424698986113,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/13_regression/web/13_regression_silent.mp4"
+        "seek_elapsed_seconds": 1.5071544130332768,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/13_regression/web/13_regression_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -977,15 +977,15 @@
       "lesson": "14_make_masks",
       "audio_sha256": "7343f97df0fb5c6733444560cc7b8d0f8f52c0d89e279d6bc9ce230de1bbcd20",
       "clocks": {
-        "audio": 39.039754,
-        "video": 51.689402,
-        "expected": 51.77142065379525,
+        "audio": 38.803198,
+        "video": 51.468194,
+        "expected": 51.53486465385406,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 38.135000000000005,
-        "seek_elapsed_seconds": 1.5086021339520812,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/14_make_masks/web/14_make_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.5081888670101762,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/14_make_masks/web/14_make_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -996,15 +996,15 @@
       "lesson": "15_image_umap",
       "audio_sha256": "b9a7607eef629c6d9bc6858392a498e50658c4d4303741f4de4fe96a35d27704",
       "clocks": {
-        "audio": 28.982768,
-        "video": 50.851944,
-        "expected": 50.59776804712907,
+        "audio": 28.960484,
+        "video": 50.827969,
+        "expected": 50.57548404710831,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.985,
-        "seek_elapsed_seconds": 1.5111872246488929,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/15_image_umap/web/15_image_umap_silent.mp4"
+        "seek_elapsed_seconds": 1.5110069890506566,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/15_image_umap/web/15_image_umap_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1015,15 +1015,15 @@
       "lesson": "16_activation",
       "audio_sha256": "8689be1521d2f36867690d703d56e818f14930a67d2de20609ed2fd158523ce8",
       "clocks": {
-        "audio": 30.64505,
-        "video": 30.8521,
-        "expected": 30.64473876048162,
+        "audio": 30.602741,
+        "video": 30.838966,
+        "expected": 30.60243019018341,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 29.675,
-        "seek_elapsed_seconds": 1.510029531084001,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/16_activation/web/16_activation_silent.mp4"
+        "seek_elapsed_seconds": 1.5057352781295776,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/16_activation/web/16_activation_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1034,34 +1034,15 @@
       "lesson": "17_timelapse",
       "audio_sha256": "886aa0a18ce4c872bc53e988af614e0b1015cba753e8a938fa32a20603f15893",
       "clocks": {
-        "audio": 34.185404,
-        "video": 58.526705,
-        "expected": 58.28707072496538,
+        "audio": 34.120613,
+        "video": 58.453745,
+        "expected": 58.22227972490059,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 33.065000000000005,
-        "seek_elapsed_seconds": 1.5083185136318207,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/17_timelapse/web/17_timelapse_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "18_motility",
-      "audio_sha256": "6961d92213b87739d12e4bf253906067c86effb6d55ac9119d04a9a339d56954",
-      "clocks": {
-        "audio": 24.358987,
-        "video": 24.624828,
-        "expected": 24.358987000000003,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 23.325,
-        "seek_elapsed_seconds": 1.509640370029956,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/18_motility/web/18_motility_silent.mp4"
+        "seek_elapsed_seconds": 1.5105136618949473,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/17_timelapse/web/17_timelapse_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1072,15 +1053,15 @@
       "lesson": "19_train_cellpose",
       "audio_sha256": "cddd2b2115f3ebbc90ee1b83a9573738bf3f663b80f3e76cf6511da4060c47a8",
       "clocks": {
-        "audio": 33.412997,
-        "video": 33.672201,
-        "expected": 33.42429919182621,
+        "audio": 33.486268,
+        "video": 33.753272,
+        "expected": 33.49752874962743,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.49,
-        "seek_elapsed_seconds": 1.5107285296544433,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/19_train_cellpose/web/19_train_cellpose_silent.mp4"
+        "seek_elapsed_seconds": 1.5102823418565094,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/19_train_cellpose/web/19_train_cellpose_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1091,15 +1072,15 @@
       "lesson": "20_cellpose_masks",
       "audio_sha256": "a7d5bc41560eb213eeac7caec2bf31585141dbd8607eaf75f9ab893fce59c900",
       "clocks": {
-        "audio": 28.097337,
-        "video": 50.96368,
-        "expected": 50.72233693559886,
+        "audio": 28.107499,
+        "video": 50.983288,
+        "expected": 50.73249893558595,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.175,
-        "seek_elapsed_seconds": 1.5101353148929775,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/20_cellpose_masks/web/20_cellpose_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.50916535127908,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/20_cellpose_masks/web/20_cellpose_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1110,15 +1091,15 @@
       "lesson": "21_model_compare",
       "audio_sha256": "342817c396f6b54c7857b000126b04e48befa2eee353af8f310683cd74a47279",
       "clocks": {
-        "audio": 27.846757,
-        "video": 51.98383,
-        "expected": 51.59789484153924,
+        "audio": 27.906467,
+        "video": 52.039027,
+        "expected": 51.687817633123586,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.83,
-        "seek_elapsed_seconds": 1.5106154312379658,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/21_model_compare/web/21_model_compare_silent.mp4"
+        "seek_elapsed_seconds": 1.510514142923057,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/21_model_compare/web/21_model_compare_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1320,15 +1301,15 @@
       "lesson": "22_model_zoo",
       "audio_sha256": "253dd1c01d203cdd2d9166734ac3e834cbe39b1381493e890e88e0f3aea846df",
       "clocks": {
-        "audio": 25.122624,
-        "video": 25.375003,
-        "expected": 25.123127721986354,
+        "audio": 25.164299,
+        "video": 25.407599,
+        "expected": 25.164803557592293,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.259999999999998,
-        "seek_elapsed_seconds": 1.5090264198370278,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/22_model_zoo/web/22_model_zoo_silent.mp4"
+        "seek_elapsed_seconds": 1.5085690589621663,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/22_model_zoo/web/22_model_zoo_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1670,53 +1651,15 @@
       "lesson": "23_agreement",
       "audio_sha256": "1f8cd2e061990f5f53f4d9f1e54d9b038e576ef1bf93462392c5f86e1f253fa0",
       "clocks": {
-        "audio": 28.294524,
-        "video": 45.822629,
-        "expected": 45.5695239372407,
+        "audio": 28.340506,
+        "video": 45.877398,
+        "expected": 45.61550593717738,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.325,
-        "seek_elapsed_seconds": 1.5097781056538224,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/23_agreement/web/23_agreement_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "24_plaque",
-      "audio_sha256": "1419b45485d7f4966f10c6fa71163763d8b8f767b4f083bc66a3eb6a63fb197b",
-      "clocks": {
-        "audio": 27.868669,
-        "video": 28.138034,
-        "expected": 27.868681270945274,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 26.87,
-        "seek_elapsed_seconds": 1.518493002280593,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/24_plaque/web/24_plaque_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "25_recruitment",
-      "audio_sha256": "af58acb17ec2abd1fb8ab214a13f23189197cc556a284dbcd179d5d39d20d696",
-      "clocks": {
-        "audio": 30.9865,
-        "video": 31.224344,
-        "expected": 30.9865,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 30.009999999999998,
-        "seek_elapsed_seconds": 1.5090356511063874,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/25_recruitment/web/25_recruitment_silent.mp4"
+        "seek_elapsed_seconds": 1.507645454723388,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/23_agreement/web/23_agreement_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1727,15 +1670,15 @@
       "lesson": "26_invasion",
       "audio_sha256": "dc191b4f12ed552b97266792584d1a643d494c8b63b33b7e60075c8b05b260ec",
       "clocks": {
-        "audio": 33.436527,
-        "video": 58.61814,
-        "expected": 58.3465270524982,
+        "audio": 33.352154,
+        "video": 58.505216,
+        "expected": 58.2621540524223,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.49,
-        "seek_elapsed_seconds": 1.5100213219411671,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/26_invasion/web/26_invasion_silent.mp4"
+        "seek_elapsed_seconds": 1.5151894106529653,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/26_invasion/web/26_invasion_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1746,15 +1689,15 @@
       "lesson": "27_replication",
       "audio_sha256": "6db1f5df3de6d719dcb16c25dc705c3f006a5a38caccb384d395f4fe54b78bf4",
       "clocks": {
-        "audio": 32.38749,
-        "video": 57.785362,
-        "expected": 57.56582339531871,
+        "audio": 32.132686,
+        "video": 57.586911,
+        "expected": 57.311019395044354,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 31.355,
-        "seek_elapsed_seconds": 1.507597757037729,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/27_replication/web/27_replication_silent.mp4"
+        "seek_elapsed_seconds": 1.5067047490738332,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/27_replication/web/27_replication_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1765,53 +1708,15 @@
       "lesson": "28_training_runs",
       "audio_sha256": "96d0ccff17cd59bd4fb9c3ef132de1e4fab9b1a92889aa2bc4cc48f04c50d9b3",
       "clocks": {
-        "audio": 25.909638,
-        "video": 48.661761,
-        "expected": 48.407971373060846,
+        "audio": 25.882997,
+        "video": 48.6017,
+        "expected": 48.38133037303898,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.935,
-        "seek_elapsed_seconds": 1.5128635289147496,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/28_training_runs/web/28_training_runs_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "29_report",
-      "audio_sha256": "b429963738fc14a84bfec719fdde342af3584bfae7549e4f6ae3ac9b5666d2ab",
-      "clocks": {
-        "audio": 19.80406,
-        "video": 20.028859,
-        "expected": 19.80380572828575,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 18.794999999999998,
-        "seek_elapsed_seconds": 1.5068006659857929,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/29_report/web/29_report_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "30_plate_queue",
-      "audio_sha256": "a0635d6f4dee07bcf73fd8785e8307c0331c326cd9fecc74ce537d9a83fd7d65",
-      "clocks": {
-        "audio": 23.229276,
-        "video": 23.463638,
-        "expected": 23.229276,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 22.15,
-        "seek_elapsed_seconds": 1.5116978432051837,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/30_plate_queue/web/30_plate_queue_silent.mp4"
+        "seek_elapsed_seconds": 1.515349144116044,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/28_training_runs/web/28_training_runs_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1822,15 +1727,15 @@
       "lesson": "31_external_masks",
       "audio_sha256": "7f8179c8398b5cb637ea105efcb6e149e3616c87224346649d21c2799ee94b18",
       "clocks": {
-        "audio": 25.401889,
-        "video": 25.639704,
-        "expected": 25.402570765184254,
+        "audio": 25.426654,
+        "video": 25.654757,
+        "expected": 25.427336429855874,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 24.33,
-        "seek_elapsed_seconds": 1.5071562700904906,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/31_external_masks/web/31_external_masks_silent.mp4"
+        "seek_elapsed_seconds": 1.5087831956334412,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/31_external_masks/web/31_external_masks_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1841,15 +1746,15 @@
       "lesson": "32_align_stitch",
       "audio_sha256": "39206086d18c8c01f7a24a5beb6de1bf370e3e9b7fc8e379382841e1fad28bfd",
       "clocks": {
-        "audio": 24.520156,
-        "video": 39.575656,
-        "expected": 39.338489381424395,
+        "audio": 24.601918,
+        "video": 39.682967,
+        "expected": 39.42025138152435,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.615,
-        "seek_elapsed_seconds": 1.5141412797383964,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/32_align_stitch/web/32_align_stitch_silent.mp4"
+        "seek_elapsed_seconds": 1.5100581259466708,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/32_align_stitch/web/32_align_stitch_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1860,34 +1765,15 @@
       "lesson": "33_plate_viewer",
       "audio_sha256": "e7acfd31e88a840da9d4cd39de4495d3eac919abf22eb6188047a42adfc6579e",
       "clocks": {
-        "audio": 22.677915,
-        "video": 45.458914,
-        "expected": 45.19458159782495,
+        "audio": 22.767692,
+        "video": 45.562405,
+        "expected": 45.284358597688204,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.75,
-        "seek_elapsed_seconds": 1.5063741281628609,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/33_plate_viewer/web/33_plate_viewer_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "34_database",
-      "audio_sha256": "d66fdc9d831ae77605c523fdee537b0753d660a5f3d7cd162e0411ccecb797f3",
-      "clocks": {
-        "audio": 12.247542,
-        "video": 12.507476,
-        "expected": 12.24935075086373,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 11.215,
-        "seek_elapsed_seconds": 1.508923124987632,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/34_database/web/34_database_silent.mp4"
+        "seek_elapsed_seconds": 1.507147750351578,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/33_plate_viewer/web/33_plate_viewer_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1898,15 +1784,15 @@
       "lesson": "35_converter",
       "audio_sha256": "fa21368d6c1960ee51601473132c16a2c7f58a345b3013783ed910b703a0668f",
       "clocks": {
-        "audio": 22.978459,
-        "video": 45.927823,
-        "expected": 45.67512566666667,
+        "audio": 23.009675,
+        "video": 45.963424,
+        "expected": 45.70634166666667,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.97,
-        "seek_elapsed_seconds": 1.5079451142810285,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/35_converter/web/35_converter_silent.mp4"
+        "seek_elapsed_seconds": 1.5435453769750893,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/35_converter/web/35_converter_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1917,15 +1803,15 @@
       "lesson": "36_import",
       "audio_sha256": "62b030f6e377a9e3ab8e258e832c9d124ee96353f2eb5d9982c3faaee50b3932",
       "clocks": {
-        "audio": 23.77178,
-        "video": 24.032212,
-        "expected": 23.773239289980584,
+        "audio": 23.728268,
+        "video": 23.976206,
+        "expected": 23.729724618887982,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.715,
-        "seek_elapsed_seconds": 1.5108110662549734,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/36_import/web/36_import_silent.mp4"
+        "seek_elapsed_seconds": 1.510645070578903,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/36_import/web/36_import_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1936,15 +1822,15 @@
       "lesson": "37_batch",
       "audio_sha256": "dc9ae7c81f4a876e9c0d11961d3d9d19ab3499213734986f2ccb2eb81524f153",
       "clocks": {
-        "audio": 17.468828,
-        "video": 49.840241,
-        "expected": 49.59049466666668,
+        "audio": 17.557064,
+        "video": 49.934903,
+        "expected": 49.678730666666674,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.544999999999998,
-        "seek_elapsed_seconds": 1.506872828118503,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/37_batch/web/37_batch_silent.mp4"
+        "seek_elapsed_seconds": 1.5081424489617348,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/37_batch/web/37_batch_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1955,15 +1841,15 @@
       "lesson": "38_distributed_jobs",
       "audio_sha256": "57a6e13ee8ad5fbfc7d2bc4074f2ff6db880e86d385e21bc07c2bcce10c5755c",
       "clocks": {
-        "audio": 20.489392,
-        "video": 39.018367,
-        "expected": 38.7777252649905,
+        "audio": 20.466852,
+        "video": 38.997604,
+        "expected": 38.75518526503023,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.544999999999998,
-        "seek_elapsed_seconds": 1.509334422647953,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/38_distributed_jobs/web/38_distributed_jobs_silent.mp4"
+        "seek_elapsed_seconds": 1.51070592738688,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/38_distributed_jobs/web/38_distributed_jobs_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1974,15 +1860,15 @@
       "lesson": "39_classifier_evaluation",
       "audio_sha256": "bab2a74fefab1ca1b95dbb81a06dfb6bfe05326c226f5269b97c06e4d127fd1b",
       "clocks": {
-        "audio": 18.269028,
-        "video": 31.187086,
-        "expected": 30.922361371302834,
+        "audio": 18.268921,
+        "video": 31.147706,
+        "expected": 30.922254371302703,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 17.279999999999998,
-        "seek_elapsed_seconds": 1.5103340721689165,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/39_classifier_evaluation/web/39_classifier_evaluation_silent.mp4"
+        "seek_elapsed_seconds": 1.5104508018121123,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/39_classifier_evaluation/web/39_classifier_evaluation_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -1993,15 +1879,15 @@
       "lesson": "40_run_history",
       "audio_sha256": "4d4cfa925c5536c5881a4337c9d90868c518b170d275f3f21a8e46c65559a1dd",
       "clocks": {
-        "audio": 14.442668,
-        "video": 28.164198,
-        "expected": 27.942667955356015,
+        "audio": 14.510653,
+        "video": 28.228934,
+        "expected": 28.010652955247394,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 13.5,
-        "seek_elapsed_seconds": 1.505254926159978,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/40_run_history/web/40_run_history_silent.mp4"
+        "seek_elapsed_seconds": 1.504904830828309,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/40_run_history/web/40_run_history_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2012,15 +1898,15 @@
       "lesson": "41_classify",
       "audio_sha256": "2471ec462e71629746788e6317ddbc06bacabe7f52f3e6cd63d1cf37623ed93b",
       "clocks": {
-        "audio": 22.723058,
-        "video": 22.985373,
-        "expected": 22.72225735668229,
+        "audio": 22.820286,
+        "video": 23.065042,
+        "expected": 22.819481930869244,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.779999999999998,
-        "seek_elapsed_seconds": 1.5036048172041774,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/41_classify/web/41_classify_silent.mp4"
+        "seek_elapsed_seconds": 1.510355630889535,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/41_classify/web/41_classify_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2031,15 +1917,15 @@
       "lesson": "42_curate",
       "audio_sha256": "8809207245304d690069520a5ef982b8c6b2badbcaadba25f2221d70f8511f70",
       "clocks": {
-        "audio": 19.764393,
-        "video": 39.476735,
-        "expected": 39.23105960322705,
+        "audio": 19.730627,
+        "video": 39.432667,
+        "expected": 39.19729360328165,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.7,
-        "seek_elapsed_seconds": 1.5133825321681798,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/42_curate/web/42_curate_silent.mp4"
+        "seek_elapsed_seconds": 1.510073505807668,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/42_curate/web/42_curate_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2050,15 +1936,15 @@
       "lesson": "43_illumination",
       "audio_sha256": "26b03ac60b777ba4b1592ab2cf6ce56d6d875fd86d2a8cc3a4def8c215d1ec8e",
       "clocks": {
-        "audio": 17.40266,
-        "video": 29.60601,
-        "expected": 29.39099329847271,
+        "audio": 17.367179,
+        "video": 29.630853,
+        "expected": 29.355512298514792,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.345,
-        "seek_elapsed_seconds": 1.5077176550403237,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/43_illumination/web/43_illumination_silent.mp4"
+        "seek_elapsed_seconds": 1.506825929041952,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/43_illumination/web/43_illumination_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2069,15 +1955,15 @@
       "lesson": "44_data_manager",
       "audio_sha256": "c49810dca2c05739f42576a2dec0494ecc879a9dbc49b47f9cd928d9536c214e",
       "clocks": {
-        "audio": 15.848292,
-        "video": 33.895852,
-        "expected": 33.64995866666667,
+        "audio": 16.216776,
+        "video": 34.286934,
+        "expected": 34.01844266666667,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.265,
-        "seek_elapsed_seconds": 1.507960163988173,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/44_data_manager/web/44_data_manager_silent.mp4"
+        "seek_elapsed_seconds": 1.515914908144623,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/44_data_manager/web/44_data_manager_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2088,53 +1974,15 @@
       "lesson": "45_project_browser",
       "audio_sha256": "4bc2b40b9296207935d47ade450972075bea876bf95eee04e4efa6494f84a754",
       "clocks": {
-        "audio": 16.174319,
-        "video": 30.66204,
-        "expected": 30.407652333333335,
+        "audio": 16.170581,
+        "video": 30.660762,
+        "expected": 30.403914333333336,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 15.2,
-        "seek_elapsed_seconds": 1.5103337750770152,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/45_project_browser/web/45_project_browser_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "46_napari_bridge",
-      "audio_sha256": "fa59541c3acdb28fbd1af926bf5766987aca6391f0e35e36a2791776623470fa",
-      "clocks": {
-        "audio": 20.165257,
-        "video": 20.417622,
-        "expected": 20.164441037858676,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 19.044999999999998,
-        "seek_elapsed_seconds": 1.5109791280701756,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/46_napari_bridge/web/46_napari_bridge_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "47_barcode_qc",
-      "audio_sha256": "d7a0843eca895a82739a0d6682a9aa27a1b3edfe7f6fb18ca4f685ebb1edf18a",
-      "clocks": {
-        "audio": 18.46891,
-        "video": 18.734627,
-        "expected": 18.46729289904562,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 17.555,
-        "seek_elapsed_seconds": 1.509855835698545,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/47_barcode_qc/web/47_barcode_qc_silent.mp4"
+        "seek_elapsed_seconds": 1.5126412520185113,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/45_project_browser/web/45_project_browser_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2145,15 +1993,15 @@
       "lesson": "48_hit_list",
       "audio_sha256": "d59edf05f3feb69f4117ed3f2f4544e1dc1808e71b1757e045c4d3713f4b3764",
       "clocks": {
-        "audio": 23.307865,
-        "video": 22.262499,
-        "expected": 22.041003375576707,
+        "audio": 23.231857,
+        "video": 22.212709,
+        "expected": 21.965001794812558,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.209999999999997,
-        "seek_elapsed_seconds": 1.5093270568177104,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/48_hit_list/web/48_hit_list_silent.mp4"
+        "seek_elapsed_seconds": 1.5139237269759178,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/48_hit_list/web/48_hit_list_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2164,15 +2012,15 @@
       "lesson": "49_methods_results",
       "audio_sha256": "b4beff7d07aea9f3ff3838452791ce249d06554761cfbb2b3bacbe30403017b3",
       "clocks": {
-        "audio": 26.246957,
-        "video": 41.92819,
-        "expected": 41.671957,
+        "audio": 26.227901,
+        "video": 41.872335,
+        "expected": 41.652901,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 25.275000000000002,
-        "seek_elapsed_seconds": 1.51176021900028,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/49_methods_results/web/49_methods_results_silent.mp4"
+        "seek_elapsed_seconds": 1.5115629038773477,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/49_methods_results/web/49_methods_results_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2183,15 +2031,15 @@
       "lesson": "50_run_compare",
       "audio_sha256": "b608b79055349ad2a0838ba68290f32f15eeccbd5f52617534531ee4b11fce24",
       "clocks": {
-        "audio": 15.823881,
-        "video": 16.058773,
-        "expected": 15.826228177161365,
+        "audio": 15.781844,
+        "video": 16.036986,
+        "expected": 15.784184941757651,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.835,
-        "seek_elapsed_seconds": 1.5112956040538847,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/50_run_compare/web/50_run_compare_silent.mp4"
+        "seek_elapsed_seconds": 1.512520753312856,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/50_run_compare/web/50_run_compare_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2202,15 +2050,15 @@
       "lesson": "51_control_charts",
       "audio_sha256": "82531b25603ac65ab45c486be6fa7b3bac869f2ae986eb342b15f626488c0986",
       "clocks": {
-        "audio": 21.578768,
-        "video": 35.968908,
-        "expected": 35.71543460236088,
+        "audio": 21.645172,
+        "video": 36.010104,
+        "expected": 35.781838602241315,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 20.63,
-        "seek_elapsed_seconds": 1.5061934129334986,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/51_control_charts/web/51_control_charts_silent.mp4"
+        "seek_elapsed_seconds": 1.5125313131138682,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/51_control_charts/web/51_control_charts_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2221,15 +2069,15 @@
       "lesson": "52_pipeline_graph",
       "audio_sha256": "6bb84ac46e3525cbc7dabd0c1d466aa00dfe907891ee09f98e4b673b1b8a2c3b",
       "clocks": {
-        "audio": 17.619433,
-        "video": 31.610953,
-        "expected": 31.366099612390666,
+        "audio": 17.633534,
+        "video": 31.629135,
+        "expected": 31.38020061236627,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.62,
-        "seek_elapsed_seconds": 1.5155795547179878,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/52_pipeline_graph/web/52_pipeline_graph_silent.mp4"
+        "seek_elapsed_seconds": 1.5047164531424642,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/52_pipeline_graph/web/52_pipeline_graph_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2240,15 +2088,15 @@
       "lesson": "53_prediction_profiler",
       "audio_sha256": "1ac5f1482c470bc13729a41b2ab9b4367006229d96f0c1a4c2fb771cccdd495f",
       "clocks": {
-        "audio": 20.282954,
-        "video": 33.252704,
-        "expected": 33.01295406228859,
+        "audio": 20.332977,
+        "video": 33.323807,
+        "expected": 33.06297706238298,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.37,
-        "seek_elapsed_seconds": 1.5120523180812597,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/53_prediction_profiler/web/53_prediction_profiler_silent.mp4"
+        "seek_elapsed_seconds": 1.5085497321560979,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/53_prediction_profiler/web/53_prediction_profiler_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2259,15 +2107,15 @@
       "lesson": "54_qc_dashboard",
       "audio_sha256": "368a60ca7c941a2dbc72325033fb38c097c7d50e944203c5aa051a4e8590958f",
       "clocks": {
-        "audio": 15.817198,
-        "video": 32.512285,
-        "expected": 32.25886461477852,
+        "audio": 15.815355,
+        "video": 32.488759,
+        "expected": 32.25702161478148,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 14.825,
-        "seek_elapsed_seconds": 1.5109284250065684,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/54_qc_dashboard/web/54_qc_dashboard_silent.mp4"
+        "seek_elapsed_seconds": 1.510747715830803,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/54_qc_dashboard/web/54_qc_dashboard_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2278,15 +2126,15 @@
       "lesson": "55_image_scatter",
       "audio_sha256": "f1f0e345b287852a0b9cb057cccfead134dffab288a01ecfaab6a8d6adf385a8",
       "clocks": {
-        "audio": 19.845153,
-        "video": 38.178036,
-        "expected": 37.928486270066465,
+        "audio": 19.836991,
+        "video": 38.171425,
+        "expected": 37.92032427008008,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 18.849999999999998,
-        "seek_elapsed_seconds": 1.5117014506831765,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/55_image_scatter/web/55_image_scatter_silent.mp4"
+        "seek_elapsed_seconds": 1.5128066460601985,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/55_image_scatter/web/55_image_scatter_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2297,34 +2145,15 @@
       "lesson": "56_lineage",
       "audio_sha256": "8eeae747903a27f4cbacfcb1a6a8451c4382537e454025ed705d1b137b845419",
       "clocks": {
-        "audio": 22.329806,
-        "video": 49.528036,
-        "expected": 49.281472717735554,
+        "audio": 22.34836,
+        "video": 49.561593,
+        "expected": 49.30002671775478,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 21.315,
-        "seek_elapsed_seconds": 1.5075601791031659,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/56_lineage/web/56_lineage_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "57_layer_viewer",
-      "audio_sha256": "b0118caaa482410fb62fc86fb837a7a0e37c72302d6aac8a73ca2a782a4f7a0d",
-      "clocks": {
-        "audio": 20.611876,
-        "video": 20.876052,
-        "expected": 20.611528629909955,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 19.705,
-        "seek_elapsed_seconds": 1.5111327720806003,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/57_layer_viewer/web/57_layer_viewer_silent.mp4"
+        "seek_elapsed_seconds": 1.5067634503357112,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/56_lineage/web/56_lineage_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2335,72 +2164,15 @@
       "lesson": "58_graph_builder",
       "audio_sha256": "84bb964cd288ee3f5dc69edd3cb50778fc24da6ace474d5c1386c02e7fe96e46",
       "clocks": {
-        "audio": 27.816994,
-        "video": 28.079926,
-        "expected": 27.817339471180716,
+        "audio": 27.890319,
+        "video": 28.120887,
+        "expected": 27.890665381835344,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.830000000000002,
-        "seek_elapsed_seconds": 1.5057516968809068,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/58_graph_builder/web/58_graph_builder_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "59_anndata_export",
-      "audio_sha256": "4011ec9598edca07936b04c19b49e20882520793c27f8d71f7edd3b4d61f49b5",
-      "clocks": {
-        "audio": 22.779209,
-        "video": 22.994181,
-        "expected": 22.777684389264444,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 21.764999999999997,
-        "seek_elapsed_seconds": 1.5110513060353696,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/59_anndata_export/web/59_anndata_export_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "60_pca",
-      "audio_sha256": "c8bc0090577690a40dd1164471a9e31055f63e8ea64172c7e3f6a99cbce08858",
-      "clocks": {
-        "audio": 25.531166,
-        "video": 25.784186,
-        "expected": 25.531347289603318,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 24.925,
-        "seek_elapsed_seconds": 1.5086380229331553,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/60_pca/web/60_pca_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "61_tabulate",
-      "audio_sha256": "8369d5cb62ad2ecd4ed19a7dab5ab226f4e5bc423684b704cd872fad78ee28f3",
-      "clocks": {
-        "audio": 28.273576,
-        "video": 28.514831,
-        "expected": 28.273576,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 27.3,
-        "seek_elapsed_seconds": 1.5097341621294618,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/61_tabulate/web/61_tabulate_silent.mp4"
+        "seek_elapsed_seconds": 1.5093465149402618,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/58_graph_builder/web/58_graph_builder_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2411,15 +2183,15 @@
       "lesson": "62_feature_dictionary",
       "audio_sha256": "0de753b8e790687a57d75b424fa660f405fb06ed5cd29b8b9a32365d5442a9cd",
       "clocks": {
-        "audio": 17.912393,
-        "video": 35.633474,
-        "expected": 35.417392931613456,
+        "audio": 17.907152,
+        "video": 35.669743,
+        "expected": 35.41215193162357,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 16.895,
-        "seek_elapsed_seconds": 1.512097585014999,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/62_feature_dictionary/web/62_feature_dictionary_silent.mp4"
+        "seek_elapsed_seconds": 1.510492310859263,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/62_feature_dictionary/web/62_feature_dictionary_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2430,15 +2202,15 @@
       "lesson": "63_small_multiples",
       "audio_sha256": "0346ca26c4c93eb93ba7b1a0936aebcc91dd0462b410cb75a88fc506474f021a",
       "clocks": {
-        "audio": 27.438411,
-        "video": 48.80787,
-        "expected": 48.59007769837723,
+        "audio": 27.422444,
+        "video": 48.785749,
+        "expected": 48.5741106983668,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 26.514999999999997,
-        "seek_elapsed_seconds": 1.5071152518503368,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/63_small_multiples/web/63_small_multiples_silent.mp4"
+        "seek_elapsed_seconds": 1.510624221060425,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/63_small_multiples/web/63_small_multiples_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2449,53 +2221,15 @@
       "lesson": "64_gate_editor",
       "audio_sha256": "0b45480a48da299cee829b6e14547f59f395bdc5ece17dc11543b0d3d17e9ef7",
       "clocks": {
-        "audio": 36.504277,
-        "video": 36.7546,
-        "expected": 36.503473891450774,
+        "audio": 36.406012,
+        "video": 36.655892,
+        "expected": 36.405211053319675,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 35.465,
-        "seek_elapsed_seconds": 1.5130477431230247,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/64_gate_editor/web/64_gate_editor_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "65_feature_explorer",
-      "audio_sha256": "3ea68fb66b7772a0740dd19e8beec2f2ac5ed3e4eb6acc68d5f3631f54f81492",
-      "clocks": {
-        "audio": 23.505163,
-        "video": 23.730996,
-        "expected": 23.50329399750549,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 22.43,
-        "seek_elapsed_seconds": 1.5112995919771492,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/65_feature_explorer/web/65_feature_explorer_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "66_outliers",
-      "audio_sha256": "ed1e45220518aa83c482b1be075ec641e3da1b6cac653c67f92ca202ce1ee8a9",
-      "clocks": {
-        "audio": 21.214159,
-        "video": 21.460143,
-        "expected": 21.214846043612418,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 20.22,
-        "seek_elapsed_seconds": 1.506111006718129,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/66_outliers/web/66_outliers_silent.mp4"
+        "seek_elapsed_seconds": 1.5046292371116579,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/64_gate_editor/web/64_gate_editor_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2506,53 +2240,15 @@
       "lesson": "67_experiment_design",
       "audio_sha256": "d223711df55278914f8d685cdcf61c1f1198c9efb571c15bed1a74462bd2bc4e",
       "clocks": {
-        "audio": 20.41425,
-        "video": 31.814672,
-        "expected": 31.595916666666668,
+        "audio": 20.373797,
+        "video": 31.828527,
+        "expected": 31.555463666666668,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 19.384999999999998,
-        "seek_elapsed_seconds": 1.5105347926728427,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/67_experiment_design/web/67_experiment_design_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "68_power_design",
-      "audio_sha256": "78d7affac6ec54cd32ee472104a8316c6b8712e07b472854868969b55318da5e",
-      "clocks": {
-        "audio": 24.620911,
-        "video": 24.865843,
-        "expected": 24.620055542892878,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 23.65,
-        "seek_elapsed_seconds": 1.5104825659655035,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/68_power_design/web/68_power_design_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "69_dose_response",
-      "audio_sha256": "98e20dc5e519af9ec729a4a0650d27eccb23af1c615b1c475f946f9b8f55f203",
-      "clocks": {
-        "audio": 20.157016,
-        "video": 20.418064,
-        "expected": 20.156526526310675,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 19.185,
-        "seek_elapsed_seconds": 1.506783696822822,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/69_dose_response/web/69_dose_response_silent.mp4"
+        "seek_elapsed_seconds": 1.5139148812741041,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/67_experiment_design/web/67_experiment_design_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2563,72 +2259,15 @@
       "lesson": "70_explain_cv",
       "audio_sha256": "39464df5fd2c1bcf05a36c5f9f1b0e03e63bbeb3c873b2f699170b114cf26c8a",
       "clocks": {
-        "audio": 23.719093,
-        "video": 23.982229,
-        "expected": 23.72211421607208,
+        "audio": 23.747168,
+        "video": 23.973348,
+        "expected": 23.750192792121176,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 22.74,
-        "seek_elapsed_seconds": 1.5053093577735126,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/70_explain_cv/web/70_explain_cv_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "71_investigate_hit",
-      "audio_sha256": "0d2cb1917a69112acafa666141b462b9352b196428bd623216039eb163c17afe",
-      "clocks": {
-        "audio": 28.425517,
-        "video": 28.681582,
-        "expected": 28.4258604805792,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 27.415,
-        "seek_elapsed_seconds": 1.5104344505816698,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/71_investigate_hit/web/71_investigate_hit_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "72_volcano_explorer",
-      "audio_sha256": "34d0a15b6e6269d793fe50cfd9c05eb6ea2594eeaf3cc95791d3b954c5f9232f",
-      "clocks": {
-        "audio": 21.761663,
-        "video": 22.023425,
-        "expected": 21.760256390020032,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 20.79,
-        "seek_elapsed_seconds": 1.51037675794214,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/72_volcano_explorer/web/72_volcano_explorer_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "73_parameter_sweep",
-      "audio_sha256": "dd9f403d1b718e263b1375e55325ffd6837f9121fda36677131b019d678427d3",
-      "clocks": {
-        "audio": 22.820142,
-        "video": 23.085934,
-        "expected": 22.821399786761855,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 21.845,
-        "seek_elapsed_seconds": 1.5101090529933572,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/73_parameter_sweep/web/73_parameter_sweep_silent.mp4"
+        "seek_elapsed_seconds": 1.5093918517231941,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/70_explain_cv/web/70_explain_cv_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -2637,724 +2276,36 @@
     },
     {
       "lesson": "74_import_images",
-      "audio_sha256": "327950c4853f5ace9630f2798c7abf863f915996ecce2941de649b45d7f56ba6",
+      "audio_sha256": "4ca5fb3048241d6b96eec5437d646f43f573cfac43aef49ed237cac7b31141f7",
       "clocks": {
-        "audio": 33.680555,
-        "video": 33.96094,
-        "expected": 33.68467167584658,
+        "audio": 33.702121,
+        "video": 55.080152,
+        "expected": 54.847120999999994,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 32.755,
-        "seek_elapsed_seconds": 1.5102196000516415,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/74_import_images/web/74_import_images_silent.mp4"
+        "seek_elapsed_seconds": 1.5074135437607765,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/74_import_images/web/74_import_images_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
       "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "75_regression_diagnostics",
-      "audio_sha256": "c9310013e936814c8b32426932800515481d1b7d951afd9c12a0b0b07368b7ca",
-      "clocks": {
-        "audio": 27.01811,
-        "video": 27.275832,
-        "expected": 27.01707088188916,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 25.935,
-        "seek_elapsed_seconds": 1.5091020679101348,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/75_regression_diagnostics/web/75_regression_diagnostics_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "77_embeddings",
-      "audio_sha256": "7a008bb3cadd684328becdfb9e9ea62997c53de5bbad02c67f9711e705400a58",
-      "clocks": {
-        "audio": 24.475949,
-        "video": 24.729278,
-        "expected": 24.477682968824798,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 23.455,
-        "seek_elapsed_seconds": 1.5104412650689483,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/77_embeddings/web/77_embeddings_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [
-        {
-          "requested_audio_time": 1.2425,
-          "text": "From Home, open Embeddings in Data.",
-          "audio": 1.2425,
-          "video": 1.242588,
-          "cues": [
-            "From Home, open Embeddings in Data."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 6.115,
-          "text": "You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
-          "audio": 6.115,
-          "video": 6.115433,
-          "cues": [
-            "You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 11.184999999999999,
-          "text": "Choose crop folder under Crops from.",
-          "audio": 11.184999,
-          "video": 11.185792,
-          "cues": [
-            "Choose crop folder under Crops from."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 15.294999999999998,
-          "text": "You can also use a measurements database when you want to select an object class, plate or condition.",
-          "audio": 15.294999,
-          "video": 15.296083,
-          "cues": [
-            "You can also use a measurements database when you want to select an object class, plate or condition."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 20.65,
-          "text": "This walkthrough uses the crop folder from Annotate’s downloadable example.",
-          "audio": 20.65,
-          "video": 20.651462,
-          "cues": [
-            "This walkthrough uses the crop folder from Annotate’s downloadable example."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 25.235,
-          "text": "Copy sixteen example PNGs into a working folder.",
-          "audio": 25.235,
-          "video": 25.236787,
-          "cues": [
-            "Copy sixteen example PNGs into a working folder."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 28.834999999999997,
-          "text": "Enter that folder’s path and press Enter, or use Browse.",
-          "audio": 28.834999,
-          "video": 28.837042,
-          "cues": [
-            "Enter that folder’s path and press Enter, or use Browse."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 32.1575,
-          "text": "Set At most to sixteen, then click Load crops.",
-          "audio": 32.1575,
-          "video": 32.159778,
-          "cues": [
-            "Set At most to sixteen, then click Load crops."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 35.697500000000005,
-          "text": "Read the loaded crop count, size and channel count.",
-          "audio": 35.6975,
-          "video": 35.700028,
-          "cues": [
-            "Read the loaded crop count, size and channel count."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 40.4925,
-          "text": "The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels.",
-          "audio": 40.4925,
-          "video": 40.495368,
-          "cues": [
-            "The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 45.69,
-          "text": "Check the crop export’s channel mapping before comparing results.",
-          "audio": 45.69,
-          "video": 45.693236,
-          "cues": [
-            "Check the crop export’s channel mapping before comparing results."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 50.4975,
-          "text": "Choose Per channel to encode each channel separately and concatenate its features.",
-          "audio": 50.4975,
-          "video": 50.501077,
-          "cues": [
-            "Choose Per channel to encode each channel separately and concatenate its features."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 55.2475,
-          "text": "Keep resnet18 as the Backbone and set Batch to four for this small run.",
-          "audio": 55.2475,
-          "video": 55.251413,
-          "cues": [
-            "Keep resnet18 as the Backbone and set Batch to four for this small run."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 58.78,
-          "text": "Smaller batches reduce memory use.",
-          "audio": 58.78,
-          "video": 58.784164,
-          "cues": [
-            "Smaller batches reduce memory use."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 61.52000000000001,
-          "text": "Click Embed and wait for the preview.",
-          "audio": 61.52,
-          "video": 61.524358,
-          "cues": [
-            "Click Embed and wait for the preview."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 65.78500000000001,
-          "text": "The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions.",
-          "audio": 65.785,
-          "video": 65.78966,
-          "cues": [
-            "The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 71.8075,
-          "text": "The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
-          "audio": 71.8075,
-          "video": 71.812587,
-          "cues": [
-            "The table shows only the first few dimensions and, for larger runs, up to fifty objects."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 76.5875,
-          "text": "Select Project to three and click Embed again.",
-          "audio": 76.5875,
-          "video": 76.592925,
-          "cues": [
-            "Select Project to three and click Embed again."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 80.11,
-          "text": "This encodes the combined image instead of each channel separately.",
-          "audio": 80.11,
-          "video": 80.115675,
-          "cues": [
-            "This encodes the combined image instead of each channel separately."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 84.14500000000001,
-          "text": "Use the same crops and backbone when comparing the two policies.",
-          "audio": 84.145,
-          "video": 84.150961,
-          "cues": [
-            "Use the same crops and backbone when comparing the two policies."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 88.625,
-          "text": "The projected example has five hundred twelve dimensions per object.",
-          "audio": 88.625,
-          "video": 88.631278,
-          "cues": [
-            "The projected example has five hundred twelve dimensions per object."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 92.64,
-          "text": "Keep the channel policy and encoder settings with your results.",
-          "audio": 92.64,
-          "video": 92.646562,
-          "cues": [
-            "Keep the channel policy and encoder settings with your results."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 97.945,
-          "text": "Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
-          "audio": 97.945,
-          "video": 97.951938,
-          "cues": [
-            "Use the complete vectors for downstream analysis; individual dimensions are not biological measurements."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 103.615,
-          "text": "The screen currently provides a preview without an export button.",
-          "audio": 103.615,
-          "video": 103.62234,
-          "cues": [
-            "The screen currently provides a preview without an export button."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 108.395,
-          "text": "To save complete matrices, download the linked Python helper and follow its README.",
-          "audio": 108.395,
-          "video": 108.402679,
-          "cues": [
-            "To save complete matrices, download the linked Python helper and follow its README."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 114.2175,
-          "text": "It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
-          "audio": 114.2175,
-          "video": 114.225591,
-          "cues": [
-            "It writes vectors, object filenames, settings and exploratory plots to a new output folder."
-          ],
-          "seek_attempts": 1
-        }
-      ],
-      "passed": true
-    },
-    {
-      "lesson": "76_ops",
-      "audio_sha256": "5257b1e4e70fd290402ac8863345f774529f702027a4597085be35cef204d77c",
-      "clocks": {
-        "audio": 23.917103,
-        "video": 24.181458,
-        "expected": 23.91548203604112,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 22.919999999999998,
-        "seek_elapsed_seconds": 1.5108244698494673,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/76_ops/web/76_ops_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [
-        {
-          "requested_audio_time": 1.575,
-          "text": "From Home, open Mask, then turn on OPS.",
-          "audio": 1.575,
-          "video": 1.574893,
-          "cues": [
-            "From Home, open Mask, then turn on OPS."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 6.0024999999999995,
-          "text": "This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
-          "audio": 6.002499,
-          "video": 6.002093,
-          "cues": [
-            "This page takes sequencing-cycle images and assigns decoded barcodes to nuclei."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 10.0,
-          "text": "Click Load test data.",
-          "audio": 10,
-          "video": 9.999322,
-          "cues": [
-            "Click Load test data."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 14.017499999999998,
-          "text": "The example includes two image sites across eleven sequencing cycles and a matching barcode library.",
-          "audio": 14.017499,
-          "video": 14.016549,
-          "cues": [
-            "The example includes two image sites across eleven sequencing cycles and a matching barcode library."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 19.845,
-          "text": "When loading finishes, spaCR fills the input, library, plate and output fields.",
-          "audio": 19.845,
-          "video": 19.843655,
-          "cues": [
-            "When loading finishes, spaCR fills the input, library, plate and output fields."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 25.737499999999997,
-          "text": "In OPS input, check the sequencing image folder and the barcode-library CSV.",
-          "audio": 25.737499,
-          "video": 25.735755,
-          "cues": [
-            "In OPS input, check the sequencing image folder and the barcode-library CSV."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 29.772499999999997,
-          "text": "Choose a destination for the results.",
-          "audio": 29.772499,
-          "video": 29.770482,
-          "cues": [
-            "Choose a destination for the results."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 33.317499999999995,
-          "text": "The example writes to the ops_output folder inside its downloaded project.",
-          "audio": 33.317498,
-          "video": 33.315241,
-          "cues": [
-            "The example writes to the ops_output folder inside its downloaded project."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 37.91,
-          "text": "Leave the phenotype image folder empty for this example.",
-          "audio": 37.91,
-          "video": 37.90743,
-          "cues": [
-            "Leave the phenotype image folder empty for this example."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 43.412499999999994,
-          "text": "When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
-          "audio": 43.412499,
-          "video": 43.409557,
-          "cues": [
-            "When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 49.525000000000006,
-          "text": "Under OPS alignment, choose the nucleus segmentation model.",
-          "audio": 49.525,
-          "video": 49.521643,
-          "cues": [
-            "Under OPS alignment, choose the nucleus segmentation model."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 53.295,
-          "text": "Diameter sets the expected nucleus size in pixels.",
-          "audio": 53.295,
-          "video": 53.291387,
-          "cues": [
-            "Diameter sets the expected nucleus size in pixels."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 58.55,
-          "text": "Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition.",
-          "audio": 58.55,
-          "video": 58.546031,
-          "cues": [
-            "Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 63.3775,
-          "text": "Keep the example settings for this first run.",
-          "audio": 63.3775,
-          "video": 63.373204,
-          "cues": [
-            "Keep the example settings for this first run."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 67.3125,
-          "text": "Window overlap controls how much neighboring segmentation windows share.",
-          "audio": 67.3125,
-          "video": 67.307937,
-          "cues": [
-            "Window overlap controls how much neighboring segmentation windows share."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 72.35,
-          "text": "It should be larger than the largest nucleus so objects at window edges can be included whole.",
-          "audio": 72.35,
-          "video": 72.345096,
-          "cues": [
-            "It should be larger than the largest nucleus so objects at window edges can be included whole."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 76.26749999999998,
-          "text": "Increasing it adds processing time.",
-          "audio": 76.267499,
-          "video": 76.262331,
-          "cues": [
-            "Increasing it adds processing time."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 80.19999999999999,
-          "text": "Under OPS decoding, set the four base channels in G, T, A, C order.",
-          "audio": 80.199999,
-          "video": 80.194564,
-          "cues": [
-            "Under OPS decoding, set the four base channels in G, T, A, C order."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 85.38749999999999,
-          "text": "The example uses CY3, A594, CY5 and CY7.",
-          "audio": 85.387499,
-          "video": 85.381712,
-          "cues": [
-            "The example uses CY3, A594, CY5 and CY7."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 90.43999999999998,
-          "text": "For your own images, match these names to the channel names in the TIFF filenames.",
-          "audio": 90.439999,
-          "video": 90.43387,
-          "cues": [
-            "For your own images, match these names to the channel names in the TIFF filenames."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 95.33749999999998,
-          "text": "Read threshold controls how bright a spot must be to count as a read.",
-          "audio": 95.337499,
-          "video": 95.331038,
-          "cues": [
-            "Read threshold controls how bright a spot must be to count as a read."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 100.25499999999998,
-          "text": "Raising it selects stronger spots; lowering it includes fainter spots and more background.",
-          "audio": 100.254999,
-          "video": 100.248205,
-          "cues": [
-            "Raising it selects stronger spots; lowering it includes fainter spots and more background."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 106.07999999999998,
-          "text": "Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
-          "audio": 106.079999,
-          "video": 106.07281,
-          "cues": [
-            "Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 111.85999999999999,
-          "text": "Turn on Store reads if you want to inspect the individual read calls later.",
-          "audio": 111.859999,
-          "video": 111.852418,
-          "cues": [
-            "Turn on Store reads if you want to inspect the individual read calls later."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 115.95499999999998,
-          "text": "This saves an additional table and uses more disk space.",
-          "audio": 115.954999,
-          "video": 115.947141,
-          "cues": [
-            "This saves an additional table and uses more disk space."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 118.89749999999998,
-          "text": "Leave it off for a compact first run.",
-          "audio": 118.897499,
-          "video": 118.889441,
-          "cues": [
-            "Leave it off for a compact first run."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 121.79499999999996,
-          "text": "Check OPS performance, then press Run.",
-          "audio": 121.794999,
-          "video": 121.786745,
-          "cues": [
-            "Check OPS performance, then press Run."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 124.75749999999996,
-          "text": "GPU enables acceleration where available.",
-          "audio": 124.757499,
-          "video": 124.749044,
-          "cues": [
-            "GPU enables acceleration where available."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 129.09999999999997,
-          "text": "Workers controls how many fields are decoded at once; lower it if memory is limited.",
-          "audio": 129.099999,
-          "video": 129.09125,
-          "cues": [
-            "Workers controls how many fields are decoded at once; lower it if memory is limited."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 132.83999999999997,
-          "text": "Follow the progress in Console.",
-          "audio": 132.839999,
-          "video": 132.830996,
-          "cues": [
-            "Follow the progress in Console."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 138.23,
-          "text": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder.",
-          "audio": 138.23,
-          "video": 138.220631,
-          "cues": [
-            "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 145.7375,
-          "text": "Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
-          "audio": 145.7375,
-          "video": 145.727622,
-          "cues": [
-            "Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 154.97250000000003,
-          "text": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates.",
-          "audio": 154.9725,
-          "video": 154.961996,
-          "cues": [
-            "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 164.46750000000003,
-          "text": "Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression.",
-          "audio": 164.4675,
-          "video": 164.456353,
-          "cues": [
-            "Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression."
-          ],
-          "seek_attempts": 1
-        },
-        {
-          "requested_audio_time": 170.16250000000002,
-          "text": "Keep the database, reports and settings together.",
-          "audio": 170.1625,
-          "video": 170.150967,
-          "cues": [
-            "Keep the database, reports and settings together."
-          ],
-          "seek_attempts": 1
-        }
-      ],
       "passed": true
     },
     {
       "lesson": "78_spacr_screens",
       "audio_sha256": "531fba16837a1c2364cc42a4e18207ba42aec9ffabd1d9afbb78b6879a3134c8",
       "clocks": {
-        "audio": 53.753412,
-        "video": 82.866091,
-        "expected": 82.64174541586779,
+        "audio": 53.781647,
+        "video": 82.916816,
+        "expected": 82.66998041589599,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 52.745,
-        "seek_elapsed_seconds": 1.506968607660383,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/78_spacr_screens/web/78_spacr_screens_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "79_module_inputs_outputs",
-      "audio_sha256": "1f4046f4e72ed7287ea7395f21b3df133c5b7ac6ed23802e97090b66b5f966ab",
-      "clocks": {
-        "audio": 138.80604,
-        "video": 139.058265,
-        "expected": 138.80632186864747,
-        "width": 1920,
-        "height": 1080,
-        "error": null,
-        "requested_audio_time": 137.775,
-        "seek_elapsed_seconds": 1.506138073746115,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4"
+        "seek_elapsed_seconds": 1.5113201229833066,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/78_spacr_screens/web/78_spacr_screens_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3365,15 +2316,15 @@
       "lesson": "80_image_analysis_pathways",
       "audio_sha256": "ee1af25eeb3e1342eb64c91a75cb990f0fb951ef3627e1ddc7595b44892ec303",
       "clocks": {
-        "audio": 33.013667,
-        "video": 47.266506,
-        "expected": 47.023667053357165,
+        "audio": 32.92283,
+        "video": 47.150688,
+        "expected": 46.932830053254094,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 31.89,
-        "seek_elapsed_seconds": 1.5108431847766042,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/80_image_analysis_pathways/web/80_image_analysis_pathways_silent.mp4"
+        "seek_elapsed_seconds": 1.508829212281853,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/80_image_analysis_pathways/web/80_image_analysis_pathways_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3384,15 +2335,15 @@
       "lesson": "81_sequencing_pathways",
       "audio_sha256": "dd67af5b3c6d2687059034aa0b73b41cd3e0b4c65e7fbcbb784c3c552eab2ceb",
       "clocks": {
-        "audio": 62.853405,
-        "video": 116.251601,
-        "expected": 115.9934050769034,
+        "audio": 62.886237,
+        "video": 116.287414,
+        "expected": 116.02623707692517,
         "width": 1920,
         "height": 1080,
         "error": null,
         "requested_audio_time": 61.86000000000001,
-        "seek_elapsed_seconds": 1.5103101711720228,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/81_sequencing_pathways/web/81_sequencing_pathways_silent.mp4"
+        "seek_elapsed_seconds": 1.5071705733425915,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/81_sequencing_pathways/web/81_sequencing_pathways_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3403,15 +2354,15 @@
       "lesson": "82_toxoplasma",
       "audio_sha256": "d4926e3a9de522d9e9ce4c9f01a51c62e5cbdc61bd25e3884f12bdfe3a9a654f",
       "clocks": {
-        "audio": 24.704449,
-        "video": 40.994795,
-        "expected": 40.75778225584706,
+        "audio": 24.700531,
+        "video": 40.990223,
+        "expected": 40.75386425585451,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 23.779999999999998,
-        "seek_elapsed_seconds": 1.5098230270668864,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/82_toxoplasma/web/82_toxoplasma_silent.mp4"
+        "seek_elapsed_seconds": 1.5163277331739664,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/82_toxoplasma/web/82_toxoplasma_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3422,53 +2373,15 @@
       "lesson": "85_host_pathogen",
       "audio_sha256": "d06914be925bacffe63ef610e6187476b3c1a300b5e99d9566a6c1d60a691221",
       "clocks": {
-        "audio": 28.440753,
-        "video": 51.955669,
-        "expected": 51.71908628609266,
+        "audio": 28.475962,
+        "video": 51.99584,
+        "expected": 51.754295286060504,
         "width": 2560,
         "height": 1440,
         "error": null,
         "requested_audio_time": 27.554999999999996,
-        "seek_elapsed_seconds": 1.510795389302075,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/85_host_pathogen/web/85_host_pathogen_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "86_alpha_organism_modules",
-      "audio_sha256": "b6ed45411108e7ba131e40439aa4f2fa78adb8d8342f7323aaeeab60e9f5ba90",
-      "clocks": {
-        "audio": 25.637489,
-        "video": 25.877527,
-        "expected": 25.636437895535238,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 24.565,
-        "seek_elapsed_seconds": 1.512008507270366,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/86_alpha_organism_modules/web/86_alpha_organism_modules_silent.mp4"
-      },
-      "chapter_text_matches_audio": true,
-      "native_caption_reloads": 2,
-      "sentence_cue_checks": [],
-      "passed": true
-    },
-    {
-      "lesson": "87_alpha_features",
-      "audio_sha256": "8ae84bd04d896549703101c0fc49c9d69ae0ade55fb9c49b824c8c8fa4e57a6b",
-      "clocks": {
-        "audio": 39.160339,
-        "video": 39.417491,
-        "expected": 39.16136768028966,
-        "width": 2560,
-        "height": 1440,
-        "error": null,
-        "requested_audio_time": 38.195,
-        "seek_elapsed_seconds": 1.505249465815723,
-        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0/87_alpha_features/web/87_alpha_features_silent.mp4"
+        "seek_elapsed_seconds": 1.5103185707703233,
+        "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27/85_host_pathogen/web/85_host_pathogen_silent.mp4"
       },
       "chapter_text_matches_audio": true,
       "native_caption_reloads": 2,
@@ -3476,14 +2389,16 @@
       "passed": true
     }
   ],
+  "routes": 59,
+  "ready_lessons": 59,
   "passed": true,
   "published": false,
   "pages_tree": "/media/carruthers/mnt3/claude/spacr-tut17-nightly/docs/source/_extra/tutorials",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/1919200809407897a9b2f3e8bf38b3b4d5b71ed0",
-  "hosted_requests": 526,
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27",
+  "hosted_requests": 394,
   "hosted_hosts": [
     "huggingface.co",
     "us.aws.cdn.hf.co"
   ],
-  "index_sha256": "2e93d90421d44857d77c1e95059a180b17bc19ab3412b44ed2347e52df112023"
+  "index_sha256": "2a8ca4c0e89bd2a88b01fa38ded15dd57c5d47d6fd826bfb203f399325f14147"
 }
