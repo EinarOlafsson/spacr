@@ -143,8 +143,9 @@ def test_fail_closed_without_every_source_frame_idle_or_kept_and_all_voice_fit(s
     with pytest.raises(ValueError):edit.plan_intervals(english,original,tracks,plan,bindings)
 
 @pytest.mark.parametrize('source_start',[6,7])
-def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_source_change(tmp_path,source_start):
-    import subprocess,hashlib
+@pytest.mark.parametrize('terminal_seekable',[False,True])
+def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_source_change(tmp_path,source_start,terminal_seekable):
+    import subprocess,hashlib,json
     source=tmp_path/'source.mkv';output=tmp_path/'edited.mp4'
     width,height=64,48
     # An actual lossless source makes every original frame independently identifiable.
@@ -156,7 +157,7 @@ def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_sourc
     before=hashlib.sha256(source.read_bytes()).hexdigest()
     row={'source_start_frame':source_start,'source_keep_frames':[[0,2],[4,6]],
          'kept_frames':4,'final_frame_hold_frames':2}
-    edit.encode_scene(source,row,output)
+    edit.encode_scene(source,row,output,terminal_seekable=terminal_seekable)
     decoded=subprocess.check_output(['ffmpeg','-nostdin','-v','error','-threads','2',
         '-i',str(output),'-f','rawvideo','-pix_fmt','rgb24','-threads','2','pipe:1'])
     size=width*height*3;frames=[decoded[i:i+size] for i in range(0,len(decoded),size)]
@@ -168,6 +169,13 @@ def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_sourc
         observed.append(index)
     assert observed==[source_start,source_start+1,source_start+4,source_start+5,source_start+5,source_start+5]
     assert frames[-1]==frames[-2]==frames[-3]
+    if terminal_seekable:
+        probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
+            '-show_entries','frame=key_frame,best_effort_timestamp_time','-of','json',str(output)]))
+        assert len(probe['frames'])==len(frames)
+        terminal=probe['frames'][-2]
+        assert terminal['key_frame']==1
+        assert float(terminal['best_effort_timestamp_time'])==pytest.approx((len(frames)-2)/30,abs=1e-6)
     rendered=hashlib.sha256(output.read_bytes()).hexdigest()
     with pytest.raises(subprocess.CalledProcessError):edit.encode_scene(source,row,output)
     assert hashlib.sha256(output.read_bytes()).hexdigest()==rendered

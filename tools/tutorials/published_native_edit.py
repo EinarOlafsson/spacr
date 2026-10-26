@@ -219,7 +219,7 @@ def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
     return root,baseline,bindings,source,spec,timing
 
 
-def encode_scene(source,row,output):
+def encode_scene(source,row,output,*,terminal_seekable=False):
     """Keep each reviewed source interval at 1x; duplicate ONLY its final result."""
     filters=[];labels=[]
     for i,(a,b) in enumerate(row['source_keep_frames']):
@@ -228,13 +228,20 @@ def encode_scene(source,row,output):
     # Every kept frame remains exactly one 30fps frame. Preserve the final
     # kept frame at EOF before appending the reviewed result-frame clones.
     filters.append(''.join(labels)+f'concat=n={len(labels)}:v=1:a=0,settb=1/30,setpts=N,fps=30:eof_action=pass,tpad=stop_mode=clone:stop={row["final_frame_hold_frames"]}[out]')
+    frames=row['kept_frames']+row['final_frame_hold_frames']
+    seek_options=[]
+    if terminal_seekable:
+        if frames<2:raise ValueError('Terminal native seek needs two genuine output frames')
+        # The player resumes the final two frames after its quiet deadline.
+        # An IDR at that exact destination avoids decoding a cold terminal GOP.
+        seek_options=['-g','60','-force_key_frames',f'{(frames-2)/30:.12f}','-forced-idr','1']
     subprocess.run(['ffmpeg','-nostdin','-n','-v','error','-threads','2',
         '-ss',f'{row["source_start_frame"]/30:.12f}',
         '-t',f'{row["source_keep_frames"][-1][1]/30:.12f}','-i',str(source),
         '-filter_complex_threads','2','-filter_complex',';'.join(filters),'-map','[out]','-an',
-        '-frames:v',str(row['kept_frames']+row['final_frame_hold_frames']),'-c:v','libx264',
+        '-frames:v',str(frames),'-c:v','libx264',
         '-preset','veryfast','-crf','18','-threads','2','-pix_fmt','yuv420p',
-        '-video_track_timescale','90000',str(output)],check=True)
+        *seek_options,'-video_track_timescale','90000',str(output)],check=True)
 
 
 def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=None):
@@ -248,7 +255,10 @@ def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
     work.mkdir();target.parent.mkdir(parents=True,exist_ok=True)
     source_master=baseline/bindings['master']['path'];parts=[]
     for row in timing['scenes']:
-        part=work/f'scene-{row["scene"]:02}.mp4';encode_scene(source_master,row,part);parts.append(part)
+        part=work/f'scene-{row["scene"]:02}.mp4'
+        if staged_source is not None:encode_scene(source_master,row,part,terminal_seekable=True)
+        else:encode_scene(source_master,row,part)
+        parts.append(part)
     # Reuse the normal exact frame-count/rational-duration concatenation.
     sys.path.insert(0,str(REPO/'tools/tutorials/authoring/tools'))
     from render_visual_master import concat
