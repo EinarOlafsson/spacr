@@ -1549,19 +1549,30 @@ def test_no_console_script_name_is_declared_twice():
 
 @pytest.mark.parametrize("group", ["core", "qt", "flowview", "tutorial", "all"])
 def test_qt_requirements_exclude_only_the_broken_6120_release(group):
-    """A Qt binding reference-count regression must not ship in any Qt extra."""
+    """A Qt binding reference-count regression must not ship in any Qt extra.
+
+    Exactly one PySide6 requirement applies on each platform. macOS also
+    stops below 6.11: Qt 6.11.0-6.12.0 segfault in the Cocoa accessibility
+    bridge when a table whose cells an assistive client has read is sorted
+    (QAccessibleCache::deleteInterface), which 6.10.3 and earlier do not.
+    """
     from packaging.requirements import Requirement
 
     values = _core_dependencies() if group == "core" else _extras()[group]
     requirements = [Requirement(value) for value in values
                     if _name_of(value) == "pyside6"]
-    assert len(requirements) == 1
-    specifier = requirements[0].specifier
-    assert "6.12.0" not in specifier
-    for version in ("6.6.3.1", "6.11.2", "6.12.1"):
-        assert version in specifier, (group, version)
-    assert "6.5.3" not in specifier
-    assert "7.0" not in specifier
+    for platform, allowed, refused in (
+            ("linux", ("6.6.3.1", "6.11.2", "6.12.1"), ("6.5.3", "6.12.0", "7.0")),
+            ("win32", ("6.6.3.1", "6.11.2", "6.12.1"), ("6.5.3", "6.12.0", "7.0")),
+            ("darwin", ("6.6.3.1", "6.10.3"), ("6.5.3", "6.11.0", "6.11.2", "6.12.0", "6.12.1", "7.0"))):
+        applying = [r for r in requirements
+                    if r.marker is None or r.marker.evaluate({"sys_platform": platform, "extra": group})]
+        assert len(applying) == 1, (group, platform, applying)
+        specifier = applying[0].specifier
+        for version in allowed:
+            assert version in specifier, (group, platform, version)
+        for version in refused:
+            assert version not in specifier, (group, platform, version)
 
 
 def test_native_contrast_install_excludes_the_same_broken_qt_release():

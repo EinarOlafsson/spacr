@@ -281,7 +281,7 @@ dependencies = [
     'matplotlib_venn>=1.1,<2.0',
     'pypdf>=6.16.1,<7.0',
     'cycler>=0.10,<1',
-    'PySide6>=6.6,!=6.12.0,<7',
+    'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
     'qtawesome>=1.3,<2',
     'pyqtgraph>=0.13.3,<1',
     'mpmath>=1.3,<2',
@@ -493,12 +493,12 @@ setup(
         'full': ['opencv-python'],
         'sweep': ['threadpoolctl>=3.0,<4'],
         'qt': [
-            'PySide6>=6.6,!=6.12.0,<7',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
-        'flowview': ['PySide6>=6.6,!=6.12.0,<7'],
+        'flowview': ['PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"'],
         'flow-gpu': [
             'moderngl>=5.12,<6; sys_platform != "darwin" or platform_machine != "x86_64"',
             'moderngl>=5.12,<5.13; sys_platform == "darwin" and platform_machine == "x86_64"',
@@ -506,7 +506,7 @@ setup(
         ],
         'fractal': ['vispy>=0.14,<1.0'],
         'tutorial': [
-            'PySide6>=6.6,!=6.12.0,<7',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2; (sys_platform != "darwin" or '
@@ -545,7 +545,7 @@ setup(
         'microscope': ['pycromanager>=0.28,<2'],
 
         'all': [
-            'PySide6>=6.6,!=6.12.0,<7',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
