@@ -1677,7 +1677,7 @@ def _overview_scope_group(field, scope):
     return ()
 
 
-def _overview_scope_statistics(groups, percentiles, axes, cancelled=None):
+def _overview_scope_statistics(groups, percentiles, axes, cancelled=None, channel_percentiles=None):
     """Display bounds per channel over each group's sampled pixels; runs off the GUI thread.
 
     At most :data:`_OVERVIEW_SCOPE_IMAGES` evenly spaced images per group
@@ -1688,6 +1688,8 @@ def _overview_scope_statistics(groups, percentiles, axes, cancelled=None):
     :param groups: ``{cache key: (channel, fields)}``.
     :param percentiles: ``(low, high)`` percentiles.
     :param axes: ``time_index``, ``z_mode`` and ``z_index``.
+    :param channel_percentiles: ``{channel: (low, high)}`` for the channels
+        with their own percentiles; the others use ``percentiles``.
     :returns: ``{cache key: (low, high)}`` in raw intensity units.
     """
     result = {}
@@ -1705,7 +1707,7 @@ def _overview_scope_statistics(groups, percentiles, axes, cancelled=None):
                     samples.append(finite[::max(1, finite.size // _OVERVIEW_SCOPE_PIXELS)])
         if samples:
             pooled = np.concatenate(samples)
-            low, high = np.percentile(pooled, percentiles)
+            low, high = np.percentile(pooled, (channel_percentiles or {}).get(channel, percentiles))
             result[key] = (float(low), float(high))
     return result
 
@@ -6512,7 +6514,7 @@ class _FieldOverview(QWidget):
         self._refresh_scope_limits()
 
     def _scope_request(self):
-        """The scoped channels, percentiles and acquisition axes the limits depend on now."""
+        """The scoped channels, percentiles, axes and own channel percentiles the limits use now."""
         try:
             channels, limits = self._choices()
         except (ValueError, TypeError):
@@ -6523,7 +6525,9 @@ class _FieldOverview(QWidget):
             return None
         options = self._display_kwargs()
         axes = {key: options[key] for key in ("time_index", "z_mode", "z_index")}
-        return scoped, tuple(limits) if limits is not None else (0., 100.), axes
+        own = {channel: tuple(value) for channel, value in (options.get("channel_percentiles") or {}).items()
+               if channel in scoped}
+        return scoped, tuple(limits) if limits is not None else (0., 100.), axes, own
 
     def _refresh_scope_limits(self, *_):
         """Bring the per-channel scope bounds up to date, computing missing ones off the GUI thread.
@@ -6536,7 +6540,7 @@ class _FieldOverview(QWidget):
             if self._channel_limits:
                 self._set_display_layers(channel_limits={})
             return
-        scoped, percentiles, axes = request
+        scoped, percentiles, axes, own = request
         axis_key = tuple(sorted(axes.items()))
         members = {}
         for field in self._fields:
@@ -6544,7 +6548,8 @@ class _FieldOverview(QWidget):
                 continue
             for channel, scope in scoped.items():
                 members.setdefault((channel, scope, _overview_scope_group(field, scope)), []).append(field)
-        keys = {group: group + (percentiles, axis_key, frozenset(field.identity for field in fields))
+        keys = {group: group + (own.get(group[0], percentiles), axis_key,
+                                frozenset(field.identity for field in fields))
                 for group, fields in members.items()}
         missing = {keys[group]: (group[0], tuple(fields)) for group, fields in members.items()
                    if keys[group] not in self._scope_cache}
@@ -6553,7 +6558,7 @@ class _FieldOverview(QWidget):
             self._install_scope_limits(scoped, keys)
             return
         self._metadata_jobs.submit(
-            functools.partial(_overview_scope_statistics, missing, percentiles, axes, self._cancelled),
+            functools.partial(_overview_scope_statistics, missing, percentiles, axes, self._cancelled, own),
             functools.partial(self._scope_statistics_ready, self._scope_generation, scoped, keys))
 
     def _scope_statistics_ready(self, generation, scoped, keys, result):
@@ -7978,6 +7983,7 @@ class _FieldOverview(QWidget):
     def _channel_display_changed(self):
         """Redraw every view after a per-channel display value changed."""
         self._refresh_channel_markers()
+        self._refresh_scope_limits()
         self._display_generation += 1
         self._cache.clear()
         self._thumbnail_cache.clear()
@@ -10304,7 +10310,7 @@ class _FieldOverview(QWidget):
             channels, limits = (0,), None
         display = self._display_kwargs()
         shown = self._display_kwargs(view=True)
-        for key in ("channel_limits", "image_overrides"):
+        for key in ("channel_limits", "image_overrides", "percentile_channels"):
             if key in shown:
                 display[key] = shown[key]
         return _OverviewCanvasSnapshot(self._fields, channels, limits, display)
@@ -14292,7 +14298,8 @@ class _OverviewGuidedExport(QDialog):
     def _all_wells(self):
         """Every ``(plate, well)`` of the ticked plates, in plate then reading order."""
         plates = self._chosen_plates()
-        wells = dict.fromkeys((field.plate, field.well) for field in self._browser._fields if field.plate in plates)
+        wells = dict.fromkeys((field.plate, field.well) for field in self._browser._fields
+                              if field.plate in plates and field.well and not field.unresolved)
         return sorted(wells, key=lambda address: (plates.index(address[0]), self._browser._natural(address[1])))
 
     def _well_caption(self, address):
