@@ -1100,6 +1100,32 @@ _DRAG_MOMENTS = frozenset({QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.Mou
 _GLASS_MOMENTS = frozenset({QEvent.Type.Polish, QEvent.Type.Show})
 
 
+def _built_by_python(widget) -> bool:
+    """Whether ``widget`` is the Python object its constructor returned.
+
+    A dialog whose C++ constructor polishes itself, as ``QFileDialog``'s
+    does under an application style sheet, sends that Polish before Python
+    has bound the object it is building, so the filter is handed a second,
+    temporary wrapper. Glassing that one hung the backdrop, the edge resizer
+    and the background drag on a wrapper the dialog never delivers again:
+    the rounded mask cut at the constructor's default size stayed on a
+    window opened at four fifths of the screen, hiding its buttons, and no
+    edge would drag. Such
+    a dialog is glassed on its Show instead, through the object Python holds.
+    A dialog made entirely by Qt, which has no other wrapper, waits for its
+    Show the same way.
+
+    :param widget: the widget being polished.
+    :returns: ``True`` when Python created this wrapper.
+    """
+    try:
+        from shiboken6 import Shiboken
+
+        return bool(Shiboken.createdByPython(widget))
+    except Exception:                                        # noqa: BLE001
+        return True
+
+
 class _GlassInstaller(QObject):
     """Applies :func:`glass` to every dialog the first time it is shown."""
 
@@ -1132,7 +1158,8 @@ class _GlassInstaller(QObject):
                 drag = getattr(window, "_spacr_background_drag", None)
                 if drag is not None and watched is not window:
                     return drag.eventFilter(watched, event)
-            if event.type() in _GLASS_MOMENTS and wants_glass(watched):
+            if (event.type() in _GLASS_MOMENTS and wants_glass(watched)
+                    and (event.type() == QEvent.Type.Show or _built_by_python(watched))):
                 glass(watched)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the glass filter tripped", exc_info=True)
