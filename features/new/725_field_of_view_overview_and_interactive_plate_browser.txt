@@ -5,6 +5,132 @@ Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+MAINTAINER FEEDBACK — 2026-10-26 (round 6) (supersedes conflicting earlier notes)
+Verbatim, display, normalization and settings:
+1. "measure saturation should be appart of intensity and not its own option"
+2. "their should be more color options and one should be custom to let the user choose
+   which color each channel is in"
+3. "CMY, CMYK, RGB on black should be and option to and: CMY, CMYK, RGB on white should be
+   and option to"
+4. "remove the display settings category in image there is already a slider for that move
+   overview tile spasing as a field to the left of the slider"
+5. "Normalize channels should be a field where the user can typew 1,2,3,4 e.g."
+6. "in overview normalize the settings that are not applicable based on the mode should be
+   grayed out"
+7. "everything except overview notrmalize, low and high should be a new Advanced
+   normalization settings category."
+8. "when normalizing images in overview (which worked great!) it did not seem to normalize
+   the image level loaded images (after clicking an image on the image grid it opens the
+   image and that image is not normalized, however opening a new iamge with the
+   normalization settings set does normalize the next iamge.) please change this so that
+   all images are normalized when the settings change, or lets instead add an apply button
+   at the bottom of the settings container that applyes the settings, (large paltes will
+   be to heavy to live change)"
+9. Right-click image settings: "has rounded edges on a black square, fix that so there is
+   no background black square"; "i was not able to move the levels at all whenever i
+   clicked the whole window moved"; "add two options to the left click menu: global
+   normalization and global Enhancement, each as a tick box if ticked i global
+   normalization/ enhancement settings are applied to the image otherwise not"
+10. "Measure should come before export."
+Verbatim, export (done on branch overview-r6-export, its WHAT WAS DONE in its own block):
+11. "for the custom export i want to be able to drag and drop pictures from the overview window onto the canvas."
+12. "the export windows need a close button."
+13. "the export popup should instead be a section opend to the far right of the overview tab and when it opens
+    the settings section should auto colapse."
+14. "the user should me able to hold down a button and click on any image on screen (or do the path option but
+    that is much more teadeus but keep it as an option) or select any image file and drag and drop it (there
+    should be import settings when this or path is used so the user is able to normalize and enhance these
+    images as well)"
+15. "in guided when puicking fields the user should be ablu to drag to select and right click and select and
+    deselect or click hold shift and the normal hotkeys."
+16. "the user should be able to go back choose dpi in the last page other wise dpi is set in the main
+    application i guess."
+17. "for the export the settings should be hidden under a settings button which triggers a popup so the canvs
+    can take as much space as possible"
+Plate items (done; see the dated 2026-10-26 "Round-6 plate items" entry): collapse or show every
+selected row or column at once; a big, resizable folder picker for Add plates and Add folders; a
+filename regex per plate. The plate lane did not record the maintainer's wording verbatim, so
+it is not quoted here.
+
+WHAT WAS DONE — round 6, display, normalization and settings
+- 1: overview_measure_saturation is gone. The Intensity switch (overview_measure_intensity)
+  now measures the saturation group too (spacr.measure._IMAGE_FEATURE_SETTING maps
+  'saturation' to it); its tooltip says so. Old settings files that still name the key
+  are ignored for it.
+- 2, 3: overview_color_mode offers RGB on black ('additive', the unchanged default),
+  RGB on white ('rgb_white'), CMY on black ('cmy_black'), CMY on white ('cmy'), CMYK on
+  black ('cmyk_black'), CMYK on white ('cmyk'), Green and magenta on black
+  ('green_magenta', red-green colour-blind safe), Each channel in grey, side by side
+  ('greys') and Custom colours ('custom'). _overview_color_plan gives each channel a
+  colour and a background; _overview_composite adds light on black
+  (out = sum(plane * strength * colour)) and absorbs the complement on white
+  (out = 255 - sum(plane * strength * (1 - colour))), clipped. On black the CMYK key
+  channel is drawn white. One channel in the RGB modes stays grey (inverted on white).
+  The ink intensity applies to the CMY and CMYK modes on either background. Custom
+  colours: new setting overview_custom_colors ('1=#ff0000, 2=#00ff00'), edited with one
+  colour button per channel under Channels (spaCR's pick_colour), greyed out unless the
+  mode is Custom colours; unset channels take a default colour by position; any number
+  of channels is blended. Mosaic layout (more than three channels in the RGB modes, or
+  Greys) is decided by the colour plan everywhere, the pixel readout included.
+- 4: the Display category is gone. overview_tile_size and overview_tile_spacing stay
+  settings (spacr.settings.OVERVIEW_WELL_VIEW_KEYS, filed under Image but kept off the
+  form); every well view's header has an "Overview tile spacing" field (0-64 px) just
+  left of the size slider, written back to the setting.
+- 5: Normalized channels (overview_normalize_channels) is a text field again: 'all',
+  'none' or channel numbers such as 1,2,3,4. _overview_channel_list_error checks it as it
+  is typed against the source's channels; a wrong list is framed in the error colour, the
+  reason shows on the Apply bar and the status line, Apply is disabled, and the stretch
+  keeps its previous channels.
+- 6: rules in spacr.settings.get_setting_dependencies (_OVERVIEW_NORMALIZATION_RULES)
+  grey out, live, with the reason in the help: Low and High when Overview normalize is
+  off; Normalized channels when normalize is off or the advanced normalization is on;
+  method, background and gamma while the advanced normalization is off; advanced low and
+  high except for percentile, log, asinh, ratio and difference; fixed low and high except
+  for manual; the reference channel except for ratio and difference; epsilon except for
+  ratio.
+- 7: Normalization holds Overview normalize, Overview percentile low and high only. The
+  new Advanced normalization category (under Image) holds Normalized channels, the
+  per-channel Normalization scope, the advanced normalization switch, method, bounds,
+  background, gamma, reference channel and epsilon, plus the Reference group and Channel
+  to edit rows.
+- 8: an Apply bar is pinned to the bottom of the Overview settings column (over the
+  scroll area's bottom margin). Display and normalization settings wait for it
+  (_OVERVIEW_STAGED_SETTINGS plus every enhance_* setting); while some wait the bar says
+  "Unapplied changes" and the button reads "Apply changes" in the accent colour. Apply
+  pushes them to the browser and _FieldOverview._apply_display clears the preview and
+  thumbnail caches and redraws the plate thumbnails, every well view, every open image
+  view and the enlarged image. Still live, because they are cheap or not display
+  settings: the source, shown channels, preview resolution, opening at Original, Z mode,
+  wheel, fields per well, Max wells/fields, tile size and spacing, comparison, export and
+  measurement settings; edits made while a channel is picked in Channel to edit, which
+  already wait for Apply settings to channel (picking a channel applies any waiting
+  global changes first). The bug: a finished display preparation (the advanced
+  normalization, reference plans) redrew the plate and the enlarged image but not the
+  stacked image views, which had been reloaded before the new plan existed; it now
+  reloads them too.
+- 9: the image settings window is a plain translucent top-level window (Qt.Window, not
+  Qt.Tool, whose Popup bit made the glass helper's frameless flags a popup with an opaque
+  square); only the rounded card shows. Its histogram and body own their mouse gestures
+  (spacrOwnsMouseGesture), so the levels handles drag and only the title strip (move
+  cursor, "Drag this title to move the window.") and the rim move the window. The image
+  right-click menus (enlarged image, stacked images and well-view tiles) have Global
+  normalization and Global enhancement ticks; unticked, that image skips the global
+  normalization and scope limits (stretched between its own minimum and maximum) or the
+  enhancement chains. They are saved in the image's entry in overview_view.json
+  ('global_normalization': false / 'global_enhancement': false) and the levels histogram
+  follows them.
+- 10: Export image-level measurements comes before Export… in the module action strip,
+  the browser's action row and the Actions container; the Measurements categories come
+  before Export in the settings.
+- Tests: tests/qt/test_725_overview_round6_display.py (38); earlier Overview tests updated
+  for Apply, the new categories and Measure first.
+- Screens (light and dark): /nas_mnt/data/sync/overview-r6/shots/.
+- Translations: 40 new or rewritten captions with reviewed records in nine languages; the 18 captions
+  this round removes or rewrites are archived (162 records, never deleted). The overview_color_mode
+  tooltip was shortened under the 600-character tooltip rule. "Greys" (the colour map name) is
+  corrected in Swedish (was GRÖNSAKER), German (Graue) and Hindi (ग्रीन); those were unreviewed
+  catalog guesses, so there was no reviewed record to archive.
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 5) (supersedes conflicting earlier notes)
 Verbatim:
 1. "in the over view plate view the user should be able to collapse columns and rows
