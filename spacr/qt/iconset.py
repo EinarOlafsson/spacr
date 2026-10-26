@@ -661,6 +661,36 @@ def themed_array(path: str, theme: Optional[str] = None):
 _PREFETCH_LOCK = threading.Lock()
 _PREFETCHED: dict = {}
 _PREFETCH_POOL = None
+_PREFETCH_OUTSTANDING = [0]
+
+
+def _prefetch_one_finished(_future=None) -> None:
+    """Done-callback: when the last started icon is finished, release the workers.
+
+    An idle :class:`~concurrent.futures.ThreadPoolExecutor` worker waits for
+    work forever and is joined by Python before it finalises, so a pool left
+    alive stalls the end of every process that built a window.
+    """
+    with _PREFETCH_LOCK:
+        _PREFETCH_OUTSTANDING[0] = max(0, _PREFETCH_OUTSTANDING[0] - 1)
+        idle = _PREFETCH_OUTSTANDING[0] == 0
+    if idle:
+        retire_prefetch_pool(cancel=False)
+
+
+def retire_prefetch_pool(cancel: bool = True) -> None:
+    """Release the icon workers without waiting for them.
+
+    :param cancel: also cancel icons not yet started; their waiters fall back
+        to re-inking on the calling thread.
+    """
+    global _PREFETCH_POOL
+    with _PREFETCH_LOCK:
+        pool, _PREFETCH_POOL = _PREFETCH_POOL, None
+        if cancel:
+            _PREFETCH_OUTSTANDING[0] = 0
+    if pool is not None:
+        pool.shutdown(wait=False, cancel_futures=cancel)
 
 
 def _prefetch_themed_arrays(paths, theme: Optional[str] = None) -> int:
@@ -688,6 +718,7 @@ def _prefetch_themed_arrays(paths, theme: Optional[str] = None) -> int:
         return 0
     theme = theme or active_theme()
     started = 0
+    submitted = []
     with _PREFETCH_LOCK:
         if _PREFETCH_POOL is None:
             from concurrent.futures import ThreadPoolExecutor
@@ -698,8 +729,13 @@ def _prefetch_themed_arrays(paths, theme: Optional[str] = None) -> int:
                 continue
             key = (_file_stamp(path), theme)
             if key not in _PREFETCHED:
-                _PREFETCHED[key] = _PREFETCH_POOL.submit(_themed_array, *key)
+                future = _PREFETCH_POOL.submit(_themed_array, *key)
+                _PREFETCHED[key] = future
+                _PREFETCH_OUTSTANDING[0] += 1
+                submitted.append(future)
                 started += 1
+    for future in submitted:
+        future.add_done_callback(_prefetch_one_finished)
     return started
 
 

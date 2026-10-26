@@ -1383,3 +1383,12 @@ def _the_preference_watch_starts_before_the_test():
 
     _start_the_queued_store_watch(preferences)
     yield
+
+
+@pytest.fixture(autouse=True)
+def _no_icon_worker_outlives_its_test():
+    """Release the icon prefetch pool after each test so no ``spacr-icons`` thread leaks."""
+    yield
+    from spacr.qt import iconset
+
+    iconset.retire_prefetch_pool()
