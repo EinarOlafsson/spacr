@@ -288,7 +288,7 @@ def test_cancelled_worker_has_distinct_manifest_status(
     errors = []
     worker.error.connect(errors.append)
     thread.start()
-    assert started.wait(3)
+    assert started.wait(_COLD_START_S)
     worker.request_cancel("manifest test")
     # The manifest is closed in ``PipelineWorker.run``'s finally block, before
     # ``finished`` fires and therefore before the thread's loop quits, so the
@@ -483,3 +483,43 @@ def test_main_window_refuses_shutdown_while_analysis_is_live(
     assert not event.isAccepted()
     assert not window._closing
     assert warnings and "finishing the current field" in warnings[0][2]
+
+
+def test_cancel_all_answers_a_worker_that_asks_the_gui_thread_while_stopping(
+        qtbot, qt_theme_applied):
+    """A worker that reads GUI state as it stops is not left waiting.
+
+    A run journal reads the screens' workspace state on the GUI thread when
+    its run ends. At shutdown the GUI thread waited in ``cancel_all`` for that
+    worker while the worker waited for the GUI thread, so closing during a
+    run always failed the first time with "Analysis still stopping".
+    """
+    from spacr.cancellation import PipelineCancelled
+    from spacr.qt import bridge
+
+    bridge._install_the_workspace_dispatcher()
+    started = threading.Event()
+    answered = []
+
+    def run(_settings):
+        started.set()
+        try:
+            while True:
+                cancellation_checkpoint()
+                time.sleep(0.002)
+        except PipelineCancelled:
+            answered.append(bridge._call_on_the_gui_thread(lambda: 42))
+            raise
+
+    thread, worker = make_thread(run, {}, app_key="gui-question-audit",
+                                 journal=False)
+    thread.start()
+    assert started.wait(_COLD_START_S)
+
+    began = time.monotonic()
+    remaining = registry().cancel_all(timeout_ms=3000, reason="test shutdown")
+
+    assert remaining == []
+    assert answered == [42]
+    assert time.monotonic() - began < 3.0
+    assert worker.was_cancelled

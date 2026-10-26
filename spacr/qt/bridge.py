@@ -846,10 +846,7 @@ class RunRegistry(QObject):
                 0, int((deadline - time.monotonic()) * 1000))
             if remaining_ms <= 0:
                 break
-            try:
-                thread.wait(remaining_ms)
-            except RuntimeError:
-                pass
+            _wait_serving_the_interface(thread, remaining_ms)
         return [
             handle for handle in handles
             if handle.is_running() and handle.blocks_shutdown
