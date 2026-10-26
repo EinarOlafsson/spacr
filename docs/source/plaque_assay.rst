@@ -4,8 +4,7 @@ Plaque Assay: fields, figures and reviewed conditions
 Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for
 plaque fields or **Figure** for published figures containing wells, panels
 and surrounding text. These inputs do not require a preceding Measure run.
-See the :ref:`module map <workflow-module-analyze_plaques>`, the
-`Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and
+See the :ref:`module map <workflow-module-analyze_plaques>` and
 :func:`spacr.submodules.analyze_plaques` for the surrounding workflow.
 
 Preview a plaque field

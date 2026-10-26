@@ -1,0 +1,4032 @@
+{
+ "schema": 1,
+ "id": "73_parameter_sweep",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: compare saved Regression trials",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
+      "objectives": [
+       "Select paired score/count files and a sweep output folder.",
+       "Choose variable and fixed settings, estimate the trial count and run.",
+       "Inspect saved trials and their inference quality before comparison."
+      ],
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Switch back to Guide. Compare fitted rows and unique wells in the trial summary. Counts are recorded separately for the guide-level and gene-level fits. These counts describe sample support, not inference quality.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "73_parameter_sweep/poster.jpg",
+      "silent": "73_parameter_sweep/video/73_parameter_sweep_silent.mp4",
+      "web": "73_parameter_sweep/web/73_parameter_sweep_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: compare saved Regression trials",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
+      "objectives": [
+       "Select paired score/count files and a sweep output folder.",
+       "Choose variable and fixed settings, estimate the trial count and run.",
+       "Inspect saved trials and their inference quality before comparison."
+      ],
+      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Switch back to Guide. Compare fitted rows and unique wells in the trial summary. Counts are recorded separately for the guide-level and gene-level fits. These counts describe sample support, not inference quality.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: comparar ensayos de Regression guardados",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Indica las entradas emparejadas y la configuración de los ensayos, ejecuta un barrido pequeño y revisa la configuración, las figuras y las comprobaciones de inferencia de cada ensayo.",
+      "objectives": [
+       "Seleccionar archivos emparejados de puntuaciones y recuentos y una carpeta de salida para el barrido.",
+       "Elegir los ajustes variables y fijos, estimar el número de ensayos y ejecutar.",
+       "Revisar los ensayos guardados y la calidad de su inferencia antes de compararlos."
+      ],
+      "prerequisite": "Descarga los cuatro pares de puntuaciones y recuentos por placa del tutorial de Regression. Usa el mismo orden de placas y una carpeta de salida nueva. Los dos ensayos ridge mostrados terminan, pero no superan sus comprobaciones de calidad de inferencia; distingue el estado del cálculo de la idoneidad estadística.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Desde Home, abre Regression y luego Parameter sweep, abajo a la derecha. Usa los cuatro pares de ejemplo de puntuaciones y recuentos del tutorial de Regression.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Regression y luego Parameter sweep, abajo a la derecha. Usa los cuatro pares de ejemplo de puntuaciones y recuentos del tutorial de Regression."
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Añade los cuatro archivos de puntuaciones y los cuatro de recuentos a las listas propias del barrido, en el mismo orden de placas. Revisa estas listas aunque el formulario principal de Regression ya tenga entradas. Elige una carpeta de salida nueva.",
+        "hold_after": 0.7,
+        "speech_text": "Añade los cuatro archivos de puntuaciones y los cuatro de recuentos a las listas propias del barrido, en el mismo orden de placas. Revisa estas listas aunque el formulario principal de Regression ya tenga entradas. Elige una carpeta de salida nueva."
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Marca alpha e introduce cero coma cero uno y cero coma uno. Los ajustes sin marcar se mantienen fijos. Para este ejemplo, indica explícitamente ridge, inferencia paramétrica, agregación por media a nivel de pozo y sin transformación.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Marca alpha e introduce cero coma cero uno y cero coma uno. Los ajustes sin marcar se mantienen fijos. Para este ejemplo, indica explícitamente ridge, inferencia paramétrica, agregación por media a nivel de pozo y sin transformación."
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Elige el muestreo Grid, Maximum trials en dos y un proceso de trabajo, y luego haz clic en Estimate. Comprueba el número de combinaciones y los límites de recursos antes de ejecutar. Toma la estimación de tiempo como aproximada.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Elige el muestreo Grid, Maximum trials en dos y un proceso de trabajo, y luego haz clic en Estimate. Comprueba el número de combinaciones y los límites de recursos antes de ejecutar. Toma la estimación de tiempo como aproximada."
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Haz clic en Start sweep. Cada ensayo escribe en su propia carpeta. Con un solo proceso de trabajo, los dos ensayos se ejecutan uno tras otro; elige un número de procesos adecuado a los recursos disponibles.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Start sweep. Cada ensayo escribe en su propia carpeta. Con un solo proceso de trabajo, los dos ensayos se ejecutan uno tras otro; elige un número de procesos adecuado a los recursos disponibles."
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Revisa las filas completadas y luego abre sweep_results.csv y los archivos de configuración y de control de calidad de cada ensayo. Los dos ensayos mostrados terminan el cálculo pero no superan las comprobaciones de inferencia, así que un estado de ejecución ok no basta para elegir un modelo.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Revisa las filas completadas y luego abre sweep_results.csv y los archivos de configuración y de control de calidad de cada ensayo. Los dos ensayos mostrados terminan el cálculo pero no superan las comprobaciones de inferencia, así que un estado de ejecución ok no basta para elegir un modelo."
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Selecciona la primera fila y haz clic en Show figures for selected row. Revisa los resultados por guía y las etiquetas de los ejes. El gráfico omite el intercepto de la tabla de coeficientes.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Selecciona la primera fila y haz clic en Show figures for selected row. Revisa los resultados por guía y las etiquetas de los ejes. El gráfico omite el intercepto de la tabla de coeficientes."
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Cambia Level a Gene para revisar la familia de genes por separado. Comprueba sus filas, efectos y resultados de control de calidad antes de compararla con la vista por guía.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cambia Level a Gene para revisar la familia de genes por separado. Comprueba sus filas, efectos y resultados de control de calidad antes de compararla con la vista por guía."
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia."
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Guarda la configuración, el resumen y los archivos de control de calidad de cada ensayo junto con sus figuras. Usa Regression Diagnostics para una revisión más a fondo, o SweepSpace y run_sweep desde Python para una comparación con código.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guarda la configuración, el resumen y los archivos de control de calidad de cada ensayo junto con sus figuras. Usa Regression Diagnostics para una revisión más a fondo, o SweepSpace y run_sweep desde Python para una comparación con código."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep : comparer des essais Regression enregistrés",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Indiquez les entrées appariées et les réglages des essais, lancez un petit balayage, puis examinez les réglages, les figures et les contrôles d’inférence de chaque essai.",
+      "objectives": [
+       "Sélectionner des fichiers appariés de scores et d’effectifs et un dossier de sortie pour le balayage.",
+       "Choisir les réglages variables et fixes, estimer le nombre d’essais et lancer.",
+       "Examiner les essais enregistrés et la qualité de leur inférence avant de les comparer."
+      ],
+      "prerequisite": "Téléchargez les quatre paires de scores et d’effectifs par plaque du tutoriel Regression. Respectez le même ordre de plaques et utilisez un nouveau dossier de sortie. Les deux essais ridge illustrés se terminent mais échouent à leurs contrôles de qualité d’inférence ; distinguez le statut du calcul de la pertinence statistique.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Depuis Home, ouvrez Regression, puis Parameter sweep en bas à droite. Utilisez les quatre paires d’exemple de scores et d’effectifs du tutoriel Regression.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Regression, puis Parameter sweep en bas à droite. Utilisez les quatre paires d’exemple de scores et d’effectifs du tutoriel Regression."
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Ajoutez les quatre fichiers de scores et les quatre fichiers d’effectifs aux listes propres du balayage, dans le même ordre de plaques. Vérifiez ces listes même si le formulaire Regression principal contient déjà des entrées. Choisissez un nouveau dossier de sortie.",
+        "hold_after": 0.7,
+        "speech_text": "Ajoutez les quatre fichiers de scores et les quatre fichiers d’effectifs aux listes propres du balayage, dans le même ordre de plaques. Vérifiez ces listes même si le formulaire Regression principal contient déjà des entrées. Choisissez un nouveau dossier de sortie."
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Cochez alpha et saisissez zéro virgule zéro un et zéro virgule un. Les réglages non cochés restent fixes. Pour cet exemple, indiquez explicitement ridge, l’inférence paramétrique, l’agrégation par moyenne au niveau du puits et aucune transformation.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cochez alpha et saisissez zéro virgule zéro un et zéro virgule un. Les réglages non cochés restent fixes. Pour cet exemple, indiquez explicitement ridge, l’inférence paramétrique, l’agrégation par moyenne au niveau du puits et aucune transformation."
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Choisissez l’échantillonnage Grid, Maximum trials à deux et un processus de travail, puis cliquez sur Estimate. Vérifiez le nombre de combinaisons et les limites de ressources avant de lancer. Considérez l’estimation de durée comme approximative.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Choisissez l’échantillonnage Grid, Maximum trials à deux et un processus de travail, puis cliquez sur Estimate. Vérifiez le nombre de combinaisons et les limites de ressources avant de lancer. Considérez l’estimation de durée comme approximative."
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Cliquez sur Start sweep. Chaque essai écrit dans son propre dossier. Avec un seul processus de travail, les deux essais s’exécutent l’un après l’autre ; choisissez un nombre de processus adapté à vos ressources.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Start sweep. Chaque essai écrit dans son propre dossier. Avec un seul processus de travail, les deux essais s’exécutent l’un après l’autre ; choisissez un nombre de processus adapté à vos ressources."
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Examinez les lignes terminées, puis ouvrez sweep_results.csv ainsi que les fichiers de réglages et de contrôle qualité de chaque essai. Les deux essais illustrés terminent le calcul mais échouent aux contrôles d’inférence ; un statut d’exécution ok ne suffit donc pas pour choisir un modèle.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Examinez les lignes terminées, puis ouvrez sweep_results.csv ainsi que les fichiers de réglages et de contrôle qualité de chaque essai. Les deux essais illustrés terminent le calcul mais échouent aux contrôles d’inférence ; un statut d’exécution ok ne suffit donc pas pour choisir un modèle."
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Sélectionnez la première ligne et cliquez sur Show figures for selected row. Examinez les résultats par guide et les étiquettes des axes. Le graphique omet l’ordonnée à l’origine de la table des coefficients.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez la première ligne et cliquez sur Show figures for selected row. Examinez les résultats par guide et les étiquettes des axes. Le graphique omet l’ordonnée à l’origine de la table des coefficients."
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Passez Level sur Gene pour examiner séparément la famille des gènes. Vérifiez ses lignes, ses effets et ses résultats de contrôle qualité avant de la comparer à la vue par guide.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Passez Level sur Gene pour examiner séparément la famille des gènes. Vérifiez ses lignes, ses effets et ses résultats de contrôle qualité avant de la comparer à la vue par guide."
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Revenez à Guide. Comparez les lignes utilisées pour l’ajustement et les puits distincts dans le résumé de l’essai. Les effectifs sont enregistrés séparément pour les ajustements au niveau des guides et au niveau des gènes. Ces effectifs décrivent les données qui étayent l’ajustement, pas la qualité de l’inférence.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Revenez à Guide. Comparez les lignes utilisées pour l’ajustement et les puits distincts dans le résumé de l’essai. Les effectifs sont enregistrés séparément pour les ajustements au niveau des guides et au niveau des gènes. Ces effectifs décrivent les données qui étayent l’ajustement, pas la qualité de l’inférence."
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Conservez les réglages, le résumé et les fichiers de contrôle qualité de chaque essai avec ses figures. Utilisez Regression Diagnostics pour un examen plus poussé, ou SweepSpace et run_sweep en Python pour une comparaison par script.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conservez les réglages, le résumé et les fichiers de contrôle qualité de chaque essai avec ses figures. Utilisez Regression Diagnostics pour un examen plus poussé, ou SweepSpace et run_sweep en Python pour une comparaison par script."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: सहेजे गए Regression परीक्षणों की तुलना करें",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "जोड़ीदार इनपुट और परीक्षण सेटिंग्स बताएँ, एक छोटा स्वीप चलाएँ, फिर हर परीक्षण की सेटिंग्स, चित्र और अनुमान जाँच देखें।",
+      "objectives": [
+       "जोड़ीदार स्कोर और गिनती फ़ाइलें और स्वीप का आउटपुट फ़ोल्डर चुनें।",
+       "बदलने वाली और स्थिर सेटिंग्स चुनें, परीक्षणों की संख्या का अनुमान लगाएँ और चलाएँ।",
+       "तुलना से पहले सहेजे गए परीक्षण और उनके अनुमान की गुणवत्ता देखें।"
+      ],
+      "prerequisite": "Regression ट्यूटोरियल से प्लेट के स्कोर और गिनती के चार जोड़े डाउनलोड करें। प्लेटों का क्रम एक जैसा रखें और नया आउटपुट फ़ोल्डर इस्तेमाल करें। दिखाए गए दोनों ridge परीक्षण पूरे होते हैं, पर अनुमान की गुणवत्ता जाँच में विफल होते हैं; गणना की स्थिति को सांख्यिकीय उपयुक्तता से अलग रखें।",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Home से Regression खोलें, फिर नीचे दाईं ओर Parameter sweep। Regression ट्यूटोरियल के स्कोर और गिनती वाले चार उदाहरण जोड़े इस्तेमाल करें।",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home से Regression खोलें, फिर नीचे दाईं ओर Parameter sweep। Regression ट्यूटोरियल के स्कोर और गिनती वाले चार उदाहरण जोड़े इस्तेमाल करें।"
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "चारों स्कोर फ़ाइलें और चारों गिनती फ़ाइलें स्वीप की अपनी सूचियों में, प्लेटों के एक जैसे क्रम में जोड़ें। मुख्य Regression फ़ॉर्म में इनपुट पहले से हों, तब भी ये सूचियाँ जाँचें। एक नया आउटपुट फ़ोल्डर चुनें।",
+        "hold_after": 0.7,
+        "speech_text": "चारों स्कोर फ़ाइलें और चारों गिनती फ़ाइलें स्वीप की अपनी सूचियों में, प्लेटों के एक जैसे क्रम में जोड़ें। मुख्य Regression फ़ॉर्म में इनपुट पहले से हों, तब भी ये सूचियाँ जाँचें। एक नया आउटपुट फ़ोल्डर चुनें।"
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "alpha पर निशान लगाएँ और शून्य दशमलव शून्य एक और शून्य दशमलव एक लिखें। बिना निशान वाली सेटिंग्स स्थिर रहती हैं। इस उदाहरण के लिए ridge, पैरामेट्रिक अनुमान, वेल स्तर पर औसत से एकत्रीकरण और कोई रूपांतरण नहीं, यह स्पष्ट रूप से रखें।",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "alpha पर निशान लगाएँ और शून्य दशमलव शून्य एक और शून्य दशमलव एक लिखें। बिना निशान वाली सेटिंग्स स्थिर रहती हैं। इस उदाहरण के लिए ridge, पैरामेट्रिक अनुमान, वेल स्तर पर औसत से एकत्रीकरण और कोई रूपांतरण नहीं, यह स्पष्ट रूप से रखें।"
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Grid सैंपलिंग, Maximum trials में दो और एक वर्कर चुनें, फिर Estimate पर क्लिक करें। चलाने से पहले संयोजनों की संख्या और संसाधन सीमाएँ जाँचें। समय के अनुमान को मोटा अनुमान मानें।",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Grid सैंपलिंग, Maximum trials में दो और एक वर्कर चुनें, फिर Estimate पर क्लिक करें। चलाने से पहले संयोजनों की संख्या और संसाधन सीमाएँ जाँचें। समय के अनुमान को मोटा अनुमान मानें।"
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Start sweep पर क्लिक करें। हर परीक्षण अपने फ़ोल्डर में लिखता है। एक वर्कर के साथ दोनों परीक्षण एक के बाद एक चलते हैं; उपलब्ध संसाधनों के अनुसार वर्कर की संख्या चुनें।",
+        "hold_after": 0.7,
+        "speech_text": "Start sweep पर क्लिक करें। हर परीक्षण अपने फ़ोल्डर में लिखता है। एक वर्कर के साथ दोनों परीक्षण एक के बाद एक चलते हैं; उपलब्ध संसाधनों के अनुसार वर्कर की संख्या चुनें।"
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "पूरी हुई पंक्तियाँ देखें, फिर sweep_results.csv और हर परीक्षण की सेटिंग्स और गुणवत्ता नियंत्रण फ़ाइलें खोलें। दोनों दिखाए गए परीक्षण गणना पूरी करते हैं पर अनुमान जाँच में विफल होते हैं, इसलिए मॉडल चुनने के लिए केवल ok निष्पादन स्थिति काफ़ी नहीं है।",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "पूरी हुई पंक्तियाँ देखें, फिर sweep_results.csv और हर परीक्षण की सेटिंग्स और गुणवत्ता नियंत्रण फ़ाइलें खोलें। दोनों दिखाए गए परीक्षण गणना पूरी करते हैं पर अनुमान जाँच में विफल होते हैं, इसलिए मॉडल चुनने के लिए केवल ok निष्पादन स्थिति काफ़ी नहीं है।"
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "पहली पंक्ति चुनें और Show figures for selected row पर क्लिक करें। गाइड परिणाम और अक्ष लेबल देखें। प्लॉट गुणांक तालिका से इंटरसेप्ट छोड़ देता है।",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "पहली पंक्ति चुनें और Show figures for selected row पर क्लिक करें। गाइड परिणाम और अक्ष लेबल देखें। प्लॉट गुणांक तालिका से इंटरसेप्ट छोड़ देता है।"
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "जीन परिवार को अलग से देखने के लिए Level को Gene पर बदलें। गाइड दृश्य से तुलना करने से पहले उसकी पंक्तियाँ, प्रभाव और गुणवत्ता नियंत्रण परिणाम जाँचें।",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "जीन परिवार को अलग से देखने के लिए Level को Gene पर बदलें। गाइड दृश्य से तुलना करने से पहले उसकी पंक्तियाँ, प्रभाव और गुणवत्ता नियंत्रण परिणाम जाँचें।"
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Guide पर वापस जाएँ। परीक्षण के सारांश में मॉडल फ़िट करने के लिए इस्तेमाल की गई पंक्तियों और अलग-अलग वेल की संख्या की तुलना करें। गाइड-स्तर और जीन-स्तर पर फ़िट किए गए मॉडल के लिए ये संख्याएँ अलग-अलग दर्ज की जाती हैं। ये संख्याएँ फ़िट के लिए उपलब्ध डेटा बताती हैं, सांख्यिकीय निष्कर्ष की गुणवत्ता नहीं।",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guide पर वापस जाएँ। परीक्षण के सारांश में मॉडल फ़िट करने के लिए इस्तेमाल की गई पंक्तियों और अलग-अलग वेल की संख्या की तुलना करें। गाइड-स्तर और जीन-स्तर पर फ़िट किए गए मॉडल के लिए ये संख्याएँ अलग-अलग दर्ज की जाती हैं। ये संख्याएँ फ़िट के लिए उपलब्ध डेटा बताती हैं, सांख्यिकीय निष्कर्ष की गुणवत्ता नहीं।"
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "हर परीक्षण की सेटिंग्स, सारांश और गुणवत्ता नियंत्रण फ़ाइलें उसके चित्रों के साथ रखें। आगे की जाँच के लिए Regression Diagnostics, या स्क्रिप्ट से तुलना के लिए Python में SweepSpace और run_sweep इस्तेमाल करें।",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "हर परीक्षण की सेटिंग्स, सारांश और गुणवत्ता नियंत्रण फ़ाइलें उसके चित्रों के साथ रखें। आगे की जाँच के लिए Regression Diagnostics, या स्क्रिप्ट से तुलना के लिए Python में SweepSpace और run_sweep इस्तेमाल करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: confrontare le prove di Regression salvate",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Indica gli input accoppiati e le impostazioni delle prove, esegui una piccola scansione, poi esamina impostazioni, figure e controlli di inferenza di ogni prova.",
+      "objectives": [
+       "Selezionare file accoppiati di punteggi e conteggi e una cartella di output per la scansione.",
+       "Scegliere le impostazioni variabili e fisse, stimare il numero di prove ed eseguire.",
+       "Esaminare le prove salvate e la qualità della loro inferenza prima di confrontarle."
+      ],
+      "prerequisite": "Scarica le quattro coppie di punteggi e conteggi per piastra dal tutorial di Regression. Usa lo stesso ordine delle piastre e una nuova cartella di output. Le due prove ridge illustrate si completano ma non superano i controlli di qualità dell’inferenza; tieni distinti lo stato del calcolo e l’idoneità statistica.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Da Home, apri Regression e poi Parameter sweep in basso a destra. Usa le quattro coppie d’esempio di punteggi e conteggi del tutorial di Regression.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Regression e poi Parameter sweep in basso a destra. Usa le quattro coppie d’esempio di punteggi e conteggi del tutorial di Regression."
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Aggiungi i quattro file di punteggi e i quattro file di conteggi agli elenchi propri della scansione, nello stesso ordine delle piastre. Controlla questi elenchi anche se il modulo principale di Regression contiene già degli input. Scegli una nuova cartella di output.",
+        "hold_after": 0.7,
+        "speech_text": "Aggiungi i quattro file di punteggi e i quattro file di conteggi agli elenchi propri della scansione, nello stesso ordine delle piastre. Controlla questi elenchi anche se il modulo principale di Regression contiene già degli input. Scegli una nuova cartella di output."
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Spunta alpha e inserisci zero virgola zero uno e zero virgola uno. Le impostazioni non spuntate restano fisse. Per questo esempio imposta esplicitamente ridge, inferenza parametrica, aggregazione per media a livello di pozzetto e nessuna trasformazione.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Spunta alpha e inserisci zero virgola zero uno e zero virgola uno. Le impostazioni non spuntate restano fisse. Per questo esempio imposta esplicitamente ridge, inferenza parametrica, aggregazione per media a livello di pozzetto e nessuna trasformazione."
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Scegli il campionamento Grid, Maximum trials a due e un processo di lavoro, poi fai clic su Estimate. Controlla il numero di combinazioni e i limiti delle risorse prima di eseguire. Considera la stima dei tempi come approssimativa.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Scegli il campionamento Grid, Maximum trials a due e un processo di lavoro, poi fai clic su Estimate. Controlla il numero di combinazioni e i limiti delle risorse prima di eseguire. Considera la stima dei tempi come approssimativa."
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Fai clic su Start sweep. Ogni prova scrive nella propria cartella. Con un solo processo di lavoro le due prove vengono eseguite in sequenza; scegli un numero di processi adatto alle risorse disponibili.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Start sweep. Ogni prova scrive nella propria cartella. Con un solo processo di lavoro le due prove vengono eseguite in sequenza; scegli un numero di processi adatto alle risorse disponibili."
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Esamina le righe completate, poi apri sweep_results.csv e i file di impostazioni e di controllo qualità di ogni prova. Entrambe le prove illustrate completano il calcolo ma non superano i controlli di inferenza, quindi uno stato di esecuzione ok da solo non basta per scegliere un modello.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Esamina le righe completate, poi apri sweep_results.csv e i file di impostazioni e di controllo qualità di ogni prova. Entrambe le prove illustrate completano il calcolo ma non superano i controlli di inferenza, quindi uno stato di esecuzione ok da solo non basta per scegliere un modello."
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Seleziona la prima riga e fai clic su Show figures for selected row. Esamina i risultati per guida e le etichette degli assi. Il grafico omette l’intercetta dalla tabella dei coefficienti.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Seleziona la prima riga e fai clic su Show figures for selected row. Esamina i risultati per guida e le etichette degli assi. Il grafico omette l’intercetta dalla tabella dei coefficienti."
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Porta Level su Gene per esaminare separatamente la famiglia dei geni. Controlla righe, effetti e risultati del controllo qualità prima di confrontarla con la vista per guida.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Porta Level su Gene per esaminare separatamente la famiglia dei geni. Controlla righe, effetti e risultati del controllo qualità prima di confrontarla con la vista per guida."
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Torna a Guide. Confronta le righe usate per l’adattamento del modello e i pozzetti distinti nel riepilogo della prova. I conteggi sono registrati separatamente per gli adattamenti a livello di guida e a livello di gene. Questi conteggi descrivono i dati a sostegno dell’adattamento, non la qualità dell’inferenza.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Torna a Guide. Confronta le righe usate per l’adattamento del modello e i pozzetti distinti nel riepilogo della prova. I conteggi sono registrati separatamente per gli adattamenti a livello di guida e a livello di gene. Questi conteggi descrivono i dati a sostegno dell’adattamento, non la qualità dell’inferenza."
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Conserva le impostazioni, il riepilogo e i file di controllo qualità di ogni prova insieme alle sue figure. Usa Regression Diagnostics per un esame più approfondito, oppure SweepSpace e run_sweep da Python per un confronto tramite script.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conserva le impostazioni, il riepilogo e i file di controllo qualità di ogni prova insieme alle sue figure. Usa Regression Diagnostics per un esame più approfondito, oppure SweepSpace e run_sweep da Python per un confronto tramite script."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep：保存したRegressionの試行を比べる",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "対になる入力と試行の設定を指定し、小さなスイープを実行してから、各試行の設定、図、推論のチェックを確認します。",
+      "objectives": [
+       "対になったスコアと件数のファイル、スイープの出力フォルダーを選ぶ。",
+       "変える設定と固定する設定を選び、試行数を見積もって実行する。",
+       "比べる前に、保存した試行とその推論の品質を確認する。"
+      ],
+      "prerequisite": "Regressionのチュートリアルから、プレートごとのスコアと件数の四組をダウンロードします。プレートの順番をそろえ、新しい出力フォルダーを使います。図に示した二つのridgeの試行は完了しますが、推論の品質チェックには合格しません。計算の状態と統計的な適切さは分けて考えます。",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "HomeからRegressionを開き、右下のParameter sweepを選びます。Regressionのチュートリアルにある、スコアと件数の四組の例を使います。",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホームからRegressionを開き、右下のParameter sweepを選びます。Regressionのチュートリアルにある、スコアと件数の四組の例を使います。"
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "四つのスコアのファイルと四つの件数のファイルを、プレートの順番をそろえてスイープ専用の一覧に追加します。親のRegressionの画面にすでに入力があっても、この一覧を確認します。新しい出力フォルダーを選びます。",
+        "hold_after": 0.7,
+        "speech_text": "四つのスコアのファイルと四つの件数のファイルを、プレートの順番をそろえてスイープ専用の一覧に追加します。親のRegressionの画面にすでに入力があっても、この一覧を確認します。新しい出力フォルダーを選びます。"
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "alphaにチェックを入れ、ゼロ点ゼロ一とゼロ点一を入力します。チェックのない設定は固定されます。この例では、ridge、パラメトリックな推論、ウェル単位の平均による集約、変換なしを明示的に設定します。",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "alphaにチェックを入れ、ゼロ点ゼロ一とゼロ点一を入力します。チェックのない設定は固定されます。この例では、ridge、パラメトリックな推論、ウェル単位の平均による集約、変換なしを明示的に設定します。"
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Gridのサンプリング、Maximum trialsを二、ワーカーを一つにして、Estimateをクリックします。実行する前に、組み合わせの数と資源の上限を確認します。時間の見積もりはおおよその目安です。",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Gridのサンプリング、Maximum trialsを二、ワーカーを一つにして、Estimateをクリックします。実行する前に、組み合わせの数と資源の上限を確認します。時間の見積もりはおおよその目安です。"
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Start sweepをクリックします。各試行は、それぞれのフォルダーに書き出されます。ワーカーが一つなら、二つの試行は順番に実行されます。ワーカーの数は、使える資源に合わせて選びます。",
+        "hold_after": 0.7,
+        "speech_text": "Start sweepをクリックします。各試行は、それぞれのフォルダーに書き出されます。ワーカーが一つなら、二つの試行は順番に実行されます。ワーカーの数は、使える資源に合わせて選びます。"
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "完了した行を確認し、sweep_results.csvと、各試行の設定と品質管理のファイルを開きます。図の二つの試行はどちらも計算を終えますが、推論のチェックには合格しません。実行状態がokというだけでは、モデルの選択には不十分です。",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "完了した行を確認し、sweep_results.csvと、各試行の設定と品質管理のファイルを開きます。図の二つの試行はどちらも計算を終えますが、推論のチェックには合格しません。実行状態がokというだけでは、モデルの選択には不十分です。"
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "最初の行を選び、Show figures for selected rowをクリックします。ガイドの結果と軸のラベルを確認します。プロットには、係数の表の切片は含まれません。",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "最初の行を選び、Show figures for selected rowをクリックします。ガイドの結果と軸のラベルを確認します。プロットには、係数の表の切片は含まれません。"
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "LevelをGeneに切り替え、遺伝子のファミリーを別に確認します。ガイドの表示と比べる前に、その行、効果、品質管理の結果を確認します。",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "LevelをGeneに切り替え、遺伝子のファミリーを別に確認します。ガイドの表示と比べる前に、その行、効果、品質管理の結果を確認します。"
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Guide に戻ります。試行の概要で、モデルの当てはめに使用した行数と重複を除いたウェル数を比較します。これらの件数は、ガイド単位のモデルと遺伝子単位のモデルの当てはめについて別々に記録されます。これらの件数は当てはめを支えるデータ量を示すもので、推論の質を示すものではありません。",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guide に戻ります。試行の概要で、モデルの当てはめに使用した行数と重複を除いたウェル数を比較します。これらの件数は、ガイド単位のモデルと遺伝子単位のモデルの当てはめについて別々に記録されます。これらの件数は当てはめを支えるデータ量を示すもので、推論の質を示すものではありません。"
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "各試行の設定、要約、品質管理のファイルは、その図と一緒に保管します。さらに調べるにはRegression Diagnosticsを使い、スクリプトで比べるにはPythonのSweepSpaceとrun_sweepを使います。",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "各試行の設定、要約、品質管理のファイルは、その図と一緒に保管します。さらに調べるにはRegression Diagnosticsを使い、スクリプトで比べるにはPythonのSweepSpaceとrun_sweepを使います。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: comparar ensaios salvos do Regression",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Especifique as entradas pareadas e as configurações dos ensaios, execute uma varredura pequena e depois inspecione as configurações, as figuras e as verificações de inferência de cada ensaio.",
+      "objectives": [
+       "Selecionar arquivos pareados de pontuações e contagens e uma pasta de saída para a varredura.",
+       "Escolher as configurações variáveis e fixas, estimar o número de ensaios e executar.",
+       "Inspecionar os ensaios salvos e a qualidade da inferência antes de compará-los."
+      ],
+      "prerequisite": "Baixe os quatro pares de pontuações e contagens por placa do tutorial do Regression. Use a mesma ordem de placas e uma pasta de saída nova. Os dois ensaios ridge mostrados terminam, mas não passam nas verificações de qualidade da inferência; separe o status do cálculo da adequação estatística.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Na tela Home, abra Regression e depois Parameter sweep, no canto inferior direito. Use os quatro pares de exemplo de pontuações e contagens do tutorial do Regression.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Regression e depois Parameter sweep, no canto inferior direito. Use os quatro pares de exemplo de pontuações e contagens do tutorial do Regression."
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Adicione os quatro arquivos de pontuações e os quatro arquivos de contagens às listas próprias da varredura, na mesma ordem de placas. Confira essas listas mesmo que o formulário principal do Regression já tenha entradas. Escolha uma pasta de saída nova.",
+        "hold_after": 0.7,
+        "speech_text": "Adicione os quatro arquivos de pontuações e os quatro arquivos de contagens às listas próprias da varredura, na mesma ordem de placas. Confira essas listas mesmo que o formulário principal do Regression já tenha entradas. Escolha uma pasta de saída nova."
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Marque alpha e digite zero vírgula zero um e zero vírgula um. As configurações desmarcadas ficam fixas. Neste exemplo, defina explicitamente ridge, inferência paramétrica, agregação pela média no nível do poço e nenhuma transformação.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Marque alpha e digite zero vírgula zero um e zero vírgula um. As configurações desmarcadas ficam fixas. Neste exemplo, defina explicitamente ridge, inferência paramétrica, agregação pela média no nível do poço e nenhuma transformação."
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Escolha a amostragem Grid, Maximum trials em dois e um processo de trabalho e clique em Estimate. Confira o número de combinações e os limites de recursos antes de executar. Considere a estimativa de tempo aproximada.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Escolha a amostragem Grid, Maximum trials em dois e um processo de trabalho e clique em Estimate. Confira o número de combinações e os limites de recursos antes de executar. Considere a estimativa de tempo aproximada."
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Clique em Start sweep. Cada ensaio grava na própria pasta. Com um processo de trabalho, os dois ensaios rodam em sequência; escolha um número de processos compatível com os recursos disponíveis.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Start sweep. Cada ensaio grava na própria pasta. Com um processo de trabalho, os dois ensaios rodam em sequência; escolha um número de processos compatível com os recursos disponíveis."
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Inspecione as linhas concluídas e depois abra sweep_results.csv e os arquivos de configuração e de controle de qualidade de cada ensaio. Os dois ensaios mostrados terminam o cálculo, mas não passam nas verificações de inferência, então um status de execução ok não basta para escolher um modelo.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Inspecione as linhas concluídas e depois abra sweep_results.csv e os arquivos de configuração e de controle de qualidade de cada ensaio. Os dois ensaios mostrados terminam o cálculo, mas não passam nas verificações de inferência, então um status de execução ok não basta para escolher um modelo."
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Selecione a primeira linha e clique em Show figures for selected row. Inspecione os resultados por guia e os rótulos dos eixos. O gráfico omite o intercepto da tabela de coeficientes.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Selecione a primeira linha e clique em Show figures for selected row. Inspecione os resultados por guia e os rótulos dos eixos. O gráfico omite o intercepto da tabela de coeficientes."
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Mude Level para Gene para inspecionar a família de genes separadamente. Confira as linhas, os efeitos e os resultados de controle de qualidade antes de compará-la com a visualização por guia.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Mude Level para Gene para inspecionar a família de genes separadamente. Confira as linhas, os efeitos e os resultados de controle de qualidade antes de compará-la com a visualização por guia."
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Volte para Guide. Compare as linhas usadas no ajuste e os poços distintos no resumo do ensaio. As contagens são registradas separadamente para os ajustes no nível de guia e no nível de gene. Essas contagens descrevem os dados que sustentam o ajuste, não a qualidade da inferência.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Volte para Guide. Compare as linhas usadas no ajuste e os poços distintos no resumo do ensaio. As contagens são registradas separadamente para os ajustes no nível de guia e no nível de gene. Essas contagens descrevem os dados que sustentam o ajuste, não a qualidade da inferência."
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Mantenha as configurações, o resumo e os arquivos de controle de qualidade de cada ensaio junto com as figuras. Use o Regression Diagnostics para uma inspeção mais aprofundada, ou SweepSpace e run_sweep no Python para uma comparação por script.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Mantenha as configurações, o resumo e os arquivos de controle de qualidade de cada ensaio junto com as figuras. Use o Regression Diagnostics para uma inspeção mais aprofundada, ou SweepSpace e run_sweep no Python para uma comparação por script."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep：比较保存的Regression试验",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "指定成对的输入和试验设置，运行一次小规模扫描，然后检查每个试验的设置、图和推断检查。",
+      "objectives": [
+       "选择成对的得分文件和计数文件，以及扫描的输出文件夹。",
+       "选择可变和固定的设置，估计试验次数并运行。",
+       "在比较之前检查保存的试验及其推断质量。"
+      ],
+      "prerequisite": "从Regression教程下载四对按板划分的得分和计数文件。保持板的顺序一致，并使用新的输出文件夹。图示的两个ridge试验都能完成，但未通过推断质量检查；请把计算状态与统计适用性区分开。",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "从Home打开Regression，然后点击右下角的Parameter sweep。使用Regression教程中的四对示例得分和计数文件。",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Regression，然后点击右下角的Parameter sweep。使用Regression教程中的四对示例得分和计数文件。"
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "按一致的板顺序，把四个得分文件和四个计数文件添加到扫描自己的列表中。即使上级Regression表单中已有输入，也要检查这些列表。选择一个新的输出文件夹。",
+        "hold_after": 0.7,
+        "speech_text": "按一致的板顺序，把四个得分文件和四个计数文件添加到扫描自己的列表中。即使上级Regression表单中已有输入，也要检查这些列表。选择一个新的输出文件夹。"
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "勾选alpha，并输入零点零一和零点一。未勾选的设置保持固定。本例请明确设置ridge、参数推断、孔级均值汇总和不做变换。",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7,
+        "speech_text": "勾选alpha，并输入零点零一和零点一。未勾选的设置保持固定。本例请明确设置ridge、参数推断、孔级均值汇总和不做变换。"
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "选择Grid抽样，Maximum trials设为二，工作进程设为一个，然后点击Estimate。运行前请检查组合数量和资源限制。时间估计仅供参考。",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7,
+        "speech_text": "选择Grid抽样，Maximum trials设为二，工作进程设为一个，然后点击Estimate。运行前请检查组合数量和资源限制。时间估计仅供参考。"
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "点击Start sweep。每个试验写入各自的文件夹。只有一个工作进程时，两个试验依次运行；请根据可用资源选择工作进程数。",
+        "hold_after": 0.7,
+        "speech_text": "点击Start sweep。每个试验写入各自的文件夹。只有一个工作进程时，两个试验依次运行；请根据可用资源选择工作进程数。"
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "检查已完成的行，然后打开sweep_results.csv以及每个试验的设置和质控文件。图示的两个试验都完成了计算，但未通过推断检查，因此仅凭ok的执行状态不足以选择模型。",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7,
+        "speech_text": "检查已完成的行，然后打开sweep_results.csv以及每个试验的设置和质控文件。图示的两个试验都完成了计算，但未通过推断检查，因此仅凭ok的执行状态不足以选择模型。"
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "选择第一行并点击Show figures for selected row。检查向导结果和坐标轴标签。图中省略了系数表里的截距。",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7,
+        "speech_text": "选择第一行并点击Show figures for selected row。检查向导结果和坐标轴标签。图中省略了系数表里的截距。"
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "把Level切换为Gene，单独检查基因族。在与向导视图比较之前，请检查其行、效应和质控结果。",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "把Level切换为Gene，单独检查基因族。在与向导视图比较之前，请检查其行、效应和质控结果。"
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "切回 Guide。在试验摘要中比较用于模型拟合的行数和去重后的孔数。这些计数分别针对向导 RNA 水平和基因水平的模型拟合记录。这些计数说明支持拟合的数据量，并不代表推断质量。",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7,
+        "speech_text": "切回 Guide。在试验摘要中比较用于模型拟合的行数和去重后的孔数。这些计数分别针对向导 RNA 水平和基因水平的模型拟合记录。这些计数说明支持拟合的数据量，并不代表推断质量。"
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "请把每个试验的设置、汇总和质控文件与其图放在一起。如需进一步检查，请使用Regression Diagnostics；如需用脚本比较，请在Python中使用SweepSpace和run_sweep。",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "请把每个试验的设置、汇总和质控文件与其图放在一起。如需进一步检查，请使用Regression Diagnostics；如需用脚本比较，请在Python中使用SweepSpace和run_sweep。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: sammenlign gemte Regression-kørsler",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Angiv parrede input og kørselsindstillinger, kør et lille sweep, og undersøg derefter hver kørsels indstillinger, figurer og inferenskontroller.",
+      "objectives": [
+       "Vælge parrede score- og tællefiler og en outputmappe til sweepet.",
+       "Vælge variable og faste indstillinger, anslå antallet af kørsler og starte.",
+       "Undersøge gemte kørsler og deres inferenskvalitet før sammenligning."
+      ],
+      "prerequisite": "Hent de fire par score- og tællefiler pr. plade fra Regression-vejledningen. Brug samme pladerækkefølge og en ny outputmappe. De to viste ridge-kørsler bliver færdige, men består ikke deres kvalitetskontroller for inferens; hold beregningsstatus adskilt fra statistisk egnethed.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Fra Home åbner du Regression og derefter Parameter sweep nederst til højre. Brug de fire eksempelpar af score- og tællefiler fra Regression-vejledningen.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Tilføj de fire scorefiler og de fire tællefiler til sweepets egne lister i samme pladerækkefølge. Kontrollér listerne, også selv om den overordnede Regression-formular allerede indeholder input. Vælg en ny outputmappe.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Sæt flueben ved alpha, og indtast 0,01 og 0,1. Indstillinger uden flueben forbliver faste. Angiv udtrykkeligt ridge, parametrisk inferens, gennemsnitsaggregering på brøndniveau og ingen transformation i dette eksempel.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Vælg Grid-sampling, Maximum trials 2 og én arbejdsproces, og klik derefter på Estimate. Kontrollér antallet af kombinationer og ressourcegrænser, før du kører. Betragt tidsestimatet som omtrentligt.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Klik på Start sweep. Hver kørsel skriver til sin egen mappe. Med én arbejdsproces kører de to kørsler efter hinanden; vælg et antal arbejdsprocesser, der passer til dine tilgængelige ressourcer.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Undersøg de færdige rækker, og åbn derefter sweep_results.csv og hver kørsels indstillings- og kvalitetskontrolfiler. Begge viste kørsler afslutter beregningen, men består ikke inferenskontrollerne, så en kørselsstatus ok er ikke nok alene til at vælge en model.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Vælg den første række, og klik på Show figures for selected row. Undersøg guideresultaterne og akselabels. Plottet udelader skæringspunktet fra koefficienttabellen.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Skift Level til Gene for at undersøge genfamilien separat. Kontrollér dens rækker, effekter og kvalitetskontrolresultater, før du sammenligner den med guidevisningen.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Skift tilbage til Guide. Sammenlign rækker brugt i modeltilpasningen og unikke brønde i forsøgets oversigt. Antallene registreres separat for modeltilpasningen på guide-niveau og på gen-niveau. Disse antal beskriver datagrundlaget, ikke kvaliteten af den statistiske inferens.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Behold hver kørsels indstillinger, oversigt og kvalitetskontrolfiler sammen med dens figurer. Brug Regression Diagnostics til yderligere gennemsyn, eller SweepSpace og run_sweep i Python til en scriptet sammenligning.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: gespeicherte Regression-Durchläufe vergleichen",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Legen Sie gepaarte Eingaben und Durchlaufeinstellungen fest, führen Sie einen kleinen Sweep aus und prüfen Sie dann Einstellungen, Abbildungen und Inferenzprüfungen jedes Durchlaufs.",
+      "objectives": [
+       "Gepaarte Score- und Zähldateien sowie einen Ausgabeordner für den Sweep wählen.",
+       "Variable und feste Einstellungen wählen, die Anzahl der Durchläufe schätzen und starten.",
+       "Gespeicherte Durchläufe und ihre Inferenzqualität vor dem Vergleich prüfen."
+      ],
+      "prerequisite": "Laden Sie die vier Score/Zähl-Paare je Platte aus dem Regression-Tutorial herunter. Verwenden Sie dieselbe Plattenreihenfolge und einen neuen Ausgabeordner. Die beiden gezeigten ridge-Durchläufe werden abgeschlossen, bestehen aber ihre Inferenz-Qualitätsprüfungen nicht; trennen Sie den Rechenstatus von der statistischen Eignung.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Öffnen Sie von Home aus Regression und dann unten rechts Parameter sweep. Verwenden Sie die vier Beispielpaare aus Score- und Zähldateien aus dem Regression-Tutorial.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Fügen Sie die vier Score-Dateien und die vier Zähldateien in derselben Plattenreihenfolge zu den eigenen Listen des Sweeps hinzu. Prüfen Sie diese Listen auch dann, wenn das übergeordnete Regression-Formular bereits Eingaben enthält. Wählen Sie einen neuen Ausgabeordner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Haken Sie alpha an und geben Sie 0,01 und 0,1 ein. Nicht angehakte Einstellungen bleiben fest. Legen Sie für dieses Beispiel ridge, parametrische Inferenz, Mittelwertaggregation auf Well-Ebene und keine Transformation ausdrücklich fest.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Wählen Sie Grid-Sampling, Maximum trials 2 und einen Worker und klicken Sie dann auf Estimate. Prüfen Sie Anzahl der Kombinationen und Ressourcenlimits vor dem Start. Betrachten Sie die Zeitschätzung als ungefähr.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Klicken Sie auf Start sweep. Jeder Durchlauf schreibt in einen eigenen Ordner. Mit einem Worker laufen die beiden Durchläufe nacheinander; wählen Sie eine Worker-Anzahl, die zu Ihren verfügbaren Ressourcen passt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Prüfen Sie die abgeschlossenen Zeilen und öffnen Sie dann sweep_results.csv sowie die Einstellungs- und Qualitätskontrolldateien jedes Durchlaufs. Beide gezeigten Durchläufe beenden die Berechnung, bestehen aber die Inferenzprüfungen nicht; ein Ausführungsstatus ok allein reicht also nicht zur Modellwahl.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Wählen Sie die erste Zeile und klicken Sie auf Show figures for selected row. Prüfen Sie die Guide-Ergebnisse und Achsenbeschriftungen. Das Diagramm lässt den Achsenabschnitt aus der Koeffiziententabelle weg.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Stellen Sie Level auf Gene, um die Genfamilie separat zu prüfen. Prüfen Sie ihre Zeilen, Effekte und Qualitätskontrollergebnisse, bevor Sie sie mit der Guide-Ansicht vergleichen.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Wechseln Sie zurück zu Guide. Vergleichen Sie in der Versuchszusammenfassung die für die Modellanpassung verwendeten Zeilen und die eindeutigen Wells. Die Anzahlen werden für die Modellanpassungen auf Guide-Ebene und auf Gen-Ebene getrennt erfasst. Diese Zahlen beschreiben die Datengrundlage, nicht die Qualität der statistischen Inferenz.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Bewahren Sie Einstellungen, Übersicht und Qualitätskontrolldateien jedes Durchlaufs zusammen mit seinen Abbildungen auf. Verwenden Sie Regression Diagnostics zur weiteren Prüfung oder SweepSpace und run_sweep in Python für einen skriptgesteuerten Vergleich.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: berðu saman vistaðar Regression-keyrslur",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Tilgreindu pöruð inntök og stillingar keyrslna, keyrðu litla skönnun og skoðaðu svo stillingar, myndir og ályktunarathuganir hverrar keyrslu.",
+      "objectives": [
+       "Velja paraðar stiga- og talningaskrár og úttaksmöppu fyrir skönnunina.",
+       "Velja breytilegar og fastar stillingar, áætla fjölda keyrslna og ræsa.",
+       "Skoða vistaðar keyrslur og gæði ályktana þeirra fyrir samanburð."
+      ],
+      "prerequisite": "Sæktu fjögur pör stiga- og talningaskráa á plötu úr Regression-kennsluefninu. Notaðu sömu röð platna og nýja úttaksmöppu. Ridge-keyrslurnar tvær sem sýndar eru ljúka sér en standast ekki gæðaathuganir ályktana; haltu reiknistöðu aðskilinni frá tölfræðilegri hæfni.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Frá Home opnarðu Regression og svo Parameter sweep neðst til hægri. Notaðu fjögur dæmapör stiga- og talningaskráa úr Regression-kennsluefninu.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Bættu fjórum stigaskrám og fjórum talningaskrám við eigin lista skönnunarinnar, í sömu röð platna. Athugaðu listana jafnvel þótt aðaleyðublað Regression innihaldi þegar inntök. Veldu nýja úttaksmöppu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Hakaðu við alpha og sláðu inn 0,01 og 0,1. Stillingar án haks haldast fastar. Stilltu beinlínis ridge, stikaða ályktun, meðaltalssamantekt á brunnastigi og enga umbreytingu fyrir dæmið.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Veldu Grid-úrtöku, Maximum trials 2 og eitt vinnuferli og smelltu svo á Estimate. Athugaðu fjölda samsetninga og takmörk tilfanga áður en þú keyrir. Líttu á tímamatið sem nálgun.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Smelltu á Start sweep. Hver keyrsla skrifar í eigin möppu. Með einu vinnuferli keyra keyrslurnar tvær hvor á eftir annarri; veldu fjölda vinnuferla sem hentar tiltækum tilföngum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Skoðaðu fullgerðu línurnar og opnaðu svo sweep_results.csv og stillinga- og gæðaeftirlitsskrár hverrar keyrslu. Báðar sýndu keyrslurnar ljúka útreikningi en standast ekki ályktunarathuganir, svo keyrslustaðan ok ein og sér dugar ekki til að velja líkan.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Veldu fyrstu línuna og smelltu á Show figures for selected row. Skoðaðu niðurstöður leiðara og merki ásanna. Grafið sleppir skurðpunktinum úr stuðlatöflunni.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Skiptu Level yfir í Gene til að skoða genafjölskylduna sérstaklega. Athugaðu línur hennar, áhrif og niðurstöður gæðaeftirlits áður en þú berð hana saman við leiðarasýnina.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Skiptu aftur yfir í Guide. Berðu saman fjölda raða sem voru notaðar við aðlögun líkansins og fjölda einstakra brunna í samantekt keyrslunnar. Fjöldatölurnar eru skráðar sérstaklega fyrir aðlögun líkans á gRNA-stigi og á genastigi. Þessar tölur lýsa gagnamagninu sem styður aðlögunina, ekki gæðum tölfræðilegrar ályktunar.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Geymdu stillingar, samantekt og gæðaeftirlitsskrár hverrar keyrslu með myndum hennar. Notaðu Regression Diagnostics til frekari skoðunar, eða SweepSpace og run_sweep í Python fyrir samanburð með skriftu.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: 저장된 Regression 시행 비교",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "짝지은 입력과 시행 설정을 지정하고, 작은 스윕을 실행한 뒤 각 시행의 설정, 그림, 추론 검사를 확인합니다.",
+      "objectives": [
+       "짝지은 점수/개수 파일과 스윕 출력 폴더를 고릅니다.",
+       "바꿀 설정과 고정할 설정을 고르고, 시행 수를 추정한 뒤 실행합니다.",
+       "비교하기 전에 저장된 시행과 추론 품질을 확인합니다."
+      ],
+      "prerequisite": "Regression 튜토리얼에서 플레이트별 점수/개수 파일 네 쌍을 내려받으세요. 플레이트 순서를 맞추고 새 출력 폴더를 쓰세요. 그림의 ridge 시행 두 개는 완료되지만 추론 품질 검사를 통과하지 못합니다. 계산 상태와 통계적 적합성을 구분하세요.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Home에서 Regression을 연 뒤 오른쪽 아래의 Parameter sweep을 여세요. Regression 튜토리얼의 점수와 개수 예제 파일 네 쌍을 쓰세요.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "점수 파일 4개와 개수 파일 4개를 플레이트 순서를 맞춰 스윕 전용 목록에 추가하세요. 상위 Regression 양식에 이미 입력이 있어도 이 목록을 확인하세요. 새 출력 폴더를 고르세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "alpha를 체크하고 0.01과 0.1을 입력하세요. 체크하지 않은 설정은 고정됩니다. 이 예제에서는 ridge, 모수적 추론, 웰 수준 평균 집계, 변환 없음을 명시적으로 설정하세요.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Grid 샘플링, Maximum trials 2, 워커 하나를 고른 뒤 Estimate를 클릭하세요. 실행하기 전에 조합 수와 자원 한도를 확인하세요. 시간 추정은 대략적인 값으로 보세요.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Start sweep을 클릭하세요. 각 시행은 자기 폴더에 기록됩니다. 워커가 하나이면 두 시행이 차례로 실행되므로, 사용할 수 있는 자원에 맞게 워커 수를 고르세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "완료된 행을 확인한 뒤 sweep_results.csv와 각 시행의 설정 및 품질 관리 파일을 여세요. 그림의 두 시행은 모두 계산을 마치지만 추론 검사를 통과하지 못하므로, 실행 상태가 ok라는 것만으로는 모델을 고르기에 충분하지 않습니다.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "첫 번째 행을 고르고 Show figures for selected row를 클릭하세요. 가이드 결과와 축 라벨을 확인하세요. 그래프에는 계수 표의 절편이 빠져 있습니다.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Level을 Gene으로 바꿔 유전자 패밀리를 따로 확인하세요. 가이드 보기와 비교하기 전에 그 행, 효과, 품질 관리 결과를 확인하세요.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Guide로 돌아갑니다. 시행 요약에서 모델 적합에 사용된 행 수와 중복을 제외한 웰 수를 비교합니다. 이 수치는 가이드 수준 모델 적합과 유전자 수준 모델 적합에 대해 각각 기록됩니다. 이 수치는 적합을 뒷받침하는 데이터의 양을 나타내며, 추론의 품질을 나타내지는 않습니다.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "각 시행의 설정, 요약, 품질 관리 파일을 그림과 함께 보관하세요. 더 살펴보려면 Regression Diagnostics를 쓰고, 스크립트로 비교하려면 Python에서 SweepSpace와 run_sweep을 쓰세요.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: sammenlign lagrede Regression-kjøringer",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Angi parede inndata og kjøringsinnstillinger, kjør et lite sveip, og undersøk deretter innstillinger, figurer og inferenskontroller for hver kjøring.",
+      "objectives": [
+       "Velge parede poeng- og tellefiler og en utdatamappe for sveipet.",
+       "Velge variable og faste innstillinger, anslå antall kjøringer og starte.",
+       "Undersøke lagrede kjøringer og inferenskvaliteten før sammenligning."
+      ],
+      "prerequisite": "Last ned de fire parene med poeng- og tellefiler per plate fra Regression-veiledningen. Bruk samme platerekkefølge og en ny utdatamappe. De to viste ridge-kjøringene fullføres, men består ikke kvalitetskontrollene for inferens; hold beregningsstatus atskilt fra statistisk egnethet.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Fra Home åpner du Regression og deretter Parameter sweep nederst til høyre. Bruk de fire eksempelparene med poeng- og tellefiler fra Regression-veiledningen.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Legg de fire poengfilene og de fire tellefilene til sveipets egne lister, i samme platerekkefølge. Kontroller listene selv om det overordnede Regression-skjemaet allerede har inndata. Velg en ny utdatamappe.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Huk av for alpha og skriv inn 0,01 og 0,1. Innstillinger uten hake forblir faste. Angi uttrykkelig ridge, parametrisk inferens, gjennomsnittsaggregering på brønnivå og ingen transformasjon for dette eksemplet.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Velg Grid-sampling, Maximum trials 2 og én arbeidsprosess, og klikk deretter på Estimate. Kontroller antall kombinasjoner og ressursgrenser før du kjører. Betrakt tidsanslaget som omtrentlig.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Klikk på Start sweep. Hver kjøring skriver til sin egen mappe. Med én arbeidsprosess kjøres de to kjøringene etter hverandre; velg antall arbeidsprosesser ut fra tilgjengelige ressurser.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Undersøk de fullførte radene, og åpne deretter sweep_results.csv og hver kjørings innstillings- og kvalitetskontrollfiler. Begge viste kjøringer fullfører beregningen, men består ikke inferenskontrollene, så statusen ok alene er ikke nok til å velge en modell.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Velg den første raden og klikk på Show figures for selected row. Undersøk guideresultatene og akseetikettene. Plottet utelater konstantleddet fra koeffisienttabellen.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Bytt Level til Gene for å undersøke genfamilien separat. Kontroller radene, effektene og kvalitetskontrollresultatene før du sammenligner den med guidevisningen.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Bytt tilbake til Guide. Sammenlign antall rader brukt i modelltilpasningen og unike brønner i sammendraget av kjøringen. Antallene registreres separat for modelltilpasningen på guide-nivå og på gennivå. Disse tallene beskriver datagrunnlaget, ikke kvaliteten på den statistiske inferensen.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Behold innstillinger, oppsummering og kvalitetskontrollfiler for hver kjøring sammen med figurene. Bruk Regression Diagnostics til videre undersøkelse, eller SweepSpace og run_sweep i Python for en skriptet sammenligning.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 53,
+     "preceding": [
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "74_import_images",
+     "entry": {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep: jämför sparade Regression-körningar",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "host_app_key": "regression",
+      "description": "Ange parade indata och körningsinställningar, kör ett litet svep och granska sedan varje körnings inställningar, figurer och inferenskontroller.",
+      "objectives": [
+       "Välja parade poäng- och antalsfiler och en utdatamapp för svepet.",
+       "Välja varierande och fasta inställningar, uppskatta antalet körningar och starta.",
+       "Granska sparade körningar och deras inferenskvalitet före jämförelse."
+      ],
+      "prerequisite": "Hämta de fyra paren av poäng- och antalsfiler per platta från Regression-handledningen. Använd samma plattordning och en ny utdatamapp. De två visade ridge-körningarna blir klara men klarar inte sina kvalitetskontroller för inferens; skilj beräkningsstatus från statistisk lämplighet.",
+      "scenes": [
+       {
+        "visual": "01_regression_with_four_existing_pairs",
+        "narration": "Från Home öppnar du Regression och sedan Parameter sweep nere till höger. Använd de fyra exempelparen av poäng- och antalsfiler från Regression-handledningen.",
+        "focus": [
+         3380,
+         1880,
+         440,
+         150
+        ],
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_count_file_picker",
+        "narration": "Lägg till de fyra poängfilerna och de fyra antalsfilerna i svepets egna listor, i samma plattordning. Kontrollera listorna även om det överordnade Regression-formuläret redan har indata. Välj en ny utdatamapp.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_two_trials_one_worker_budget",
+        "narration": "Markera alpha och ange 0,01 och 0,1. Omarkerade inställningar förblir fasta. Ange uttryckligen ridge, parametrisk inferens, medelvärdesaggregering på brunnsnivå och ingen transform för exemplet.",
+        "focus": [
+         850,
+         490,
+         680,
+         680
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_estimate",
+        "narration": "Välj Grid-sampling, Maximum trials 2 och en arbetsprocess och klicka sedan på Estimate. Kontrollera antalet kombinationer och resursgränser innan du kör. Betrakta tidsuppskattningen som ungefärlig.",
+        "focus": [
+         850,
+         1190,
+         680,
+         375
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_sweep_running",
+        "narration": "Klicka på Start sweep. Varje körning skriver till en egen mapp. Med en arbetsprocess körs de två körningarna i tur och ordning; välj antal arbetsprocesser efter tillgängliga resurser.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_sweep_finished",
+        "narration": "Granska de färdiga raderna och öppna sedan sweep_results.csv och varje körnings inställnings- och kvalitetskontrollfiler. Båda visade körningarna slutför beräkningen men klarar inte inferenskontrollerna, så statusen ok räcker inte ensam för att välja modell.",
+        "focus": [
+         1550,
+         205,
+         2215,
+         290
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_guide_family",
+        "narration": "Markera den första raden och klicka på Show figures for selected row. Granska guideresultaten och axeletiketterna. Diagrammet utelämnar interceptet från koefficienttabellen.",
+        "focus": [
+         1545,
+         510,
+         2255,
+         1040
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_saved_gene_family",
+        "narration": "Byt Level till Gene för att granska genfamiljen separat. Kontrollera dess rader, effekter och kvalitetskontrollresultat innan du jämför den med guidevyn.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_saved_guide_family_restored",
+        "narration": "Växla tillbaka till Guide. Jämför antalet rader som användes vid modellanpassningen och antalet unika brunnar i sammanfattningen av körningen. Antalen registreras separat för modellanpassningen på guide-nivå och på gennivå. Dessa antal beskriver dataunderlaget, inte kvaliteten på den statistiska inferensen.",
+        "focus": [
+         1545,
+         555,
+         2255,
+         995
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_saved_model_summary",
+        "narration": "Behåll varje körnings inställningar, sammanfattning och kvalitetskontrollfiler tillsammans med dess figurer. Använd Regression Diagnostics för vidare granskning, eller SweepSpace och run_sweep i Python för en skriptad jämförelse.",
+        "related_lessons": [
+         "75_regression_diagnostics",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "13_regression",
+     "scene": 11,
+     "links": [
+      "73_parameter_sweep"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       5,
+       "lessons"
+      ],
+      "preceding": [
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "53_prediction_profiler",
+       "49_methods_results",
+       "48_hit_list"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 48,
+     "value": {
+      "kind": "submodule",
+      "app_key": "parameter_sweep",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/73_parameter_sweep -> tools/tutorials/archive/production/docs/73_parameter_sweep"
+ ],
+ "prose": []
+}

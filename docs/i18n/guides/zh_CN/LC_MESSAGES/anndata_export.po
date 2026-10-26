@@ -83,6 +83,6 @@ msgid "Follow the video"
 msgstr "观看视频"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
-msgstr "`AnnData 视频 <tutorials/#lesson=59_anndata_export>`__ 使用可下载的测量示例逐一讲解这些控件。视频展示了联合导出、仅细胞导出和仅细胞核导出，并比较了各种缺失值策略。完全缺失的对象元数据列会以空的分类列形式存储在 ``obs`` 中；不会写入任何占位值。如果写入替换文件失败，现有的已完成输出会被保留。"
+msgid "Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
+msgstr "完全缺失的对象元数据列会以空的分类列形式存储在 ``obs`` 中；不会写入任何占位值。如果写入替换文件失败，现有的已完成输出会被保留。"
 

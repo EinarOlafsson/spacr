@@ -495,8 +495,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`.
 
-`Module tutorial <tutorials/#lesson=65_feature_explorer>`__.
-
 .. _workflow-module-convert:
 
 Format Converter
@@ -622,8 +620,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/plate_queue/index>`.
 
-`Module tutorial <tutorials/#lesson=30_plate_queue>`__.
-
 .. _workflow-module-batch:
 
 Batch Runner
@@ -697,8 +693,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/db_browser/index>`.
 
-`Module tutorial <tutorials/#lesson=34_database>`__.
-
 .. _workflow-module-run_history:
 
 Run History
@@ -744,8 +738,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Shareable reports** — Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.
 
 :doc:`API reference </api/spacr/report/index>`.
-
-`Module tutorial <tutorials/#lesson=29_report>`__.
 
 .. _workflow-module-data_manager:
 
@@ -899,8 +891,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/layer_viewer/index>`.
 
-`Module tutorial <tutorials/#lesson=57_layer_viewer>`__.
-
 .. _workflow-module-power:
 
 Power / Design
@@ -929,8 +919,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design.
 
 :doc:`API reference </api/spacr/qt/screens/power/index>`.
-
-`Module tutorial <tutorials/#lesson=68_power_design>`__.
 
 .. _workflow-module-run_compare:
 
@@ -983,8 +971,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/tabulate/index>`.
 
-`Module tutorial <tutorials/#lesson=61_tabulate>`__.
-
 .. _workflow-module-dose_response:
 
 Dose–Response
@@ -1014,8 +1000,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Measure <workflow-module-measure>`: Join the measured response to explicit doses and controls.
 
 :doc:`API reference </api/spacr/qt/screens/dose_response/index>`.
-
-`Module tutorial <tutorials/#lesson=69_dose_response>`__.
 
 .. _workflow-module-project_browser:
 
@@ -1064,8 +1048,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/outliers/index>`.
 
-`Module tutorial <tutorials/#lesson=66_outliers>`__.
-
 .. _workflow-module-embeddings:
 
 Embeddings
@@ -1101,8 +1083,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Image UMAP <workflow-module-umap>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.
 
 :doc:`API reference </api/spacr/qt/screens/embeddings/index>`.
-
-`Module tutorial <tutorials/#lesson=77_embeddings>`__.
 
 .. _workflow-module-control_chart:
 
@@ -1475,8 +1455,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <tutorials/#lesson=24_plaque>`__.
-
 .. _workflow-module-recruitment:
 
 Recruitment
@@ -1503,8 +1481,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities.
 
 :doc:`API reference </api/spacr/submodules/index>`.
-
-`Module tutorial <tutorials/#lesson=25_recruitment>`__.
 
 .. _workflow-module-invasion:
 
@@ -1716,8 +1692,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/napari_bridge/index>`.
 
-`Module tutorial <tutorials/#lesson=46_napari_bridge>`__.
-
 .. _workflow-module-import_images:
 
 Import Images
@@ -1774,8 +1748,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/sequencing_qc/index>`.
 
-`Module tutorial <tutorials/#lesson=47_barcode_qc>`__.
-
 .. _workflow-module-image_scatter:
 
 Image Scatter
@@ -1829,8 +1801,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/pca/index>`.
 
-`Module tutorial <tutorials/#lesson=60_pca>`__.
-
 .. _workflow-module-volcano_explorer:
 
 Volcano Explorer
@@ -1855,8 +1825,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Regression <workflow-module-regression>`: Inspect saved effects and adjusted significance.
 
 :doc:`API reference </api/spacr/volcano_style/index>`.
-
-`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__.
 
 .. _workflow-module-hit_list:
 
@@ -1939,8 +1907,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/regression/index>`.
 
-`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__.
-
 .. _workflow-module-illumination:
 
 Illumination
@@ -1991,8 +1957,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/anndata_export/index>`.
 
-`Module tutorial <tutorials/#lesson=59_anndata_export>`__.
-
 .. _workflow-module-motility:
 
 Motility Assay
@@ -2022,8 +1986,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Measure <workflow-module-measure>`: Combine measured objects with matching tracks.
 
 :doc:`API reference </api/spacr/timelapse/index>`.
-
-`Module tutorial <tutorials/#lesson=18_motility>`__.
 
 .. _workflow-module-timelapse:
 
@@ -2091,8 +2053,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Regression <workflow-module-regression>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.
 
 :doc:`API reference </api/spacr/ops_engine/index>`.
-
-`Module tutorial <tutorials/#lesson=76_ops>`__.
 
 .. _workflow-module-classifier_evaluation:
 
@@ -2310,8 +2270,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Regression results and hits** — Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.
 
 :doc:`API reference </api/spacr/parameter_sweep/index>`.
-
-`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__.
 
 .. _workflow-module-toxoplasma:
 

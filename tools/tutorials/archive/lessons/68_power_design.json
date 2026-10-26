@@ -1,0 +1,4800 @@
+{
+ "schema": 1,
+ "id": "68_power_design",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: explore simulated detection curves",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
+      "objectives": [
+       "Set the library, scoring unit and design assumptions.",
+       "Run cell-count and well-count scans with recorded settings.",
+       "Read detection fractions and caveats before interpreting a design."
+      ],
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "68_power_design/poster.jpg",
+      "silent": "68_power_design/video/68_power_design_silent.mp4",
+      "web": "68_power_design/web/68_power_design_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: explore simulated detection curves",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
+      "objectives": [
+       "Set the library, scoring unit and design assumptions.",
+       "Run cell-count and well-count scans with recorded settings.",
+       "Read detection fractions and caveats before interpreting a design."
+      ],
+      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: explorar curvas de detección simuladas",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Define supuestos de biblioteca y de diseño, ejecuta simulaciones y revisa las fracciones de detección, los ajustes fallidos y las advertencias.",
+      "objectives": [
+       "Definir la biblioteca, la unidad de puntuación y los supuestos de diseño.",
+       "Ejecutar barridos de número de células y de pozos con la configuración registrada.",
+       "Leer las fracciones de detección y las advertencias antes de interpretar un diseño."
+      ],
+      "prerequisite": "Prepara supuestos sobre el tamaño de la biblioteca, las guías por gen, el fondo, el efecto y la prevalencia. Este módulo simula datos. El ejemplo enlazado usa solo dos réplicas por punto para mostrar los controles; usa suficientes repeticiones y supuestos adecuados para planificar. En esta versión, revisa la tabla en lugar de fiarte de un titular que puede recomendar el mismo número de pozos de partida.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Desde Home, abre Power & Design. Empieza con los supuestos que quieres explorar y luego usa las curvas de detección simuladas para comparar las opciones de número de células y de pozos mostradas.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Power & Design. Empieza con los supuestos que quieres explorar y luego usa las curvas de detección simuladas para comparar las opciones de número de células y de pozos mostradas."
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Define el tamaño de la biblioteca y las guías por gen, y luego elige la unidad de puntuación. Con cuarenta genes y cuatro guías por gen, la puntuación por guía usa ciento sesenta unidades; la puntuación por gen agrupa la información de las guías.",
+        "hold_after": 0.7,
+        "speech_text": "Define el tamaño de la biblioteca y las guías por gen, y luego elige la unidad de puntuación. Con cuarenta genes y cuatro guías por gen, la puntuación por guía usa ciento sesenta unidades; la puntuación por gen agrupa la información de las guías."
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Revisa juntos los controles de placa, fondo, efecto y prevalencia. La tasa de llamadas positivas es una probabilidad de clasificación supuesta. Elige valores que describan el análisis que planeas.",
+        "hold_after": 0.7,
+        "speech_text": "Revisa juntos los controles de placa, fondo, efecto y prevalencia. La tasa de llamadas positivas es una probabilidad de clasificación supuesta. Elige valores que describan el análisis que planeas."
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Si un efecto menor que uno desactiva Run, lee el aviso de dirección no admitida. Recupera un valor admitido para continuar; este simulador no cubre todas las direcciones de efecto posibles.",
+        "hold_after": 0.7,
+        "speech_text": "Si un efecto menor que uno desactiva Run, lee el aviso de dirección no admitida. Recupera un valor admitido para continuar; este simulador no cubre todas las direcciones de efecto posibles."
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Define las repeticiones, la semilla, el motor de cálculo y el umbral de detección. El umbral usa el área bajo la curva característica operativa del receptor. El ejemplo usa dos réplicas por punto para una ejecución corta; elige más repeticiones cuando estimes la probabilidad de detección.",
+        "hold_after": 0.7,
+        "speech_text": "Define las repeticiones, la semilla, el motor de cálculo y el umbral de detección. El umbral usa el área bajo la curva característica operativa del receptor. El ejemplo usa dos réplicas por punto para una ejecución corta; elige más repeticiones cuando estimes la probabilidad de detección."
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Haz clic en Run y sigue el progreso. El simulador recorre por separado el número de células y el número de pozos. Guarda la configuración junto con los resultados completos.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Run y sigue el progreso. El simulador recorre por separado el número de células y el número de pozos. Guarda la configuración junto con los resultados completos."
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Lee los recuentos de detección junto con sus denominadores. Los ajustes fallidos o que no convergen cuentan como no detecciones. Con dos réplicas pedidas, el cien por cien significa solo dos detecciones de dos.",
+        "hold_after": 0.7,
+        "speech_text": "Lee los recuentos de detección junto con sus denominadores. Los ajustes fallidos o que no convergen cuentan como no detecciones. Con dos réplicas pedidas, el cien por cien significa solo dos detecciones de dos."
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Usa la tabla de resultados para revisar las fracciones de detección, el rendimiento medio entre los ajustes útiles y la falta de convergencia. Los valores medios no disponibles son resultados que faltan. Interpreta la precisión media en relación con la prevalencia supuesta.",
+        "hold_after": 0.7,
+        "speech_text": "Usa la tabla de resultados para revisar las fracciones de detección, el rendimiento medio entre los ajustes útiles y la falta de convergencia. Los valores medios no disponibles son resultados que faltan. Interpreta la precisión media en relación con la prevalencia supuesta."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Compara directamente los valores de diseño pedidos. Esta versión puede recomendar aumentar hasta el mismo número de pozos de partida, porque los dos barridos usan sorteos aleatorios distintos. Ignora ese titular y usa la tabla y la incertidumbre para valorar la comparación.",
+        "hold_after": 0.7,
+        "speech_text": "Compara directamente los valores de diseño pedidos. Esta versión puede recomendar aumentar hasta el mismo número de pozos de partida, porque los dos barridos usan sorteos aleatorios distintos. Ignora ese titular y usa la tabla y la incertidumbre para valorar la comparación."
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Despliega las advertencias y revisa los ajustes fallidos o las probabilidades recortadas. Ajusta los supuestos cuando produzcan resultados incoherentes con el experimento que quieres modelar.",
+        "hold_after": 0.7,
+        "speech_text": "Despliega las advertencias y revisa los ajustes fallidos o las probabilidades recortadas. Ajusta los supuestos cuando produzcan resultados incoherentes con el experimento que quieres modelar."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Guarda juntos la configuración y los resultados de las réplicas. El archivo enlazado contiene la ejecución de ejemplo para revisarla. Para obtener resultados desde código, usa el adaptador de diseño y las API de simulación; valora los supuestos y la incertidumbre antes de elegir un diseño experimental.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guarda juntos la configuración y los resultados de las réplicas. El archivo enlazado contiene la ejecución de ejemplo para revisarla. Para obtener resultados desde código, usa el adaptador de diseño y las API de simulación; valora los supuestos y la incertidumbre antes de elegir un diseño experimental."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design : explorer des courbes de détection simulées",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Définissez les hypothèses de bibliothèque et de plan, lancez des simulations et examinez les fractions de détection, les ajustements échoués et les mises en garde.",
+      "objectives": [
+       "Définir la bibliothèque, l’unité d’évaluation et les hypothèses du plan.",
+       "Lancer des balayages du nombre de cellules et de puits avec des réglages consignés.",
+       "Lire les fractions de détection et les mises en garde avant d’interpréter un plan."
+      ],
+      "prerequisite": "Préparez des hypothèses sur la taille de la bibliothèque, les guides par gène, le bruit de fond, l’effet et la prévalence. Ce module simule des données. L’exemple associé n’utilise que deux réplicats par point pour montrer les commandes ; utilisez suffisamment de répétitions et des hypothèses adaptées pour planifier. Dans cette version, examinez la table plutôt que de vous fier à un titre qui peut recommander le nombre de puits de référence inchangé.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Depuis Home, ouvrez Power & Design. Partez des hypothèses que vous voulez explorer, puis utilisez les courbes de détection simulées pour comparer les nombres de cellules et de puits affichés.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Power & Design. Partez des hypothèses que vous voulez explorer, puis utilisez les courbes de détection simulées pour comparer les nombres de cellules et de puits affichés."
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Réglez la taille de la bibliothèque et le nombre de guides par gène, puis choisissez l’unité d’évaluation. Avec quarante gènes et quatre guides par gène, l’évaluation par guide porte sur cent soixante unités ; l’évaluation par gène regroupe l’information des guides.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez la taille de la bibliothèque et le nombre de guides par gène, puis choisissez l’unité d’évaluation. Avec quarante gènes et quatre guides par gène, l’évaluation par guide porte sur cent soixante unités ; l’évaluation par gène regroupe l’information des guides."
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Examinez ensemble les commandes de plaque, de bruit de fond, d’effet et de prévalence. Le taux d’appels positifs est une probabilité de classement supposée. Choisissez des valeurs qui décrivent l’analyse prévue.",
+        "hold_after": 0.7,
+        "speech_text": "Examinez ensemble les commandes de plaque, de bruit de fond, d’effet et de prévalence. Le taux d’appels positifs est une probabilité de classement supposée. Choisissez des valeurs qui décrivent l’analyse prévue."
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Si un effet inférieur à un désactive Run, lisez l’avertissement de direction non prise en charge. Rétablissez une valeur prise en charge pour continuer ; ce simulateur ne couvre pas toutes les directions d’effet possibles.",
+        "hold_after": 0.7,
+        "speech_text": "Si un effet inférieur à un désactive Run, lisez l’avertissement de direction non prise en charge. Rétablissez une valeur prise en charge pour continuer ; ce simulateur ne couvre pas toutes les directions d’effet possibles."
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Réglez les répétitions, la graine, le moteur de calcul et le seuil de détection. Le seuil utilise l’aire sous la courbe ROC. L’exemple utilise deux réplicats par point pour un calcul court ; choisissez davantage de répétitions pour estimer une probabilité de détection.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez les répétitions, la graine, le moteur de calcul et le seuil de détection. Le seuil utilise l’aire sous la courbe ROC. L’exemple utilise deux réplicats par point pour un calcul court ; choisissez davantage de répétitions pour estimer une probabilité de détection."
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Cliquez sur Run et suivez la progression. Le simulateur balaie séparément le nombre de cellules et le nombre de puits. Conservez les réglages avec les résultats obtenus.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Run et suivez la progression. Le simulateur balaie séparément le nombre de cellules et le nombre de puits. Conservez les réglages avec les résultats obtenus."
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Lisez les nombres de détections avec leurs dénominateurs. Les ajustements échoués ou non convergents comptent comme des non-détections. Avec deux réplicats demandés, cent pour cent signifie seulement deux détections sur deux.",
+        "hold_after": 0.7,
+        "speech_text": "Lisez les nombres de détections avec leurs dénominateurs. Les ajustements échoués ou non convergents comptent comme des non-détections. Avec deux réplicats demandés, cent pour cent signifie seulement deux détections sur deux."
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Utilisez la table des résultats pour examiner les fractions de détection, la performance moyenne parmi les ajustements exploitables et l’absence de convergence. Les moyennes indisponibles sont des résultats manquants. Interprétez la précision moyenne au regard de la prévalence supposée.",
+        "hold_after": 0.7,
+        "speech_text": "Utilisez la table des résultats pour examiner les fractions de détection, la performance moyenne parmi les ajustements exploitables et l’absence de convergence. Les moyennes indisponibles sont des résultats manquants. Interprétez la précision moyenne au regard de la prévalence supposée."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Comparez directement les valeurs de plan demandées. Cette version peut recommander de passer au même nombre de puits de référence, car les deux balayages utilisent des tirages aléatoires différents. Ignorez ce titre et appuyez-vous sur la table et l’incertitude pour évaluer la comparaison.",
+        "hold_after": 0.7,
+        "speech_text": "Comparez directement les valeurs de plan demandées. Cette version peut recommander de passer au même nombre de puits de référence, car les deux balayages utilisent des tirages aléatoires différents. Ignorez ce titre et appuyez-vous sur la table et l’incertitude pour évaluer la comparaison."
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Dépliez les mises en garde et examinez les ajustements échoués ou les probabilités écrêtées. Ajustez les hypothèses lorsqu’elles donnent des résultats incohérents avec l’expérience que vous voulez modéliser.",
+        "hold_after": 0.7,
+        "speech_text": "Dépliez les mises en garde et examinez les ajustements échoués ou les probabilités écrêtées. Ajustez les hypothèses lorsqu’elles donnent des résultats incohérents avec l’expérience que vous voulez modéliser."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Conservez ensemble les réglages et les résultats des réplicats. L’archive associée contient l’exemple de calcul à examiner. Pour une sortie par programme, utilisez l’adaptateur de plan et les API de simulation ; évaluez les hypothèses et l’incertitude avant de choisir un plan expérimental.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conservez ensemble les réglages et les résultats des réplicats. L’archive associée contient l’exemple de calcul à examiner. Pour une sortie par programme, utilisez l’adaptateur de plan et les API de simulation ; évaluez les hypothèses et l’incertitude avant de choisir un plan expérimental."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: सिम्युलेटेड पहचान वक्र देखें",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "लाइब्रेरी और डिज़ाइन की धारणाएँ तय करें, सिमुलेशन चलाएँ और पहचान के अनुपात, विफल फ़िट और चेतावनियाँ देखें।",
+      "objectives": [
+       "लाइब्रेरी, स्कोरिंग इकाई और डिज़ाइन की धारणाएँ तय करें।",
+       "दर्ज सेटिंग्स के साथ कोशिका संख्या और वेल संख्या के स्कैन चलाएँ।",
+       "किसी डिज़ाइन की व्याख्या से पहले पहचान के अनुपात और चेतावनियाँ पढ़ें।"
+      ],
+      "prerequisite": "लाइब्रेरी का आकार, प्रति जीन गाइड, पृष्ठभूमि, प्रभाव और व्यापकता की धारणाएँ तैयार रखें। यह मॉड्यूल डेटा का सिमुलेशन करता है। जुड़ा उदाहरण नियंत्रण दिखाने के लिए हर बिंदु पर केवल दो प्रतिकृतियाँ इस्तेमाल करता है; योजना के लिए पर्याप्त दोहराव और उचित धारणाएँ इस्तेमाल करें। इस बिल्ड में उस शीर्षक पर भरोसा करने के बजाय तालिका देखें, जो बिना बदली आधार वेल संख्या की सिफ़ारिश कर सकता है।",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home से Power & Design खोलें। जिन धारणाओं को आप परखना चाहते हैं उनसे शुरू करें, फिर दिखाए गए कोशिका संख्या और वेल संख्या के विकल्पों की तुलना के लिए सिम्युलेटेड पहचान वक्र इस्तेमाल करें।",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home से Power & Design खोलें। जिन धारणाओं को आप परखना चाहते हैं उनसे शुरू करें, फिर दिखाए गए कोशिका संख्या और वेल संख्या के विकल्पों की तुलना के लिए सिम्युलेटेड पहचान वक्र इस्तेमाल करें।"
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "लाइब्रेरी का आकार और प्रति जीन गाइड तय करें, फिर स्कोरिंग इकाई चुनें। चालीस जीन और प्रति जीन चार गाइड के साथ गाइड स्कोरिंग एक सौ साठ इकाइयाँ इस्तेमाल करती है; जीन स्कोरिंग गाइडों की जानकारी को एक साथ जोड़ती है।",
+        "hold_after": 0.7,
+        "speech_text": "लाइब्रेरी का आकार और प्रति जीन गाइड तय करें, फिर स्कोरिंग इकाई चुनें। चालीस जीन और प्रति जीन चार गाइड के साथ गाइड स्कोरिंग एक सौ साठ इकाइयाँ इस्तेमाल करती है; जीन स्कोरिंग गाइडों की जानकारी को एक साथ जोड़ती है।"
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "प्लेट, पृष्ठभूमि, प्रभाव और व्यापकता के नियंत्रण एक साथ देखें। पॉज़िटिव कॉल दर एक मानी गई वर्गीकरण प्रायिकता है। ऐसे मान चुनें जो आपके नियोजित विश्लेषण का वर्णन करें।",
+        "hold_after": 0.7,
+        "speech_text": "प्लेट, पृष्ठभूमि, प्रभाव और व्यापकता के नियंत्रण एक साथ देखें। पॉज़िटिव कॉल दर एक मानी गई वर्गीकरण प्रायिकता है। ऐसे मान चुनें जो आपके नियोजित विश्लेषण का वर्णन करें।"
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "अगर एक से कम प्रभाव Run को बंद कर दे, तो असमर्थित दिशा वाली चेतावनी पढ़ें। आगे बढ़ने के लिए समर्थित मान वापस रखें; यह सिम्युलेटर प्रभाव की हर संभव दिशा को नहीं संभालता।",
+        "hold_after": 0.7,
+        "speech_text": "अगर एक से कम प्रभाव Run को बंद कर दे, तो असमर्थित दिशा वाली चेतावनी पढ़ें। आगे बढ़ने के लिए समर्थित मान वापस रखें; यह सिम्युलेटर प्रभाव की हर संभव दिशा को नहीं संभालता।"
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "दोहराव, सीड, बैकएंड और पहचान की सीमा तय करें। सीमा रिसीवर ऑपरेटिंग कैरेक्टरिस्टिक वक्र के नीचे का क्षेत्रफल इस्तेमाल करती है। उदाहरण छोटे रन के लिए हर बिंदु पर दो प्रतिकृतियाँ इस्तेमाल करता है; पहचान की प्रायिकता आँकते समय अधिक दोहराव चुनें।",
+        "hold_after": 0.7,
+        "speech_text": "दोहराव, सीड, बैकएंड और पहचान की सीमा तय करें। सीमा रिसीवर ऑपरेटिंग कैरेक्टरिस्टिक वक्र के नीचे का क्षेत्रफल इस्तेमाल करती है। उदाहरण छोटे रन के लिए हर बिंदु पर दो प्रतिकृतियाँ इस्तेमाल करता है; पहचान की प्रायिकता आँकते समय अधिक दोहराव चुनें।"
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Run पर क्लिक करें और प्रगति देखें। सिम्युलेटर कोशिका संख्या और वेल संख्या अलग-अलग स्कैन करता है। पूरे हुए परिणामों के साथ सेटिंग्स रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Run पर क्लिक करें और प्रगति देखें। सिम्युलेटर कोशिका संख्या और वेल संख्या अलग-अलग स्कैन करता है। पूरे हुए परिणामों के साथ सेटिंग्स रखें।"
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "पहचान की गिनती को उनके हर के साथ पढ़ें। विफल या अभिसरित न होने वाले फ़िट पहचान न होने में गिने जाते हैं। दो माँगी गई प्रतिकृतियों के साथ सौ प्रतिशत का अर्थ केवल दो में से दो पहचान है।",
+        "hold_after": 0.7,
+        "speech_text": "पहचान की गिनती को उनके हर के साथ पढ़ें। विफल या अभिसरित न होने वाले फ़िट पहचान न होने में गिने जाते हैं। दो माँगी गई प्रतिकृतियों के साथ सौ प्रतिशत का अर्थ केवल दो में से दो पहचान है।"
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "पहचान के अनुपात, उपयोगी फ़िट में औसत प्रदर्शन और अभिसरण न होने को देखने के लिए परिणाम तालिका इस्तेमाल करें। अनुपलब्ध औसत मान गायब परिणाम हैं। औसत प्रिसिज़न की व्याख्या मानी गई व्यापकता के संदर्भ में करें।",
+        "hold_after": 0.7,
+        "speech_text": "पहचान के अनुपात, उपयोगी फ़िट में औसत प्रदर्शन और अभिसरण न होने को देखने के लिए परिणाम तालिका इस्तेमाल करें। अनुपलब्ध औसत मान गायब परिणाम हैं। औसत प्रिसिज़न की व्याख्या मानी गई व्यापकता के संदर्भ में करें।"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "माँगे गए डिज़ाइन मानों की सीधी तुलना करें। यह बिल्ड उसी आधार वेल संख्या तक बढ़ाने की सिफ़ारिश कर सकता है, क्योंकि दोनों स्कैन अलग यादृच्छिक चयन इस्तेमाल करते हैं। उस शीर्षक को अनदेखा करें और तुलना आँकने के लिए तालिका और अनिश्चितता इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "speech_text": "माँगे गए डिज़ाइन मानों की सीधी तुलना करें। यह बिल्ड उसी आधार वेल संख्या तक बढ़ाने की सिफ़ारिश कर सकता है, क्योंकि दोनों स्कैन अलग यादृच्छिक चयन इस्तेमाल करते हैं। उस शीर्षक को अनदेखा करें और तुलना आँकने के लिए तालिका और अनिश्चितता इस्तेमाल करें।"
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "चेतावनियाँ खोलें और विफल फ़िट या काटी गई प्रायिकताएँ देखें। जब धारणाएँ उस प्रयोग से मेल न खाने वाले परिणाम दें जिसका आप मॉडल बनाना चाहते हैं, तो उन्हें बदलें।",
+        "hold_after": 0.7,
+        "speech_text": "चेतावनियाँ खोलें और विफल फ़िट या काटी गई प्रायिकताएँ देखें। जब धारणाएँ उस प्रयोग से मेल न खाने वाले परिणाम दें जिसका आप मॉडल बनाना चाहते हैं, तो उन्हें बदलें।"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "सेटिंग्स और प्रतिकृति परिणाम साथ रखें। जुड़े आर्काइव में जाँच के लिए उदाहरण रन है। प्रोग्राम से आउटपुट के लिए डिज़ाइन एडेप्टर और सिमुलेशन API इस्तेमाल करें; प्रयोगात्मक डिज़ाइन चुनने से पहले धारणाएँ और अनिश्चितता आँकें।",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "सेटिंग्स और प्रतिकृति परिणाम साथ रखें। जुड़े आर्काइव में जाँच के लिए उदाहरण रन है। प्रोग्राम से आउटपुट के लिए डिज़ाइन एडेप्टर और सिमुलेशन API इस्तेमाल करें; प्रयोगात्मक डिज़ाइन चुनने से पहले धारणाएँ और अनिश्चितता आँकें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: esplorare curve di rilevamento simulate",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Imposta le ipotesi su libreria e disegno, esegui simulazioni ed esamina le frazioni di rilevamento, gli adattamenti falliti e le avvertenze.",
+      "objectives": [
+       "Impostare la libreria, l’unità di punteggio e le ipotesi di disegno.",
+       "Eseguire scansioni del numero di cellule e di pozzetti con impostazioni registrate.",
+       "Leggere le frazioni di rilevamento e le avvertenze prima di interpretare un disegno."
+      ],
+      "prerequisite": "Prepara le ipotesi su dimensione della libreria, guide per gene, fondo, effetto e prevalenza. Questo modulo simula dati. L’esempio collegato usa solo due repliche per punto per mostrare i comandi; per pianificare usa abbastanza ripetizioni e ipotesi appropriate. In questa versione, esamina la tabella invece di fidarti di un titolo che può raccomandare il numero di pozzetti di partenza invariato.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Da Home, apri Power & Design. Parti dalle ipotesi che vuoi esplorare, poi usa le curve di rilevamento simulate per confrontare le scelte di numero di cellule e di pozzetti mostrate.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Power & Design. Parti dalle ipotesi che vuoi esplorare, poi usa le curve di rilevamento simulate per confrontare le scelte di numero di cellule e di pozzetti mostrate."
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Imposta la dimensione della libreria e le guide per gene, poi scegli l’unità di punteggio. Con quaranta geni e quattro guide per gene, il punteggio per guida usa centosessanta unità; il punteggio per gene raccoglie le informazioni delle guide.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta la dimensione della libreria e le guide per gene, poi scegli l’unità di punteggio. Con quaranta geni e quattro guide per gene, il punteggio per guida usa centosessanta unità; il punteggio per gene raccoglie le informazioni delle guide."
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Esamina insieme i comandi di piastra, fondo, effetto e prevalenza. Il tasso di chiamate positive è una probabilità di classificazione ipotizzata. Scegli valori che descrivano l’analisi che hai in programma.",
+        "hold_after": 0.7,
+        "speech_text": "Esamina insieme i comandi di piastra, fondo, effetto e prevalenza. Il tasso di chiamate positive è una probabilità di classificazione ipotizzata. Scegli valori che descrivano l’analisi che hai in programma."
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Se un effetto inferiore a uno disattiva Run, leggi l’avviso sulla direzione non supportata. Ripristina un valore supportato per continuare; questo simulatore non copre tutte le possibili direzioni dell’effetto.",
+        "hold_after": 0.7,
+        "speech_text": "Se un effetto inferiore a uno disattiva Run, leggi l’avviso sulla direzione non supportata. Ripristina un valore supportato per continuare; questo simulatore non copre tutte le possibili direzioni dell’effetto."
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Imposta ripetizioni, seme, motore di calcolo e soglia di rilevamento. La soglia usa l’area sotto la curva ROC. L’esempio usa due repliche per punto per un’esecuzione breve; scegli più ripetizioni quando stimi la probabilità di rilevamento.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta ripetizioni, seme, motore di calcolo e soglia di rilevamento. La soglia usa l’area sotto la curva ROC. L’esempio usa due repliche per punto per un’esecuzione breve; scegli più ripetizioni quando stimi la probabilità di rilevamento."
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Fai clic su Run e segui l’avanzamento. Il simulatore esplora separatamente il numero di cellule e il numero di pozzetti. Conserva le impostazioni insieme ai risultati completati.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Run e segui l’avanzamento. Il simulatore esplora separatamente il numero di cellule e il numero di pozzetti. Conserva le impostazioni insieme ai risultati completati."
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Leggi i conteggi di rilevamento insieme ai loro denominatori. Gli adattamenti falliti o non convergenti restano come mancati rilevamenti. Con due repliche richieste, cento per cento significa solo due rilevamenti su due.",
+        "hold_after": 0.7,
+        "speech_text": "Leggi i conteggi di rilevamento insieme ai loro denominatori. Gli adattamenti falliti o non convergenti restano come mancati rilevamenti. Con due repliche richieste, cento per cento significa solo due rilevamenti su due."
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Usa la tabella dei risultati per esaminare le frazioni di rilevamento, le prestazioni medie tra gli adattamenti utilizzabili e la mancata convergenza. I valori medi non disponibili sono risultati mancanti. Interpreta la precisione media in relazione alla prevalenza ipotizzata.",
+        "hold_after": 0.7,
+        "speech_text": "Usa la tabella dei risultati per esaminare le frazioni di rilevamento, le prestazioni medie tra gli adattamenti utilizzabili e la mancata convergenza. I valori medi non disponibili sono risultati mancanti. Interpreta la precisione media in relazione alla prevalenza ipotizzata."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Confronta direttamente i valori di disegno richiesti. Questa versione può raccomandare di salire allo stesso numero di pozzetti di partenza, perché le due scansioni usano estrazioni casuali diverse. Ignora quel titolo e usa la tabella e l’incertezza per valutare il confronto.",
+        "hold_after": 0.7,
+        "speech_text": "Confronta direttamente i valori di disegno richiesti. Questa versione può raccomandare di salire allo stesso numero di pozzetti di partenza, perché le due scansioni usano estrazioni casuali diverse. Ignora quel titolo e usa la tabella e l’incertezza per valutare il confronto."
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Espandi le avvertenze ed esamina gli adattamenti falliti o le probabilità troncate. Modifica le ipotesi quando producono risultati incoerenti con l’esperimento che vuoi modellare.",
+        "hold_after": 0.7,
+        "speech_text": "Espandi le avvertenze ed esamina gli adattamenti falliti o le probabilità troncate. Modifica le ipotesi quando producono risultati incoerenti con l’esperimento che vuoi modellare."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Conserva insieme le impostazioni e i risultati delle repliche. L’archivio collegato contiene l’esecuzione d’esempio da esaminare. Per un output da programma, usa l’adattatore di disegno e le API di simulazione; valuta ipotesi e incertezza prima di scegliere un disegno sperimentale.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conserva insieme le impostazioni e i risultati delle repliche. L’archivio collegato contiene l’esecuzione d’esempio da esaminare. Per un output da programma, usa l’adattatore di disegno e le API di simulazione; valuta ipotesi e incertezza prima di scegliere un disegno sperimentale."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design：シミュレーションした検出曲線を調べる",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "ライブラリーと実験計画の前提を設定し、シミュレーションを実行して、検出割合、失敗した当てはめ、注意事項を確認します。",
+      "objectives": [
+       "ライブラリー、スコア付けの単位、計画の前提を設定する。",
+       "設定を記録して、細胞数とウェル数のスキャンを実行する。",
+       "計画を解釈する前に、検出割合と注意事項を読む。"
+      ],
+      "prerequisite": "ライブラリーの大きさ、遺伝子あたりのガイド数、バックグラウンド、効果、有病率についての前提を用意します。このモジュールはデータをシミュレーションします。リンク先の例では、操作を示すために各点の反復を二回にしています。計画に使うときは、十分な反復数と適切な前提を使ってください。このビルドでは、元のウェル数のままを勧めることがある見出しに頼らず、表を確認します。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "HomeからPower & Designを開きます。調べたい前提から始め、シミュレーションした検出曲線で、表示された細胞数とウェル数の選択肢を比べます。",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホームからPower & Designを開きます。調べたい前提から始め、シミュレーションした検出曲線で、表示された細胞数とウェル数の選択肢を比べます。"
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "ライブラリーの大きさと遺伝子あたりのガイド数を設定し、スコア付けの単位を選びます。四十遺伝子、遺伝子あたり四ガイドなら、ガイド単位のスコア付けでは百六十単位を使います。遺伝子単位では、ガイドの情報をまとめます。",
+        "hold_after": 0.7,
+        "speech_text": "ライブラリーの大きさと遺伝子あたりのガイド数を設定し、スコア付けの単位を選びます。四十遺伝子、遺伝子あたり四ガイドなら、ガイド単位のスコア付けでは百六十単位を使います。遺伝子単位では、ガイドの情報をまとめます。"
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "プレート、バックグラウンド、効果、有病率の設定をまとめて確認します。陽性判定率は、仮定した分類の確率です。計画している解析を表す値を選びます。",
+        "hold_after": 0.7,
+        "speech_text": "プレート、バックグラウンド、効果、有病率の設定をまとめて確認します。陽性判定率は、仮定した分類の確率です。計画している解析を表す値を選びます。"
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "一より小さい効果でRunが無効になったら、対応していない方向についての警告を読みます。続けるには、対応している値に戻します。このシミュレーターは、あらゆる効果の方向を扱うわけではありません。",
+        "hold_after": 0.7,
+        "speech_text": "一より小さい効果でRunが無効になったら、対応していない方向についての警告を読みます。続けるには、対応している値に戻します。このシミュレーターは、あらゆる効果の方向を扱うわけではありません。"
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "反復数、シード、計算の方式、検出のしきい値を設定します。しきい値には、ROC曲線の下の面積を使います。例では短く実行するため各点の反復を二回にしています。検出の確率を見積もるときは、反復を増やします。",
+        "hold_after": 0.7,
+        "speech_text": "反復数、シード、計算の方式、検出のしきい値を設定します。しきい値には、ROC曲線の下の面積を使います。例では短く実行するため各点の反復を二回にしています。検出の確率を見積もるときは、反復を増やします。"
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Runをクリックし、進み具合を見ます。シミュレーターは、細胞数とウェル数を別々にスキャンします。設定は、完了した結果と一緒に保管します。",
+        "hold_after": 0.7,
+        "speech_text": "Runをクリックし、進み具合を見ます。シミュレーターは、細胞数とウェル数を別々にスキャンします。設定は、完了した結果と一緒に保管します。"
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "検出数は、その分母と合わせて読みます。失敗した当てはめや収束しなかった当てはめは、検出なしとして数えられます。反復を二回にした場合、百パーセントは二回中二回の検出にすぎません。",
+        "hold_after": 0.7,
+        "speech_text": "検出数は、その分母と合わせて読みます。失敗した当てはめや収束しなかった当てはめは、検出なしとして数えられます。反復を二回にした場合、百パーセントは二回中二回の検出にすぎません。"
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "結果の表で、検出割合、使える当てはめの平均性能、収束しなかった数を確認します。平均値が出ていないところは、結果が欠けています。平均適合率は、仮定した有病率と比べて解釈します。",
+        "hold_after": 0.7,
+        "speech_text": "結果の表で、検出割合、使える当てはめの平均性能、収束しなかった数を確認します。平均値が出ていないところは、結果が欠けています。平均適合率は、仮定した有病率と比べて解釈します。"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "指定した計画の値を直接比べます。このビルドでは、二つのスキャンが別々の乱数を使うため、元と同じウェル数に増やすよう勧めることがあります。その見出しは無視し、表と不確かさで比較を評価します。",
+        "hold_after": 0.7,
+        "speech_text": "指定した計画の値を直接比べます。このビルドでは、二つのスキャンが別々の乱数を使うため、元と同じウェル数に増やすよう勧めることがあります。その見出しは無視し、表と不確かさで比較を評価します。"
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "注意事項を開き、失敗した当てはめや切り詰められた確率を確認します。前提が、モデルにしたい実験と合わない結果を出すときは、前提を調整します。",
+        "hold_after": 0.7,
+        "speech_text": "注意事項を開き、失敗した当てはめや切り詰められた確率を確認します。前提が、モデルにしたい実験と合わない結果を出すときは、前提を調整します。"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "設定と反復の結果は一緒に保管します。リンク先のアーカイブには、確認用の例の実行結果が入っています。プログラムで出力するには、計画のアダプターとシミュレーションのAPIを使います。実験計画を選ぶ前に、前提と不確かさを評価します。",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "設定と反復の結果は一緒に保管します。リンク先のアーカイブには、確認用の例の実行結果が入っています。プログラムで出力するには、計画のアダプターとシミュレーションのAPIを使います。実験計画を選ぶ前に、前提と不確かさを評価します。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: explorar curvas de detecção simuladas",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Defina premissas de biblioteca e de desenho, execute simulações e inspecione as frações de detecção, os ajustes que falharam e as ressalvas.",
+      "objectives": [
+       "Definir a biblioteca, a unidade de pontuação e as premissas de desenho.",
+       "Executar varreduras de número de células e de poços com as configurações registradas.",
+       "Ler as frações de detecção e as ressalvas antes de interpretar um desenho."
+      ],
+      "prerequisite": "Prepare premissas sobre o tamanho da biblioteca, guias por gene, fundo, efeito e prevalência. Este módulo simula dados. O exemplo indicado usa só duas réplicas por ponto para mostrar os controles; use repetições suficientes e premissas adequadas para planejar. Nesta versão, inspecione a tabela em vez de confiar em um título que pode recomendar o mesmo número de poços de referência.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Na tela Home, abra Power & Design. Comece pelas premissas que você quer explorar e depois use as curvas de detecção simuladas para comparar as opções de número de células e de poços exibidas.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Power & Design. Comece pelas premissas que você quer explorar e depois use as curvas de detecção simuladas para comparar as opções de número de células e de poços exibidas."
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Defina o tamanho da biblioteca e as guias por gene e escolha a unidade de pontuação. Com quarenta genes e quatro guias por gene, a pontuação por guia usa cento e sessenta unidades; a pontuação por gene reúne as informações das guias.",
+        "hold_after": 0.7,
+        "speech_text": "Defina o tamanho da biblioteca e as guias por gene e escolha a unidade de pontuação. Com quarenta genes e quatro guias por gene, a pontuação por guia usa cento e sessenta unidades; a pontuação por gene reúne as informações das guias."
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Revise juntos os controles de placa, fundo, efeito e prevalência. A taxa de chamadas positivas é uma probabilidade de classificação assumida. Escolha valores que descrevam a análise que você planeja.",
+        "hold_after": 0.7,
+        "speech_text": "Revise juntos os controles de placa, fundo, efeito e prevalência. A taxa de chamadas positivas é uma probabilidade de classificação assumida. Escolha valores que descrevam a análise que você planeja."
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Se um efeito menor que um desativar Run, leia o aviso de direção não suportada. Restaure um valor suportado para continuar; este simulador não cobre todas as direções de efeito possíveis.",
+        "hold_after": 0.7,
+        "speech_text": "Se um efeito menor que um desativar Run, leia o aviso de direção não suportada. Restaure um valor suportado para continuar; este simulador não cobre todas as direções de efeito possíveis."
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Defina repetições, semente, mecanismo de cálculo e limiar de detecção. O limiar usa a área sob a curva ROC. O exemplo usa duas réplicas por ponto para uma execução curta; escolha mais repetições ao estimar a probabilidade de detecção.",
+        "hold_after": 0.7,
+        "speech_text": "Defina repetições, semente, mecanismo de cálculo e limiar de detecção. O limiar usa a área sob a curva ROC. O exemplo usa duas réplicas por ponto para uma execução curta; escolha mais repetições ao estimar a probabilidade de detecção."
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Clique em Run e acompanhe o progresso. O simulador varre separadamente o número de células e o número de poços. Guarde as configurações junto com os resultados concluídos.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Run e acompanhe o progresso. O simulador varre separadamente o número de células e o número de poços. Guarde as configurações junto com os resultados concluídos."
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Leia as contagens de detecção junto com os denominadores. Ajustes que falharam ou não convergiram contam como não detecções. Com duas réplicas pedidas, cem por cento significa apenas duas detecções em duas.",
+        "hold_after": 0.7,
+        "speech_text": "Leia as contagens de detecção junto com os denominadores. Ajustes que falharam ou não convergiram contam como não detecções. Com duas réplicas pedidas, cem por cento significa apenas duas detecções em duas."
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Use a tabela de resultados para inspecionar as frações de detecção, o desempenho médio entre os ajustes utilizáveis e a falta de convergência. Valores médios indisponíveis são resultados ausentes. Interprete a precisão média em relação à prevalência assumida.",
+        "hold_after": 0.7,
+        "speech_text": "Use a tabela de resultados para inspecionar as frações de detecção, o desempenho médio entre os ajustes utilizáveis e a falta de convergência. Valores médios indisponíveis são resultados ausentes. Interprete a precisão média em relação à prevalência assumida."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Compare diretamente os valores de desenho pedidos. Esta versão pode recomendar aumentar para o mesmo número de poços de referência, porque as duas varreduras usam sorteios aleatórios diferentes. Ignore esse título e use a tabela e a incerteza para avaliar a comparação.",
+        "hold_after": 0.7,
+        "speech_text": "Compare diretamente os valores de desenho pedidos. Esta versão pode recomendar aumentar para o mesmo número de poços de referência, porque as duas varreduras usam sorteios aleatórios diferentes. Ignore esse título e use a tabela e a incerteza para avaliar a comparação."
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Expanda as ressalvas e inspecione os ajustes que falharam ou as probabilidades cortadas. Ajuste as premissas quando elas gerarem resultados incompatíveis com o experimento que você quer modelar.",
+        "hold_after": 0.7,
+        "speech_text": "Expanda as ressalvas e inspecione os ajustes que falharam ou as probabilidades cortadas. Ajuste as premissas quando elas gerarem resultados incompatíveis com o experimento que você quer modelar."
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Mantenha juntas as configurações e os resultados das réplicas. O arquivo indicado contém a execução de exemplo para inspeção. Para saída por programa, use o adaptador de desenho e as APIs de simulação; avalie as premissas e a incerteza antes de escolher um desenho experimental.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Mantenha juntas as configurações e os resultados das réplicas. O arquivo indicado contém a execução de exemplo para inspeção. Para saída por programa, use o adaptador de desenho e as APIs de simulação; avalie as premissas e a incerteza antes de escolher um desenho experimental."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design：探索模拟的检出曲线",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "设置文库和设计假设，运行模拟，并检查检出比例、失败的拟合和注意事项。",
+      "objectives": [
+       "设置文库、评分单位和设计假设。",
+       "在记录设置的前提下运行细胞数和孔数扫描。",
+       "在解读设计之前阅读检出比例和注意事项。"
+      ],
+      "prerequisite": "准备好关于文库大小、每个基因的向导数、背景、效应和患病率的假设。此模块模拟数据。链接的示例每个点只用两次重复来演示控件；做规划时请使用足够的重复次数和合适的假设。在此版本中，请检查表格，而不要依赖可能推荐不变的基线孔数的标题。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "从Home打开Power & Design。从您想探索的假设开始，然后用模拟的检出曲线比较显示的细胞数和孔数选项。",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Power & Design。从您想探索的假设开始，然后用模拟的检出曲线比较显示的细胞数和孔数选项。"
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "设置文库大小和每个基因的向导数，然后选择评分单位。四十个基因、每个基因四个向导时，按向导评分使用一百六十个单位；按基因评分会合并向导的信息。",
+        "hold_after": 0.7,
+        "speech_text": "设置文库大小和每个基因的向导数，然后选择评分单位。四十个基因、每个基因四个向导时，按向导评分使用一百六十个单位；按基因评分会合并向导的信息。"
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "一起检查板、背景、效应和患病率的控件。阳性判定率是假设的分类概率。请选择能描述您计划分析的数值。",
+        "hold_after": 0.7,
+        "speech_text": "一起检查板、背景、效应和患病率的控件。阳性判定率是假设的分类概率。请选择能描述您计划分析的数值。"
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "如果小于一的效应使Run不可用，请阅读关于不支持方向的警告。恢复一个受支持的值即可继续；此模拟器并不涵盖所有可能的效应方向。",
+        "hold_after": 0.7,
+        "speech_text": "如果小于一的效应使Run不可用，请阅读关于不支持方向的警告。恢复一个受支持的值即可继续；此模拟器并不涵盖所有可能的效应方向。"
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "设置重复次数、种子、计算后端和检出阈值。阈值使用ROC曲线下面积。示例每个点用两次重复以便快速运行；估计检出概率时请选择更多重复。",
+        "hold_after": 0.7,
+        "speech_text": "设置重复次数、种子、计算后端和检出阈值。阈值使用ROC曲线下面积。示例每个点用两次重复以便快速运行；估计检出概率时请选择更多重复。"
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "点击Run并查看进度。模拟器分别扫描细胞数和孔数。请把设置与完成的结果一起保存。",
+        "hold_after": 0.7,
+        "speech_text": "点击Run并查看进度。模拟器分别扫描细胞数和孔数。请把设置与完成的结果一起保存。"
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "请结合分母阅读检出计数。失败或未收敛的拟合按未检出计。请求两次重复时，百分之百只意味着两次中检出两次。",
+        "hold_after": 0.7,
+        "speech_text": "请结合分母阅读检出计数。失败或未收敛的拟合按未检出计。请求两次重复时，百分之百只意味着两次中检出两次。"
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "用结果表检查检出比例、可用拟合中的平均性能以及未收敛情况。无法得到的平均值属于缺失结果。请结合假设的患病率来解读平均精确率。",
+        "hold_after": 0.7,
+        "speech_text": "用结果表检查检出比例、可用拟合中的平均性能以及未收敛情况。无法得到的平均值属于缺失结果。请结合假设的患病率来解读平均精确率。"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "直接比较所请求的设计值。由于两次扫描使用不同的随机抽样，此版本可能建议增加到与基线相同的孔数。请忽略该标题，用表格和不确定性来评估比较。",
+        "hold_after": 0.7,
+        "speech_text": "直接比较所请求的设计值。由于两次扫描使用不同的随机抽样，此版本可能建议增加到与基线相同的孔数。请忽略该标题，用表格和不确定性来评估比较。"
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "展开注意事项，检查失败的拟合或被截断的概率。当假设产生的结果与您想建模的实验不一致时，请调整假设。",
+        "hold_after": 0.7,
+        "speech_text": "展开注意事项，检查失败的拟合或被截断的概率。当假设产生的结果与您想建模的实验不一致时，请调整假设。"
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "请把设置和重复结果放在一起。链接的归档中包含可供检查的示例运行。如需以编程方式输出，请使用设计适配器和模拟API；在选择实验设计之前，请评估假设和不确定性。",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "请把设置和重复结果放在一起。链接的归档中包含可供检查的示例运行。如需以编程方式输出，请使用设计适配器和模拟API；在选择实验设计之前，请评估假设和不确定性。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: udforsk simulerede detektionskurver",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Angiv antagelser om bibliotek og design, kør simuleringer, og undersøg detektionsandele, mislykkede tilpasninger og forbehold.",
+      "objectives": [
+       "Angive bibliotek, scoringsenhed og designantagelser.",
+       "Køre scanninger af celleantal og brøndantal med registrerede indstillinger.",
+       "Læse detektionsandele og forbehold, før et design fortolkes."
+      ],
+      "prerequisite": "Forbered antagelser om biblioteksstørrelse, guides pr. gen, baggrund, effekt og prævalens. Modulet simulerer data. Det linkede eksempel bruger kun to replikater pr. punkt for at vise kontrollerne; brug tilstrækkeligt mange gentagelser og passende antagelser til planlægning. I denne version bør du undersøge tabellen i stedet for at stole på en overskrift, der kan anbefale det uændrede udgangsantal brønde.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åbner du Power & Design. Begynd med de antagelser, du vil udforske, og brug derefter simulerede detektionskurver til at sammenligne de viste valg af celleantal og brøndantal.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Angiv biblioteksstørrelse og guides pr. gen, og vælg derefter scoringsenhed. Med 40 gener og 4 guides pr. gen bruger guidescoring 160 enheder; genscoring samler guideinformationen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Gennemgå kontrollerne for plade, baggrund, effekt og prævalens samlet. Andelen af positive kald er en antaget klassifikationssandsynlighed. Vælg værdier, der beskriver din planlagte analyse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Hvis en effekt under 1 deaktiverer Run, læser du advarslen om en retning, der ikke understøttes. Gendan en understøttet værdi for at fortsætte; simulatoren dækker ikke alle mulige effektretninger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Angiv gentagelser, seed, beregningsmotor og detektionstærskel. Tærsklen bruger arealet under ROC-kurven. Eksemplet bruger to replikater pr. punkt for en kort kørsel; vælg flere gentagelser, når du estimerer detektionssandsynlighed.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Klik på Run, og følg fremdriften. Simulatoren scanner celleantal og brøndantal separat. Gem indstillingerne sammen med de færdige resultater.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Læs antallet af detektioner sammen med deres nævnere. Mislykkede eller ikke-konvergerede tilpasninger tæller som ikke-detektioner. Med to ønskede replikater betyder 100 % kun to detektioner ud af to.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Brug resultattabellen til at undersøge detektionsandele, gennemsnitlig ydeevne blandt brugbare tilpasninger og manglende konvergens. Gennemsnit, der ikke er tilgængelige, er manglende resultater. Fortolk average precision i forhold til den antagne prævalens.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Sammenlign de ønskede designværdier direkte. Denne version kan anbefale at øge til det samme udgangsantal brønde, fordi de to scanninger bruger forskellige tilfældige udtrækninger. Se bort fra overskriften, og brug tabellen og usikkerheden til at vurdere sammenligningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Fold forbeholdene ud, og undersøg mislykkede tilpasninger eller afskårne sandsynligheder. Justér antagelserne, når de giver udfald, der ikke passer til det forsøg, du vil modellere.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Hold indstillinger og replikatresultater samlet. Det linkede arkiv indeholder eksempelkørslen til gennemsyn. Til programmatisk output bruger du designadapteren og simulerings-API'erne; vurder antagelser og usikkerhed, før du vælger et forsøgsdesign.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: simulierte Nachweiskurven erkunden",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Legen Sie Bibliotheks- und Designannahmen fest, führen Sie Simulationen aus und prüfen Sie Nachweisanteile, fehlgeschlagene Fits und Hinweise.",
+      "objectives": [
+       "Bibliothek, Bewertungseinheit und Designannahmen festlegen.",
+       "Scans über Zell- und Well-Zahlen mit dokumentierten Einstellungen ausführen.",
+       "Nachweisanteile und Hinweise lesen, bevor ein Design interpretiert wird."
+      ],
+      "prerequisite": "Bereiten Sie Annahmen zu Bibliotheksgröße, Guides pro Gen, Hintergrund, Effekt und Prävalenz vor. Dieses Modul simuliert Daten. Das verlinkte Beispiel verwendet nur zwei Replikate pro Punkt, um die Steuerelemente zu zeigen; verwenden Sie für die Planung ausreichend Wiederholungen und passende Annahmen. Prüfen Sie in diesem Build die Tabelle, statt sich auf eine Überschrift zu verlassen, die die unveränderte Ausgangszahl an Wells empfehlen kann.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Öffnen Sie von Home aus Power & Design. Beginnen Sie mit den Annahmen, die Sie untersuchen möchten, und vergleichen Sie dann mit simulierten Nachweiskurven die angezeigten Zell- und Well-Zahlen.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Legen Sie Bibliotheksgröße und Guides pro Gen fest und wählen Sie dann die Bewertungseinheit. Bei 40 Genen und 4 Guides pro Gen verwendet die Guide-Bewertung 160 Einheiten; die Gen-Bewertung fasst die Guide-Informationen zusammen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Prüfen Sie die Steuerelemente für Platte, Hintergrund, Effekt und Prävalenz gemeinsam. Die Rate positiver Treffer ist eine angenommene Klassifikationswahrscheinlichkeit. Wählen Sie Werte, die Ihre geplante Analyse beschreiben.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Wenn ein Effekt unter 1 Run deaktiviert, lesen Sie die Warnung zur nicht unterstützten Richtung. Stellen Sie einen unterstützten Wert wieder her, um fortzufahren; dieser Simulator deckt nicht jede mögliche Effektrichtung ab.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Legen Sie Wiederholungen, Seed, Backend und Nachweisschwelle fest. Die Schwelle verwendet die Fläche unter der ROC-Kurve. Das Beispiel nutzt für einen kurzen Lauf zwei Replikate pro Punkt; wählen Sie mehr Wiederholungen, wenn Sie die Nachweiswahrscheinlichkeit schätzen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Klicken Sie auf Run und verfolgen Sie den Fortschritt. Der Simulator scannt Zell- und Well-Zahlen getrennt. Bewahren Sie die Einstellungen zusammen mit den fertigen Ergebnissen auf.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Lesen Sie Nachweiszahlen zusammen mit ihren Nennern. Fehlgeschlagene oder nicht konvergierte Fits zählen als Nicht-Nachweise. Bei zwei angeforderten Replikaten bedeutet 100 % nur zwei Nachweise von zwei.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Prüfen Sie in der Ergebnistabelle Nachweisanteile, mittlere Leistung unter verwertbaren Fits und fehlende Konvergenz. Nicht verfügbare Mittelwerte sind fehlende Ergebnisse. Interpretieren Sie die Average Precision im Verhältnis zur angenommenen Prävalenz.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Vergleichen Sie die angeforderten Designwerte direkt. Dieser Build kann empfehlen, auf dieselbe Ausgangszahl an Wells zu erhöhen, weil die beiden Scans unterschiedliche Zufallsziehungen verwenden. Ignorieren Sie diese Überschrift und beurteilen Sie den Vergleich anhand von Tabelle und Unsicherheit.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Klappen Sie die Hinweise auf und prüfen Sie fehlgeschlagene Fits oder abgeschnittene Wahrscheinlichkeiten. Passen Sie Annahmen an, wenn sie Ergebnisse liefern, die nicht zum modellierten Experiment passen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Bewahren Sie Einstellungen und Replikatergebnisse zusammen auf. Das verlinkte Archiv enthält den Beispiellauf zur Ansicht. Für programmatische Ausgaben verwenden Sie den Design-Adapter und die Simulations-APIs; beurteilen Sie Annahmen und Unsicherheit, bevor Sie ein Versuchsdesign wählen.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: kannaðu hermda greiningarferla",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Settu forsendur um safn og hönnun, keyrðu hermanir og skoðaðu hlutföll greininga, misheppnaðar aðlaganir og fyrirvara.",
+      "objectives": [
+       "Setja safn, stigaeiningu og forsendur hönnunar.",
+       "Keyra skannanir á fjölda frumna og brunna með skráðum stillingum.",
+       "Lesa hlutföll greininga og fyrirvara áður en hönnun er túlkuð."
+      ],
+      "prerequisite": "Undirbúðu forsendur um stærð safns, leiðara á gen, bakgrunn, áhrif og algengi. Þessi eining hermir gögn. Tengda dæmið notar aðeins tvær endurtekningar á punkt til að sýna stýringarnar; notaðu nægar endurtekningar og viðeigandi forsendur við skipulagningu. Í þessari útgáfu skaltu skoða töfluna fremur en treysta fyrirsögn sem getur mælt með óbreyttum grunnfjölda brunna.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Frá Home opnarðu Power & Design. Byrjaðu á forsendunum sem þú vilt kanna og notaðu svo hermda greiningarferla til að bera saman birtan fjölda frumna og brunna.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Stilltu stærð safnsins og leiðara á gen og veldu svo stigaeiningu. Með 40 genum og 4 leiðurum á gen notar stigagjöf eftir leiðurum 160 einingar; stigagjöf eftir genum sameinar upplýsingar leiðaranna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Farðu saman yfir stýringar fyrir plötu, bakgrunn, áhrif og algengi. Hlutfall jákvæðra greininga er gefnar líkur á flokkun. Veldu gildi sem lýsa fyrirhugaðri greiningu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Ef áhrif undir 1 gera Run óvirkt skaltu lesa viðvörunina um stefnu sem ekki er studd. Settu aftur stutt gildi til að halda áfram; hermirinn nær ekki yfir allar mögulegar stefnur áhrifa.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Stilltu endurtekningar, fræ, reiknivél og greiningarþröskuld. Þröskuldurinn notar flatarmálið undir ROC-ferlinum. Dæmið notar tvær endurtekningar á punkt fyrir stutta keyrslu; veldu fleiri endurtekningar þegar þú metur líkur á greiningu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Smelltu á Run og fylgstu með framvindunni. Hermirinn skannar fjölda frumna og fjölda brunna hvorn fyrir sig. Geymdu stillingarnar með fullgerðu niðurstöðunum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Lestu fjölda greininga ásamt nefnurum þeirra. Misheppnaðar eða ósamleitnar aðlaganir teljast sem engar greiningar. Með tveimur umbeðnum endurtekningum þýðir 100 % aðeins tvær greiningar af tveimur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Notaðu niðurstöðutöfluna til að skoða hlutföll greininga, meðalárangur nothæfra aðlagana og skort á samleitni. Meðalgildi sem vantar eru niðurstöður sem vantar. Túlkaðu average precision miðað við gefið algengi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Berðu umbeðin hönnunargildi beint saman. Þessi útgáfa getur mælt með því að auka í sama grunnfjölda brunna því að skannanirnar tvær nota ólíka slembidrætti. Hunsaðu fyrirsögnina og notaðu töfluna og óvissuna til að meta samanburðinn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Opnaðu fyrirvarana og skoðaðu misheppnaðar aðlaganir eða stýfðar líkur. Breyttu forsendum þegar þær gefa útkomur sem samræmast ekki tilrauninni sem þú vilt líkja eftir.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Geymdu stillingar og niðurstöður endurtekninga saman. Tengda safnskráin inniheldur dæmiskeyrsluna til skoðunar. Fyrir úttak með forritun notarðu hönnunarmillistykkið og hermunar-API; mettu forsendur og óvissu áður en þú velur tilraunahönnun.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: 시뮬레이션 검출 곡선 살펴보기",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "라이브러리와 설계 가정을 정하고, 시뮬레이션을 실행한 뒤 검출 비율, 실패한 적합, 주의 사항을 확인합니다.",
+      "objectives": [
+       "라이브러리, 점수 단위, 설계 가정을 정합니다.",
+       "설정을 기록한 채로 세포 수와 웰 수 스캔을 실행합니다.",
+       "설계를 해석하기 전에 검출 비율과 주의 사항을 읽습니다."
+      ],
+      "prerequisite": "라이브러리 크기, 유전자당 가이드 수, 배경, 효과, 유병률에 대한 가정을 준비하세요. 이 모듈은 데이터를 시뮬레이션합니다. 연결된 예제는 컨트롤을 보여 주려고 점마다 반복을 2회만 쓰므로, 계획에는 충분한 반복과 알맞은 가정을 쓰세요. 이 빌드에서는 기준 웰 수를 그대로 권할 수 있는 제목에 의존하지 말고 표를 확인하세요.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home에서 Power & Design을 여세요. 살펴보고 싶은 가정에서 시작해, 시뮬레이션 검출 곡선으로 표시된 세포 수와 웰 수 선택지를 비교하세요.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "라이브러리 크기와 유전자당 가이드 수를 정한 뒤 점수 단위를 고르세요. 유전자 40개, 유전자당 가이드 4개이면 가이드 단위 점수에는 160개 단위를 쓰며, 유전자 단위 점수는 가이드 정보를 합칩니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "플레이트, 배경, 효과, 유병률 컨트롤을 함께 검토하세요. 양성 판정률은 가정한 분류 확률입니다. 계획한 분석을 설명하는 값을 고르세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "1보다 작은 효과 때문에 Run이 비활성화되면, 지원하지 않는 방향에 관한 경고를 읽으세요. 계속하려면 지원하는 값으로 되돌리세요. 이 시뮬레이터는 모든 효과 방향을 다루지는 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "반복 수, 시드, 계산 백엔드, 검출 임계값을 설정하세요. 임계값은 ROC 곡선 아래 면적을 씁니다. 예제는 짧게 실행하려고 점마다 반복을 2회 쓰므로, 검출 확률을 추정할 때는 반복을 늘리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Run을 클릭하고 진행 상황을 지켜보세요. 시뮬레이터는 세포 수와 웰 수를 따로 스캔합니다. 설정을 완료된 결과와 함께 보관하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "검출 개수는 분모와 함께 읽으세요. 실패했거나 수렴하지 않은 적합은 미검출로 남습니다. 요청한 반복이 2회라면 100%는 2회 중 2회 검출일 뿐입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "결과 표로 검출 비율, 쓸 수 있는 적합의 평균 성능, 비수렴을 확인하세요. 얻을 수 없는 평균값은 누락된 결과입니다. 평균 정밀도는 가정한 유병률과 비교해 해석하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "요청한 설계 값을 직접 비교하세요. 두 스캔이 서로 다른 무작위 추출을 쓰므로, 이 빌드는 기준과 같은 웰 수로 늘리라고 권할 수 있습니다. 그 제목은 무시하고 표와 불확실성으로 비교를 평가하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "주의 사항을 펼쳐 실패한 적합이나 잘린 확률을 확인하세요. 가정이 모델링하려는 실험과 맞지 않는 결과를 내면 가정을 조정하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "설정과 반복 결과를 함께 보관하세요. 연결된 압축 파일에는 확인용 예제 실행이 들어 있습니다. 프로그램으로 출력하려면 설계 어댑터와 시뮬레이션 API를 쓰고, 실험 설계를 고르기 전에 가정과 불확실성을 평가하세요.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: utforsk simulerte deteksjonskurver",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Angi antakelser om bibliotek og design, kjør simuleringer og undersøk deteksjonsandeler, mislykkede tilpasninger og forbehold.",
+      "objectives": [
+       "Angi bibliotek, vurderingsenhet og designantakelser.",
+       "Kjøre skanninger av celleantall og brønnantall med registrerte innstillinger.",
+       "Lese deteksjonsandeler og forbehold før et design tolkes."
+      ],
+      "prerequisite": "Forbered antakelser om bibliotekstørrelse, guider per gen, bakgrunn, effekt og prevalens. Modulen simulerer data. Det lenkede eksemplet bruker bare to replikater per punkt for å vise kontrollene; bruk nok gjentakelser og passende antakelser til planlegging. I denne versjonen bør du undersøke tabellen i stedet for å stole på en overskrift som kan anbefale uendret utgangsantall brønner.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åpner du Power & Design. Begynn med antakelsene du vil utforske, og bruk deretter simulerte deteksjonskurver til å sammenligne de viste valgene for celleantall og brønnantall.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Angi bibliotekstørrelse og guider per gen, og velg deretter vurderingsenhet. Med 40 gener og 4 guider per gen bruker guidevurdering 160 enheter; genvurdering slår sammen guideinformasjonen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Gå gjennom kontrollene for plate, bakgrunn, effekt og prevalens samlet. Andelen positive kall er en antatt klassifiseringssannsynlighet. Velg verdier som beskriver den planlagte analysen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Hvis en effekt under 1 deaktiverer Run, leser du advarselen om retning som ikke støttes. Gjenopprett en støttet verdi for å fortsette; simulatoren dekker ikke alle mulige effektretninger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Angi gjentakelser, frø, beregningsmotor og deteksjonsterskel. Terskelen bruker arealet under ROC-kurven. Eksemplet bruker to replikater per punkt for en kort kjøring; velg flere gjentakelser når du anslår deteksjonssannsynlighet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Klikk på Run og følg fremdriften. Simulatoren skanner celleantall og brønnantall separat. Ta vare på innstillingene sammen med de ferdige resultatene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Les antall deteksjoner sammen med nevnerne. Mislykkede eller ikke-konvergerte tilpasninger regnes som ikke-deteksjoner. Med to ønskede replikater betyr 100 % bare to deteksjoner av to.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Bruk resultattabellen til å undersøke deteksjonsandeler, gjennomsnittlig ytelse blant brukbare tilpasninger og manglende konvergens. Gjennomsnitt som ikke er tilgjengelige, er manglende resultater. Tolk average precision i forhold til den antatte prevalensen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Sammenlign de ønskede designverdiene direkte. Denne versjonen kan anbefale å øke til samme utgangsantall brønner fordi de to skanningene bruker ulike tilfeldige trekninger. Se bort fra overskriften og bruk tabellen og usikkerheten til å vurdere sammenligningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Utvid forbeholdene og undersøk mislykkede tilpasninger eller avkuttede sannsynligheter. Juster antakelsene når de gir utfall som ikke stemmer med eksperimentet du vil modellere.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Hold innstillinger og replikatresultater samlet. Det lenkede arkivet inneholder eksempelkjøringen for gjennomgang. For programmatisk utdata bruker du designadapteren og simulerings-API-ene; vurder antakelser og usikkerhet før du velger et eksperimentelt design.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 52,
+     "preceding": [
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "67_experiment_design",
+     "next": "69_dose_response",
+     "entry": {
+      "id": "68_power_design",
+      "number": 68,
+      "slug": "power_design",
+      "title": "Power & Design: utforska simulerade detektionskurvor",
+      "series": 5,
+      "app_key": "power",
+      "section": "Design",
+      "example_files": [
+       "Power_recorded_simulation_review.zip"
+      ],
+      "description": "Ange antaganden om bibliotek och design, kör simuleringar och granska detektionsandelar, misslyckade anpassningar och förbehåll.",
+      "objectives": [
+       "Ange bibliotek, bedömningsenhet och designantaganden.",
+       "Köra skanningar av cellantal och brunnsantal med registrerade inställningar.",
+       "Läsa detektionsandelar och förbehåll innan en design tolkas."
+      ],
+      "prerequisite": "Förbered antaganden om biblioteksstorlek, guider per gen, bakgrund, effekt och prevalens. Modulen simulerar data. Det länkade exemplet använder bara två replikat per punkt för att visa kontrollerna; använd tillräckligt många upprepningar och lämpliga antaganden vid planering. I den här versionen bör du granska tabellen i stället för att lita på en rubrik som kan rekommendera oförändrat utgångsantal brunnar.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Från Home öppnar du Power & Design. Börja med de antaganden du vill utforska och använd sedan simulerade detektionskurvor för att jämföra de visade valen av cellantal och brunnsantal.",
+        "related_lessons": [
+         "67_experiment_design"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_guide_library",
+        "narration": "Ange biblioteksstorlek och guider per gen och välj sedan bedömningsenhet. Med 40 gener och 4 guider per gen använder guidebedömning 160 enheter; genbedömning slår samman guideinformationen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_bounded_library_plate",
+        "narration": "Granska kontrollerna för platta, bakgrund, effekt och prevalens tillsammans. Andelen positiva anrop är en antagen klassificeringssannolikhet. Välj värden som beskriver din planerade analys.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_unsupported_effect_warning",
+        "narration": "Om en effekt under 1 inaktiverar Run läser du varningen om riktning som inte stöds. Återställ ett värde som stöds för att fortsätta; simulatorn täcker inte alla tänkbara effektriktningar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_run_settings",
+        "narration": "Ange upprepningar, frö, beräkningsmotor och detektionströskel. Tröskeln använder arean under ROC-kurvan. Exemplet använder två replikat per punkt för en kort körning; välj fler upprepningar när du skattar detektionssannolikhet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_real_simulation_running",
+        "narration": "Klicka på Run och följ förloppet. Simulatorn skannar cellantal och brunnsantal separat. Spara inställningarna tillsammans med de färdiga resultaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "narration": "Läs antalet detektioner tillsammans med nämnarna. Misslyckade eller icke-konvergerade anpassningar räknas som icke-detektioner. Med två begärda replikat betyder 100 % bara två detektioner av två.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_results",
+        "focus": [
+         1450,
+         1590,
+         2380,
+         460
+        ],
+        "narration": "Använd resultattabellen för att granska detektionsandelar, genomsnittlig prestanda bland användbara anpassningar och bristande konvergens. Medelvärden som saknas är saknade resultat. Tolka average precision i förhållande till den antagna prevalensen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "focus": [
+         1450,
+         210,
+         2380,
+         110
+        ],
+        "narration": "Jämför de begärda designvärdena direkt. Den här versionen kan rekommendera att öka till samma utgångsantal brunnar eftersom de två skanningarna använder olika slumpdragningar. Bortse från den rubriken och använd tabellen och osäkerheten för att bedöma jämförelsen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_full_caveats",
+        "narration": "Fäll ut förbehållen och granska misslyckade anpassningar eller avklippta sannolikheter. Justera antagandena när de ger utfall som inte stämmer med experimentet du vill modellera.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_results_and_limitations",
+        "narration": "Håll inställningar och replikatresultat samlade. Det länkade arkivet innehåller exempelkörningen för granskning. För programmatiska utdata använder du designadaptern och simulerings-API:erna; bedöm antaganden och osäkerhet innan du väljer en försöksdesign.",
+        "related_lessons": [
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "05_home",
+     "scene": 11,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "67_experiment_design",
+     "scene": 1,
+     "links": [
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "67_experiment_design",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "68_power_design",
+      "33_plate_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 8,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 5,
+     "links": [
+      "67_experiment_design",
+      "68_power_design"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 6,
+     "links": [
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       1,
+       "groups",
+       1,
+       "lessons"
+      ],
+      "preceding": [
+       "67_experiment_design",
+       "50_run_compare",
+       "77_embeddings",
+       "36_import"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 47,
+     "value": {
+      "kind": "main",
+      "app_key": "power"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/68_power_design -> tools/tutorials/archive/production/docs/68_power_design"
+ ],
+ "prose": []
+}

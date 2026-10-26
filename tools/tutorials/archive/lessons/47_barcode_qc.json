@@ -1,0 +1,3556 @@
+{
+ "schema": 1,
+ "id": "47_barcode_qc",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "objectives": [
+       "Choose count inputs and QC settings.",
+       "Inspect coverage and positional effects.",
+       "Compare thresholds and keep the resulting tables and plots."
+      ],
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "47_barcode_qc/poster.jpg",
+      "silent": "47_barcode_qc/video/47_barcode_qc_silent.mp4",
+      "web": "47_barcode_qc/web/47_barcode_qc_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "objectives": [
+       "Choose count inputs and QC settings.",
+       "Inspect coverage and positional effects.",
+       "Compare thresholds and keep the resulting tables and plots."
+      ],
+      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: revisar la profundidad de lectura y elegir un umbral",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Carga recuentos mapeados, revisa la cobertura de pozos y de guías, y compara umbrales de abundancia.",
+      "objectives": [
+       "Elegir las entradas de recuentos y los ajustes de control de calidad.",
+       "Revisar la cobertura y los efectos de posición.",
+       "Comparar umbrales y conservar las tablas y los gráficos resultantes."
+      ],
+      "prerequisite": "Usa plate_1_unique_combinations.csv de los datos del cribado de ejemplo descargados en el tutorial de Regression, o tu propia tabla de recuentos mapeados. Elige una carpeta de salida nueva. Proporciona archivos de control de calidad del mapeo y de referencia de códigos de barras cuando necesites comprobaciones que dependen de las lecturas sin mapear o de la biblioteca esperada.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Abre Map Barcodes y luego Barcode QC. Empieza con una tabla de recuentos mapeados; el ejemplo de Regression enlazado proporciona una para practicar.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre Map Barcodes y luego Barcode QC. Empieza con una tabla de recuentos mapeados; el ejemplo de Regression enlazado proporciona una para practicar."
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Pon en Count data tu tabla de recuentos y elige un destino de salida nuevo. El ejemplo contiene lecturas mapeadas en trescientos ochenta y cuatro pozos.",
+        "hold_after": 0.7,
+        "speech_text": "Pon en Count data tu tabla de recuentos y elige un destino de salida nuevo. El ejemplo contiene lecturas mapeadas en trescientos ochenta y cuatro pozos."
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Ajusta Target gRNAs per well según tu diseño experimental y elige el método de resumen usado para derivar el umbral. El ejemplo usa cinco y median.",
+        "hold_after": 0.7,
+        "speech_text": "Ajusta Target gRNAs per well según tu diseño experimental y elige el método de resumen usado para derivar el umbral. El ejemplo usa cinco y median."
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Ajusta Starved read fraction para señalar los pozos con pocas lecturas respecto a la mediana de la placa. El ejemplo usa cero coma uno. Revisa los pozos señalados antes de excluirlos.",
+        "hold_after": 0.7,
+        "speech_text": "Ajusta Starved read fraction para señalar los pozos con pocas lecturas respecto a la mediana de la placa. El ejemplo usa cero coma uno. Revisa los pozos señalados antes de excluirlos."
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Activa Plot y Save y pulsa Run. Añade las entradas de control de calidad del mapeo o de referencia cuando quieras sus comprobaciones correspondientes; la tabla de recuentos por sí sola describe las lecturas mapeadas observadas.",
+        "hold_after": 0.7,
+        "speech_text": "Activa Plot y Save y pulsa Run. Añade las entradas de control de calidad del mapeo o de referencia cuando quieras sus comprobaciones correspondientes; la tabla de recuentos por sí sola describe las lecturas mapeadas observadas."
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Lee el registro de finalización y las rutas de salida guardadas. Investiga los errores comparándolos con las entradas seleccionadas antes de usar los resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Lee el registro de finalización y las rutas de salida guardadas. Investiga los errores comparándolos con las entradas seleccionadas antes de usar los resultados."
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Abre barcode QC punto PNG y threshold sweep punto PNG en la carpeta de salida. Usa un visor de imágenes si el panel Figures está vacío.",
+        "hold_after": 0.7,
+        "speech_text": "Abre barcode QC punto PNG y threshold sweep punto PNG en la carpeta de salida. Usa un visor de imágenes si el panel Figures está vacío."
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Revisa la profundidad de lectura, los efectos de fila y columna y la representación de las guías. Compara con una biblioteca de referencia cuando necesites identificar guías esperadas que faltan por completo.",
+        "hold_after": 0.7,
+        "speech_text": "Revisa la profundidad de lectura, los efectos de fila y columna y la representación de las guías. Compara con una biblioteca de referencia cuando necesites identificar guías esperadas que faltan por completo."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Revisa el barrido de umbrales. En este ejemplo, un umbral de alrededor del uno coma dos uno por ciento de las lecturas de cada pozo da una mediana de cinco guías y conserva aproximadamente el cincuenta y ocho por ciento de las lecturas mapeadas.",
+        "hold_after": 0.7,
+        "speech_text": "Revisa el barrido de umbrales. En este ejemplo, un umbral de alrededor del uno coma dos uno por ciento de las lecturas de cada pozo da una mediana de cinco guías y conserva aproximadamente el cincuenta y ocho por ciento de las lecturas mapeadas."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Compara las lecturas conservadas, los pozos conservados y los pozos por encima del objetivo de guías a medida que cambia el umbral. Elige un umbral adecuado a tu diseño; el objetivo de guías no garantiza la atribución a una sola guía.",
+        "hold_after": 0.7,
+        "speech_text": "Compara las lecturas conservadas, los pozos conservados y los pozos por encima del objetivo de guías a medida que cambia el umbral. Elige un umbral adecuado a tu diseño; el objetivo de guías no garantiza la atribución a una sola guía."
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Guarda la recomendación, la tabla del barrido, los gráficos y los ajustes junto con los recuentos de origen. Usa el umbral elegido de forma coherente en el análisis posterior y anota el motivo de tu elección.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guarda la recomendación, la tabla del barrido, los gráficos y los ajustes junto con los recuentos de origen. Usa el umbral elegido de forma coherente en el análisis posterior y anota el motivo de tu elección."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC : examiner la profondeur de lecture et choisir un seuil",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Chargez des comptages assignés, examinez la couverture des puits et des guides, et comparez des seuils d’abondance.",
+      "objectives": [
+       "Choisir les entrées de comptage et les paramètres de contrôle qualité.",
+       "Examiner la couverture et les effets de position.",
+       "Comparer des seuils et conserver les tables et graphiques obtenus."
+      ],
+      "prerequisite": "Utilisez plate_1_unique_combinations.csv issu des données du criblage d’exemple téléchargées dans le tutoriel Regression, ou votre propre table de comptages assignés. Choisissez un nouveau dossier de sortie. Fournissez les fichiers de contrôle qualité de l’assignation et de référence des codes-barres lorsque vous avez besoin de vérifications qui dépendent des lectures non assignées ou de la banque attendue.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Ouvrez Map Barcodes, puis Barcode QC. Partez d’une table de comptages assignés ; l’exemple Regression associé en fournit une pour vous exercer.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Map Barcodes, puis Barcode QC. Partez d’une table de comptages assignés ; l’exemple Regression associé en fournit une pour vous exercer."
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Réglez Count data sur votre table de comptages et choisissez une nouvelle destination de sortie. L’exemple contient des lectures assignées sur trois cent quatre-vingt-quatre puits.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Count data sur votre table de comptages et choisissez une nouvelle destination de sortie. L’exemple contient des lectures assignées sur trois cent quatre-vingt-quatre puits."
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Réglez Target gRNAs per well d’après votre plan d’expérience et choisissez la méthode de synthèse utilisée pour dériver le seuil. L’exemple utilise cinq et median.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Target gRNAs per well d’après votre plan d’expérience et choisissez la méthode de synthèse utilisée pour dériver le seuil. L’exemple utilise cinq et median."
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Réglez Starved read fraction pour signaler les puits ayant peu de lectures par rapport à la médiane de la plaque. L’exemple utilise zéro virgule un. Examinez les puits signalés avant de les exclure.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Starved read fraction pour signaler les puits ayant peu de lectures par rapport à la médiane de la plaque. L’exemple utilise zéro virgule un. Examinez les puits signalés avant de les exclure."
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Activez Plot et Save, puis appuyez sur Run. Ajoutez les entrées de contrôle qualité de l’assignation ou de référence si vous voulez les vérifications correspondantes ; la table de comptages seule décrit les lectures assignées observées.",
+        "hold_after": 0.7,
+        "speech_text": "Activez Plot et Save, puis appuyez sur Run. Ajoutez les entrées de contrôle qualité de l’assignation ou de référence si vous voulez les vérifications correspondantes ; la table de comptages seule décrit les lectures assignées observées."
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Lisez le journal de fin et les chemins de sortie enregistrés. Examinez les erreurs au regard des entrées sélectionnées avant d’utiliser les résultats.",
+        "hold_after": 0.7,
+        "speech_text": "Lisez le journal de fin et les chemins de sortie enregistrés. Examinez les erreurs au regard des entrées sélectionnées avant d’utiliser les résultats."
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Ouvrez barcode QC point PNG et threshold sweep point PNG dans le dossier de sortie. Utilisez une visionneuse d’images si le panneau Figures est vide.",
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez barcode QC point PNG et threshold sweep point PNG dans le dossier de sortie. Utilisez une visionneuse d’images si le panneau Figures est vide."
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Examinez la profondeur de lecture, les effets de ligne et de colonne et la représentation des guides. Comparez avec une banque de référence lorsque vous devez repérer des guides attendus totalement absents.",
+        "hold_after": 0.7,
+        "speech_text": "Examinez la profondeur de lecture, les effets de ligne et de colonne et la représentation des guides. Comparez avec une banque de référence lorsque vous devez repérer des guides attendus totalement absents."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Examinez le balayage des seuils. Dans cet exemple, un seuil proche de un virgule deux un pour cent des lectures de chaque puits donne une médiane de cinq guides tout en conservant environ cinquante-huit pour cent des lectures assignées.",
+        "hold_after": 0.7,
+        "speech_text": "Examinez le balayage des seuils. Dans cet exemple, un seuil proche de un virgule deux un pour cent des lectures de chaque puits donne une médiane de cinq guides tout en conservant environ cinquante-huit pour cent des lectures assignées."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Comparez les lectures conservées, les puits conservés et les puits au-dessus de l’objectif de guides à mesure que le seuil change. Choisissez un seuil adapté à votre plan ; l’objectif de guides ne garantit pas l’attribution à un seul guide.",
+        "hold_after": 0.7,
+        "speech_text": "Comparez les lectures conservées, les puits conservés et les puits au-dessus de l’objectif de guides à mesure que le seuil change. Choisissez un seuil adapté à votre plan ; l’objectif de guides ne garantit pas l’attribution à un seul guide."
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Conservez la recommandation, la table de balayage, les graphiques et les paramètres avec les comptages d’origine. Appliquez le seuil choisi de façon cohérente dans l’analyse en aval et consignez la raison de votre choix.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conservez la recommandation, la table de balayage, les graphiques et les paramètres avec les comptages d’origine. Appliquez le seuil choisi de façon cohérente dans l’analyse en aval et consignez la raison de votre choix."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: रीड गहराई देखें और कटऑफ़ चुनें",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "मैप की गई गिनती लोड करें, वेल और गाइड का कवरेज देखें, और मात्रा की सीमाओं की तुलना करें।",
+      "objectives": [
+       "गिनती वाले इनपुट और गुणवत्ता जाँच सेटिंग चुनें।",
+       "कवरेज और स्थिति के असर देखें।",
+       "सीमाओं की तुलना करें और बनी तालिकाएँ और प्लॉट रखें।"
+      ],
+      "prerequisite": "Regression ट्यूटोरियल में डाउनलोड किए गए उदाहरण स्क्रीन डेटा की plate_1_unique_combinations.csv, या अपनी मैप की गई गिनती तालिका इस्तेमाल करें। एक नया आउटपुट फ़ोल्डर चुनें। जब बिना मैप हुई रीड या अपेक्षित लाइब्रेरी पर निर्भर जाँच चाहिए, तो मैपिंग QC और बारकोड संदर्भ फ़ाइलें दें।",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Map Barcodes खोलें, फिर Barcode QC। मैप की गई गिनती तालिका से शुरू करें; जुड़ा हुआ Regression उदाहरण अभ्यास के लिए एक तालिका देता है।",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Map Barcodes खोलें, फिर Barcode QC। मैप की गई गिनती तालिका से शुरू करें; जुड़ा हुआ Regression उदाहरण अभ्यास के लिए एक तालिका देता है।"
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Count data में अपनी गिनती तालिका रखें और एक नया आउटपुट गंतव्य चुनें। उदाहरण में तीन सौ चौरासी वेल में मैप की गई रीड हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Count data में अपनी गिनती तालिका रखें और एक नया आउटपुट गंतव्य चुनें। उदाहरण में तीन सौ चौरासी वेल में मैप की गई रीड हैं।"
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "अपने प्रयोग के डिज़ाइन के अनुसार Target gRNAs per well सेट करें और कटऑफ़ निकालने की सारांश विधि चुनें। उदाहरण पाँच और median इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "speech_text": "अपने प्रयोग के डिज़ाइन के अनुसार Target gRNAs per well सेट करें और कटऑफ़ निकालने की सारांश विधि चुनें। उदाहरण पाँच और median इस्तेमाल करता है।"
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "प्लेट की माध्यिका की तुलना में कम रीड वाले वेल चिह्नित करने के लिए Starved read fraction सेट करें। उदाहरण शून्य दशमलव एक इस्तेमाल करता है। चिह्नित वेल हटाने से पहले उन्हें देखें।",
+        "hold_after": 0.7,
+        "speech_text": "प्लेट की माध्यिका की तुलना में कम रीड वाले वेल चिह्नित करने के लिए Starved read fraction सेट करें। उदाहरण शून्य दशमलव एक इस्तेमाल करता है। चिह्नित वेल हटाने से पहले उन्हें देखें।"
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Plot और Save चालू करें, फिर Run दबाएँ। जब उनकी संबंधित जाँच चाहिए, तो मैपिंग QC या संदर्भ इनपुट जोड़ें; अकेली गिनती तालिका केवल देखी गई मैप की गई रीड बताती है।",
+        "hold_after": 0.7,
+        "speech_text": "Plot और Save चालू करें, फिर Run दबाएँ। जब उनकी संबंधित जाँच चाहिए, तो मैपिंग QC या संदर्भ इनपुट जोड़ें; अकेली गिनती तालिका केवल देखी गई मैप की गई रीड बताती है।"
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "पूरा होने का लॉग और सहेजे गए आउटपुट पथ पढ़ें। परिणाम इस्तेमाल करने से पहले त्रुटियों की जाँच चुने गए इनपुट के संदर्भ में करें।",
+        "hold_after": 0.7,
+        "speech_text": "पूरा होने का लॉग और सहेजे गए आउटपुट पथ पढ़ें। परिणाम इस्तेमाल करने से पहले त्रुटियों की जाँच चुने गए इनपुट के संदर्भ में करें।"
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "आउटपुट फ़ोल्डर से barcode QC डॉट PNG और threshold sweep डॉट PNG खोलें। अगर Figures पैनल खाली हो, तो इमेज व्यूअर इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "speech_text": "आउटपुट फ़ोल्डर से barcode QC डॉट PNG और threshold sweep डॉट PNG खोलें। अगर Figures पैनल खाली हो, तो इमेज व्यूअर इस्तेमाल करें।"
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "रीड गहराई, पंक्ति और कॉलम के असर, और गाइड का प्रतिनिधित्व देखें। जब पूरी तरह गायब अपेक्षित गाइड पहचानने हों, तो संदर्भ लाइब्रेरी से तुलना करें।",
+        "hold_after": 0.7,
+        "speech_text": "रीड गहराई, पंक्ति और कॉलम के असर, और गाइड का प्रतिनिधित्व देखें। जब पूरी तरह गायब अपेक्षित गाइड पहचानने हों, तो संदर्भ लाइब्रेरी से तुलना करें।"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "सीमा स्वीप देखें। इस उदाहरण में हर वेल की रीड के लगभग एक दशमलव दो एक प्रतिशत की कटऑफ़ से गाइड की माध्यिका पाँच होती है, और मैप की गई लगभग अट्ठावन प्रतिशत रीड बनी रहती हैं।",
+        "hold_after": 0.7,
+        "speech_text": "सीमा स्वीप देखें। इस उदाहरण में हर वेल की रीड के लगभग एक दशमलव दो एक प्रतिशत की कटऑफ़ से गाइड की माध्यिका पाँच होती है, और मैप की गई लगभग अट्ठावन प्रतिशत रीड बनी रहती हैं।"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "कटऑफ़ बदलने पर बची रीड, बचे वेल और गाइड लक्ष्य से ऊपर वाले वेल की तुलना करें। अपने डिज़ाइन के अनुकूल कटऑफ़ चुनें; गाइड लक्ष्य से यह तय नहीं होता कि परिणाम एक ही गाइड का है।",
+        "hold_after": 0.7,
+        "speech_text": "कटऑफ़ बदलने पर बची रीड, बचे वेल और गाइड लक्ष्य से ऊपर वाले वेल की तुलना करें। अपने डिज़ाइन के अनुकूल कटऑफ़ चुनें; गाइड लक्ष्य से यह तय नहीं होता कि परिणाम एक ही गाइड का है।"
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "सुझाव, स्वीप तालिका, प्लॉट और सेटिंग को स्रोत गिनती के साथ रखें। चुनी गई कटऑफ़ को आगे के विश्लेषण में एक जैसा इस्तेमाल करें और चुनाव का कारण दर्ज करें।",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "सुझाव, स्वीप तालिका, प्लॉट और सेटिंग को स्रोत गिनती के साथ रखें। चुनी गई कटऑफ़ को आगे के विश्लेषण में एक जैसा इस्तेमाल करें और चुनाव का कारण दर्ज करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: esaminare la profondità di lettura e scegliere una soglia",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Carica i conteggi mappati, esamina la copertura di pozzetti e guide e confronta le soglie di abbondanza.",
+      "objectives": [
+       "Scegliere gli input dei conteggi e le impostazioni di controllo qualità.",
+       "Esaminare la copertura e gli effetti di posizione.",
+       "Confrontare le soglie e conservare le tabelle e i grafici ottenuti."
+      ],
+      "prerequisite": "Usa plate_1_unique_combinations.csv dai dati dello screening di esempio scaricati nel tutorial di Regression, oppure una tua tabella di conteggi mappati. Scegli una nuova cartella di output. Fornisci i file di controllo qualità della mappatura e di riferimento dei codici a barre quando ti servono controlli che dipendono dalle letture non mappate o dalla libreria attesa.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Apri Map Barcodes e poi Barcode QC. Parti da una tabella di conteggi mappati; l’esempio di Regression collegato ne fornisce una per esercitarti.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri Map Barcodes e poi Barcode QC. Parti da una tabella di conteggi mappati; l’esempio di Regression collegato ne fornisce una per esercitarti."
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Imposta Count data sulla tua tabella di conteggi e scegli una nuova destinazione di output. L’esempio contiene letture mappate su trecentottantaquattro pozzetti.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta Count data sulla tua tabella di conteggi e scegli una nuova destinazione di output. L’esempio contiene letture mappate su trecentottantaquattro pozzetti."
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Imposta Target gRNAs per well in base al disegno sperimentale e scegli il metodo di sintesi usato per ricavare la soglia. L’esempio usa cinque e median.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta Target gRNAs per well in base al disegno sperimentale e scegli il metodo di sintesi usato per ricavare la soglia. L’esempio usa cinque e median."
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Imposta Starved read fraction per segnalare i pozzetti con poche letture rispetto alla mediana della piastra. L’esempio usa zero virgola uno. Esamina i pozzetti segnalati prima di escluderli.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta Starved read fraction per segnalare i pozzetti con poche letture rispetto alla mediana della piastra. L’esempio usa zero virgola uno. Esamina i pozzetti segnalati prima di escluderli."
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Attiva Plot e Save, poi premi Run. Aggiungi gli input di controllo qualità della mappatura o di riferimento quando vuoi i relativi controlli; la sola tabella dei conteggi descrive le letture mappate osservate.",
+        "hold_after": 0.7,
+        "speech_text": "Attiva Plot e Save, poi premi Run. Aggiungi gli input di controllo qualità della mappatura o di riferimento quando vuoi i relativi controlli; la sola tabella dei conteggi descrive le letture mappate osservate."
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Leggi il log di completamento e i percorsi di output salvati. Indaga gli errori confrontandoli con gli input selezionati prima di usare i risultati.",
+        "hold_after": 0.7,
+        "speech_text": "Leggi il log di completamento e i percorsi di output salvati. Indaga gli errori confrontandoli con gli input selezionati prima di usare i risultati."
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Apri barcode QC punto PNG e threshold sweep punto PNG dalla cartella di output. Usa un visualizzatore di immagini se il pannello Figures è vuoto.",
+        "hold_after": 0.7,
+        "speech_text": "Apri barcode QC punto PNG e threshold sweep punto PNG dalla cartella di output. Usa un visualizzatore di immagini se il pannello Figures è vuoto."
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Esamina la profondità di lettura, gli effetti di riga e colonna e la rappresentazione delle guide. Confronta con una libreria di riferimento quando devi individuare guide attese completamente assenti.",
+        "hold_after": 0.7,
+        "speech_text": "Esamina la profondità di lettura, gli effetti di riga e colonna e la rappresentazione delle guide. Confronta con una libreria di riferimento quando devi individuare guide attese completamente assenti."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Esamina la scansione delle soglie. In questo esempio, una soglia vicina all’uno virgola due uno per cento delle letture di ogni pozzetto dà una mediana di cinque guide e conserva circa il cinquantotto per cento delle letture mappate.",
+        "hold_after": 0.7,
+        "speech_text": "Esamina la scansione delle soglie. In questo esempio, una soglia vicina all’uno virgola due uno per cento delle letture di ogni pozzetto dà una mediana di cinque guide e conserva circa il cinquantotto per cento delle letture mappate."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Confronta le letture mantenute, i pozzetti mantenuti e i pozzetti sopra l’obiettivo di guide al variare della soglia. Scegli una soglia adatta al tuo disegno; l’obiettivo di guide non garantisce l’attribuzione a una sola guida.",
+        "hold_after": 0.7,
+        "speech_text": "Confronta le letture mantenute, i pozzetti mantenuti e i pozzetti sopra l’obiettivo di guide al variare della soglia. Scegli una soglia adatta al tuo disegno; l’obiettivo di guide non garantisce l’attribuzione a una sola guida."
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Conserva la raccomandazione, la tabella della scansione, i grafici e le impostazioni insieme ai conteggi di origine. Usa la soglia scelta in modo coerente nell’analisi successiva e annota il motivo della scelta.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Conserva la raccomandazione, la tabella della scansione, i grafici e le impostazioni insieme ai conteggi di origine. Usa la soglia scelta in modo coerente nell’analisi successiva e annota il motivo della scelta."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC：リードの深さを確認してカットオフを選ぶ",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "マッピング済みのカウントを読み込み、ウェルとガイドのカバレッジを確認して、存在量のしきい値を比べます。",
+      "objectives": [
+       "カウントの入力と品質管理の設定を選ぶ。",
+       "カバレッジと位置の影響を確認する。",
+       "しきい値を比べ、得られた表とプロットを保管する。"
+      ],
+      "prerequisite": "Regressionのチュートリアルでダウンロードした例のスクリーニングデータのplate_1_unique_combinations.csvか、自分のマッピング済みのカウント表を使います。新しい出力フォルダーを選びます。マッピングされなかったリードや想定したライブラリーに依存するチェックが必要な場合は、マッピングの品質管理ファイルとバーコードの参照ファイルを用意します。",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Map Barcodesを開き、続いてBarcode QCを開きます。マッピング済みのカウント表から始めます。練習用には、リンク先のRegressionの例に一つ用意されています。",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Map Barcodesを開き、続いてBarcode QCを開きます。マッピング済みのカウント表から始めます。練習用には、リンク先のRegressionの例に一つ用意されています。"
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Count dataにカウント表を設定し、新しい出力先を選びます。この例には、三百八十四ウェルにわたるマッピング済みのリードがあります。",
+        "hold_after": 0.7,
+        "speech_text": "Count dataにカウント表を設定し、新しい出力先を選びます。この例には、三百八十四ウェルにわたるマッピング済みのリードがあります。"
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "実験デザインに基づいてTarget gRNAs per wellを設定し、カットオフを求めるための要約の方法を選びます。この例では五とmedianを使います。",
+        "hold_after": 0.7,
+        "speech_text": "実験デザインに基づいてTarget gRNAs per wellを設定し、カットオフを求めるための要約の方法を選びます。この例では五とmedianを使います。"
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Starved read fractionを設定して、プレートの中央値に比べてリードの少ないウェルに印を付けます。この例ではゼロ点一を使います。除外する前に、印が付いたウェルを確認します。",
+        "hold_after": 0.7,
+        "speech_text": "Starved read fractionを設定して、プレートの中央値に比べてリードの少ないウェルに印を付けます。この例ではゼロ点一を使います。除外する前に、印が付いたウェルを確認します。"
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "PlotとSaveをオンにしてRunを押します。対応するチェックが必要なら、マッピングの品質管理や参照の入力を加えます。カウント表だけでは、観測されたマッピング済みのリードしかわかりません。",
+        "hold_after": 0.7,
+        "speech_text": "PlotとSaveをオンにしてRunを押します。対応するチェックが必要なら、マッピングの品質管理や参照の入力を加えます。カウント表だけでは、観測されたマッピング済みのリードしかわかりません。"
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "完了のログと、保存された出力パスを読みます。結果を使う前に、エラーを選んだ入力と照らし合わせて調べます。",
+        "hold_after": 0.7,
+        "speech_text": "完了のログと、保存された出力パスを読みます。結果を使う前に、エラーを選んだ入力と照らし合わせて調べます。"
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "出力フォルダーから、barcode QC ドット PNGとthreshold sweep ドット PNGを開きます。Figuresパネルが空の場合は、画像ビューアーを使います。",
+        "hold_after": 0.7,
+        "speech_text": "出力フォルダーから、barcode QC ドット PNGとthreshold sweep ドット PNGを開きます。Figuresパネルが空の場合は、画像ビューアーを使います。"
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "リードの深さ、行と列の影響、ガイドの出現状況を確認します。想定したガイドがまったく見つからないものを特定したいときは、参照ライブラリーと比べます。",
+        "hold_after": 0.7,
+        "speech_text": "リードの深さ、行と列の影響、ガイドの出現状況を確認します。想定したガイドがまったく見つからないものを特定したいときは、参照ライブラリーと比べます。"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "しきい値のスイープを確認します。この例では、各ウェルのリードのおよそ一点二一パーセントをカットオフにすると、ガイド数の中央値が五になり、マッピング済みのリードのおよそ五十八パーセントが残ります。",
+        "hold_after": 0.7,
+        "speech_text": "しきい値のスイープを確認します。この例では、各ウェルのリードのおよそ一点二一パーセントをカットオフにすると、ガイド数の中央値が五になり、マッピング済みのリードのおよそ五十八パーセントが残ります。"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "カットオフを変えたときの、残るリード、残るウェル、ガイドの目標を上回るウェルを比べます。実験デザインに合ったカットオフを選びます。ガイドの目標を満たしても、単一のガイドに帰属できるとは限りません。",
+        "hold_after": 0.7,
+        "speech_text": "カットオフを変えたときの、残るリード、残るウェル、ガイドの目標を上回るウェルを比べます。実験デザインに合ったカットオフを選びます。ガイドの目標を満たしても、単一のガイドに帰属できるとは限りません。"
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "推奨値、スイープの表、プロット、設定は、元のカウントと一緒に保管します。選んだカットオフはその後の解析で一貫して使い、選んだ理由を記録しておきます。",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "推奨値、スイープの表、プロット、設定は、元のカウントと一緒に保管します。選んだカットオフはその後の解析で一貫して使い、選んだ理由を記録しておきます。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: inspecionar a profundidade de leitura e escolher um corte",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Carregue contagens mapeadas, revise a cobertura de poços e de guias e compare limiares de abundância.",
+      "objectives": [
+       "Escolher as entradas de contagem e as configurações de controle de qualidade.",
+       "Inspecionar a cobertura e os efeitos de posição.",
+       "Comparar limiares e guardar as tabelas e os gráficos resultantes."
+      ],
+      "prerequisite": "Use plate_1_unique_combinations.csv dos dados da triagem de exemplo baixados no tutorial do Regression, ou a sua própria tabela de contagens mapeadas. Escolha uma pasta de saída nova. Forneça arquivos de controle de qualidade do mapeamento e de referência de códigos de barras quando precisar de verificações que dependem de leituras não mapeadas ou da biblioteca esperada.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Abra Map Barcodes e depois Barcode QC. Comece com uma tabela de contagens mapeadas; o exemplo do Regression indicado fornece uma para praticar.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Map Barcodes e depois Barcode QC. Comece com uma tabela de contagens mapeadas; o exemplo do Regression indicado fornece uma para praticar."
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Defina Count data como a sua tabela de contagens e escolha um destino de saída novo. O exemplo contém leituras mapeadas em trezentos e oitenta e quatro poços.",
+        "hold_after": 0.7,
+        "speech_text": "Defina Count data como a sua tabela de contagens e escolha um destino de saída novo. O exemplo contém leituras mapeadas em trezentos e oitenta e quatro poços."
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Defina Target gRNAs per well de acordo com o seu delineamento experimental e escolha o método de resumo usado para obter o corte. O exemplo usa cinco e median.",
+        "hold_after": 0.7,
+        "speech_text": "Defina Target gRNAs per well de acordo com o seu delineamento experimental e escolha o método de resumo usado para obter o corte. O exemplo usa cinco e median."
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Defina Starved read fraction para sinalizar poços com poucas leituras em relação à mediana da placa. O exemplo usa zero vírgula um. Revise os poços sinalizados antes de excluí-los.",
+        "hold_after": 0.7,
+        "speech_text": "Defina Starved read fraction para sinalizar poços com poucas leituras em relação à mediana da placa. O exemplo usa zero vírgula um. Revise os poços sinalizados antes de excluí-los."
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Ative Plot e Save e pressione Run. Adicione as entradas de controle de qualidade do mapeamento ou de referência quando quiser as verificações correspondentes; a tabela de contagens sozinha descreve as leituras mapeadas observadas.",
+        "hold_after": 0.7,
+        "speech_text": "Ative Plot e Save e pressione Run. Adicione as entradas de controle de qualidade do mapeamento ou de referência quando quiser as verificações correspondentes; a tabela de contagens sozinha descreve as leituras mapeadas observadas."
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Leia o registro de conclusão e os caminhos de saída salvos. Investigue os erros em relação às entradas selecionadas antes de usar os resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Leia o registro de conclusão e os caminhos de saída salvos. Investigue os erros em relação às entradas selecionadas antes de usar os resultados."
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Abra barcode QC ponto PNG e threshold sweep ponto PNG na pasta de saída. Use um visualizador de imagens se o painel Figures estiver vazio.",
+        "hold_after": 0.7,
+        "speech_text": "Abra barcode QC ponto PNG e threshold sweep ponto PNG na pasta de saída. Use um visualizador de imagens se o painel Figures estiver vazio."
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Inspecione a profundidade de leitura, os efeitos de linha e coluna e a representação das guias. Compare com uma biblioteca de referência quando precisar identificar guias esperadas que estão totalmente ausentes.",
+        "hold_after": 0.7,
+        "speech_text": "Inspecione a profundidade de leitura, os efeitos de linha e coluna e a representação das guias. Compare com uma biblioteca de referência quando precisar identificar guias esperadas que estão totalmente ausentes."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Inspecione a varredura de limiares. Neste exemplo, um corte perto de um vírgula dois um por cento das leituras de cada poço dá uma mediana de cinco guias e mantém cerca de cinquenta e oito por cento das leituras mapeadas.",
+        "hold_after": 0.7,
+        "speech_text": "Inspecione a varredura de limiares. Neste exemplo, um corte perto de um vírgula dois um por cento das leituras de cada poço dá uma mediana de cinco guias e mantém cerca de cinquenta e oito por cento das leituras mapeadas."
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Compare as leituras mantidas, os poços mantidos e os poços acima da meta de guias conforme o corte muda. Escolha um corte adequado ao seu delineamento; a meta de guias não garante a atribuição a uma única guia.",
+        "hold_after": 0.7,
+        "speech_text": "Compare as leituras mantidas, os poços mantidos e os poços acima da meta de guias conforme o corte muda. Escolha um corte adequado ao seu delineamento; a meta de guias não garante a atribuição a uma única guia."
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Guarde a recomendação, a tabela da varredura, os gráficos e as configurações junto com as contagens de origem. Use o corte escolhido de forma consistente na análise posterior e registre o motivo da escolha.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Guarde a recomendação, a tabela da varredura, os gráficos e as configurações junto com as contagens de origem. Use o corte escolhido de forma consistente na análise posterior e registre o motivo da escolha."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC：检查读段深度并选择阈值",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "加载比对后的计数，检查孔和向导序列的覆盖情况，并比较丰度阈值。",
+      "objectives": [
+       "选择计数输入和质控设置。",
+       "检查覆盖情况和位置效应。",
+       "比较阈值，并保留生成的表和图。"
+      ],
+      "prerequisite": "使用Regression教程中下载的示例筛选数据里的plate_1_unique_combinations.csv，或您自己的比对计数表。选择一个新的输出文件夹。如果需要依赖未比对读段或预期文库的检查，请提供比对质控文件和条形码参考文件。",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "打开Map Barcodes，然后打开Barcode QC。从一张比对计数表开始；链接中的Regression示例提供了一张供练习。",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开Map Barcodes，然后打开Barcode QC。从一张比对计数表开始；链接中的Regression示例提供了一张供练习。"
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "把Count data设为您的计数表，并选择新的输出位置。示例包含分布在三百八十四个孔中的比对读段。",
+        "hold_after": 0.7,
+        "speech_text": "把Count data设为您的计数表，并选择新的输出位置。示例包含分布在三百八十四个孔中的比对读段。"
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "根据实验设计设置Target gRNAs per well，并选择用于推导阈值的汇总方法。示例使用五和median。",
+        "hold_after": 0.7,
+        "speech_text": "根据实验设计设置Target gRNAs per well，并选择用于推导阈值的汇总方法。示例使用五和median。"
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "设置Starved read fraction，标记读段数明显低于板中位数的孔。示例使用零点一。排除之前，请先检查被标记的孔。",
+        "hold_after": 0.7,
+        "speech_text": "设置Starved read fraction，标记读段数明显低于板中位数的孔。示例使用零点一。排除之前，请先检查被标记的孔。"
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "开启Plot和Save，然后按Run。如需相应的检查，请添加比对质控或参考输入；仅凭计数表只能描述观察到的比对读段。",
+        "hold_after": 0.7,
+        "speech_text": "开启Plot和Save，然后按Run。如需相应的检查，请添加比对质控或参考输入；仅凭计数表只能描述观察到的比对读段。"
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "阅读完成日志和保存的输出路径。使用结果之前，请对照所选输入排查错误。",
+        "hold_after": 0.7,
+        "speech_text": "阅读完成日志和保存的输出路径。使用结果之前，请对照所选输入排查错误。"
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "从输出文件夹中打开barcode QC点PNG和threshold sweep点PNG。如果Figures面板为空，请使用图像查看器。",
+        "hold_after": 0.7,
+        "speech_text": "从输出文件夹中打开barcode QC点PNG和threshold sweep点PNG。如果Figures面板为空，请使用图像查看器。"
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "检查读段深度、行和列效应以及向导序列的分布。如果需要找出完全缺失的预期向导序列，请与参考文库进行比较。",
+        "hold_after": 0.7,
+        "speech_text": "检查读段深度、行和列效应以及向导序列的分布。如果需要找出完全缺失的预期向导序列，请与参考文库进行比较。"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "检查阈值扫描。在本例中，把阈值设在每个孔读段的约百分之一点二一时，向导序列数的中位数为五，同时保留约百分之五十八的比对读段。",
+        "hold_after": 0.7,
+        "speech_text": "检查阈值扫描。在本例中，把阈值设在每个孔读段的约百分之一点二一时，向导序列数的中位数为五，同时保留约百分之五十八的比对读段。"
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "随着阈值变化，比较保留的读段、保留的孔以及高于向导序列目标的孔。请选择适合您设计的阈值；达到向导序列目标并不能确保结果归属于单个向导序列。",
+        "hold_after": 0.7,
+        "speech_text": "随着阈值变化，比较保留的读段、保留的孔以及高于向导序列目标的孔。请选择适合您设计的阈值；达到向导序列目标并不能确保结果归属于单个向导序列。"
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "把推荐值、扫描表、图和设置与源计数保存在一起。在后续分析中一致地使用所选阈值，并记录选择的理由。",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "把推荐值、扫描表、图和设置与源计数保存在一起。在后续分析中一致地使用所选阈值，并记录选择的理由。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: undersøg læsedybde, og vælg en grænse",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Indlæs mappede optællinger, gennemgå dækningen af brønde og guides, og sammenlign mængdetærskler.",
+      "objectives": [
+       "Vælge optællingsinput og QC-indstillinger.",
+       "Undersøge dækning og positionseffekter.",
+       "Sammenligne tærskler og beholde de resulterende tabeller og plot."
+      ],
+      "prerequisite": "Brug plate_1_unique_combinations.csv fra eksempelscreenens data, der blev hentet i Regression-vejledningen, eller din egen tabel med mappede optællinger. Vælg en ny outputmappe. Lever mapnings-QC- og stregkodereferencefiler, når du har brug for kontroller, der afhænger af umappede reads eller det forventede bibliotek.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Åbn Map Barcodes og derefter Barcode QC. Begynd med en tabel med mappede optællinger; det linkede Regression-eksempel indeholder en til øvelse.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Sæt Count data til din optællingstabel, og vælg en ny outputdestination. Eksemplet indeholder mappede reads fra 384 brønde.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Indstil Target gRNAs per well ud fra dit forsøgsdesign, og vælg den opsummeringsmetode, der bruges til at udlede grænsen. Eksemplet bruger 5 og median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Indstil Starved read fraction for at markere brønde med få reads i forhold til pladens median. Eksemplet bruger 0,1. Gennemgå markerede brønde, før du udelukker dem.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Slå Plot og Save til, og tryk derefter på Run. Tilføj mapnings-QC- eller referenceinput, når du vil have de tilsvarende kontroller; optællingstabellen alene beskriver de observerede mappede reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Læs afslutningsloggen og de gemte outputstier. Undersøg fejl i forhold til de valgte input, før du bruger resultaterne.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Åbn barcode_qc.png og threshold_sweep.png fra outputmappen. Brug en billedfremviser, hvis panelet Figures er tomt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Undersøg læsedybde, række- og kolonneeffekter og guidernes repræsentation. Sammenlign med et referencebibliotek, når du skal finde forventede guides, der helt mangler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Undersøg tærskelgennemløbet. I dette eksempel giver en grænse omkring 1,21 % af hver brønds reads en median på fem guides og bevarer omkring 58 % af de mappede reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Sammenlign bevarede reads, bevarede brønde og brønde over guidemålet, efterhånden som grænsen ændres. Vælg en grænse, der passer til dit design; guidemålet fastslår ikke, at resultatet kan tilskrives én enkelt guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Behold anbefalingen, gennemløbstabellen, plottene og indstillingerne sammen med kildeoptællingerne. Brug den valgte grænse konsekvent i den videre analyse, og notér begrundelsen for dit valg.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: Lesetiefe prüfen und einen Schwellenwert wählen",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Laden Sie zugeordnete Zählungen, prüfen Sie die Abdeckung von Wells und Guides und vergleichen Sie Häufigkeitsschwellen.",
+      "objectives": [
+       "Zähleingaben und QC-Einstellungen wählen.",
+       "Abdeckung und Positionseffekte prüfen.",
+       "Schwellenwerte vergleichen und die entstandenen Tabellen und Diagramme aufbewahren."
+      ],
+      "prerequisite": "Verwenden Sie plate_1_unique_combinations.csv aus den im Regression-Tutorial heruntergeladenen Beispiel-Screen-Daten oder Ihre eigene Tabelle zugeordneter Zählungen. Wählen Sie einen neuen Ausgabeordner. Stellen Sie Mapping-QC- und Barcode-Referenzdateien bereit, wenn Sie Prüfungen benötigen, die von nicht zugeordneten Reads oder der erwarteten Bibliothek abhängen.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Öffnen Sie Map Barcodes und dann Barcode QC. Beginnen Sie mit einer Tabelle zugeordneter Zählungen; das verlinkte Regression-Beispiel liefert eine zum Üben.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Setzen Sie Count data auf Ihre Zähltabelle und wählen Sie ein neues Ausgabeziel. Das Beispiel enthält zugeordnete Reads über 384 Wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Legen Sie Target gRNAs per well nach Ihrem Versuchsplan fest und wählen Sie die Zusammenfassungsmethode, aus der der Schwellenwert abgeleitet wird. Das Beispiel verwendet 5 und median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Legen Sie Starved read fraction fest, um Wells mit wenigen Reads im Verhältnis zum Plattenmedian zu markieren. Das Beispiel verwendet 0,1. Prüfen Sie markierte Wells, bevor Sie sie ausschließen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Aktivieren Sie Plot und Save und drücken Sie dann Run. Fügen Sie Mapping-QC- oder Referenzeingaben hinzu, wenn Sie die entsprechenden Prüfungen möchten; die Zähltabelle allein beschreibt die beobachteten zugeordneten Reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Lesen Sie das Abschlussprotokoll und die gespeicherten Ausgabepfade. Untersuchen Sie Fehler anhand der gewählten Eingaben, bevor Sie die Ergebnisse verwenden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Öffnen Sie barcode_qc.png und threshold_sweep.png im Ausgabeordner. Verwenden Sie einen Bildbetrachter, wenn der Bereich Figures leer ist.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Prüfen Sie Lesetiefe, Zeilen- und Spalteneffekte und die Repräsentation der Guides. Vergleichen Sie mit einer Referenzbibliothek, wenn Sie erwartete Guides finden müssen, die vollständig fehlen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Prüfen Sie den Schwellenwert-Sweep. In diesem Beispiel ergibt ein Schwellenwert von etwa 1,21 % der Reads jedes Wells einen Median von fünf Guides und behält etwa 58 % der zugeordneten Reads.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Vergleichen Sie beim Verändern des Schwellenwerts behaltene Reads, behaltene Wells und Wells oberhalb des Guide-Ziels. Wählen Sie einen für Ihr Design geeigneten Schwellenwert; das Guide-Ziel belegt keine Zuordnung zu einem einzelnen Guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Bewahren Sie Empfehlung, Sweep-Tabelle, Diagramme und Einstellungen zusammen mit den Quellzählungen auf. Verwenden Sie den gewählten Schwellenwert in der weiteren Analyse einheitlich und dokumentieren Sie den Grund Ihrer Wahl.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: skoðaðu lestrardýpt og veldu þröskuld",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Hlaðu inn vörpuðum talningum, farðu yfir þekju brunna og leiðaraða og berðu saman gnægðarþröskulda.",
+      "objectives": [
+       "Velja talningainntök og stillingar gæðaeftirlits.",
+       "Skoða þekju og staðsetningaráhrif.",
+       "Bera saman þröskulda og halda töflunum og gröfunum sem verða til."
+      ],
+      "prerequisite": "Notaðu plate_1_unique_combinations.csv úr gögnum dæmaskimunarinnar sem sótt voru í Regression-kennsluefninu, eða þína eigin töflu með vörpuðum talningum. Veldu nýja úttaksmöppu. Leggðu fram gæðaeftirlitsskrár vörpunar og tilvísunarskrár strikamerkja þegar þú þarft prófanir sem byggja á óvörpuðum lestrum eða væntanlegu safni.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Opnaðu Map Barcodes og svo Barcode QC. Byrjaðu á töflu með vörpuðum talningum; tengda Regression-dæmið leggur til eina til æfingar.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Stilltu Count data á talningatöfluna þína og veldu nýjan úttaksstað. Dæmið inniheldur varpaða lestra úr 384 brunnum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Stilltu Target gRNAs per well eftir tilraunasniðinu og veldu samantektaraðferðina sem notuð er til að leiða út þröskuldinn. Dæmið notar 5 og median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Stilltu Starved read fraction til að merkja brunna með fáa lestra miðað við miðgildi plötunnar. Dæmið notar 0,1. Farðu yfir merktu brunnana áður en þú útilokar þá.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Virkjaðu Plot og Save og ýttu svo á Run. Bættu við gæðaeftirlitsinntaki vörpunar eða tilvísunarinntaki þegar þú vilt samsvarandi prófanir; talningataflan ein lýsir aðeins sýnilegum vörpuðum lestrum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Lestu lokaannálinn og vistaðar úttaksslóðir. Rannsakaðu villur miðað við valin inntök áður en þú notar niðurstöðurnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Opnaðu barcode_qc.png og threshold_sweep.png úr úttaksmöppunni. Notaðu myndskoðara ef spjaldið Figures er tómt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Skoðaðu lestrardýpt, áhrif raða og dálka og hvernig leiðaraðir eru fulltrúa. Berðu saman við tilvísunarsafn þegar þú þarft að finna væntanlegar leiðaraðir sem vantar alveg.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Skoðaðu þröskuldssóparann. Í þessu dæmi gefur þröskuldur nálægt 1,21 % af lestrum hvers brunns miðgildið fimm leiðaraðir og heldur um 58 % varpaðra lestra.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Berðu saman lestra sem haldast, brunna sem haldast og brunna yfir markmiði leiðaraða eftir því sem þröskuldurinn breytist. Veldu þröskuld sem hentar sniðinu; markmið leiðaraða staðfestir ekki að niðurstaðan tilheyri einni leiðaröð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Haltu ráðleggingunni, sóparatöflunni, gröfunum og stillingunum með upprunatalningunum. Notaðu valinn þröskuld stöðugt í síðari greiningu og skráðu ástæðuna fyrir valinu.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: 리드 깊이 확인과 기준값 선택",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "매핑된 카운트를 불러오고, 웰과 가이드 커버리지를 검토한 뒤 존재량 임계값을 비교합니다.",
+      "objectives": [
+       "카운트 입력과 QC 설정을 고릅니다.",
+       "커버리지와 위치 효과를 확인합니다.",
+       "임계값을 비교하고 결과 표와 그래프를 보관합니다."
+      ],
+      "prerequisite": "Regression 튜토리얼에서 내려받은 예제 스크린 데이터의 plate_1_unique_combinations.csv나 자신의 매핑된 카운트 표를 쓰세요. 새 출력 폴더를 고르세요. 매핑되지 않은 리드나 예상 라이브러리에 따라 달라지는 검사가 필요하면 매핑 QC 파일과 바코드 참조 파일을 제공하세요.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Map Barcodes를 연 뒤 Barcode QC를 여세요. 매핑된 카운트 표로 시작하세요. 연결된 Regression 예제에 연습용 표가 있습니다.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Count data를 카운트 표로 지정하고 새 출력 대상을 고르세요. 예제에는 웰 384개에 걸친 매핑된 리드가 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "실험 설계에 따라 Target gRNAs per well을 설정하고 기준값을 구할 요약 방법을 고르세요. 예제는 5와 median을 씁니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Starved read fraction을 설정해 플레이트 중앙값보다 리드가 적은 웰을 표시하세요. 예제는 0.1을 씁니다. 제외하기 전에 표시된 웰을 검토하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Plot과 Save를 켜고 Run을 누르세요. 해당 검사가 필요하면 매핑 QC나 참조 입력을 추가하세요. 카운트 표만으로는 관찰된 매핑 리드만 알 수 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "완료 로그와 저장된 출력 경로를 읽으세요. 결과를 쓰기 전에 선택한 입력과 대조해 오류를 조사하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "출력 폴더에서 barcode_qc.png와 threshold_sweep.png를 여세요. Figures 패널이 비어 있으면 이미지 뷰어를 쓰세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "리드 깊이, 행·열 효과, 가이드 분포를 확인하세요. 예상 가이드 중 완전히 빠진 것을 찾으려면 참조 라이브러리와 비교하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "임계값 스윕을 확인하세요. 이 예제에서는 각 웰 리드의 약 1.21%를 기준값으로 두면 가이드 수 중앙값이 5가 되고, 매핑된 리드의 약 58%가 남습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "기준값이 바뀔 때 남는 리드, 남는 웰, 가이드 목표를 넘는 웰을 비교하세요. 설계에 맞는 기준값을 고르세요. 가이드 목표를 충족해도 단일 가이드에 귀속된다고 확정되지는 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "추천값, 스윕 표, 그래프, 설정을 원본 카운트와 함께 보관하세요. 고른 기준값을 이후 분석에서 일관되게 쓰고, 선택한 이유를 기록하세요.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: undersøk lesedybde og velg en grense",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Last inn kartlagte tellinger, gå gjennom dekningen av brønner og guider, og sammenlign mengdegrenser.",
+      "objectives": [
+       "Velge tellingsinndata og QC-innstillinger.",
+       "Undersøke dekning og posisjonseffekter.",
+       "Sammenligne grenser og beholde tabellene og plottene som lages."
+      ],
+      "prerequisite": "Bruk plate_1_unique_combinations.csv fra eksempelscreenens data som ble lastet ned i Regression-veiledningen, eller din egen tabell med kartlagte tellinger. Velg en ny utdatamappe. Legg ved kartleggings-QC- og strekkodereferansefiler når du trenger kontroller som avhenger av ukartlagte lesninger eller det forventede biblioteket.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Åpne Map Barcodes og deretter Barcode QC. Begynn med en tabell med kartlagte tellinger; det lenkede Regression-eksemplet inneholder en du kan øve med.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Sett Count data til tellingstabellen din og velg et nytt utdatamål. Eksemplet inneholder kartlagte lesninger fra 384 brønner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Angi Target gRNAs per well ut fra forsøksdesignet, og velg oppsummeringsmetoden som brukes til å utlede grensen. Eksemplet bruker 5 og median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Angi Starved read fraction for å flagge brønner med få lesninger sammenlignet med platemedianen. Eksemplet bruker 0,1. Gå gjennom flaggede brønner før du utelukker dem.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Aktiver Plot og Save, og trykk deretter på Run. Legg til kartleggings-QC- eller referanseinndata når du vil ha de tilhørende kontrollene; tellingstabellen alene beskriver de observerte kartlagte lesningene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Les fullføringsloggen og de lagrede utdatabanene. Undersøk feil opp mot de valgte inndataene før du bruker resultatene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Åpne barcode_qc.png og threshold_sweep.png fra utdatamappen. Bruk en bildeviser hvis panelet Figures er tomt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Undersøk lesedybde, rad- og kolonneeffekter og hvordan guidene er representert. Sammenlign med et referansebibliotek når du må finne forventede guider som mangler helt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Undersøk grensesveipet. I dette eksemplet gir en grense nær 1,21 % av lesningene i hver brønn en median på fem guider og beholder omtrent 58 % av de kartlagte lesningene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Sammenlign beholdte lesninger, beholdte brønner og brønner over guidemålet når grensen endres. Velg en grense som passer designet ditt; guidemålet fastslår ikke at resultatet kan tilskrives én enkelt guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Behold anbefalingen, sveipetabellen, plottene og innstillingene sammen med kildetellingene. Bruk den valgte grensen konsekvent i videre analyse, og noter begrunnelsen for valget.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 38,
+     "preceding": [
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "48_hit_list",
+     "entry": {
+      "id": "47_barcode_qc",
+      "number": 47,
+      "slug": "barcode_qc",
+      "title": "Barcode QC: granska läsdjup och välj en gräns",
+      "series": 5,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "section": "Map Barcodes",
+      "description": "Läs in mappade räkningar, granska täckningen av brunnar och guider och jämför abundansgränser.",
+      "objectives": [
+       "Välja räkningsindata och QC-inställningar.",
+       "Granska täckning och positionseffekter.",
+       "Jämföra gränser och behålla de resulterande tabellerna och diagrammen."
+      ],
+      "prerequisite": "Använd plate_1_unique_combinations.csv från exempelscreenens data som hämtades i Regression-handledningen, eller din egen tabell med mappade räkningar. Välj en ny utdatamapp. Tillhandahåll mappnings-QC- och streckkodsreferensfiler när du behöver kontroller som beror på omappade läsningar eller det förväntade biblioteket.",
+      "scenes": [
+       {
+        "visual": "02_barcode_qc_fold",
+        "narration": "Öppna Map Barcodes och sedan Barcode QC. Börja från en tabell med mappade räkningar; det länkade Regression-exemplet innehåller en att öva med.",
+        "related_lessons": [
+         "12_map_barcodes",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_actual_count_input",
+        "narration": "Ställ Count data på din räkningstabell och välj ett nytt utdatamål. Exemplet innehåller mappade läsningar från 384 brunnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_01_target_grnas_per_well",
+        "narration": "Ställ in Target gRNAs per well utifrån din försöksdesign och välj den sammanfattningsmetod som används för att ta fram gränsen. Exemplet använder 5 och median.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_04_starved_read_fraction",
+        "narration": "Ställ in Starved read fraction för att flagga brunnar med få läsningar jämfört med plattans median. Exemplet använder 0,1. Granska flaggade brunnar innan du utesluter dem.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_09_plot",
+        "narration": "Aktivera Plot och Save och tryck sedan på Run. Lägg till mappnings-QC- eller referensindata när du vill ha motsvarande kontroller; räkningstabellen ensam beskriver de observerade mappade läsningarna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_finished_console",
+        "narration": "Läs slutloggen och de sparade utdatasökvägarna. Undersök fel mot de valda indata innan du använder resultaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_actual_figures_state",
+        "narration": "Öppna barcode_qc.png och threshold_sweep.png i utdatamappen. Använd en bildvisare om panelen Figures är tom.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_saved_barcode_qc",
+        "narration": "Granska läsdjup, rad- och kolumneffekter och hur guiderna är representerade. Jämför med ett referensbibliotek när du behöver hitta förväntade guider som helt saknas.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Granska gränssvepet. I det här exemplet ger en gräns nära 1,21 % av varje brunns läsningar en median på fem guider och behåller ungefär 58 % av de mappade läsningarna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_saved_threshold_sweep",
+        "narration": "Jämför behållna läsningar, behållna brunnar och brunnar över guidemålet när gränsen ändras. Välj en gräns som passar din design; guidemålet visar inte att resultatet kan tillskrivas en enda guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_back_to_actual_gui",
+        "narration": "Behåll rekommendationen, svepetabellen, diagrammen och inställningarna med källräkningarna. Använd den valda gränsen konsekvent i efterföljande analys och anteckna skälet till ditt val.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "12_map_barcodes",
+     "scene": 0,
+     "links": [
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "hold_after",
+      "related_lessons",
+      "narration"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 1,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 2,
+     "links": [
+      "12_map_barcodes",
+      "47_barcode_qc"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       4,
+       "lessons"
+      ],
+      "preceding": []
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 33,
+     "value": {
+      "kind": "submodule",
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "host_lesson": "12_map_barcodes",
+      "host_title": "Map Barcodes"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/47_barcode_qc -> tools/tutorials/archive/production/docs/47_barcode_qc"
+ ],
+ "prose": []
+}

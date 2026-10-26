@@ -1,0 +1,3228 @@
+{
+ "schema": 1,
+ "id": "18_motility",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motility assay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
+      "objectives": [
+       "Load a project containing tracked merged arrays.",
+       "Choose mask planes, track filters and acquisition units.",
+       "Run the analysis and find the movement tables and plots."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "From Home, open Measure, then choose Motility Assay at the upper right. Start with tracked images from Timelapse, or download the example archive below to follow along.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "18_motility/poster.jpg",
+      "silent": "18_motility/video/18_motility_silent.mp4",
+      "web": "18_motility/web/18_motility_silent.mp4",
+      "visual_timings": "18_motility/video/original-visual-timings.json"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motility assay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Measure movement from tracked objects, inspect track filters, and save per-frame and per-well results.",
+      "objectives": [
+       "Load a project containing tracked merged arrays.",
+       "Choose mask planes, track filters and acquisition units.",
+       "Run the analysis and find the movement tables and plots."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Complete a Timelapse run, or download and extract SYNTHETIC_motility_tracks.zip. Select the folder containing merged. The example has eight frames, nucleus intensity in channel 0, cell intensity in channel 1, tracked cell masks in plane 2 and nucleus masks in plane 3. It has no pathogen mask or physical calibration.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "From Home, open Measure, then choose Motility Assay at the upper right. Start with tracked images from Timelapse, or download the example archive below to follow along.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Extract the example and set Source to the folder containing merged. Choose cells as the tracked objects, nucleus channel zero and cell channel one. Leave the pathogen channel unset for this example.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Turn on Live to open Motility preview and choose the same project folder. Use the preview to inspect tracks and try filters before running the full analysis. Keep Propagate settings off while exploring temporary choices.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. In the preview, set both calibration values to zero for this uncalibrated example, then click Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "At minimum track length three, the example has sixteen usable tracks. Review the trajectories, length distribution and speed summary. Speed is about one point four pixels per frame because the example has no acquisition scale or interval.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length sets how many frames an object must span to enter the summary. Increase it to exclude brief tracks, and watch the retained count. Keep it at three for this eight-frame example.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks excludes tracks above the chosen straightness threshold. Straightness is net displacement divided by total path length. Compare the retained tracks and plots before choosing a threshold; leave this filter off when straight movement is part of your experiment.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "For acquired data, enter pixels per micrometre and seconds per frame from your microscope and acquisition metadata. With both values, the preview can express speed in micrometres per minute. To try the conversion on this teaching example, two pixels per micrometre and sixty seconds per frame change the mean to about zero point seven. Those are example values, not measured calibration.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Set the full analysis form’s pixel scale and frame interval as well; preview edits are separate until you propagate them. Check the chosen object, channels and filters before starting the run. Keep the acquisition values with your results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Leave Reuse existing measurements off for the first run and enable the quality-control graphs. With no pathogen channel, leave infection quality control disabled. Click Run and follow progress in the console.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "When the run finishes, open measurements, then measurements.db in the project folder. The selected table contains per-frame observations; its well_motility companion summarizes movement by well. Inspect the saved plots and their units before comparing conditions or exporting figures.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Ensayo de motilidad",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mide el movimiento a partir de objetos seguidos, revisa los filtros de trayectorias y guarda resultados por fotograma y por pozo.",
+      "objectives": [
+       "Cargar un proyecto con arreglos combinados que incluyen seguimiento.",
+       "Elegir los planos de máscara, los filtros de trayectorias y las unidades de adquisición.",
+       "Ejecutar el análisis y encontrar las tablas y gráficos de movimiento."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Completa una ejecución de Timelapse, o descarga y extrae SYNTHETIC_motility_tracks.zip. Selecciona la carpeta que contiene merged. El ejemplo tiene ocho fotogramas, la intensidad nuclear en el canal 0, la intensidad celular en el canal 1, las máscaras de células seguidas en el plano 2 y las máscaras de núcleos en el plano 3. No tiene máscara de patógenos ni calibración física.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Desde Home, abre Measure y luego elige Motility Assay arriba a la derecha. Empieza con imágenes seguidas de Timelapse, o descarga el archivo de ejemplo de abajo para seguir la lección.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "Desde Home, abre Measure y luego elige Motility Assay arriba a la derecha. Empieza con imágenes seguidas de Timelapse, o descarga el archivo de ejemplo de abajo para seguir la lección."
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Extrae el ejemplo y pon en Source la carpeta que contiene merged. Elige cells como objetos seguidos, el canal nuclear cero y el canal celular uno. Deja sin asignar el canal de patógenos en este ejemplo.",
+        "hold_after": 0.7,
+        "speech_text": "Extrae el ejemplo y pon en Source la carpeta que contiene merged. Elige cells como objetos seguidos, el canal nuclear cero y el canal celular uno. Deja sin asignar el canal de patógenos en este ejemplo."
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Activa Live para abrir Motility preview y elige la misma carpeta de proyecto. Usa la vista previa para revisar las trayectorias y probar filtros antes de ejecutar el análisis completo. Deja Propagate settings desactivado mientras exploras opciones temporales.",
+        "hold_after": 0.7,
+        "speech_text": "Activa Live para abrir Motility preview y elige la misma carpeta de proyecto. Usa la vista previa para revisar las trayectorias y probar filtros antes de ejecutar el análisis completo. Deja Propagate settings desactivado mientras exploras opciones temporales."
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Pon dos canales de intensidad, el plano de máscara seguida en dos y el plano de máscara de patógenos en menos uno, que significa ninguno. Previsualiza los ocho fotogramas. En la vista previa, pon ambos valores de calibración en cero para este ejemplo sin calibrar y haz clic en Run preview.",
+        "hold_after": 0.7,
+        "speech_text": "Pon dos canales de intensidad, el plano de máscara seguida en dos y el plano de máscara de patógenos en menos uno, que significa ninguno. Previsualiza los ocho fotogramas. En la vista previa, pon ambos valores de calibración en cero para este ejemplo sin calibrar y haz clic en Run preview."
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Con una longitud mínima de trayectoria de tres, el ejemplo tiene dieciséis trayectorias utilizables. Revisa las trayectorias, la distribución de longitudes y el resumen de velocidad. La velocidad es de aproximadamente uno coma cuatro píxeles por fotograma, porque el ejemplo no tiene escala ni intervalo de adquisición.",
+        "hold_after": 0.7,
+        "speech_text": "Con una longitud mínima de trayectoria de tres, el ejemplo tiene dieciséis trayectorias utilizables. Revisa las trayectorias, la distribución de longitudes y el resumen de velocidad. La velocidad es de aproximadamente uno coma cuatro píxeles por fotograma, porque el ejemplo no tiene escala ni intervalo de adquisición."
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length fija cuántos fotogramas debe abarcar un objeto para entrar en el resumen. Auméntalo para excluir trayectorias breves y observa el número que se conserva. Déjalo en tres para este ejemplo de ocho fotogramas.",
+        "hold_after": 0.7,
+        "speech_text": "Min track length fija cuántos fotogramas debe abarcar un objeto para entrar en el resumen. Auméntalo para excluir trayectorias breves y observa el número que se conserva. Déjalo en tres para este ejemplo de ocho fotogramas."
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks excluye las trayectorias por encima del umbral de rectitud elegido. La rectitud es el desplazamiento neto dividido entre la longitud total del recorrido. Compara las trayectorias conservadas y los gráficos antes de elegir un umbral; deja este filtro desactivado cuando el movimiento recto forme parte de tu experimento.",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks excluye las trayectorias por encima del umbral de rectitud elegido. La rectitud es el desplazamiento neto dividido entre la longitud total del recorrido. Compara las trayectorias conservadas y los gráficos antes de elegir un umbral; deja este filtro desactivado cuando el movimiento recto forme parte de tu experimento."
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Con datos adquiridos, introduce los píxeles por micrómetro y los segundos por fotograma a partir de los metadatos de tu microscopio y de la adquisición. Con ambos valores, la vista previa puede expresar la velocidad en micrómetros por minuto. Para probar la conversión en este ejemplo didáctico, dos píxeles por micrómetro y sesenta segundos por fotograma cambian la media a aproximadamente cero coma siete. Son valores de ejemplo, no una calibración medida.",
+        "hold_after": 0.7,
+        "speech_text": "Con datos adquiridos, introduce los píxeles por micrómetro y los segundos por fotograma a partir de los metadatos de tu microscopio y de la adquisición. Con ambos valores, la vista previa puede expresar la velocidad en micrómetros por minuto. Para probar la conversión en este ejemplo didáctico, dos píxeles por micrómetro y sesenta segundos por fotograma cambian la media a aproximadamente cero coma siete. Son valores de ejemplo, no una calibración medida."
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Ajusta también la escala de píxeles y el intervalo entre fotogramas en el formulario del análisis completo; los cambios de la vista previa son independientes hasta que los propagas. Comprueba el objeto, los canales y los filtros elegidos antes de iniciar la ejecución. Conserva los valores de adquisición junto con tus resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Ajusta también la escala de píxeles y el intervalo entre fotogramas en el formulario del análisis completo; los cambios de la vista previa son independientes hasta que los propagas. Comprueba el objeto, los canales y los filtros elegidos antes de iniciar la ejecución. Conserva los valores de adquisición junto con tus resultados."
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Deja Reuse existing measurements desactivado en la primera ejecución y activa los gráficos de control de calidad. Sin canal de patógenos, deja desactivado el control de calidad de la infección. Haz clic en Run y sigue el avance en la consola.",
+        "hold_after": 0.7,
+        "speech_text": "Deja Reuse existing measurements desactivado en la primera ejecución y activa los gráficos de control de calidad. Sin canal de patógenos, deja desactivado el control de calidad de la infección. Haz clic en Run y sigue el avance en la consola."
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Cuando termine la ejecución, abre measurements y luego measurements.db en la carpeta del proyecto. La tabla seleccionada contiene observaciones por fotograma; su tabla complementaria well_motility resume el movimiento por pozo. Revisa los gráficos guardados y sus unidades antes de comparar condiciones o exportar figuras.",
+        "hold_after": 0.7,
+        "speech_text": "Cuando termine la ejecución, abre measurements y luego measurements punto de be en la carpeta del proyecto. La tabla seleccionada contiene observaciones por fotograma; su tabla complementaria well_motility resume el movimiento por pozo. Revisa los gráficos guardados y sus unidades antes de comparar condiciones o exportar figuras."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Test de motilité",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mesurez le mouvement à partir d’objets suivis, examinez les filtres de trajectoires et enregistrez les résultats par image et par puits.",
+      "objectives": [
+       "Charger un projet contenant des tableaux fusionnés avec suivi.",
+       "Choisir les plans de masques, les filtres de trajectoires et les unités d’acquisition.",
+       "Lancer l’analyse et trouver les tables et graphiques de mouvement."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Terminez une exécution de Timelapse, ou téléchargez et extrayez SYNTHETIC_motility_tracks.zip. Sélectionnez le dossier qui contient merged. L’exemple comporte huit images, l’intensité nucléaire dans le canal 0, l’intensité cellulaire dans le canal 1, les masques de cellules suivies dans le plan 2 et les masques de noyaux dans le plan 3. Il n’a ni masque de pathogène ni calibration physique.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Depuis Home, ouvrez Measure, puis choisissez Motility Assay en haut à droite. Commencez avec des images suivies issues de Timelapse, ou téléchargez l’archive d’exemple ci-dessous pour suivre la leçon.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "Depuis Home, ouvrez Measure, puis choisissez Motility Assay en haut à droite. Commencez avec des images suivies issues de Timelapse, ou téléchargez l’archive d’exemple ci-dessous pour suivre la leçon."
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Extrayez l’exemple et réglez Source sur le dossier qui contient merged. Choisissez cells comme objets suivis, le canal nucléaire zéro et le canal cellulaire un. Laissez le canal des pathogènes non défini pour cet exemple.",
+        "hold_after": 0.7,
+        "speech_text": "Extrayez l’exemple et réglez Source sur le dossier qui contient merged. Choisissez cells comme objets suivis, le canal nucléaire zéro et le canal cellulaire un. Laissez le canal des pathogènes non défini pour cet exemple."
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Activez Live pour ouvrir Motility preview et choisissez le même dossier de projet. Utilisez l’aperçu pour examiner les trajectoires et essayer des filtres avant de lancer l’analyse complète. Laissez Propagate settings désactivé pendant que vous explorez des choix temporaires.",
+        "hold_after": 0.7,
+        "speech_text": "Activez Live pour ouvrir Motility preview et choisissez le même dossier de projet. Utilisez l’aperçu pour examiner les trajectoires et essayer des filtres avant de lancer l’analyse complète. Laissez Propagate settings désactivé pendant que vous explorez des choix temporaires."
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Réglez deux canaux d’intensité, le plan de masque suivi sur deux et le plan de masque des pathogènes sur moins un, c’est-à-dire aucun. Prévisualisez les huit images. Dans l’aperçu, réglez les deux valeurs de calibration sur zéro pour cet exemple non calibré, puis cliquez sur Run preview.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez deux canaux d’intensité, le plan de masque suivi sur deux et le plan de masque des pathogènes sur moins un, c’est-à-dire aucun. Prévisualisez les huit images. Dans l’aperçu, réglez les deux valeurs de calibration sur zéro pour cet exemple non calibré, puis cliquez sur Run preview."
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Avec une longueur minimale de trajectoire de trois, l’exemple compte seize trajectoires exploitables. Examinez les trajectoires, la distribution des longueurs et le résumé des vitesses. La vitesse est d’environ un virgule quatre pixel par image, car l’exemple n’a ni échelle ni intervalle d’acquisition.",
+        "hold_after": 0.7,
+        "speech_text": "Avec une longueur minimale de trajectoire de trois, l’exemple compte seize trajectoires exploitables. Examinez les trajectoires, la distribution des longueurs et le résumé des vitesses. La vitesse est d’environ un virgule quatre pixel par image, car l’exemple n’a ni échelle ni intervalle d’acquisition."
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length fixe le nombre d’images qu’un objet doit couvrir pour entrer dans le résumé. Augmentez-le pour exclure les trajectoires brèves et observez le nombre conservé. Gardez trois pour cet exemple à huit images.",
+        "hold_after": 0.7,
+        "speech_text": "Min track length fixe le nombre d’images qu’un objet doit couvrir pour entrer dans le résumé. Augmentez-le pour exclure les trajectoires brèves et observez le nombre conservé. Gardez trois pour cet exemple à huit images."
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks exclut les trajectoires au-dessus du seuil de rectitude choisi. La rectitude est le déplacement net divisé par la longueur totale du trajet. Comparez les trajectoires conservées et les graphiques avant de choisir un seuil ; laissez ce filtre désactivé lorsque le mouvement rectiligne fait partie de votre expérience.",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks exclut les trajectoires au-dessus du seuil de rectitude choisi. La rectitude est le déplacement net divisé par la longueur totale du trajet. Comparez les trajectoires conservées et les graphiques avant de choisir un seuil ; laissez ce filtre désactivé lorsque le mouvement rectiligne fait partie de votre expérience."
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Pour des données acquises, saisissez les pixels par micromètre et les secondes par image d’après les métadonnées de votre microscope et de l’acquisition. Avec ces deux valeurs, l’aperçu peut exprimer la vitesse en micromètres par minute. Pour essayer la conversion sur cet exemple pédagogique, deux pixels par micromètre et soixante secondes par image ramènent la moyenne à environ zéro virgule sept. Ce sont des valeurs d’exemple, pas une calibration mesurée.",
+        "hold_after": 0.7,
+        "speech_text": "Pour des données acquises, saisissez les pixels par micromètre et les secondes par image d’après les métadonnées de votre microscope et de l’acquisition. Avec ces deux valeurs, l’aperçu peut exprimer la vitesse en micromètres par minute. Pour essayer la conversion sur cet exemple pédagogique, deux pixels par micromètre et soixante secondes par image ramènent la moyenne à environ zéro virgule sept. Ce sont des valeurs d’exemple, pas une calibration mesurée."
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Réglez aussi l’échelle des pixels et l’intervalle entre images dans le formulaire de l’analyse complète ; les modifications de l’aperçu restent séparées tant que vous ne les propagez pas. Vérifiez l’objet, les canaux et les filtres choisis avant de lancer l’exécution. Conservez les valeurs d’acquisition avec vos résultats.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez aussi l’échelle des pixels et l’intervalle entre images dans le formulaire de l’analyse complète ; les modifications de l’aperçu restent séparées tant que vous ne les propagez pas. Vérifiez l’objet, les canaux et les filtres choisis avant de lancer l’exécution. Conservez les valeurs d’acquisition avec vos résultats."
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Laissez Reuse existing measurements désactivé pour la première exécution et activez les graphiques de contrôle qualité. Sans canal de pathogènes, laissez désactivé le contrôle qualité de l’infection. Cliquez sur Run et suivez la progression dans la console.",
+        "hold_after": 0.7,
+        "speech_text": "Laissez Reuse existing measurements désactivé pour la première exécution et activez les graphiques de contrôle qualité. Sans canal de pathogènes, laissez désactivé le contrôle qualité de l’infection. Cliquez sur Run et suivez la progression dans la console."
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "À la fin de l’exécution, ouvrez measurements, puis measurements.db dans le dossier du projet. La table sélectionnée contient les observations par image ; sa table associée well_motility résume le mouvement par puits. Examinez les graphiques enregistrés et leurs unités avant de comparer des conditions ou d’exporter des figures.",
+        "hold_after": 0.7,
+        "speech_text": "À la fin de l’exécution, ouvrez measurements, puis measurements point dé bé dans le dossier du projet. La table sélectionnée contient les observations par image ; sa table associée well_motility résume le mouvement par puits. Examinez les graphiques enregistrés et leurs unités avant de comparer des conditions ou d’exporter des figures."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "गतिशीलता परीक्षण",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "ट्रैक की गई वस्तुओं से गति मापें, ट्रैक फ़िल्टर जाँचें, और हर फ़्रेम तथा हर वेल के परिणाम सहेजें।",
+      "objectives": [
+       "ट्रैक किए गए मिले हुए ऐरे वाला प्रोजेक्ट लोड करें।",
+       "मास्क प्लेन, ट्रैक फ़िल्टर और अधिग्रहण की इकाइयाँ चुनें।",
+       "विश्लेषण चलाएँ और गति की तालिकाएँ और प्लॉट खोजें।"
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Timelapse का एक रन पूरा करें, या SYNTHETIC_motility_tracks.zip डाउनलोड करके निकालें। merged वाला फ़ोल्डर चुनें। उदाहरण में आठ फ़्रेम हैं, चैनल 0 में नाभिक की तीव्रता, चैनल 1 में कोशिका की तीव्रता, प्लेन 2 में ट्रैक किए गए कोशिका मास्क और प्लेन 3 में नाभिक मास्क हैं। इसमें रोगजनक मास्क या भौतिक कैलिब्रेशन नहीं है।",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Home से Measure खोलें, फिर ऊपर दाईं ओर Motility Assay चुनें। Timelapse से ट्रैक की गई इमेज से शुरू करें, या साथ चलने के लिए नीचे दिया उदाहरण आर्काइव डाउनलोड करें।",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "Home से Measure खोलें, फिर ऊपर दाईं ओर Motility Assay चुनें। Timelapse से ट्रैक की गई इमेज से शुरू करें, या साथ चलने के लिए नीचे दिया उदाहरण आर्काइव डाउनलोड करें।"
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "उदाहरण निकालें और Source में merged वाला फ़ोल्डर चुनें। ट्रैक की गई वस्तुओं के रूप में cells चुनें, नाभिक चैनल शून्य और कोशिका चैनल एक। इस उदाहरण में रोगजनक चैनल खाली छोड़ें।",
+        "hold_after": 0.7,
+        "speech_text": "उदाहरण निकालें और Source में merged वाला फ़ोल्डर चुनें। ट्रैक की गई वस्तुओं के रूप में cells चुनें, नाभिक चैनल शून्य और कोशिका चैनल एक। इस उदाहरण में रोगजनक चैनल खाली छोड़ें।"
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Motility preview खोलने के लिए Live चालू करें और वही प्रोजेक्ट फ़ोल्डर चुनें। पूरा विश्लेषण चलाने से पहले ट्रैक देखने और फ़िल्टर आज़माने के लिए पूर्वावलोकन इस्तेमाल करें। अस्थायी विकल्प आज़माते समय Propagate settings बंद रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Motility preview खोलने के लिए Live चालू करें और वही प्रोजेक्ट फ़ोल्डर चुनें। पूरा विश्लेषण चलाने से पहले ट्रैक देखने और फ़िल्टर आज़माने के लिए पूर्वावलोकन इस्तेमाल करें। अस्थायी विकल्प आज़माते समय Propagate settings बंद रखें।"
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "दो तीव्रता चैनल रखें, ट्रैक किया गया मास्क प्लेन दो, और रोगजनक मास्क प्लेन माइनस एक, यानी कोई नहीं। सभी आठ फ़्रेम का पूर्वावलोकन करें। पूर्वावलोकन में, इस बिना कैलिब्रेशन वाले उदाहरण के लिए दोनों कैलिब्रेशन मान शून्य रखें, फिर Run preview पर क्लिक करें।",
+        "hold_after": 0.7,
+        "speech_text": "दो तीव्रता चैनल रखें, ट्रैक किया गया मास्क प्लेन दो, और रोगजनक मास्क प्लेन माइनस एक, यानी कोई नहीं। सभी आठ फ़्रेम का पूर्वावलोकन करें। पूर्वावलोकन में, इस बिना कैलिब्रेशन वाले उदाहरण के लिए दोनों कैलिब्रेशन मान शून्य रखें, फिर Run preview पर क्लिक करें।"
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "न्यूनतम ट्रैक लंबाई तीन पर उदाहरण में सोलह उपयोगी ट्रैक हैं। पथ, लंबाई का वितरण और गति का सारांश देखें। गति लगभग एक दशमलव चार पिक्सेल प्रति फ़्रेम है, क्योंकि उदाहरण में अधिग्रहण का पैमाना या अंतराल नहीं है।",
+        "hold_after": 0.7,
+        "speech_text": "न्यूनतम ट्रैक लंबाई तीन पर उदाहरण में सोलह उपयोगी ट्रैक हैं। पथ, लंबाई का वितरण और गति का सारांश देखें। गति लगभग एक दशमलव चार पिक्सेल प्रति फ़्रेम है, क्योंकि उदाहरण में अधिग्रहण का पैमाना या अंतराल नहीं है।"
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length तय करता है कि सारांश में शामिल होने के लिए किसी वस्तु को कितने फ़्रेम तक दिखना चाहिए। छोटे ट्रैक हटाने के लिए इसे बढ़ाएँ और बची हुई संख्या देखें। आठ फ़्रेम वाले इस उदाहरण के लिए इसे तीन पर रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Min track length तय करता है कि सारांश में शामिल होने के लिए किसी वस्तु को कितने फ़्रेम तक दिखना चाहिए। छोटे ट्रैक हटाने के लिए इसे बढ़ाएँ और बची हुई संख्या देखें। आठ फ़्रेम वाले इस उदाहरण के लिए इसे तीन पर रखें।"
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks चुनी गई सीधेपन की सीमा से ऊपर वाले ट्रैक हटा देता है। सीधापन कुल विस्थापन को पूरे पथ की लंबाई से भाग देने पर मिलता है। सीमा चुनने से पहले बचे हुए ट्रैक और प्लॉट की तुलना करें; जब सीधी गति आपके प्रयोग का हिस्सा हो, तो यह फ़िल्टर बंद रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks चुनी गई सीधेपन की सीमा से ऊपर वाले ट्रैक हटा देता है। सीधापन कुल विस्थापन को पूरे पथ की लंबाई से भाग देने पर मिलता है। सीमा चुनने से पहले बचे हुए ट्रैक और प्लॉट की तुलना करें; जब सीधी गति आपके प्रयोग का हिस्सा हो, तो यह फ़िल्टर बंद रखें।"
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "अधिग्रहित डेटा के लिए, अपने माइक्रोस्कोप और अधिग्रहण मेटाडेटा से पिक्सेल प्रति माइक्रोमीटर और सेकंड प्रति फ़्रेम दर्ज करें। दोनों मानों के साथ, पूर्वावलोकन गति को माइक्रोमीटर प्रति मिनट में दिखा सकता है। इस शिक्षण उदाहरण पर रूपांतरण आज़माने के लिए, दो पिक्सेल प्रति माइक्रोमीटर और साठ सेकंड प्रति फ़्रेम से औसत लगभग शून्य दशमलव सात हो जाता है। ये उदाहरण मान हैं, मापा गया कैलिब्रेशन नहीं।",
+        "hold_after": 0.7,
+        "speech_text": "अधिग्रहित डेटा के लिए, अपने माइक्रोस्कोप और अधिग्रहण मेटाडेटा से पिक्सेल प्रति माइक्रोमीटर और सेकंड प्रति फ़्रेम दर्ज करें। दोनों मानों के साथ, पूर्वावलोकन गति को माइक्रोमीटर प्रति मिनट में दिखा सकता है। इस शिक्षण उदाहरण पर रूपांतरण आज़माने के लिए, दो पिक्सेल प्रति माइक्रोमीटर और साठ सेकंड प्रति फ़्रेम से औसत लगभग शून्य दशमलव सात हो जाता है। ये उदाहरण मान हैं, मापा गया कैलिब्रेशन नहीं।"
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "पूरे विश्लेषण वाले फ़ॉर्म में भी पिक्सेल पैमाना और फ़्रेम अंतराल सेट करें; पूर्वावलोकन के बदलाव तब तक अलग रहते हैं जब तक आप उन्हें आगे नहीं बढ़ाते। रन शुरू करने से पहले चुनी गई वस्तु, चैनल और फ़िल्टर जाँचें। अधिग्रहण के मान अपने परिणामों के साथ रखें।",
+        "hold_after": 0.7,
+        "speech_text": "पूरे विश्लेषण वाले फ़ॉर्म में भी पिक्सेल पैमाना और फ़्रेम अंतराल सेट करें; पूर्वावलोकन के बदलाव तब तक अलग रहते हैं जब तक आप उन्हें आगे नहीं बढ़ाते। रन शुरू करने से पहले चुनी गई वस्तु, चैनल और फ़िल्टर जाँचें। अधिग्रहण के मान अपने परिणामों के साथ रखें।"
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "पहले रन में Reuse existing measurements बंद रखें और गुणवत्ता जाँच के ग्राफ़ चालू करें। रोगजनक चैनल न होने पर संक्रमण की गुणवत्ता जाँच बंद रखें। Run पर क्लिक करें और कंसोल में प्रगति देखें।",
+        "hold_after": 0.7,
+        "speech_text": "पहले रन में Reuse existing measurements बंद रखें और गुणवत्ता जाँच के ग्राफ़ चालू करें। रोगजनक चैनल न होने पर संक्रमण की गुणवत्ता जाँच बंद रखें। Run पर क्लिक करें और कंसोल में प्रगति देखें।"
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "रन पूरा होने पर प्रोजेक्ट फ़ोल्डर में measurements और फिर measurements.db खोलें। चुनी गई तालिका में हर फ़्रेम के अवलोकन हैं; उसकी साथी well_motility तालिका हर वेल की गति का सारांश देती है। स्थितियों की तुलना करने या चित्र निर्यात करने से पहले सहेजे गए प्लॉट और उनकी इकाइयाँ जाँचें।",
+        "hold_after": 0.7,
+        "speech_text": "रन पूरा होने पर प्रोजेक्ट फ़ोल्डर में measurements और फिर मेज़रमेंट्स डॉट डी बी खोलें। चुनी गई तालिका में हर फ़्रेम के अवलोकन हैं; उसकी साथी well_motility तालिका हर वेल की गति का सारांश देती है। स्थितियों की तुलना करने या चित्र निर्यात करने से पहले सहेजे गए प्लॉट और उनकी इकाइयाँ जाँचें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Saggio di motilità",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Misura il movimento da oggetti tracciati, esamina i filtri delle tracce e salva i risultati per fotogramma e per pozzetto.",
+      "objectives": [
+       "Caricare un progetto con array uniti e tracciati.",
+       "Scegliere i piani delle maschere, i filtri delle tracce e le unità di acquisizione.",
+       "Eseguire l’analisi e trovare le tabelle e i grafici del movimento."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Completa un’esecuzione di Timelapse, oppure scarica ed estrai SYNTHETIC_motility_tracks.zip. Seleziona la cartella che contiene merged. L’esempio ha otto fotogrammi, l’intensità nucleare nel canale 0, l’intensità cellulare nel canale 1, le maschere delle cellule tracciate nel piano 2 e le maschere dei nuclei nel piano 3. Non ha maschera dei patogeni né calibrazione fisica.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Da Home, apri Measure, poi scegli Motility Assay in alto a destra. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "Da Home, apri Measure, poi scegli Motility Assay in alto a destra. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione."
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Estrai l’esempio e imposta Source sulla cartella che contiene merged. Scegli cells come oggetti tracciati, il canale nucleare zero e il canale cellulare uno. Lascia non impostato il canale dei patogeni in questo esempio.",
+        "hold_after": 0.7,
+        "speech_text": "Estrai l’esempio e imposta Source sulla cartella che contiene merged. Scegli cells come oggetti tracciati, il canale nucleare zero e il canale cellulare uno. Lascia non impostato il canale dei patogeni in questo esempio."
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Attiva Live per aprire Motility preview e scegli la stessa cartella di progetto. Usa l’anteprima per esaminare le tracce e provare i filtri prima di eseguire l’analisi completa. Lascia disattivato Propagate settings mentre provi scelte temporanee.",
+        "hold_after": 0.7,
+        "speech_text": "Attiva Live per aprire Motility preview e scegli la stessa cartella di progetto. Usa l’anteprima per esaminare le tracce e provare i filtri prima di eseguire l’analisi completa. Lascia disattivato Propagate settings mentre provi scelte temporanee."
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Imposta due canali di intensità, il piano della maschera tracciata su due e il piano della maschera dei patogeni su meno uno, cioè nessuno. Visualizza in anteprima tutti gli otto fotogrammi. Nell’anteprima, imposta entrambi i valori di calibrazione a zero per questo esempio non calibrato, poi fai clic su Run preview.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta due canali di intensità, il piano della maschera tracciata su due e il piano della maschera dei patogeni su meno uno, cioè nessuno. Visualizza in anteprima tutti gli otto fotogrammi. Nell’anteprima, imposta entrambi i valori di calibrazione a zero per questo esempio non calibrato, poi fai clic su Run preview."
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Con una lunghezza minima della traccia di tre, l’esempio ha sedici tracce utilizzabili. Esamina le traiettorie, la distribuzione delle lunghezze e il riepilogo della velocità. La velocità è di circa uno virgola quattro pixel per fotogramma, perché l’esempio non ha scala né intervallo di acquisizione.",
+        "hold_after": 0.7,
+        "speech_text": "Con una lunghezza minima della traccia di tre, l’esempio ha sedici tracce utilizzabili. Esamina le traiettorie, la distribuzione delle lunghezze e il riepilogo della velocità. La velocità è di circa uno virgola quattro pixel per fotogramma, perché l’esempio non ha scala né intervallo di acquisizione."
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length stabilisce quanti fotogrammi deve coprire un oggetto per entrare nel riepilogo. Aumentalo per escludere le tracce brevi e osserva il numero di tracce mantenute. Lascialo a tre per questo esempio di otto fotogrammi.",
+        "hold_after": 0.7,
+        "speech_text": "Min track length stabilisce quanti fotogrammi deve coprire un oggetto per entrare nel riepilogo. Aumentalo per escludere le tracce brevi e osserva il numero di tracce mantenute. Lascialo a tre per questo esempio di otto fotogrammi."
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks esclude le tracce sopra la soglia di rettilineità scelta. La rettilineità è lo spostamento netto diviso per la lunghezza totale del percorso. Confronta le tracce mantenute e i grafici prima di scegliere una soglia; lascia disattivato questo filtro quando il movimento rettilineo fa parte del tuo esperimento.",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks esclude le tracce sopra la soglia di rettilineità scelta. La rettilineità è lo spostamento netto diviso per la lunghezza totale del percorso. Confronta le tracce mantenute e i grafici prima di scegliere una soglia; lascia disattivato questo filtro quando il movimento rettilineo fa parte del tuo esperimento."
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Per dati acquisiti, inserisci i pixel per micrometro e i secondi per fotogramma presi dai metadati del microscopio e dell’acquisizione. Con entrambi i valori, l’anteprima può esprimere la velocità in micrometri al minuto. Per provare la conversione su questo esempio didattico, due pixel per micrometro e sessanta secondi per fotogramma portano la media a circa zero virgola sette. Sono valori di esempio, non una calibrazione misurata.",
+        "hold_after": 0.7,
+        "speech_text": "Per dati acquisiti, inserisci i pixel per micrometro e i secondi per fotogramma presi dai metadati del microscopio e dell’acquisizione. Con entrambi i valori, l’anteprima può esprimere la velocità in micrometri al minuto. Per provare la conversione su questo esempio didattico, due pixel per micrometro e sessanta secondi per fotogramma portano la media a circa zero virgola sette. Sono valori di esempio, non una calibrazione misurata."
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Imposta anche la scala dei pixel e l’intervallo tra i fotogrammi nel modulo dell’analisi completa; le modifiche dell’anteprima restano separate finché non le propaghi. Controlla l’oggetto, i canali e i filtri scelti prima di avviare l’esecuzione. Conserva i valori di acquisizione insieme ai risultati.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta anche la scala dei pixel e l’intervallo tra i fotogrammi nel modulo dell’analisi completa; le modifiche dell’anteprima restano separate finché non le propaghi. Controlla l’oggetto, i canali e i filtri scelti prima di avviare l’esecuzione. Conserva i valori di acquisizione insieme ai risultati."
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Lascia disattivato Reuse existing measurements nella prima esecuzione e attiva i grafici di controllo qualità. Senza canale dei patogeni, lascia disattivato il controllo qualità dell’infezione. Fai clic su Run e segui l’avanzamento nella console.",
+        "hold_after": 0.7,
+        "speech_text": "Lascia disattivato Reuse existing measurements nella prima esecuzione e attiva i grafici di controllo qualità. Senza canale dei patogeni, lascia disattivato il controllo qualità dell’infezione. Fai clic su Run e segui l’avanzamento nella console."
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Al termine dell’esecuzione, apri measurements e poi measurements.db nella cartella del progetto. La tabella selezionata contiene le osservazioni per fotogramma; la tabella associata well_motility riassume il movimento per pozzetto. Esamina i grafici salvati e le loro unità prima di confrontare le condizioni o esportare le figure.",
+        "hold_after": 0.7,
+        "speech_text": "Al termine dell’esecuzione, apri measurements e poi measurements punto di bi nella cartella del progetto. La tabella selezionata contiene le osservazioni per fotogramma; la tabella associata well_motility riassume il movimento per pozzetto. Esamina i grafici salvati e le loro unità prima di confrontare le condizioni o esportare le figure."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "運動性アッセイ",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "追跡した物体から動きを測定し、トラックのフィルターを確認して、フレームごとおよびウェルごとの結果を保存します。",
+      "objectives": [
+       "追跡済みの結合配列を含むプロジェクトを読み込む。",
+       "マスクの面、トラックのフィルター、取得時の単位を選ぶ。",
+       "解析を実行し、動きの表とプロットを見つける。"
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Timelapseの実行を完了するか、SYNTHETIC_motility_tracks.zipをダウンロードして展開します。mergedを含むフォルダーを選びます。この例には八フレームがあり、チャネル0に核の強度、チャネル1に細胞の強度、面2に追跡済みの細胞マスク、面3に核のマスクが入っています。病原体のマスクや物理的なキャリブレーションはありません。",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "HomeからMeasureを開き、右上のMotility Assayを選びます。Timelapseで追跡した画像から始めるか、下の例のアーカイブをダウンロードして一緒に進めます。",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "ホームからMeasureを開き、右上のMotility Assayを選びます。Timelapseで追跡した画像から始めるか、下の例のアーカイブをダウンロードして一緒に進めます。"
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "例を展開し、Sourceにmergedを含むフォルダーを設定します。追跡する物体としてcellsを選び、核のチャネルをゼロ、細胞のチャネルを一にします。この例では病原体のチャネルは未設定のままにします。",
+        "hold_after": 0.7,
+        "speech_text": "例を展開し、Sourceにmergedを含むフォルダーを設定します。追跡する物体としてcellsを選び、核のチャネルをゼロ、細胞のチャネルを一にします。この例では病原体のチャネルは未設定のままにします。"
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "LiveをオンにしてMotility previewを開き、同じプロジェクトのフォルダーを選びます。解析全体を実行する前に、プレビューでトラックを確認し、フィルターを試します。一時的な選択を試している間は、Propagate settingsをオフのままにします。",
+        "hold_after": 0.7,
+        "speech_text": "LiveをオンにしてMotility previewを開き、同じプロジェクトのフォルダーを選びます。解析全体を実行する前に、プレビューでトラックを確認し、フィルターを試します。一時的な選択を試している間は、Propagate settingsをオフのままにします。"
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "強度チャネルを二つ、追跡マスクの面を二、病原体マスクの面をマイナス一、つまりなしに設定します。八フレームすべてをプレビューします。プレビューでは、キャリブレーションのないこの例に合わせて二つのキャリブレーション値をゼロにし、Run previewをクリックします。",
+        "hold_after": 0.7,
+        "speech_text": "強度チャネルを二つ、追跡マスクの面を二、病原体マスクの面をマイナス一、つまりなしに設定します。八フレームすべてをプレビューします。プレビューでは、キャリブレーションのないこの例に合わせて二つのキャリブレーション値をゼロにし、Run previewをクリックします。"
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "最小トラック長を三にすると、この例では使えるトラックが十六本あります。軌跡、長さの分布、速度の要約を確認します。この例には取得時のスケールや間隔がないため、速度はおよそ一フレームあたり一点四ピクセルになります。",
+        "hold_after": 0.7,
+        "speech_text": "最小トラック長を三にすると、この例では使えるトラックが十六本あります。軌跡、長さの分布、速度の要約を確認します。この例には取得時のスケールや間隔がないため、速度はおよそ一フレームあたり一点四ピクセルになります。"
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track lengthは、物体が要約に入るために何フレームにわたって続く必要があるかを決めます。短いトラックを除くには値を上げ、残る本数を確認します。八フレームのこの例では三のままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Min track lengthは、物体が要約に入るために何フレームにわたって続く必要があるかを決めます。短いトラックを除くには値を上げ、残る本数を確認します。八フレームのこの例では三のままにします。"
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracksは、選んだ直線性のしきい値を超えるトラックを除きます。直線性は、正味の変位を経路全体の長さで割った値です。しきい値を選ぶ前に、残ったトラックとプロットを比べます。直線的な動きが実験の一部である場合は、このフィルターをオフのままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracksは、選んだ直線性のしきい値を超えるトラックを除きます。直線性は、正味の変位を経路全体の長さで割った値です。しきい値を選ぶ前に、残ったトラックとプロットを比べます。直線的な動きが実験の一部である場合は、このフィルターをオフのままにします。"
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "実際に取得したデータでは、顕微鏡と取得時のメタデータから、マイクロメートルあたりのピクセル数とフレームあたりの秒数を入力します。両方の値があれば、プレビューで速度を毎分マイクロメートルで表せます。この教材の例で変換を試すと、マイクロメートルあたり二ピクセル、フレームあたり六十秒で、平均はおよそゼロ点七になります。これは例の値であり、測定したキャリブレーションではありません。",
+        "hold_after": 0.7,
+        "speech_text": "実際に取得したデータでは、顕微鏡と取得時のメタデータから、マイクロメートルあたりのピクセル数とフレームあたりの秒数を入力します。両方の値があれば、プレビューで速度を毎分マイクロメートルで表せます。この教材の例で変換を試すと、マイクロメートルあたり二ピクセル、フレームあたり六十秒で、平均はおよそゼロ点七になります。これは例の値であり、測定したキャリブレーションではありません。"
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "解析全体のフォームでも、ピクセルのスケールとフレーム間隔を設定します。プレビューでの変更は、反映させるまで別扱いです。実行を始める前に、選んだ物体、チャネル、フィルターを確認します。取得時の値は結果と一緒に保管します。",
+        "hold_after": 0.7,
+        "speech_text": "解析全体のフォームでも、ピクセルのスケールとフレーム間隔を設定します。プレビューでの変更は、反映させるまで別扱いです。実行を始める前に、選んだ物体、チャネル、フィルターを確認します。取得時の値は結果と一緒に保管します。"
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "最初の実行ではReuse existing measurementsをオフのままにし、品質管理のグラフを有効にします。病原体のチャネルがないので、感染の品質管理は無効のままにします。Runをクリックし、コンソールで進み具合を確認します。",
+        "hold_after": 0.7,
+        "speech_text": "最初の実行ではReuse existing measurementsをオフのままにし、品質管理のグラフを有効にします。病原体のチャネルがないので、感染の品質管理は無効のままにします。Runをクリックし、コンソールで進み具合を確認します。"
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "実行が終わったら、プロジェクトのフォルダーでmeasurements、続いてmeasurements.dbを開きます。選んだ表にはフレームごとの観測値が入っていて、対になるwell_motilityの表はウェルごとの動きをまとめています。条件を比べたり図を書き出したりする前に、保存されたプロットとその単位を確認します。",
+        "hold_after": 0.7,
+        "speech_text": "実行が終わったら、プロジェクトのフォルダーでmeasurements、続いてメジャメンツ・ドット・ディービーを開きます。選んだ表にはフレームごとの観測値が入っていて、対になるwell_motilityの表はウェルごとの動きをまとめています。条件を比べたり図を書き出したりする前に、保存されたプロットとその単位を確認します。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Ensaio de motilidade",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Meça o movimento a partir de objetos rastreados, inspecione os filtros de trajetórias e salve resultados por quadro e por poço.",
+      "objectives": [
+       "Carregar um projeto com arranjos combinados e rastreados.",
+       "Escolher os planos de máscara, os filtros de trajetórias e as unidades de aquisição.",
+       "Executar a análise e encontrar as tabelas e os gráficos de movimento."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Conclua uma execução do Timelapse, ou baixe e extraia SYNTHETIC_motility_tracks.zip. Selecione a pasta que contém merged. O exemplo tem oito quadros, a intensidade nuclear no canal 0, a intensidade celular no canal 1, as máscaras de células rastreadas no plano 2 e as máscaras de núcleos no plano 3. Ele não tem máscara de patógenos nem calibração física.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Na tela Home, abra Measure e depois escolha Motility Assay no canto superior direito. Comece com imagens rastreadas do Timelapse, ou baixe o arquivo de exemplo abaixo para acompanhar.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "Na tela Home, abra Measure e depois escolha Motility Assay no canto superior direito. Comece com imagens rastreadas do Timelapse, ou baixe o arquivo de exemplo abaixo para acompanhar."
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Extraia o exemplo e defina Source como a pasta que contém merged. Escolha cells como objetos rastreados, o canal nuclear zero e o canal celular um. Deixe o canal de patógenos sem definir neste exemplo.",
+        "hold_after": 0.7,
+        "speech_text": "Extraia o exemplo e defina Source como a pasta que contém merged. Escolha cells como objetos rastreados, o canal nuclear zero e o canal celular um. Deixe o canal de patógenos sem definir neste exemplo."
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Ative Live para abrir o Motility preview e escolha a mesma pasta de projeto. Use a pré-visualização para inspecionar as trajetórias e testar filtros antes de executar a análise completa. Mantenha Propagate settings desativado enquanto testa opções temporárias.",
+        "hold_after": 0.7,
+        "speech_text": "Ative Live para abrir o Motility preview e escolha a mesma pasta de projeto. Use a pré-visualização para inspecionar as trajetórias e testar filtros antes de executar a análise completa. Mantenha Propagate settings desativado enquanto testa opções temporárias."
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Defina dois canais de intensidade, o plano da máscara rastreada como dois e o plano da máscara de patógenos como menos um, que significa nenhum. Pré-visualize os oito quadros. Na pré-visualização, defina os dois valores de calibração como zero para este exemplo sem calibração e clique em Run preview.",
+        "hold_after": 0.7,
+        "speech_text": "Defina dois canais de intensidade, o plano da máscara rastreada como dois e o plano da máscara de patógenos como menos um, que significa nenhum. Pré-visualize os oito quadros. Na pré-visualização, defina os dois valores de calibração como zero para este exemplo sem calibração e clique em Run preview."
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Com comprimento mínimo de trajetória três, o exemplo tem dezesseis trajetórias utilizáveis. Revise as trajetórias, a distribuição de comprimentos e o resumo de velocidade. A velocidade é de cerca de um vírgula quatro pixel por quadro, porque o exemplo não tem escala nem intervalo de aquisição.",
+        "hold_after": 0.7,
+        "speech_text": "Com comprimento mínimo de trajetória três, o exemplo tem dezesseis trajetórias utilizáveis. Revise as trajetórias, a distribuição de comprimentos e o resumo de velocidade. A velocidade é de cerca de um vírgula quatro pixel por quadro, porque o exemplo não tem escala nem intervalo de aquisição."
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length define por quantos quadros um objeto precisa aparecer para entrar no resumo. Aumente o valor para excluir trajetórias curtas e observe quantas ficam. Mantenha três para este exemplo de oito quadros.",
+        "hold_after": 0.7,
+        "speech_text": "Min track length define por quantos quadros um objeto precisa aparecer para entrar no resumo. Aumente o valor para excluir trajetórias curtas e observe quantas ficam. Mantenha três para este exemplo de oito quadros."
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks exclui trajetórias acima do limiar de retilinearidade escolhido. A retilinearidade é o deslocamento líquido dividido pelo comprimento total do trajeto. Compare as trajetórias mantidas e os gráficos antes de escolher um limiar; deixe este filtro desativado quando o movimento retilíneo fizer parte do seu experimento.",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks exclui trajetórias acima do limiar de retilinearidade escolhido. A retilinearidade é o deslocamento líquido dividido pelo comprimento total do trajeto. Compare as trajetórias mantidas e os gráficos antes de escolher um limiar; deixe este filtro desativado quando o movimento retilíneo fizer parte do seu experimento."
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Para dados adquiridos, informe os pixels por micrômetro e os segundos por quadro a partir dos metadados do microscópio e da aquisição. Com os dois valores, a pré-visualização pode expressar a velocidade em micrômetros por minuto. Para testar a conversão neste exemplo didático, dois pixels por micrômetro e sessenta segundos por quadro mudam a média para cerca de zero vírgula sete. São valores de exemplo, não uma calibração medida.",
+        "hold_after": 0.7,
+        "speech_text": "Para dados adquiridos, informe os pixels por micrômetro e os segundos por quadro a partir dos metadados do microscópio e da aquisição. Com os dois valores, a pré-visualização pode expressar a velocidade em micrômetros por minuto. Para testar a conversão neste exemplo didático, dois pixels por micrômetro e sessenta segundos por quadro mudam a média para cerca de zero vírgula sete. São valores de exemplo, não uma calibração medida."
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Defina também a escala de pixels e o intervalo entre quadros no formulário da análise completa; as alterações da pré-visualização ficam separadas até você propagá-las. Confira o objeto, os canais e os filtros escolhidos antes de iniciar a execução. Guarde os valores de aquisição junto com os resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Defina também a escala de pixels e o intervalo entre quadros no formulário da análise completa; as alterações da pré-visualização ficam separadas até você propagá-las. Confira o objeto, os canais e os filtros escolhidos antes de iniciar a execução. Guarde os valores de aquisição junto com os resultados."
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Deixe Reuse existing measurements desativado na primeira execução e ative os gráficos de controle de qualidade. Sem canal de patógenos, deixe o controle de qualidade da infecção desativado. Clique em Run e acompanhe o progresso no console.",
+        "hold_after": 0.7,
+        "speech_text": "Deixe Reuse existing measurements desativado na primeira execução e ative os gráficos de controle de qualidade. Sem canal de patógenos, deixe o controle de qualidade da infecção desativado. Clique em Run e acompanhe o progresso no console."
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Quando a execução terminar, abra measurements e depois measurements.db na pasta do projeto. A tabela selecionada contém observações por quadro; a tabela complementar well_motility resume o movimento por poço. Inspecione os gráficos salvos e as unidades deles antes de comparar condições ou exportar figuras.",
+        "hold_after": 0.7,
+        "speech_text": "Quando a execução terminar, abra measurements e depois measurements ponto dê bê na pasta do projeto. A tabela selecionada contém observações por quadro; a tabela complementar well_motility resume o movimento por poço. Inspecione os gráficos salvos e as unidades deles antes de comparar condições ou exportar figuras."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "运动性检测",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "根据追踪对象测量运动，检查轨迹过滤器，并保存逐帧和逐孔的结果。",
+      "objectives": [
+       "加载包含已追踪合并数组的项目。",
+       "选择掩膜平面、轨迹过滤器和采集单位。",
+       "运行分析，并找到运动数据表和图。"
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "先完成一次Timelapse运行，或下载并解压SYNTHETIC_motility_tracks.zip。选择包含merged的文件夹。示例有八帧，通道0为细胞核强度，通道1为细胞强度，平面2为已追踪的细胞掩膜，平面3为细胞核掩膜。它没有病原体掩膜，也没有物理标定。",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "从Home打开Measure，然后选择右上角的Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ],
+        "speech_text": "从主页打开Measure，然后选择右上角的Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。"
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "解压示例，把Source设为包含merged的文件夹。选择cells作为追踪对象，细胞核通道为零，细胞通道为一。本例中病原体通道保持未设置。",
+        "hold_after": 0.7,
+        "speech_text": "解压示例，把Source设为包含merged的文件夹。选择cells作为追踪对象，细胞核通道为零，细胞通道为一。本例中病原体通道保持未设置。"
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "开启Live打开Motility preview，并选择同一个项目文件夹。在运行完整分析之前，用预览检查轨迹并尝试过滤器。尝试临时选项时，请保持Propagate settings关闭。",
+        "hold_after": 0.7,
+        "speech_text": "开启Live打开Motility preview，并选择同一个项目文件夹。在运行完整分析之前，用预览检查轨迹并尝试过滤器。尝试临时选项时，请保持Propagate settings关闭。"
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "设置两个强度通道，追踪掩膜平面为二，病原体掩膜平面为负一，表示没有。预览全部八帧。在预览中，针对这个未标定的示例把两个标定值都设为零，然后点击Run preview。",
+        "hold_after": 0.7,
+        "speech_text": "设置两个强度通道，追踪掩膜平面为二，病原体掩膜平面为负一，表示没有。预览全部八帧。在预览中，针对这个未标定的示例把两个标定值都设为零，然后点击Run preview。"
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "当最小轨迹长度为三时，示例有十六条可用轨迹。查看轨迹、长度分布和速度汇总。由于示例没有采集比例尺和时间间隔，速度约为每帧一点四个像素。",
+        "hold_after": 0.7,
+        "speech_text": "当最小轨迹长度为三时，示例有十六条可用轨迹。查看轨迹、长度分布和速度汇总。由于示例没有采集比例尺和时间间隔，速度约为每帧一点四个像素。"
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length决定一个对象至少要跨越多少帧才能进入汇总。调高它可以排除短轨迹，并观察保留的数量。对于这个八帧的示例，保持为三。",
+        "hold_after": 0.7,
+        "speech_text": "Min track length决定一个对象至少要跨越多少帧才能进入汇总。调高它可以排除短轨迹，并观察保留的数量。对于这个八帧的示例，保持为三。"
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks会排除高于所选直线度阈值的轨迹。直线度是净位移除以总路径长度。选择阈值之前，请比较保留的轨迹和图；如果直线运动本身就是实验的一部分，请关闭这个过滤器。",
+        "hold_after": 0.7,
+        "speech_text": "Drop over-straight tracks会排除高于所选直线度阈值的轨迹。直线度是净位移除以总路径长度。选择阈值之前，请比较保留的轨迹和图；如果直线运动本身就是实验的一部分，请关闭这个过滤器。"
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "对于实际采集的数据，请根据显微镜和采集元数据输入每微米像素数和每帧秒数。有了这两个值，预览就能以每分钟微米为单位表示速度。在这个教学示例上尝试换算时，每微米两个像素、每帧六十秒会使平均值变为约零点七。这些只是示例值，不是实测标定。",
+        "hold_after": 0.7,
+        "speech_text": "对于实际采集的数据，请根据显微镜和采集元数据输入每微米像素数和每帧秒数。有了这两个值，预览就能以每分钟微米为单位表示速度。在这个教学示例上尝试换算时，每微米两个像素、每帧六十秒会使平均值变为约零点七。这些只是示例值，不是实测标定。"
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "也要在完整分析表单中设置像素比例和帧间隔；在您传播之前，预览中的修改是独立的。开始运行之前，请检查所选的对象、通道和过滤器。把采集参数和结果保存在一起。",
+        "hold_after": 0.7,
+        "speech_text": "也要在完整分析表单中设置像素比例和帧间隔；在您传播之前，预览中的修改是独立的。开始运行之前，请检查所选的对象、通道和过滤器。把采集参数和结果保存在一起。"
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "第一次运行时保持Reuse existing measurements关闭，并开启质控图。由于没有病原体通道，请保持感染质控关闭。点击Run，并在控制台中跟踪进度。",
+        "hold_after": 0.7,
+        "speech_text": "第一次运行时保持Reuse existing measurements关闭，并开启质控图。由于没有病原体通道，请保持感染质控关闭。点击Run，并在控制台中跟踪进度。"
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "运行完成后，在项目文件夹中打开measurements，然后打开measurements.db。所选的表包含逐帧观测；与之配套的well_motility表按孔汇总运动情况。在比较条件或导出图之前，请检查保存的图及其单位。",
+        "hold_after": 0.7,
+        "speech_text": "运行完成后，在项目文件夹中打开measurements，然后打开测量数据库文件。所选的表包含逐帧观测；与之配套的well_motility表按孔汇总运动情况。在比较条件或导出图之前，请检查保存的图及其单位。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motilitetsassay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mål bevægelse ud fra sporede objekter, undersøg sporfiltre, og gem resultater pr. billede og pr. brønd.",
+      "objectives": [
+       "Indlæse et projekt med sporede sammenlagte arrays.",
+       "Vælge maskeplaner, sporfiltre og optageenheder.",
+       "Køre analysen og finde bevægelsestabellerne og plottene."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Gennemfør en Timelapse-kørsel, eller hent og udpak SYNTHETIC_motility_tracks.zip. Vælg mappen, der indeholder merged. Eksemplet har otte billeder, kerneintensitet i kanal 0, celleintensitet i kanal 1, sporede cellemasker i plan 2 og kernemasker i plan 3. Det har hverken patogenmaske eller fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Fra Home åbner du Measure og vælger derefter Motility Assay øverst til højre. Begynd med sporede billeder fra Timelapse, eller hent eksempelarkivet nedenfor for at følge med.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Udpak eksemplet, og sæt Source til mappen, der indeholder merged. Vælg cells som sporede objekter, kernekanal 0 og cellekanal 1. Lad patogenkanalen være uindstillet i dette eksempel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Slå Live til for at åbne Motility preview, og vælg den samme projektmappe. Brug forhåndsvisningen til at undersøge spor og prøve filtre, før du kører hele analysen. Lad Propagate settings være slået fra, mens du afprøver midlertidige valg.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Indstil to intensitetskanaler, sporet maskeplan 2 og patogenmaskeplan −1, hvilket betyder ingen. Forhåndsvis alle otte billeder. I forhåndsvisningen sætter du begge kalibreringsværdier til 0 for dette ukalibrerede eksempel og klikker derefter på Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Med mindste sporlængde 3 har eksemplet seksten brugbare spor. Gennemgå banerne, længdefordelingen og hastighedsoversigten. Hastigheden er omkring 1,4 pixel pr. billede, fordi eksemplet mangler optageskala og interval.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length angiver, hvor mange billeder et objekt skal strække sig over for at indgå i oversigten. Øg værdien for at udelukke korte spor, og følg med i antallet, der bliver tilbage. Behold 3 for dette eksempel med otte billeder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks udelukker spor over den valgte tærskel for retlinethed. Retlinethed er nettoforskydningen divideret med hele banens længde. Sammenlign de tilbageværende spor og plot, før du vælger en tærskel; lad filteret være slået fra, når retlinet bevægelse er en del af dit forsøg.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "For optagede data indtaster du pixel pr. mikrometer og sekunder pr. billede fra mikroskopets og optagelsens metadata. Med begge værdier kan forhåndsvisningen angive hastigheden i mikrometer pr. minut. For at afprøve omregningen på dette undervisningseksempel ændrer to pixel pr. mikrometer og 60 sekunder pr. billede gennemsnittet til omkring 0,7. Det er eksempelværdier, ikke en målt kalibrering.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Indstil også pixelskala og billedinterval i formularen til hele analysen; ændringer i forhåndsvisningen er adskilte, indtil du overfører dem. Kontrollér det valgte objekt, kanaler og filtre, før du starter kørslen. Gem optageværdierne sammen med dine resultater.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Lad Reuse existing measurements være slået fra i den første kørsel, og slå graferne til kvalitetskontrol til. Uden patogenkanal lader du kvalitetskontrollen af infektion være deaktiveret. Klik på Run, og følg forløbet i konsollen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Når kørslen er færdig, åbner du measurements og derefter measurements.db i projektmappen. Den valgte tabel indeholder observationer pr. billede; den tilhørende tabel well_motility opsummerer bevægelsen pr. brønd. Undersøg de gemte plot og deres enheder, før du sammenligner betingelser eller eksporterer figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motilitätsassay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Messen Sie Bewegung aus verfolgten Objekten, prüfen Sie Track-Filter und speichern Sie Ergebnisse pro Frame und pro Well.",
+      "objectives": [
+       "Ein Projekt mit verfolgten zusammengeführten Arrays laden.",
+       "Maskenebenen, Track-Filter und Aufnahmeeinheiten wählen.",
+       "Die Analyse ausführen und die Bewegungstabellen und -diagramme finden."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Schließen Sie einen Timelapse-Lauf ab oder laden Sie SYNTHETIC_motility_tracks.zip herunter und entpacken Sie es. Wählen Sie den Ordner, der merged enthält. Das Beispiel hat acht Frames, Kernintensität in Kanal 0, Zellintensität in Kanal 1, verfolgte Zellmasken in Ebene 2 und Kernmasken in Ebene 3. Es hat keine Pathogenmaske und keine physikalische Kalibrierung.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Öffnen Sie von Home aus Measure und wählen Sie dann oben rechts Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Entpacken Sie das Beispiel und setzen Sie Source auf den Ordner, der merged enthält. Wählen Sie cells als verfolgte Objekte, Kernkanal 0 und Zellkanal 1. Lassen Sie den Pathogenkanal in diesem Beispiel leer.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Schalten Sie Live ein, um Motility preview zu öffnen, und wählen Sie denselben Projektordner. Prüfen Sie in der Vorschau die Tracks und probieren Sie Filter aus, bevor Sie die vollständige Analyse starten. Lassen Sie Propagate settings ausgeschaltet, solange Sie vorläufige Einstellungen testen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Stellen Sie zwei Intensitätskanäle ein, die verfolgte Maskenebene auf 2 und die Pathogen-Maskenebene auf −1, also keine. Zeigen Sie alle acht Frames in der Vorschau an. Setzen Sie in der Vorschau für dieses unkalibrierte Beispiel beide Kalibrierwerte auf 0 und klicken Sie dann auf Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Bei einer minimalen Track-Länge von 3 hat das Beispiel sechzehn verwertbare Tracks. Prüfen Sie Trajektorien, Längenverteilung und Geschwindigkeitsübersicht. Die Geschwindigkeit liegt bei etwa 1,4 Pixeln pro Frame, da das Beispiel weder Aufnahmemaßstab noch Intervall hat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length legt fest, über wie viele Frames ein Objekt reichen muss, um in die Übersicht einzugehen. Erhöhen Sie den Wert, um kurze Tracks auszuschließen, und beobachten Sie die verbleibende Anzahl. Behalten Sie für dieses Beispiel mit acht Frames den Wert 3 bei.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks schließt Tracks oberhalb der gewählten Geradlinigkeitsschwelle aus. Die Geradlinigkeit ist die Nettoverschiebung geteilt durch die gesamte Weglänge. Vergleichen Sie verbleibende Tracks und Diagramme, bevor Sie eine Schwelle wählen; lassen Sie diesen Filter ausgeschaltet, wenn geradlinige Bewegung Teil Ihres Experiments ist.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Geben Sie für aufgenommene Daten Pixel pro Mikrometer und Sekunden pro Frame aus den Metadaten von Mikroskop und Aufnahme ein. Mit beiden Werten kann die Vorschau die Geschwindigkeit in Mikrometern pro Minute angeben. Um die Umrechnung an diesem Lehrbeispiel auszuprobieren: Zwei Pixel pro Mikrometer und 60 Sekunden pro Frame ändern den Mittelwert auf etwa 0,7. Das sind Beispielwerte, keine gemessene Kalibrierung.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Stellen Sie Pixelmaßstab und Frame-Intervall auch im Formular der vollständigen Analyse ein; Änderungen in der Vorschau bleiben getrennt, bis Sie sie übertragen. Prüfen Sie gewähltes Objekt, Kanäle und Filter, bevor Sie den Lauf starten. Bewahren Sie die Aufnahmewerte zusammen mit Ihren Ergebnissen auf.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Lassen Sie Reuse existing measurements beim ersten Lauf ausgeschaltet und aktivieren Sie die Qualitätskontrolldiagramme. Ohne Pathogenkanal bleibt die Infektions-Qualitätskontrolle deaktiviert. Klicken Sie auf Run und verfolgen Sie den Fortschritt in der Konsole.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Wenn der Lauf abgeschlossen ist, öffnen Sie im Projektordner measurements und dann measurements.db. Die gewählte Tabelle enthält Beobachtungen pro Frame; die zugehörige Tabelle well_motility fasst die Bewegung pro Well zusammen. Prüfen Sie die gespeicherten Diagramme und ihre Einheiten, bevor Sie Bedingungen vergleichen oder Abbildungen exportieren.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Hreyfanleikapróf",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mældu hreyfingu út frá eltum hlutum, skoðaðu síur ferla og vistaðu niðurstöður fyrir hvern ramma og hvern brunn.",
+      "objectives": [
+       "Hlaða inn verkefni með eltum sameinuðum fylkjum.",
+       "Velja grímulög, síur ferla og mælieiningar myndatöku.",
+       "Keyra greininguna og finna töflur og gröf um hreyfingu."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Ljúktu Timelapse-keyrslu, eða sæktu og dragðu út SYNTHETIC_motility_tracks.zip. Veldu möppuna sem inniheldur merged. Dæmið hefur átta ramma, kjarnastyrk í rás 0, frumustyrk í rás 1, eltar frumugrímur í lagi 2 og kjarnagrímur í lagi 3. Það hefur hvorki sýklagrímu né eðlisfræðilega kvörðun.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Frá Home opnarðu Measure og velur svo Motility Assay efst til hægri. Byrjaðu á eltum myndum úr Timelapse, eða sæktu dæmasafnið hér fyrir neðan til að fylgja með.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Dragðu dæmið út og stilltu Source á möppuna sem inniheldur merged. Veldu cells sem eltu hlutina, kjarnarás 0 og frumurás 1. Hafðu sýklarásina óstillta í þessu dæmi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Kveiktu á Live til að opna Motility preview og veldu sömu verkefnismöppu. Notaðu forskoðunina til að skoða ferla og prófa síur áður en þú keyrir alla greininguna. Hafðu slökkt á Propagate settings meðan þú prófar tímabundna valkosti.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Stilltu tvær styrkleikarásir, eltu grímulagið á 2 og grímulag sýkla á −1, sem þýðir ekkert. Forskoðaðu alla átta rammana. Í forskoðuninni stillirðu bæði kvörðunargildin á 0 fyrir þetta ókvarðaða dæmi og smellir svo á Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Með lágmarkslengd ferils 3 hefur dæmið sextán nothæfa ferla. Skoðaðu brautirnar, dreifingu lengda og samantekt hraða. Hraðinn er um 1,4 díll á ramma því dæmið hefur hvorki kvarða né tímabil myndatöku.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length ræður hversu marga ramma hlutur þarf að ná yfir til að fara inn í samantektina. Hækkaðu gildið til að útiloka stutta ferla og fylgstu með fjöldanum sem heldur sér. Hafðu það á 3 fyrir þetta dæmi með átta römmum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks útilokar ferla yfir völdum þröskuldi beinleika. Beinleiki er nettótilfærsla deilt með heildarlengd leiðarinnar. Berðu saman ferlana sem haldast og gröfin áður en þú velur þröskuld; hafðu slökkt á síunni þegar bein hreyfing er hluti af tilrauninni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "Fyrir raunveruleg gögn slærðu inn díla á míkrómetra og sekúndur á ramma úr lýsigögnum smásjárinnar og myndatökunnar. Með báðum gildum getur forskoðunin gefið hraða í míkrómetrum á mínútu. Til að prófa umreikninginn á þessu kennsludæmi breyta tveir dílar á míkrómetra og 60 sekúndur á ramma meðaltalinu í um 0,7. Þetta eru dæmagildi, ekki mæld kvörðun.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Stilltu líka dílakvarða og rammabil í eyðublaði allrar greiningarinnar; breytingar í forskoðun eru aðskildar þar til þú flytur þær yfir. Athugaðu valinn hlut, rásir og síur áður en þú hefur keyrsluna. Haltu gildum myndatökunnar með niðurstöðunum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Hafðu slökkt á Reuse existing measurements í fyrstu keyrslu og virkjaðu gröf gæðaeftirlits. Án sýklarásar hefurðu gæðaeftirlit sýkingar óvirkt. Smelltu á Run og fylgstu með framvindu í stjórnborðinu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Þegar keyrslunni lýkur opnarðu measurements og svo measurements.db í verkefnismöppunni. Valda taflan inniheldur athuganir fyrir hvern ramma; fylgitaflan well_motility tekur saman hreyfingu eftir brunnum. Skoðaðu vistuðu gröfin og einingar þeirra áður en þú berð saman aðstæður eða flytur út myndir.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "운동성 분석",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "추적된 객체로 움직임을 측정하고, 트랙 필터를 검토하고, 프레임별 및 웰별 결과를 저장합니다.",
+      "objectives": [
+       "추적된 병합 배열이 있는 프로젝트를 불러옵니다.",
+       "마스크 평면, 트랙 필터, 획득 단위를 고릅니다.",
+       "분석을 실행하고 움직임 표와 그래프를 찾습니다."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Timelapse 실행을 마치거나 SYNTHETIC_motility_tracks.zip을 내려받아 압축을 푸세요. merged가 들어 있는 폴더를 선택하세요. 예제에는 프레임 8개가 있으며, 채널 0에 핵 강도, 채널 1에 세포 강도, 평면 2에 추적된 세포 마스크, 평면 3에 핵 마스크가 있습니다. 병원체 마스크나 물리적 보정 값은 없습니다.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Home에서 Measure를 연 뒤 오른쪽 위의 Motility Assay를 고르세요. Timelapse에서 추적한 이미지로 시작하거나, 아래의 예제 아카이브를 내려받아 따라 하세요.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "예제의 압축을 풀고 Source를 merged가 들어 있는 폴더로 지정하세요. 추적 객체로 cells를 고르고, 핵 채널은 0, 세포 채널은 1로 두세요. 이 예제에서는 병원체 채널을 지정하지 마세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Live를 켜서 Motility preview를 열고 같은 프로젝트 폴더를 고르세요. 전체 분석을 실행하기 전에 미리 보기로 트랙을 확인하고 필터를 시험해 보세요. 임시 선택을 시험하는 동안에는 Propagate settings를 끈 채로 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "강도 채널 2개, 추적 마스크 평면 2, 병원체 마스크 평면 −1(없음)로 설정하세요. 프레임 8개를 모두 미리 보세요. 미리 보기에서 보정되지 않은 이 예제에 맞게 두 보정 값을 모두 0으로 두고 Run preview를 클릭하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "최소 트랙 길이를 3으로 하면 예제에는 쓸 수 있는 트랙이 16개 있습니다. 궤적, 길이 분포, 속도 요약을 검토하세요. 예제에 획득 배율이나 간격이 없으므로 속도는 프레임당 약 1.4픽셀입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length는 객체가 요약에 들어가려면 몇 프레임에 걸쳐 있어야 하는지를 정합니다. 짧은 트랙을 빼려면 값을 높이고 남은 개수를 지켜보세요. 프레임 8개짜리 이 예제에서는 3으로 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks는 선택한 직진도 임계값을 넘는 트랙을 제외합니다. 직진도는 순 변위를 전체 경로 길이로 나눈 값입니다. 임계값을 고르기 전에 남은 트랙과 그래프를 비교하세요. 직선 운동이 실험의 일부라면 이 필터를 끈 채로 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "실제로 획득한 데이터라면 현미경과 획득 메타데이터에서 마이크로미터당 픽셀 수와 프레임당 초를 입력하세요. 두 값이 있으면 미리 보기에서 속도를 분당 마이크로미터로 나타낼 수 있습니다. 이 교육용 예제에서 변환을 시험해 보면, 마이크로미터당 2픽셀과 프레임당 60초로 평균이 약 0.7이 됩니다. 이는 예시 값이며 측정된 보정 값이 아닙니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "전체 분석 양식에서도 픽셀 배율과 프레임 간격을 설정하세요. 미리 보기의 변경은 전파하기 전까지 별개입니다. 실행을 시작하기 전에 고른 객체, 채널, 필터를 확인하세요. 획득 값은 결과와 함께 보관하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "첫 실행에서는 Reuse existing measurements를 끈 채로 두고 품질 관리 그래프를 켜세요. 병원체 채널이 없으므로 감염 품질 관리는 꺼 두세요. Run을 클릭하고 콘솔에서 진행 상황을 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "실행이 끝나면 프로젝트 폴더에서 measurements를 연 뒤 measurements.db를 여세요. 선택한 표에는 프레임별 관측값이 있고, 짝을 이루는 well_motility 표는 웰별 움직임을 요약합니다. 조건을 비교하거나 그림을 내보내기 전에 저장된 그래프와 단위를 확인하세요.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motilitetsanalyse",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mål bevegelse fra sporede objekter, undersøk sporfiltre og lagre resultater per bilde og per brønn.",
+      "objectives": [
+       "Laste inn et prosjekt med sporede sammenslåtte matriser.",
+       "Velge maskeplan, sporfiltre og opptaksenheter.",
+       "Kjøre analysen og finne bevegelsestabellene og plottene."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Fullfør en Timelapse-kjøring, eller last ned og pakk ut SYNTHETIC_motility_tracks.zip. Velg mappen som inneholder merged. Eksemplet har åtte bilder, kjerneintensitet i kanal 0, celleintensitet i kanal 1, sporede cellemasker i plan 2 og kjernemasker i plan 3. Det har verken patogenmaske eller fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Fra Home åpner du Measure og velger deretter Motility Assay øverst til høyre. Begynn med sporede bilder fra Timelapse, eller last ned eksempelarkivet nedenfor for å følge med.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Pakk ut eksemplet og sett Source til mappen som inneholder merged. Velg cells som sporede objekter, kjernekanal 0 og cellekanal 1. La patogenkanalen være uinnstilt i dette eksemplet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Slå på Live for å åpne Motility preview, og velg den samme prosjektmappen. Bruk forhåndsvisningen til å undersøke spor og prøve filtre før du kjører hele analysen. La Propagate settings være av mens du prøver midlertidige valg.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Angi to intensitetskanaler, sporet maskeplan 2 og patogenmaskeplan −1, som betyr ingen. Forhåndsvis alle de åtte bildene. I forhåndsvisningen setter du begge kalibreringsverdiene til 0 for dette ukalibrerte eksemplet, og klikker deretter på Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Med minste sporlengde 3 har eksemplet seksten brukbare spor. Gå gjennom banene, lengdefordelingen og hastighetsoppsummeringen. Hastigheten er omtrent 1,4 piksler per bilde fordi eksemplet mangler opptaksskala og intervall.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length angir hvor mange bilder et objekt må strekke seg over for å komme med i oppsummeringen. Øk verdien for å utelukke korte spor, og følg med på antallet som blir igjen. Behold 3 for dette eksemplet med åtte bilder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks utelukker spor over den valgte terskelen for retthet. Retthet er nettoforflytningen delt på hele banelengden. Sammenlign gjenværende spor og plott før du velger en terskel; la filteret være av når rett bevegelse er en del av eksperimentet ditt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "For innsamlede data oppgir du piksler per mikrometer og sekunder per bilde fra metadataene til mikroskopet og opptaket. Med begge verdiene kan forhåndsvisningen uttrykke hastighet i mikrometer per minutt. For å prøve omregningen på dette undervisningseksemplet endrer to piksler per mikrometer og 60 sekunder per bilde gjennomsnittet til omtrent 0,7. Dette er eksempelverdier, ikke en målt kalibrering.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Angi også pikselskala og bildeintervall i skjemaet for hele analysen; endringer i forhåndsvisningen er separate til du overfører dem. Kontroller valgt objekt, kanaler og filtre før du starter kjøringen. Behold opptaksverdiene sammen med resultatene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "La Reuse existing measurements være av i den første kjøringen, og aktiver grafene for kvalitetskontroll. Uten patogenkanal lar du kvalitetskontrollen for infeksjon være deaktivert. Klikk på Run og følg fremdriften i konsollen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "Når kjøringen er ferdig, åpner du measurements og deretter measurements.db i prosjektmappen. Den valgte tabellen inneholder observasjoner per bilde; den tilhørende tabellen well_motility oppsummerer bevegelsen per brønn. Undersøk de lagrede plottene og enhetene deres før du sammenligner betingelser eller eksporterer figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 16,
+     "preceding": [
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "17_timelapse",
+     "next": "19_train_cellpose",
+     "entry": {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motilitetsanalys",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "host_app_key": "measure",
+      "description": "Mät rörelse från spårade objekt, granska spårfilter och spara resultat per bildruta och per brunn.",
+      "objectives": [
+       "Läsa in ett projekt med spårade sammanslagna arrayer.",
+       "Välja maskplan, spårfilter och förvärvsenheter.",
+       "Köra analysen och hitta rörelsetabellerna och diagrammen."
+      ],
+      "example_files": [
+       "SYNTHETIC_motility_tracks.zip"
+      ],
+      "prerequisite": "Slutför en Timelapse-körning, eller hämta och packa upp SYNTHETIC_motility_tracks.zip. Välj mappen som innehåller merged. Exemplet har åtta bildrutor, kärnintensitet i kanal 0, cellintensitet i kanal 1, spårade cellmasker i plan 2 och kärnmasker i plan 3. Det saknar patogenmask och fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Från Home öppnar du Measure och väljer sedan Motility Assay uppe till höger. Börja med spårade bilder från Timelapse, eller hämta exempelarkivet nedan för att följa med.",
+        "related_lessons": [
+         "08_measure",
+         "17_timelapse"
+        ],
+        "hold_after": 0.7,
+        "focus": [
+         3724,
+         56,
+         116,
+         116
+        ]
+       },
+       {
+        "visual": "03_actual_setting_src",
+        "narration": "Packa upp exemplet och ställ Source på mappen som innehåller merged. Välj cells som spårade objekt, kärnkanal 0 och cellkanal 1. Låt patogenkanalen vara oinställd i det här exemplet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_actual_preview",
+        "narration": "Slå på Live för att öppna Motility preview och välj samma projektmapp. Använd förhandsvisningen för att granska spår och prova filter innan du kör hela analysen. Låt Propagate settings vara avstängt medan du provar tillfälliga val.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_plane_and_unit_settings",
+        "narration": "Ställ in två intensitetskanaler, spårat maskplan 2 och patogenmaskplan −1, vilket betyder inget. Förhandsgranska alla åtta bildrutor. I förhandsvisningen ställer du båda kalibreringsvärdena på 0 för det här okalibrerade exemplet och klickar sedan på Run preview.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_actual_uncalibrated_preview",
+        "narration": "Med minsta spårlängd 3 har exemplet sexton användbara spår. Granska banorna, längdfördelningen och hastighetssammanfattningen. Hastigheten är ungefär 1,4 pixlar per bildruta eftersom exemplet saknar förvärvsskala och intervall.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_actual_length_restored",
+        "narration": "Min track length anger hur många bildrutor ett objekt måste sträcka sig över för att ingå i sammanfattningen. Öka värdet för att utesluta korta spår och se hur många som finns kvar. Behåll 3 för det här exemplet med åtta bildrutor.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_actual_straightness_filter",
+        "narration": "Drop over-straight tracks utesluter spår över det valda tröskelvärdet för rakhet. Rakhet är nettoförflyttningen delad med hela banans längd. Jämför kvarvarande spår och diagram innan du väljer ett tröskelvärde; låt filtret vara avstängt när rak rörelse är en del av ditt experiment.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_actual_hypothetical_calibration",
+        "narration": "För förvärvade data anger du pixlar per mikrometer och sekunder per bildruta från mikroskopets och förvärvets metadata. Med båda värdena kan förhandsvisningen uttrycka hastigheten i mikrometer per minut. För att prova omräkningen på det här undervisningsexemplet ändrar två pixlar per mikrometer och 60 sekunder per bildruta medelvärdet till ungefär 0,7. Det är exempelvärden, inte en uppmätt kalibrering.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_pixels_per_um",
+        "narration": "Ställ även in pixelskala och bildrutsintervall i formuläret för hela analysen; ändringar i förhandsvisningen är separata tills du för över dem. Kontrollera valt objekt, kanaler och filter innan du startar körningen. Spara förvärvsvärdena tillsammans med resultaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_actual_setting_infection_intensity_qc_graphs",
+        "narration": "Låt Reuse existing measurements vara avstängt i den första körningen och aktivera kvalitetskontrollens diagram. Utan patogenkanal låter du infektionens kvalitetskontroll vara avaktiverad. Klicka på Run och följ förloppet i konsolen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_actual_finished",
+        "narration": "När körningen är klar öppnar du measurements och sedan measurements.db i projektmappen. Den valda tabellen innehåller observationer per bildruta; den tillhörande tabellen well_motility sammanfattar rörelsen per brunn. Granska de sparade diagrammen och deras enheter innan du jämför förhållanden eller exporterar figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "17_timelapse",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "18_motility"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "17_timelapse",
+     "scene": 6,
+     "links": [
+      "08_measure",
+      "18_motility",
+      "06_api"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       1,
+       "lessons"
+      ],
+      "preceding": []
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 11,
+     "value": {
+      "kind": "submodule",
+      "app_key": "motility",
+      "host_app_key": "measure",
+      "host_lesson": "08_measure",
+      "host_title": "Measure"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/18_motility -> tools/tutorials/archive/production/docs/18_motility"
+ ],
+ "prose": []
+}

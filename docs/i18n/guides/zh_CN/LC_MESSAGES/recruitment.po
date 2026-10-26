@@ -23,8 +23,8 @@ msgid "Recruitment: compartment ratios and channel identity"
 msgstr "募集分析：区室比值与通道标识"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
-msgstr "在分割和测量完成后，从 **主页** → **生物体** → **弓形虫** 打开 **募集分析**。提供包含 ``measurements/measurements.db`` 的项目，并确认其中细胞、细胞核、病原体和细胞质的测量对应预期的对象和通道。有关上下游工作流程，请参阅 :ref:`模块图中的募集分析 <workflow-module-recruitment>`、`募集分析教程 <tutorials/#lesson=25_recruitment>`_ 和 :func:`spacr.submodules.analyze_recruitment`。"
+msgid "From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>` and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "在分割和测量完成后，从 **主页** → **生物体** → **弓形虫** 打开 **募集分析**。提供包含 ``measurements/measurements.db`` 的项目，并确认其中细胞、细胞核、病原体和细胞质的测量对应预期的对象和通道。有关上下游工作流程，请参阅 :ref:`模块图中的募集分析 <workflow-module-recruitment>` 和 :func:`spacr.submodules.analyze_recruitment`。"
 
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "关于整个纳虫泡的标记状态、明确的宿主感染分母以及可选的寄生虫计数，请参阅 :doc:`宿主–病原体分析 <host_pathogen>`。这两个模块仍是相互独立的分析选项。"

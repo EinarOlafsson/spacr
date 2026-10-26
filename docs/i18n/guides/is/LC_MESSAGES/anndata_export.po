@@ -83,6 +83,6 @@ msgid "Follow the video"
 msgstr "Fylgdu myndbandinu"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
-msgstr "`AnnData-myndbandið <tutorials/#lesson=59_anndata_export>`__ fer yfir þessar stýringar með niðurhalanlega mælingardæminu. Það sýnir samtengdan útflutning, útflutning eingöngu á frumum og eingöngu á kjörnum og ber saman stefnurnar fyrir gildi sem vantar. Lýsigagnadálkar hluta sem vantar alfarið eru geymdir sem tómir flokkadálkar í ``obs``; ekkert staðgengilsgildi er skrifað. Ef ritun staðgengilsskrár mistekst er fyrirliggjandi fullgert úttak varðveitt."
+msgid "Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
+msgstr "Lýsigagnadálkar hluta sem vantar alfarið eru geymdir sem tómir flokkadálkar í ``obs``; ekkert staðgengilsgildi er skrifað. Ef ritun staðgengilsskrár mistekst er fyrirliggjandi fullgert úttak varðveitt."
 

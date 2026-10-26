@@ -1,0 +1,5312 @@
+{
+ "schema": 1,
+ "id": "76_ops",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: from sequencing images to cell barcodes",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
+      "objectives": [
+       "Open OPS inside Mask and load its example images and barcode library.",
+       "Choose the input and output folders and understand the main alignment and decoding settings.",
+       "Run OPS and inspect nucleus barcode assignments in the output database."
+      ],
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "76_ops/poster.jpg",
+      "silent": "76_ops/video/76_ops_silent.mp4",
+      "web": "76_ops/web/76_ops_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: from sequencing images to cell barcodes",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
+      "objectives": [
+       "Open OPS inside Mask and load its example images and barcode library.",
+       "Choose the input and output folders and understand the main alignment and decoding settings.",
+       "Run OPS and inspect nucleus barcode assignments in the output database."
+      ],
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: de las imágenes de secuenciación a los códigos de barras de las células",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Carga los datos de prueba de OPS, elige los ajustes de imagen y de decodificación, ejecuta el análisis y encuentra las asignaciones de códigos de barras en la base de datos de salida.",
+      "objectives": [
+       "Abrir OPS dentro de Mask y cargar sus imágenes de ejemplo y su biblioteca de códigos de barras.",
+       "Elegir las carpetas de entrada y salida y entender los principales ajustes de alineación y decodificación.",
+       "Ejecutar OPS y revisar las asignaciones de códigos de barras a los núcleos en la base de datos de salida."
+      ],
+      "prerequisite": "Abre spaCR. Usa Load test data dentro de OPS para obtener las imágenes de secuenciación de ejemplo y la biblioteca de guías. Para tu propio experimento, prepara los TIFF de los ciclos de secuenciación con sus nombres de archivo de adquisición y un CSV de la biblioteca de códigos de barras correspondiente.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Desde Home, abre Mask y activa OPS. Esta página recibe imágenes de los ciclos de secuenciación y asigna códigos de barras decodificados a los núcleos.",
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Mask y activa OPS. Esta página recibe imágenes de los ciclos de secuenciación y asigna códigos de barras decodificados a los núcleos."
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Haz clic en Load test data. El ejemplo incluye dos posiciones de imagen a lo largo de once ciclos de secuenciación y una biblioteca de códigos de barras correspondiente. Cuando termina la carga, spaCR rellena los campos de entrada, biblioteca, placa y salida.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Haz clic en Load test data. El ejemplo incluye dos posiciones de imagen a lo largo de once ciclos de secuenciación y una biblioteca de códigos de barras correspondiente. Cuando termina la carga, espáquer rellena los campos de entrada, biblioteca, placa y salida."
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "En OPS input, comprueba la carpeta de imágenes de secuenciación y el CSV de la biblioteca de códigos de barras. Elige un destino para los resultados. El ejemplo escribe en la carpeta ops_output dentro de su proyecto descargado.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "En OPS input, comprueba la carpeta de imágenes de secuenciación y el CSV de la biblioteca de códigos de barras. Elige un destino para los resultados. El ejemplo escribe en la carpeta ops_output dentro de su proyecto descargado."
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Deja vacía la carpeta de imágenes de fenotipo en este ejemplo. Cuando tengas una adquisición de fenotipo correspondiente, selecciona aquí su carpeta para registrar cómo se alinean sus campos con las imágenes de secuenciación.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "Deja vacía la carpeta de imágenes de fenotipo en este ejemplo. Cuando tengas una adquisición de fenotipo correspondiente, selecciona aquí su carpeta para registrar cómo se alinean sus campos con las imágenes de secuenciación."
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "En OPS alignment, elige el modelo de segmentación de núcleos. Diameter fija el tamaño esperado del núcleo en píxeles. Raster overlap describe el solapamiento entre mosaicos adquiridos vecinos; usa el valor de tu adquisición. Mantén los ajustes del ejemplo en esta primera ejecución.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "En OPS alignment, elige el modelo de segmentación de núcleos. Diameter fija el tamaño esperado del núcleo en píxeles. Raster overlap describe el solapamiento entre mosaicos adquiridos vecinos; usa el valor de tu adquisición. Mantén los ajustes del ejemplo en esta primera ejecución."
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap controla cuánto comparten las ventanas de segmentación vecinas. Debe ser mayor que el núcleo más grande, para que los objetos en los bordes de las ventanas puedan incluirse enteros. Aumentarlo alarga el procesamiento.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap controla cuánto comparten las ventanas de segmentación vecinas. Debe ser mayor que el núcleo más grande, para que los objetos en los bordes de las ventanas puedan incluirse enteros. Aumentarlo alarga el procesamiento."
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "En OPS decoding, define los cuatro canales de bases en el orden G, T, A, C. El ejemplo usa CY3, A594, CY5 y CY7. Para tus propias imágenes, haz coincidir estos nombres con los nombres de canal de los nombres de archivo TIFF.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "En OPS decoding, define los cuatro canales de bases en el orden G, T, A, C. El ejemplo usa CY3, A594, CY5 y CY7. Para tus propias imágenes, haz coincidir estos nombres con los nombres de canal de los nombres de archivo TIFF."
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold controla lo brillante que debe ser un punto para contar como lectura. Subirlo selecciona puntos más intensos; bajarlo incluye puntos más débiles y más fondo. Footprint controla a qué distancia de un núcleo puede estar una lectura y seguir contribuyendo a su código de barras.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold controla lo brillante que debe ser un punto para contar como lectura. Subirlo selecciona puntos más intensos; bajarlo incluye puntos más débiles y más fondo. Footprint controla a qué distancia de un núcleo puede estar una lectura y seguir contribuyendo a su código de barras."
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Activa Store reads si quieres revisar después las lecturas individuales. Así se guarda una tabla adicional y se usa más espacio en disco. Déjalo desactivado para una primera ejecución compacta.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "Activa Store reads si quieres revisar después las lecturas individuales. Así se guarda una tabla adicional y se usa más espacio en disco. Déjalo desactivado para una primera ejecución compacta."
+       },
+       {
+        "visual": "10_run",
+        "narration": "Revisa OPS performance y pulsa Run. GPU activa la aceleración cuando está disponible. Workers controla cuántos campos se decodifican a la vez; bájalo si la memoria es limitada. Sigue el progreso en Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "Revisa OPS performance y pulsa Run. GPU activa la aceleración cuando está disponible. Workers controla cuántos campos se decodifican a la vez; bájalo si la memoria es limitada. Sigue el progreso en Console."
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Cuando Console muestre Finished, abre Help, después Database Browser, y elige measurements.db en la carpeta de salida seleccionada. A su lado, cada pocillo tiene una carpeta, aquí A1, con su informe de OPS que incluye el resumen de la decodificación y cualquier advertencia.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "Cuando Console muestre Finished, abre Help, después Database Browser, y elige measurements punto de be en la carpeta de salida seleccionada. A su lado, cada pocillo tiene una carpeta, aquí A1, con su informe de OPS que incluye el resumen de la decodificación y cualquier advertencia."
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "La tabla ops_barcodes asigna a cada núcleo su código de barras, el respaldo de lecturas y la guía correspondiente; ops_objects contiene los mismos identificadores de núcleo con sus coordenadas en la imagen. Esos identificadores son el puente con el resto de tu cribado: une a través de ellos los códigos de barras con tus mediciones de fenotipo y después agrega los datos para Regression. Guarda juntos la base de datos, los informes y los ajustes.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "La tabla ops_barcodes asigna a cada núcleo su código de barras, el respaldo de lecturas y la guía correspondiente; ops_objects contiene los mismos identificadores de núcleo con sus coordenadas en la imagen. Esos identificadores son el puente con el resto de tu cribado: une a través de ellos los códigos de barras con tus mediciones de fenotipo y después agrega los datos para Regression. Guarda juntos la base de datos, los informes y los ajustes."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS : des images de séquençage aux codes-barres des cellules",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Chargez les données de test OPS, choisissez les paramètres d’image et de décodage, lancez l’analyse et trouvez les attributions de codes-barres dans la base de données de sortie.",
+      "objectives": [
+       "Ouvrir OPS dans Mask et charger ses images d’exemple et sa bibliothèque de codes-barres.",
+       "Choisir les dossiers d’entrée et de sortie et comprendre les principaux paramètres d’alignement et de décodage.",
+       "Lancer OPS et inspecter les attributions de codes-barres aux noyaux dans la base de données de sortie."
+      ],
+      "prerequisite": "Ouvrez spaCR. Utilisez Load test data dans OPS pour obtenir les images de séquençage d’exemple et la bibliothèque de guides. Pour votre propre expérience, préparez les TIFF des cycles de séquençage avec leurs noms de fichiers d’acquisition et un CSV de bibliothèque de codes-barres correspondant.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Depuis Home, ouvrez Mask, puis activez OPS. Cette page prend des images de cycles de séquençage et attribue des codes-barres décodés aux noyaux.",
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Mask, puis activez OPS. Cette page prend des images de cycles de séquençage et attribue des codes-barres décodés aux noyaux."
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Cliquez sur Load test data. L’exemple comprend deux positions d’image sur onze cycles de séquençage et une bibliothèque de codes-barres correspondante. Une fois le chargement terminé, spaCR remplit les champs d’entrée, de bibliothèque, de plaque et de sortie.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Cliquez sur Load test data. L’exemple comprend deux positions d’image sur onze cycles de séquençage et une bibliothèque de codes-barres correspondante. Une fois le chargement terminé, spakeur remplit les champs d’entrée, de bibliothèque, de plaque et de sortie."
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Dans OPS input, vérifiez le dossier des images de séquençage et le CSV de la bibliothèque de codes-barres. Choisissez une destination pour les résultats. L’exemple écrit dans le dossier ops_output de son projet téléchargé.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "Dans OPS input, vérifiez le dossier des images de séquençage et le CSV de la bibliothèque de codes-barres. Choisissez une destination pour les résultats. L’exemple écrit dans le dossier ops_output de son projet téléchargé."
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Laissez vide le dossier des images de phénotype pour cet exemple. Si vous disposez d’une acquisition de phénotype correspondante, sélectionnez ici son dossier pour enregistrer comment ses champs s’alignent sur les images de séquençage.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "Laissez vide le dossier des images de phénotype pour cet exemple. Si vous disposez d’une acquisition de phénotype correspondante, sélectionnez ici son dossier pour enregistrer comment ses champs s’alignent sur les images de séquençage."
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Dans OPS alignment, choisissez le modèle de segmentation des noyaux. Diameter fixe la taille attendue du noyau en pixels. Raster overlap décrit le chevauchement entre tuiles voisines acquises ; utilisez la valeur de votre acquisition. Gardez les paramètres de l’exemple pour cette première exécution.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "Dans OPS alignment, choisissez le modèle de segmentation des noyaux. Diameter fixe la taille attendue du noyau en pixels. Raster overlap décrit le chevauchement entre tuiles voisines acquises ; utilisez la valeur de votre acquisition. Gardez les paramètres de l’exemple pour cette première exécution."
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap détermine la part commune entre fenêtres de segmentation voisines. Elle doit dépasser le plus grand noyau, afin que les objets en bord de fenêtre puissent être inclus entiers. L’augmenter allonge le traitement.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap détermine la part commune entre fenêtres de segmentation voisines. Elle doit dépasser le plus grand noyau, afin que les objets en bord de fenêtre puissent être inclus entiers. L’augmenter allonge le traitement."
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Dans OPS decoding, réglez les quatre canaux de bases dans l’ordre G, T, A, C. L’exemple utilise CY3, A594, CY5 et CY7. Pour vos propres images, faites correspondre ces noms aux noms de canaux présents dans les noms des fichiers TIFF.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "Dans OPS decoding, réglez les quatre canaux de bases dans l’ordre G, T, A, C. L’exemple utilise CY3, A594, CY5 et CY7. Pour vos propres images, faites correspondre ces noms aux noms de canaux présents dans les noms des fichiers TIFF."
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold détermine l’intensité qu’un spot doit atteindre pour compter comme lecture. L’augmenter retient des spots plus forts ; le baisser inclut des spots plus faibles et davantage de fond. Footprint fixe jusqu’à quelle distance d’un noyau une lecture peut se trouver tout en contribuant à son code-barres.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold détermine l’intensité qu’un spot doit atteindre pour compter comme lecture. L’augmenter retient des spots plus forts ; le baisser inclut des spots plus faibles et davantage de fond. Footprint fixe jusqu’à quelle distance d’un noyau une lecture peut se trouver tout en contribuant à son code-barres."
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Activez Store reads si vous voulez inspecter plus tard les lectures individuelles. Cela enregistre une table supplémentaire et occupe plus d’espace disque. Laissez-le désactivé pour une première exécution compacte.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "Activez Store reads si vous voulez inspecter plus tard les lectures individuelles. Cela enregistre une table supplémentaire et occupe plus d’espace disque. Laissez-le désactivé pour une première exécution compacte."
+       },
+       {
+        "visual": "10_run",
+        "narration": "Vérifiez OPS performance, puis appuyez sur Run. GPU active l’accélération lorsqu’elle est disponible. Workers règle le nombre de champs décodés en même temps ; baissez-le si la mémoire est limitée. Suivez la progression dans Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "Vérifiez OPS performance, puis appuyez sur Run. GPU active l’accélération lorsqu’elle est disponible. Workers règle le nombre de champs décodés en même temps ; baissez-le si la mémoire est limitée. Suivez la progression dans Console."
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Lorsque Console affiche Finished, ouvrez Help, puis Database Browser, et choisissez measurements.db dans le dossier de sortie sélectionné. À côté, chaque puits a un dossier, ici A1, qui contient son rapport OPS avec le résumé du décodage et les éventuels avertissements.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "Lorsque Console affiche Finished, ouvrez Help, puis Database Browser, et choisissez measurements point dé bé dans le dossier de sortie sélectionné. À côté, chaque puits a un dossier, ici A1, qui contient son rapport OPS avec le résumé du décodage et les éventuels avertissements."
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "La table ops_barcodes donne à chaque noyau son code-barres, le soutien en lectures et le guide correspondant ; ops_objects contient les mêmes identifiants de noyaux avec leurs coordonnées dans l’image. Ces identifiants font le lien avec le reste de votre criblage : joignez par leur intermédiaire les codes-barres à vos mesures de phénotype, puis agrégez pour Regression. Conservez ensemble la base de données, les rapports et les paramètres.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "La table ops_barcodes donne à chaque noyau son code-barres, le soutien en lectures et le guide correspondant ; ops_objects contient les mêmes identifiants de noyaux avec leurs coordonnées dans l’image. Ces identifiants font le lien avec le reste de votre criblage : joignez par leur intermédiaire les codes-barres à vos mesures de phénotype, puis agrégez pour Regression. Conservez ensemble la base de données, les rapports et les paramètres."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: सीक्वेंसिंग इमेज से कोशिका बारकोड तक",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "OPS परीक्षण डेटा लोड करें, इमेज और डिकोडिंग की सेटिंग चुनें, विश्लेषण चलाएँ और आउटपुट डेटाबेस में बारकोड असाइनमेंट खोजें।",
+      "objectives": [
+       "Mask के अंदर OPS खोलें और उसकी उदाहरण इमेज तथा बारकोड लाइब्रेरी लोड करें।",
+       "इनपुट और आउटपुट फ़ोल्डर चुनें और मुख्य संरेखण तथा डिकोडिंग सेटिंग समझें।",
+       "OPS चलाएँ और आउटपुट डेटाबेस में नाभिकों के बारकोड असाइनमेंट देखें।"
+      ],
+      "prerequisite": "spaCR खोलें। उदाहरण सीक्वेंसिंग इमेज और गाइड लाइब्रेरी के लिए OPS के अंदर Load test data इस्तेमाल करें। अपने प्रयोग के लिए अधिग्रहण फ़ाइल नामों वाली सीक्वेंसिंग-चक्र TIFF और उनसे मेल खाती बारकोड-लाइब्रेरी CSV तैयार करें।",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Home से Mask खोलें, फिर OPS चालू करें। यह पेज सीक्वेंसिंग चक्रों की इमेज लेता है और डिकोड किए गए बारकोड नाभिकों को देता है।",
+        "hold_after": 0.7,
+        "speech_text": "Home से Mask खोलें, फिर OPS चालू करें। यह पेज सीक्वेंसिंग चक्रों की इमेज लेता है और डिकोड किए गए बारकोड नाभिकों को देता है।"
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Load test data पर क्लिक करें। उदाहरण में ग्यारह सीक्वेंसिंग चक्रों में फैली दो इमेज साइट और एक मेल खाती बारकोड लाइब्रेरी है। लोडिंग पूरी होने पर spaCR इनपुट, लाइब्रेरी, प्लेट और आउटपुट फ़ील्ड भर देता है।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Load test data पर क्लिक करें। उदाहरण में ग्यारह सीक्वेंसिंग चक्रों में फैली दो इमेज साइट और एक मेल खाती बारकोड लाइब्रेरी है। लोडिंग पूरी होने पर स्पेकर इनपुट, लाइब्रेरी, प्लेट और आउटपुट फ़ील्ड भर देता है।"
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "OPS input में सीक्वेंसिंग इमेज फ़ोल्डर और बारकोड-लाइब्रेरी CSV जाँचें। परिणामों के लिए गंतव्य चुनें। उदाहरण अपने डाउनलोड किए गए प्रोजेक्ट के अंदर ops_output फ़ोल्डर में लिखता है।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "OPS input में सीक्वेंसिंग इमेज फ़ोल्डर और बारकोड-लाइब्रेरी CSV जाँचें। परिणामों के लिए गंतव्य चुनें। उदाहरण अपने डाउनलोड किए गए प्रोजेक्ट के अंदर ops_output फ़ोल्डर में लिखता है।"
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "इस उदाहरण के लिए फ़ीनोटाइप इमेज फ़ोल्डर खाली छोड़ें। जब आपके पास मेल खाता फ़ीनोटाइप अधिग्रहण हो, तो यहाँ उसका फ़ोल्डर चुनें, ताकि दर्ज हो सके कि उसके फ़ील्ड सीक्वेंसिंग इमेज से कैसे संरेखित होते हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "इस उदाहरण के लिए फ़ीनोटाइप इमेज फ़ोल्डर खाली छोड़ें। जब आपके पास मेल खाता फ़ीनोटाइप अधिग्रहण हो, तो यहाँ उसका फ़ोल्डर चुनें, ताकि दर्ज हो सके कि उसके फ़ील्ड सीक्वेंसिंग इमेज से कैसे संरेखित होते हैं।"
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "OPS alignment में नाभिक सेगमेंटेशन मॉडल चुनें। Diameter पिक्सेल में नाभिक का अपेक्षित आकार तय करता है। Raster overlap पास-पास की अधिग्रहित टाइलों के बीच ओवरलैप बताता है; अपने अधिग्रहण का मान इस्तेमाल करें। इस पहले रन के लिए उदाहरण की सेटिंग रखें।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "OPS alignment में नाभिक सेगमेंटेशन मॉडल चुनें। Diameter पिक्सेल में नाभिक का अपेक्षित आकार तय करता है। Raster overlap पास-पास की अधिग्रहित टाइलों के बीच ओवरलैप बताता है; अपने अधिग्रहण का मान इस्तेमाल करें। इस पहले रन के लिए उदाहरण की सेटिंग रखें।"
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap तय करता है कि पास-पास की सेगमेंटेशन विंडो कितना हिस्सा साझा करें। यह सबसे बड़े नाभिक से बड़ा होना चाहिए, ताकि विंडो के किनारों पर मौजूद वस्तुएँ पूरी शामिल हो सकें। इसे बढ़ाने से प्रोसेसिंग का समय बढ़ता है।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap तय करता है कि पास-पास की सेगमेंटेशन विंडो कितना हिस्सा साझा करें। यह सबसे बड़े नाभिक से बड़ा होना चाहिए, ताकि विंडो के किनारों पर मौजूद वस्तुएँ पूरी शामिल हो सकें। इसे बढ़ाने से प्रोसेसिंग का समय बढ़ता है।"
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "OPS decoding में चार बेस चैनल G, T, A, C क्रम में सेट करें। उदाहरण CY3, A594, CY5 और CY7 इस्तेमाल करता है। अपनी इमेज के लिए इन नामों को TIFF फ़ाइल नामों में मौजूद चैनल नामों से मिलाएँ।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "OPS decoding में चार बेस चैनल G, T, A, C क्रम में सेट करें। उदाहरण CY3, A594, CY5 और CY7 इस्तेमाल करता है। अपनी इमेज के लिए इन नामों को TIFF फ़ाइल नामों में मौजूद चैनल नामों से मिलाएँ।"
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold तय करता है कि किसी स्पॉट को रीड माना जाने के लिए वह कितना चमकीला हो। इसे बढ़ाने से मज़बूत स्पॉट चुने जाते हैं; घटाने से कमज़ोर स्पॉट और ज़्यादा पृष्ठभूमि शामिल होती है। Footprint तय करता है कि कोई रीड नाभिक से कितनी दूर होकर भी उसके बारकोड में योगदान दे सकता है।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold तय करता है कि किसी स्पॉट को रीड माना जाने के लिए वह कितना चमकीला हो। इसे बढ़ाने से मज़बूत स्पॉट चुने जाते हैं; घटाने से कमज़ोर स्पॉट और ज़्यादा पृष्ठभूमि शामिल होती है। Footprint तय करता है कि कोई रीड नाभिक से कितनी दूर होकर भी उसके बारकोड में योगदान दे सकता है।"
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "अगर आप बाद में अलग-अलग रीड देखना चाहते हैं, तो Store reads चालू करें। इससे एक अतिरिक्त तालिका सहेजी जाती है और डिस्क की ज़्यादा जगह लगती है। पहले, छोटे रन के लिए इसे बंद रखें।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "अगर आप बाद में अलग-अलग रीड देखना चाहते हैं, तो Store reads चालू करें। इससे एक अतिरिक्त तालिका सहेजी जाती है और डिस्क की ज़्यादा जगह लगती है। पहले, छोटे रन के लिए इसे बंद रखें।"
+       },
+       {
+        "visual": "10_run",
+        "narration": "OPS performance जाँचें, फिर Run दबाएँ। GPU उपलब्ध होने पर एक्सेलरेशन चालू करता है। Workers तय करता है कि एक साथ कितने फ़ील्ड डिकोड हों; मेमोरी सीमित हो तो इसे घटाएँ। Console में प्रगति देखें।",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "OPS performance जाँचें, फिर Run दबाएँ। GPU उपलब्ध होने पर एक्सेलरेशन चालू करता है। Workers तय करता है कि एक साथ कितने फ़ील्ड डिकोड हों; मेमोरी सीमित हो तो इसे घटाएँ। Console में प्रगति देखें।"
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "जब Console में Finished दिखे, तो Help खोलें, फिर Database Browser, और चुने गए आउटपुट फ़ोल्डर में measurements.db चुनें। उसके पास हर वेल का एक फ़ोल्डर है, यहाँ A1, जिसमें डिकोडिंग सारांश और चेतावनियों के साथ उसकी OPS रिपोर्ट है।",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "जब Console में Finished दिखे, तो Help खोलें, फिर Database Browser, और चुने गए आउटपुट फ़ोल्डर में मेज़रमेंट्स डॉट डी बी चुनें। उसके पास हर वेल का एक फ़ोल्डर है, यहाँ A1, जिसमें डिकोडिंग सारांश और चेतावनियों के साथ उसकी OPS रिपोर्ट है।"
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "ops_barcodes तालिका हर नाभिक को उसका बारकोड, रीड का समर्थन और मेल खाती गाइड देती है; ops_objects में वही नाभिक पहचानकर्ता उनके इमेज निर्देशांकों के साथ हैं। यही पहचानकर्ता आपकी बाकी स्क्रीन से जोड़ने वाला पुल हैं: इनके ज़रिए बारकोड को अपने फ़ीनोटाइप माप से जोड़ें, फिर Regression के लिए एकत्र करें। डेटाबेस, रिपोर्ट और सेटिंग साथ रखें।",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "ops_barcodes तालिका हर नाभिक को उसका बारकोड, रीड का समर्थन और मेल खाती गाइड देती है; ops_objects में वही नाभिक पहचानकर्ता उनके इमेज निर्देशांकों के साथ हैं। यही पहचानकर्ता आपकी बाकी स्क्रीन से जोड़ने वाला पुल हैं: इनके ज़रिए बारकोड को अपने फ़ीनोटाइप माप से जोड़ें, फिर Regression के लिए एकत्र करें। डेटाबेस, रिपोर्ट और सेटिंग साथ रखें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: dalle immagini di sequenziamento ai codici a barre delle cellule",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Carica i dati di prova di OPS, scegli le impostazioni di immagine e decodifica, esegui l’analisi e trova le assegnazioni dei codici a barre nel database di output.",
+      "objectives": [
+       "Aprire OPS dentro Mask e caricare le immagini di esempio e la libreria di codici a barre.",
+       "Scegliere le cartelle di input e di output e capire le principali impostazioni di allineamento e decodifica.",
+       "Eseguire OPS ed esaminare le assegnazioni dei codici a barre ai nuclei nel database di output."
+      ],
+      "prerequisite": "Apri spaCR. Usa Load test data dentro OPS per le immagini di sequenziamento di esempio e la libreria di guide. Per il tuo esperimento, prepara i TIFF dei cicli di sequenziamento con i nomi di file di acquisizione e un CSV della libreria di codici a barre corrispondente.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Da Home, apri Mask, poi attiva OPS. Questa pagina riceve le immagini dei cicli di sequenziamento e assegna ai nuclei i codici a barre decodificati.",
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Mask, poi attiva OPS. Questa pagina riceve le immagini dei cicli di sequenziamento e assegna ai nuclei i codici a barre decodificati."
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Fai clic su Load test data. L’esempio include due posizioni di immagine su undici cicli di sequenziamento e una libreria di codici a barre corrispondente. Al termine del caricamento, spaCR compila i campi di input, libreria, piastra e output.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Fai clic su Load test data. L’esempio include due posizioni di immagine su undici cicli di sequenziamento e una libreria di codici a barre corrispondente. Al termine del caricamento, spàker compila i campi di input, libreria, piastra e output."
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "In OPS input, controlla la cartella delle immagini di sequenziamento e il CSV della libreria di codici a barre. Scegli una destinazione per i risultati. L’esempio scrive nella cartella ops_output all’interno del suo progetto scaricato.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "In OPS input, controlla la cartella delle immagini di sequenziamento e il CSV della libreria di codici a barre. Scegli una destinazione per i risultati. L’esempio scrive nella cartella ops_output all’interno del suo progetto scaricato."
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "In questo esempio lascia vuota la cartella delle immagini di fenotipo. Quando hai un’acquisizione di fenotipo corrispondente, seleziona qui la sua cartella per registrare come i suoi campi si allineano alle immagini di sequenziamento.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "In questo esempio lascia vuota la cartella delle immagini di fenotipo. Quando hai un’acquisizione di fenotipo corrispondente, seleziona qui la sua cartella per registrare come i suoi campi si allineano alle immagini di sequenziamento."
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "In OPS alignment, scegli il modello di segmentazione dei nuclei. Diameter imposta la dimensione attesa del nucleo in pixel. Raster overlap descrive la sovrapposizione tra riquadri acquisiti adiacenti; usa il valore della tua acquisizione. Per questa prima esecuzione mantieni le impostazioni dell’esempio.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "In OPS alignment, scegli il modello di segmentazione dei nuclei. Diameter imposta la dimensione attesa del nucleo in pixel. Raster overlap descrive la sovrapposizione tra riquadri acquisiti adiacenti; usa il valore della tua acquisizione. Per questa prima esecuzione mantieni le impostazioni dell’esempio."
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap controlla quanto si sovrappongono le finestre di segmentazione adiacenti. Deve essere maggiore del nucleo più grande, così gli oggetti ai bordi delle finestre possono essere inclusi interi. Aumentarlo allunga l’elaborazione.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap controlla quanto si sovrappongono le finestre di segmentazione adiacenti. Deve essere maggiore del nucleo più grande, così gli oggetti ai bordi delle finestre possono essere inclusi interi. Aumentarlo allunga l’elaborazione."
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "In OPS decoding, imposta i quattro canali delle basi nell’ordine G, T, A, C. L’esempio usa CY3, A594, CY5 e CY7. Per le tue immagini, fai corrispondere questi nomi ai nomi dei canali presenti nei nomi dei file TIFF.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "In OPS decoding, imposta i quattro canali delle basi nell’ordine G, T, A, C. L’esempio usa CY3, A594, CY5 e CY7. Per le tue immagini, fai corrispondere questi nomi ai nomi dei canali presenti nei nomi dei file TIFF."
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold stabilisce quanto deve essere luminoso uno spot per contare come lettura. Alzarlo seleziona spot più intensi; abbassarlo include spot più deboli e più sfondo. Footprint stabilisce a quale distanza da un nucleo una lettura può trovarsi e contribuire ancora al suo codice a barre.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold stabilisce quanto deve essere luminoso uno spot per contare come lettura. Alzarlo seleziona spot più intensi; abbassarlo include spot più deboli e più sfondo. Footprint stabilisce a quale distanza da un nucleo una lettura può trovarsi e contribuire ancora al suo codice a barre."
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Attiva Store reads se vuoi esaminare in seguito le singole letture. Viene salvata una tabella aggiuntiva e si usa più spazio su disco. Lascialo disattivato per una prima esecuzione compatta.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "Attiva Store reads se vuoi esaminare in seguito le singole letture. Viene salvata una tabella aggiuntiva e si usa più spazio su disco. Lascialo disattivato per una prima esecuzione compatta."
+       },
+       {
+        "visual": "10_run",
+        "narration": "Controlla OPS performance, poi premi Run. GPU attiva l’accelerazione dove disponibile. Workers stabilisce quanti campi vengono decodificati contemporaneamente; abbassalo se la memoria è limitata. Segui l’avanzamento in Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "Controlla OPS performance, poi premi Run. GPU attiva l’accelerazione dove disponibile. Workers stabilisce quanti campi vengono decodificati contemporaneamente; abbassalo se la memoria è limitata. Segui l’avanzamento in Console."
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Quando Console mostra Finished, apri Help, poi Database Browser, e scegli measurements.db nella cartella di output selezionata. Accanto, ogni pozzetto ha una cartella, qui A1, con il suo rapporto OPS che contiene il riepilogo della decodifica ed eventuali avvisi.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "Quando Console mostra Finished, apri Help, poi Database Browser, e scegli measurements punto di bi nella cartella di output selezionata. Accanto, ogni pozzetto ha una cartella, qui A1, con il suo rapporto OPS che contiene il riepilogo della decodifica ed eventuali avvisi."
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "La tabella ops_barcodes assegna a ogni nucleo il suo codice a barre, il supporto delle letture e la guida corrispondente; ops_objects contiene gli stessi identificatori dei nuclei con le coordinate nell’immagine. Quegli identificatori sono il ponte verso il resto dello screening: tramite essi unisci i codici a barre alle misure di fenotipo, poi aggrega per Regression. Conserva insieme database, rapporti e impostazioni.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "La tabella ops_barcodes assegna a ogni nucleo il suo codice a barre, il supporto delle letture e la guida corrispondente; ops_objects contiene gli stessi identificatori dei nuclei con le coordinate nell’immagine. Quegli identificatori sono il ponte verso il resto dello screening: tramite essi unisci i codici a barre alle misure di fenotipo, poi aggrega per Regression. Conserva insieme database, rapporti e impostazioni."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS：シーケンシング画像から細胞のバーコードへ",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "OPSのテストデータを読み込み、画像とデコードの設定を選び、解析を実行して、出力データベースでバーコードの割り当てを見つけます。",
+      "objectives": [
+       "Maskの中でOPSを開き、例の画像とバーコードライブラリーを読み込む。",
+       "入力と出力のフォルダーを選び、主な位置合わせとデコードの設定を理解する。",
+       "OPSを実行し、出力データベースで核へのバーコードの割り当てを確認する。"
+      ],
+      "prerequisite": "spaCRを開きます。例のシーケンシング画像とガイドライブラリーには、OPSの中のLoad test dataを使います。自分の実験では、撮影時のファイル名が付いたシーケンシングサイクルのTIFFと、それに対応するバーコードライブラリーのCSVを用意してください。",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "HomeからMaskを開き、OPSをオンにします。このページでは、シーケンシングサイクルの画像を受け取り、デコードしたバーコードを核に割り当てます。",
+        "hold_after": 0.7,
+        "speech_text": "ホームからMaskを開き、OPSをオンにします。このページでは、シーケンシングサイクルの画像を受け取り、デコードしたバーコードを核に割り当てます。"
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Load test dataをクリックします。例には、十一回のシーケンシングサイクルにわたる二つの撮影位置の画像と、対応するバーコードライブラリーが含まれています。読み込みが終わると、spaCRが入力、ライブラリー、プレート、出力の欄を埋めます。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Load test dataをクリックします。例には、十一回のシーケンシングサイクルにわたる二つの撮影位置の画像と、対応するバーコードライブラリーが含まれています。読み込みが終わると、スペーカーが入力、ライブラリー、プレート、出力の欄を埋めます。"
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "OPS inputで、シーケンシング画像のフォルダーとバーコードライブラリーのCSVを確認します。結果の保存先を選びます。この例では、ダウンロードしたプロジェクトの中のops_outputフォルダーに書き出します。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "OPS inputで、シーケンシング画像のフォルダーとバーコードライブラリーのCSVを確認します。結果の保存先を選びます。この例では、ダウンロードしたプロジェクトの中のops_outputフォルダーに書き出します。"
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "この例では、表現型画像のフォルダーは空欄のままにします。対応する表現型の撮影がある場合は、ここでそのフォルダーを選ぶと、そのフィールドとシーケンシング画像の位置関係が記録されます。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "この例では、表現型画像のフォルダーは空欄のままにします。対応する表現型の撮影がある場合は、ここでそのフォルダーを選ぶと、そのフィールドとシーケンシング画像の位置関係が記録されます。"
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "OPS alignmentで、核のセグメンテーションモデルを選びます。Diameterは、ピクセル単位で想定される核の大きさです。Raster overlapは、撮影した隣り合うタイルの重なりを表すので、撮影時の値を使います。最初の実行では、例の設定のままにします。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "OPS alignmentで、核のセグメンテーションモデルを選びます。Diameterは、ピクセル単位で想定される核の大きさです。Raster overlapは、撮影した隣り合うタイルの重なりを表すので、撮影時の値を使います。最初の実行では、例の設定のままにします。"
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlapは、隣り合うセグメンテーションの窓がどれだけ重なるかを決めます。窓の端にある物体を丸ごと含められるように、最も大きい核より大きくしてください。大きくすると処理時間が延びます。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlapは、隣り合うセグメンテーションの窓がどれだけ重なるかを決めます。窓の端にある物体を丸ごと含められるように、最も大きい核より大きくしてください。大きくすると処理時間が延びます。"
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "OPS decodingで、四つの塩基のチャネルをG、T、A、Cの順に設定します。この例ではCY3、A594、CY5、CY7を使います。自分の画像では、これらの名前をTIFFのファイル名にあるチャネル名に合わせてください。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "OPS decodingで、四つの塩基のチャネルをG、T、A、Cの順に設定します。この例ではCY3、A594、CY5、CY7を使います。自分の画像では、これらの名前をTIFFのファイル名にあるチャネル名に合わせてください。"
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read thresholdは、スポットがリードとして数えられるために必要な明るさを決めます。上げると強いスポットだけが選ばれ、下げると弱いスポットや背景も多く含まれます。Footprintは、リードが核からどれだけ離れていても、そのバーコードに寄与できるかを決めます。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read thresholdは、スポットがリードとして数えられるために必要な明るさを決めます。上げると強いスポットだけが選ばれ、下げると弱いスポットや背景も多く含まれます。Footprintは、リードが核からどれだけ離れていても、そのバーコードに寄与できるかを決めます。"
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "個々のリードを後で確認したい場合は、Store readsをオンにします。追加の表が保存され、ディスク容量をより多く使います。最初の簡潔な実行では、オフのままにします。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "個々のリードを後で確認したい場合は、Store readsをオンにします。追加の表が保存され、ディスク容量をより多く使います。最初の簡潔な実行では、オフのままにします。"
+       },
+       {
+        "visual": "10_run",
+        "narration": "OPS performanceを確認してから、Runを押します。GPUは、使える場合にアクセラレーションを有効にします。Workersは、同時にデコードするフィールドの数を決めます。メモリが限られている場合は下げてください。進行状況はConsoleで確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "OPS performanceを確認してから、Runを押します。GPUは、使える場合にアクセラレーションを有効にします。Workersは、同時にデコードするフィールドの数を決めます。メモリが限られている場合は下げてください。進行状況はConsoleで確認します。"
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "ConsoleにFinishedと表示されたら、Help、続いてDatabase Browserを開き、選んだ出力フォルダーのmeasurements.dbを選びます。その横には、ウェルごとにフォルダーがあり、ここではA1に、デコードの要約と警告を含むOPSのレポートが入っています。",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "ConsoleにFinishedと表示されたら、Help、続いてDatabase Browserを開き、選んだ出力フォルダーのメジャメンツ・ドット・ディービーを選びます。その横には、ウェルごとにフォルダーがあり、ここではA1に、デコードの要約と警告を含むOPSのレポートが入っています。"
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "ops_barcodesの表は、各核にバーコード、リードの裏付け、一致したガイドを対応付けます。ops_objectsには、同じ核の識別子が画像上の座標とともに入っています。これらの識別子が、スクリーンのほかの部分への橋渡しになります。識別子を使ってバーコードを表現型の測定値と結合し、Regressionに向けて集計します。データベース、レポート、設定は一緒に保管してください。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "ops_barcodesの表は、各核にバーコード、リードの裏付け、一致したガイドを対応付けます。ops_objectsには、同じ核の識別子が画像上の座標とともに入っています。これらの識別子が、スクリーンのほかの部分への橋渡しになります。識別子を使ってバーコードを表現型の測定値と結合し、Regressionに向けて集計します。データベース、レポート、設定は一緒に保管してください。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: das imagens de sequenciamento aos códigos de barras das células",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Carregue os dados de teste do OPS, escolha as configurações de imagem e de decodificação, execute a análise e encontre as atribuições de códigos de barras no banco de dados de saída.",
+      "objectives": [
+       "Abrir o OPS dentro de Mask e carregar as imagens de exemplo e a biblioteca de códigos de barras.",
+       "Escolher as pastas de entrada e de saída e entender as principais configurações de alinhamento e de decodificação.",
+       "Executar o OPS e inspecionar as atribuições de códigos de barras aos núcleos no banco de dados de saída."
+      ],
+      "prerequisite": "Abra o spaCR. Use Load test data dentro do OPS para obter as imagens de sequenciamento de exemplo e a biblioteca de guias. No seu próprio experimento, prepare os TIFFs dos ciclos de sequenciamento com os nomes de arquivo da aquisição e um CSV de biblioteca de códigos de barras correspondente.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Na tela Home, abra Mask e ative OPS. Esta página recebe imagens dos ciclos de sequenciamento e atribui códigos de barras decodificados aos núcleos.",
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Mask e ative OPS. Esta página recebe imagens dos ciclos de sequenciamento e atribui códigos de barras decodificados aos núcleos."
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Clique em Load test data. O exemplo inclui duas posições de imagem em onze ciclos de sequenciamento e uma biblioteca de códigos de barras correspondente. Quando o carregamento termina, o spaCR preenche os campos de entrada, biblioteca, placa e saída.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "Clique em Load test data. O exemplo inclui duas posições de imagem em onze ciclos de sequenciamento e uma biblioteca de códigos de barras correspondente. Quando o carregamento termina, o espáquer preenche os campos de entrada, biblioteca, placa e saída."
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Em OPS input, confira a pasta de imagens de sequenciamento e o CSV da biblioteca de códigos de barras. Escolha um destino para os resultados. O exemplo grava na pasta ops_output dentro do projeto baixado.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "Em OPS input, confira a pasta de imagens de sequenciamento e o CSV da biblioteca de códigos de barras. Escolha um destino para os resultados. O exemplo grava na pasta ops_output dentro do projeto baixado."
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Deixe vazia a pasta de imagens de fenótipo neste exemplo. Quando você tiver uma aquisição de fenótipo correspondente, selecione a pasta dela aqui para registrar como os campos se alinham às imagens de sequenciamento.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "Deixe vazia a pasta de imagens de fenótipo neste exemplo. Quando você tiver uma aquisição de fenótipo correspondente, selecione a pasta dela aqui para registrar como os campos se alinham às imagens de sequenciamento."
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Em OPS alignment, escolha o modelo de segmentação de núcleos. Diameter define o tamanho esperado do núcleo em pixels. Raster overlap descreve a sobreposição entre blocos vizinhos adquiridos; use o valor da sua aquisição. Mantenha as configurações do exemplo nesta primeira execução.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "Em OPS alignment, escolha o modelo de segmentação de núcleos. Diameter define o tamanho esperado do núcleo em pixels. Raster overlap descreve a sobreposição entre blocos vizinhos adquiridos; use o valor da sua aquisição. Mantenha as configurações do exemplo nesta primeira execução."
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap controla quanto as janelas de segmentação vizinhas compartilham. Ele deve ser maior que o maior núcleo, para que objetos nas bordas das janelas possam ser incluídos inteiros. Aumentá-lo prolonga o processamento.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap controla quanto as janelas de segmentação vizinhas compartilham. Ele deve ser maior que o maior núcleo, para que objetos nas bordas das janelas possam ser incluídos inteiros. Aumentá-lo prolonga o processamento."
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Em OPS decoding, defina os quatro canais de bases na ordem G, T, A, C. O exemplo usa CY3, A594, CY5 e CY7. Nas suas próprias imagens, faça esses nomes corresponderem aos nomes de canal nos nomes dos arquivos TIFF.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "Em OPS decoding, defina os quatro canais de bases na ordem G, T, A, C. O exemplo usa CY3, A594, CY5 e CY7. Nas suas próprias imagens, faça esses nomes corresponderem aos nomes de canal nos nomes dos arquivos TIFF."
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold controla o quanto um ponto precisa ser brilhante para contar como leitura. Aumentá-lo seleciona pontos mais fortes; diminuí-lo inclui pontos mais fracos e mais fundo. Footprint controla a que distância de um núcleo uma leitura pode estar e ainda contribuir para o código de barras dele.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold controla o quanto um ponto precisa ser brilhante para contar como leitura. Aumentá-lo seleciona pontos mais fortes; diminuí-lo inclui pontos mais fracos e mais fundo. Footprint controla a que distância de um núcleo uma leitura pode estar e ainda contribuir para o código de barras dele."
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Ative Store reads se quiser inspecionar as leituras individuais depois. Isso salva uma tabela adicional e usa mais espaço em disco. Deixe desativado para uma primeira execução compacta.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "Ative Store reads se quiser inspecionar as leituras individuais depois. Isso salva uma tabela adicional e usa mais espaço em disco. Deixe desativado para uma primeira execução compacta."
+       },
+       {
+        "visual": "10_run",
+        "narration": "Confira OPS performance e aperte Run. GPU ativa a aceleração quando disponível. Workers controla quantos campos são decodificados ao mesmo tempo; diminua se a memória for limitada. Acompanhe o progresso em Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "Confira OPS performance e aperte Run. GPU ativa a aceleração quando disponível. Workers controla quantos campos são decodificados ao mesmo tempo; diminua se a memória for limitada. Acompanhe o progresso em Console."
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Quando Console mostrar Finished, abra Help, depois Database Browser, e escolha measurements.db na pasta de saída selecionada. Ao lado, cada poço tem uma pasta, aqui A1, com o relatório de OPS que traz o resumo da decodificação e eventuais avisos.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "Quando Console mostrar Finished, abra Help, depois Database Browser, e escolha measurements ponto dê bê na pasta de saída selecionada. Ao lado, cada poço tem uma pasta, aqui A1, com o relatório de OPS que traz o resumo da decodificação e eventuais avisos."
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "A tabela ops_barcodes dá a cada núcleo o código de barras, o suporte de leituras e a guia correspondente; ops_objects contém os mesmos identificadores de núcleo com as coordenadas na imagem. Esses identificadores são a ponte para o restante da sua triagem: use-os para juntar os códigos de barras às suas medições de fenótipo e depois agregue para Regression. Mantenha juntos o banco de dados, os relatórios e as configurações.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "A tabela ops_barcodes dá a cada núcleo o código de barras, o suporte de leituras e a guia correspondente; ops_objects contém os mesmos identificadores de núcleo com as coordenadas na imagem. Esses identificadores são a ponte para o restante da sua triagem: use-os para juntar os códigos de barras às suas medições de fenótipo e depois agregue para Regression. Mantenha juntos o banco de dados, os relatórios e as configurações."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS：从测序图像到细胞条形码",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "加载OPS测试数据，选择图像和解码设置，运行分析，并在输出数据库中找到条形码分配结果。",
+      "objectives": [
+       "在Mask中打开OPS，加载示例图像和条形码文库。",
+       "选择输入和输出文件夹，理解主要的对齐和解码设置。",
+       "运行OPS，并在输出数据库中检查细胞核的条形码分配。"
+      ],
+      "prerequisite": "打开spaCR。在OPS中使用Load test data获取示例测序图像和向导文库。对于您自己的实验，请准备带有采集文件名的各测序循环TIFF，以及对应的条形码文库CSV。",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "从Home打开Mask，然后开启OPS。这个页面接收各测序循环的图像，并把解码得到的条形码分配给细胞核。",
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Mask，然后开启OPS。这个页面接收各测序循环的图像，并把解码得到的条形码分配给细胞核。"
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "点击Load test data。示例包含十一个测序循环中的两个图像位点，以及对应的条形码文库。加载完成后，spaCR会填好输入、文库、板和输出字段。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ],
+        "speech_text": "点击Load test data。示例包含十一个测序循环中的两个图像位点，以及对应的条形码文库。加载完成后，斯佩克尔会填好输入、文库、板和输出字段。"
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "在OPS input中，检查测序图像文件夹和条形码文库CSV。为结果选择保存位置。示例会写入其下载项目中的ops_output文件夹。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ],
+        "speech_text": "在OPS input中，检查测序图像文件夹和条形码文库CSV。为结果选择保存位置。示例会写入其下载项目中的ops_output文件夹。"
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "本例中表型图像文件夹保持为空。如果您有对应的表型采集数据，请在这里选择其文件夹，以记录其视野与测序图像如何对齐。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ],
+        "speech_text": "本例中表型图像文件夹保持为空。如果您有对应的表型采集数据，请在这里选择其文件夹，以记录其视野与测序图像如何对齐。"
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "在OPS alignment中选择细胞核分割模型。Diameter以像素为单位设置预期的细胞核大小。Raster overlap描述相邻采集图块之间的重叠，请使用您采集时的数值。第一次运行请保留示例设置。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ],
+        "speech_text": "在OPS alignment中选择细胞核分割模型。Diameter以像素为单位设置预期的细胞核大小。Raster overlap描述相邻采集图块之间的重叠，请使用您采集时的数值。第一次运行请保留示例设置。"
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap控制相邻分割窗口共享的范围。它应大于最大的细胞核，这样位于窗口边缘的对象才能被完整包含。增大它会增加处理时间。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ],
+        "speech_text": "Window overlap控制相邻分割窗口共享的范围。它应大于最大的细胞核，这样位于窗口边缘的对象才能被完整包含。增大它会增加处理时间。"
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "在OPS decoding中，按G、T、A、C的顺序设置四个碱基通道。示例使用CY3、A594、CY5和CY7。对于您自己的图像，请让这些名称与TIFF文件名中的通道名称一致。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ],
+        "speech_text": "在OPS decoding中，按G、T、A、C的顺序设置四个碱基通道。示例使用CY3、A594、CY5和CY7。对于您自己的图像，请让这些名称与TIFF文件名中的通道名称一致。"
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold决定一个斑点需要多亮才算作一条读段。提高它会选出更强的斑点；降低它会纳入更弱的斑点和更多背景。Footprint决定读段离细胞核多远仍能计入该核的条形码。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ],
+        "speech_text": "Read threshold决定一个斑点需要多亮才算作一条读段。提高它会选出更强的斑点；降低它会纳入更弱的斑点和更多背景。Footprint决定读段离细胞核多远仍能计入该核的条形码。"
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "如果以后想检查单条读段，请开启Store reads。这会额外保存一张表，并占用更多磁盘空间。第一次精简运行时请保持关闭。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ],
+        "speech_text": "如果以后想检查单条读段，请开启Store reads。这会额外保存一张表，并占用更多磁盘空间。第一次精简运行时请保持关闭。"
+       },
+       {
+        "visual": "10_run",
+        "narration": "检查OPS performance，然后按Run。GPU会在可用时启用加速。Workers控制同时解码的视野数量；内存有限时请调低。在Console中跟踪进度。",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ],
+        "speech_text": "检查OPS performance，然后按Run。GPU会在可用时启用加速。Workers控制同时解码的视野数量；内存有限时请调低。在Console中跟踪进度。"
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "当Console显示Finished时，打开Help，再打开Database Browser，选择所选输出文件夹中的measurements.db。在它旁边，每个孔都有一个文件夹，这里是A1，其中有它的OPS报告，包含解码摘要和任何警告。",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ],
+        "speech_text": "当Console显示Finished时，打开Help，再打开Database Browser，选择所选输出文件夹中的测量数据库文件。在它旁边，每个孔都有一个文件夹，这里是A1，其中有它的OPS报告，包含解码摘要和任何警告。"
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "ops_barcodes表为每个细胞核给出条形码、读段支持和匹配的向导；ops_objects包含同样的细胞核标识符及其图像坐标。这些标识符是连接筛选其余部分的桥梁：通过它们把条形码与表型测量结合起来，然后为Regression进行汇总。请把数据库、报告和设置放在一起。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ],
+        "speech_text": "ops_barcodes表为每个细胞核给出条形码、读段支持和匹配的向导；ops_objects包含同样的细胞核标识符及其图像坐标。这些标识符是连接筛选其余部分的桥梁：通过它们把条形码与表型测量结合起来，然后为Regression进行汇总。请把数据库、报告和设置放在一起。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: fra sekventeringsbilleder til cellestregkoder",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Indlæs OPS-testdataene, vælg billed- og afkodningsindstillinger, kør analysen, og find stregkodetildelingerne i outputdatabasen.",
+      "objectives": [
+       "Åbne OPS i Mask og indlæse eksempelbillederne og stregkodebiblioteket.",
+       "Vælge input- og outputmapper og forstå de vigtigste indstillinger for justering og afkodning.",
+       "Køre OPS og undersøge cellekernernes stregkodetildelinger i outputdatabasen."
+      ],
+      "prerequisite": "Åbn spaCR. Brug Load test data i OPS til eksemplets sekventeringsbilleder og guidebibliotek. Til dit eget eksperiment forbereder du TIFF-filer fra sekventeringscyklusserne med deres optagelsesfilnavne og en tilsvarende CSV-fil med stregkodebiblioteket.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Fra Home åbner du Mask og slår derefter OPS til. Denne side modtager billeder fra sekventeringscyklusser og tildeler afkodede stregkoder til cellekerner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Klik på Load test data. Eksemplet indeholder to billedpositioner over elleve sekventeringscyklusser og et tilsvarende stregkodebibliotek. Når indlæsningen er færdig, udfylder spaCR felterne for input, bibliotek, plade og output.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Under OPS input kontrollerer du mappen med sekventeringsbilleder og CSV-filen med stregkodebiblioteket. Vælg en destination til resultaterne. Eksemplet skriver til mappen ops_output i det downloadede projekt.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Lad mappen til fænotypebilleder være tom i dette eksempel. Når du har en tilsvarende fænotypeoptagelse, vælger du dens mappe her for at registrere, hvordan dens synsfelter passer til sekventeringsbillederne.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Under OPS alignment vælger du modellen til kernesegmentering. Diameter angiver den forventede kernestørrelse i pixels. Raster overlap beskriver overlappet mellem nabofliser i optagelsen; brug værdien fra din optagelse. Behold eksemplets indstillinger i denne første kørsel.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap styrer, hvor meget nabovinduer i segmenteringen deler. Værdien skal være større end den største kerne, så objekter ved vindueskanterne kan medtages hele. En højere værdi forlænger behandlingstiden.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Under OPS decoding angiver du de fire basekanaler i rækkefølgen G, T, A, C. Eksemplet bruger CY3, A594, CY5 og CY7. Til dine egne billeder skal navnene svare til kanalnavnene i TIFF-filnavnene.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold styrer, hvor lys en plet skal være for at tælle som en læsning. En højere værdi vælger stærkere pletter; en lavere tager svagere pletter og mere baggrund med. Footprint styrer, hvor langt uden for en kerne en læsning kan ligge og stadig bidrage til kernens stregkode.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Slå Store reads til, hvis du vil undersøge de enkelte læsninger senere. Det gemmer en ekstra tabel og bruger mere diskplads. Lad det være slået fra ved en kompakt første kørsel.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Kontrollér OPS performance, og tryk derefter på Run. GPU aktiverer acceleration, hvor den er tilgængelig. Workers styrer, hvor mange synsfelter der afkodes ad gangen; sænk værdien, hvis hukommelsen er begrænset. Følg forløbet i Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Når Console viser Finished, åbner du Help, derefter Database Browser, og vælger measurements.db i den valgte outputmappe. Ved siden af har hver brønd en mappe, her A1, med sin OPS-rapport, der indeholder afkodningsoversigten og eventuelle advarsler.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "Tabellen ops_barcodes giver hver kerne dens stregkode, læsestøtte og tilsvarende guide; ops_objects indeholder de samme kerneidentifikatorer med deres billedkoordinater. Disse identifikatorer er broen til resten af din screening: forbind stregkoderne med dine fænotypemålinger gennem dem, og aggregér derefter til Regression. Opbevar databasen, rapporterne og indstillingerne samlet.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: von Sequenzierbildern zu Zell-Barcodes",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Laden Sie die OPS-Testdaten, wählen Sie Bild- und Dekodiereinstellungen, führen Sie die Analyse aus und finden Sie die Barcode-Zuordnungen in der Ausgabedatenbank.",
+      "objectives": [
+       "OPS innerhalb von Mask öffnen und die Beispielbilder und die Barcode-Bibliothek laden.",
+       "Eingabe- und Ausgabeordner wählen und die wichtigsten Ausrichtungs- und Dekodiereinstellungen verstehen.",
+       "OPS ausführen und die Barcode-Zuordnungen der Zellkerne in der Ausgabedatenbank prüfen."
+      ],
+      "prerequisite": "Öffnen Sie spaCR. Verwenden Sie Load test data in OPS für die Beispiel-Sequenzierbilder und die Guide-Bibliothek. Bereiten Sie für Ihr eigenes Experiment TIFFs der Sequenzierzyklen mit ihren Aufnahme-Dateinamen und eine passende Barcode-Bibliothek als CSV vor.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Öffnen Sie von Home aus Mask und schalten Sie dann OPS ein. Diese Seite nimmt Bilder der Sequenzierzyklen entgegen und ordnet Zellkernen dekodierte Barcodes zu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Klicken Sie auf Load test data. Das Beispiel umfasst zwei Bildpositionen über elf Sequenzierzyklen und eine passende Barcode-Bibliothek. Nach dem Laden füllt spaCR die Felder für Eingabe, Bibliothek, Platte und Ausgabe aus.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Prüfen Sie unter OPS input den Ordner mit den Sequenzierbildern und die CSV der Barcode-Bibliothek. Wählen Sie ein Ziel für die Ergebnisse. Das Beispiel schreibt in den Ordner ops_output innerhalb seines heruntergeladenen Projekts.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Lassen Sie den Ordner für Phänotypbilder in diesem Beispiel leer. Wenn Sie eine passende Phänotypaufnahme haben, wählen Sie hier deren Ordner, um festzuhalten, wie ihre Bildfelder zu den Sequenzierbildern ausgerichtet sind.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Wählen Sie unter OPS alignment das Modell zur Kernsegmentierung. Diameter legt die erwartete Kerngröße in Pixeln fest. Raster overlap beschreibt die Überlappung benachbarter aufgenommener Kacheln; verwenden Sie den Wert Ihrer Aufnahme. Behalten Sie für diesen ersten Lauf die Beispieleinstellungen.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap bestimmt, wie viel sich benachbarte Segmentierungsfenster teilen. Der Wert sollte größer sein als der größte Kern, damit Objekte am Fensterrand vollständig erfasst werden. Ein höherer Wert verlängert die Verarbeitung.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Legen Sie unter OPS decoding die vier Basenkanäle in der Reihenfolge G, T, A, C fest. Das Beispiel verwendet CY3, A594, CY5 und CY7. Passen Sie diese Namen bei eigenen Bildern an die Kanalnamen in den TIFF-Dateinamen an.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold legt fest, wie hell ein Spot sein muss, um als Read zu zählen. Ein höherer Wert wählt stärkere Spots; ein niedrigerer schließt schwächere Spots und mehr Hintergrund ein. Footprint bestimmt, wie weit außerhalb eines Kerns ein Read liegen darf und trotzdem zu dessen Barcode beiträgt.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Schalten Sie Store reads ein, wenn Sie die einzelnen Read-Zuordnungen später prüfen möchten. Dabei wird eine zusätzliche Tabelle gespeichert und mehr Speicherplatz belegt. Lassen Sie es für einen kompakten ersten Lauf ausgeschaltet.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Prüfen Sie OPS performance und drücken Sie dann Run. GPU aktiviert die Beschleunigung, sofern verfügbar. Workers legt fest, wie viele Bildfelder gleichzeitig dekodiert werden; senken Sie den Wert bei begrenztem Arbeitsspeicher. Verfolgen Sie den Fortschritt in Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Wenn Console Finished anzeigt, öffnen Sie Help, dann Database Browser, und wählen Sie measurements.db im gewählten Ausgabeordner. Daneben hat jedes Well einen Ordner, hier A1, mit seinem OPS-Bericht samt Dekodierübersicht und etwaigen Warnungen.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "Die Tabelle ops_barcodes ordnet jedem Kern seinen Barcode, die Read-Stützung und den passenden Guide zu; ops_objects enthält dieselben Kernkennungen mit ihren Bildkoordinaten. Diese Kennungen sind die Brücke zum Rest Ihres Screens: Verknüpfen Sie darüber die Barcodes mit Ihren Phänotypmessungen und aggregieren Sie dann für Regression. Bewahren Sie Datenbank, Berichte und Einstellungen zusammen auf.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: frá raðgreiningarmyndum til strikamerkja frumna",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Hlaðu inn prófunargögnum OPS, veldu mynd- og afkóðunarstillingar, keyrðu greininguna og finndu úthlutun strikamerkja í úttaksgagnagrunninum.",
+      "objectives": [
+       "Opna OPS innan Mask og hlaða inn dæmamyndum þess og strikamerkjasafni.",
+       "Velja inntaks- og úttaksmöppur og skilja helstu stillingar fyrir hliðrun og afkóðun.",
+       "Keyra OPS og skoða úthlutun strikamerkja til kjarna í úttaksgagnagrunninum."
+      ],
+      "prerequisite": "Opnaðu spaCR. Notaðu Load test data innan OPS fyrir dæmamyndir af raðgreiningu og safn leiðsagnar-RNA. Fyrir eigin tilraun útbýrðu TIFF-skrár raðgreiningarlotna með skráarheitum myndatökunnar og samsvarandi CSV-skrá með strikamerkjasafninu.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Frá Home opnarðu Mask og kveikir svo á OPS. Þessi síða tekur við myndum úr raðgreiningarlotum og úthlutar afkóðuðum strikamerkjum til kjarna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Smelltu á Load test data. Dæmið inniheldur tvær myndstöður yfir ellefu raðgreiningarlotur og samsvarandi strikamerkjasafn. Þegar innhleðslu lýkur fyllir spaCR út reitina fyrir inntak, safn, plötu og úttak.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Í OPS input athugarðu möppuna með raðgreiningarmyndunum og CSV-skrá strikamerkjasafnsins. Veldu áfangastað fyrir niðurstöðurnar. Dæmið skrifar í möppuna ops_output inni í niðurhalaða verkefninu.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Hafðu möppuna fyrir svipgerðarmyndir tóma í þessu dæmi. Þegar þú ert með samsvarandi svipgerðarmyndatöku velurðu möppu hennar hér til að skrá hvernig sjónsvið hennar falla að raðgreiningarmyndunum.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Undir OPS alignment velurðu líkan fyrir aðgreiningu kjarna. Diameter setur væntanlega stærð kjarna í dílum. Raster overlap lýsir skörun milli aðliggjandi myndreita; notaðu gildið úr þinni myndatöku. Haltu stillingum dæmisins í þessari fyrstu keyrslu.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap ræður því hversu mikið aðliggjandi aðgreiningargluggar deila. Það ætti að vera stærra en stærsti kjarninn svo hlutir við gluggajaðra geti verið teknir með heilir. Hærra gildi lengir vinnslutímann.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Undir OPS decoding stillirðu basarásirnar fjórar í röðinni G, T, A, C. Dæmið notar CY3, A594, CY5 og CY7. Fyrir eigin myndir lætur þú þessi heiti passa við rásaheitin í TIFF-skráarheitunum.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold ræður því hversu bjartur blettur þarf að vera til að teljast lestur. Hærra gildi velur sterkari bletti; lægra gildi tekur með daufari bletti og meiri bakgrunn. Footprint ræður því hve langt utan kjarna lestur má liggja og samt leggja til strikamerkis hans.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Kveiktu á Store reads ef þú vilt skoða einstaka lestra síðar. Þá er vistuð aukatafla og meira diskpláss notað. Hafðu slökkt á því fyrir netta fyrstu keyrslu.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Athugaðu OPS performance og ýttu svo á Run. GPU virkjar hröðun þar sem hún er í boði. Workers ræður hve mörg sjónsvið eru afkóðuð í einu; lækkaðu það ef minni er takmarkað. Fylgstu með framvindu í Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Þegar Console sýnir Finished opnarðu Help, síðan Database Browser, og velur measurements.db í valinni úttaksmöppu. Við hliðina hefur hver brunnur möppu, hér A1, með OPS-skýrslu hans ásamt samantekt afkóðunar og viðvörunum ef einhverjar eru.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "Taflan ops_barcodes gefur hverjum kjarna strikamerki hans, stuðning lestra og samsvarandi leiðsagnar-RNA; ops_objects geymir sömu kjarnaauðkenni ásamt hnitum þeirra í myndinni. Þessi auðkenni eru brúin yfir í restina af skimuninni: tengdu strikamerkin við svipgerðarmælingarnar í gegnum þau og safnaðu svo saman fyrir Regression. Geymdu gagnagrunninn, skýrslurnar og stillingarnar saman.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: 시퀀싱 이미지에서 세포 바코드까지",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "OPS 테스트 데이터를 불러오고, 이미지와 디코딩 설정을 고르고, 분석을 실행한 뒤 출력 데이터베이스에서 바코드 배정을 찾습니다.",
+      "objectives": [
+       "Mask 안에서 OPS를 열고 예제 이미지와 바코드 라이브러리를 불러옵니다.",
+       "입력 및 출력 폴더를 고르고 주요 정렬 및 디코딩 설정을 이해합니다.",
+       "OPS를 실행하고 출력 데이터베이스에서 핵의 바코드 배정을 확인합니다."
+      ],
+      "prerequisite": "spaCR을 여세요. 예제 시퀀싱 이미지와 가이드 라이브러리는 OPS 안의 Load test data로 불러옵니다. 자신의 실험에서는 촬영 파일 이름이 붙은 시퀀싱 사이클 TIFF와 이에 대응하는 바코드 라이브러리 CSV를 준비하세요.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Home에서 Mask를 연 뒤 OPS를 켜세요. 이 페이지는 시퀀싱 사이클 이미지를 받아 디코딩한 바코드를 핵에 배정합니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Load test data를 클릭하세요. 예제에는 시퀀싱 사이클 11회에 걸친 이미지 위치 두 곳과 이에 대응하는 바코드 라이브러리가 들어 있습니다. 불러오기가 끝나면 spaCR이 입력, 라이브러리, 플레이트, 출력 칸을 채웁니다.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "OPS input에서 시퀀싱 이미지 폴더와 바코드 라이브러리 CSV를 확인하세요. 결과를 저장할 위치를 고르세요. 예제는 내려받은 프로젝트 안의 ops_output 폴더에 결과를 씁니다.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "이 예제에서는 표현형 이미지 폴더를 비워 두세요. 대응하는 표현형 촬영이 있다면 여기서 그 폴더를 선택해, 그 시야가 시퀀싱 이미지와 어떻게 정렬되는지 기록하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "OPS alignment에서 핵 분할 모델을 고르세요. Diameter는 예상되는 핵 크기를 픽셀 단위로 정합니다. Raster overlap은 촬영한 인접 타일 사이의 겹침을 나타내므로 촬영 당시의 값을 쓰세요. 이번 첫 실행에서는 예제 설정을 유지하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap은 인접한 분할 창이 얼마나 겹칠지를 정합니다. 창 가장자리의 객체를 온전히 포함할 수 있도록 가장 큰 핵보다 크게 설정해야 합니다. 값을 늘리면 처리 시간이 길어집니다.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "OPS decoding에서 네 염기 채널을 G, T, A, C 순서로 설정하세요. 예제는 CY3, A594, CY5, CY7을 사용합니다. 자신의 이미지에서는 이 이름을 TIFF 파일 이름에 있는 채널 이름과 맞추세요.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold는 점이 리드로 인정되려면 얼마나 밝아야 하는지를 정합니다. 높이면 강한 점만 선택되고, 낮추면 약한 점과 배경이 더 많이 포함됩니다. Footprint는 리드가 핵에서 얼마나 떨어져 있어도 그 핵의 바코드에 기여할 수 있는지를 정합니다.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "나중에 개별 리드를 확인하려면 Store reads를 켜세요. 추가 표가 저장되어 디스크 공간을 더 씁니다. 간단한 첫 실행에서는 꺼 두세요.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "OPS performance를 확인한 뒤 Run을 누르세요. GPU는 사용 가능한 경우 가속을 켭니다. Workers는 동시에 디코딩할 시야 수를 정하며, 메모리가 부족하면 낮추세요. 진행 상황은 Console에서 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Console에 Finished가 표시되면 Help를 열고 Database Browser를 연 다음, 선택한 출력 폴더의 measurements.db를 고르세요. 그 옆에는 웰마다 폴더가 있으며, 여기서는 A1에 디코딩 요약과 경고가 담긴 OPS 보고서가 있습니다.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "ops_barcodes 표는 각 핵에 바코드, 리드 지지도, 일치하는 가이드를 연결하고, ops_objects에는 같은 핵 식별자가 이미지 좌표와 함께 들어 있습니다. 이 식별자가 스크린의 나머지 부분으로 이어지는 다리입니다. 식별자를 통해 바코드를 표현형 측정값과 결합한 뒤 Regression을 위해 집계하세요. 데이터베이스, 보고서, 설정은 함께 보관하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: fra sekvenseringsbilder til strekkoder for celler",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Last inn OPS-testdataene, velg bilde- og dekodingsinnstillinger, kjør analysen og finn strekkodetilordningene i utdatadatabasen.",
+      "objectives": [
+       "Åpne OPS i Mask og laste inn eksempelbildene og strekkodebiblioteket.",
+       "Velge inn- og utdatamapper og forstå de viktigste innstillingene for justering og dekoding.",
+       "Kjøre OPS og undersøke strekkodetilordningene for cellekjerner i utdatadatabasen."
+      ],
+      "prerequisite": "Åpne spaCR. Bruk Load test data i OPS for eksemplets sekvenseringsbilder og guidebibliotek. For ditt eget eksperiment klargjør du TIFF-filer for sekvenseringssyklusene med opptaksfilnavnene deres og en tilsvarende CSV-fil med strekkodebiblioteket.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Fra Home åpner du Mask og slår deretter på OPS. Denne siden tar imot bilder fra sekvenseringssykluser og tilordner dekodede strekkoder til cellekjerner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Klikk på Load test data. Eksemplet inneholder to bildeposisjoner over elleve sekvenseringssykluser og et tilsvarende strekkodebibliotek. Når innlastingen er ferdig, fyller spaCR ut feltene for inndata, bibliotek, plate og utdata.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Under OPS input kontrollerer du mappen med sekvenseringsbilder og CSV-filen med strekkodebiblioteket. Velg et mål for resultatene. Eksemplet skriver til mappen ops_output i det nedlastede prosjektet.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "La mappen for fenotypebilder stå tom i dette eksemplet. Når du har et tilsvarende fenotypeopptak, velger du mappen her for å registrere hvordan synsfeltene samsvarer med sekvenseringsbildene.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Under OPS alignment velger du modellen for kjernesegmentering. Diameter angir forventet kjernestørrelse i piksler. Raster overlap beskriver overlappingen mellom nabofliser i opptaket; bruk verdien fra opptaket ditt. Behold eksemplets innstillinger i denne første kjøringen.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap styrer hvor mye nabovinduer i segmenteringen deler. Verdien bør være større enn den største kjernen, slik at objekter ved vinduskantene kan tas med hele. Å øke den gir lengre behandlingstid.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Under OPS decoding angir du de fire basekanalene i rekkefølgen G, T, A, C. Eksemplet bruker CY3, A594, CY5 og CY7. For egne bilder må navnene samsvare med kanalnavnene i TIFF-filnavnene.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold styrer hvor lys en flekk må være for å telle som en lesning. Høyere verdi velger sterkere flekker; lavere verdi tar med svakere flekker og mer bakgrunn. Footprint styrer hvor langt utenfor en kjerne en lesning kan ligge og likevel bidra til strekkoden.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Slå på Store reads hvis du vil undersøke de enkelte lesningene senere. Det lagrer en ekstra tabell og bruker mer diskplass. La det være av for en kompakt første kjøring.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Kontroller OPS performance og trykk deretter på Run. GPU aktiverer akselerasjon der det er tilgjengelig. Workers styrer hvor mange synsfelt som dekodes samtidig; senk verdien hvis minnet er begrenset. Følg fremdriften i Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "Når Console viser Finished, åpner du Help, deretter Database Browser, og velger measurements.db i den valgte utdatamappen. Ved siden av har hver brønn en mappe, her A1, med OPS-rapporten som inneholder dekodingssammendraget og eventuelle advarsler.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "Tabellen ops_barcodes gir hver kjerne strekkode, lesestøtte og tilsvarende guide; ops_objects inneholder de samme kjerneidentifikatorene med bildekoordinatene deres. Disse identifikatorene er broen til resten av screeningen: koble strekkodene til fenotypemålingene gjennom dem, og aggreger deretter for Regression. Oppbevar databasen, rapportene og innstillingene samlet.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 54,
+     "preceding": [
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "78_spacr_screens",
+     "entry": {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: från sekvenseringsbilder till cellstreckkoder",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Läs in OPS-testdata, välj bild- och avkodningsinställningar, kör analysen och hitta streckkodstilldelningarna i utdatabasen.",
+      "objectives": [
+       "Öppna OPS i Mask och läsa in exempelbilderna och streckkodsbiblioteket.",
+       "Välja in- och utdatamappar och förstå de viktigaste inställningarna för justering och avkodning.",
+       "Köra OPS och granska cellkärnornas streckkodstilldelningar i utdatabasen."
+      ],
+      "prerequisite": "Öppna spaCR. Använd Load test data i OPS för exemplets sekvenseringsbilder och guidebibliotek. För ditt eget experiment förbereder du TIFF-filer för sekvenseringscyklerna med deras insamlingsfilnamn och en matchande CSV-fil med streckkodsbiblioteket.",
+      "scenes": [
+       {
+        "visual": "01_mask_ops",
+        "narration": "Från Home öppnar du Mask och slår sedan på OPS. Sidan tar emot bilder från sekvenseringscykler och tilldelar avkodade streckkoder till cellkärnor.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_load_test_data",
+        "narration": "Klicka på Load test data. Exemplet innehåller två bildpositioner över elva sekvenseringscykler och ett matchande streckkodsbibliotek. När inläsningen är klar fyller spaCR i fälten för indata, bibliotek, platta och utdata.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         480,
+         1150,
+         270
+        ]
+       },
+       {
+        "visual": "03_inputs",
+        "narration": "Under OPS input kontrollerar du mappen med sekvenseringsbilder och CSV-filen med streckkodsbiblioteket. Välj en plats för resultaten. Exemplet skriver till mappen ops_output i det nedladdade projektet.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         530,
+         1150,
+         210
+        ]
+       },
+       {
+        "visual": "04_phenotype",
+        "narration": "Lämna mappen för fenotypbilder tom i det här exemplet. När du har en matchande fenotypinsamling väljer du dess mapp här för att registrera hur dess synfält passar ihop med sekvenseringsbilderna.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         625,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "05_alignment",
+        "narration": "Under OPS alignment väljer du modellen för kärnsegmentering. Diameter anger den förväntade kärnstorleken i pixlar. Raster overlap beskriver överlappet mellan intilliggande insamlade rutor; använd värdet från din insamling. Behåll exemplets inställningar i den här första körningen.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         795,
+         1150,
+         180
+        ]
+       },
+       {
+        "visual": "06_window_overlap",
+        "narration": "Window overlap styr hur mycket intilliggande segmenteringsfönster delar. Värdet ska vara större än den största kärnan så att objekt vid fönsterkanterna kan tas med hela. Att öka det förlänger bearbetningstiden.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         945,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "07_base_channels",
+        "narration": "Under OPS decoding anger du de fyra baskanalerna i ordningen G, T, A, C. Exemplet använder CY3, A594, CY5 och CY7. För dina egna bilder matchar du namnen mot kanalnamnen i TIFF-filnamnen.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1070,
+         1150,
+         80
+        ]
+       },
+       {
+        "visual": "08_read_settings",
+        "narration": "Read threshold styr hur ljus en fläck måste vara för att räknas som en läsning. Höjer du den väljs starkare fläckar; sänker du den tas svagare fläckar och mer bakgrund med. Footprint styr hur långt utanför en kärna en läsning kan ligga och ändå bidra till dess streckkod.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1115,
+         1150,
+         135
+        ]
+       },
+       {
+        "visual": "09_store_reads",
+        "narration": "Slå på Store reads om du vill granska de enskilda läsningarna senare. Det sparar en extra tabell och tar mer diskutrymme. Låt det vara avstängt för en kompakt första körning.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1220,
+         1150,
+         60
+        ]
+       },
+       {
+        "visual": "10_run",
+        "narration": "Kontrollera OPS performance och tryck sedan på Run. GPU aktiverar acceleration där den finns. Workers styr hur många synfält som avkodas samtidigt; sänk värdet om minnet är begränsat. Följ förloppet i Console.",
+        "hold_after": 0.7,
+        "focus": [
+         360,
+         1380,
+         1300,
+         520
+        ]
+       },
+       {
+        "visual": "11_output_folder",
+        "narration": "När Console visar Finished öppnar du Help, sedan Database Browser, och väljer measurements.db i den valda utdatamappen. Bredvid har varje brunn en mapp, här A1, med dess OPS-rapport med avkodningssammanfattning och eventuella varningar.",
+        "hold_after": 0.7,
+        "focus": [
+         1020,
+         480,
+         1800,
+         1200
+        ]
+       },
+       {
+        "visual": "12_barcode_table",
+        "narration": "Tabellen ops_barcodes ger varje kärna dess streckkod, läsningsstöd och matchade guide; ops_objects innehåller samma kärnidentifierare med deras bildkoordinater. Identifierarna är bron till resten av din screening: koppla streckkoderna till dina fenotypmätningar via dem och aggregera sedan för Regression. Håll ihop databasen, rapporterna och inställningarna.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         280,
+         2100,
+         1700
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "07_mask",
+     "scene": 0,
+     "links": [
+      "05_home",
+      "17_timelapse",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "78_spacr_screens",
+     "scene": 6,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 3,
+     "links": [
+      "13_regression",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "81_sequencing_pathways",
+     "scene": 4,
+     "links": [
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify",
+      "50_run_compare",
+      "76_ops"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       0,
+       "lessons"
+      ],
+      "preceding": [
+       "17_timelapse"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "77_embeddings",
+       "75_regression_diagnostics",
+       "74_import_images",
+       "73_parameter_sweep",
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 49,
+     "value": {
+      "kind": "submodule",
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "host_lesson": "07_mask",
+      "host_title": "Mask"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/76_ops -> tools/tutorials/archive/production/docs/76_ops"
+ ],
+ "prose": []
+}

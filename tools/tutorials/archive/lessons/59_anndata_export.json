@@ -1,0 +1,3395 @@
+{
+ "schema": 1,
+ "id": "59_anndata_export",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: save measured objects and features",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
+      "objectives": [
+       "Open AnnData Export and select a measured project.",
+       "Choose joined or single-table measurements and a missing-value policy.",
+       "Export an h5ad file with feature names and object metadata."
+      ],
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "59_anndata_export/poster.jpg",
+      "silent": "59_anndata_export/video/59_anndata_export_silent.mp4",
+      "web": "59_anndata_export/web/59_anndata_export_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: save measured objects and features",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
+      "objectives": [
+       "Open AnnData Export and select a measured project.",
+       "Choose joined or single-table measurements and a missing-value policy.",
+       "Export an h5ad file with feature names and object metadata."
+      ],
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: guardar objetos medidos y sus características",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Exporta mediciones combinadas o una sola tabla de objetos a h5ad, elige cómo tratar los valores faltantes y conserva los metadatos de los objetos.",
+      "objectives": [
+       "Abrir AnnData Export y seleccionar un proyecto medido.",
+       "Elegir mediciones combinadas o de una sola tabla y una política para los valores faltantes.",
+       "Exportar un archivo h5ad con los nombres de las características y los metadatos de los objetos."
+      ],
+      "prerequisite": "Usa un proyecto que haya completado Measure, o descarga el ejemplo de mediciones desde Annotate. Trabaja sobre una copia del proyecto y conserva sus imágenes de origen.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Desde Home, abre Measure y luego elige AnnData Export. Usa esta herramienta para guardar juntos en un archivo h5ad los objetos medidos, sus características y sus metadatos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "Desde Home, abre Measure y luego elige AnnData Export. Usa esta herramienta para guardar juntos en un archivo h5ad los objetos medidos, sus características y sus metadatos."
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Selecciona tu proyecto medido como Source. En este recorrido, usa una copia del ejemplo de mediciones disponible desde Annotate. Mantén juntas su carpeta de mediciones y sus imágenes de origen.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona tu proyecto medido como Source. En este recorrido, usa una copia del ejemplo de mediciones disponible desde Annotate. Mantén juntas su carpeta de mediciones y sus imágenes de origen."
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Deja Single table vacío para combinar las tablas seleccionadas en filas de células. Pon un nombre de archivo de salida que termine en h5ad. Mantén float32 y gzip para una exportación numérica compacta.",
+        "hold_after": 0.7,
+        "speech_text": "Deja Single table vacío para combinar las tablas seleccionadas en filas de células. Pon un nombre de archivo de salida que termine en h5ad. Mantén float32 y gzip para una exportación numérica compacta."
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Pon Row limit en cero para incluir todas las filas disponibles. Un límite positivo sirve para una primera exportación pequeña. Deja Compute UMAP desactivado cuando solo necesites la matriz de mediciones.",
+        "hold_after": 0.7,
+        "speech_text": "Pon Row limit en cero para incluir todas las filas disponibles. Un límite positivo sirve para una primera exportación pequeña. Deja Compute ú map desactivado cuando solo necesites la matriz de mediciones."
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Elige keep como política para los valores faltantes y pulsa Run. Lee el mensaje de finalización. El ejemplo combinado contiene dos mil trescientas cuarenta y una filas de células y mil ciento treinta y seis características.",
+        "hold_after": 0.7,
+        "speech_text": "Elige keep como política para los valores faltantes y pulsa Run. Lee el mensaje de finalización. El ejemplo combinado contiene dos mil trescientas cuarenta y una filas de células y mil ciento treinta y seis características."
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Pon Single table en cell y elige un nombre de archivo de salida nuevo. Vuelve a ejecutar para exportar solo las mediciones de células. Aquí el resultado tiene doscientas sesenta y una características y veintiocho valores faltantes.",
+        "hold_after": 0.7,
+        "speech_text": "Pon Single table en cell y elige un nombre de archivo de salida nuevo. Vuelve a ejecutar para exportar solo las mediciones de células. Aquí el resultado tiene doscientas sesenta y una características y veintiocho valores faltantes."
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Elige mean para sustituir los valores faltantes por la media observada de cada columna. La exportación también registra sus posiciones originales en una capa de valores faltantes. Usa esta política cuando la imputación por la media sea adecuada para tu análisis posterior.",
+        "hold_after": 0.7,
+        "speech_text": "Elige mean para sustituir los valores faltantes por la media observada de cada columna. La exportación también registra sus posiciones originales en una capa de valores faltantes. Usa esta política cuando la imputación por la media sea adecuada para tu análisis posterior."
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Elige drop_features para quitar las columnas que contienen valores faltantes. Este ejemplo conserva todas las células y quita cuatro columnas de características. Revisa los nombres de las características conservadas al comparar exportaciones.",
+        "hold_after": 0.7,
+        "speech_text": "Elige drop_features para quitar las columnas que contienen valores faltantes. Este ejemplo conserva todas las células y quita cuatro columnas de características. Revisa los nombres de las características conservadas al comparar exportaciones."
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Elige drop_objects para quitar las filas que contienen valores de características faltantes. Aquí se quitan siete células. Piensa si los objetos excluidos podrían cambiar tu análisis.",
+        "hold_after": 0.7,
+        "speech_text": "Elige drop_objects para quitar las filas que contienen valores de características faltantes. Aquí se quitan siete células. Piensa si los objetos excluidos podrían cambiar tu análisis."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Elige nucleus como tabla única cuando necesites una fila por núcleo. Este ejemplo da dos mil seiscientos ochenta y dos núcleos y trescientas cuarenta y una características.",
+        "hold_after": 0.7,
+        "speech_text": "Elige nucleus como tabla única cuando necesites una fila por núcleo. Este ejemplo da dos mil seiscientos ochenta y dos núcleos y trescientas cuarenta y una características."
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Activa Register artifact para que la salida pueda encontrarse en el proyecto. Guarda cada política con un nombre de archivo distinto y conserva sus ajustes. El archivo h5ad contiene mediciones y metadatos; guarda aparte las imágenes de origen.",
+        "hold_after": 0.7,
+        "speech_text": "Activa Register artifact para que la salida pueda encontrarse en el proyecto. Guarda cada política con un nombre de archivo distinto y conserva sus ajustes. El archivo h5ad contiene mediciones y metadatos; guarda aparte las imágenes de origen."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Abre el archivo h5ad resultante en tu análisis posterior y revisa sus dimensiones, los nombres de las características y los metadatos de los objetos. Desde Python, run_anndata_export usa los mismos ajustes, mientras que build_anndata construye los datos en memoria.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Abre el archivo h5ad resultante en tu análisis posterior y revisa sus dimensiones, los nombres de las características y los metadatos de los objetos. Desde Python, run_anndata_export usa los mismos ajustes, mientras que build_anndata construye los datos en memoria."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export : enregistrer les objets mesurés et leurs caractéristiques",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Exportez des mesures jointes ou une seule table d’objets au format h5ad, choisissez comment traiter les valeurs manquantes et conservez les métadonnées des objets.",
+      "objectives": [
+       "Ouvrir AnnData Export et sélectionner un projet mesuré.",
+       "Choisir des mesures jointes ou une seule table, et une règle pour les valeurs manquantes.",
+       "Exporter un fichier h5ad avec les noms des caractéristiques et les métadonnées des objets."
+      ],
+      "prerequisite": "Utilisez un projet pour lequel Measure est terminé, ou téléchargez l’exemple de mesures via Annotate. Travaillez sur une copie du projet et conservez ses images sources.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Depuis Home, ouvrez Measure, puis choisissez AnnData Export. Cet outil enregistre ensemble, dans un fichier h5ad, les objets mesurés, leurs caractéristiques et leurs métadonnées.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "Depuis Home, ouvrez Measure, puis choisissez AnnData Export. Cet outil enregistre ensemble, dans un fichier h5ad, les objets mesurés, leurs caractéristiques et leurs métadonnées."
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Sélectionnez votre projet mesuré comme Source. Pour cette démonstration, utilisez une copie de l’exemple de mesures disponible via Annotate. Gardez ensemble son dossier de mesures et ses images sources.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez votre projet mesuré comme Source. Pour cette démonstration, utilisez une copie de l’exemple de mesures disponible via Annotate. Gardez ensemble son dossier de mesures et ses images sources."
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Laissez Single table vide pour joindre les tables sélectionnées sur des lignes de cellules. Indiquez un nom de fichier de sortie se terminant par h5ad. Gardez float32 et gzip pour un export numérique compact.",
+        "hold_after": 0.7,
+        "speech_text": "Laissez Single table vide pour joindre les tables sélectionnées sur des lignes de cellules. Indiquez un nom de fichier de sortie se terminant par h5ad. Gardez float32 et gzip pour un export numérique compact."
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Réglez Row limit sur zéro pour inclure toutes les lignes disponibles. Une limite positive est utile pour un premier petit export. Laissez Compute UMAP désactivé si vous n’avez besoin que de la matrice de mesures.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Row limit sur zéro pour inclure toutes les lignes disponibles. Une limite positive est utile pour un premier petit export. Laissez Compute you map désactivé si vous n’avez besoin que de la matrice de mesures."
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Choisissez keep comme règle pour les valeurs manquantes, puis appuyez sur Run. Lisez le message de fin. L’exemple joint contient deux mille trois cent quarante et une lignes de cellules et mille cent trente-six caractéristiques.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez keep comme règle pour les valeurs manquantes, puis appuyez sur Run. Lisez le message de fin. L’exemple joint contient deux mille trois cent quarante et une lignes de cellules et mille cent trente-six caractéristiques."
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Réglez Single table sur cell et choisissez un nouveau nom de fichier. Relancez pour exporter uniquement les mesures des cellules. Ici, le résultat compte deux cent soixante et une caractéristiques et vingt-huit valeurs manquantes.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Single table sur cell et choisissez un nouveau nom de fichier. Relancez pour exporter uniquement les mesures des cellules. Ici, le résultat compte deux cent soixante et une caractéristiques et vingt-huit valeurs manquantes."
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Choisissez mean pour remplacer les valeurs manquantes par la moyenne observée de chaque colonne. L’export enregistre aussi leurs positions d’origine dans une couche de valeurs manquantes. Utilisez cette règle lorsque l’imputation par la moyenne convient à votre analyse en aval.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez mean pour remplacer les valeurs manquantes par la moyenne observée de chaque colonne. L’export enregistre aussi leurs positions d’origine dans une couche de valeurs manquantes. Utilisez cette règle lorsque l’imputation par la moyenne convient à votre analyse en aval."
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Choisissez drop_features pour retirer les colonnes contenant des valeurs manquantes. Cet exemple conserve toutes les cellules et retire quatre colonnes de caractéristiques. Vérifiez les noms des caractéristiques conservées lorsque vous comparez des exports.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez drop_features pour retirer les colonnes contenant des valeurs manquantes. Cet exemple conserve toutes les cellules et retire quatre colonnes de caractéristiques. Vérifiez les noms des caractéristiques conservées lorsque vous comparez des exports."
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Choisissez drop_objects pour retirer les lignes contenant des valeurs de caractéristiques manquantes. Ici, sept cellules sont retirées. Demandez-vous si les objets exclus peuvent modifier votre analyse.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez drop_objects pour retirer les lignes contenant des valeurs de caractéristiques manquantes. Ici, sept cellules sont retirées. Demandez-vous si les objets exclus peuvent modifier votre analyse."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Choisissez nucleus comme table unique lorsque vous voulez une ligne par noyau. Cet exemple produit deux mille six cent quatre-vingt-deux noyaux et trois cent quarante et une caractéristiques.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez nucleus comme table unique lorsque vous voulez une ligne par noyau. Cet exemple produit deux mille six cent quatre-vingt-deux noyaux et trois cent quarante et une caractéristiques."
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Activez Register artifact pour que la sortie soit repérable dans le projet. Enregistrez chaque règle sous un nom de fichier distinct et conservez ses paramètres. Le fichier h5ad contient les mesures et les métadonnées ; conservez les images sources séparément.",
+        "hold_after": 0.7,
+        "speech_text": "Activez Register artifact pour que la sortie soit repérable dans le projet. Enregistrez chaque règle sous un nom de fichier distinct et conservez ses paramètres. Le fichier h5ad contient les mesures et les métadonnées ; conservez les images sources séparément."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Ouvrez le fichier h5ad obtenu dans votre analyse en aval et vérifiez ses dimensions, les noms des caractéristiques et les métadonnées des objets. Depuis Python, run_anndata_export utilise les mêmes paramètres, tandis que build_anndata construit les données en mémoire.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Ouvrez le fichier h5ad obtenu dans votre analyse en aval et vérifiez ses dimensions, les noms des caractéristiques et les métadonnées des objets. Depuis Python, run_anndata_export utilise les mêmes paramètres, tandis que build_anndata construit les données en mémoire."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: मापी गई वस्तुएँ और विशेषताएँ सहेजें",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "जोड़े गए माप या एक वस्तु तालिका को h5ad में निर्यात करें, छूटे मानों से निपटने का तरीका चुनें और वस्तुओं का मेटाडेटा बनाए रखें।",
+      "objectives": [
+       "AnnData Export खोलें और मापा गया प्रोजेक्ट चुनें।",
+       "जोड़े गए या एक तालिका वाले माप और छूटे मानों की नीति चुनें।",
+       "विशेषताओं के नाम और वस्तुओं के मेटाडेटा के साथ h5ad फ़ाइल निर्यात करें।"
+      ],
+      "prerequisite": "ऐसा प्रोजेक्ट इस्तेमाल करें जिसमें Measure पूरा हो चुका हो, या Annotate से माप वाला उदाहरण डाउनलोड करें। प्रोजेक्ट की प्रति पर काम करें और उसकी स्रोत इमेज रखें।",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Home से Measure खोलें, फिर AnnData Export चुनें। इस टूल से मापी गई वस्तुएँ, उनकी विशेषताएँ और मेटाडेटा एक साथ h5ad फ़ाइल में सहेजें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "Home से Measure खोलें, फिर AnnData Export चुनें। इस टूल से मापी गई वस्तुएँ, उनकी विशेषताएँ और मेटाडेटा एक साथ h5ad फ़ाइल में सहेजें।"
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Source के रूप में अपना मापा गया प्रोजेक्ट चुनें। इस वॉकथ्रू में Annotate से उपलब्ध माप वाले उदाहरण की एक प्रति इस्तेमाल करें। उसका measurements फ़ोल्डर और स्रोत इमेज साथ रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Source के रूप में अपना मापा गया प्रोजेक्ट चुनें। इस वॉकथ्रू में Annotate से उपलब्ध माप वाले उदाहरण की एक प्रति इस्तेमाल करें। उसका measurements फ़ोल्डर और स्रोत इमेज साथ रखें।"
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "चुनी गई तालिकाओं को कोशिका पंक्तियों पर जोड़ने के लिए Single table खाली छोड़ें। h5ad पर ख़त्म होने वाला आउटपुट फ़ाइल नाम दें। छोटे संख्यात्मक निर्यात के लिए float32 और gzip रखें।",
+        "hold_after": 0.7,
+        "speech_text": "चुनी गई तालिकाओं को कोशिका पंक्तियों पर जोड़ने के लिए Single table खाली छोड़ें। h5ad पर ख़त्म होने वाला आउटपुट फ़ाइल नाम दें। छोटे संख्यात्मक निर्यात के लिए float32 और gzip रखें।"
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "सभी उपलब्ध पंक्तियाँ शामिल करने के लिए Row limit को शून्य पर रखें। पहले छोटे निर्यात के लिए धनात्मक सीमा उपयोगी है। अगर केवल माप मैट्रिक्स चाहिए, तो Compute UMAP बंद रखें।",
+        "hold_after": 0.7,
+        "speech_text": "सभी उपलब्ध पंक्तियाँ शामिल करने के लिए Row limit को शून्य पर रखें। पहले छोटे निर्यात के लिए धनात्मक सीमा उपयोगी है। अगर केवल माप मैट्रिक्स चाहिए, तो Compute यू मैप बंद रखें।"
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "छूटे मानों की नीति के रूप में keep चुनें, फिर Run दबाएँ। पूरा होने का संदेश पढ़ें। जोड़े गए उदाहरण में दो हज़ार तीन सौ इकतालीस कोशिका पंक्तियाँ और एक हज़ार एक सौ छत्तीस विशेषताएँ हैं।",
+        "hold_after": 0.7,
+        "speech_text": "छूटे मानों की नीति के रूप में keep चुनें, फिर Run दबाएँ। पूरा होने का संदेश पढ़ें। जोड़े गए उदाहरण में दो हज़ार तीन सौ इकतालीस कोशिका पंक्तियाँ और एक हज़ार एक सौ छत्तीस विशेषताएँ हैं।"
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Single table को cell पर रखें और नया आउटपुट फ़ाइल नाम चुनें। केवल कोशिका माप निर्यात करने के लिए फिर से चलाएँ। यहाँ परिणाम में दो सौ इकसठ विशेषताएँ और अट्ठाईस छूटे मान हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Single table को cell पर रखें और नया आउटपुट फ़ाइल नाम चुनें। केवल कोशिका माप निर्यात करने के लिए फिर से चलाएँ। यहाँ परिणाम में दो सौ इकसठ विशेषताएँ और अट्ठाईस छूटे मान हैं।"
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "छूटे मानों को कॉलम के देखे गए औसत से बदलने के लिए mean चुनें। निर्यात उनकी मूल स्थितियाँ भी एक अलग परत में दर्ज करता है। जब औसत से भरना आपके आगे के विश्लेषण के अनुकूल हो, तब यह नीति इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "speech_text": "छूटे मानों को कॉलम के देखे गए औसत से बदलने के लिए mean चुनें। निर्यात उनकी मूल स्थितियाँ भी एक अलग परत में दर्ज करता है। जब औसत से भरना आपके आगे के विश्लेषण के अनुकूल हो, तब यह नीति इस्तेमाल करें।"
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "छूटे मानों वाले कॉलम हटाने के लिए drop_features चुनें। यह उदाहरण सभी कोशिकाएँ रखता है और चार विशेषता कॉलम हटाता है। निर्यातों की तुलना करते समय बचे विशेषता नाम जाँचें।",
+        "hold_after": 0.7,
+        "speech_text": "छूटे मानों वाले कॉलम हटाने के लिए drop_features चुनें। यह उदाहरण सभी कोशिकाएँ रखता है और चार विशेषता कॉलम हटाता है। निर्यातों की तुलना करते समय बचे विशेषता नाम जाँचें।"
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "छूटे विशेषता मानों वाली पंक्तियाँ हटाने के लिए drop_objects चुनें। यहाँ सात कोशिकाएँ हटती हैं। सोचें कि हटाई गई वस्तुएँ आपके विश्लेषण को बदल सकती हैं या नहीं।",
+        "hold_after": 0.7,
+        "speech_text": "छूटे विशेषता मानों वाली पंक्तियाँ हटाने के लिए drop_objects चुनें। यहाँ सात कोशिकाएँ हटती हैं। सोचें कि हटाई गई वस्तुएँ आपके विश्लेषण को बदल सकती हैं या नहीं।"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "जब हर नाभिक के लिए एक पंक्ति चाहिए, तो एकल तालिका के रूप में nucleus चुनें। यह उदाहरण दो हज़ार छह सौ बयासी नाभिक और तीन सौ इकतालीस विशेषताएँ देता है।",
+        "hold_after": 0.7,
+        "speech_text": "जब हर नाभिक के लिए एक पंक्ति चाहिए, तो एकल तालिका के रूप में nucleus चुनें। यह उदाहरण दो हज़ार छह सौ बयासी नाभिक और तीन सौ इकतालीस विशेषताएँ देता है।"
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "आउटपुट को प्रोजेक्ट में खोजने योग्य बनाने के लिए Register artifact चालू करें। हर नीति को अलग फ़ाइल नाम से सहेजें और उसकी सेटिंग रखें। h5ad फ़ाइल में माप और मेटाडेटा होते हैं; स्रोत इमेज अलग से रखें।",
+        "hold_after": 0.7,
+        "speech_text": "आउटपुट को प्रोजेक्ट में खोजने योग्य बनाने के लिए Register artifact चालू करें। हर नीति को अलग फ़ाइल नाम से सहेजें और उसकी सेटिंग रखें। h5ad फ़ाइल में माप और मेटाडेटा होते हैं; स्रोत इमेज अलग से रखें।"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "बनी h5ad फ़ाइल को अपने आगे के विश्लेषण में खोलें और उसका आकार, विशेषताओं के नाम और वस्तुओं का मेटाडेटा देखें। Python में run_anndata_export यही सेटिंग इस्तेमाल करता है, जबकि build_anndata डेटा को मेमोरी में बनाता है।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "बनी h5ad फ़ाइल को अपने आगे के विश्लेषण में खोलें और उसका आकार, विशेषताओं के नाम और वस्तुओं का मेटाडेटा देखें। Python में run_anndata_export यही सेटिंग इस्तेमाल करता है, जबकि build_anndata डेटा को मेमोरी में बनाता है।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: salvare gli oggetti misurati e le loro caratteristiche",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Esporta misure unite o una sola tabella di oggetti in h5ad, scegli come gestire i valori mancanti e conserva i metadati degli oggetti.",
+      "objectives": [
+       "Aprire AnnData Export e selezionare un progetto misurato.",
+       "Scegliere misure unite o una sola tabella e una regola per i valori mancanti.",
+       "Esportare un file h5ad con nomi delle caratteristiche e metadati degli oggetti."
+      ],
+      "prerequisite": "Usa un progetto per cui Measure è completato, oppure scarica l’esempio di misure tramite Annotate. Lavora su una copia del progetto e conserva le immagini di origine.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Da Home, apri Measure e poi scegli AnnData Export. Usa questo strumento per salvare insieme, in un file h5ad, gli oggetti misurati, le loro caratteristiche e i metadati.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "Da Home, apri Measure e poi scegli AnnData Export. Usa questo strumento per salvare insieme, in un file h5ad, gli oggetti misurati, le loro caratteristiche e i metadati."
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Seleziona il tuo progetto misurato come Source. Per questa guida, usa una copia dell’esempio di misure disponibile tramite Annotate. Tieni insieme la cartella delle misure e le immagini di origine.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona il tuo progetto misurato come Source. Per questa guida, usa una copia dell’esempio di misure disponibile tramite Annotate. Tieni insieme la cartella delle misure e le immagini di origine."
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Lascia vuoto Single table per unire le tabelle selezionate sulle righe delle cellule. Imposta un nome di file di output che termini con h5ad. Mantieni float32 e gzip per un’esportazione numerica compatta.",
+        "hold_after": 0.7,
+        "speech_text": "Lascia vuoto Single table per unire le tabelle selezionate sulle righe delle cellule. Imposta un nome di file di output che termini con h5ad. Mantieni float32 e gzip per un’esportazione numerica compatta."
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Imposta Row limit a zero per includere tutte le righe disponibili. Un limite positivo è utile per una prima esportazione ridotta. Lascia disattivato Compute UMAP quando ti serve solo la matrice delle misure.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta Row limit a zero per includere tutte le righe disponibili. Un limite positivo è utile per una prima esportazione ridotta. Lascia disattivato Compute iu map quando ti serve solo la matrice delle misure."
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Scegli keep come regola per i valori mancanti, poi premi Run. Leggi il messaggio di completamento. L’esempio unito contiene duemilatrecentoquarantuno righe di cellule e millecentotrentasei caratteristiche.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli keep come regola per i valori mancanti, poi premi Run. Leggi il messaggio di completamento. L’esempio unito contiene duemilatrecentoquarantuno righe di cellule e millecentotrentasei caratteristiche."
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Imposta Single table su cell e scegli un nuovo nome di file. Esegui di nuovo per esportare solo le misure delle cellule. Qui il risultato ha duecentosessantuno caratteristiche e ventotto valori mancanti.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta Single table su cell e scegli un nuovo nome di file. Esegui di nuovo per esportare solo le misure delle cellule. Qui il risultato ha duecentosessantuno caratteristiche e ventotto valori mancanti."
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Scegli mean per sostituire i valori mancanti con la media osservata di ogni colonna. L’esportazione registra anche le loro posizioni originali in un livello dei valori mancanti. Usa questa regola quando l’imputazione con la media è adatta all’analisi successiva.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli mean per sostituire i valori mancanti con la media osservata di ogni colonna. L’esportazione registra anche le loro posizioni originali in un livello dei valori mancanti. Usa questa regola quando l’imputazione con la media è adatta all’analisi successiva."
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Scegli drop_features per rimuovere le colonne con valori mancanti. Questo esempio mantiene tutte le cellule e rimuove quattro colonne di caratteristiche. Controlla i nomi delle caratteristiche mantenute quando confronti le esportazioni.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli drop_features per rimuovere le colonne con valori mancanti. Questo esempio mantiene tutte le cellule e rimuove quattro colonne di caratteristiche. Controlla i nomi delle caratteristiche mantenute quando confronti le esportazioni."
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Scegli drop_objects per rimuovere le righe con valori mancanti nelle caratteristiche. Qui vengono rimosse sette cellule. Valuta se gli oggetti esclusi possono cambiare la tua analisi.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli drop_objects per rimuovere le righe con valori mancanti nelle caratteristiche. Qui vengono rimosse sette cellule. Valuta se gli oggetti esclusi possono cambiare la tua analisi."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Scegli nucleus come tabella singola quando ti serve una riga per nucleo. Questo esempio produce duemilaseicentottantadue nuclei e trecentoquarantuno caratteristiche.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli nucleus come tabella singola quando ti serve una riga per nucleo. Questo esempio produce duemilaseicentottantadue nuclei e trecentoquarantuno caratteristiche."
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Attiva Register artifact per rendere l’output individuabile nel progetto. Salva ogni regola con un nome di file diverso e conserva le relative impostazioni. Il file h5ad contiene misure e metadati; conserva separatamente le immagini di origine.",
+        "hold_after": 0.7,
+        "speech_text": "Attiva Register artifact per rendere l’output individuabile nel progetto. Salva ogni regola con un nome di file diverso e conserva le relative impostazioni. Il file h5ad contiene misure e metadati; conserva separatamente le immagini di origine."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Apri il file h5ad ottenuto nell’analisi successiva e controllane dimensioni, nomi delle caratteristiche e metadati degli oggetti. Da Python, run_anndata_export usa le stesse impostazioni, mentre build_anndata costruisce i dati in memoria.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Apri il file h5ad ottenuto nell’analisi successiva e controllane dimensioni, nomi delle caratteristiche e metadati degli oggetti. Da Python, run_anndata_export usa le stesse impostazioni, mentre build_anndata costruisce i dati in memoria."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export：測定した物体と特徴量を保存する",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "結合した測定値または一つの物体の表をh5adに書き出し、欠損値の扱い方を選んで、物体のメタデータを残します。",
+      "objectives": [
+       "AnnData Exportを開き、測定済みのプロジェクトを選ぶ。",
+       "結合した測定値か単一の表かを選び、欠損値の方針を選ぶ。",
+       "特徴量の名前と物体のメタデータを含むh5adファイルを書き出す。"
+      ],
+      "prerequisite": "Measureが完了したプロジェクトを使うか、Annotateから測定値の例をダウンロードします。プロジェクトのコピーで作業し、元の画像は残しておきます。",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "HomeからMeasureを開き、AnnData Exportを選びます。測定した物体、その特徴量、メタデータを、一つのh5adファイルにまとめて保存するのに使います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "ホームからMeasureを開き、AnnData Exportを選びます。測定した物体、その特徴量、メタデータを、一つのh5adファイルにまとめて保存するのに使います。"
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Sourceに測定済みのプロジェクトを選びます。このチュートリアルでは、Annotateから入手できる測定値の例のコピーを使います。測定値のフォルダーと元の画像は一緒にしておきます。",
+        "hold_after": 0.7,
+        "speech_text": "Sourceに測定済みのプロジェクトを選びます。このチュートリアルでは、Annotateから入手できる測定値の例のコピーを使います。測定値のフォルダーと元の画像は一緒にしておきます。"
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Single tableを空のままにすると、選んだ表が細胞の行に結合されます。出力ファイル名は末尾をh5adにします。コンパクトな数値の書き出しには、float32とgzipのままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Single tableを空のままにすると、選んだ表が細胞の行に結合されます。出力ファイル名は末尾をh5adにします。コンパクトな数値の書き出しには、float32とgzipのままにします。"
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Row limitをゼロにすると、利用できるすべての行が含まれます。最初に小さく書き出したいときは、正の上限が便利です。測定値の行列だけが必要なら、Compute UMAPはオフのままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Row limitをゼロにすると、利用できるすべての行が含まれます。最初に小さく書き出したいときは、正の上限が便利です。測定値の行列だけが必要なら、Compute ユーマップはオフのままにします。"
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "欠損値の方針としてkeepを選び、Runを押します。完了のメッセージを読みます。結合した例には、細胞の行が二千三百四十一、特徴量が千百三十六あります。",
+        "hold_after": 0.7,
+        "speech_text": "欠損値の方針としてkeepを選び、Runを押します。完了のメッセージを読みます。結合した例には、細胞の行が二千三百四十一、特徴量が千百三十六あります。"
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Single tableをcellにし、新しい出力ファイル名を選びます。もう一度実行して、細胞の測定値だけを書き出します。ここでは、特徴量が二百六十一、欠損値が二十八個になります。",
+        "hold_after": 0.7,
+        "speech_text": "Single tableをcellにし、新しい出力ファイル名を選びます。もう一度実行して、細胞の測定値だけを書き出します。ここでは、特徴量が二百六十一、欠損値が二十八個になります。"
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "meanを選ぶと、欠損した特徴量の値が、列ごとの観測された平均で置き換えられます。書き出しには、元の欠損の位置も別のレイヤーに記録されます。平均による補完がその後の解析に適している場合に、この方針を使います。",
+        "hold_after": 0.7,
+        "speech_text": "meanを選ぶと、欠損した特徴量の値が、列ごとの観測された平均で置き換えられます。書き出しには、元の欠損の位置も別のレイヤーに記録されます。平均による補完がその後の解析に適している場合に、この方針を使います。"
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "drop_featuresを選ぶと、欠損値を含む列が除かれます。この例ではすべての細胞が残り、特徴量の列が四つ除かれます。書き出しを比べるときは、残った特徴量の名前を確認します。",
+        "hold_after": 0.7,
+        "speech_text": "drop_featuresを選ぶと、欠損値を含む列が除かれます。この例ではすべての細胞が残り、特徴量の列が四つ除かれます。書き出しを比べるときは、残った特徴量の名前を確認します。"
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "drop_objectsを選ぶと、特徴量の値が欠けている行が除かれます。ここでは七個の細胞が除かれます。除いた物体が解析に影響しないか検討します。",
+        "hold_after": 0.7,
+        "speech_text": "drop_objectsを選ぶと、特徴量の値が欠けている行が除かれます。ここでは七個の細胞が除かれます。除いた物体が解析に影響しないか検討します。"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "核ごとに一行が必要なときは、単一の表としてnucleusを選びます。この例では、核が二千六百八十二、特徴量が三百四十一になります。",
+        "hold_after": 0.7,
+        "speech_text": "核ごとに一行が必要なときは、単一の表としてnucleusを選びます。この例では、核が二千六百八十二、特徴量が三百四十一になります。"
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Register artifactをオンにすると、出力がプロジェクト内で見つけられるようになります。方針ごとに別のファイル名で保存し、その設定を残します。h5adファイルには測定値とメタデータが入りますが、元の画像は別に保管します。",
+        "hold_after": 0.7,
+        "speech_text": "Register artifactをオンにすると、出力がプロジェクト内で見つけられるようになります。方針ごとに別のファイル名で保存し、その設定を残します。h5adファイルには測定値とメタデータが入りますが、元の画像は別に保管します。"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "できたh5adファイルをその後の解析で開き、大きさ、特徴量の名前、物体のメタデータを確認します。Pythonでは、run_anndata_exportが同じ設定を使い、build_anndataはデータをメモリー上に作ります。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "できたh5adファイルをその後の解析で開き、大きさ、特徴量の名前、物体のメタデータを確認します。Pythonでは、run_anndata_exportが同じ設定を使い、build_anndataはデータをメモリー上に作ります。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: salvar objetos medidos e suas características",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Exporte medições combinadas ou uma única tabela de objetos para h5ad, escolha como tratar valores ausentes e mantenha os metadados dos objetos.",
+      "objectives": [
+       "Abrir o AnnData Export e selecionar um projeto medido.",
+       "Escolher medições combinadas ou de uma tabela e uma regra para valores ausentes.",
+       "Exportar um arquivo h5ad com os nomes das características e os metadados dos objetos."
+      ],
+      "prerequisite": "Use um projeto que já passou pelo Measure, ou baixe o exemplo de medições pelo Annotate. Trabalhe numa cópia do projeto e mantenha as imagens de origem.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Na tela Home, abra Measure e escolha AnnData Export. Use esta ferramenta para salvar juntos, num arquivo h5ad, os objetos medidos, as características e os metadados.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "Na tela Home, abra Measure e escolha AnnData Export. Use esta ferramenta para salvar juntos, num arquivo h5ad, os objetos medidos, as características e os metadados."
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Selecione seu projeto medido como Source. Neste passo a passo, use uma cópia do exemplo de medições disponível pelo Annotate. Mantenha juntas a pasta de medições e as imagens de origem.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione seu projeto medido como Source. Neste passo a passo, use uma cópia do exemplo de medições disponível pelo Annotate. Mantenha juntas a pasta de medições e as imagens de origem."
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Deixe Single table vazio para combinar as tabelas selecionadas em linhas de células. Defina um nome de arquivo de saída terminado em h5ad. Mantenha float32 e gzip para uma exportação numérica compacta.",
+        "hold_after": 0.7,
+        "speech_text": "Deixe Single table vazio para combinar as tabelas selecionadas em linhas de células. Defina um nome de arquivo de saída terminado em h5ad. Mantenha float32 e gzip para uma exportação numérica compacta."
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Defina Row limit como zero para incluir todas as linhas disponíveis. Um limite positivo é útil para uma primeira exportação pequena. Deixe Compute UMAP desativado quando só precisar da matriz de medições.",
+        "hold_after": 0.7,
+        "speech_text": "Defina Row limit como zero para incluir todas as linhas disponíveis. Um limite positivo é útil para uma primeira exportação pequena. Deixe Compute iu mép desativado quando só precisar da matriz de medições."
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Escolha keep como regra para valores ausentes e pressione Run. Leia a mensagem de conclusão. O exemplo combinado contém duas mil trezentas e quarenta e uma linhas de células e mil cento e trinta e seis características.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha keep como regra para valores ausentes e pressione Run. Leia a mensagem de conclusão. O exemplo combinado contém duas mil trezentas e quarenta e uma linhas de células e mil cento e trinta e seis características."
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Defina Single table como cell e escolha um nome de arquivo novo. Execute de novo para exportar só as medições de células. Aqui o resultado tem duzentas e sessenta e uma características e vinte e oito valores ausentes.",
+        "hold_after": 0.7,
+        "speech_text": "Defina Single table como cell e escolha um nome de arquivo novo. Execute de novo para exportar só as medições de células. Aqui o resultado tem duzentas e sessenta e uma características e vinte e oito valores ausentes."
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Escolha mean para substituir os valores ausentes pela média observada de cada coluna. A exportação também registra as posições originais deles numa camada de valores ausentes. Use essa regra quando a imputação pela média for adequada à sua análise posterior.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha mean para substituir os valores ausentes pela média observada de cada coluna. A exportação também registra as posições originais deles numa camada de valores ausentes. Use essa regra quando a imputação pela média for adequada à sua análise posterior."
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Escolha drop_features para remover colunas que contêm valores ausentes. Este exemplo mantém todas as células e remove quatro colunas de características. Confira os nomes das características mantidas ao comparar exportações.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha drop_features para remover colunas que contêm valores ausentes. Este exemplo mantém todas as células e remove quatro colunas de características. Confira os nomes das características mantidas ao comparar exportações."
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Escolha drop_objects para remover linhas com valores de características ausentes. Aqui, sete células são removidas. Avalie se os objetos excluídos podem mudar a sua análise.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha drop_objects para remover linhas com valores de características ausentes. Aqui, sete células são removidas. Avalie se os objetos excluídos podem mudar a sua análise."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Escolha nucleus como tabela única quando precisar de uma linha por núcleo. Este exemplo gera dois mil seiscentos e oitenta e dois núcleos e trezentas e quarenta e uma características.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha nucleus como tabela única quando precisar de uma linha por núcleo. Este exemplo gera dois mil seiscentos e oitenta e dois núcleos e trezentas e quarenta e uma características."
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Ative Register artifact para que a saída possa ser encontrada no projeto. Salve cada regra com um nome de arquivo diferente e guarde as configurações. O arquivo h5ad contém medições e metadados; guarde as imagens de origem separadamente.",
+        "hold_after": 0.7,
+        "speech_text": "Ative Register artifact para que a saída possa ser encontrada no projeto. Salve cada regra com um nome de arquivo diferente e guarde as configurações. O arquivo h5ad contém medições e metadados; guarde as imagens de origem separadamente."
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Abra o arquivo h5ad gerado na sua análise posterior e inspecione as dimensões, os nomes das características e os metadados dos objetos. No Python, run_anndata_export usa as mesmas configurações, enquanto build_anndata monta os dados na memória.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Abra o arquivo h5ad gerado na sua análise posterior e inspecione as dimensões, os nomes das características e os metadados dos objetos. No Python, run_anndata_export usa as mesmas configurações, enquanto build_anndata monta os dados na memória."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export：保存已测量对象及其特征",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "把合并的测量数据或单个对象表导出为h5ad，选择缺失值的处理方式，并保留对象元数据。",
+      "objectives": [
+       "打开AnnData Export并选择已测量的项目。",
+       "选择合并测量或单表测量，以及缺失值策略。",
+       "导出包含特征名称和对象元数据的h5ad文件。"
+      ],
+      "prerequisite": "使用已完成Measure的项目，或通过Annotate下载测量示例。请在项目副本上操作，并保留其源图像。",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "从Home打开Measure，然后选择AnnData Export。用这个工具把已测量对象、其特征和元数据一起保存到h5ad文件中。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ],
+        "speech_text": "从主页打开Measure，然后选择AnnData Export。用这个工具把已测量对象、其特征和元数据一起保存到h5ad文件中。"
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "把您的已测量项目选为Source。本演示使用通过Annotate获得的测量示例的副本。请把其测量文件夹和源图像放在一起。",
+        "hold_after": 0.7,
+        "speech_text": "把您的已测量项目选为Source。本演示使用通过Annotate获得的测量示例的副本。请把其测量文件夹和源图像放在一起。"
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "保持Single table为空，把所选的表合并到细胞行上。设置一个以h5ad结尾的输出文件名。保留float32和gzip，以获得紧凑的数值导出。",
+        "hold_after": 0.7,
+        "speech_text": "保持Single table为空，把所选的表合并到细胞行上。设置一个以h5ad结尾的输出文件名。保留float32和gzip，以获得紧凑的数值导出。"
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "把Row limit设为零以包含所有可用的行。正数上限适合第一次做小规模导出。如果只需要测量矩阵，请保持Compute UMAP关闭。",
+        "hold_after": 0.7,
+        "speech_text": "把Row limit设为零以包含所有可用的行。正数上限适合第一次做小规模导出。如果只需要测量矩阵，请保持Compute 优麦普关闭。"
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "选择keep作为缺失值策略，然后按Run。阅读完成消息。合并示例包含两千三百四十一行细胞和一千一百三十六个特征。",
+        "hold_after": 0.7,
+        "speech_text": "选择keep作为缺失值策略，然后按Run。阅读完成消息。合并示例包含两千三百四十一行细胞和一千一百三十六个特征。"
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "把Single table设为cell并选择新的输出文件名。再次运行，只导出细胞测量数据。这里的结果有二百六十一个特征和二十八个缺失值。",
+        "hold_after": 0.7,
+        "speech_text": "把Single table设为cell并选择新的输出文件名。再次运行，只导出细胞测量数据。这里的结果有二百六十一个特征和二十八个缺失值。"
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "选择mean，用各列的观测均值替换缺失的特征值。导出还会在一个缺失值图层中记录它们原来的位置。当均值填补适合后续分析时，请使用这个策略。",
+        "hold_after": 0.7,
+        "speech_text": "选择mean，用各列的观测均值替换缺失的特征值。导出还会在一个缺失值图层中记录它们原来的位置。当均值填补适合后续分析时，请使用这个策略。"
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "选择drop_features，删除包含缺失值的列。本例保留所有细胞，并删除四个特征列。比较不同导出时，请检查保留的特征名称。",
+        "hold_after": 0.7,
+        "speech_text": "选择drop_features，删除包含缺失值的列。本例保留所有细胞，并删除四个特征列。比较不同导出时，请检查保留的特征名称。"
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "选择drop_objects，删除含有缺失特征值的行。这里会删除七个细胞。请考虑被排除的对象是否可能改变分析结果。",
+        "hold_after": 0.7,
+        "speech_text": "选择drop_objects，删除含有缺失特征值的行。这里会删除七个细胞。请考虑被排除的对象是否可能改变分析结果。"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "需要每个细胞核一行时，请把nucleus选为单表。本例得到两千六百八十二个细胞核和三百四十一个特征。",
+        "hold_after": 0.7,
+        "speech_text": "需要每个细胞核一行时，请把nucleus选为单表。本例得到两千六百八十二个细胞核和三百四十一个特征。"
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "开启Register artifact，使输出能在项目中被找到。每种策略用不同的文件名保存，并保留其设置。h5ad文件包含测量数据和元数据；请另外保存源图像。",
+        "hold_after": 0.7,
+        "speech_text": "开启Register artifact，使输出能在项目中被找到。每种策略用不同的文件名保存，并保留其设置。h5ad文件包含测量数据和元数据；请另外保存源图像。"
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "在后续分析中打开生成的h5ad文件，检查其维度、特征名称和对象元数据。在Python中，run_anndata_export使用相同的设置，而build_anndata在内存中构建数据。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "在后续分析中打开生成的h5ad文件，检查其维度、特征名称和对象元数据。在Python中，run_anndata_export使用相同的设置，而build_anndata在内存中构建数据。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: gem målte objekter og egenskaber",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Eksportér sammenlagte målinger eller én objekttabel til h5ad, vælg, hvordan manglende værdier håndteres, og bevar objekternes metadata.",
+      "objectives": [
+       "Åbne AnnData Export og vælge et målt projekt.",
+       "Vælge sammenlagte målinger eller én tabel og en politik for manglende værdier.",
+       "Eksportere en h5ad-fil med egenskabsnavne og objektmetadata."
+      ],
+      "prerequisite": "Brug et projekt, hvor Measure er gennemført, eller hent måleeksemplet via Annotate. Arbejd på en kopi af projektet, og behold dets kildebilleder.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Fra Home åbner du Measure og vælger derefter AnnData Export. Brug værktøjet til at gemme målte objekter, deres egenskaber og metadata samlet i en h5ad-fil.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Vælg dit målte projekt som Source. I denne gennemgang bruger du en kopi af måleeksemplet, der fås via Annotate. Hold dets målemappe og kildebilleder samlet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Lad Single table være tom for at samle de valgte tabeller på cellerækker. Angiv et outputfilnavn, der ender på h5ad. Behold float32 og gzip for en kompakt numerisk eksport.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Sæt Row limit til 0 for at medtage alle tilgængelige rækker. En positiv grænse er nyttig til en lille første eksport. Lad Compute UMAP være slået fra, når du kun har brug for målematricen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Vælg keep som politik for manglende værdier, og tryk derefter på Run. Læs afslutningsmeddelelsen. Det sammenlagte eksempel indeholder 2.341 cellerækker og 1.136 egenskaber.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Sæt Single table til cell, og vælg et nyt outputfilnavn. Kør igen for kun at eksportere cellemålingerne. Her har resultatet 261 egenskaber og 28 manglende værdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Vælg mean for at erstatte manglende egenskabsværdier med kolonnernes observerede gennemsnit. Eksporten registrerer også deres oprindelige placeringer i et lag for manglende værdier. Brug denne politik, når imputering med gennemsnit passer til din videre analyse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Vælg drop_features for at fjerne kolonner, der indeholder manglende værdier. Eksemplet beholder alle celler og fjerner fire egenskabskolonner. Kontrollér de bevarede egenskabsnavne, når du sammenligner eksporter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Vælg drop_objects for at fjerne rækker med manglende egenskabsværdier. Her fjernes syv celler. Overvej, om de udelukkede objekter kan ændre din analyse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Vælg nucleus som enkelt tabel, når du har brug for én række pr. kerne. Eksemplet giver 2.682 kerner og 341 egenskaber.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Slå Register artifact til, så outputtet kan findes i projektet. Gem hver politik under sit eget filnavn, og behold dens indstillinger. h5ad-filen indeholder målinger og metadata; opbevar kildebillederne separat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Åbn den resulterende h5ad-fil i din videre analyse, og undersøg dens dimensioner, egenskabsnavne og objektmetadata. Fra Python bruger run_anndata_export de samme indstillinger, mens build_anndata opbygger dataene i hukommelsen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: gemessene Objekte und Merkmale speichern",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Exportieren Sie verknüpfte Messwerte oder eine einzelne Objekttabelle als h5ad, wählen Sie den Umgang mit fehlenden Werten und behalten Sie die Objektmetadaten.",
+      "objectives": [
+       "AnnData Export öffnen und ein gemessenes Projekt auswählen.",
+       "Verknüpfte oder Einzeltabellen-Messwerte und eine Regel für fehlende Werte wählen.",
+       "Eine h5ad-Datei mit Merkmalsnamen und Objektmetadaten exportieren."
+      ],
+      "prerequisite": "Verwenden Sie ein Projekt, für das Measure abgeschlossen ist, oder laden Sie das Messbeispiel über Annotate herunter. Arbeiten Sie mit einer Kopie des Projekts und behalten Sie seine Quellbilder.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Öffnen Sie von Home aus Measure und wählen Sie dann AnnData Export. Mit diesem Werkzeug speichern Sie gemessene Objekte, ihre Merkmale und Metadaten gemeinsam in einer h5ad-Datei.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Wählen Sie Ihr gemessenes Projekt als Source. Verwenden Sie für diese Anleitung eine Kopie des über Annotate verfügbaren Messbeispiels. Halten Sie seinen Messordner und die Quellbilder zusammen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Lassen Sie Single table leer, um die gewählten Tabellen auf Zellzeilen zusammenzuführen. Geben Sie einen Ausgabedateinamen mit der Endung h5ad an. Behalten Sie float32 und gzip für einen kompakten numerischen Export bei.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Setzen Sie Row limit auf 0, um alle verfügbaren Zeilen einzuschließen. Ein positives Limit ist für einen kleinen ersten Export nützlich. Lassen Sie Compute UMAP ausgeschaltet, wenn Sie nur die Messmatrix benötigen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Wählen Sie keep als Regel für fehlende Werte und drücken Sie dann Run. Lesen Sie die Abschlussmeldung. Das verknüpfte Beispiel enthält 2.341 Zellzeilen und 1.136 Merkmale.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Setzen Sie Single table auf cell und wählen Sie einen neuen Ausgabedateinamen. Führen Sie den Export erneut aus, um nur die Zellmesswerte zu exportieren. Hier hat das Ergebnis 261 Merkmale und 28 fehlende Werte.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Wählen Sie mean, um fehlende Merkmalswerte durch die beobachteten Spaltenmittelwerte zu ersetzen. Der Export hält außerdem ihre ursprünglichen Positionen in einer Ebene für fehlende Werte fest. Verwenden Sie diese Regel, wenn eine Mittelwertimputation zu Ihrer weiteren Analyse passt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Wählen Sie drop_features, um Spalten mit fehlenden Werten zu entfernen. Dieses Beispiel behält alle Zellen und entfernt vier Merkmalsspalten. Prüfen Sie beim Vergleich von Exporten die verbleibenden Merkmalsnamen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Wählen Sie drop_objects, um Zeilen mit fehlenden Merkmalswerten zu entfernen. Hier werden sieben Zellen entfernt. Überlegen Sie, ob die ausgeschlossenen Objekte Ihre Analyse verändern könnten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Wählen Sie nucleus als Einzeltabelle, wenn Sie eine Zeile pro Kern benötigen. Dieses Beispiel ergibt 2.682 Kerne und 341 Merkmale.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Aktivieren Sie Register artifact, damit die Ausgabe im Projekt auffindbar ist. Speichern Sie jede Regel unter einem eigenen Dateinamen und bewahren Sie ihre Einstellungen auf. Die h5ad-Datei enthält Messwerte und Metadaten; bewahren Sie die Quellbilder separat auf.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Öffnen Sie die entstandene h5ad-Datei in Ihrer weiteren Analyse und prüfen Sie Form, Merkmalsnamen und Objektmetadaten. In Python verwendet run_anndata_export dieselben Einstellungen, während build_anndata die Daten im Arbeitsspeicher aufbaut.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: vistaðu mælda hluti og eiginleika",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Fluttu út sameinaðar mælingar eða eina töflu hluta á h5ad-sniði, veldu hvernig gildi sem vantar eru meðhöndluð og haltu lýsigögnum hluta.",
+      "objectives": [
+       "Opna AnnData Export og velja mælt verkefni.",
+       "Velja sameinaðar mælingar eða staka töflu og reglu fyrir gildi sem vantar.",
+       "Flytja út h5ad-skrá með heitum eiginleika og lýsigögnum hluta."
+      ],
+      "prerequisite": "Notaðu verkefni þar sem Measure er lokið, eða sæktu mælingadæmið í gegnum Annotate. Vinndu í afriti af verkefninu og haltu upprunamyndum þess.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Frá Home opnarðu Measure og velur svo AnnData Export. Notaðu þetta tól til að vista mælda hluti, eiginleika þeirra og lýsigögn saman í h5ad-skrá.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Veldu mælda verkefnið þitt sem Source. Í þessari yfirferð notarðu afrit af mælingadæminu sem fæst í gegnum Annotate. Haltu mælingamöppu þess og upprunamyndum saman.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Hafðu Single table tómt til að sameina valdar töflur á frumulínur. Settu heiti úttaksskrár sem endar á h5ad. Haltu float32 og gzip fyrir þéttan tölulegan útflutning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Stilltu Row limit á 0 til að taka allar tiltækar línur með. Jákvæð mörk eru gagnleg fyrir lítinn fyrsta útflutning. Hafðu slökkt á Compute UMAP þegar þú þarft aðeins mælingafylkið.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Veldu keep sem reglu fyrir gildi sem vantar og ýttu svo á Run. Lestu lokaskilaboðin. Sameinaða dæmið inniheldur 2.341 frumulínu og 1.136 eiginleika.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Stilltu Single table á cell og veldu nýtt heiti úttaksskrár. Keyrðu aftur til að flytja aðeins út mælingar á frumum. Hér hefur niðurstaðan 261 eiginleika og 28 gildi sem vantar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Veldu mean til að setja sýnilegt meðaltal dálksins í stað eiginleikagilda sem vantar. Útflutningurinn skráir líka upprunalegar staðsetningar þeirra í sérstakt lag fyrir gildi sem vantar. Notaðu þessa reglu þegar meðaltalsfylling hentar síðari greiningu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Veldu drop_features til að fjarlægja dálka sem innihalda gildi sem vantar. Dæmið heldur öllum frumum og fjarlægir fjóra eiginleikadálka. Athugaðu heiti eiginleikanna sem haldast þegar þú berð saman útflutninga.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Veldu drop_objects til að fjarlægja línur með eiginleikagildi sem vantar. Hér eru sjö frumur fjarlægðar. Íhugaðu hvort útilokuðu hlutirnir geti breytt greiningunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Veldu nucleus sem staka töflu þegar þú þarft eina línu á hvern kjarna. Dæmið gefur 2.682 kjarna og 341 eiginleika.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Virkjaðu Register artifact svo úttakið finnist í verkefninu. Vistaðu hverja reglu undir sérstöku skráarheiti og haltu stillingum hennar. h5ad-skráin inniheldur mælingar og lýsigögn; geymdu upprunamyndirnar sérstaklega.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Opnaðu h5ad-skrána sem varð til í síðari greiningu og skoðaðu lögun hennar, heiti eiginleika og lýsigögn hluta. Úr Python notar run_anndata_export sömu stillingar, en build_anndata byggir gögnin í minni.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: 측정된 객체와 특징 저장",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "결합된 측정값이나 객체 표 하나를 h5ad로 내보내고, 결측값 처리 방식을 고르고, 객체 메타데이터를 유지합니다.",
+      "objectives": [
+       "AnnData Export를 열고 측정된 프로젝트를 선택합니다.",
+       "결합 측정값 또는 단일 표와 결측값 정책을 고릅니다.",
+       "특징 이름과 객체 메타데이터가 있는 h5ad 파일을 내보냅니다."
+      ],
+      "prerequisite": "Measure를 마친 프로젝트를 쓰거나, Annotate에서 측정 예제를 내려받으세요. 프로젝트 사본으로 작업하고 원본 이미지를 보관하세요.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Home에서 Measure를 연 뒤 AnnData Export를 선택하세요. 측정된 객체, 그 특징, 메타데이터를 h5ad 파일 하나에 함께 저장할 때 씁니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "측정된 프로젝트를 Source로 선택하세요. 이 안내에서는 Annotate에서 구할 수 있는 측정 예제의 사본을 쓰세요. 측정 폴더와 원본 이미지를 함께 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "선택한 표를 세포 행에 결합하려면 Single table을 비워 두세요. 출력 파일 이름은 h5ad로 끝나게 정하세요. 간결한 수치 내보내기를 위해 float32와 gzip을 유지하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "사용 가능한 모든 행을 포함하려면 Row limit을 0으로 두세요. 양수 한도는 작은 첫 내보내기에 유용합니다. 측정 행렬만 필요하면 Compute UMAP을 끈 채로 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "결측값 정책으로 keep을 고른 뒤 Run을 누르세요. 완료 메시지를 읽으세요. 결합 예제에는 세포 행 2,341개와 특징 1,136개가 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Single table을 cell로 두고 새 출력 파일 이름을 고르세요. 다시 실행해 세포 측정값만 내보내세요. 여기서는 결과에 특징 261개와 결측값 28개가 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "mean을 고르면 결측된 특징 값이 각 열의 관측 평균으로 대체됩니다. 내보내기는 원래 결측 위치도 별도의 결측값 레이어에 기록합니다. 평균 대체가 이후 분석에 맞을 때 이 정책을 쓰세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "drop_features를 고르면 결측값이 있는 열이 제거됩니다. 이 예제는 모든 세포를 유지하고 특징 열 4개를 제거합니다. 내보내기를 비교할 때 남은 특징 이름을 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "drop_objects를 고르면 특징 값이 결측된 행이 제거됩니다. 여기서는 세포 7개가 제거됩니다. 제외된 객체가 분석을 바꿀 수 있는지 검토하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "핵마다 한 행이 필요하면 단일 표로 nucleus를 고르세요. 이 예제는 핵 2,682개와 특징 341개를 만듭니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Register artifact를 켜면 출력을 프로젝트에서 찾을 수 있습니다. 정책마다 다른 파일 이름으로 저장하고 그 설정을 보관하세요. h5ad 파일에는 측정값과 메타데이터가 들어 있으며, 원본 이미지는 따로 보관하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "만들어진 h5ad 파일을 이후 분석에서 열고 크기, 특징 이름, 객체 메타데이터를 확인하세요. Python에서는 run_anndata_export가 같은 설정을 쓰고, build_anndata는 데이터를 메모리에 만듭니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: lagre målte objekter og egenskaper",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Eksporter sammenslåtte målinger eller én objekttabell til h5ad, velg hvordan manglende verdier håndteres, og behold objektmetadataene.",
+      "objectives": [
+       "Åpne AnnData Export og velge et målt prosjekt.",
+       "Velge sammenslåtte målinger eller én tabell og en policy for manglende verdier.",
+       "Eksportere en h5ad-fil med egenskapsnavn og objektmetadata."
+      ],
+      "prerequisite": "Bruk et prosjekt der Measure er fullført, eller last ned måleeksemplet via Annotate. Arbeid på en kopi av prosjektet og behold kildebildene.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Fra Home åpner du Measure og velger deretter AnnData Export. Bruk verktøyet til å lagre målte objekter, egenskapene deres og metadataene samlet i en h5ad-fil.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Velg det målte prosjektet ditt som Source. I denne gjennomgangen bruker du en kopi av måleeksemplet som er tilgjengelig via Annotate. Hold målemappen og kildebildene samlet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "La Single table være tomt for å slå sammen de valgte tabellene på cellerader. Angi et utdatafilnavn som slutter på h5ad. Behold float32 og gzip for en kompakt numerisk eksport.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Sett Row limit til 0 for å ta med alle tilgjengelige rader. En positiv grense er nyttig for en liten første eksport. La Compute UMAP være av når du bare trenger målematrisen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Velg keep som policy for manglende verdier, og trykk deretter på Run. Les fullføringsmeldingen. Det sammenslåtte eksemplet inneholder 2 341 cellerader og 1 136 egenskaper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Sett Single table til cell og velg et nytt utdatafilnavn. Kjør på nytt for å eksportere bare cellemålingene. Her har resultatet 261 egenskaper og 28 manglende verdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Velg mean for å erstatte manglende egenskapsverdier med de observerte kolonnegjennomsnittene. Eksporten registrerer også de opprinnelige posisjonene i et eget lag for manglende verdier. Bruk denne policyen når gjennomsnittsimputering passer den videre analysen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Velg drop_features for å fjerne kolonner som inneholder manglende verdier. Eksemplet beholder alle cellene og fjerner fire egenskapskolonner. Kontroller de beholdte egenskapsnavnene når du sammenligner eksporter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Velg drop_objects for å fjerne rader med manglende egenskapsverdier. Her fjernes sju celler. Vurder om de utelatte objektene kan endre analysen din.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Velg nucleus som enkelttabell når du trenger én rad per kjerne. Eksemplet gir 2 682 kjerner og 341 egenskaper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Aktiver Register artifact slik at utdataene kan finnes i prosjektet. Lagre hver policy under et eget filnavn og behold innstillingene. h5ad-filen inneholder målinger og metadata; oppbevar kildebildene separat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Åpne den resulterende h5ad-filen i den videre analysen og undersøk dimensjonene, egenskapsnavnene og objektmetadataene. Fra Python bruker run_anndata_export de samme innstillingene, mens build_anndata bygger dataene i minnet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 48,
+     "preceding": [
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "60_pca",
+     "entry": {
+      "id": "59_anndata_export",
+      "number": 59,
+      "slug": "anndata_export",
+      "title": "AnnData Export: spara uppmätta objekt och egenskaper",
+      "series": 5,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "section": "Measure",
+      "description": "Exportera sammanslagna mätningar eller en enskild objekttabell till h5ad, välj hur saknade värden hanteras och behåll objektens metadata.",
+      "objectives": [
+       "Öppna AnnData Export och välja ett uppmätt projekt.",
+       "Välja sammanslagna mätningar eller en enskild tabell och en policy för saknade värden.",
+       "Exportera en h5ad-fil med egenskapsnamn och objektmetadata."
+      ],
+      "prerequisite": "Använd ett projekt där Measure är slutfört, eller hämta mätexemplet via Annotate. Arbeta på en kopia av projektet och behåll källbilderna.",
+      "scenes": [
+       {
+        "visual": "01_measure_host",
+        "narration": "Från Home öppnar du Measure och väljer sedan AnnData Export. Använd verktyget för att spara uppmätta objekt, deras egenskaper och metadata tillsammans i en h5ad-fil.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "08_measure",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "03_private_downloaded_project",
+        "narration": "Välj ditt uppmätta projekt som Source. I den här genomgången använder du en kopia av mätexemplet som finns via Annotate. Håll ihop dess mätmapp och källbilder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_settings",
+        "narration": "Låt Single table vara tomt för att slå ihop de valda tabellerna på cellrader. Ange ett utdatafilnamn som slutar på h5ad. Behåll float32 och gzip för en kompakt numerisk export.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_row_limit",
+        "narration": "Ställ Row limit på 0 för att ta med alla tillgängliga rader. En positiv gräns är användbar för en liten första export. Låt Compute UMAP vara avstängt när du bara behöver mätmatrisen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_joined_keep_finished",
+        "narration": "Välj keep som policy för saknade värden och tryck sedan på Run. Läs slutmeddelandet. Det sammanslagna exemplet innehåller 2 341 cellrader och 1 136 egenskaper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_cell_keep_finished",
+        "narration": "Ställ Single table på cell och välj ett nytt utdatafilnamn. Kör igen för att exportera enbart cellmätningarna. Här har resultatet 261 egenskaper och 28 saknade värden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_cell_mean_finished",
+        "narration": "Välj mean för att ersätta saknade egenskapsvärden med kolumnernas observerade medelvärden. Exporten registrerar också deras ursprungliga positioner i ett lager för saknade värden. Använd policyn när medelvärdesimputering passar din vidare analys.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_cell_drop_features_finished",
+        "narration": "Välj drop_features för att ta bort kolumner som innehåller saknade värden. Exemplet behåller alla celler och tar bort fyra egenskapskolumner. Kontrollera de behållna egenskapsnamnen när du jämför exporter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_cell_drop_objects_finished",
+        "narration": "Välj drop_objects för att ta bort rader med saknade egenskapsvärden. Här tas sju celler bort. Fundera på om de uteslutna objekten kan ändra din analys.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Välj nucleus som enskild tabell när du behöver en rad per kärna. Exemplet ger 2 682 kärnor och 341 egenskaper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_anndata_register_artifact",
+        "narration": "Aktivera Register artifact så att utdata kan hittas i projektet. Spara varje policy under ett eget filnamn och behåll dess inställningar. h5ad-filen innehåller mätningar och metadata; behåll källbilderna separat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_nucleus_keep_finished",
+        "narration": "Öppna den resulterande h5ad-filen i din vidare analys och granska dess dimensioner, egenskapsnamn och objektmetadata. Från Python använder run_anndata_export samma inställningar, medan build_anndata bygger data i minnet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "08_measure",
+     "scene": 0,
+     "links": [
+      "07_mask",
+      "43_illumination",
+      "18_motility",
+      "59_anndata_export"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       1,
+       "lessons"
+      ],
+      "preceding": [
+       "43_illumination",
+       "18_motility"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 43,
+     "value": {
+      "kind": "submodule",
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "host_lesson": "08_measure",
+      "host_title": "Measure"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/59_anndata_export -> tools/tutorials/archive/production/docs/59_anndata_export"
+ ],
+ "prose": [
+  "docs/source/anndata_export.rst",
+  "docs/i18n/guides/de/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/es/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/fr/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/hi/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/is/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/ko/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/pt/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/sv/LC_MESSAGES/anndata_export.po",
+  "docs/i18n/guides/zh_CN/LC_MESSAGES/anndata_export.po"
+ ]
+}

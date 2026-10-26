@@ -83,6 +83,6 @@ msgid "Follow the video"
 msgstr "Seguir el vídeo"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
-msgstr "El `vídeo de AnnData <tutorials/#lesson=59_anndata_export>`__ recorre estos controles con el ejemplo de mediciones descargable. Muestra exportaciones combinadas, solo de células y solo de núcleos, y compara las políticas para valores ausentes. Las columnas de metadatos de objetos totalmente ausentes se almacenan como columnas categóricas vacías en ``obs``; no se escribe ningún valor de relleno. Si falla la escritura de un archivo de sustitución, se conserva una salida completa existente."
+msgid "Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
+msgstr "Las columnas de metadatos de objetos totalmente ausentes se almacenan como columnas categóricas vacías en ``obs``; no se escribe ningún valor de relleno. Si falla la escritura de un archivo de sustitución, se conserva una salida completa existente."
 

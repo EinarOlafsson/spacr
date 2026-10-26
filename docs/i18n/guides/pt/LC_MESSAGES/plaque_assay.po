@@ -23,8 +23,8 @@ msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "Ensaio de placas: campos, figuras e condições revisadas"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
-msgstr "Abra **Início → Organismo → Toxoplasma → Ensaio de placas**. Escolha **Placa** para campos de placas de lise ou **Figura** para figuras publicadas que contêm poços, painéis e texto ao redor. Essas entradas não exigem uma execução prévia de Medição. Para o fluxo de trabalho em que ele se insere, consulte o :ref:`mapa de módulos <workflow-module-analyze_plaques>`, o `tutorial do Ensaio de placas <tutorials/#lesson=24_plaque>`_ e :func:`spacr.submodules.analyze_plaques`."
+msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>` and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "Abra **Início → Organismo → Toxoplasma → Ensaio de placas**. Escolha **Placa** para campos de placas de lise ou **Figura** para figuras publicadas que contêm poços, painéis e texto ao redor. Essas entradas não exigem uma execução prévia de Medição. Para o fluxo de trabalho em que ele se insere, consulte o :ref:`mapa de módulos <workflow-module-analyze_plaques>` e :func:`spacr.submodules.analyze_plaques`."
 
 msgid "Preview a plaque field"
 msgstr "Prévia de um campo de placas"

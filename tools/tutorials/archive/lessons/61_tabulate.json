@@ -1,0 +1,5009 @@
+{
+ "schema": 1,
+ "id": "61_tabulate",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
+      "objectives": [
+       "Load measurements and group them by well or field.",
+       "Choose values, statistics and filters while checking contributing counts.",
+       "Export CSV summaries and refresh their Graph Builder plots."
+      ],
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "61_tabulate/poster.jpg",
+      "silent": "61_tabulate/video/61_tabulate_silent.mp4",
+      "web": "61_tabulate/web/61_tabulate_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: summarize measurements by well and field",
+      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
+      "objectives": [
+       "Load measurements and group them by well or field.",
+       "Choose values, statistics and filters while checking contributing counts.",
+       "Export CSV summaries and refresh their Graph Builder plots."
+      ],
+      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: resumir mediciones por pozo y por campo",
+      "description": "Agrupa los objetos medidos, selecciona estadísticos de resumen, revisa los grupos vacíos y exporta una tabla dinámica o envíala a Graph Builder.",
+      "objectives": [
+       "Cargar mediciones y agruparlas por pozo o por campo.",
+       "Elegir valores, estadísticos y filtros comprobando los recuentos que contribuyen.",
+       "Exportar resúmenes en CSV y actualizar sus gráficos en Graph Builder."
+      ],
+      "prerequisite": "Descarga el ejemplo de mediciones del tutorial de Annotate y trabaja con una copia de measurements.db. Su tabla cell tiene 2341 objetos en cuatro pozos. Mantén las etiquetas espaciales separadas de las etiquetas de tratamiento y elige el nivel de agrupación adecuado a tu experimento.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Desde Home, abre Database Browser y luego elige Tabulate. Usa esta herramienta para resumir columnas de mediciones por pozo, por campo o por otro grupo. Este recorrido usa la base de datos del ejemplo de Annotate enlazado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "Desde Home, abre Database Browser y luego elige Tabulate. Usa esta herramienta para resumir columnas de mediciones por pozo, por campo o por otro grupo. Este recorrido usa la base de datos del ejemplo de Annotate enlazado."
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Dentro de Tabulate, haz clic en Load table, abre measurements.db y elige cell. Usa los propios controles de Tabulate para seleccionar la entrada y exportar. Comprueba la tabla y los dos mil trescientos cuarenta y un objetos cargados.",
+        "hold_after": 0.7,
+        "speech_text": "Dentro de Tabulate, haz clic en Load table, abre measurements punto de be y elige cell. Usa los propios controles de Tabulate para seleccionar la entrada y exportar. Comprueba la tabla y los dos mil trescientos cuarenta y un objetos cargados."
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Elige Plate barra row barra column para agrupar por placa y pozo. Deja Values vacío para contar las filas de origen. Los cuatro pozos contienen seiscientas quince, quinientas veinticinco, setecientas y quinientas una células.",
+        "hold_after": 0.7,
+        "speech_text": "Elige Plate barra row barra column para agrupar por placa y pozo. Deja Values vacío para contar las filas de origen. Los cuatro pozos contienen seiscientas quince, quinientas veinticinco, setecientas y quinientas una células."
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Busca fieldID y arrástralo a Columns. Así se crea una cuadrícula de pozos por campos. Pasa el puntero sobre una celda vacía para revisarla: este ejemplo tiene una combinación sin filas de origen. No la confundas con un cero medido.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "Busca fieldID y arrástralo a Columns. Así se crea una cuadrícula de pozos por campos. Pasa el puntero sobre una celda vacía para revisarla: este ejemplo tiene una combinación sin filas de origen. No la confundas con un cero medido."
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Vacía Columns y arrastra cell_area a Values. El resumen predeterminado muestra el recuento, la media y la desviación estándar muestral. La búsqueda encuentra nombres de columna; al cambiar los ejes o los estadísticos se vuelve a calcular el resumen.",
+        "hold_after": 0.7,
+        "speech_text": "Vacía Columns y arrastra cell_area a Values. El resumen predeterminado muestra el recuento, la media y la desviación estándar muestral. La búsqueda encuentra nombres de columna; al cambiar los ejes o los estadísticos se vuelve a calcular el resumen."
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Pasa el puntero sobre una celda de resultado para ver todos sus estadísticos y el recuento que contribuye, incluidas las líneas ocultas por la altura de la fila. La desviación estándar describe la variación entre los objetos de ese grupo.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "Pasa el puntero sobre una celda de resultado para ver todos sus estadísticos y el recuento que contribuye, incluidas las líneas ocultas por la altura de la fila. La desviación estándar describe la variación entre los objetos de ese grupo."
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Activa median, sem y quantile para añadir esos estadísticos. Pon Quantile at en cero coma siete cinco para el cuartil superior. El SEM usa el número de objetos disponible; elige por separado el nivel de réplica experimental cuando estimes la incertidumbre biológica.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Activa median, sem y quantile para añadir esos estadísticos. Pon Quantile at en cero coma siete cinco para el cuartil superior. El SEM usa el número de objetos disponible; elige por separado el nivel de réplica experimental cuando estimes la incertidumbre biológica."
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Pon Quantile at en cero coma cinco para mostrar la mediana. El primer pozo muestra ahora veintidós mil cuatrocientos en ambos. Vuelve a cero coma siete cinco y desactiva los estadísticos adicionales para volver al resumen más simple.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Pon Quantile at en cero coma cinco para mostrar la mediana. El primer pozo muestra ahora veintidós mil cuatrocientos en ambos. Vuelve a cero coma siete cinco y desactiva los estadísticos adicionales para volver al resumen más simple."
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Sustituye cell_area por cell_channel_0_homogeneity_distance_32. Esta característica tiene siete valores faltantes, así que sus recuentos que contribuyen son menores que los de las filas de origen. Usa esos recuentos al comparar grupos.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "Sustituye cell_area por cell_channel_0_homogeneity_distance_32. Esta característica tiene siete valores faltantes, así que sus recuentos que contribuyen son menores que los de las filas de origen. Usa esos recuentos al comparar grupos."
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Recupera cell_area y haz clic en Export CSV dentro de Tabulate. Elige un nombre de archivo nuevo. Este resumen por pozo contiene las tres claves de agrupación, el recuento, la media y la desviación estándar. Guarda junto al archivo exportado tus opciones de agrupación, estadísticos y filtros.",
+        "hold_after": 0.7,
+        "speech_text": "Recupera cell_area y haz clic en Export CSV dentro de Tabulate. Elige un nombre de archivo nuevo. Este resumen por pozo contiene las tres claves de agrupación, el recuento, la media y la desviación estándar. Guarda junto al archivo exportado tus opciones de agrupación, estadísticos y filtros."
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Haz clic en Plot this table para enviar el resumen a Graph Builder. Arrastra columnID a X, mean a Y y rowID a Colour. Comprueba los tipos de columna inferidos: en este ejemplo, Automatic trata estas cuatro medias distintas como categorías y muestra un mapa de calor.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Haz clic en Plot this table para enviar el resumen a Graph Builder. Arrastra columnID a X, mean a Y y rowID a Colour. Comprueba los tipos de columna inferidos: en este ejemplo, Automatic trata estas cuatro medias distintas como categorías y muestra un mapa de calor."
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Añade un filtro de cell_area con un mínimo de veintiún mil novecientos veinticinco. La tabla dinámica se actualiza de inmediato con los objetos restantes. Vuelve a hacer clic en Plot this table cada vez que quieras pasar el resumen actualizado al gráfico.",
+        "hold_after": 0.7,
+        "speech_text": "Añade un filtro de cell_area con un mínimo de veintiún mil novecientos veinticinco. La tabla dinámica se actualiza de inmediato con los objetos restantes. Vuelve a hacer clic en Plot this table cada vez que quieras pasar el resumen actualizado al gráfico."
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Después de hacer clic en Plot this table, revisa las medias actualizadas de los grupos. Puede aparecer una nota sobre el filtro de área porque el resumen transferido contiene mean y no cell_area. El filtro de objetos ya se aplicó antes, en Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Después de hacer clic en Plot this table, revisa las medias actualizadas de los grupos. Puede aparecer una nota sobre el filtro de área porque el resumen transferido contiene mean y no cell_area. El filtro de objetos ya se aplicó antes, en Tabulate."
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Haz clic en Clear all en el filtro y luego otra vez en Plot this table para recuperar el resumen por pozo original. Guarda las exportaciones filtradas y sin filtrar con nombres distintos cuando necesites ambas.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Haz clic en Clear all en el filtro y luego otra vez en Plot this table para recuperar el resumen por pozo original. Guarda las exportaciones filtradas y sin filtrar con nombres distintos cuando necesites ambas."
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Para un resumen por campo, arrastra fieldID a Rows después de las claves de pozo. Cada fila con datos resume ahora un campo dentro de un pozo. Revisa los recuentos que contribuyen y mantén este nivel de agrupación coherente al comparar resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Para un resumen por campo, arrastra fieldID a Rows después de las claves de pozo. Cada fila con datos resume ahora un campo dentro de un pozo. Revisa los recuentos que contribuyen y mantén este nivel de agrupación coherente al comparar resultados."
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Haz clic en Plot this table, pon fieldID en X, deja mean en Y y rowID en Colour, y luego elige Scatter en Plot. En este ejemplo, mean se reconoce ahora como continua. Confirma los tipos de columna y las etiquetas de los ejes mostrados.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Plot this table, pon fieldID en X, deja mean en Y y rowID en Colour, y luego elige Scatter en Plot. En este ejemplo, mean se reconoce ahora como continua. Confirma los tipos de columna y las etiquetas de los ejes mostrados."
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "El gráfico de dispersión muestra cincuenta y una medias por campo. Los colores identifican las filas espaciales, y las etiquetas de campo repetidas pueden pertenecer a pozos distintos. Usa la tabla de objetos original cuando quieras seleccionar células individuales y revisar sus imágenes.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "El gráfico de dispersión muestra cincuenta y una medias por campo. Los colores identifican las filas espaciales, y las etiquetas de campo repetidas pueden pertenecer a pozos distintos. Usa la tabla de objetos original cuando quieras seleccionar células individuales y revisar sus imágenes."
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Exporta el resumen por campo como un CSV aparte. Contiene cincuenta y dos filas de cuadrícula, con la combinación vacía en blanco; el gráfico contiene cincuenta y un grupos con datos. En Python, usa pivot y PivotSpec de spacr.qt.widgets.pivot_spec, y luego to_csv para guardar el resultado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Exporta el resumen por campo como un CSV aparte. Contiene cincuenta y dos filas de cuadrícula, con la combinación vacía en blanco; el gráfico contiene cincuenta y un grupos con datos. En Python, usa pivot y PivotSpec de espáquer.cu te.widgets.pivot_spec, y luego to_csv para guardar el resultado."
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate : résumer des mesures par puits et par champ",
+      "description": "Regroupez les objets mesurés, sélectionnez des statistiques de synthèse, examinez les groupes vides et exportez un tableau croisé ou envoyez-le vers Graph Builder.",
+      "objectives": [
+       "Charger des mesures et les regrouper par puits ou par champ.",
+       "Choisir les valeurs, les statistiques et les filtres en vérifiant les effectifs contributeurs.",
+       "Exporter des résumés CSV et actualiser leurs graphiques dans Graph Builder."
+      ],
+      "prerequisite": "Téléchargez l’exemple de mesures du tutoriel Annotate et travaillez sur une copie de measurements.db. Sa table cell compte 2341 objets répartis sur quatre puits. Gardez les étiquettes spatiales distinctes des étiquettes de traitement et choisissez le niveau de regroupement adapté à votre expérience.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Depuis Home, ouvrez Database Browser, puis choisissez Tabulate. Cet outil résume des colonnes de mesures par puits, par champ ou par un autre groupe. Cette démonstration utilise la base de données de l’exemple Annotate associé.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "Depuis Home, ouvrez Database Browser, puis choisissez Tabulate. Cet outil résume des colonnes de mesures par puits, par champ ou par un autre groupe. Cette démonstration utilise la base de données de l’exemple Annotate associé."
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Dans Tabulate, cliquez sur Load table, ouvrez measurements.db et choisissez cell. Utilisez les propres commandes de Tabulate pour choisir l’entrée et exporter. Vérifiez la table et les deux mille trois cent quarante et un objets chargés.",
+        "hold_after": 0.7,
+        "speech_text": "Dans Tabulate, cliquez sur Load table, ouvrez measurements point dé bé et choisissez cell. Utilisez les propres commandes de Tabulate pour choisir l’entrée et exporter. Vérifiez la table et les deux mille trois cent quarante et un objets chargés."
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Choisissez Plate barre oblique row barre oblique column pour regrouper par plaque et par puits. Laissez Values vide pour compter les lignes sources. Les quatre puits contiennent six cent quinze, cinq cent vingt-cinq, sept cents et cinq cent une cellules.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez Plate barre oblique row barre oblique column pour regrouper par plaque et par puits. Laissez Values vide pour compter les lignes sources. Les quatre puits contiennent six cent quinze, cinq cent vingt-cinq, sept cents et cinq cent une cellules."
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Recherchez fieldID et faites-le glisser dans Columns. Cela crée une grille puits par champ. Survolez une case vide pour l’examiner : cet exemple compte une combinaison sans ligne source. Ne la confondez pas avec un zéro mesuré.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "Recherchez fieldID et faites-le glisser dans Columns. Cela crée une grille puits par champ. Survolez une case vide pour l’examiner : cet exemple compte une combinaison sans ligne source. Ne la confondez pas avec un zéro mesuré."
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Videz Columns, puis faites glisser cell_area dans Values. Le résumé par défaut affiche l’effectif, la moyenne et l’écart-type d’échantillon. La recherche trouve les noms de colonnes ; modifier les axes ou les statistiques recalcule le résumé.",
+        "hold_after": 0.7,
+        "speech_text": "Videz Columns, puis faites glisser cell_area dans Values. Le résumé par défaut affiche l’effectif, la moyenne et l’écart-type d’échantillon. La recherche trouve les noms de colonnes ; modifier les axes ou les statistiques recalcule le résumé."
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Survolez une case de résultat pour voir toutes ses statistiques et l’effectif contributeur, y compris les lignes masquées par la hauteur de ligne. L’écart-type décrit la variation entre les objets de ce groupe.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "Survolez une case de résultat pour voir toutes ses statistiques et l’effectif contributeur, y compris les lignes masquées par la hauteur de ligne. L’écart-type décrit la variation entre les objets de ce groupe."
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Activez median, sem et quantile pour ajouter ces statistiques. Réglez Quantile at sur zéro virgule sept cinq pour le quartile supérieur. Le SEM utilise le nombre d’objets disponibles ; choisissez séparément le niveau de réplicat expérimental pour estimer l’incertitude biologique.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Activez median, sem et quantile pour ajouter ces statistiques. Réglez Quantile at sur zéro virgule sept cinq pour le quartile supérieur. Le SEM utilise le nombre d’objets disponibles ; choisissez séparément le niveau de réplicat expérimental pour estimer l’incertitude biologique."
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Réglez Quantile at sur zéro virgule cinq pour afficher la médiane. Le premier puits affiche maintenant vingt-deux mille quatre cents pour les deux. Revenez à zéro virgule sept cinq et désactivez les statistiques supplémentaires pour retrouver le résumé simple.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Réglez Quantile at sur zéro virgule cinq pour afficher la médiane. Le premier puits affiche maintenant vingt-deux mille quatre cents pour les deux. Revenez à zéro virgule sept cinq et désactivez les statistiques supplémentaires pour retrouver le résumé simple."
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Remplacez cell_area par cell_channel_0_homogeneity_distance_32. Cette caractéristique a sept valeurs manquantes ; ses effectifs contributeurs sont donc inférieurs à ceux des lignes sources. Utilisez ces effectifs pour comparer les groupes.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "Remplacez cell_area par cell_channel_0_homogeneity_distance_32. Cette caractéristique a sept valeurs manquantes ; ses effectifs contributeurs sont donc inférieurs à ceux des lignes sources. Utilisez ces effectifs pour comparer les groupes."
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Rétablissez cell_area et cliquez sur Export CSV dans Tabulate. Choisissez un nouveau nom de fichier. Ce résumé par puits contient les trois clés de regroupement, l’effectif, la moyenne et l’écart-type. Conservez vos choix de regroupement, de statistiques et de filtres à côté du fichier exporté.",
+        "hold_after": 0.7,
+        "speech_text": "Rétablissez cell_area et cliquez sur Export CSV dans Tabulate. Choisissez un nouveau nom de fichier. Ce résumé par puits contient les trois clés de regroupement, l’effectif, la moyenne et l’écart-type. Conservez vos choix de regroupement, de statistiques et de filtres à côté du fichier exporté."
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Cliquez sur Plot this table pour envoyer le résumé vers Graph Builder. Faites glisser columnID sur X, mean sur Y et rowID sur Colour. Vérifiez les types de colonnes déduits : dans cet exemple, Automatic traite ces quatre moyennes distinctes comme des catégories et affiche une carte thermique.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Cliquez sur Plot this table pour envoyer le résumé vers Graph Builder. Faites glisser columnID sur X, mean sur Y et rowID sur Colour. Vérifiez les types de colonnes déduits : dans cet exemple, Automatic traite ces quatre moyennes distinctes comme des catégories et affiche une carte thermique."
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Ajoutez un filtre cell_area avec un minimum de vingt et un mille neuf cent vingt-cinq. Le tableau croisé se met à jour immédiatement pour les objets restants. Cliquez de nouveau sur Plot this table chaque fois que vous voulez transférer le résumé mis à jour vers le graphique.",
+        "hold_after": 0.7,
+        "speech_text": "Ajoutez un filtre cell_area avec un minimum de vingt et un mille neuf cent vingt-cinq. Le tableau croisé se met à jour immédiatement pour les objets restants. Cliquez de nouveau sur Plot this table chaque fois que vous voulez transférer le résumé mis à jour vers le graphique."
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Après avoir cliqué sur Plot this table, examinez les moyennes de groupe mises à jour. Une remarque sur le filtre d’aire peut apparaître, car le résumé transféré contient mean et non cell_area. Le filtre d’objets a déjà été appliqué en amont, dans Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Après avoir cliqué sur Plot this table, examinez les moyennes de groupe mises à jour. Une remarque sur le filtre d’aire peut apparaître, car le résumé transféré contient mean et non cell_area. Le filtre d’objets a déjà été appliqué en amont, dans Tabulate."
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Cliquez sur Clear all dans le filtre, puis de nouveau sur Plot this table pour rétablir le résumé par puits d’origine. Enregistrez les exports filtrés et non filtrés sous des noms différents si vous avez besoin des deux.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Cliquez sur Clear all dans le filtre, puis de nouveau sur Plot this table pour rétablir le résumé par puits d’origine. Enregistrez les exports filtrés et non filtrés sous des noms différents si vous avez besoin des deux."
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Pour un résumé par champ, faites glisser fieldID dans Rows après les clés de puits. Chaque ligne renseignée résume maintenant un champ dans un puits. Examinez les effectifs contributeurs et gardez ce niveau de regroupement cohérent lorsque vous comparez des résultats.",
+        "hold_after": 0.7,
+        "speech_text": "Pour un résumé par champ, faites glisser fieldID dans Rows après les clés de puits. Chaque ligne renseignée résume maintenant un champ dans un puits. Examinez les effectifs contributeurs et gardez ce niveau de regroupement cohérent lorsque vous comparez des résultats."
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Cliquez sur Plot this table, placez fieldID sur X, gardez mean sur Y et rowID sur Colour, puis choisissez Scatter dans Plot. Dans cet exemple, mean est maintenant reconnue comme continue. Vérifiez les types de colonnes et les étiquettes d’axes affichés.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Plot this table, placez fieldID sur X, gardez mean sur Y et rowID sur Colour, puis choisissez Scatter dans Plot. Dans cet exemple, mean est maintenant reconnue comme continue. Vérifiez les types de colonnes et les étiquettes d’axes affichés."
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Le nuage de points affiche cinquante et une moyennes par champ. Les couleurs identifient les lignes spatiales, et des étiquettes de champ répétées peuvent appartenir à des puits différents. Utilisez la table d’objets d’origine pour sélectionner des cellules individuelles et examiner leurs images.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Le nuage de points affiche cinquante et une moyennes par champ. Les couleurs identifient les lignes spatiales, et des étiquettes de champ répétées peuvent appartenir à des puits différents. Utilisez la table d’objets d’origine pour sélectionner des cellules individuelles et examiner leurs images."
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Exportez le résumé par champ dans un CSV séparé. Il contient cinquante-deux lignes de grille, la combinaison vide restant vierge ; le graphique contient cinquante et un groupes renseignés. En Python, utilisez pivot et PivotSpec de spacr.qt.widgets.pivot_spec, puis to_csv pour enregistrer le résultat.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Exportez le résumé par champ dans un CSV séparé. Il contient cinquante-deux lignes de grille, la combinaison vide restant vierge ; le graphique contient cinquante et un groupes renseignés. En Python, utilisez pivot et PivotSpec de spakeur.ku té.widgets.pivot_spec, puis to_csv pour enregistrer le résultat."
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: वेल और फ़ील्ड के अनुसार माप का सारांश बनाएँ",
+      "description": "मापी गई वस्तुओं के समूह बनाएँ, सारांश आँकड़े चुनें, खाली समूह देखें और पिवट तालिका निर्यात करें या उसे Graph Builder में भेजें।",
+      "objectives": [
+       "माप लोड करें और उन्हें वेल या फ़ील्ड के अनुसार समूहित करें।",
+       "योगदान देने वाली गिनती जाँचते हुए मान, आँकड़े और फ़िल्टर चुनें।",
+       "CSV सारांश निर्यात करें और Graph Builder में उनके प्लॉट ताज़ा करें।"
+      ],
+      "prerequisite": "Annotate ट्यूटोरियल से माप उदाहरण डाउनलोड करें और measurements.db की प्रति पर काम करें। उसकी cell तालिका में चार वेल में 2341 वस्तुएँ हैं। स्थानिक लेबल को उपचार लेबल से अलग रखें, और अपने प्रयोग के अनुकूल समूहन स्तर चुनें।",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Home से Database Browser खोलें, फिर Tabulate चुनें। इस टूल से माप कॉलमों का वेल, फ़ील्ड या किसी दूसरे समूह के अनुसार सारांश बनाएँ। यह वॉकथ्रू जुड़े Annotate उदाहरण का डेटाबेस इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "Home से Database Browser खोलें, फिर Tabulate चुनें। इस टूल से माप कॉलमों का वेल, फ़ील्ड या किसी दूसरे समूह के अनुसार सारांश बनाएँ। यह वॉकथ्रू जुड़े Annotate उदाहरण का डेटाबेस इस्तेमाल करता है।"
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Tabulate के भीतर Load table पर क्लिक करें, measurements.db खोलें और cell चुनें। इनपुट चुनने और निर्यात के लिए Tabulate के अपने नियंत्रण इस्तेमाल करें। तालिका और लोड हुई दो हज़ार तीन सौ इकतालीस वस्तुएँ जाँचें।",
+        "hold_after": 0.7,
+        "speech_text": "Tabulate के भीतर Load table पर क्लिक करें, मेज़रमेंट्स डॉट डी बी खोलें और cell चुनें। इनपुट चुनने और निर्यात के लिए Tabulate के अपने नियंत्रण इस्तेमाल करें। तालिका और लोड हुई दो हज़ार तीन सौ इकतालीस वस्तुएँ जाँचें।"
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "प्लेट और वेल के अनुसार समूह बनाने के लिए Plate स्लैश row स्लैश column चुनें। स्रोत पंक्तियाँ गिनने के लिए Values खाली छोड़ें। चारों वेल में छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक कोशिकाएँ हैं।",
+        "hold_after": 0.7,
+        "speech_text": "प्लेट और वेल के अनुसार समूह बनाने के लिए Plate स्लैश row स्लैश column चुनें। स्रोत पंक्तियाँ गिनने के लिए Values खाली छोड़ें। चारों वेल में छह सौ पंद्रह, पाँच सौ पच्चीस, सात सौ और पाँच सौ एक कोशिकाएँ हैं।"
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "fieldID खोजें और उसे Columns में खींचें। इससे वेल और फ़ील्ड की ग्रिड बनती है। किसी खाली खाने पर पॉइंटर रखकर उसे देखें: इस उदाहरण में एक संयोजन की कोई स्रोत पंक्ति नहीं है। इसे मापे गए शून्य से अलग समझें।",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "fieldID खोजें और उसे Columns में खींचें। इससे वेल और फ़ील्ड की ग्रिड बनती है। किसी खाली खाने पर पॉइंटर रखकर उसे देखें: इस उदाहरण में एक संयोजन की कोई स्रोत पंक्ति नहीं है। इसे मापे गए शून्य से अलग समझें।"
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Columns खाली करें, फिर cell_area को Values में खींचें। डिफ़ॉल्ट सारांश गिनती, औसत और नमूना मानक विचलन दिखाता है। खोज कॉलम नाम ढूँढती है; अक्ष या आँकड़े बदलने पर सारांश फिर से गणना होता है।",
+        "hold_after": 0.7,
+        "speech_text": "Columns खाली करें, फिर cell_area को Values में खींचें। डिफ़ॉल्ट सारांश गिनती, औसत और नमूना मानक विचलन दिखाता है। खोज कॉलम नाम ढूँढती है; अक्ष या आँकड़े बदलने पर सारांश फिर से गणना होता है।"
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "परिणाम वाले किसी खाने पर पॉइंटर रखें, ताकि उसके सभी आँकड़े और योगदान देने वाली गिनती दिखे, पंक्ति की ऊँचाई से छिपी पंक्तियों सहित। मानक विचलन उस समूह की वस्तुओं के बीच भिन्नता बताता है।",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "परिणाम वाले किसी खाने पर पॉइंटर रखें, ताकि उसके सभी आँकड़े और योगदान देने वाली गिनती दिखे, पंक्ति की ऊँचाई से छिपी पंक्तियों सहित। मानक विचलन उस समूह की वस्तुओं के बीच भिन्नता बताता है।"
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "ये आँकड़े जोड़ने के लिए median, sem और quantile चालू करें। ऊपरी चतुर्थक के लिए Quantile at को शून्य दशमलव सात पाँच पर रखें। SEM उपलब्ध वस्तुओं की गिनती इस्तेमाल करता है; जैविक अनिश्चितता आँकते समय प्रयोगात्मक प्रतिकृति का स्तर अलग से चुनें।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "ये आँकड़े जोड़ने के लिए median, sem और quantile चालू करें। ऊपरी चतुर्थक के लिए Quantile at को शून्य दशमलव सात पाँच पर रखें। SEM उपलब्ध वस्तुओं की गिनती इस्तेमाल करता है; जैविक अनिश्चितता आँकते समय प्रयोगात्मक प्रतिकृति का स्तर अलग से चुनें।"
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "माध्यिका दिखाने के लिए Quantile at को शून्य दशमलव पाँच पर रखें। पहला वेल अब दोनों के लिए बाईस हज़ार चार सौ दिखाता है। सरल सारांश पर लौटने के लिए शून्य दशमलव सात पाँच वापस रखें और अतिरिक्त आँकड़े बंद करें।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "माध्यिका दिखाने के लिए Quantile at को शून्य दशमलव पाँच पर रखें। पहला वेल अब दोनों के लिए बाईस हज़ार चार सौ दिखाता है। सरल सारांश पर लौटने के लिए शून्य दशमलव सात पाँच वापस रखें और अतिरिक्त आँकड़े बंद करें।"
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "cell_area की जगह cell_channel_0_homogeneity_distance_32 रखें। इस विशेषता में सात छूटे मान हैं, इसलिए इसकी योगदान देने वाली गिनती स्रोत पंक्तियों की गिनती से कम है। समूहों की तुलना करते समय वही गिनती इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "cell_area की जगह cell_channel_0_homogeneity_distance_32 रखें। इस विशेषता में सात छूटे मान हैं, इसलिए इसकी योगदान देने वाली गिनती स्रोत पंक्तियों की गिनती से कम है। समूहों की तुलना करते समय वही गिनती इस्तेमाल करें।"
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "cell_area फिर से रखें और Tabulate के भीतर Export CSV पर क्लिक करें। नया फ़ाइल नाम चुनें। इस वेल सारांश में तीन समूहन कुंजियाँ, गिनती, औसत और मानक विचलन हैं। निर्यात की गई फ़ाइल के साथ अपने समूहन, आँकड़े और फ़िल्टर के विकल्प रखें।",
+        "hold_after": 0.7,
+        "speech_text": "cell_area फिर से रखें और Tabulate के भीतर Export CSV पर क्लिक करें। नया फ़ाइल नाम चुनें। इस वेल सारांश में तीन समूहन कुंजियाँ, गिनती, औसत और मानक विचलन हैं। निर्यात की गई फ़ाइल के साथ अपने समूहन, आँकड़े और फ़िल्टर के विकल्प रखें।"
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "सारांश Graph Builder में भेजने के लिए Plot this table पर क्लिक करें। columnID को X पर, mean को Y पर और rowID को Colour पर खींचें। अनुमानित कॉलम प्रकार जाँचें: इस उदाहरण में Automatic इन चार अलग औसतों को श्रेणियाँ मानता है और हीटमैप दिखाता है।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "सारांश Graph Builder में भेजने के लिए Plot this table पर क्लिक करें। columnID को X पर, mean को Y पर और rowID को Colour पर खींचें। अनुमानित कॉलम प्रकार जाँचें: इस उदाहरण में Automatic इन चार अलग औसतों को श्रेणियाँ मानता है और हीटमैप दिखाता है।"
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "इक्कीस हज़ार नौ सौ पच्चीस न्यूनतम वाला cell_area फ़िल्टर जोड़ें। पिवट तालिका बची वस्तुओं के लिए तुरंत अपडेट होती है। जब भी अपडेट सारांश चार्ट में भेजना हो, फिर से Plot this table पर क्लिक करें।",
+        "hold_after": 0.7,
+        "speech_text": "इक्कीस हज़ार नौ सौ पच्चीस न्यूनतम वाला cell_area फ़िल्टर जोड़ें। पिवट तालिका बची वस्तुओं के लिए तुरंत अपडेट होती है। जब भी अपडेट सारांश चार्ट में भेजना हो, फिर से Plot this table पर क्लिक करें।"
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Plot this table पर क्लिक करने के बाद समूहों के अपडेट औसत देखें। क्षेत्रफल फ़िल्टर के बारे में एक नोट दिख सकता है, क्योंकि भेजे गए सारांश में cell_area नहीं, mean है। वस्तु फ़िल्टर पहले ही Tabulate में लागू हो चुका है।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Plot this table पर क्लिक करने के बाद समूहों के अपडेट औसत देखें। क्षेत्रफल फ़िल्टर के बारे में एक नोट दिख सकता है, क्योंकि भेजे गए सारांश में cell_area नहीं, mean है। वस्तु फ़िल्टर पहले ही Tabulate में लागू हो चुका है।"
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "मूल वेल सारांश वापस लाने के लिए फ़िल्टर में Clear all पर क्लिक करें, फिर से Plot this table पर। जब दोनों चाहिए, तो छँटे और बिना छँटे निर्यात अलग नामों से सहेजें।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "मूल वेल सारांश वापस लाने के लिए फ़िल्टर में Clear all पर क्लिक करें, फिर से Plot this table पर। जब दोनों चाहिए, तो छँटे और बिना छँटे निर्यात अलग नामों से सहेजें।"
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "फ़ील्ड-स्तर के सारांश के लिए वेल कुंजियों के बाद fieldID को Rows में खींचें। डेटा वाली हर पंक्ति अब एक वेल के भीतर एक फ़ील्ड का सारांश देती है। योगदान देने वाली गिनती देखें और परिणामों की तुलना करते समय यही समूहन स्तर रखें।",
+        "hold_after": 0.7,
+        "speech_text": "फ़ील्ड-स्तर के सारांश के लिए वेल कुंजियों के बाद fieldID को Rows में खींचें। डेटा वाली हर पंक्ति अब एक वेल के भीतर एक फ़ील्ड का सारांश देती है। योगदान देने वाली गिनती देखें और परिणामों की तुलना करते समय यही समूहन स्तर रखें।"
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Plot this table पर क्लिक करें, fieldID को X पर रखें, mean को Y पर और rowID को Colour पर रहने दें, फिर Plot में Scatter चुनें। इस उदाहरण में mean को अब निरंतर माना जाता है। दिखाए गए कॉलम प्रकार और अक्ष लेबल पक्के करें।",
+        "hold_after": 0.7,
+        "speech_text": "Plot this table पर क्लिक करें, fieldID को X पर रखें, mean को Y पर और rowID को Colour पर रहने दें, फिर Plot में Scatter चुनें। इस उदाहरण में mean को अब निरंतर माना जाता है। दिखाए गए कॉलम प्रकार और अक्ष लेबल पक्के करें।"
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "स्कैटर प्लॉट इक्यावन फ़ील्ड औसत दिखाता है। रंग स्थानिक पंक्तियाँ बताते हैं, और दोहराए गए फ़ील्ड लेबल अलग-अलग वेल के हो सकते हैं। अलग-अलग कोशिकाएँ चुनने और उनकी इमेज देखने के लिए मूल वस्तु तालिका इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "स्कैटर प्लॉट इक्यावन फ़ील्ड औसत दिखाता है। रंग स्थानिक पंक्तियाँ बताते हैं, और दोहराए गए फ़ील्ड लेबल अलग-अलग वेल के हो सकते हैं। अलग-अलग कोशिकाएँ चुनने और उनकी इमेज देखने के लिए मूल वस्तु तालिका इस्तेमाल करें।"
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "फ़ील्ड सारांश को अलग CSV के रूप में निर्यात करें। इसमें बावन ग्रिड पंक्तियाँ हैं, और खाला संयोजन खाली छोड़ा गया है; चार्ट में डेटा वाले इक्यावन समूह हैं। Python में spacr.qt.widgets.pivot_spec से pivot और PivotSpec इस्तेमाल करें, फिर परिणाम सहेजने के लिए to_csv।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "फ़ील्ड सारांश को अलग CSV के रूप में निर्यात करें। इसमें बावन ग्रिड पंक्तियाँ हैं, और खाला संयोजन खाली छोड़ा गया है; चार्ट में डेटा वाले इक्यावन समूह हैं। Python में स्पेकर.क्यू टी.widgets.pivot_spec से pivot और PivotSpec इस्तेमाल करें, फिर परिणाम सहेजने के लिए to_csv।"
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: riassumere le misure per pozzetto e per campo",
+      "description": "Raggruppa gli oggetti misurati, seleziona statistiche di sintesi, esamina i gruppi vuoti ed esporta una tabella pivot o inviala a Graph Builder.",
+      "objectives": [
+       "Caricare le misure e raggrupparle per pozzetto o per campo.",
+       "Scegliere valori, statistiche e filtri controllando i conteggi che contribuiscono.",
+       "Esportare riepiloghi in CSV e aggiornarne i grafici in Graph Builder."
+      ],
+      "prerequisite": "Scarica l’esempio di misure del tutorial di Annotate e lavora su una copia di measurements.db. La sua tabella cell ha 2341 oggetti in quattro pozzetti. Tieni le etichette spaziali distinte da quelle dei trattamenti e scegli il livello di raggruppamento adatto al tuo esperimento.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Da Home, apri Database Browser e poi scegli Tabulate. Usa questo strumento per riassumere colonne di misure per pozzetto, per campo o per un altro gruppo. Questa guida usa il database dell’esempio di Annotate collegato.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "Da Home, apri Database Browser e poi scegli Tabulate. Usa questo strumento per riassumere colonne di misure per pozzetto, per campo o per un altro gruppo. Questa guida usa il database dell’esempio di Annotate collegato."
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Dentro Tabulate, fai clic su Load table, apri measurements.db e scegli cell. Usa i comandi propri di Tabulate per scegliere l’input ed esportare. Controlla la tabella e i duemilatrecentoquarantuno oggetti caricati.",
+        "hold_after": 0.7,
+        "speech_text": "Dentro Tabulate, fai clic su Load table, apri measurements punto di bi e scegli cell. Usa i comandi propri di Tabulate per scegliere l’input ed esportare. Controlla la tabella e i duemilatrecentoquarantuno oggetti caricati."
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Scegli Plate barra row barra column per raggruppare per piastra e pozzetto. Lascia vuoto Values per contare le righe di origine. I quattro pozzetti contengono seicentoquindici, cinquecentoventicinque, settecento e cinquecentouno cellule.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli Plate barra row barra column per raggruppare per piastra e pozzetto. Lascia vuoto Values per contare le righe di origine. I quattro pozzetti contengono seicentoquindici, cinquecentoventicinque, settecento e cinquecentouno cellule."
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Cerca fieldID e trascinalo in Columns. Si crea così una griglia pozzetti per campi. Passa il puntatore su una cella vuota per esaminarla: questo esempio ha una combinazione senza righe di origine. Tienila distinta da uno zero misurato.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "Cerca fieldID e trascinalo in Columns. Si crea così una griglia pozzetti per campi. Passa il puntatore su una cella vuota per esaminarla: questo esempio ha una combinazione senza righe di origine. Tienila distinta da uno zero misurato."
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Svuota Columns, poi trascina cell_area in Values. Il riepilogo predefinito mostra conteggio, media e deviazione standard campionaria. La ricerca trova i nomi delle colonne; cambiare assi o statistiche ricalcola il riepilogo.",
+        "hold_after": 0.7,
+        "speech_text": "Svuota Columns, poi trascina cell_area in Values. Il riepilogo predefinito mostra conteggio, media e deviazione standard campionaria. La ricerca trova i nomi delle colonne; cambiare assi o statistiche ricalcola il riepilogo."
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Passa il puntatore su una cella di risultato per vederne tutte le statistiche e il conteggio che contribuisce, comprese le righe nascoste dall’altezza della riga. La deviazione standard descrive la variazione tra gli oggetti di quel gruppo.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "Passa il puntatore su una cella di risultato per vederne tutte le statistiche e il conteggio che contribuisce, comprese le righe nascoste dall’altezza della riga. La deviazione standard descrive la variazione tra gli oggetti di quel gruppo."
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Attiva median, sem e quantile per aggiungere queste statistiche. Imposta Quantile at su zero virgola sette cinque per il quartile superiore. Il SEM usa il numero di oggetti disponibili; scegli separatamente il livello di replica sperimentale quando stimi l’incertezza biologica.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Attiva median, sem e quantile per aggiungere queste statistiche. Imposta Quantile at su zero virgola sette cinque per il quartile superiore. Il SEM usa il numero di oggetti disponibili; scegli separatamente il livello di replica sperimentale quando stimi l’incertezza biologica."
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Imposta Quantile at su zero virgola cinque per mostrare la mediana. Il primo pozzetto ora mostra ventiduemilaquattrocento per entrambe. Torna a zero virgola sette cinque e disattiva le statistiche aggiuntive per ritrovare il riepilogo semplice.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Imposta Quantile at su zero virgola cinque per mostrare la mediana. Il primo pozzetto ora mostra ventiduemilaquattrocento per entrambe. Torna a zero virgola sette cinque e disattiva le statistiche aggiuntive per ritrovare il riepilogo semplice."
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Sostituisci cell_area con cell_channel_0_homogeneity_distance_32. Questa caratteristica ha sette valori mancanti, quindi i suoi conteggi che contribuiscono sono inferiori a quelli delle righe di origine. Usa questi conteggi quando confronti i gruppi.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "Sostituisci cell_area con cell_channel_0_homogeneity_distance_32. Questa caratteristica ha sette valori mancanti, quindi i suoi conteggi che contribuiscono sono inferiori a quelli delle righe di origine. Usa questi conteggi quando confronti i gruppi."
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Ripristina cell_area e fai clic su Export CSV dentro Tabulate. Scegli un nuovo nome di file. Questo riepilogo per pozzetto contiene le tre chiavi di raggruppamento, conteggio, media e deviazione standard. Conserva le scelte di raggruppamento, statistiche e filtri accanto al file esportato.",
+        "hold_after": 0.7,
+        "speech_text": "Ripristina cell_area e fai clic su Export CSV dentro Tabulate. Scegli un nuovo nome di file. Questo riepilogo per pozzetto contiene le tre chiavi di raggruppamento, conteggio, media e deviazione standard. Conserva le scelte di raggruppamento, statistiche e filtri accanto al file esportato."
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Fai clic su Plot this table per inviare il riepilogo a Graph Builder. Trascina columnID su X, mean su Y e rowID su Colour. Controlla i tipi di colonna dedotti: in questo esempio Automatic tratta queste quattro medie distinte come categorie e mostra una mappa di calore.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Fai clic su Plot this table per inviare il riepilogo a Graph Builder. Trascina columnID su X, mean su Y e rowID su Colour. Controlla i tipi di colonna dedotti: in questo esempio Automatic tratta queste quattro medie distinte come categorie e mostra una mappa di calore."
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Aggiungi un filtro cell_area con un minimo di ventunomilanovecentoventicinque. La tabella pivot si aggiorna subito per gli oggetti rimanenti. Fai di nuovo clic su Plot this table ogni volta che vuoi trasferire il riepilogo aggiornato al grafico.",
+        "hold_after": 0.7,
+        "speech_text": "Aggiungi un filtro cell_area con un minimo di ventunomilanovecentoventicinque. La tabella pivot si aggiorna subito per gli oggetti rimanenti. Fai di nuovo clic su Plot this table ogni volta che vuoi trasferire il riepilogo aggiornato al grafico."
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Dopo aver fatto clic su Plot this table, esamina le medie aggiornate dei gruppi. Può comparire una nota sul filtro dell’area perché il riepilogo trasferito contiene mean e non cell_area. Il filtro sugli oggetti è già stato applicato a monte, in Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Dopo aver fatto clic su Plot this table, esamina le medie aggiornate dei gruppi. Può comparire una nota sul filtro dell’area perché il riepilogo trasferito contiene mean e non cell_area. Il filtro sugli oggetti è già stato applicato a monte, in Tabulate."
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Fai clic su Clear all nel filtro, poi di nuovo su Plot this table per ripristinare il riepilogo per pozzetto originale. Salva le esportazioni filtrate e non filtrate con nomi diversi quando ti servono entrambe.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Fai clic su Clear all nel filtro, poi di nuovo su Plot this table per ripristinare il riepilogo per pozzetto originale. Salva le esportazioni filtrate e non filtrate con nomi diversi quando ti servono entrambe."
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Per un riepilogo per campo, trascina fieldID in Rows dopo le chiavi del pozzetto. Ogni riga con dati riassume ora un campo all’interno di un pozzetto. Esamina i conteggi che contribuiscono e mantieni coerente questo livello di raggruppamento quando confronti i risultati.",
+        "hold_after": 0.7,
+        "speech_text": "Per un riepilogo per campo, trascina fieldID in Rows dopo le chiavi del pozzetto. Ogni riga con dati riassume ora un campo all’interno di un pozzetto. Esamina i conteggi che contribuiscono e mantieni coerente questo livello di raggruppamento quando confronti i risultati."
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Fai clic su Plot this table, metti fieldID su X, lascia mean su Y e rowID su Colour, poi scegli Scatter in Plot. In questo esempio mean viene ora riconosciuta come continua. Conferma i tipi di colonna e le etichette degli assi mostrati.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Plot this table, metti fieldID su X, lascia mean su Y e rowID su Colour, poi scegli Scatter in Plot. In questo esempio mean viene ora riconosciuta come continua. Conferma i tipi di colonna e le etichette degli assi mostrati."
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Il grafico a dispersione mostra cinquantuno medie per campo. I colori identificano le righe spaziali e le etichette di campo ripetute possono appartenere a pozzetti diversi. Usa la tabella degli oggetti originale quando vuoi selezionare singole cellule ed esaminarne le immagini.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Il grafico a dispersione mostra cinquantuno medie per campo. I colori identificano le righe spaziali e le etichette di campo ripetute possono appartenere a pozzetti diversi. Usa la tabella degli oggetti originale quando vuoi selezionare singole cellule ed esaminarne le immagini."
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Esporta il riepilogo per campo come CSV separato. Contiene cinquantadue righe di griglia, con la combinazione vuota lasciata in bianco; il grafico contiene cinquantuno gruppi con dati. In Python, usa pivot e PivotSpec da spacr.qt.widgets.pivot_spec, poi to_csv per salvare il risultato.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Esporta il riepilogo per campo come CSV separato. Contiene cinquantadue righe di griglia, con la combinazione vuota lasciata in bianco; il grafico contiene cinquantuno gruppi con dati. In Python, usa pivot e PivotSpec da spàker.cu ti.widgets.pivot_spec, poi to_csv per salvare il risultato."
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate：ウェルと視野ごとに測定値を要約する",
+      "description": "測定した物体をグループ化し、要約統計量を選び、欠けているグループを確認して、ピボットテーブルを書き出すかGraph Builderに送ります。",
+      "objectives": [
+       "測定値を読み込み、ウェルまたは視野でグループ化する。",
+       "寄与する件数を確認しながら、値、統計量、フィルターを選ぶ。",
+       "CSVの要約を書き出し、Graph Builderのプロットを更新する。"
+      ],
+      "prerequisite": "Annotateのチュートリアルから測定値の例をダウンロードし、measurements.dbのコピーで作業します。そのcellの表には、四つのウェルにわたる2341個の物体があります。空間を表すラベルと処理を表すラベルは分けて扱い、実験に合ったグループ化の単位を選んでください。",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "HomeからDatabase Browserを開き、Tabulateを選びます。このツールで、測定値の列をウェル、視野、そのほかのグループごとに要約します。このチュートリアルでは、リンク先のAnnotateの例のデータベースを使います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "ホームからDatabase Browserを開き、Tabulateを選びます。このツールで、測定値の列をウェル、視野、そのほかのグループごとに要約します。このチュートリアルでは、リンク先のAnnotateの例のデータベースを使います。"
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Tabulateの中でLoad tableをクリックし、measurements.dbを開いてcellを選びます。入力の選択と書き出しには、Tabulate自身の操作を使います。表と、読み込まれた二千三百四十一個の物体を確認します。",
+        "hold_after": 0.7,
+        "speech_text": "Tabulateの中でLoad tableをクリックし、メジャメンツ・ドット・ディービーを開いてcellを選びます。入力の選択と書き出しには、Tabulate自身の操作を使います。表と、読み込まれた二千三百四十一個の物体を確認します。"
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "プレートとウェルでグループ化するため、Plate スラッシュ row スラッシュ columnを選びます。元の行を数えるため、Valuesは空のままにします。四つのウェルには、それぞれ六百十五、五百二十五、七百、五百一個の細胞があります。",
+        "hold_after": 0.7,
+        "speech_text": "プレートとウェルでグループ化するため、Plate スラッシュ row スラッシュ columnを選びます。元の行を数えるため、Valuesは空のままにします。四つのウェルには、それぞれ六百十五、五百二十五、七百、五百一個の細胞があります。"
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "fieldIDを検索してColumnsにドラッグします。これで、ウェルと視野のグリッドができます。空のセルにポインターを合わせて確認します。この例には、元の行がない組み合わせが一つあります。これは測定されたゼロとは区別します。",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "fieldIDを検索してColumnsにドラッグします。これで、ウェルと視野のグリッドができます。空のセルにポインターを合わせて確認します。この例には、元の行がない組み合わせが一つあります。これは測定されたゼロとは区別します。"
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Columnsを空にしてから、cell_areaをValuesにドラッグします。既定の要約には、件数、平均、標本標準偏差が表示されます。検索で列名を探せます。軸や統計量を変えると、要約が計算し直されます。",
+        "hold_after": 0.7,
+        "speech_text": "Columnsを空にしてから、cell_areaをValuesにドラッグします。既定の要約には、件数、平均、標本標準偏差が表示されます。検索で列名を探せます。軸や統計量を変えると、要約が計算し直されます。"
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "結果のセルにポインターを合わせると、行の高さで隠れている分も含めて、すべての統計量と寄与する件数が表示されます。標準偏差は、そのグループ内の物体のばらつきを表します。",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "結果のセルにポインターを合わせると、行の高さで隠れている分も含めて、すべての統計量と寄与する件数が表示されます。標準偏差は、そのグループ内の物体のばらつきを表します。"
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "median、sem、quantileをオンにして、これらの統計量を加えます。上位四分位にするため、Quantile atをゼロ点七五にします。SEMは利用できる物体の数を使います。生物学的な不確かさを見積もるときは、実験の反復の単位を別に選びます。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "median、sem、quantileをオンにして、これらの統計量を加えます。上位四分位にするため、Quantile atをゼロ点七五にします。SEMは利用できる物体の数を使います。生物学的な不確かさを見積もるときは、実験の反復の単位を別に選びます。"
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Quantile atをゼロ点五にすると、中央値が表示されます。最初のウェルでは、どちらも二万二千四百になります。簡単な要約に戻すには、ゼロ点七五に戻し、追加の統計量をオフにします。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Quantile atをゼロ点五にすると、中央値が表示されます。最初のウェルでは、どちらも二万二千四百になります。簡単な要約に戻すには、ゼロ点七五に戻し、追加の統計量をオフにします。"
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "cell_areaをcell_channel_0_homogeneity_distance_32に置き換えます。この特徴量には欠損値が七つあるので、寄与する件数は元の行数より少なくなります。グループを比べるときは、この件数を使います。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "cell_areaをcell_channel_0_homogeneity_distance_32に置き換えます。この特徴量には欠損値が七つあるので、寄与する件数は元の行数より少なくなります。グループを比べるときは、この件数を使います。"
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "cell_areaに戻し、Tabulateの中でExport CSVをクリックします。新しいファイル名を選びます。このウェルの要約には、三つのグループ化キー、件数、平均、標準偏差が入っています。グループ化、統計量、フィルターの選択は、書き出したファイルと一緒に保管します。",
+        "hold_after": 0.7,
+        "speech_text": "cell_areaに戻し、Tabulateの中でExport CSVをクリックします。新しいファイル名を選びます。このウェルの要約には、三つのグループ化キー、件数、平均、標準偏差が入っています。グループ化、統計量、フィルターの選択は、書き出したファイルと一緒に保管します。"
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Plot this tableをクリックして、要約をGraph Builderに送ります。columnIDをXに、meanをYに、rowIDをColourにドラッグします。推定された列の型を確認します。この例では、Automaticが四つの異なる平均をカテゴリーとして扱い、ヒートマップを表示します。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Plot this tableをクリックして、要約をGraph Builderに送ります。columnIDをXに、meanをYに、rowIDをColourにドラッグします。推定された列の型を確認します。この例では、Automaticが四つの異なる平均をカテゴリーとして扱い、ヒートマップを表示します。"
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "最小値を二万千九百二十五にしたcell_areaのフィルターを追加します。ピボットテーブルは、残った物体ですぐに更新されます。更新した要約をグラフに渡したいときは、そのたびにPlot this tableをクリックします。",
+        "hold_after": 0.7,
+        "speech_text": "最小値を二万千九百二十五にしたcell_areaのフィルターを追加します。ピボットテーブルは、残った物体ですぐに更新されます。更新した要約をグラフに渡したいときは、そのたびにPlot this tableをクリックします。"
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Plot this tableをクリックした後、更新されたグループの平均を確認します。渡された要約にはcell_areaではなくmeanが入っているので、面積フィルターについての注意が表示されることがあります。物体のフィルターは、すでに前段のTabulateで適用されています。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Plot this tableをクリックした後、更新されたグループの平均を確認します。渡された要約にはcell_areaではなくmeanが入っているので、面積フィルターについての注意が表示されることがあります。物体のフィルターは、すでに前段のTabulateで適用されています。"
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "フィルターのClear allをクリックし、もう一度Plot this tableをクリックして、元のウェルの要約に戻します。両方が必要な場合は、フィルターありとなしの書き出しを別の名前で保存します。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "フィルターのClear allをクリックし、もう一度Plot this tableをクリックして、元のウェルの要約に戻します。両方が必要な場合は、フィルターありとなしの書き出しを別の名前で保存します。"
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "視野単位の要約にするには、ウェルのキーの後にfieldIDをRowsへドラッグします。データのある各行は、ウェルの中の一つの視野を要約します。寄与する件数を確認し、結果を比べるときはこのグループ化の単位をそろえます。",
+        "hold_after": 0.7,
+        "speech_text": "視野単位の要約にするには、ウェルのキーの後にfieldIDをRowsへドラッグします。データのある各行は、ウェルの中の一つの視野を要約します。寄与する件数を確認し、結果を比べるときはこのグループ化の単位をそろえます。"
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Plot this tableをクリックし、fieldIDをXに置き、meanはY、rowIDはColourのままにして、PlotでScatterを選びます。この例では、meanは今度は連続値として認識されます。表示された列の型と軸のラベルを確認します。",
+        "hold_after": 0.7,
+        "speech_text": "Plot this tableをクリックし、fieldIDをXに置き、meanはY、rowIDはColourのままにして、PlotでScatterを選びます。この例では、meanは今度は連続値として認識されます。表示された列の型と軸のラベルを確認します。"
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "散布図には、視野ごとの平均が五十一個表示されます。色は空間上の行を示し、同じ視野のラベルが異なるウェルのものであることもあります。個々の細胞を選んで画像を確認したいときは、元の物体の表を使います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "散布図には、視野ごとの平均が五十一個表示されます。色は空間上の行を示し、同じ視野のラベルが異なるウェルのものであることもあります。個々の細胞を選んで画像を確認したいときは、元の物体の表を使います。"
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "視野の要約は、別のCSVとして書き出します。グリッドの行は五十二で、空の組み合わせは空欄のままです。グラフには、データのある五十一のグループが含まれます。Pythonでは、spacr.qt.widgets.pivot_specのpivotとPivotSpecを使い、to_csvで結果を保存します。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "視野の要約は、別のCSVとして書き出します。グリッドの行は五十二で、空の組み合わせは空欄のままです。グラフには、データのある五十一のグループが含まれます。Pythonでは、スペーカー.キュー ティー.widgets.pivot_specのpivotとPivotSpecを使い、to_csvで結果を保存します。"
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: resumir medições por poço e por campo",
+      "description": "Agrupe os objetos medidos, selecione estatísticas de resumo, inspecione os grupos vazios e exporte uma tabela dinâmica ou envie-a ao Graph Builder.",
+      "objectives": [
+       "Carregar medições e agrupá-las por poço ou por campo.",
+       "Escolher valores, estatísticas e filtros conferindo as contagens que contribuem.",
+       "Exportar resumos em CSV e atualizar os gráficos no Graph Builder."
+      ],
+      "prerequisite": "Baixe o exemplo de medições do tutorial do Annotate e trabalhe com uma cópia de measurements.db. A tabela cell dele tem 2341 objetos em quatro poços. Mantenha os rótulos espaciais separados dos rótulos de tratamento e escolha o nível de agrupamento adequado ao seu experimento.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Na tela Home, abra Database Browser e escolha Tabulate. Use esta ferramenta para resumir colunas de medições por poço, por campo ou por outro grupo. Este passo a passo usa o banco de dados do exemplo do Annotate indicado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "Na tela Home, abra Database Browser e escolha Tabulate. Use esta ferramenta para resumir colunas de medições por poço, por campo ou por outro grupo. Este passo a passo usa o banco de dados do exemplo do Annotate indicado."
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Dentro do Tabulate, clique em Load table, abra measurements.db e escolha cell. Use os próprios controles do Tabulate para selecionar a entrada e exportar. Confira a tabela e os dois mil trezentos e quarenta e um objetos carregados.",
+        "hold_after": 0.7,
+        "speech_text": "Dentro do Tabulate, clique em Load table, abra measurements ponto dê bê e escolha cell. Use os próprios controles do Tabulate para selecionar a entrada e exportar. Confira a tabela e os dois mil trezentos e quarenta e um objetos carregados."
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Escolha Plate barra row barra column para agrupar por placa e poço. Deixe Values vazio para contar as linhas de origem. Os quatro poços contêm seiscentas e quinze, quinhentas e vinte e cinco, setecentas e quinhentas e uma células.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha Plate barra row barra column para agrupar por placa e poço. Deixe Values vazio para contar as linhas de origem. Os quatro poços contêm seiscentas e quinze, quinhentas e vinte e cinco, setecentas e quinhentas e uma células."
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Procure fieldID e arraste para Columns. Isso cria uma grade de poços por campos. Passe o ponteiro sobre uma célula vazia para inspecioná-la: este exemplo tem uma combinação sem linhas de origem. Não a confunda com um zero medido.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "Procure fieldID e arraste para Columns. Isso cria uma grade de poços por campos. Passe o ponteiro sobre uma célula vazia para inspecioná-la: este exemplo tem uma combinação sem linhas de origem. Não a confunda com um zero medido."
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Limpe Columns e arraste cell_area para Values. O resumo padrão mostra a contagem, a média e o desvio padrão amostral. A busca encontra nomes de colunas; mudar os eixos ou as estatísticas recalcula o resumo.",
+        "hold_after": 0.7,
+        "speech_text": "Limpe Columns e arraste cell_area para Values. O resumo padrão mostra a contagem, a média e o desvio padrão amostral. A busca encontra nomes de colunas; mudar os eixos ou as estatísticas recalcula o resumo."
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Passe o ponteiro sobre uma célula de resultado para ver todas as estatísticas e a contagem que contribui, incluindo linhas ocultas pela altura da linha. O desvio padrão descreve a variação entre os objetos daquele grupo.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "Passe o ponteiro sobre uma célula de resultado para ver todas as estatísticas e a contagem que contribui, incluindo linhas ocultas pela altura da linha. O desvio padrão descreve a variação entre os objetos daquele grupo."
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Ative median, sem e quantile para acrescentar essas estatísticas. Defina Quantile at como zero vírgula sete cinco para o quartil superior. O SEM usa a contagem de objetos disponível; escolha à parte o nível de réplica experimental ao estimar a incerteza biológica.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Ative median, sem e quantile para acrescentar essas estatísticas. Defina Quantile at como zero vírgula sete cinco para o quartil superior. O SEM usa a contagem de objetos disponível; escolha à parte o nível de réplica experimental ao estimar a incerteza biológica."
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Defina Quantile at como zero vírgula cinco para mostrar a mediana. O primeiro poço agora mostra vinte e dois mil e quatrocentos nas duas. Volte para zero vírgula sete cinco e desative as estatísticas extras para retornar ao resumo mais simples.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "Defina Quantile at como zero vírgula cinco para mostrar a mediana. O primeiro poço agora mostra vinte e dois mil e quatrocentos nas duas. Volte para zero vírgula sete cinco e desative as estatísticas extras para retornar ao resumo mais simples."
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Troque cell_area por cell_channel_0_homogeneity_distance_32. Essa característica tem sete valores ausentes, então as contagens que contribuem são menores que as das linhas de origem. Use essas contagens ao comparar grupos.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "Troque cell_area por cell_channel_0_homogeneity_distance_32. Essa característica tem sete valores ausentes, então as contagens que contribuem são menores que as das linhas de origem. Use essas contagens ao comparar grupos."
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Volte para cell_area e clique em Export CSV dentro do Tabulate. Escolha um nome de arquivo novo. Este resumo por poço contém as três chaves de agrupamento, a contagem, a média e o desvio padrão. Guarde as escolhas de agrupamento, estatísticas e filtros junto com o arquivo exportado.",
+        "hold_after": 0.7,
+        "speech_text": "Volte para cell_area e clique em Export CSV dentro do Tabulate. Escolha um nome de arquivo novo. Este resumo por poço contém as três chaves de agrupamento, a contagem, a média e o desvio padrão. Guarde as escolhas de agrupamento, estatísticas e filtros junto com o arquivo exportado."
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Clique em Plot this table para enviar o resumo ao Graph Builder. Arraste columnID para X, mean para Y e rowID para Colour. Confira os tipos de coluna inferidos: neste exemplo, Automatic trata essas quatro médias distintas como categorias e mostra um mapa de calor.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Clique em Plot this table para enviar o resumo ao Graph Builder. Arraste columnID para X, mean para Y e rowID para Colour. Confira os tipos de coluna inferidos: neste exemplo, Automatic trata essas quatro médias distintas como categorias e mostra um mapa de calor."
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Adicione um filtro de cell_area com mínimo de vinte e um mil novecentos e vinte e cinco. A tabela dinâmica é atualizada na hora para os objetos restantes. Clique de novo em Plot this table sempre que quiser transferir o resumo atualizado para o gráfico.",
+        "hold_after": 0.7,
+        "speech_text": "Adicione um filtro de cell_area com mínimo de vinte e um mil novecentos e vinte e cinco. A tabela dinâmica é atualizada na hora para os objetos restantes. Clique de novo em Plot this table sempre que quiser transferir o resumo atualizado para o gráfico."
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Depois de clicar em Plot this table, inspecione as médias atualizadas dos grupos. Pode aparecer uma nota sobre o filtro de área, porque o resumo transferido contém mean, e não cell_area. O filtro de objetos já foi aplicado antes, no Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Depois de clicar em Plot this table, inspecione as médias atualizadas dos grupos. Pode aparecer uma nota sobre o filtro de área, porque o resumo transferido contém mean, e não cell_area. O filtro de objetos já foi aplicado antes, no Tabulate."
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Clique em Clear all no filtro e depois de novo em Plot this table para restaurar o resumo por poço original. Salve as exportações filtradas e não filtradas com nomes diferentes quando precisar das duas.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "Clique em Clear all no filtro e depois de novo em Plot this table para restaurar o resumo por poço original. Salve as exportações filtradas e não filtradas com nomes diferentes quando precisar das duas."
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Para um resumo por campo, arraste fieldID para Rows depois das chaves de poço. Cada linha com dados agora resume um campo dentro de um poço. Inspecione as contagens que contribuem e mantenha esse nível de agrupamento consistente ao comparar resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Para um resumo por campo, arraste fieldID para Rows depois das chaves de poço. Cada linha com dados agora resume um campo dentro de um poço. Inspecione as contagens que contribuem e mantenha esse nível de agrupamento consistente ao comparar resultados."
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Clique em Plot this table, coloque fieldID em X, mantenha mean em Y e rowID em Colour e escolha Scatter em Plot. Neste exemplo, mean agora é reconhecida como contínua. Confirme os tipos de coluna e os rótulos dos eixos exibidos.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Plot this table, coloque fieldID em X, mantenha mean em Y e rowID em Colour e escolha Scatter em Plot. Neste exemplo, mean agora é reconhecida como contínua. Confirme os tipos de coluna e os rótulos dos eixos exibidos."
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "O gráfico de dispersão mostra cinquenta e uma médias por campo. As cores identificam as linhas espaciais, e rótulos de campo repetidos podem pertencer a poços diferentes. Use a tabela de objetos original quando quiser selecionar células individuais e inspecionar as imagens delas.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "O gráfico de dispersão mostra cinquenta e uma médias por campo. As cores identificam as linhas espaciais, e rótulos de campo repetidos podem pertencer a poços diferentes. Use a tabela de objetos original quando quiser selecionar células individuais e inspecionar as imagens delas."
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Exporte o resumo por campo como um CSV separado. Ele contém cinquenta e duas linhas de grade, com a combinação vazia em branco; o gráfico contém cinquenta e um grupos com dados. No Python, use pivot e PivotSpec de spacr.qt.widgets.pivot_spec e depois to_csv para salvar o resultado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Exporte o resumo por campo como um CSV separado. Ele contém cinquenta e duas linhas de grade, com a combinação vazia em branco; o gráfico contém cinquenta e um grupos com dados. No Python, use pivot e PivotSpec de espáquer.quê tê.widgets.pivot_spec e depois to_csv para salvar o resultado."
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate：按孔和视野汇总测量数据",
+      "description": "对已测量对象分组，选择汇总统计量，检查空组，并导出数据透视表或将其发送到Graph Builder。",
+      "objectives": [
+       "加载测量数据，并按孔或视野分组。",
+       "选择数值、统计量和过滤条件，同时核对参与计算的数量。",
+       "导出CSV汇总，并在Graph Builder中刷新对应的图。"
+      ],
+      "prerequisite": "从Annotate教程下载测量示例，并在measurements.db的副本上操作。其中的cell表包含四个孔中的2341个对象。请把空间标签与处理标签区分开，并选择适合您实验的分组层级。",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "从Home打开Database Browser，然后选择Tabulate。用这个工具按孔、视野或其他分组汇总测量列。本演示使用链接中Annotate示例的数据库。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ],
+        "speech_text": "从主页打开Database Browser，然后选择Tabulate。用这个工具按孔、视野或其他分组汇总测量列。本演示使用链接中Annotate示例的数据库。"
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "在Tabulate中点击Load table，打开measurements.db并选择cell。请使用Tabulate自己的控件选择输入和导出。检查表格以及已加载的两千三百四十一个对象。",
+        "hold_after": 0.7,
+        "speech_text": "在Tabulate中点击Load table，打开测量数据库文件并选择cell。请使用Tabulate自己的控件选择输入和导出。检查表格以及已加载的两千三百四十一个对象。"
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "选择Plate斜杠row斜杠column，按板和孔分组。保持Values为空，以统计源行数。四个孔中分别有六百一十五、五百二十五、七百和五百零一个细胞。",
+        "hold_after": 0.7,
+        "speech_text": "选择Plate斜杠row斜杠column，按板和孔分组。保持Values为空，以统计源行数。四个孔中分别有六百一十五、五百二十五、七百和五百零一个细胞。"
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "搜索fieldID并把它拖到Columns中。这样会生成孔与视野的网格。把指针悬停在空白格上查看：本例有一个组合没有任何源行。请把它与测得的零区分开。",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ],
+        "speech_text": "搜索fieldID并把它拖到Columns中。这样会生成孔与视野的网格。把指针悬停在空白格上查看：本例有一个组合没有任何源行。请把它与测得的零区分开。"
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "清空Columns，然后把cell_area拖到Values中。默认汇总显示计数、均值和样本标准差。搜索可以查找列名；更改坐标轴或统计量会重新计算汇总。",
+        "hold_after": 0.7,
+        "speech_text": "清空Columns，然后把cell_area拖到Values中。默认汇总显示计数、均值和样本标准差。搜索可以查找列名；更改坐标轴或统计量会重新计算汇总。"
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "把指针悬停在结果格上，可以看到其所有统计量和参与计算的数量，包括因行高而被隐藏的行。标准差描述该组内对象之间的差异。",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ],
+        "speech_text": "把指针悬停在结果格上，可以看到其所有统计量和参与计算的数量，包括因行高而被隐藏的行。标准差描述该组内对象之间的差异。"
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "开启median、sem和quantile添加这些统计量。把Quantile at设为零点七五以得到上四分位数。SEM使用可用的对象数量；估计生物学不确定性时，请另行选择实验重复的层级。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "开启median、sem和quantile添加这些统计量。把Quantile at设为零点七五以得到上四分位数。SEM使用可用的对象数量；估计生物学不确定性时，请另行选择实验重复的层级。"
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "把Quantile at设为零点五以显示中位数。现在第一个孔的两项都显示为两万两千四百。恢复为零点七五并关闭额外的统计量，即可回到较简单的汇总。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ],
+        "speech_text": "把Quantile at设为零点五以显示中位数。现在第一个孔的两项都显示为两万两千四百。恢复为零点七五并关闭额外的统计量，即可回到较简单的汇总。"
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "把cell_area换成cell_channel_0_homogeneity_distance_32。该特征有七个缺失值，因此其参与计算的数量少于源行数。比较分组时请使用这些数量。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ],
+        "speech_text": "把cell_area换成cell_channel_0_homogeneity_distance_32。该特征有七个缺失值，因此其参与计算的数量少于源行数。比较分组时请使用这些数量。"
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "恢复cell_area，并在Tabulate中点击Export CSV。选择新的文件名。这份按孔汇总包含三个分组键、计数、均值和标准差。请把分组、统计量和过滤条件的选择与导出文件放在一起。",
+        "hold_after": 0.7,
+        "speech_text": "恢复cell_area，并在Tabulate中点击Export CSV。选择新的文件名。这份按孔汇总包含三个分组键、计数、均值和标准差。请把分组、统计量和过滤条件的选择与导出文件放在一起。"
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "点击Plot this table，把汇总发送到Graph Builder。把columnID拖到X，把mean拖到Y，把rowID拖到Colour。检查推断的列类型：在本例中，Automatic把这四个不同的均值视为类别，并显示为热图。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "点击Plot this table，把汇总发送到Graph Builder。把columnID拖到X，把mean拖到Y，把rowID拖到Colour。检查推断的列类型：在本例中，Automatic把这四个不同的均值视为类别，并显示为热图。"
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "添加一个最小值为两万一千九百二十五的cell_area过滤器。数据透视表会立即针对剩余对象更新。每次想把更新后的汇总传到图表时，请再次点击Plot this table。",
+        "hold_after": 0.7,
+        "speech_text": "添加一个最小值为两万一千九百二十五的cell_area过滤器。数据透视表会立即针对剩余对象更新。每次想把更新后的汇总传到图表时，请再次点击Plot this table。"
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "点击Plot this table后，检查更新后的分组均值。由于传过去的汇总包含mean而不是cell_area，可能会出现关于面积过滤的提示。对象过滤已经在上游的Tabulate中应用过了。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "点击Plot this table后，检查更新后的分组均值。由于传过去的汇总包含mean而不是cell_area，可能会出现关于面积过滤的提示。对象过滤已经在上游的Tabulate中应用过了。"
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "点击过滤器中的Clear all，然后再次点击Plot this table，恢复原始的按孔汇总。如果两种结果都需要，请用不同的文件名分别保存过滤前后的导出。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "点击过滤器中的Clear all，然后再次点击Plot this table，恢复原始的按孔汇总。如果两种结果都需要，请用不同的文件名分别保存过滤前后的导出。"
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "如需按视野汇总，请在孔的键之后把fieldID拖到Rows中。现在每个有数据的行汇总一个孔内的一个视野。请检查参与计算的数量，并在比较结果时保持这一分组层级一致。",
+        "hold_after": 0.7,
+        "speech_text": "如需按视野汇总，请在孔的键之后把fieldID拖到Rows中。现在每个有数据的行汇总一个孔内的一个视野。请检查参与计算的数量，并在比较结果时保持这一分组层级一致。"
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "点击Plot this table，把fieldID放在X，保持mean在Y、rowID在Colour，然后在Plot中选择Scatter。在本例中，mean现在被识别为连续变量。请确认显示的列类型和坐标轴标签。",
+        "hold_after": 0.7,
+        "speech_text": "点击Plot this table，把fieldID放在X，保持mean在Y、rowID在Colour，然后在Plot中选择Scatter。在本例中，mean现在被识别为连续变量。请确认显示的列类型和坐标轴标签。"
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "散点图显示五十一个视野均值。颜色表示空间上的行，重复的视野标签可能属于不同的孔。如果想选择单个细胞并查看其图像，请使用原始对象表。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ],
+        "speech_text": "散点图显示五十一个视野均值。颜色表示空间上的行，重复的视野标签可能属于不同的孔。如果想选择单个细胞并查看其图像，请使用原始对象表。"
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "把按视野汇总另存为一个CSV。其中有五十二行网格，空组合保持空白；图中有五十一个有数据的分组。在Python中，请使用spacr.qt.widgets.pivot_spec中的pivot和PivotSpec，然后用to_csv保存结果。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "把按视野汇总另存为一个CSV。其中有五十二行网格，空组合保持空白；图中有五十一个有数据的分组。在Python中，请使用斯佩克尔.Q T.widgets.pivot_spec中的pivot和PivotSpec，然后用to_csv保存结果。"
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: opsummér målinger pr. brønd og synsfelt",
+      "description": "Gruppér målte objekter, vælg opsummerende statistik, undersøg tomme grupper, og eksportér en pivottabel eller send den til Graph Builder.",
+      "objectives": [
+       "Indlæse målinger og gruppere dem pr. brønd eller synsfelt.",
+       "Vælge værdier, statistik og filtre og samtidig kontrollere de bidragende antal.",
+       "Eksportere CSV-oversigter og opdatere deres diagrammer i Graph Builder."
+      ],
+      "prerequisite": "Hent måleeksemplet fra Annotate-vejledningen, og arbejd med en kopi af measurements.db. Dets tabel cell har 2.341 objekter fra fire brønde. Hold rumlige labels adskilt fra behandlingslabels, og vælg det grupperingsniveau, der passer til dit forsøg.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Fra Home åbner du Database Browser og vælger derefter Tabulate. Brug værktøjet til at opsummere målekolonner pr. brønd, synsfelt eller en anden gruppe. Gennemgangen bruger databasen fra det linkede Annotate-eksempel.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "I Tabulate klikker du på Load table, åbner measurements.db og vælger cell. Brug Tabulates egne kontroller til at vælge input og eksportere. Kontrollér tabellen og de 2.341 indlæste objekter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Vælg Plate/row/column for at gruppere pr. plade og brønd. Lad Values være tom for at tælle kilderækker. De fire brønde indeholder 615, 525, 700 og 501 celler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Søg efter fieldID, og træk det til Columns. Så dannes et gitter af brønde og synsfelter. Hold markøren over en tom celle for at undersøge den: eksemplet har én kombination uden kilderækker. Skeln den fra et målt nul.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Tøm Columns, og træk derefter cell_area til Values. Standardoversigten viser antal, gennemsnit og stikprøvestandardafvigelse. Søgningen finder kolonnenavne; ændringer af akser eller statistik genberegner oversigten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Hold markøren over en resultatcelle for at se al dens statistik og det bidragende antal, også linjer, som rækkehøjden skjuler. Standardafvigelsen beskriver variationen mellem objekterne i gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Slå median, sem og quantile til for at tilføje disse statistikker. Sæt Quantile at til 0,75 for den øvre kvartil. SEM bruger det tilgængelige antal objekter; vælg niveauet for eksperimentelle replikater separat, når du estimerer biologisk usikkerhed.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Sæt Quantile at til 0,5 for at vise medianen. Den første brønd viser nu 22.400 for begge. Sæt 0,75 tilbage, og slå den ekstra statistik fra for at vende tilbage til den enklere oversigt.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Erstat cell_area med cell_channel_0_homogeneity_distance_32. Denne egenskab har syv manglende værdier, så dens bidragende antal er mindre end antallet af kilderækker. Brug disse antal, når du sammenligner grupper.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Sæt cell_area tilbage, og klik på Export CSV i Tabulate. Vælg et nyt filnavn. Denne brøndoversigt indeholder de tre grupperingsnøgler, antal, gennemsnit og standardafvigelse. Behold dine valg af gruppering, statistik og filtre ved siden af den eksporterede fil.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Klik på Plot this table for at sende oversigten til Graph Builder. Træk columnID til X, mean til Y og rowID til Colour. Kontrollér de udledte kolonnetyper: i dette eksempel behandler Automatic de fire forskellige gennemsnit som kategorier og viser et heatmap.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Tilføj et cell_area-filter med et minimum på 21.925. Pivottabellen opdateres straks for de resterende objekter. Klik på Plot this table igen, hver gang du vil overføre den opdaterede oversigt til diagrammet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Når du har klikket på Plot this table, undersøger du de opdaterede gruppegennemsnit. En note om arealfilteret kan dukke op, fordi den overførte oversigt indeholder mean og ikke cell_area. Objektfilteret er allerede anvendt tidligere i Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Klik på Clear all i filteret og derefter på Plot this table igen for at gendanne den oprindelige brøndoversigt. Gem filtrerede og ufiltrerede eksporter under forskellige navne, når du har brug for begge.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Til en oversigt pr. synsfelt trækker du fieldID til Rows efter brøndnøglerne. Hver række med data opsummerer nu ét synsfelt i en brønd. Undersøg de bidragende antal, og hold grupperingsniveauet konsekvent, når du sammenligner resultater.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Klik på Plot this table, læg fieldID på X, behold mean på Y og rowID på Colour, og vælg derefter Scatter under Plot. I dette eksempel genkendes mean nu som kontinuert. Bekræft de viste kolonnetyper og akselabels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Punktdiagrammet viser 51 gennemsnit pr. synsfelt. Farverne angiver rumlige rækker, og gentagne synsfeltlabels kan høre til forskellige brønde. Brug den oprindelige objekttabel, når du vil vælge enkelte celler og undersøge deres billeder.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Eksportér synsfeltoversigten som en separat CSV. Den indeholder 52 gitterrækker, hvor den tomme kombination står blank; diagrammet indeholder 51 grupper med data. I Python bruger du pivot og PivotSpec fra spacr.qt.widgets.pivot_spec og derefter to_csv til at gemme resultatet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: Messwerte nach Well und Bildfeld zusammenfassen",
+      "description": "Gruppieren Sie gemessene Objekte, wählen Sie Kennzahlen, prüfen Sie fehlende Gruppen und exportieren Sie eine Pivot-Tabelle oder senden Sie sie an Graph Builder.",
+      "objectives": [
+       "Messwerte laden und nach Well oder Bildfeld gruppieren.",
+       "Werte, Kennzahlen und Filter wählen und dabei die beitragenden Anzahlen prüfen.",
+       "CSV-Übersichten exportieren und ihre Graph-Builder-Diagramme aktualisieren."
+      ],
+      "prerequisite": "Laden Sie das Messbeispiel aus dem Annotate-Tutorial herunter und arbeiten Sie mit einer Kopie von measurements.db. Seine Tabelle cell enthält 2.341 Objekte aus vier Wells. Halten Sie räumliche Labels von Behandlungslabels getrennt und wählen Sie die für Ihr Experiment passende Gruppierungsebene.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Öffnen Sie von Home aus Database Browser und wählen Sie dann Tabulate. Mit diesem Werkzeug fassen Sie Messspalten nach Well, Bildfeld oder einer anderen Gruppe zusammen. Diese Anleitung verwendet die Datenbank aus dem verlinkten Annotate-Beispiel.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Klicken Sie in Tabulate auf Load table, öffnen Sie measurements.db und wählen Sie cell. Verwenden Sie die eigenen Steuerelemente von Tabulate für Eingabe und Export. Prüfen Sie die Tabelle und die 2.341 geladenen Objekte.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Wählen Sie Plate/row/column, um nach Platte und Well zu gruppieren. Lassen Sie Values leer, um Quellzeilen zu zählen. Die vier Wells enthalten 615, 525, 700 und 501 Zellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Suchen Sie fieldID und ziehen Sie es in Columns. Dadurch entsteht ein Raster aus Wells und Bildfeldern. Fahren Sie über eine leere Zelle, um sie zu prüfen: Dieses Beispiel hat eine Kombination ohne Quellzeilen. Unterscheiden Sie diese von einer gemessenen Null.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Leeren Sie Columns und ziehen Sie dann cell_area in Values. Die Standardübersicht zeigt Anzahl, Mittelwert und Stichproben-Standardabweichung. Die Suche findet Spaltennamen; Änderungen an Achsen oder Kennzahlen berechnen die Übersicht neu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Fahren Sie über eine Ergebniszelle, um alle ihre Kennzahlen und die beitragende Anzahl zu sehen, auch Zeilen, die durch die Zeilenhöhe verborgen sind. Die Standardabweichung beschreibt die Streuung zwischen den Objekten dieser Gruppe.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Aktivieren Sie median, sem und quantile, um diese Kennzahlen hinzuzufügen. Setzen Sie Quantile at für das obere Quartil auf 0,75. SEM verwendet die verfügbare Objektzahl; wählen Sie die Ebene der experimentellen Replikate gesondert, wenn Sie biologische Unsicherheit schätzen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Setzen Sie Quantile at auf 0,5, um den Median anzuzeigen. Das erste Well zeigt nun für beide 22.400. Stellen Sie wieder 0,75 ein und schalten Sie die zusätzlichen Kennzahlen aus, um zur einfacheren Übersicht zurückzukehren.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Ersetzen Sie cell_area durch cell_channel_0_homogeneity_distance_32. Dieses Merkmal hat sieben fehlende Werte, daher sind seine beitragenden Anzahlen kleiner als die Quellzeilenzahlen. Verwenden Sie diese Anzahlen beim Vergleich von Gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Stellen Sie cell_area wieder her und klicken Sie in Tabulate auf Export CSV. Wählen Sie einen neuen Dateinamen. Diese Well-Übersicht enthält die drei Gruppierungsschlüssel, Anzahl, Mittelwert und Standardabweichung. Bewahren Sie Ihre Gruppierungs-, Kennzahl- und Filterwahl neben der exportierten Datei auf.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Klicken Sie auf Plot this table, um die Übersicht an Graph Builder zu senden. Ziehen Sie columnID auf X, mean auf Y und rowID auf Colour. Prüfen Sie die abgeleiteten Spaltentypen: Automatic behandelt in diesem Beispiel diese vier unterschiedlichen Mittelwerte als Kategorien und zeigt eine Heatmap.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Fügen Sie einen cell_area-Filter mit einem Minimum von 21.925 hinzu. Die Pivot-Tabelle aktualisiert sich sofort für die verbleibenden Objekte. Klicken Sie jedes Mal erneut auf Plot this table, wenn Sie die aktualisierte Übersicht in das Diagramm übertragen möchten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Prüfen Sie nach dem Klick auf Plot this table die aktualisierten Gruppenmittelwerte. Ein Hinweis zum Flächenfilter kann erscheinen, weil die übertragene Übersicht mean statt cell_area enthält. Der Objektfilter wurde bereits vorgelagert in Tabulate angewendet.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Klicken Sie im Filter auf Clear all und dann erneut auf Plot this table, um die ursprüngliche Well-Übersicht wiederherzustellen. Speichern Sie gefilterte und ungefilterte Exporte unter verschiedenen Namen, wenn Sie beide benötigen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Ziehen Sie für eine Übersicht auf Bildfeldebene fieldID hinter den Well-Schlüsseln in Rows. Jede belegte Zeile fasst nun ein Bildfeld innerhalb eines Wells zusammen. Prüfen Sie die beitragenden Anzahlen und halten Sie diese Gruppierungsebene beim Vergleichen von Ergebnissen einheitlich.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Klicken Sie auf Plot this table, legen Sie fieldID auf X, behalten Sie mean auf Y und rowID auf Colour bei und wählen Sie dann Scatter unter Plot. In diesem Beispiel wird mean nun als stetig erkannt. Bestätigen Sie die angezeigten Spaltentypen und Achsenbeschriftungen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Das Streudiagramm zeigt 51 Mittelwerte je Bildfeld. Die Farben kennzeichnen räumliche Zeilen, und wiederholte Bildfeldlabels können zu verschiedenen Wells gehören. Verwenden Sie die ursprüngliche Objekttabelle, wenn Sie einzelne Zellen auswählen und ihre Bilder prüfen möchten.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Exportieren Sie die Bildfeldübersicht als separate CSV. Sie enthält 52 Rasterzeilen, wobei die leere Kombination leer bleibt; das Diagramm enthält 51 belegte Gruppen. Verwenden Sie in Python pivot und PivotSpec aus spacr.qt.widgets.pivot_spec und dann to_csv, um das Ergebnis zu speichern.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: taktu saman mælingar eftir brunni og sjónsviði",
+      "description": "Flokkaðu mælda hluti, veldu samantektartölur, skoðaðu hópa sem vantar og fluttu út veltitöflu eða sendu hana til Graph Builder.",
+      "objectives": [
+       "Hlaða inn mælingum og flokka þær eftir brunni eða sjónsviði.",
+       "Velja gildi, tölfræði og síur og athuga um leið fjöldann sem leggur til.",
+       "Flytja út CSV-samantektir og endurnýja gröf þeirra í Graph Builder."
+      ],
+      "prerequisite": "Sæktu mælingadæmið úr Annotate-kennsluefninu og vinndu með afrit af measurements.db. Tafla þess cell hefur 2.341 hlut úr fjórum brunnum. Haltu rúmfræðilegum merkjum aðskildum frá meðferðarmerkjum og veldu flokkunarstig sem hentar tilrauninni.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Frá Home opnarðu Database Browser og velur svo Tabulate. Notaðu tólið til að taka saman mælingadálka eftir brunni, sjónsviði eða öðrum hópi. Yfirferðin notar gagnagrunninn úr tengda Annotate-dæminu.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Í Tabulate smellirðu á Load table, opnar measurements.db og velur cell. Notaðu eigin stýringar Tabulate til að velja inntak og flytja út. Athugaðu töfluna og þá 2.341 hluti sem hlaðist hafa inn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Veldu Plate/row/column til að flokka eftir plötu og brunni. Hafðu Values tómt til að telja upprunalínur. Brunnarnir fjórir innihalda 615, 525, 700 og 501 frumu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Leitaðu að fieldID og dragðu það í Columns. Þá verður til hnitanet brunna og sjónsviða. Færðu bendilinn yfir auðan reit til að skoða hann: dæmið hefur eina samsetningu án upprunalína. Greindu hana frá mældu núlli.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Tæmdu Columns og dragðu svo cell_area í Values. Sjálfgefna samantektin sýnir fjölda, meðaltal og staðalfrávik úrtaks. Leitin finnur dálkaheiti; breyting á ásum eða tölfræði endurreiknar samantektina.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Færðu bendilinn yfir niðurstöðureit til að sjá alla tölfræði hans og fjöldann sem leggur til, þar á meðal línur sem línuhæðin felur. Staðalfrávikið lýsir breytileika milli hlutanna í hópnum.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Virkjaðu median, sem og quantile til að bæta þeirri tölfræði við. Stilltu Quantile at á 0,75 fyrir efri fjórðung. SEM notar fjölda tiltækra hluta; veldu stig tilraunaendurtekninga sérstaklega þegar þú metur líffræðilega óvissu.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Stilltu Quantile at á 0,5 til að sýna miðgildið. Fyrsti brunnurinn sýnir nú 22.400 fyrir bæði. Settu aftur 0,75 og slökktu á aukatölfræðinni til að fara aftur í einfaldari samantektina.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Settu cell_channel_0_homogeneity_distance_32 í stað cell_area. Í þessum eiginleika vantar sjö gildi, svo fjöldinn sem leggur til er minni en fjöldi upprunalína. Notaðu þann fjölda þegar þú berð saman hópa.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Settu cell_area aftur inn og smelltu á Export CSV í Tabulate. Veldu nýtt skráarheiti. Þessi samantekt eftir brunnum inniheldur flokkunarlyklana þrjá, fjölda, meðaltal og staðalfrávik. Geymdu val á flokkun, tölfræði og síum við hlið útfluttu skrárinnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Smelltu á Plot this table til að senda samantektina til Graph Builder. Dragðu columnID á X, mean á Y og rowID á Colour. Athugaðu ályktaðar dálkagerðir: í þessu dæmi fer Automatic með þessi fjögur ólíku meðaltöl sem flokka og sýnir hitakort.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Bættu við cell_area-síu með lágmarkinu 21.925. Veltitaflan uppfærist strax fyrir hlutina sem eftir eru. Smelltu aftur á Plot this table í hvert sinn sem þú vilt flytja uppfærðu samantektina í grafið.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Eftir að hafa smellt á Plot this table skoðarðu uppfærð meðaltöl hópanna. Athugasemd um flatarmálssíu getur birst því að flutta samantektin inniheldur mean en ekki cell_area. Hlutasían hefur þegar verið notuð fyrr, í Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Smelltu á Clear all í síunni og svo aftur á Plot this table til að fá upprunalegu samantektina eftir brunnum aftur. Vistaðu síaðan og ósíaðan útflutning undir ólíkum heitum þegar þú þarft hvort tveggja.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "Fyrir samantekt eftir sjónsviðum dregurðu fieldID í Rows á eftir brunnalyklunum. Hver lína með gögnum tekur nú saman eitt sjónsvið innan brunns. Skoðaðu fjöldann sem leggur til og haltu þessu flokkunarstigi samræmdu þegar þú berð saman niðurstöður.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Smelltu á Plot this table, settu fieldID á X, haltu mean á Y og rowID á Colour og veldu svo Scatter í Plot. Í þessu dæmi er mean nú greint sem samfellt. Staðfestu birtar dálkagerðir og merki ásanna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Dreifiritið sýnir 51 meðaltal eftir sjónsviðum. Litirnir auðkenna rúmfræðilegar raðir og endurtekin sjónsviðsmerki geta tilheyrt ólíkum brunnum. Notaðu upprunalegu hlutatöfluna þegar þú vilt velja einstakar frumur og skoða myndir þeirra.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Fluttu samantektina eftir sjónsviðum út sem sérstaka CSV-skrá. Hún inniheldur 52 línur hnitanets þar sem tóma samsetningin er auð; grafið inniheldur 51 hóp með gögnum. Í Python notarðu pivot og PivotSpec úr spacr.qt.widgets.pivot_spec og svo to_csv til að vista niðurstöðuna.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: 웰과 시야별 측정값 요약",
+      "description": "측정된 객체를 그룹으로 묶고, 요약 통계를 고르고, 빈 그룹을 확인한 뒤 피벗 표를 내보내거나 Graph Builder로 보냅니다.",
+      "objectives": [
+       "측정값을 불러와 웰이나 시야별로 묶습니다.",
+       "기여 개수를 확인하며 값, 통계, 필터를 고릅니다.",
+       "CSV 요약을 내보내고 Graph Builder 그래프를 새로 고칩니다."
+      ],
+      "prerequisite": "Annotate 튜토리얼에서 측정 예제를 내려받아 measurements.db 사본으로 작업하세요. 그 cell 표에는 웰 4개에 걸친 객체 2,341개가 있습니다. 공간 라벨과 처리 라벨을 구분하고, 실험에 맞는 그룹화 수준을 고르세요.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Home에서 Database Browser를 연 뒤 Tabulate를 선택하세요. 이 도구로 측정 열을 웰, 시야 또는 다른 그룹별로 요약합니다. 이 안내에서는 연결된 Annotate 예제의 데이터베이스를 씁니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "Tabulate 안에서 Load table을 클릭하고 measurements.db를 연 뒤 cell을 고르세요. 입력 선택과 내보내기에는 Tabulate 자체 컨트롤을 쓰세요. 표와 불러온 객체 2,341개를 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "플레이트와 웰로 묶으려면 Plate/row/column을 고르세요. 원본 행을 세려면 Values를 비워 두세요. 네 웰에는 각각 세포 615개, 525개, 700개, 501개가 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "fieldID를 검색해 Columns로 끌어다 놓으세요. 그러면 웰과 시야의 격자가 만들어집니다. 빈 칸 위에 포인터를 올려 확인하세요. 이 예제에는 원본 행이 없는 조합이 하나 있습니다. 이것은 측정된 0과 구분하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Columns를 비운 뒤 cell_area를 Values로 끌어다 놓으세요. 기본 요약은 개수, 평균, 표본 표준 편차를 보여 줍니다. 검색으로 열 이름을 찾을 수 있고, 축이나 통계를 바꾸면 요약이 다시 계산됩니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "결과 칸 위에 포인터를 올리면 행 높이 때문에 가려진 줄까지 포함해 모든 통계와 기여 개수가 보입니다. 표준 편차는 그 그룹 안 객체 간의 변동을 나타냅니다.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "median, sem, quantile을 켜서 그 통계를 추가하세요. 상위 사분위수를 보려면 Quantile at을 0.75로 두세요. SEM은 사용할 수 있는 객체 수를 쓰므로, 생물학적 불확실성을 추정할 때는 실험 반복 수준을 따로 고르세요.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Quantile at을 0.5로 두면 중앙값이 표시됩니다. 이제 첫 번째 웰은 두 값 모두 22,400을 보여 줍니다. 더 간단한 요약으로 돌아가려면 0.75로 되돌리고 추가 통계를 끄세요.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "cell_area를 cell_channel_0_homogeneity_distance_32로 바꾸세요. 이 특징에는 결측값이 7개 있어 기여 개수가 원본 행 수보다 적습니다. 그룹을 비교할 때 이 개수를 쓰세요.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "cell_area로 되돌리고 Tabulate 안에서 Export CSV를 클릭하세요. 새 파일 이름을 고르세요. 이 웰 요약에는 그룹화 키 3개, 개수, 평균, 표준 편차가 들어 있습니다. 그룹화, 통계, 필터 선택을 내보낸 파일 옆에 보관하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Plot this table을 클릭해 요약을 Graph Builder로 보내세요. columnID를 X로, mean을 Y로, rowID를 Colour로 끌어다 놓으세요. 추론된 열 유형을 확인하세요. 이 예제에서 Automatic은 서로 다른 평균 4개를 범주로 보고 히트맵을 표시합니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "최솟값이 21,925인 cell_area 필터를 추가하세요. 피벗 표가 남은 객체에 대해 즉시 갱신됩니다. 갱신된 요약을 차트로 옮기려면 그때마다 Plot this table을 다시 클릭하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Plot this table을 클릭한 뒤 갱신된 그룹 평균을 확인하세요. 전달된 요약에는 cell_area가 아니라 mean이 들어 있으므로 면적 필터에 관한 안내가 나올 수 있습니다. 객체 필터는 이미 앞 단계인 Tabulate에서 적용되었습니다.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "필터에서 Clear all을 클릭한 뒤 Plot this table을 다시 클릭해 원래 웰 요약으로 돌아가세요. 둘 다 필요하면 필터링한 내보내기와 필터링하지 않은 내보내기를 다른 이름으로 저장하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "시야 단위 요약을 하려면 웰 키 다음에 fieldID를 Rows로 끌어다 놓으세요. 이제 데이터가 있는 각 행이 웰 안의 시야 하나를 요약합니다. 기여 개수를 확인하고, 결과를 비교할 때는 이 그룹화 수준을 일관되게 유지하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Plot this table을 클릭하고 fieldID를 X에 두고, mean은 Y, rowID는 Colour에 그대로 둔 뒤 Plot에서 Scatter를 고르세요. 이 예제에서는 이제 mean이 연속형으로 인식됩니다. 표시된 열 유형과 축 라벨을 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "산점도에는 시야별 평균 51개가 표시됩니다. 색은 공간상의 행을 나타내며, 반복되는 시야 라벨은 서로 다른 웰에 속할 수 있습니다. 개별 세포를 고르고 이미지를 확인하려면 원래 객체 표를 쓰세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "시야 요약을 별도의 CSV로 내보내세요. 격자 행은 52개이며 빈 조합은 비어 있고, 차트에는 데이터가 있는 그룹 51개가 들어 있습니다. Python에서는 spacr.qt.widgets.pivot_spec의 pivot과 PivotSpec을 쓰고, to_csv로 결과를 저장하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: oppsummer målinger per brønn og synsfelt",
+      "description": "Grupper målte objekter, velg oppsummerende statistikk, undersøk tomme grupper, og eksporter en pivottabell eller send den til Graph Builder.",
+      "objectives": [
+       "Laste inn målinger og gruppere dem per brønn eller synsfelt.",
+       "Velge verdier, statistikk og filtre og samtidig kontrollere bidragende antall.",
+       "Eksportere CSV-oppsummeringer og oppdatere diagrammene i Graph Builder."
+      ],
+      "prerequisite": "Last ned måleeksemplet fra Annotate-veiledningen og arbeid med en kopi av measurements.db. Tabellen cell har 2 341 objekter fra fire brønner. Hold romlige merkelapper atskilt fra behandlingsmerkelapper, og velg grupperingsnivået som passer eksperimentet ditt.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Fra Home åpner du Database Browser og velger deretter Tabulate. Bruk verktøyet til å oppsummere målekolonner per brønn, synsfelt eller en annen gruppe. Gjennomgangen bruker databasen fra det lenkede Annotate-eksemplet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "I Tabulate klikker du på Load table, åpner measurements.db og velger cell. Bruk Tabulates egne kontroller til å velge inndata og eksportere. Kontroller tabellen og de 2 341 innlastede objektene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Velg Plate/row/column for å gruppere per plate og brønn. La Values stå tomt for å telle kilderader. De fire brønnene inneholder 615, 525, 700 og 501 celler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Søk etter fieldID og dra det til Columns. Da lages et rutenett med brønner og synsfelt. Hold pekeren over en tom celle for å undersøke den: eksemplet har én kombinasjon uten kilderader. Skill den fra en målt null.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Tøm Columns, og dra deretter cell_area til Values. Standardoppsummeringen viser antall, gjennomsnitt og utvalgets standardavvik. Søket finner kolonnenavn; endringer i akser eller statistikk beregner oppsummeringen på nytt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "Hold pekeren over en resultatcelle for å se all statistikken og det bidragende antallet, også linjer som skjules av radhøyden. Standardavviket beskriver variasjonen mellom objektene i gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Aktiver median, sem og quantile for å legge til den statistikken. Sett Quantile at til 0,75 for øvre kvartil. SEM bruker tilgjengelig antall objekter; velg nivået for eksperimentelle replikater separat når du anslår biologisk usikkerhet.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Sett Quantile at til 0,5 for å vise medianen. Den første brønnen viser nå 22 400 for begge. Sett tilbake 0,75 og slå av den ekstra statistikken for å gå tilbake til den enklere oppsummeringen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Erstatt cell_area med cell_channel_0_homogeneity_distance_32. Denne egenskapen har sju manglende verdier, så de bidragende antallene er mindre enn antall kilderader. Bruk disse antallene når du sammenligner grupper.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Sett cell_area tilbake og klikk på Export CSV i Tabulate. Velg et nytt filnavn. Brønnoppsummeringen inneholder de tre grupperingsnøklene, antall, gjennomsnitt og standardavvik. Behold valgene for gruppering, statistikk og filtre ved siden av den eksporterte filen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Klikk på Plot this table for å sende oppsummeringen til Graph Builder. Dra columnID til X, mean til Y og rowID til Colour. Kontroller de utledede kolonnetypene: i dette eksemplet behandler Automatic de fire ulike gjennomsnittene som kategorier og viser et varmekart.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Legg til et cell_area-filter med minimum 21 925. Pivottabellen oppdateres straks for de gjenværende objektene. Klikk på Plot this table igjen hver gang du vil overføre den oppdaterte oppsummeringen til diagrammet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "Etter at du har klikket på Plot this table, undersøker du de oppdaterte gruppegjennomsnittene. En merknad om arealfilteret kan vises fordi den overførte oppsummeringen inneholder mean i stedet for cell_area. Objektfilteret er allerede brukt tidligere, i Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Klikk på Clear all i filteret og deretter på Plot this table igjen for å gjenopprette den opprinnelige brønnoppsummeringen. Lagre filtrerte og ufiltrerte eksporter under ulike navn når du trenger begge.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "For en oppsummering per synsfelt drar du fieldID til Rows etter brønnøklene. Hver rad med data oppsummerer nå ett synsfelt i en brønn. Undersøk de bidragende antallene, og hold grupperingsnivået konsekvent når du sammenligner resultater.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Klikk på Plot this table, legg fieldID på X, behold mean på Y og rowID på Colour, og velg deretter Scatter under Plot. I dette eksemplet gjenkjennes mean nå som kontinuerlig. Bekreft kolonnetypene og akseetikettene som vises.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Spredningsplottet viser 51 gjennomsnitt per synsfelt. Fargene angir romlige rader, og gjentatte synsfeltmerkelapper kan høre til ulike brønner. Bruk den opprinnelige objekttabellen når du vil velge enkeltceller og undersøke bildene.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Eksporter synsfeltoppsummeringen som en egen CSV-fil. Den inneholder 52 rutenettrader, der den tomme kombinasjonen står blank; diagrammet inneholder 51 grupper med data. I Python bruker du pivot og PivotSpec fra spacr.qt.widgets.pivot_spec og deretter to_csv for å lagre resultatet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 48,
+     "preceding": [
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "62_feature_dictionary",
+     "entry": {
+      "id": "61_tabulate",
+      "number": 61,
+      "slug": "tabulate",
+      "series": 5,
+      "app_key": "tabulate",
+      "section": "Explore",
+      "title": "Tabulate: sammanfatta mätningar per brunn och synfält",
+      "description": "Gruppera uppmätta objekt, välj sammanfattande statistik, granska tomma grupper och exportera en pivottabell eller skicka den till Graph Builder.",
+      "objectives": [
+       "Läsa in mätningar och gruppera dem per brunn eller synfält.",
+       "Välja värden, statistik och filter och samtidigt kontrollera bidragande antal.",
+       "Exportera CSV-sammanfattningar och uppdatera deras diagram i Graph Builder."
+      ],
+      "prerequisite": "Hämta mätexemplet från Annotate-handledningen och arbeta med en kopia av measurements.db. Dess tabell cell har 2 341 objekt från fyra brunnar. Håll rumsliga etiketter åtskilda från behandlingsetiketter och välj den grupperingsnivå som passar ditt experiment.",
+      "scenes": [
+       {
+        "visual": "02_database_host",
+        "narration": "Från Home öppnar du Database Browser och väljer sedan Tabulate. Använd verktyget för att sammanfatta mätkolumner per brunn, synfält eller annan grupp. Genomgången använder databasen från det länkade Annotate-exemplet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "34_database"
+        ]
+       },
+       {
+        "visual": "03_choose_real_measurements",
+        "narration": "I Tabulate klickar du på Load table, öppnar measurements.db och väljer cell. Använd Tabulates egna kontroller för att välja indata och exportera. Kontrollera tabellen och de 2 341 inlästa objekten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_well_count_preset",
+        "narration": "Välj Plate/row/column för att gruppera per platta och brunn. Låt Values vara tomt för att räkna källrader. De fyra brunnarna innehåller 615, 525, 700 och 501 celler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06b_blank_not_zero_tooltip",
+        "narration": "Sök efter fieldID och dra det till Columns. Då skapas ett rutnät med brunnar och synfält. För pekaren över en tom cell för att granska den: exemplet har en kombination utan källrader. Skilj den från en uppmätt nolla.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         2300,
+         260
+        ]
+       },
+       {
+        "visual": "08_area_mean_sample_sd",
+        "narration": "Töm Columns och dra sedan cell_area till Values. Standardsammanfattningen visar antal, medelvärde och standardavvikelse i urvalet. Sökningen hittar kolumnnamn; när du ändrar axlar eller statistik beräknas sammanfattningen om.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08b_read_full_cell_statistics",
+        "narration": "För pekaren över en resultatcell för att se all dess statistik och det bidragande antalet, även rader som döljs av radhöjden. Standardavvikelsen beskriver variationen mellan objekten i gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         985,
+         405,
+         1190,
+         450
+        ]
+       },
+       {
+        "visual": "09b_full_median_sem_quantile",
+        "narration": "Aktivera median, sem och quantile för att lägga till den statistiken. Ställ Quantile at på 0,75 för den övre kvartilen. SEM använder tillgängligt antal objekt; välj nivån för experimentella replikat separat när du skattar biologisk osäkerhet.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "10b_half_quantile_tooltip",
+        "narration": "Ställ Quantile at på 0,5 för att visa medianen. Den första brunnen visar nu 22 400 för båda. Återställ 0,75 och stäng av den extra statistiken för att återgå till den enklare sammanfattningen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         2050,
+         890
+        ]
+       },
+       {
+        "visual": "11b_source_count_vs_feature_n",
+        "narration": "Byt cell_area mot cell_channel_0_homogeneity_distance_32. Egenskapen har sju saknade värden, så dess bidragande antal är mindre än antalet källrader. Använd de antalen när du jämför grupper.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         410,
+         1760,
+         890
+        ]
+       },
+       {
+        "visual": "13_all_well_statistics_picker",
+        "narration": "Återställ cell_area och klicka på Export CSV i Tabulate. Välj ett nytt filnamn. Brunnssammanfattningen innehåller de tre grupperingsnycklarna, antal, medelvärde och standardavvikelse. Behåll dina val av gruppering, statistik och filter bredvid den exporterade filen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_four_group_means_not_2341_objects",
+        "narration": "Klicka på Plot this table för att skicka sammanfattningen till Graph Builder. Dra columnID till X, mean till Y och rowID till Colour. Kontrollera de härledda kolumntyperna: i exemplet behandlar Automatic de fyra olika medelvärdena som kategorier och visar en värmekarta.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "15_live_pivot_old_plot",
+        "narration": "Lägg till ett cell_area-filter med minimum 21 925. Pivottabellen uppdateras direkt för de återstående objekten. Klicka på Plot this table igen varje gång du vill föra över den uppdaterade sammanfattningen till diagrammet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_plot_this_table_refreshes_summary",
+        "narration": "När du har klickat på Plot this table granskar du de uppdaterade gruppmedelvärdena. En anteckning om areafiltret kan visas eftersom den överförda sammanfattningen innehåller mean i stället för cell_area. Objektfiltret har redan tillämpats tidigare, i Tabulate.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "19_replot_restores_original_summary",
+        "narration": "Klicka på Clear all i filtret och sedan på Plot this table igen för att återställa den ursprungliga brunnssammanfattningen. Spara filtrerade och ofiltrerade exporter under olika namn när du behöver båda.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "20_field_level_is_a_different_unit",
+        "narration": "För en sammanfattning per synfält drar du fieldID till Rows efter brunnsnycklarna. Varje rad med data sammanfattar nu ett synfält inom en brunn. Granska de bidragande antalen och håll grupperingsnivån konsekvent när du jämför resultat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_plot_choices",
+        "narration": "Klicka på Plot this table, lägg fieldID på X, behåll mean på Y och rowID på Colour och välj sedan Scatter under Plot. I exemplet känns mean nu igen som kontinuerlig. Bekräfta de visade kolumntyperna och axeletiketterna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_fifty_one_actual_field_means",
+        "narration": "Spridningsdiagrammet visar 51 medelvärden per synfält. Färgerna anger rumsliga rader, och upprepade synfältsetiketter kan höra till olika brunnar. Använd den ursprungliga objekttabellen när du vill välja enskilda celler och granska deras bilder.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "58_graph_builder",
+         "09_annotate"
+        ],
+        "focus": [
+         295,
+         1300,
+         3340,
+         690
+        ]
+       },
+       {
+        "visual": "23_field_level_statistics_complete",
+        "narration": "Exportera synfältssammanfattningen som en separat CSV-fil. Den innehåller 52 rutnätsrader, där den tomma kombinationen lämnas blank; diagrammet innehåller 51 grupper med data. I Python använder du pivot och PivotSpec från spacr.qt.widgets.pivot_spec och sedan to_csv för att spara resultatet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "host_app_key": "db_browser",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "63_small_multiples",
+     "scene": 9,
+     "links": [
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "63_small_multiples",
+     "scene": 16,
+     "links": [
+      "06_api",
+      "61_tabulate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       12,
+       "lessons"
+      ],
+      "preceding": [
+       "56_lineage"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 43,
+     "value": {
+      "kind": "submodule",
+      "app_key": "tabulate",
+      "host_app_key": "db_browser",
+      "host_lesson": "34_database",
+      "host_title": "Database Browser"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/61_tabulate -> tools/tutorials/archive/production/docs/61_tabulate"
+ ],
+ "prose": []
+}

@@ -1,0 +1,4404 @@
+{
+ "schema": 1,
+ "id": "24_plaque",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: count plaques and measure their areas",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Open the synthetic example, choose saved masks or model segmentation, inspect a preview, and read the per-image and per-plaque results.",
+      "objectives": [
+       "Open Plaque Assay from Toxoplasma and select the image folder.",
+       "Choose a model, inspect a preview and set area filters.",
+       "Run the analysis and inspect counts, areas and calibration in the output database.",
+       "Read plaque wells and their conditions from a published figure in Figure mode."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Download and extract SYNTHETIC_plaque_example.zip. It contains four grayscale TIFF images and their saved label masks. Use a working copy when trying new segmentation. Have a local plaque checkpoint available or download one through Model Zoo. The synthetic example has no physical calibration.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Toxoplasma, then choose Plaque Assay. Start with a folder of plaque images. This walkthrough uses the linked synthetic example so you can practise selecting masks, adjusting the preview and opening the results.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Download and extract the example. Set Source to SYNTHETIC_plaque, the folder containing the TIFF images and the masks subfolder. Keep a working copy if you plan to generate replacement masks.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Leave Masks off to analyse the supplied label masks. Switch Masks on when you want the selected model to segment the images first. For new segmentation, choose a plaque model and review its diameter and detection thresholds on a representative image.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Leave well detection off for this example. For images containing a whole plate, use well detection to separate the wells. If you know the image scale, enter pixels per micrometer; a known physical well diameter can also provide calibration. Record formation time in hours when it is known. Leave unknown calibration values unset.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Set Plaque model to a local checkpoint. If you need one, open Model Zoo and download a plaque model, then enter its local path. The analysis resolves this model setting even when it reuses saved masks.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Open Live preview and Live settings. Check the selected model and image before running the preview. Match the model in the preview to the one you plan to use for the full analysis.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "In Model Zoo, select the plaque model, choose a Save to folder and click Download. Wait until the model is available locally, then select that checkpoint for the preview. Keep its saved path for later runs.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Raise Min area to hide small predicted regions. Watch which objects disappear, and adjust the threshold to the smallest plaque you intend to measure. Change one setting at a time so its effect is clear.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Lower Min area to bring smaller regions back; zero removes this lower area cutoff. Check the final preview and the batch settings before Run. A preview shows the selected image; Run produces the analysis outputs.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Press Run and follow the console until the analysis finishes. With Masks off, the example reads the supplied labels and writes masks/plaques_analysis.db. The database contains the counts and areas for the images in Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Open summary for an overview by image. Match rows using their filenames. The supplied synthetic masks contain four, three, two and one objects. Average size reports their mean area in pixels.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Open stats to compare each image’s plaque count, mean area and area spread. The standard deviation describes the range of plaque sizes within that image. Use independent experimental replicates when comparing biological conditions.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay also reads published figures. Switch the preview's Mode from Plaque to Figure. In Figure mode the run finds the plaque wells inside each figure, reads the text printed around them to name each condition, and then segments the plaques. Drop PDFs or figure pictures anywhere on the screen, or fetch a paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Click From a paper and enter a DOI, PubMed or PMC id. spaCR fetches the paper's figures and their legends from Europe PMC into a new folder, notes the licence, and points the preview at them. This example uses an open-access paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here eight wells were found, each named by its strain and drug concentration. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Click Find plaques in all wells. Each well is segmented with the default plaque model, and the Plaques tab lists every plaque found. Here sixty-six plaques were found across the eight wells, seventeen of them in the wild-type well without drug. Compare the counts with the figure before you rely on them.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "24_plaque/poster.jpg",
+      "silent": "24_plaque/video/24_plaque_silent.mp4",
+      "web": "24_plaque/web/24_plaque_silent.mp4",
+      "visual_timings": "24_plaque/video/original-visual-timings.json"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: count plaques and measure their areas",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Open the synthetic example, choose saved masks or model segmentation, inspect a preview, and read the per-image and per-plaque results.",
+      "objectives": [
+       "Open Plaque Assay from Toxoplasma and select the image folder.",
+       "Choose a model, inspect a preview and set area filters.",
+       "Run the analysis and inspect counts, areas and calibration in the output database.",
+       "Read plaque wells and their conditions from a published figure in Figure mode."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Download and extract SYNTHETIC_plaque_example.zip. It contains four grayscale TIFF images and their saved label masks. Use a working copy when trying new segmentation. Have a local plaque checkpoint available or download one through Model Zoo. The synthetic example has no physical calibration.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Toxoplasma, then choose Plaque Assay. Start with a folder of plaque images. This walkthrough uses the linked synthetic example so you can practise selecting masks, adjusting the preview and opening the results.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Download and extract the example. Set Source to SYNTHETIC_plaque, the folder containing the TIFF images and the masks subfolder. Keep a working copy if you plan to generate replacement masks.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Leave Masks off to analyse the supplied label masks. Switch Masks on when you want the selected model to segment the images first. For new segmentation, choose a plaque model and review its diameter and detection thresholds on a representative image.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Leave well detection off for this example. For images containing a whole plate, use well detection to separate the wells. If you know the image scale, enter pixels per micrometer; a known physical well diameter can also provide calibration. Record formation time in hours when it is known. Leave unknown calibration values unset.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Set Plaque model to a local checkpoint. If you need one, open Model Zoo and download a plaque model, then enter its local path. The analysis resolves this model setting even when it reuses saved masks.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Open Live preview and Live settings. Check the selected model and image before running the preview. Match the model in the preview to the one you plan to use for the full analysis.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "In Model Zoo, select the plaque model, choose a Save to folder and click Download. Wait until the model is available locally, then select that checkpoint for the preview. Keep its saved path for later runs.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Raise Min area to hide small predicted regions. Watch which objects disappear, and adjust the threshold to the smallest plaque you intend to measure. Change one setting at a time so its effect is clear.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Lower Min area to bring smaller regions back; zero removes this lower area cutoff. Check the final preview and the batch settings before Run. A preview shows the selected image; Run produces the analysis outputs.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Press Run and follow the console until the analysis finishes. With Masks off, the example reads the supplied labels and writes masks/plaques_analysis.db. The database contains the counts and areas for the images in Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Open summary for an overview by image. Match rows using their filenames. The supplied synthetic masks contain four, three, two and one objects. Average size reports their mean area in pixels.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Open stats to compare each image’s plaque count, mean area and area spread. The standard deviation describes the range of plaque sizes within that image. Use independent experimental replicates when comparing biological conditions.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay also reads published figures. Switch the preview's Mode from Plaque to Figure. In Figure mode the run finds the plaque wells inside each figure, reads the text printed around them to name each condition, and then segments the plaques. Drop PDFs or figure pictures anywhere on the screen, or fetch a paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Click From a paper and enter a DOI, PubMed or PMC id. spaCR fetches the paper's figures and their legends from Europe PMC into a new folder, notes the licence, and points the preview at them. This example uses an open-access paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here eight wells were found, each named by its strain and drug concentration. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Click Find plaques in all wells. Each well is segmented with the default plaque model, and the Plaques tab lists every plaque found. Here sixty-six plaques were found across the eight wells, seventeen of them in the wild-type well without drug. Compare the counts with the figure before you rely on them.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: contar placas de lisis y medir sus áreas",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Abre el ejemplo sintético, elige máscaras guardadas o segmentación con modelo, revisa una vista previa y lee los resultados por imagen y por placa de lisis.",
+      "objectives": [
+       "Abrir Plaque Assay desde Toxoplasma y seleccionar la carpeta de imágenes.",
+       "Elegir un modelo, revisar una vista previa y ajustar los filtros de área.",
+       "Ejecutar el análisis y revisar recuentos, áreas y calibración en la base de datos de salida.",
+       "Leer los pocillos de placas y sus condiciones de una figura publicada en el modo Figure."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Descarga y extrae SYNTHETIC_plaque_example.zip. Contiene cuatro imágenes TIFF en escala de grises y sus máscaras de etiquetas guardadas. Usa una copia de trabajo cuando pruebes una segmentación nueva. Ten disponible un punto de control local de placas o descarga uno desde Model Zoo. El ejemplo sintético no tiene calibración física.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Desde Home, abre Toxoplasma y luego elige Plaque Assay. Empieza con una carpeta de imágenes de placas de lisis. Este recorrido usa el ejemplo sintético enlazado para que practiques la selección de máscaras, el ajuste de la vista previa y la apertura de los resultados.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Toxoplasma y luego elige Plaque Assay. Empieza con una carpeta de imágenes de placas de lisis. Este recorrido usa el ejemplo sintético enlazado para que practiques la selección de máscaras, el ajuste de la vista previa y la apertura de los resultados."
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Descarga y extrae el ejemplo. Pon en Source SYNTHETIC_plaque, la carpeta que contiene las imágenes TIFF y la subcarpeta masks. Conserva una copia de trabajo si piensas generar máscaras de reemplazo.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Descarga y extrae el ejemplo. Pon en Source SYNTHETIC_plaque, la carpeta que contiene las imágenes TIFF y la subcarpeta masks. Conserva una copia de trabajo si piensas generar máscaras de reemplazo."
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Deja Masks desactivado para analizar las máscaras de etiquetas proporcionadas. Activa Masks cuando quieras que el modelo seleccionado segmente primero las imágenes. Para una segmentación nueva, elige un modelo de placas y revisa su diámetro y sus umbrales de detección en una imagen representativa.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Deja Masks desactivado para analizar las máscaras de etiquetas proporcionadas. Activa Masks cuando quieras que el modelo seleccionado segmente primero las imágenes. Para una segmentación nueva, elige un modelo de placas y revisa su diámetro y sus umbrales de detección en una imagen representativa."
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Deja desactivada la detección de pozos en este ejemplo. En imágenes que contienen una placa de cultivo completa, usa la detección de pozos para separarlos. Si conoces la escala de la imagen, introduce los píxeles por micrómetro; un diámetro físico de pozo conocido también puede aportar la calibración. Anota el tiempo de formación en horas cuando lo conozcas. Deja sin rellenar los valores de calibración desconocidos.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Deja desactivada la detección de pozos en este ejemplo. En imágenes que contienen una placa de cultivo completa, usa la detección de pozos para separarlos. Si conoces la escala de la imagen, introduce los píxeles por micrómetro; un diámetro físico de pozo conocido también puede aportar la calibración. Anota el tiempo de formación en horas cuando lo conozcas. Deja sin rellenar los valores de calibración desconocidos."
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Pon en Plaque model un punto de control local. Si necesitas uno, abre Model Zoo, descarga un modelo de placas e introduce su ruta local. El análisis resuelve este ajuste de modelo incluso cuando reutiliza máscaras guardadas.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Pon en Plaque model un punto de control local. Si necesitas uno, abre Model Zoo, descarga un modelo de placas e introduce su ruta local. El análisis resuelve este ajuste de modelo incluso cuando reutiliza máscaras guardadas."
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Abre Live preview y Live settings. Comprueba el modelo y la imagen seleccionados antes de ejecutar la vista previa. Usa en la vista previa el mismo modelo que piensas usar en el análisis completo.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre Live preview y Live settings. Comprueba el modelo y la imagen seleccionados antes de ejecutar la vista previa. Usa en la vista previa el mismo modelo que piensas usar en el análisis completo."
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "En Model Zoo, selecciona el modelo de placas, elige una carpeta en Save to y haz clic en Download. Espera a que el modelo esté disponible localmente y luego selecciona ese punto de control para la vista previa. Guarda su ruta para ejecuciones posteriores.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "En Model Zoo, selecciona el modelo de placas, elige una carpeta en Save to y haz clic en Download. Espera a que el modelo esté disponible localmente y luego selecciona ese punto de control para la vista previa. Guarda su ruta para ejecuciones posteriores."
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Elige una imagen de ejemplo y haz clic en Run preview. Haz clic derecho en la imagen y abre Overlay settings, donde Display alterna entre contornos y una superposición rellena, para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Elige una imagen de ejemplo y haz clic en Run preview. Haz clic derecho en la imagen y abre Overlay settings, donde Display alterna entre contornos y una superposición rellena, para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa."
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Sube Min area para ocultar las regiones predichas pequeñas. Observa qué objetos desaparecen y ajusta el umbral a la placa más pequeña que quieras medir. Cambia un solo ajuste cada vez para que su efecto quede claro.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Sube Min area para ocultar las regiones predichas pequeñas. Observa qué objetos desaparecen y ajusta el umbral a la placa más pequeña que quieras medir. Cambia un solo ajuste cada vez para que su efecto quede claro."
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Baja Min area para recuperar las regiones más pequeñas; el valor cero elimina este límite inferior de área. Comprueba la vista previa final y los ajustes del lote antes de pulsar Run. La vista previa muestra la imagen seleccionada; Run genera las salidas del análisis.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Baja Min area para recuperar las regiones más pequeñas; el valor cero elimina este límite inferior de área. Comprueba la vista previa final y los ajustes del lote antes de pulsar Run. La vista previa muestra la imagen seleccionada; Run genera las salidas del análisis."
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Pulsa Run y sigue la consola hasta que termine el análisis. Con Masks desactivado, el ejemplo lee las etiquetas proporcionadas y escribe masks/plaques_analysis.db. La base de datos contiene los recuentos y las áreas de las imágenes de Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Pulsa Run y sigue la consola hasta que termine el análisis. Con Masks desactivado, el ejemplo lee las etiquetas proporcionadas y escribe masks/plaques_analysis.db. La base de datos contiene los recuentos y las áreas de las imágenes de Source."
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Abre Help y luego Database browser. Selecciona plaques_analysis.db en la carpeta masks. Deja Edit mode desactivado mientras revisas la salida y elige una tabla de la lista de tablas.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre Help y luego Database browser. Selecciona plaques_analysis.db en la carpeta masks. Deja Edit mode desactivado mientras revisas la salida y elige una tabla de la lista de tablas."
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Abre summary para ver un resumen por imagen. Relaciona las filas mediante sus nombres de archivo. Las máscaras sintéticas proporcionadas contienen cuatro, tres, dos y un objeto. El tamaño medio indica su área media en píxeles.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre summary para ver un resumen por imagen. Relaciona las filas mediante sus nombres de archivo. Las máscaras sintéticas proporcionadas contienen cuatro, tres, dos y un objeto. El tamaño medio indica su área media en píxeles."
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Abre stats para comparar el número de placas, el área media y la dispersión de áreas de cada imagen. La desviación estándar describe el rango de tamaños de placa dentro de esa imagen. Usa réplicas experimentales independientes cuando compares condiciones biológicas.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre stats para comparar el número de placas, el área media y la dispersión de áreas de cada imagen. La desviación estándar describe el rango de tamaños de placa dentro de esa imagen. Usa réplicas experimentales independientes cuando compares condiciones biológicas."
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes."
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay también lee figuras publicadas. Cambie Mode en la vista previa de Plaque a Figure. En el modo Figure, la ejecución encuentra los pocillos de placas en cada figura, lee el texto impreso a su alrededor para nombrar cada condición y luego segmenta las placas. Arrastre PDF o imágenes de figuras a cualquier parte de la pantalla, u obtenga un artículo.",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay también lee figuras publicadas. Cambie Mode en la vista previa de Plaque a Figure. En el modo Figure, la ejecución encuentra los pocillos de placas en cada figura, lee el texto impreso a su alrededor para nombrar cada condición y luego segmenta las placas. Arrastre PDF o imágenes de figuras a cualquier parte de la pantalla, u obtenga un artículo."
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Haga clic en From a paper e introduzca un DOI, o un identificador de PubMed o PMC. spaCR descarga las figuras del artículo y sus leyendas desde Europe PMC en una carpeta nueva, anota la licencia y dirige la vista previa a ellas. Este ejemplo usa un artículo de acceso abierto.",
+        "hold_after": 0.7,
+        "speech_text": "Haga clic en From a paper e introduzca un DOI, o un identificador de PubMed o PMC. espáquer descarga las figuras del artículo y sus leyendas desde Europe PMC en una carpeta nueva, anota la licencia y dirige la vista previa a ellas. Este ejemplo usa un artículo de acceso abierto."
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Elija una figura y haga clic en Run preview. Cada pocillo encontrado se enmarca en la figura y aparece en la tabla con el texto de etiqueta leído a su lado; aquí se encontraron ocho pocillos, cada uno nombrado por su cepa y la concentración del fármaco. Revise cada condición, corríjala si hace falta y haga clic en Save annotations antes de Run para que las mediciones lleven los nombres correctos.",
+        "hold_after": 0.7,
+        "speech_text": "Elija una figura y haga clic en Run preview. Cada pocillo encontrado se enmarca en la figura y aparece en la tabla con el texto de etiqueta leído a su lado; aquí se encontraron ocho pocillos, cada uno nombrado por su cepa y la concentración del fármaco. Revise cada condición, corríjala si hace falta y haga clic en Save annotations antes de Run para que las mediciones lleven los nombres correctos."
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Haga clic en Find plaques in all wells. Cada pocillo se segmenta con el modelo de placas predeterminado y la pestaña Plaques enumera cada placa encontrada. Aquí se encontraron sesenta y seis placas en los ocho pocillos, diecisiete de ellas en el pocillo de tipo silvestre sin fármaco. Compare los recuentos con la figura antes de fiarse de ellos.",
+        "hold_after": 0.7,
+        "speech_text": "Haga clic en Find plaques in all wells. Cada pocillo se segmenta con el modelo de placas predeterminado y la pestaña Plaques enumera cada placa encontrada. Aquí se encontraron sesenta y seis placas en los ocho pocillos, diecisiete de ellas en el pocillo de tipo silvestre sin fármaco. Compare los recuentos con la figura antes de fiarse de ellos."
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay : compter les plages de lyse et mesurer leurs aires",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Ouvrez l’exemple synthétique, choisissez des masques enregistrés ou une segmentation par modèle, examinez un aperçu et lisez les résultats par image et par plage.",
+      "objectives": [
+       "Ouvrir Plaque Assay depuis Toxoplasma et sélectionner le dossier d’images.",
+       "Choisir un modèle, examiner un aperçu et régler les filtres d’aire.",
+       "Lancer l’analyse et examiner les effectifs, les aires et la calibration dans la base de données de sortie.",
+       "Lire les puits de plages et leurs conditions dans une figure publiée en mode Figure."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Téléchargez et extrayez SYNTHETIC_plaque_example.zip. Il contient quatre images TIFF en niveaux de gris et leurs masques d’étiquettes enregistrés. Utilisez une copie de travail pour essayer une nouvelle segmentation. Ayez un point de contrôle local pour les plages, ou téléchargez-en un via Model Zoo. L’exemple synthétique n’a pas de calibration physique.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Depuis Home, ouvrez Toxoplasma, puis choisissez Plaque Assay. Commencez avec un dossier d’images de plages de lyse. Cette démonstration utilise l’exemple synthétique associé pour vous exercer à choisir les masques, régler l’aperçu et ouvrir les résultats.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Toxoplasma, puis choisissez Plaque Assay. Commencez avec un dossier d’images de plages de lyse. Cette démonstration utilise l’exemple synthétique associé pour vous exercer à choisir les masques, régler l’aperçu et ouvrir les résultats."
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Téléchargez et extrayez l’exemple. Réglez Source sur SYNTHETIC_plaque, le dossier qui contient les images TIFF et le sous-dossier masks. Gardez une copie de travail si vous prévoyez de générer des masques de remplacement.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Téléchargez et extrayez l’exemple. Réglez Source sur SYNTHETIC_plaque, le dossier qui contient les images TIFF et le sous-dossier masks. Gardez une copie de travail si vous prévoyez de générer des masques de remplacement."
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Laissez Masks désactivé pour analyser les masques d’étiquettes fournis. Activez Masks lorsque vous voulez que le modèle sélectionné segmente d’abord les images. Pour une nouvelle segmentation, choisissez un modèle de plages et vérifiez son diamètre et ses seuils de détection sur une image représentative.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Laissez Masks désactivé pour analyser les masques d’étiquettes fournis. Activez Masks lorsque vous voulez que le modèle sélectionné segmente d’abord les images. Pour une nouvelle segmentation, choisissez un modèle de plages et vérifiez son diamètre et ses seuils de détection sur une image représentative."
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Laissez la détection des puits désactivée pour cet exemple. Pour des images montrant une plaque entière, utilisez la détection des puits afin de les séparer. Si vous connaissez l’échelle de l’image, saisissez les pixels par micromètre ; un diamètre physique de puits connu peut aussi fournir la calibration. Indiquez le temps de formation en heures lorsqu’il est connu. Laissez vides les valeurs de calibration inconnues.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Laissez la détection des puits désactivée pour cet exemple. Pour des images montrant une plaque entière, utilisez la détection des puits afin de les séparer. Si vous connaissez l’échelle de l’image, saisissez les pixels par micromètre ; un diamètre physique de puits connu peut aussi fournir la calibration. Indiquez le temps de formation en heures lorsqu’il est connu. Laissez vides les valeurs de calibration inconnues."
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Réglez Plaque model sur un point de contrôle local. Si nécessaire, ouvrez Model Zoo, téléchargez un modèle de plages, puis saisissez son chemin local. L’analyse résout ce paramètre de modèle même lorsqu’elle réutilise des masques enregistrés.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Réglez Plaque model sur un point de contrôle local. Si nécessaire, ouvrez Model Zoo, téléchargez un modèle de plages, puis saisissez son chemin local. L’analyse résout ce paramètre de modèle même lorsqu’elle réutilise des masques enregistrés."
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Ouvrez Live preview et Live settings. Vérifiez le modèle et l’image sélectionnés avant de lancer l’aperçu. Utilisez dans l’aperçu le modèle que vous prévoyez d’utiliser pour l’analyse complète.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Live preview et Live settings. Vérifiez le modèle et l’image sélectionnés avant de lancer l’aperçu. Utilisez dans l’aperçu le modèle que vous prévoyez d’utiliser pour l’analyse complète."
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Dans Model Zoo, sélectionnez le modèle de plages, choisissez un dossier dans Save to et cliquez sur Download. Attendez que le modèle soit disponible localement, puis sélectionnez ce point de contrôle pour l’aperçu. Conservez son chemin pour les exécutions suivantes.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Dans Model Zoo, sélectionnez le modèle de plages, choisissez un dossier dans Save to et cliquez sur Download. Attendez que le modèle soit disponible localement, puis sélectionnez ce point de contrôle pour l’aperçu. Conservez son chemin pour les exécutions suivantes."
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Choisissez une image d’exemple et cliquez sur Run preview. Faites un clic droit sur l’image et ouvrez Overlay settings, où Display bascule entre contours et superposition remplie, pour vérifier que les régions prédites suivent les bords des plages. Examinez plusieurs images représentatives avant de traiter une plaque.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Choisissez une image d’exemple et cliquez sur Run preview. Faites un clic droit sur l’image et ouvrez Overlay settings, où Display bascule entre contours et superposition remplie, pour vérifier que les régions prédites suivent les bords des plages. Examinez plusieurs images représentatives avant de traiter une plaque."
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Augmentez Min area pour masquer les petites régions prédites. Observez quels objets disparaissent et ajustez le seuil à la plus petite plage que vous voulez mesurer. Modifiez un seul paramètre à la fois pour bien voir son effet.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Augmentez Min area pour masquer les petites régions prédites. Observez quels objets disparaissent et ajustez le seuil à la plus petite plage que vous voulez mesurer. Modifiez un seul paramètre à la fois pour bien voir son effet."
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Baissez Min area pour faire réapparaître les régions plus petites ; zéro supprime ce seuil d’aire minimale. Vérifiez l’aperçu final et les paramètres du lot avant Run. L’aperçu montre l’image sélectionnée ; Run produit les sorties de l’analyse.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Baissez Min area pour faire réapparaître les régions plus petites ; zéro supprime ce seuil d’aire minimale. Vérifiez l’aperçu final et les paramètres du lot avant Run. L’aperçu montre l’image sélectionnée ; Run produit les sorties de l’analyse."
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Appuyez sur Run et suivez la console jusqu’à la fin de l’analyse. Avec Masks désactivé, l’exemple lit les étiquettes fournies et écrit masks/plaques_analysis.db. La base de données contient les effectifs et les aires des images de Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Appuyez sur Run et suivez la console jusqu’à la fin de l’analyse. Avec Masks désactivé, l’exemple lit les étiquettes fournies et écrit masks/plaques_analysis.db. La base de données contient les effectifs et les aires des images de Source."
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Ouvrez Help, puis Database browser. Sélectionnez plaques_analysis.db dans le dossier masks. Laissez Edit mode désactivé pendant l’examen de la sortie et choisissez une table dans la liste.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Help, puis Database browser. Sélectionnez plaques_analysis.db dans le dossier masks. Laissez Edit mode désactivé pendant l’examen de la sortie et choisissez une table dans la liste."
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Ouvrez summary pour une vue d’ensemble par image. Associez les lignes grâce aux noms de fichier. Les masques synthétiques fournis contiennent quatre, trois, deux et un objets. La taille moyenne indique leur aire moyenne en pixels.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez summary pour une vue d’ensemble par image. Associez les lignes grâce aux noms de fichier. Les masques synthétiques fournis contiennent quatre, trois, deux et un objets. La taille moyenne indique leur aire moyenne en pixels."
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Ouvrez stats pour comparer, pour chaque image, le nombre de plages, l’aire moyenne et la dispersion des aires. L’écart-type décrit l’étendue des tailles de plages dans l’image. Utilisez des réplicats expérimentaux indépendants pour comparer des conditions biologiques.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez stats pour comparer, pour chaque image, le nombre de plages, l’aire moyenne et la dispersion des aires. L’écart-type décrit l’étendue des tailles de plages dans l’image. Utilisez des réplicats expérimentaux indépendants pour comparer des conditions biologiques."
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres."
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay lit aussi les figures publiées. Faites passer Mode, dans l’aperçu, de Plaque à Figure. En mode Figure, l’exécution trouve les puits de plages dans chaque figure, lit le texte imprimé autour pour nommer chaque condition, puis segmente les plages. Déposez des PDF ou des images de figures n’importe où sur l’écran, ou récupérez un article.",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay lit aussi les figures publiées. Faites passer Mode, dans l’aperçu, de Plaque à Figure. En mode Figure, l’exécution trouve les puits de plages dans chaque figure, lit le texte imprimé autour pour nommer chaque condition, puis segmente les plages. Déposez des PDF ou des images de figures n’importe où sur l’écran, ou récupérez un article."
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Cliquez sur From a paper et saisissez un DOI, ou un identifiant PubMed ou PMC. spaCR récupère les figures de l’article et leurs légendes depuis Europe PMC dans un nouveau dossier, note la licence et oriente l’aperçu vers elles. Cet exemple utilise un article en libre accès.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur From a paper et saisissez un DOI, ou un identifiant PubMed ou PMC. spakeur récupère les figures de l’article et leurs légendes depuis Europe PMC dans un nouveau dossier, note la licence et oriente l’aperçu vers elles. Cet exemple utilise un article en libre accès."
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Choisissez une figure et cliquez sur Run preview. Chaque puits trouvé est encadré sur la figure et listé dans le tableau avec le texte d’étiquette lu à côté ; ici, huit puits ont été trouvés, chacun nommé par sa souche et la concentration du composé. Vérifiez chaque condition, corrigez-la si besoin et cliquez sur Save annotations avant Run pour que les mesures portent les bons noms.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez une figure et cliquez sur Run preview. Chaque puits trouvé est encadré sur la figure et listé dans le tableau avec le texte d’étiquette lu à côté ; ici, huit puits ont été trouvés, chacun nommé par sa souche et la concentration du composé. Vérifiez chaque condition, corrigez-la si besoin et cliquez sur Save annotations avant Run pour que les mesures portent les bons noms."
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Cliquez sur Find plaques in all wells. Chaque puits est segmenté avec le modèle de plages par défaut, et l’onglet Plaques liste chaque plage trouvée. Ici, soixante-six plages ont été trouvées dans les huit puits, dont dix-sept dans le puits de type sauvage sans composé. Comparez les décomptes à la figure avant de vous y fier.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Find plaques in all wells. Chaque puits est segmenté avec le modèle de plages par défaut, et l’onglet Plaques liste chaque plage trouvée. Ici, soixante-six plages ont été trouvées dans les huit puits, dont dix-sept dans le puits de type sauvage sans composé. Comparez les décomptes à la figure avant de vous y fier."
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: प्लाक गिनें और उनका क्षेत्रफल मापें",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "कृत्रिम उदाहरण खोलें, सहेजे गए मास्क या मॉडल सेगमेंटेशन चुनें, पूर्वावलोकन देखें और हर इमेज तथा हर प्लाक के परिणाम पढ़ें।",
+      "objectives": [
+       "Toxoplasma से Plaque Assay खोलें और इमेज फ़ोल्डर चुनें।",
+       "मॉडल चुनें, पूर्वावलोकन देखें और क्षेत्रफल फ़िल्टर सेट करें।",
+       "विश्लेषण चलाएँ और आउटपुट डेटाबेस में गिनती, क्षेत्रफल और कैलिब्रेशन देखें।",
+       "Figure मोड में किसी प्रकाशित आकृति से प्लाक वेल और उनकी स्थितियाँ पढ़ना।"
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "SYNTHETIC_plaque_example.zip डाउनलोड करके निकालें। इसमें चार ग्रेस्केल TIFF इमेज और उनके सहेजे गए लेबल मास्क हैं। नया सेगमेंटेशन आज़माते समय एक कार्यशील प्रति इस्तेमाल करें। प्लाक का कोई स्थानीय चेकपॉइंट तैयार रखें, या Model Zoo से डाउनलोड करें। कृत्रिम उदाहरण में भौतिक कैलिब्रेशन नहीं है।",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home से Toxoplasma खोलें, फिर Plaque Assay चुनें। प्लाक इमेज के एक फ़ोल्डर से शुरू करें। यह वॉकथ्रू जुड़ा हुआ कृत्रिम उदाहरण इस्तेमाल करता है, ताकि आप मास्क चुनने, पूर्वावलोकन समायोजित करने और परिणाम खोलने का अभ्यास कर सकें।",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home से Toxoplasma खोलें, फिर Plaque Assay चुनें। प्लाक इमेज के एक फ़ोल्डर से शुरू करें। यह वॉकथ्रू जुड़ा हुआ कृत्रिम उदाहरण इस्तेमाल करता है, ताकि आप मास्क चुनने, पूर्वावलोकन समायोजित करने और परिणाम खोलने का अभ्यास कर सकें।"
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "उदाहरण डाउनलोड करके निकालें। Source में SYNTHETIC_plaque रखें, यानी वह फ़ोल्डर जिसमें TIFF इमेज और masks सबफ़ोल्डर हैं। अगर आप बदले हुए मास्क बनाना चाहते हैं, तो एक कार्यशील प्रति रखें।",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "उदाहरण डाउनलोड करके निकालें। Source में SYNTHETIC_plaque रखें, यानी वह फ़ोल्डर जिसमें TIFF इमेज और masks सबफ़ोल्डर हैं। अगर आप बदले हुए मास्क बनाना चाहते हैं, तो एक कार्यशील प्रति रखें।"
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "दिए गए लेबल मास्क का विश्लेषण करने के लिए Masks बंद रखें। जब आप चाहते हैं कि चुना गया मॉडल पहले इमेज का सेगमेंटेशन करे, तब Masks चालू करें। नए सेगमेंटेशन के लिए प्लाक मॉडल चुनें और किसी प्रतिनिधि इमेज पर उसका व्यास और पहचान की सीमाएँ जाँचें।",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "दिए गए लेबल मास्क का विश्लेषण करने के लिए Masks बंद रखें। जब आप चाहते हैं कि चुना गया मॉडल पहले इमेज का सेगमेंटेशन करे, तब Masks चालू करें। नए सेगमेंटेशन के लिए प्लाक मॉडल चुनें और किसी प्रतिनिधि इमेज पर उसका व्यास और पहचान की सीमाएँ जाँचें।"
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "इस उदाहरण में वेल पहचान बंद रखें। पूरी प्लेट वाली इमेज में वेल अलग करने के लिए वेल पहचान इस्तेमाल करें। अगर आपको इमेज का पैमाना पता है, तो पिक्सेल प्रति माइक्रोमीटर दर्ज करें; वेल का ज्ञात भौतिक व्यास भी कैलिब्रेशन दे सकता है। पता हो, तो बनने का समय घंटों में दर्ज करें। अज्ञात कैलिब्रेशन मान खाली छोड़ें।",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "इस उदाहरण में वेल पहचान बंद रखें। पूरी प्लेट वाली इमेज में वेल अलग करने के लिए वेल पहचान इस्तेमाल करें। अगर आपको इमेज का पैमाना पता है, तो पिक्सेल प्रति माइक्रोमीटर दर्ज करें; वेल का ज्ञात भौतिक व्यास भी कैलिब्रेशन दे सकता है। पता हो, तो बनने का समय घंटों में दर्ज करें। अज्ञात कैलिब्रेशन मान खाली छोड़ें।"
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Plaque model में कोई स्थानीय चेकपॉइंट रखें। अगर ज़रूरत हो, तो Model Zoo खोलें, एक प्लाक मॉडल डाउनलोड करें, फिर उसका स्थानीय पथ दर्ज करें। विश्लेषण इस मॉडल सेटिंग को तब भी हल करता है जब वह सहेजे गए मास्क दोबारा इस्तेमाल करता है।",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Plaque model में कोई स्थानीय चेकपॉइंट रखें। अगर ज़रूरत हो, तो Model Zoo खोलें, एक प्लाक मॉडल डाउनलोड करें, फिर उसका स्थानीय पथ दर्ज करें। विश्लेषण इस मॉडल सेटिंग को तब भी हल करता है जब वह सहेजे गए मास्क दोबारा इस्तेमाल करता है।"
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Live preview और Live settings खोलें। पूर्वावलोकन चलाने से पहले चुना गया मॉडल और इमेज जाँचें। पूर्वावलोकन में वही मॉडल रखें जिसे आप पूरे विश्लेषण में इस्तेमाल करना चाहते हैं।",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Live preview और Live settings खोलें। पूर्वावलोकन चलाने से पहले चुना गया मॉडल और इमेज जाँचें। पूर्वावलोकन में वही मॉडल रखें जिसे आप पूरे विश्लेषण में इस्तेमाल करना चाहते हैं।"
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Model Zoo में प्लाक मॉडल चुनें, Save to में फ़ोल्डर चुनें और Download पर क्लिक करें। मॉडल के स्थानीय रूप से उपलब्ध होने तक प्रतीक्षा करें, फिर पूर्वावलोकन के लिए वही चेकपॉइंट चुनें। आगे के रन के लिए उसका सहेजा गया पथ रखें।",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Model Zoo में प्लाक मॉडल चुनें, Save to में फ़ोल्डर चुनें और Download पर क्लिक करें। मॉडल के स्थानीय रूप से उपलब्ध होने तक प्रतीक्षा करें, फिर पूर्वावलोकन के लिए वही चेकपॉइंट चुनें। आगे के रन के लिए उसका सहेजा गया पथ रखें।"
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "कोई उदाहरण इमेज चुनें और Run preview पर क्लिक करें। तस्वीर पर राइट-क्लिक करके Overlay settings खोलें, जहाँ Display रूपरेखा और भरे हुए ओवरले के बीच बदलता है, ताकि आप देख सकें कि अनुमानित क्षेत्र प्लाक की सीमाओं के साथ चलते हैं या नहीं। पूरी प्लेट चलाने से पहले कई प्रतिनिधि इमेज जाँचें।",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "कोई उदाहरण इमेज चुनें और Run preview पर क्लिक करें। तस्वीर पर राइट-क्लिक करके Overlay settings खोलें, जहाँ Display रूपरेखा और भरे हुए ओवरले के बीच बदलता है, ताकि आप देख सकें कि अनुमानित क्षेत्र प्लाक की सीमाओं के साथ चलते हैं या नहीं। पूरी प्लेट चलाने से पहले कई प्रतिनिधि इमेज जाँचें।"
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "छोटे अनुमानित क्षेत्र छिपाने के लिए Min area बढ़ाएँ। देखें कि कौन-सी वस्तुएँ गायब होती हैं, और सीमा को उस सबसे छोटे प्लाक के अनुसार रखें जिसे आप मापना चाहते हैं। एक बार में एक ही सेटिंग बदलें, ताकि उसका असर साफ़ दिखे।",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "छोटे अनुमानित क्षेत्र छिपाने के लिए Min area बढ़ाएँ। देखें कि कौन-सी वस्तुएँ गायब होती हैं, और सीमा को उस सबसे छोटे प्लाक के अनुसार रखें जिसे आप मापना चाहते हैं। एक बार में एक ही सेटिंग बदलें, ताकि उसका असर साफ़ दिखे।"
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "छोटे क्षेत्र वापस लाने के लिए Min area घटाएँ; शून्य करने पर क्षेत्रफल की यह निचली सीमा हट जाती है। Run से पहले अंतिम पूर्वावलोकन और बैच सेटिंग जाँचें। पूर्वावलोकन चुनी गई इमेज दिखाता है; Run विश्लेषण के आउटपुट बनाता है।",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "छोटे क्षेत्र वापस लाने के लिए Min area घटाएँ; शून्य करने पर क्षेत्रफल की यह निचली सीमा हट जाती है। Run से पहले अंतिम पूर्वावलोकन और बैच सेटिंग जाँचें। पूर्वावलोकन चुनी गई इमेज दिखाता है; Run विश्लेषण के आउटपुट बनाता है।"
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Run दबाएँ और विश्लेषण पूरा होने तक कंसोल देखें। Masks बंद होने पर उदाहरण दिए गए लेबल पढ़ता है और masks/plaques_analysis.db लिखता है। डेटाबेस में Source की इमेज के लिए गिनती और क्षेत्रफल होते हैं।",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Run दबाएँ और विश्लेषण पूरा होने तक कंसोल देखें। Masks बंद होने पर उदाहरण दिए गए लेबल पढ़ता है और masks/plaques_analysis.db लिखता है। डेटाबेस में Source की इमेज के लिए गिनती और क्षेत्रफल होते हैं।"
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Help खोलें, फिर Database browser। masks फ़ोल्डर में plaques_analysis.db चुनें। आउटपुट देखते समय Edit mode बंद रखें, और तालिका सूची से एक तालिका चुनें।",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Help खोलें, फिर Database browser। masks फ़ोल्डर में plaques_analysis.db चुनें। आउटपुट देखते समय Edit mode बंद रखें, और तालिका सूची से एक तालिका चुनें।"
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "हर इमेज का सारांश देखने के लिए summary खोलें। फ़ाइल नामों से पंक्तियों का मिलान करें। दिए गए कृत्रिम मास्क में चार, तीन, दो और एक वस्तुएँ हैं। औसत आकार पिक्सेल में उनका औसत क्षेत्रफल बताता है।",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "हर इमेज का सारांश देखने के लिए summary खोलें। फ़ाइल नामों से पंक्तियों का मिलान करें। दिए गए कृत्रिम मास्क में चार, तीन, दो और एक वस्तुएँ हैं। औसत आकार पिक्सेल में उनका औसत क्षेत्रफल बताता है।"
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "हर इमेज की प्लाक गिनती, औसत क्षेत्रफल और क्षेत्रफल के फैलाव की तुलना के लिए stats खोलें। मानक विचलन उस इमेज में प्लाक के आकार की सीमा बताता है। जैविक स्थितियों की तुलना करते समय स्वतंत्र प्रयोगात्मक प्रतिकृतियाँ इस्तेमाल करें।",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "हर इमेज की प्लाक गिनती, औसत क्षेत्रफल और क्षेत्रफल के फैलाव की तुलना के लिए stats खोलें। मानक विचलन उस इमेज में प्लाक के आकार की सीमा बताता है। जैविक स्थितियों की तुलना करते समय स्वतंत्र प्रयोगात्मक प्रतिकृतियाँ इस्तेमाल करें।"
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "अलग-अलग प्लाक का क्षेत्रफल देखने के लिए details खोलें। कैलिब्रेशन न होने पर भौतिक क्षेत्रफल वाले कॉलम खाली रहते हैं। डेटाबेस को इमेज, मास्क और सेटिंग के साथ सहेजें।",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "अलग-अलग प्लाक का क्षेत्रफल देखने के लिए details खोलें। कैलिब्रेशन न होने पर भौतिक क्षेत्रफल वाले कॉलम खाली रहते हैं। डेटाबेस को इमेज, मास्क और सेटिंग के साथ सहेजें।"
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay प्रकाशित आकृतियाँ भी पढ़ता है। पूर्वावलोकन में Mode को Plaque से Figure पर बदलें। Figure मोड में रन हर आकृति के भीतर प्लाक वेल ढूँढता है, हर स्थिति का नाम जानने के लिए उनके आसपास छपा टेक्स्ट पढ़ता है, और फिर प्लाक को विभाजित करता है। PDF या आकृतियों की तस्वीरें स्क्रीन पर कहीं भी छोड़ें, या कोई पेपर मँगवाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay प्रकाशित आकृतियाँ भी पढ़ता है। पूर्वावलोकन में Mode को Plaque से Figure पर बदलें। Figure मोड में रन हर आकृति के भीतर प्लाक वेल ढूँढता है, हर स्थिति का नाम जानने के लिए उनके आसपास छपा टेक्स्ट पढ़ता है, और फिर प्लाक को विभाजित करता है। PDF या आकृतियों की तस्वीरें स्क्रीन पर कहीं भी छोड़ें, या कोई पेपर मँगवाएँ।"
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "From a paper पर क्लिक करें और DOI, PubMed या PMC पहचान लिखें। spaCR पेपर की आकृतियाँ और उनके विवरण Europe PMC से एक नए फ़ोल्डर में लाता है, लाइसेंस दर्ज करता है और पूर्वावलोकन को उन पर ले जाता है। यह उदाहरण एक मुक्त-पहुँच पेपर इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "speech_text": "From a paper पर क्लिक करें और DOI, PubMed या PMC पहचान लिखें। स्पेकर पेपर की आकृतियाँ और उनके विवरण Europe PMC से एक नए फ़ोल्डर में लाता है, लाइसेंस दर्ज करता है और पूर्वावलोकन को उन पर ले जाता है। यह उदाहरण एक मुक्त-पहुँच पेपर इस्तेमाल करता है।"
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "कोई आकृति चुनें और Run preview पर क्लिक करें। मिला हर वेल आकृति पर एक बॉक्स में दिखता है और तालिका में उसके पास पढ़े गए लेबल टेक्स्ट के साथ सूचीबद्ध होता है; यहाँ आठ वेल मिले, हर एक का नाम उसके स्ट्रेन और दवा की सांद्रता से रखा गया। हर स्थिति जाँचें, ज़रूरत हो तो ठीक करें, और Run से पहले Save annotations पर क्लिक करें ताकि मापों पर सही नाम रहें।",
+        "hold_after": 0.7,
+        "speech_text": "कोई आकृति चुनें और Run preview पर क्लिक करें। मिला हर वेल आकृति पर एक बॉक्स में दिखता है और तालिका में उसके पास पढ़े गए लेबल टेक्स्ट के साथ सूचीबद्ध होता है; यहाँ आठ वेल मिले, हर एक का नाम उसके स्ट्रेन और दवा की सांद्रता से रखा गया। हर स्थिति जाँचें, ज़रूरत हो तो ठीक करें, और Run से पहले Save annotations पर क्लिक करें ताकि मापों पर सही नाम रहें।"
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Find plaques in all wells पर क्लिक करें। हर वेल को डिफ़ॉल्ट प्लाक मॉडल से विभाजित किया जाता है, और Plaques टैब हर मिले प्लाक की सूची देता है। यहाँ आठ वेल में छियासठ प्लाक मिले, जिनमें से सत्रह बिना दवा वाले वाइल्ड-टाइप वेल में थे। इन गिनतियों पर भरोसा करने से पहले उन्हें आकृति से मिलाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "Find plaques in all wells पर क्लिक करें। हर वेल को डिफ़ॉल्ट प्लाक मॉडल से विभाजित किया जाता है, और Plaques टैब हर मिले प्लाक की सूची देता है। यहाँ आठ वेल में छियासठ प्लाक मिले, जिनमें से सत्रह बिना दवा वाले वाइल्ड-टाइप वेल में थे। इन गिनतियों पर भरोसा करने से पहले उन्हें आकृति से मिलाएँ।"
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: contare le placche e misurarne l’area",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Apri l’esempio sintetico, scegli maschere salvate o segmentazione con modello, esamina un’anteprima e leggi i risultati per immagine e per placca.",
+      "objectives": [
+       "Aprire Plaque Assay da Toxoplasma e selezionare la cartella delle immagini.",
+       "Scegliere un modello, esaminare un’anteprima e impostare i filtri sull’area.",
+       "Eseguire l’analisi ed esaminare conteggi, aree e calibrazione nel database di output.",
+       "Leggere i pozzetti con le placche e le loro condizioni da una figura pubblicata in modalità Figure."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Scarica ed estrai SYNTHETIC_plaque_example.zip. Contiene quattro immagini TIFF in scala di grigi e le relative maschere di etichette salvate. Usa una copia di lavoro quando provi una nuova segmentazione. Tieni disponibile un checkpoint locale per le placche, oppure scaricane uno tramite Model Zoo. L’esempio sintetico non ha calibrazione fisica.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Da Home, apri Toxoplasma e poi scegli Plaque Assay. Parti da una cartella di immagini di placche. Questa guida usa l’esempio sintetico collegato, così puoi esercitarti a scegliere le maschere, regolare l’anteprima e aprire i risultati.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Toxoplasma e poi scegli Plaque Assay. Parti da una cartella di immagini di placche. Questa guida usa l’esempio sintetico collegato, così puoi esercitarti a scegliere le maschere, regolare l’anteprima e aprire i risultati."
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Scarica ed estrai l’esempio. Imposta Source su SYNTHETIC_plaque, la cartella che contiene le immagini TIFF e la sottocartella masks. Conserva una copia di lavoro se pensi di generare maschere sostitutive.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Scarica ed estrai l’esempio. Imposta Source su SYNTHETIC_plaque, la cartella che contiene le immagini TIFF e la sottocartella masks. Conserva una copia di lavoro se pensi di generare maschere sostitutive."
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Lascia disattivato Masks per analizzare le maschere di etichette fornite. Attiva Masks quando vuoi che il modello selezionato segmenti prima le immagini. Per una nuova segmentazione, scegli un modello per le placche e controlla il diametro e le soglie di rilevamento su un’immagine rappresentativa.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Lascia disattivato Masks per analizzare le maschere di etichette fornite. Attiva Masks quando vuoi che il modello selezionato segmenti prima le immagini. Per una nuova segmentazione, scegli un modello per le placche e controlla il diametro e le soglie di rilevamento su un’immagine rappresentativa."
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Lascia disattivato il rilevamento dei pozzetti in questo esempio. Per immagini che contengono un’intera piastra, usa il rilevamento dei pozzetti per separarli. Se conosci la scala dell’immagine, inserisci i pixel per micrometro; anche un diametro fisico noto del pozzetto può fornire la calibrazione. Registra il tempo di formazione in ore quando lo conosci. Lascia vuoti i valori di calibrazione sconosciuti.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Lascia disattivato il rilevamento dei pozzetti in questo esempio. Per immagini che contengono un’intera piastra, usa il rilevamento dei pozzetti per separarli. Se conosci la scala dell’immagine, inserisci i pixel per micrometro; anche un diametro fisico noto del pozzetto può fornire la calibrazione. Registra il tempo di formazione in ore quando lo conosci. Lascia vuoti i valori di calibrazione sconosciuti."
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Imposta Plaque model su un checkpoint locale. Se te ne serve uno, apri Model Zoo, scarica un modello per le placche e inserisci il suo percorso locale. L’analisi risolve questa impostazione del modello anche quando riusa maschere salvate.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Imposta Plaque model su un checkpoint locale. Se te ne serve uno, apri Model Zoo, scarica un modello per le placche e inserisci il suo percorso locale. L’analisi risolve questa impostazione del modello anche quando riusa maschere salvate."
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Apri Live preview e Live settings. Controlla il modello e l’immagine selezionati prima di eseguire l’anteprima. Usa nell’anteprima lo stesso modello che intendi usare per l’analisi completa.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri Live preview e Live settings. Controlla il modello e l’immagine selezionati prima di eseguire l’anteprima. Usa nell’anteprima lo stesso modello che intendi usare per l’analisi completa."
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "In Model Zoo, seleziona il modello per le placche, scegli una cartella in Save to e fai clic su Download. Attendi che il modello sia disponibile in locale, poi seleziona quel checkpoint per l’anteprima. Conserva il suo percorso per le esecuzioni successive.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "In Model Zoo, seleziona il modello per le placche, scegli una cartella in Save to e fai clic su Download. Attendi che il modello sia disponibile in locale, poi seleziona quel checkpoint per l’anteprima. Conserva il suo percorso per le esecuzioni successive."
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Scegli un’immagine di esempio e fai clic su Run preview. Fai clic destro sull’immagine e apri Overlay settings, dove Display passa dai contorni a una sovrapposizione piena, per verificare se le regioni previste seguono i bordi delle placche. Esamina diverse immagini rappresentative prima di elaborare una piastra.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Scegli un’immagine di esempio e fai clic su Run preview. Fai clic destro sull’immagine e apri Overlay settings, dove Display passa dai contorni a una sovrapposizione piena, per verificare se le regioni previste seguono i bordi delle placche. Esamina diverse immagini rappresentative prima di elaborare una piastra."
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Aumenta Min area per nascondere le piccole regioni previste. Osserva quali oggetti scompaiono e regola la soglia sulla placca più piccola che vuoi misurare. Cambia un’impostazione alla volta, così il suo effetto resta chiaro.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Aumenta Min area per nascondere le piccole regioni previste. Osserva quali oggetti scompaiono e regola la soglia sulla placca più piccola che vuoi misurare. Cambia un’impostazione alla volta, così il suo effetto resta chiaro."
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Riduci Min area per far ricomparire le regioni più piccole; zero elimina questo limite inferiore di area. Controlla l’anteprima finale e le impostazioni del batch prima di Run. L’anteprima mostra l’immagine selezionata; Run produce gli output dell’analisi.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Riduci Min area per far ricomparire le regioni più piccole; zero elimina questo limite inferiore di area. Controlla l’anteprima finale e le impostazioni del batch prima di Run. L’anteprima mostra l’immagine selezionata; Run produce gli output dell’analisi."
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Premi Run e segui la console fino al termine dell’analisi. Con Masks disattivato, l’esempio legge le etichette fornite e scrive masks/plaques_analysis.db. Il database contiene i conteggi e le aree delle immagini in Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Premi Run e segui la console fino al termine dell’analisi. Con Masks disattivato, l’esempio legge le etichette fornite e scrive masks/plaques_analysis.db. Il database contiene i conteggi e le aree delle immagini in Source."
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Apri Help e poi Database browser. Seleziona plaques_analysis.db nella cartella masks. Lascia disattivato Edit mode mentre esamini l’output e scegli una tabella dall’elenco delle tabelle.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri Help e poi Database browser. Seleziona plaques_analysis.db nella cartella masks. Lascia disattivato Edit mode mentre esamini l’output e scegli una tabella dall’elenco delle tabelle."
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Apri summary per una panoramica per immagine. Abbina le righe tramite i nomi dei file. Le maschere sintetiche fornite contengono quattro, tre, due e un oggetto. La dimensione media riporta la loro area media in pixel.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri summary per una panoramica per immagine. Abbina le righe tramite i nomi dei file. Le maschere sintetiche fornite contengono quattro, tre, due e un oggetto. La dimensione media riporta la loro area media in pixel."
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Apri stats per confrontare per ogni immagine il numero di placche, l’area media e la dispersione delle aree. La deviazione standard descrive l’intervallo delle dimensioni delle placche nell’immagine. Usa repliche sperimentali indipendenti quando confronti condizioni biologiche.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri stats per confrontare per ogni immagine il numero di placche, l’area media e la dispersione delle aree. La deviazione standard descrive l’intervallo delle dimensioni delle placche nell’immagine. Usa repliche sperimentali indipendenti quando confronti condizioni biologiche."
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni."
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay legge anche le figure pubblicate. Nell’anteprima, passa Mode da Plaque a Figure. In modalità Figure l’esecuzione trova i pozzetti con le placche in ogni figura, legge il testo stampato intorno per dare un nome a ogni condizione, poi segmenta le placche. Trascina PDF o immagini di figure in qualsiasi punto dello schermo, oppure scarica un articolo.",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay legge anche le figure pubblicate. Nell’anteprima, passa Mode da Plaque a Figure. In modalità Figure l’esecuzione trova i pozzetti con le placche in ogni figura, legge il testo stampato intorno per dare un nome a ogni condizione, poi segmenta le placche. Trascina PDF o immagini di figure in qualsiasi punto dello schermo, oppure scarica un articolo."
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Fai clic su From a paper e inserisci un DOI, o un identificativo PubMed o PMC. spaCR scarica le figure dell’articolo e le loro didascalie da Europe PMC in una nuova cartella, annota la licenza e punta l’anteprima su di esse. Questo esempio usa un articolo ad accesso aperto.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su From a paper e inserisci un DOI, o un identificativo PubMed o PMC. spàker scarica le figure dell’articolo e le loro didascalie da Europe PMC in una nuova cartella, annota la licenza e punta l’anteprima su di esse. Questo esempio usa un articolo ad accesso aperto."
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Scegli una figura e fai clic su Run preview. Ogni pozzetto trovato viene riquadrato nella figura ed elencato nella tabella con il testo dell’etichetta letto accanto; qui sono stati trovati otto pozzetti, ciascuno indicato dal ceppo e dalla concentrazione del farmaco. Controlla ogni condizione, correggila se serve e fai clic su Save annotations prima di Run, così le misurazioni portano i nomi giusti.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli una figura e fai clic su Run preview. Ogni pozzetto trovato viene riquadrato nella figura ed elencato nella tabella con il testo dell’etichetta letto accanto; qui sono stati trovati otto pozzetti, ciascuno indicato dal ceppo e dalla concentrazione del farmaco. Controlla ogni condizione, correggila se serve e fai clic su Save annotations prima di Run, così le misurazioni portano i nomi giusti."
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Fai clic su Find plaques in all wells. Ogni pozzetto viene segmentato con il modello di placche predefinito e la scheda Plaques elenca ogni placca trovata. Qui sono state trovate sessantasei placche negli otto pozzetti, diciassette delle quali nel pozzetto di tipo selvatico senza farmaco. Confronta i conteggi con la figura prima di fidarti.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Find plaques in all wells. Ogni pozzetto viene segmentato con il modello di placche predefinito e la scheda Plaques elenca ogni placca trovata. Qui sono state trovate sessantasei placche negli otto pozzetti, diciassette delle quali nel pozzetto di tipo selvatico senza farmaco. Confronta i conteggi con la figura prima di fidarti."
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay：プラークを数えて面積を測る",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "合成データの例を開き、保存済みのマスクかモデルによるセグメンテーションを選び、プレビューを確認して、画像ごと・プラークごとの結果を読みます。",
+      "objectives": [
+       "ToxoplasmaからPlaque Assayを開き、画像フォルダーを選ぶ。",
+       "モデルを選び、プレビューを確認し、面積のフィルターを設定する。",
+       "解析を実行し、出力データベースで数、面積、キャリブレーションを確認する。",
+       "Figureモードで、公開された図からプラークのウェルとその条件を読み取る。"
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "SYNTHETIC_plaque_example.zipをダウンロードして展開します。グレースケールのTIFF画像四枚と、その保存済みのラベルマスクが入っています。新しいセグメンテーションを試すときは作業用のコピーを使います。プラーク用のローカルのチェックポイントを用意するか、Model Zooからダウンロードします。この合成データの例には物理的なキャリブレーションがありません。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "HomeからToxoplasmaを開き、Plaque Assayを選びます。プラーク画像のフォルダーから始めます。このチュートリアルでは、リンク先の合成データの例を使って、マスクの選択、プレビューの調整、結果の開き方を練習します。",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホームからToxoplasmaを開き、Plaque Assayを選びます。プラーク画像のフォルダーから始めます。このチュートリアルでは、リンク先の合成データの例を使って、マスクの選択、プレビューの調整、結果の開き方を練習します。"
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "例をダウンロードして展開します。Sourceに、TIFF画像とmasksサブフォルダーを含むSYNTHETIC_plaqueフォルダーを設定します。置き換え用のマスクを作る予定がある場合は、作業用のコピーを残しておきます。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "例をダウンロードして展開します。Sourceに、TIFF画像とmasksサブフォルダーを含むSYNTHETIC_plaqueフォルダーを設定します。置き換え用のマスクを作る予定がある場合は、作業用のコピーを残しておきます。"
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "付属のラベルマスクを解析するには、Masksをオフのままにします。選んだモデルで先に画像をセグメンテーションしたいときは、Masksをオンにします。新しくセグメンテーションする場合は、プラーク用のモデルを選び、代表的な画像で直径と検出のしきい値を確認します。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "付属のラベルマスクを解析するには、Masksをオフのままにします。選んだモデルで先に画像をセグメンテーションしたいときは、Masksをオンにします。新しくセグメンテーションする場合は、プラーク用のモデルを選び、代表的な画像で直径と検出のしきい値を確認します。"
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "この例ではウェルの検出をオフのままにします。プレート全体が写った画像では、ウェルの検出を使ってウェルを分けます。画像のスケールがわかっている場合は、マイクロメートルあたりのピクセル数を入力します。ウェルの物理的な直径がわかっていれば、それもキャリブレーションに使えます。形成時間がわかっていれば時間単位で記録します。不明なキャリブレーション値は空欄のままにします。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "この例ではウェルの検出をオフのままにします。プレート全体が写った画像では、ウェルの検出を使ってウェルを分けます。画像のスケールがわかっている場合は、マイクロメートルあたりのピクセル数を入力します。ウェルの物理的な直径がわかっていれば、それもキャリブレーションに使えます。形成時間がわかっていれば時間単位で記録します。不明なキャリブレーション値は空欄のままにします。"
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Plaque modelにローカルのチェックポイントを設定します。必要な場合は、Model Zooを開いてプラーク用のモデルをダウンロードし、そのローカルのパスを入力します。解析は、保存済みのマスクを再利用する場合でも、このモデルの設定を解決します。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Plaque modelにローカルのチェックポイントを設定します。必要な場合は、Model Zooを開いてプラーク用のモデルをダウンロードし、そのローカルのパスを入力します。解析は、保存済みのマスクを再利用する場合でも、このモデルの設定を解決します。"
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Live previewとLive settingsを開きます。プレビューを実行する前に、選んだモデルと画像を確認します。プレビューでは、解析全体で使う予定のモデルと同じものを使います。",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Live previewとLive settingsを開きます。プレビューを実行する前に、選んだモデルと画像を確認します。プレビューでは、解析全体で使う予定のモデルと同じものを使います。"
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Model Zooでプラーク用のモデルを選び、Save toでフォルダーを選んでDownloadをクリックします。モデルがローカルで使えるようになるまで待ち、そのチェックポイントをプレビュー用に選びます。保存されたパスは後の実行のために控えておきます。",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Model Zooでプラーク用のモデルを選び、Save toでフォルダーを選んでDownloadをクリックします。モデルがローカルで使えるようになるまで待ち、そのチェックポイントをプレビュー用に選びます。保存されたパスは後の実行のために控えておきます。"
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "例の画像を選び、Run previewをクリックします。画像を右クリックしてOverlay settingsを開き、Displayで輪郭と塗りつぶしの重ね表示を切り替えて、予測された領域がプラークの境界に沿っているかを確認します。プレート全体を処理する前に、代表的な画像をいくつか確認しましょう。",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "例の画像を選び、Run previewをクリックします。画像を右クリックしてOverlay settingsを開き、Displayで輪郭と塗りつぶしの重ね表示を切り替えて、予測された領域がプラークの境界に沿っているかを確認します。プレート全体を処理する前に、代表的な画像をいくつか確認しましょう。"
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Min areaを上げて、小さな予測領域を隠します。どの物体が消えるかを見て、測定したい最小のプラークに合わせてしきい値を調整します。効果がはっきりわかるよう、設定は一度に一つずつ変えます。",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Min areaを上げて、小さな予測領域を隠します。どの物体が消えるかを見て、測定したい最小のプラークに合わせてしきい値を調整します。効果がはっきりわかるよう、設定は一度に一つずつ変えます。"
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Min areaを下げると、小さな領域が戻ります。ゼロにすると、この面積の下限はなくなります。Runの前に、最終的なプレビューとバッチの設定を確認します。プレビューは選んだ画像を表示するだけで、解析の出力を作るのはRunです。",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Min areaを下げると、小さな領域が戻ります。ゼロにすると、この面積の下限はなくなります。Runの前に、最終的なプレビューとバッチの設定を確認します。プレビューは選んだ画像を表示するだけで、解析の出力を作るのはRunです。"
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Runを押し、解析が終わるまでコンソールを見守ります。Masksがオフの場合、例は付属のラベルを読み込み、masks/plaques_analysis.dbに書き込みます。このデータベースには、Sourceの画像の数と面積が入っています。",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Runを押し、解析が終わるまでコンソールを見守ります。Masksがオフの場合、例は付属のラベルを読み込み、masks/plaques_analysis.dbに書き込みます。このデータベースには、Sourceの画像の数と面積が入っています。"
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Helpを開き、続いてDatabase browserを開きます。masksフォルダーのplaques_analysis.dbを選びます。出力を確認する間はEdit modeをオフのままにし、表の一覧から表を選びます。",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Helpを開き、続いてDatabase browserを開きます。masksフォルダーのplaques_analysis.dbを選びます。出力を確認する間はEdit modeをオフのままにし、表の一覧から表を選びます。"
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "画像ごとの概要はsummaryを開いて確認します。ファイル名で行を対応付けます。付属の合成マスクには、それぞれ四つ、三つ、二つ、一つの物体があります。平均サイズは、ピクセル単位の平均面積です。",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "画像ごとの概要はsummaryを開いて確認します。ファイル名で行を対応付けます。付属の合成マスクには、それぞれ四つ、三つ、二つ、一つの物体があります。平均サイズは、ピクセル単位の平均面積です。"
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "statsを開くと、画像ごとのプラーク数、平均面積、面積のばらつきを比べられます。標準偏差は、その画像内のプラークの大きさの幅を表します。生物学的な条件を比べるときは、独立した実験の反復を使います。",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "statsを開くと、画像ごとのプラーク数、平均面積、面積のばらつきを比べられます。標準偏差は、その画像内のプラークの大きさの幅を表します。生物学的な条件を比べるときは、独立した実験の反復を使います。"
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "detailsを開いて、個々のプラークの面積を確認します。キャリブレーションがない場合、物理的な面積の列は空になります。データベースは、画像、マスク、設定と一緒に保存します。",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "detailsを開いて、個々のプラークの面積を確認します。キャリブレーションがない場合、物理的な面積の列は空になります。データベースは、画像、マスク、設定と一緒に保存します。"
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assayは、論文に掲載された図も読み取れます。プレビューのModeをPlaqueからFigureに切り替えます。Figureモードでは、各図の中のプラークのウェルを見つけ、その周りに印刷された文字を読んで各条件に名前を付けてから、プラークをセグメンテーションします。PDFや図の画像を画面のどこかにドロップするか、論文を取得します。",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assayは、論文に掲載された図も読み取れます。プレビューのModeをPlaqueからFigureに切り替えます。Figureモードでは、各図の中のプラークのウェルを見つけ、その周りに印刷された文字を読んで各条件に名前を付けてから、プラークをセグメンテーションします。PDFや図の画像を画面のどこかにドロップするか、論文を取得します。"
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "From a paperをクリックし、DOI、PubMed、またはPMCのIDを入力します。spaCRは論文の図とその説明文をEurope PMCから新しいフォルダーに取得し、ライセンスを記録して、プレビューをそれらに切り替えます。この例ではオープンアクセスの論文を使います。",
+        "hold_after": 0.7,
+        "speech_text": "From a paperをクリックし、DOI、PubMed、またはPMCのIDを入力します。スペーカーは論文の図とその説明文をEurope PMCから新しいフォルダーに取得し、ライセンスを記録して、プレビューをそれらに切り替えます。この例ではオープンアクセスの論文を使います。"
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "図を選んでRun previewをクリックします。見つかったウェルは図の上で枠で囲まれ、横で読み取られたラベルの文字とともに表に並びます。ここでは八つのウェルが見つかり、それぞれ株と薬剤濃度で名前が付きました。各条件を確認し、必要なら修正して、Runの前にSave annotationsをクリックすると、測定値に正しい名前が付きます。",
+        "hold_after": 0.7,
+        "speech_text": "図を選んでRun previewをクリックします。見つかったウェルは図の上で枠で囲まれ、横で読み取られたラベルの文字とともに表に並びます。ここでは八つのウェルが見つかり、それぞれ株と薬剤濃度で名前が付きました。各条件を確認し、必要なら修正して、Runの前にSave annotationsをクリックすると、測定値に正しい名前が付きます。"
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Find plaques in all wellsをクリックします。各ウェルが既定のプラークモデルでセグメンテーションされ、Plaquesタブに見つかったプラークがすべて並びます。ここでは八つのウェルで六十六個のプラークが見つかり、そのうち十七個は薬剤なしの野生型ウェルでした。数を信頼する前に、図と照らし合わせてください。",
+        "hold_after": 0.7,
+        "speech_text": "Find plaques in all wellsをクリックします。各ウェルが既定のプラークモデルでセグメンテーションされ、Plaquesタブに見つかったプラークがすべて並びます。ここでは八つのウェルで六十六個のプラークが見つかり、そのうち十七個は薬剤なしの野生型ウェルでした。数を信頼する前に、図と照らし合わせてください。"
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: contar placas e medir suas áreas",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Abra o exemplo sintético, escolha máscaras salvas ou segmentação por modelo, inspecione uma pré-visualização e leia os resultados por imagem e por placa.",
+      "objectives": [
+       "Abrir o Plaque Assay a partir de Toxoplasma e selecionar a pasta de imagens.",
+       "Escolher um modelo, inspecionar uma pré-visualização e definir os filtros de área.",
+       "Executar a análise e inspecionar contagens, áreas e calibração no banco de dados de saída.",
+       "Ler os poços com placas e suas condições a partir de uma figura publicada no modo Figure."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Baixe e extraia SYNTHETIC_plaque_example.zip. Ele contém quatro imagens TIFF em tons de cinza e as máscaras de rótulos salvas. Use uma cópia de trabalho ao testar uma segmentação nova. Tenha um checkpoint local de placas disponível ou baixe um pelo Model Zoo. O exemplo sintético não tem calibração física.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Na tela Home, abra Toxoplasma e escolha Plaque Assay. Comece com uma pasta de imagens de placas. Este passo a passo usa o exemplo sintético indicado para você praticar a escolha das máscaras, o ajuste da pré-visualização e a abertura dos resultados.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Toxoplasma e escolha Plaque Assay. Comece com uma pasta de imagens de placas. Este passo a passo usa o exemplo sintético indicado para você praticar a escolha das máscaras, o ajuste da pré-visualização e a abertura dos resultados."
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Baixe e extraia o exemplo. Defina Source como SYNTHETIC_plaque, a pasta que contém as imagens TIFF e a subpasta masks. Mantenha uma cópia de trabalho se pretende gerar máscaras de substituição.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Baixe e extraia o exemplo. Defina Source como SYNTHETIC_plaque, a pasta que contém as imagens TIFF e a subpasta masks. Mantenha uma cópia de trabalho se pretende gerar máscaras de substituição."
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Deixe Masks desativado para analisar as máscaras de rótulos fornecidas. Ative Masks quando quiser que o modelo selecionado segmente as imagens primeiro. Para uma segmentação nova, escolha um modelo de placas e revise o diâmetro e os limiares de detecção numa imagem representativa.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Deixe Masks desativado para analisar as máscaras de rótulos fornecidas. Ative Masks quando quiser que o modelo selecionado segmente as imagens primeiro. Para uma segmentação nova, escolha um modelo de placas e revise o diâmetro e os limiares de detecção numa imagem representativa."
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Deixe a detecção de poços desativada neste exemplo. Em imagens com uma placa de cultura inteira, use a detecção de poços para separá-los. Se você souber a escala da imagem, informe os pixels por micrômetro; um diâmetro físico de poço conhecido também pode fornecer a calibração. Registre o tempo de formação em horas quando souber. Deixe sem preencher os valores de calibração desconhecidos.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Deixe a detecção de poços desativada neste exemplo. Em imagens com uma placa de cultura inteira, use a detecção de poços para separá-los. Se você souber a escala da imagem, informe os pixels por micrômetro; um diâmetro físico de poço conhecido também pode fornecer a calibração. Registre o tempo de formação em horas quando souber. Deixe sem preencher os valores de calibração desconhecidos."
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Defina Plaque model como um checkpoint local. Se precisar de um, abra o Model Zoo, baixe um modelo de placas e informe o caminho local dele. A análise resolve essa configuração de modelo mesmo quando reutiliza máscaras salvas.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Defina Plaque model como um checkpoint local. Se precisar de um, abra o Model Zoo, baixe um modelo de placas e informe o caminho local dele. A análise resolve essa configuração de modelo mesmo quando reutiliza máscaras salvas."
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Abra Live preview e Live settings. Confira o modelo e a imagem selecionados antes de executar a pré-visualização. Use na pré-visualização o mesmo modelo que pretende usar na análise completa.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Live preview e Live settings. Confira o modelo e a imagem selecionados antes de executar a pré-visualização. Use na pré-visualização o mesmo modelo que pretende usar na análise completa."
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "No Model Zoo, selecione o modelo de placas, escolha uma pasta em Save to e clique em Download. Aguarde até o modelo estar disponível localmente e selecione esse checkpoint para a pré-visualização. Guarde o caminho dele para as próximas execuções.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "No Model Zoo, selecione o modelo de placas, escolha uma pasta em Save to e clique em Download. Aguarde até o modelo estar disponível localmente e selecione esse checkpoint para a pré-visualização. Guarde o caminho dele para as próximas execuções."
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Escolha uma imagem de exemplo e clique em Run preview. Clique com o botão direito na imagem e abra Overlay settings, onde Display alterna entre contornos e uma sobreposição preenchida, para verificar se as regiões previstas seguem as bordas das placas. Examine várias imagens representativas antes de processar uma placa.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Escolha uma imagem de exemplo e clique em Run preview. Clique com o botão direito na imagem e abra Overlay settings, onde Display alterna entre contornos e uma sobreposição preenchida, para verificar se as regiões previstas seguem as bordas das placas. Examine várias imagens representativas antes de processar uma placa."
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Aumente Min area para ocultar as regiões previstas pequenas. Observe quais objetos desaparecem e ajuste o limiar para a menor placa que você pretende medir. Mude uma configuração de cada vez para que o efeito fique claro.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Aumente Min area para ocultar as regiões previstas pequenas. Observe quais objetos desaparecem e ajuste o limiar para a menor placa que você pretende medir. Mude uma configuração de cada vez para que o efeito fique claro."
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Diminua Min area para trazer de volta as regiões menores; zero remove esse limite inferior de área. Confira a pré-visualização final e as configurações do lote antes de Run. A pré-visualização mostra a imagem selecionada; Run gera as saídas da análise.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Diminua Min area para trazer de volta as regiões menores; zero remove esse limite inferior de área. Confira a pré-visualização final e as configurações do lote antes de Run. A pré-visualização mostra a imagem selecionada; Run gera as saídas da análise."
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Pressione Run e acompanhe o console até a análise terminar. Com Masks desativado, o exemplo lê os rótulos fornecidos e grava masks/plaques_analysis.db. O banco de dados contém as contagens e as áreas das imagens de Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Pressione Run e acompanhe o console até a análise terminar. Com Masks desativado, o exemplo lê os rótulos fornecidos e grava masks/plaques_analysis.db. O banco de dados contém as contagens e as áreas das imagens de Source."
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Abra Help e depois Database browser. Selecione plaques_analysis.db na pasta masks. Deixe Edit mode desativado enquanto inspeciona a saída e escolha uma tabela na lista de tabelas.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Help e depois Database browser. Selecione plaques_analysis.db na pasta masks. Deixe Edit mode desativado enquanto inspeciona a saída e escolha uma tabela na lista de tabelas."
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Abra summary para ter uma visão geral por imagem. Associe as linhas pelos nomes dos arquivos. As máscaras sintéticas fornecidas contêm quatro, três, dois e um objeto. O tamanho médio informa a área média deles em pixels.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra summary para ter uma visão geral por imagem. Associe as linhas pelos nomes dos arquivos. As máscaras sintéticas fornecidas contêm quatro, três, dois e um objeto. O tamanho médio informa a área média deles em pixels."
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Abra stats para comparar, em cada imagem, o número de placas, a área média e a dispersão das áreas. O desvio padrão descreve a faixa de tamanhos de placa dentro da imagem. Use réplicas experimentais independentes ao comparar condições biológicas.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra stats para comparar, em cada imagem, o número de placas, a área média e a dispersão das áreas. O desvio padrão descreve a faixa de tamanhos de placa dentro da imagem. Use réplicas experimentais independentes ao comparar condições biológicas."
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações."
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay também lê figuras publicadas. Mude Mode na prévia de Plaque para Figure. No modo Figure, a execução encontra os poços com placas em cada figura, lê o texto impresso ao redor para nomear cada condição e depois segmenta as placas. Solte PDFs ou imagens de figuras em qualquer lugar da tela, ou busque um artigo.",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay também lê figuras publicadas. Mude Mode na prévia de Plaque para Figure. No modo Figure, a execução encontra os poços com placas em cada figura, lê o texto impresso ao redor para nomear cada condição e depois segmenta as placas. Solte PDFs ou imagens de figuras em qualquer lugar da tela, ou busque um artigo."
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Clique em From a paper e digite um DOI ou um identificador do PubMed ou do PMC. spaCR busca as figuras do artigo e suas legendas na Europe PMC para uma pasta nova, registra a licença e aponta a prévia para elas. Este exemplo usa um artigo de acesso aberto.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em From a paper e digite um DOI ou um identificador do PubMed ou do PMC. espáquer busca as figuras do artigo e suas legendas na Europe PMC para uma pasta nova, registra a licença e aponta a prévia para elas. Este exemplo usa um artigo de acesso aberto."
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Escolha uma figura e clique em Run preview. Cada poço encontrado é enquadrado na figura e listado na tabela com o texto do rótulo lido ao lado; aqui foram encontrados oito poços, cada um nomeado pela cepa e pela concentração do fármaco. Confira cada condição, corrija-a se necessário e clique em Save annotations antes de Run para que as medições levem os nomes certos.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha uma figura e clique em Run preview. Cada poço encontrado é enquadrado na figura e listado na tabela com o texto do rótulo lido ao lado; aqui foram encontrados oito poços, cada um nomeado pela cepa e pela concentração do fármaco. Confira cada condição, corrija-a se necessário e clique em Save annotations antes de Run para que as medições levem os nomes certos."
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Clique em Find plaques in all wells. Cada poço é segmentado com o modelo de placas padrão, e a aba Plaques lista cada placa encontrada. Aqui foram encontradas sessenta e seis placas nos oito poços, dezessete delas no poço do tipo selvagem sem fármaco. Compare as contagens com a figura antes de confiar nelas.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Find plaques in all wells. Cada poço é segmentado com o modelo de placas padrão, e a aba Plaques lista cada placa encontrada. Aqui foram encontradas sessenta e seis placas nos oito poços, dezessete delas no poço do tipo selvagem sem fármaco. Compare as contagens com a figura antes de confiar nelas."
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay：计数噬斑并测量其面积",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "打开合成示例，选择保存的掩膜或模型分割，检查预览，并读取逐图像和逐噬斑的结果。",
+      "objectives": [
+       "从Toxoplasma打开Plaque Assay并选择图像文件夹。",
+       "选择模型，检查预览，并设置面积过滤。",
+       "运行分析，并在输出数据库中检查计数、面积和标定。",
+       "在 Figure 模式下从已发表的图中读取噬斑孔及其条件。"
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "下载并解压SYNTHETIC_plaque_example.zip。其中包含四张灰度TIFF图像及其保存的标签掩膜。尝试新的分割时请使用工作副本。准备一个本地噬斑检查点，或通过Model Zoo下载。该合成示例没有物理标定。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "从Home打开Toxoplasma，然后选择Plaque Assay。从一个噬斑图像文件夹开始。本演示使用链接中的合成示例，让您练习选择掩膜、调整预览和打开结果。",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Toxoplasma，然后选择Plaque Assay。从一个噬斑图像文件夹开始。本演示使用链接中的合成示例，让您练习选择掩膜、调整预览和打开结果。"
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "下载并解压示例。把Source设为SYNTHETIC_plaque，也就是包含TIFF图像和masks子文件夹的文件夹。如果打算生成替换掩膜，请保留一份工作副本。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "下载并解压示例。把Source设为SYNTHETIC_plaque，也就是包含TIFF图像和masks子文件夹的文件夹。如果打算生成替换掩膜，请保留一份工作副本。"
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "保持Masks关闭，以分析提供的标签掩膜。如果想让所选模型先分割图像，请开启Masks。进行新的分割时，请选择噬斑模型，并在一张有代表性的图像上检查其直径和检测阈值。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "保持Masks关闭，以分析提供的标签掩膜。如果想让所选模型先分割图像，请开启Masks。进行新的分割时，请选择噬斑模型，并在一张有代表性的图像上检查其直径和检测阈值。"
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "本例中保持孔检测关闭。对于包含整块板的图像，请使用孔检测把各孔分开。如果知道图像比例尺，请输入每微米像素数；已知的孔物理直径也可以提供标定。已知形成时间时，请以小时为单位记录。未知的标定值保持不填。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "本例中保持孔检测关闭。对于包含整块板的图像，请使用孔检测把各孔分开。如果知道图像比例尺，请输入每微米像素数；已知的孔物理直径也可以提供标定。已知形成时间时，请以小时为单位记录。未知的标定值保持不填。"
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "把Plaque model设为一个本地检查点。如果需要，请打开Model Zoo下载噬斑模型，然后输入其本地路径。即使分析重用保存的掩膜，也会解析这个模型设置。",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7,
+        "speech_text": "把Plaque model设为一个本地检查点。如果需要，请打开Model Zoo下载噬斑模型，然后输入其本地路径。即使分析重用保存的掩膜，也会解析这个模型设置。"
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "打开Live preview和Live settings。运行预览之前，请检查所选的模型和图像。预览中使用的模型应与完整分析中打算使用的模型一致。",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开Live preview和Live settings。运行预览之前，请检查所选的模型和图像。预览中使用的模型应与完整分析中打算使用的模型一致。"
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "在Model Zoo中选择噬斑模型，在Save to中选择文件夹，然后点击Download。等待模型在本地可用，再为预览选择该检查点。保留其保存路径，供以后的运行使用。",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7,
+        "speech_text": "在Model Zoo中选择噬斑模型，在Save to中选择文件夹，然后点击Download。等待模型在本地可用，再为预览选择该检查点。保留其保存路径，供以后的运行使用。"
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "选择一张示例图像并点击 Run preview。右键点击图片并打开 Overlay settings，在 Display 中切换轮廓和填充叠加，检查预测区域是否沿着噬斑边界。处理整板之前，先检查几张有代表性的图像。",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7,
+        "speech_text": "选择一张示例图像并点击 Run preview。右键点击图片并打开 Overlay settings，在 Display 中切换轮廓和填充叠加，检查预测区域是否沿着噬斑边界。处理整板之前，先检查几张有代表性的图像。"
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "调高Min area以隐藏较小的预测区域。观察哪些对象消失，并把阈值调整到您想测量的最小噬斑。一次只改一个设置，以便看清其效果。",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7,
+        "speech_text": "调高Min area以隐藏较小的预测区域。观察哪些对象消失，并把阈值调整到您想测量的最小噬斑。一次只改一个设置，以便看清其效果。"
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "调低Min area可以让较小的区域重新出现；设为零即取消这个面积下限。按Run之前，请检查最终预览和批处理设置。预览只显示所选图像；Run才会生成分析输出。",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7,
+        "speech_text": "调低Min area可以让较小的区域重新出现；设为零即取消这个面积下限。按Run之前，请检查最终预览和批处理设置。预览只显示所选图像；Run才会生成分析输出。"
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "按Run，并在控制台中跟踪直到分析完成。Masks关闭时，示例会读取提供的标签并写入masks/plaques_analysis.db。该数据库包含Source中各图像的计数和面积。",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7,
+        "speech_text": "按Run，并在控制台中跟踪直到分析完成。Masks关闭时，示例会读取提供的标签并写入masks/plaques_analysis.db。该数据库包含Source中各图像的计数和面积。"
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "打开Help，再打开Database browser。选择masks文件夹中的plaques_analysis.db。检查输出时保持Edit mode关闭，并从表列表中选择一个表。",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开Help，再打开Database browser。选择masks文件夹中的plaques_analysis.db。检查输出时保持Edit mode关闭，并从表列表中选择一个表。"
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "打开summary查看按图像的概览。根据文件名对应各行。提供的合成掩膜分别包含四个、三个、两个和一个对象。平均大小给出它们以像素为单位的平均面积。",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开summary查看按图像的概览。根据文件名对应各行。提供的合成掩膜分别包含四个、三个、两个和一个对象。平均大小给出它们以像素为单位的平均面积。"
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "打开stats，比较每张图像的噬斑数量、平均面积和面积离散程度。标准差描述该图像中噬斑大小的范围。比较生物学条件时，请使用独立的实验重复。",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开stats，比较每张图像的噬斑数量、平均面积和面积离散程度。标准差描述该图像中噬斑大小的范围。比较生物学条件时，请使用独立的实验重复。"
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。"
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay 也能读取已发表的图。将预览中的 Mode 从 Plaque 切换为 Figure。在 Figure 模式下，运行会在每张图中找到噬斑孔，读取周围印刷的文字来命名每个条件，然后分割噬斑。把 PDF 或图片拖放到屏幕任意位置，或获取一篇论文。",
+        "hold_after": 0.7,
+        "speech_text": "Plaque Assay 也能读取已发表的图。将预览中的 Mode 从 Plaque 切换为 Figure。在 Figure 模式下，运行会在每张图中找到噬斑孔，读取周围印刷的文字来命名每个条件，然后分割噬斑。把 PDF 或图片拖放到屏幕任意位置，或获取一篇论文。"
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "点击 From a paper，输入 DOI、PubMed 或 PMC 编号。spaCR 会从 Europe PMC 把论文的图及其图注下载到新文件夹，记录许可证，并让预览指向这些图。本例使用一篇开放获取论文。",
+        "hold_after": 0.7,
+        "speech_text": "点击 From a paper，输入 DOI、PubMed 或 PMC 编号。斯佩克尔 会从 Europe PMC 把论文的图及其图注下载到新文件夹，记录许可证，并让预览指向这些图。本例使用一篇开放获取论文。"
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "选择一张图并点击 Run preview。找到的每个孔都会在图上框出，并连同旁边读取的标签文字列在表中；这里找到了八个孔，每个孔都以菌株和药物浓度命名。检查每个条件，必要时更正，并在 Run 之前点击 Save annotations，使测量结果带有正确的名称。",
+        "hold_after": 0.7,
+        "speech_text": "选择一张图并点击 Run preview。找到的每个孔都会在图上框出，并连同旁边读取的标签文字列在表中；这里找到了八个孔，每个孔都以菌株和药物浓度命名。检查每个条件，必要时更正，并在 Run 之前点击 Save annotations，使测量结果带有正确的名称。"
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "点击 Find plaques in all wells。每个孔都会用默认噬斑模型进行分割，Plaques 选项卡会列出找到的每个噬斑。这里在八个孔中共找到六十六个噬斑，其中十七个位于未加药的野生型孔中。在依赖这些计数之前，请先与图进行对照。",
+        "hold_after": 0.7,
+        "speech_text": "点击 Find plaques in all wells。每个孔都会用默认噬斑模型进行分割，Plaques 选项卡会列出找到的每个噬斑。这里在八个孔中共找到六十六个噬斑，其中十七个位于未加药的野生型孔中。在依赖这些计数之前，请先与图进行对照。"
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: tæl plaques, og mål deres arealer",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Åbn det syntetiske eksempel, vælg gemte masker eller modelsegmentering, undersøg en forhåndsvisning, og læs resultaterne pr. billede og pr. plaque.",
+      "objectives": [
+       "Åbne Plaque Assay fra Toxoplasma og vælge billedmappen.",
+       "Vælge en model, undersøge en forhåndsvisning og indstille arealfiltre.",
+       "Køre analysen og undersøge antal, arealer og kalibrering i outputdatabasen.",
+       "Læse plaque-brønde og deres betingelser fra en publiceret figur i Figure-tilstand."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Hent og udpak SYNTHETIC_plaque_example.zip. Det indeholder fire TIFF-billeder i gråtoner og deres gemte labelmasker. Brug en arbejdskopi, når du afprøver ny segmentering. Hav et lokalt plaque-checkpoint klar, eller hent et via Model Zoo. Det syntetiske eksempel har ingen fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åbner du Toxoplasma og vælger derefter Plaque Assay. Begynd med en mappe med plaquebilleder. Gennemgangen bruger det linkede syntetiske eksempel, så du kan øve dig i at vælge masker, justere forhåndsvisningen og åbne resultaterne.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Hent og udpak eksemplet. Sæt Source til SYNTHETIC_plaque, mappen med TIFF-billederne og undermappen masks. Behold en arbejdskopi, hvis du vil lave erstatningsmasker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Lad Masks være slået fra for at analysere de medfølgende labelmasker. Slå Masks til, når den valgte model først skal segmentere billederne. Til ny segmentering vælger du en plaquemodel og gennemgår dens diameter og detektionstærskler på et repræsentativt billede.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Lad brønddetektion være slået fra i dette eksempel. For billeder af en hel plade bruger du brønddetektion til at adskille brøndene. Hvis du kender billedskalaen, indtaster du pixel pr. mikrometer; en kendt fysisk brønddiameter kan også give kalibrering. Registrér dannelsestiden i timer, når den er kendt. Lad ukendte kalibreringsværdier være tomme.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Sæt Plaque model til et lokalt checkpoint. Hvis du har brug for et, åbner du Model Zoo, henter en plaquemodel og indtaster dens lokale sti. Analysen opløser denne modelindstilling, også når den genbruger gemte masker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Åbn Live preview og Live settings. Kontrollér den valgte model og det valgte billede, før du kører forhåndsvisningen. Brug den samme model i forhåndsvisningen, som du vil bruge i hele analysen.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "I Model Zoo vælger du plaquemodellen, vælger en mappe i Save to og klikker på Download. Vent, til modellen er tilgængelig lokalt, og vælg derefter det checkpoint til forhåndsvisningen. Gem stien til senere kørsler.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Vælg et eksempelbillede og klik på Run preview. Højreklik på billedet og åbn Overlay settings, hvor Display skifter mellem konturer og en udfyldt overlejring, for at kontrollere, om de forudsagte områder følger plaquernes kanter. Undersøg flere repræsentative billeder, før du kører en plade.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Hæv Min area for at skjule små forudsagte områder. Se, hvilke objekter der forsvinder, og tilpas tærsklen til den mindste plaque, du vil måle. Ændr én indstilling ad gangen, så effekten er tydelig.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Sænk Min area for at få mindre områder tilbage; 0 fjerner denne nedre arealgrænse. Kontrollér den endelige forhåndsvisning og batchindstillingerne før Run. Forhåndsvisningen viser det valgte billede; Run danner analysens output.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Tryk på Run, og følg konsollen, indtil analysen er færdig. Med Masks slået fra læser eksemplet de medfølgende labels og skriver masks/plaques_analysis.db. Databasen indeholder antal og arealer for billederne i Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Åbn Help og derefter Database browser. Vælg plaques_analysis.db i mappen masks. Lad Edit mode være slået fra, mens du undersøger outputtet, og vælg en tabel på tabellisten.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Åbn summary for en oversigt pr. billede. Match rækkerne via filnavnene. De medfølgende syntetiske masker indeholder fire, tre, to og ét objekt. Gennemsnitsstørrelsen angiver deres gennemsnitlige areal i pixel.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Åbn stats for at sammenligne hvert billedes antal plaques, gennemsnitlige areal og arealspredning. Standardafvigelsen beskriver spændet af plaquestørrelser i billedet. Brug uafhængige eksperimentelle replikater, når du sammenligner biologiske betingelser.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Åbn details for at undersøge arealet af hver enkelt plaque. Kolonner med fysisk areal er tomme, når kalibrering mangler. Gem databasen sammen med billederne, maskerne og indstillingerne.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay læser også publicerede figurer. Skift Mode i forhåndsvisningen fra Plaque til Figure. I Figure-tilstand finder kørslen plaque-brøndene i hver figur, læser teksten omkring dem for at navngive hver betingelse og segmenterer derefter plaquerne. Træk PDF'er eller figurbilleder hvor som helst ind på skærmen, eller hent en artikel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Klik på From a paper og indtast en DOI, PubMed- eller PMC-id. spaCR henter artiklens figurer og deres figurtekster fra Europe PMC til en ny mappe, noterer licensen og peger forhåndsvisningen på dem. Dette eksempel bruger en frit tilgængelig artikel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Vælg en figur og klik på Run preview. Hver fundet brønd markeres med en ramme på figuren og vises i tabellen med den etikettekst, der er læst ved siden af; her blev otte brønde fundet, hver navngivet efter stamme og stofkoncentration. Kontroller hver betingelse, ret den om nødvendigt, og klik på Save annotations før Run, så målingerne får de rigtige navne.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Klik på Find plaques in all wells. Hver brønd segmenteres med standardmodellen for plaques, og fanen Plaques viser hver fundet plaque. Her blev der fundet seksogtres plaques i de otte brønde, sytten af dem i vildtypebrønden uden stof. Sammenlign tallene med figuren, før du stoler på dem.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: Plaques zählen und ihre Flächen messen",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Öffnen Sie das synthetische Beispiel, wählen Sie gespeicherte Masken oder Modellsegmentierung, prüfen Sie eine Vorschau und lesen Sie die Ergebnisse pro Bild und pro Plaque.",
+      "objectives": [
+       "Plaque Assay über Toxoplasma öffnen und den Bildordner auswählen.",
+       "Ein Modell wählen, eine Vorschau prüfen und Flächenfilter einstellen.",
+       "Die Analyse ausführen und Anzahlen, Flächen und Kalibrierung in der Ausgabedatenbank prüfen.",
+       "Plaque-Wells und ihre Bedingungen im Figure-Modus aus einer veröffentlichten Abbildung lesen."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Laden Sie SYNTHETIC_plaque_example.zip herunter und entpacken Sie es. Es enthält vier Graustufen-TIFF-Bilder und ihre gespeicherten Labelmasken. Verwenden Sie eine Arbeitskopie, wenn Sie eine neue Segmentierung ausprobieren. Halten Sie einen lokalen Plaque-Checkpoint bereit oder laden Sie einen über Model Zoo herunter. Das synthetische Beispiel hat keine physikalische Kalibrierung.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Plaque Assay. Beginnen Sie mit einem Ordner mit Plaque-Bildern. Diese Anleitung verwendet das verlinkte synthetische Beispiel, damit Sie das Auswählen von Masken, das Anpassen der Vorschau und das Öffnen der Ergebnisse üben können.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Laden Sie das Beispiel herunter und entpacken Sie es. Setzen Sie Source auf SYNTHETIC_plaque, den Ordner mit den TIFF-Bildern und dem Unterordner masks. Behalten Sie eine Arbeitskopie, wenn Sie Ersatzmasken erzeugen möchten.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Lassen Sie Masks ausgeschaltet, um die mitgelieferten Labelmasken zu analysieren. Schalten Sie Masks ein, wenn das ausgewählte Modell die Bilder zuerst segmentieren soll. Wählen Sie für eine neue Segmentierung ein Plaque-Modell und prüfen Sie Durchmesser und Detektionsschwellen an einem repräsentativen Bild.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Lassen Sie die Well-Erkennung für dieses Beispiel ausgeschaltet. Bei Bildern einer ganzen Platte trennt die Well-Erkennung die Wells. Wenn Sie den Bildmaßstab kennen, geben Sie Pixel pro Mikrometer ein; auch ein bekannter physikalischer Well-Durchmesser kann die Kalibrierung liefern. Tragen Sie die Bildungszeit in Stunden ein, wenn sie bekannt ist. Lassen Sie unbekannte Kalibrierwerte leer.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Setzen Sie Plaque model auf einen lokalen Checkpoint. Falls Sie einen benötigen, öffnen Sie Model Zoo, laden ein Plaque-Modell herunter und geben dessen lokalen Pfad ein. Die Analyse löst diese Modelleinstellung auch dann auf, wenn sie gespeicherte Masken wiederverwendet.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Öffnen Sie Live preview und Live settings. Prüfen Sie ausgewähltes Modell und Bild, bevor Sie die Vorschau ausführen. Verwenden Sie in der Vorschau dasselbe Modell wie für die vollständige Analyse.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Wählen Sie in Model Zoo das Plaque-Modell, wählen Sie einen Ordner unter Save to und klicken Sie auf Download. Warten Sie, bis das Modell lokal verfügbar ist, und wählen Sie dann diesen Checkpoint für die Vorschau. Bewahren Sie seinen Pfad für spätere Läufe auf.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Wählen Sie ein Beispielbild und klicken Sie auf Run preview. Klicken Sie mit der rechten Maustaste auf das Bild und öffnen Sie Overlay settings; dort wechselt Display zwischen Umrissen und einer gefüllten Überlagerung, damit Sie prüfen können, ob die vorhergesagten Bereiche den Plaque-Rändern folgen. Prüfen Sie mehrere repräsentative Bilder, bevor Sie eine Platte auswerten.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Erhöhen Sie Min area, um kleine vorhergesagte Bereiche auszublenden. Beobachten Sie, welche Objekte verschwinden, und passen Sie die Schwelle an den kleinsten Plaque an, den Sie messen möchten. Ändern Sie jeweils nur eine Einstellung, damit ihre Wirkung erkennbar bleibt.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Senken Sie Min area, um kleinere Bereiche zurückzuholen; 0 entfernt diese untere Flächengrenze. Prüfen Sie die endgültige Vorschau und die Batch-Einstellungen vor Run. Die Vorschau zeigt das ausgewählte Bild; Run erzeugt die Analyseausgaben.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Drücken Sie Run und verfolgen Sie die Konsole, bis die Analyse abgeschlossen ist. Bei ausgeschaltetem Masks liest das Beispiel die mitgelieferten Labels und schreibt masks/plaques_analysis.db. Die Datenbank enthält Anzahlen und Flächen für die Bilder in Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Öffnen Sie Help und dann Database browser. Wählen Sie plaques_analysis.db im Ordner masks. Lassen Sie Edit mode beim Prüfen der Ausgabe ausgeschaltet und wählen Sie eine Tabelle aus der Tabellenliste.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Öffnen Sie summary für eine Übersicht pro Bild. Ordnen Sie die Zeilen über ihre Dateinamen zu. Die mitgelieferten synthetischen Masken enthalten vier, drei, zwei und ein Objekt. Die mittlere Größe gibt ihre mittlere Fläche in Pixeln an.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Öffnen Sie stats, um für jedes Bild Plaque-Anzahl, mittlere Fläche und Flächenstreuung zu vergleichen. Die Standardabweichung beschreibt die Spannweite der Plaque-Größen in diesem Bild. Verwenden Sie unabhängige experimentelle Replikate, wenn Sie biologische Bedingungen vergleichen.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay liest auch veröffentlichte Abbildungen. Stellen Sie Mode in der Vorschau von Plaque auf Figure um. Im Figure-Modus findet der Lauf die Plaque-Wells in jeder Abbildung, liest den Text um sie herum, um jede Bedingung zu benennen, und segmentiert dann die Plaques. Ziehen Sie PDFs oder Abbildungen irgendwo auf den Bildschirm oder holen Sie ein Paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Klicken Sie auf From a paper und geben Sie eine DOI, PubMed- oder PMC-ID ein. spaCR lädt die Abbildungen des Papers und ihre Legenden von Europe PMC in einen neuen Ordner, vermerkt die Lizenz und richtet die Vorschau darauf aus. Dieses Beispiel verwendet ein frei zugängliches Paper.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Wählen Sie eine Abbildung und klicken Sie auf Run preview. Jedes gefundene Well wird in der Abbildung umrahmt und in der Tabelle mit dem daneben gelesenen Beschriftungstext aufgeführt; hier wurden acht Wells gefunden, jedes nach Stamm und Wirkstoffkonzentration benannt. Prüfen Sie jede Bedingung, korrigieren Sie sie bei Bedarf und klicken Sie vor Run auf Save annotations, damit die Messungen die richtigen Namen tragen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Klicken Sie auf Find plaques in all wells. Jedes Well wird mit dem Standard-Plaquemodell segmentiert, und die Registerkarte Plaques listet jede gefundene Plaque auf. Hier wurden sechsundsechzig Plaques in den acht Wells gefunden, siebzehn davon im Wildtyp-Well ohne Wirkstoff. Vergleichen Sie die Zahlen mit der Abbildung, bevor Sie sich darauf verlassen.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: teldu skellur og mældu flatarmál þeirra",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Opnaðu tilbúna dæmið, veldu vistaðar grímur eða aðgreiningu með líkani, skoðaðu forskoðun og lestu niðurstöður fyrir hverja mynd og hverja skellu.",
+      "objectives": [
+       "Opna Plaque Assay úr Toxoplasma og velja myndamöppuna.",
+       "Velja líkan, skoða forskoðun og stilla flatarmálssíur.",
+       "Keyra greininguna og skoða fjölda, flatarmál og kvörðun í úttaksgagnagrunninum.",
+       "Lesa skellubrunna og skilyrði þeirra úr birtri mynd í Figure-ham."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Sæktu og dragðu út SYNTHETIC_plaque_example.zip. Það inniheldur fjórar TIFF-myndir í gráskala og vistaðar merkjagrímur þeirra. Notaðu vinnuafrit þegar þú prófar nýja aðgreiningu. Hafðu staðbundinn vistunarpunkt fyrir skellur tiltækan eða sæktu hann í gegnum Model Zoo. Tilbúna dæmið hefur enga eðlisfræðilega kvörðun.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Frá Home opnarðu Toxoplasma og velur svo Plaque Assay. Byrjaðu á möppu með myndum af skellum. Þessi yfirferð notar tengda tilbúna dæmið svo þú getir æft þig í að velja grímur, stilla forskoðunina og opna niðurstöðurnar.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Sæktu og dragðu dæmið út. Stilltu Source á SYNTHETIC_plaque, möppuna sem inniheldur TIFF-myndirnar og undirmöppuna masks. Haltu vinnuafriti ef þú ætlar að búa til grímur í staðinn.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Hafðu slökkt á Masks til að greina meðfylgjandi merkjagrímur. Kveiktu á Masks þegar þú vilt að valið líkan aðgreini myndirnar fyrst. Fyrir nýja aðgreiningu velurðu skellulíkan og ferð yfir þvermál þess og greiningarþröskulda á dæmigerðri mynd.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Hafðu slökkt á brunnagreiningu í þessu dæmi. Fyrir myndir af heilli plötu notarðu brunnagreiningu til að aðskilja brunnana. Ef þú þekkir kvarða myndarinnar slærðu inn díla á míkrómetra; þekkt eðlisfræðilegt þvermál brunns getur líka gefið kvörðun. Skráðu myndunartíma í klukkustundum þegar hann er þekktur. Hafðu óþekkt kvörðunargildi óútfyllt.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Stilltu Plaque model á staðbundinn vistunarpunkt. Ef þú þarft einn opnarðu Model Zoo, sækir skellulíkan og slærð inn staðbundna slóð þess. Greiningin leysir úr þessari líkanstillingu jafnvel þegar hún endurnýtir vistaðar grímur.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Opnaðu Live preview og Live settings. Athugaðu valið líkan og mynd áður en þú keyrir forskoðunina. Notaðu sama líkan í forskoðuninni og þú ætlar að nota í allri greiningunni.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Í Model Zoo velurðu skellulíkanið, velur möppu í Save to og smellir á Download. Bíddu þar til líkanið er tiltækt staðbundið og veldu svo þann vistunarpunkt fyrir forskoðunina. Haltu vistuðu slóðinni fyrir síðari keyrslur.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Veldu dæmamynd og smelltu á Run preview. Hægrismelltu á myndina og opnaðu Overlay settings, þar sem Display skiptir milli útlína og fylltrar yfirlagnar, til að athuga hvort spáðu svæðin fylgja jöðrum skellnanna. Skoðaðu nokkrar dæmigerðar myndir áður en þú keyrir heila plötu.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Hækkaðu Min area til að fela lítil spáð svæði. Fylgstu með hvaða hlutir hverfa og stilltu þröskuldinn eftir minnstu skellunni sem þú ætlar að mæla. Breyttu einni stillingu í einu svo áhrif hennar séu skýr.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Lækkaðu Min area til að fá minni svæði aftur; 0 fjarlægir þessi neðri flatarmálsmörk. Athugaðu lokaforskoðunina og runustillingarnar fyrir Run. Forskoðunin sýnir valda mynd; Run býr til úttak greiningarinnar.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Ýttu á Run og fylgstu með stjórnborðinu þar til greiningunni lýkur. Með slökkt á Masks les dæmið meðfylgjandi merki og skrifar masks/plaques_analysis.db. Gagnagrunnurinn inniheldur fjölda og flatarmál fyrir myndirnar í Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Opnaðu Help og svo Database browser. Veldu plaques_analysis.db í möppunni masks. Hafðu slökkt á Edit mode meðan þú skoðar úttakið og veldu töflu úr töflulistanum.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Opnaðu summary til að fá yfirlit eftir myndum. Paraðu línurnar saman eftir skráarheitum. Meðfylgjandi tilbúnu grímurnar innihalda fjóra, þrjá, tvo og einn hlut. Meðalstærð gefur meðalflatarmál þeirra í dílum.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Opnaðu stats til að bera saman fjölda skellna, meðalflatarmál og dreifingu flatarmáls fyrir hverja mynd. Staðalfrávikið lýsir bili skellustærða innan myndarinnar. Notaðu óháðar tilraunaendurtekningar þegar þú berð saman líffræðilegar aðstæður.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay les líka birtar myndir. Skiptu Mode í forskoðuninni úr Plaque í Figure. Í Figure-ham finnur keyrslan skellubrunnana á hverri mynd, les textann umhverfis þá til að nefna hvert skilyrði og skiptir síðan skellunum. Slepptu PDF-skjölum eða myndum hvar sem er á skjáinn, eða sæktu grein.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Smelltu á From a paper og sláðu inn DOI, PubMed- eða PMC-auðkenni. spaCR sækir myndir greinarinnar og myndatexta þeirra frá Europe PMC í nýja möppu, skráir leyfið og beinir forskoðuninni að þeim. Þetta dæmi notar grein í opnum aðgangi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Veldu mynd og smelltu á Run preview. Hver brunnur sem finnst er rammaður inn á myndinni og skráður í töfluna með merkitextanum sem lesinn var við hlið hans; hér fundust átta brunnar, hver nefndur eftir stofni og lyfjastyrk. Athugaðu hvert skilyrði, leiðréttu ef þarf og smelltu á Save annotations fyrir Run svo mælingarnar beri rétt nöfn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Smelltu á Find plaques in all wells. Hverjum brunni er skipt með sjálfgefnu skellulíkani og flipinn Plaques sýnir hverja skellu sem fannst. Hér fundust sextíu og sex skellur í brunnunum átta, sautján þeirra í villigerðarbrunninum án lyfs. Berðu fjöldann saman við myndina áður en þú treystir honum.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: 플라크 수를 세고 면적 측정",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "합성 예제를 열고, 저장된 마스크나 모델 분할을 고르고, 미리 보기를 확인한 뒤 이미지별 및 플라크별 결과를 읽습니다.",
+      "objectives": [
+       "Toxoplasma에서 Plaque Assay를 열고 이미지 폴더를 선택합니다.",
+       "모델을 고르고, 미리 보기를 확인하고, 면적 필터를 설정합니다.",
+       "분석을 실행하고 출력 데이터베이스에서 개수, 면적, 보정을 확인합니다.",
+       "Figure 모드에서 출판된 그림으로부터 플라크 웰과 그 조건을 읽기."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "SYNTHETIC_plaque_example.zip을 내려받아 압축을 푸세요. 회색조 TIFF 이미지 4개와 저장된 라벨 마스크가 들어 있습니다. 새 분할을 시험할 때는 작업용 사본을 쓰세요. 로컬 플라크 체크포인트를 준비하거나 Model Zoo에서 내려받으세요. 합성 예제에는 물리적 보정 값이 없습니다.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home에서 Toxoplasma를 연 뒤 Plaque Assay를 선택하세요. 플라크 이미지 폴더로 시작하세요. 이 안내에서는 연결된 합성 예제로 마스크 선택, 미리 보기 조정, 결과 열기를 연습합니다.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "예제를 내려받아 압축을 푸세요. Source를 TIFF 이미지와 masks 하위 폴더가 들어 있는 SYNTHETIC_plaque 폴더로 지정하세요. 대체 마스크를 만들 계획이라면 작업용 사본을 보관하세요.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "제공된 라벨 마스크를 분석하려면 Masks를 끈 채로 두세요. 선택한 모델로 이미지를 먼저 분할하려면 Masks를 켜세요. 새로 분할할 때는 플라크 모델을 고르고 대표 이미지에서 직경과 검출 임계값을 검토하세요.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "이 예제에서는 웰 검출을 끈 채로 두세요. 플레이트 전체가 담긴 이미지에서는 웰 검출로 웰을 나누세요. 이미지 배율을 안다면 마이크로미터당 픽셀 수를 입력하세요. 알려진 웰의 물리적 직경으로도 보정할 수 있습니다. 형성 시간을 알면 시간 단위로 기록하세요. 모르는 보정 값은 비워 두세요.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Plaque model을 로컬 체크포인트로 지정하세요. 필요하다면 Model Zoo를 열어 플라크 모델을 내려받고 그 로컬 경로를 입력하세요. 분석은 저장된 마스크를 다시 쓸 때에도 이 모델 설정을 확인합니다.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Live preview와 Live settings를 여세요. 미리 보기를 실행하기 전에 선택한 모델과 이미지를 확인하세요. 미리 보기에서는 전체 분석에 쓸 모델과 같은 모델을 쓰세요.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "Model Zoo에서 플라크 모델을 선택하고 Save to에서 폴더를 고른 뒤 Download를 클릭하세요. 모델을 로컬에서 쓸 수 있을 때까지 기다린 뒤 미리 보기용으로 그 체크포인트를 선택하세요. 이후 실행을 위해 저장된 경로를 보관하세요.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "예제 이미지를 고르고 Run preview를 클릭하세요. 그림을 마우스 오른쪽 버튼으로 클릭해 Overlay settings를 열고, Display에서 윤곽선과 채워진 오버레이를 바꿔 가며 예측된 영역이 플라크 경계를 따르는지 확인하세요. 플레이트 전체를 처리하기 전에 대표 이미지를 여러 장 살펴보세요.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Min area를 높여 작은 예측 영역을 숨기세요. 어떤 객체가 사라지는지 보고, 측정하려는 가장 작은 플라크에 맞게 임계값을 조정하세요. 효과가 분명히 보이도록 한 번에 한 설정만 바꾸세요.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Min area를 낮추면 작은 영역이 다시 나타나고, 0으로 두면 이 하한이 없어집니다. Run 전에 최종 미리 보기와 배치 설정을 확인하세요. 미리 보기는 선택한 이미지만 보여 주고, 분석 출력은 Run이 만듭니다.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Run을 누르고 분석이 끝날 때까지 콘솔을 지켜보세요. Masks가 꺼져 있으면 예제는 제공된 라벨을 읽고 masks/plaques_analysis.db에 씁니다. 데이터베이스에는 Source 이미지의 개수와 면적이 들어 있습니다.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Help를 연 뒤 Database browser를 여세요. masks 폴더의 plaques_analysis.db를 선택하세요. 출력을 확인하는 동안에는 Edit mode를 끈 채로 두고, 표 목록에서 표를 고르세요.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "이미지별 개요를 보려면 summary를 여세요. 파일 이름으로 행을 대응시키세요. 제공된 합성 마스크에는 객체가 각각 4개, 3개, 2개, 1개 있습니다. 평균 크기는 픽셀 단위의 평균 면적입니다.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "stats를 열어 이미지별 플라크 수, 평균 면적, 면적 분산을 비교하세요. 표준 편차는 그 이미지 안 플라크 크기의 범위를 나타냅니다. 생물학적 조건을 비교할 때는 독립적인 실험 반복을 쓰세요.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "details를 열어 개별 플라크의 면적을 확인하세요. 보정 값이 없으면 물리적 면적 열은 비어 있습니다. 데이터베이스를 이미지, 마스크, 설정과 함께 저장하세요.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay는 출판된 그림도 읽습니다. 미리보기의 Mode를 Plaque에서 Figure로 바꾸세요. Figure 모드에서는 각 그림 안의 플라크 웰을 찾고, 그 주변에 인쇄된 글자를 읽어 각 조건의 이름을 붙인 다음 플라크를 분할합니다. PDF나 그림 이미지를 화면 어디에나 끌어다 놓거나 논문을 가져오세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "From a paper를 클릭하고 DOI, PubMed 또는 PMC ID를 입력하세요. spaCR은 Europe PMC에서 논문의 그림과 설명을 새 폴더로 가져오고, 라이선스를 기록한 뒤 미리보기를 그 그림들로 바꿉니다. 이 예제는 오픈 액세스 논문을 사용합니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "그림을 고르고 Run preview를 클릭하세요. 찾은 각 웰은 그림 위에 상자로 표시되고, 옆에서 읽은 레이블 글자와 함께 표에 나열됩니다. 여기서는 웰 여덟 개를 찾았고, 각각 균주와 약물 농도로 이름이 붙었습니다. 각 조건을 확인하고 필요하면 고친 다음, Run 전에 Save annotations를 클릭해 측정값에 올바른 이름이 붙도록 하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Find plaques in all wells를 클릭하세요. 각 웰이 기본 플라크 모델로 분할되고, Plaques 탭에 찾은 플라크가 모두 나열됩니다. 여기서는 웰 여덟 개에서 플라크 예순여섯 개를 찾았고, 그중 열일곱 개는 약물이 없는 야생형 웰에 있었습니다. 이 수를 믿기 전에 그림과 비교해 보세요.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: tell plakk og mål arealene deres",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Åpne det syntetiske eksemplet, velg lagrede masker eller modellsegmentering, undersøk en forhåndsvisning og les resultatene per bilde og per plakk.",
+      "objectives": [
+       "Åpne Plaque Assay fra Toxoplasma og velge bildemappen.",
+       "Velge en modell, undersøke en forhåndsvisning og angi arealfiltre.",
+       "Kjøre analysen og undersøke antall, arealer og kalibrering i utdatadatabasen.",
+       "Lese plakkbrønner og betingelsene deres fra en publisert figur i Figure-modus."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Last ned og pakk ut SYNTHETIC_plaque_example.zip. Det inneholder fire TIFF-bilder i gråtoner og de lagrede etikettmaskene deres. Bruk en arbeidskopi når du prøver ny segmentering. Ha et lokalt plakk-sjekkpunkt tilgjengelig, eller last ned et via Model Zoo. Det syntetiske eksemplet har ingen fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åpner du Toxoplasma og velger deretter Plaque Assay. Begynn med en mappe med plakkbilder. Denne gjennomgangen bruker det lenkede syntetiske eksemplet, slik at du kan øve på å velge masker, justere forhåndsvisningen og åpne resultatene.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Last ned og pakk ut eksemplet. Sett Source til SYNTHETIC_plaque, mappen som inneholder TIFF-bildene og undermappen masks. Behold en arbeidskopi hvis du planlegger å lage erstatningsmasker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "La Masks være av for å analysere de medfølgende etikettmaskene. Slå på Masks når du vil at den valgte modellen først skal segmentere bildene. For ny segmentering velger du en plakkmodell og kontrollerer diameteren og deteksjonsterskelene på et representativt bilde.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "La brønndeteksjon være av i dette eksemplet. For bilder som viser en hel plate, bruker du brønndeteksjon til å skille brønnene. Hvis du kjenner bildeskalaen, oppgir du piksler per mikrometer; en kjent fysisk brønndiameter kan også gi kalibrering. Registrer dannelsestiden i timer når den er kjent. La ukjente kalibreringsverdier stå tomme.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Sett Plaque model til et lokalt sjekkpunkt. Hvis du trenger et, åpner du Model Zoo, laster ned en plakkmodell og oppgir den lokale banen. Analysen løser opp denne modellinnstillingen også når den gjenbruker lagrede masker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Åpne Live preview og Live settings. Kontroller valgt modell og bilde før du kjører forhåndsvisningen. Bruk den samme modellen i forhåndsvisningen som du planlegger å bruke i hele analysen.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "I Model Zoo velger du plakkmodellen, velger en mappe i Save to og klikker på Download. Vent til modellen er tilgjengelig lokalt, og velg deretter det sjekkpunktet for forhåndsvisningen. Behold banen til senere kjøringer.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Velg et eksempelbilde og klikk Run preview. Høyreklikk på bildet og åpne Overlay settings, der Display bytter mellom konturer og et fylt overlegg, for å sjekke om de forutsagte områdene følger plakkenes kanter. Undersøk flere representative bilder før du kjører en hel plate.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Øk Min area for å skjule små predikerte områder. Se hvilke objekter som forsvinner, og juster terskelen etter det minste plakket du vil måle. Endre én innstilling om gangen slik at effekten blir tydelig.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Senk Min area for å få tilbake mindre områder; 0 fjerner denne nedre arealgrensen. Kontroller den endelige forhåndsvisningen og batchinnstillingene før Run. Forhåndsvisningen viser det valgte bildet; Run lager analysens utdata.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Trykk på Run og følg konsollen til analysen er ferdig. Med Masks av leser eksemplet de medfølgende etikettene og skriver masks/plaques_analysis.db. Databasen inneholder antall og arealer for bildene i Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Åpne Help og deretter Database browser. Velg plaques_analysis.db i mappen masks. La Edit mode være av mens du undersøker utdataene, og velg en tabell fra tabellisten.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Åpne summary for en oversikt per bilde. Koble radene via filnavnene. De medfølgende syntetiske maskene inneholder fire, tre, to og ett objekt. Gjennomsnittlig størrelse viser gjennomsnittsarealet i piksler.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Åpne stats for å sammenligne antall plakk, gjennomsnittlig areal og arealspredning for hvert bilde. Standardavviket beskriver spennet i plakkstørrelser i bildet. Bruk uavhengige eksperimentelle replikater når du sammenligner biologiske betingelser.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Åpne details for å undersøke arealet til hvert enkelt plakk. Kolonner med fysisk areal er tomme når kalibrering mangler. Lagre databasen sammen med bildene, maskene og innstillingene.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay leser også publiserte figurer. Bytt Mode i forhåndsvisningen fra Plaque til Figure. I Figure-modus finner kjøringen plakkbrønnene i hver figur, leser teksten rundt dem for å navngi hver betingelse, og segmenterer deretter plakkene. Slipp PDF-er eller figurbilder hvor som helst på skjermen, eller hent en artikkel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Klikk From a paper og skriv inn en DOI, PubMed- eller PMC-ID. spaCR henter artikkelens figurer og figurtekster fra Europe PMC til en ny mappe, noterer lisensen og peker forhåndsvisningen mot dem. Dette eksempelet bruker en fritt tilgjengelig artikkel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Velg en figur og klikk Run preview. Hver brønn som blir funnet, rammes inn på figuren og vises i tabellen med etikettteksten som ble lest ved siden av; her ble åtte brønner funnet, hver navngitt etter stamme og legemiddelkonsentrasjon. Sjekk hver betingelse, rett den om nødvendig, og klikk Save annotations før Run, slik at målingene får riktige navn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Klikk Find plaques in all wells. Hver brønn segmenteres med standardmodellen for plakk, og fanen Plaques viser hvert plakk som ble funnet. Her ble det funnet sekstiseks plakk i de åtte brønnene, sytten av dem i villtypebrønnen uten legemiddel. Sammenlign tallene med figuren før du stoler på dem.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 21,
+     "preceding": [
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "23_agreement",
+     "next": "25_recruitment",
+     "entry": {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque-assay",
+      "title": "Plaque Assay: räkna plack och mät deras ytor",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Öppna det syntetiska exemplet, välj sparade masker eller modellsegmentering, granska en förhandsvisning och läs resultaten per bild och per plack.",
+      "objectives": [
+       "Öppna Plaque Assay från Toxoplasma och välja bildmappen.",
+       "Välja en modell, granska en förhandsvisning och ställa in ytfilter.",
+       "Köra analysen och granska antal, ytor och kalibrering i utdatadatabasen.",
+       "Läsa plackbrunnar och deras villkor från en publicerad figur i Figure-läget."
+      ],
+      "example_files": [
+       "SYNTHETIC_plaque_example.zip"
+      ],
+      "prerequisite": "Hämta och packa upp SYNTHETIC_plaque_example.zip. Det innehåller fyra TIFF-bilder i gråskala och deras sparade etikettmasker. Använd en arbetskopia när du provar ny segmentering. Ha en lokal kontrollpunkt för plack tillgänglig eller hämta en via Model Zoo. Det syntetiska exemplet saknar fysisk kalibrering.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Från Home öppnar du Toxoplasma och väljer sedan Plaque Assay. Börja med en mapp med plackbilder. Genomgången använder det länkade syntetiska exemplet så att du kan öva på att välja masker, justera förhandsvisningen och öppna resultaten.",
+        "focus": [
+         346,
+         50,
+         1200,
+         155
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_setting_src",
+        "narration": "Hämta och packa upp exemplet. Ställ Source på SYNTHETIC_plaque, mappen som innehåller TIFF-bilderna och undermappen masks. Behåll en arbetskopia om du tänker skapa ersättningsmasker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_setting_masks",
+        "narration": "Låt Masks vara avstängt för att analysera de medföljande etikettmaskerna. Slå på Masks när du vill att den valda modellen först ska segmentera bilderna. För ny segmentering väljer du en plackmodell och granskar dess diameter och detektionströsklar på en representativ bild.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_setting_well_diameter_mm",
+        "narration": "Låt brunnsdetekteringen vara avstängd i det här exemplet. För bilder av en hel platta använder du brunnsdetektering för att skilja brunnarna åt. Om du känner till bildskalan anger du pixlar per mikrometer; en känd fysisk brunnsdiameter kan också ge kalibreringen. Ange bildningstiden i timmar när den är känd. Lämna okända kalibreringsvärden tomma.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_setting_plaque_model",
+        "narration": "Ställ Plaque model på en lokal kontrollpunkt. Om du behöver en öppnar du Model Zoo, hämtar en plackmodell och anger dess lokala sökväg. Analysen löser upp modellinställningen även när den återanvänder sparade masker.",
+        "focus": [
+         346,
+         170,
+         1150,
+         215
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_preview_settings_unmatched",
+        "narration": "Öppna Live preview och Live settings. Kontrollera vald modell och bild innan du kör förhandsvisningen. Använd samma modell i förhandsvisningen som du tänker använda för hela analysen.",
+        "focus": [
+         1020,
+         456,
+         1800,
+         380
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12c_actual_download_verified",
+        "narration": "I Model Zoo väljer du plackmodellen, väljer en mapp i Save to och klickar på Download. Vänta tills modellen finns lokalt och välj sedan den kontrollpunkten för förhandsvisningen. Spara dess sökväg för senare körningar.",
+        "focus": [
+         1025,
+         568,
+         1790,
+         1035
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16b_overlay_settings",
+        "narration": "Välj en exempelbild och klicka på Run preview. Högerklicka på bilden och öppna Overlay settings, där Display växlar mellan konturer och en fylld överlagring, för att kontrollera att de förutsagda områdena följer plackens kanter. Granska flera representativa bilder innan du kör en hel platta.",
+        "focus": [
+         1700,
+         280,
+         1100,
+         1320
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_actual_filter_changed",
+        "narration": "Höj Min area för att dölja små predicerade områden. Se vilka objekt som försvinner och anpassa tröskeln efter det minsta plack du vill mäta. Ändra en inställning i taget så att effekten blir tydlig.",
+        "focus": [
+         1980,
+         286,
+         432,
+         660
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_actual_filter_restored",
+        "narration": "Sänk Min area för att få tillbaka mindre områden; 0 tar bort den nedre ytgränsen. Kontrollera den slutliga förhandsvisningen och batchinställningarna före Run. Förhandsvisningen visar den valda bilden; Run ger analysens utdata.",
+        "focus": [
+         3040,
+         1570,
+         760,
+         230
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_completion",
+        "narration": "Tryck på Run och följ konsolen tills analysen är klar. Med Masks avstängt läser exemplet de medföljande etiketterna och skriver masks/plaques_analysis.db. Databasen innehåller antal och ytor för bilderna i Source.",
+        "focus": [
+         1510,
+         170,
+         2300,
+         1450
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "20_help_route",
+        "narration": "Öppna Help och sedan Database browser. Välj plaques_analysis.db i mappen masks. Låt Edit mode vara avstängt medan du granskar utdata och välj en tabell i tabellistan.",
+        "related_lessons": [
+         "34_database"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_summary_table",
+        "narration": "Öppna summary för en översikt per bild. Matcha raderna med hjälp av filnamnen. De medföljande syntetiska maskerna innehåller fyra, tre, två och ett objekt. Medelstorleken anger deras genomsnittliga yta i pixlar.",
+        "focus": [
+         345,
+         278,
+         1420,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "22_actual_stats_table",
+        "narration": "Öppna stats för att jämföra varje bilds antal plack, medelyta och ytspridning. Standardavvikelsen beskriver spannet av plackstorlekar i bilden. Använd oberoende experimentella replikat när du jämför biologiska förhållanden.",
+        "focus": [
+         345,
+         278,
+         1930,
+         225
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_actual_details_table",
+        "narration": "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna.",
+        "focus": [
+         345,
+         278,
+         1420,
+         410
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30_figure_mode",
+        "narration": "Plaque Assay läser även publicerade figurer. Byt Mode i förhandsvisningen från Plaque till Figure. I Figure-läget hittar körningen plackbrunnarna i varje figur, läser texten runt dem för att namnge varje villkor och segmenterar sedan placken. Släpp PDF-filer eller figurbilder var som helst på skärmen, eller hämta en artikel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "30b_from_a_paper",
+        "narration": "Klicka på From a paper och ange en DOI, PubMed- eller PMC-id. spaCR hämtar artikelns figurer och deras figurtexter från Europe PMC till en ny mapp, noterar licensen och riktar förhandsvisningen mot dem. Det här exemplet använder en fritt tillgänglig artikel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "31_figure_wells",
+        "narration": "Välj en figur och klicka på Run preview. Varje brunn som hittas ramas in i figuren och listas i tabellen med etikettexten som lästs bredvid; här hittades åtta brunnar, var och en namngiven efter stam och läkemedelskoncentration. Kontrollera varje villkor, rätta det vid behov och klicka på Save annotations före Run så att mätningarna får rätt namn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "32_figure_all_wells",
+        "narration": "Klicka på Find plaques in all wells. Varje brunn segmenteras med standardmodellen för plack, och fliken Plaques listar varje plack som hittats. Här hittades sextiosex plack i de åtta brunnarna, sjutton av dem i vildtypsbrunnen utan läkemedel. Jämför antalen med figuren innan du litar på dem.",
+        "hold_after": 0.7
+       }
+      ],
+      "host_app_key": "toxoplasma",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       11,
+       "lessons"
+      ],
+      "preceding": []
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 16,
+     "value": {
+      "kind": "submodule",
+      "app_key": "analyze_plaques",
+      "host_app_key": "toxoplasma",
+      "host_lesson": "82_toxoplasma",
+      "host_title": "Toxoplasma"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/24_plaque -> tools/tutorials/archive/production/docs/24_plaque"
+ ],
+ "prose": [
+  "docs/source/plaque_assay.rst",
+  "docs/i18n/guides/de/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/es/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/fr/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/hi/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/is/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/ko/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/pt/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/sv/LC_MESSAGES/plaque_assay.po",
+  "docs/i18n/guides/zh_CN/LC_MESSAGES/plaque_assay.po"
+ ]
+}

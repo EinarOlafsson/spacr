@@ -24,5 +24,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/volcano_style/index>`.
 
-`Module tutorial <../../../tutorials/#lesson=72_volcano_explorer>`__.
-

@@ -1,0 +1,505 @@
+{
+  "lessons": {
+    "18_motility": {
+      "app_key": "motility",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/18_motility/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "measure",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 18,
+      "position": 16,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Motility assay",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "24_plaque": {
+      "app_key": "analyze_plaques",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/24_plaque/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "toxoplasma",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 24,
+      "position": 22,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Plaque Assay: count plaques and measure their areas",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "25_recruitment": {
+      "app_key": "recruitment",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/25_recruitment/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "toxoplasma",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 25,
+      "position": 23,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Recruitment: measure marker enrichment around parasites",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "29_report": {
+      "app_key": "report",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/29_report/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 29,
+      "position": 27,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Report: create a document from project results",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "30_plate_queue": {
+      "app_key": "queue",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/30_plate_queue/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 30,
+      "position": 28,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Plate Queue: run several prepared projects",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "34_database": {
+      "app_key": "db_browser",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/34_database/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 34,
+      "position": 32,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Database Browser: filter and export measurements",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "46_napari_bridge": {
+      "app_key": "napari_bridge",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/46_napari_bridge/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "make_masks",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 46,
+      "position": 44,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Napari Bridge: edit and return a label mask",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "47_barcode_qc": {
+      "app_key": "barcode_qc",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/47_barcode_qc/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "map_barcodes",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 47,
+      "position": 45,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "57_layer_viewer": {
+      "app_key": "layer_viewer",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/57_layer_viewer/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "qc_dashboard",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 57,
+      "position": 55,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "59_anndata_export": {
+      "app_key": "anndata_export",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/59_anndata_export/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "measure",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 59,
+      "position": 57,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "AnnData Export: save measured objects and features",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "60_pca": {
+      "app_key": "pca",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/60_pca/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "umap",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 60,
+      "position": 58,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "PCA: explore measurements and export components",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "61_tabulate": {
+      "app_key": "tabulate",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/61_tabulate/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "db_browser",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 61,
+      "position": 59,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Tabulate: summarize measurements by well and field",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "65_feature_explorer": {
+      "app_key": "feature_explorer",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/65_feature_explorer/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "classify_merged",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 65,
+      "position": 63,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "66_outliers": {
+      "app_key": "outliers",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/66_outliers/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "qc_dashboard",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 66,
+      "position": 64,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Outliers: flag measurements for inspection",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "68_power_design": {
+      "app_key": "power",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/68_power_design/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 68,
+      "position": 66,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Power & Design: explore simulated detection curves",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "69_dose_response": {
+      "app_key": "dose_response",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/69_dose_response/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 69,
+      "position": 67,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Dose Response: fit concentration curves and read their intervals",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "71_investigate_hit": {
+      "app_key": "investigate_hit",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/71_investigate_hit/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "regression",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 71,
+      "position": 69,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Investigate Hit: trace a Regression gene back to measured cells",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "72_volcano_explorer": {
+      "app_key": "volcano_explorer",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/72_volcano_explorer/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "regression",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 72,
+      "position": 70,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Volcano Explorer: inspect results and save a figure",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "73_parameter_sweep": {
+      "app_key": "parameter_sweep",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/73_parameter_sweep/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "regression",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 73,
+      "position": 71,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Parameter Sweep: compare saved Regression trials",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "75_regression_diagnostics": {
+      "app_key": "regression_diagnostics",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/75_regression_diagnostics/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "regression",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 75,
+      "position": 73,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "76_ops": {
+      "app_key": "ops",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/76_ops/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": "mask",
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 76,
+      "position": 75,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "OPS: from sequencing images to cell barcodes",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "77_embeddings": {
+      "app_key": "embeddings",
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/77_embeddings/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 77,
+      "position": 74,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Embeddings: load crops and compare channel policies",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "79_module_inputs_outputs": {
+      "app_key": null,
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/79_module_inputs_outputs/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 79,
+      "position": 77,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Module inputs and outputs",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "86_alpha_organism_modules": {
+      "app_key": null,
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/86_alpha_organism_modules/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 86,
+      "position": 82,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Alpha: organism modules",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    },
+    "87_alpha_features": {
+      "app_key": null,
+      "archived_at": "2026-10-26T14:25:55+00:00",
+      "hf": {
+        "archive_commit": "35c25835c89e2e881e4888f2917bd838ceae082e",
+        "archive_path": "archive/87_alpha_features/",
+        "repo": "einarolafsson/spacr-tutorials",
+        "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
+      },
+      "host_app_key": null,
+      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
+      "number": 87,
+      "position": 83,
+      "reason": "Hidden for spaCR 1.5.1.6 (maintainer approval)",
+      "source_commit": "de6b47cbe295423cb08c8ab4e59af021ef6eccb4",
+      "title": "Alpha: experimental features",
+      "ws_local_copy": "/media/carruthers/mnt1/tutorial-archive-20261026",
+      "ws_local_copy_verified": "2026-10-26 by WS: MANIFEST.txt counts and sizes match; dangling t17 symlinks listed as MISSING"
+    }
+  },
+  "schema": 1
+}

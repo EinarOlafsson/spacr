@@ -23,8 +23,8 @@ msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "空斑分析：视野、图和经审查的条件"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
-msgstr "打开 **主页 → 生物体 → 弓形虫 → 空斑分析**。选择 **空斑** 处理空斑视野，或选择 **图** 处理包含孔、分图和周围文字的已发表图。这些输入不需要事先运行测量。有关上下游工作流程，请参阅 :ref:`模块图 <workflow-module-analyze_plaques>`、`空斑分析教程 <tutorials/#lesson=24_plaque>`_ 和 :func:`spacr.submodules.analyze_plaques`。"
+msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>` and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "打开 **主页 → 生物体 → 弓形虫 → 空斑分析**。选择 **空斑** 处理空斑视野，或选择 **图** 处理包含孔、分图和周围文字的已发表图。这些输入不需要事先运行测量。有关上下游工作流程，请参阅 :ref:`模块图 <workflow-module-analyze_plaques>` 和 :func:`spacr.submodules.analyze_plaques`。"
 
 msgid "Preview a plaque field"
 msgstr "预览空斑视野"

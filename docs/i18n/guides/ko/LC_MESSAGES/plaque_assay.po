@@ -23,8 +23,8 @@ msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "플라크 분석: 시야, 그림, 검토된 조건"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
-msgstr "**홈 → 생물체 → 톡소플라스마 → 플라크 분석** 을 엽니다. 플라크 시야에는 **플라크** 를, 웰과 패널 및 주변 텍스트가 있는 출판된 그림에는 **그림** 을 선택합니다. 이 입력에는 사전 측정 실행이 필요하지 않습니다. 주변 워크플로는 :ref:`모듈 맵 <workflow-module-analyze_plaques>`, `플라크 분석 튜토리얼 <tutorials/#lesson=24_plaque>`_, :func:`spacr.submodules.analyze_plaques` 를 참조합니다."
+msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>` and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "**홈 → 생물체 → 톡소플라스마 → 플라크 분석** 을 엽니다. 플라크 시야에는 **플라크** 를, 웰과 패널 및 주변 텍스트가 있는 출판된 그림에는 **그림** 을 선택합니다. 이 입력에는 사전 측정 실행이 필요하지 않습니다. 주변 워크플로는 :ref:`모듈 맵 <workflow-module-analyze_plaques>` 및 :func:`spacr.submodules.analyze_plaques` 를 참조합니다."
 
 msgid "Preview a plaque field"
 msgstr "플라크 시야 미리보기"

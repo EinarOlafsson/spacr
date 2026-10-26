@@ -1,0 +1,4906 @@
+{
+ "schema": 1,
+ "id": "57_layer_viewer",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "objectives": [
+       "Open an image and its matching mask.",
+       "Adjust visibility, opacity, blending and layer order.",
+       "Inspect labels with zoom and pan."
+      ],
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "57_layer_viewer/poster.jpg",
+      "silent": "57_layer_viewer/video/57_layer_viewer_silent.mp4",
+      "web": "57_layer_viewer/web/57_layer_viewer_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: inspect images and label overlays",
+      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "objectives": [
+       "Open an image and its matching mask.",
+       "Adjust visibility, opacity, blending and layer order.",
+       "Inspect labels with zoom and pan."
+      ],
+      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: revisar imágenes y superposiciones de etiquetas",
+      "description": "Carga una imagen y su máscara, ajusta la superposición y amplía para revisar los bordes de los objetos.",
+      "objectives": [
+       "Abrir una imagen y su máscara correspondiente.",
+       "Ajustar la visibilidad, la opacidad, la mezcla y el orden de las capas.",
+       "Revisar las etiquetas con zoom y desplazamiento."
+      ],
+      "prerequisite": "Descarga y extrae Layer_Viewer_real_image_mask.zip. Usa la imagen de intensidad incluida y la máscara de etiquetas enteras correspondiente. Este ejemplo no tiene calibración física de píxeles.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Desde Home, abre QC y luego Layer Viewer. Descarga y extrae el ejemplo enlazado de imagen y máscara. El visor tiene sus propios controles de archivo para estas dos entradas.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Desde Home, abre QC y luego Layer Viewer. Descarga y extrae el ejemplo enlazado de imagen y máscara. El visor tiene sus propios controles de archivo para estas dos entradas."
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Haz clic en más Image y abre fov01_C1 punto tif. La imagen en escala de grises aparece en el lienzo con un ajuste de contraste por percentiles para la visualización.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en más Image y abre fov01_C1 punto tif. La imagen en escala de grises aparece en el lienzo con un ajuste de contraste por percentiles para la visualización."
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Haz clic en Fit para llenar el panel de la imagen. Fit puede estirar una imagen cuadrada en un panel ancho; ajusta el divisor para que el panel sea aproximadamente cuadrado cuando revises formas.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Fit para llenar el panel de la imagen. Fit puede estirar una imagen cuadrada en un panel ancho; ajusta el divisor para que el panel sea aproximadamente cuadrado cuando revises formas."
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Haz clic en más Mask y abre fov01_cell_mask punto tif. Los cuarenta y cuatro objetos etiquetados aparecen sobre la imagen. El cero es el fondo y queda transparente.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en más Mask y abre fov01_cell_mask punto tif. Los cuarenta y cuatro objetos etiquetados aparecen sobre la imagen. El cero es el fondo y queda transparente."
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Selecciona mask en la lista de capas antes de cambiar sus controles. Marca y desmarca su casilla para comparar los bordes con la imagen de debajo.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "Selecciona mask en la lista de capas antes de cambiar sus controles. Marca y desmarca su casilla para comparar los bordes con la imagen de debajo."
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Pon la Opacity de mask en cero para ocultar sus colores sin descargar la capa. Comprueba la fila seleccionada antes de ajustar otra capa.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "Pon la Opacity de mask en cero para ocultar sus colores sin descargar la capa. Comprueba la fila seleccionada antes de ajustar otra capa."
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Pon Opacity en el cien por cien para revisar la forma de las etiquetas. Los colores cubren la imagen dentro de cada objeto etiquetado.",
+        "hold_after": 0.7,
+        "speech_text": "Pon Opacity en el cien por cien para revisar la forma de las etiquetas. Los colores cubren la imagen dentro de cada objeto etiquetado."
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Vuelve a poner Opacity en el cincuenta por ciento y elige la mezcla translucent para ver la textura de la imagen a través de la máscara. Compara los bordes de los objetos con la señal subyacente.",
+        "hold_after": 0.7,
+        "speech_text": "Vuelve a poner Opacity en el cincuenta por ciento y elige la mezcla translucent para ver la textura de la imagen a través de la máscara. Compara los bordes de los objetos con la señal subyacente."
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Elige la mezcla additive para sumar los colores de la máscara a la imagen. Las zonas brillantes pueden saturarse en esta vista, así que vuelve a translucent cuando necesites una comparación más clara.",
+        "hold_after": 0.7,
+        "speech_text": "Elige la mezcla additive para sumar los colores de la máscara a la imagen. Las zonas brillantes pueden saturarse en esta vista, así que vuelve a translucent cuando necesites una comparación más clara."
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prueba las mezclas multiply y minimum para comparar superposiciones más oscuras. Estas opciones cambian la composición mostrada, mientras que los valores de intensidad originales siguen disponibles en la imagen de origen.",
+        "hold_after": 0.7,
+        "speech_text": "Prueba las mezclas multiply y minimum para comparar superposiciones más oscuras. Estas opciones cambian la composición mostrada, mientras que los valores de intensidad originales siguen disponibles en la imagen de origen."
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Elige opaque y mueve el control Opacity para comparar su aspecto. Con esta máscara de enteros, la mezcla opaque al cincuenta por ciento se ve igual que translucent al cincuenta por ciento. Vuelve a translucent para continuar.",
+        "hold_after": 0.7,
+        "speech_text": "Elige opaque y mueve el control Opacity para comparar su aspecto. Con esta máscara de enteros, la mezcla opaque al cincuenta por ciento se ve igual que translucent al cincuenta por ciento. Vuelve a translucent para continuar."
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Selecciona image y elige cyan en el selector de mapa de colores. La imagen de intensidad cambia de color y la máscara mantiene los colores de sus etiquetas. Elige gray para volver a la escala de grises.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona image y elige cyan en el selector de mapa de colores. La imagen de intensidad cambia de color y la máscara mantiene los colores de sus etiquetas. Elige gray para volver a la escala de grises."
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Selecciona mask y pulsa la flecha hacia abajo para moverla detrás de la imagen. La capa superior aparece delante. Vuelve a subir la máscara para revisar sus etiquetas.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona mask y pulsa la flecha hacia abajo para moverla detrás de la imagen. La capa superior aparece delante. Vuelve a subir la máscara para revisar sus etiquetas."
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Haz clic en un objeto etiquetado visible para leer su posición y su número de etiqueta en la línea de estado. Usa los metadatos de tu proyecto cuando necesites identificar el campo, la placa o el pozo de ese objeto.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "Haz clic en un objeto etiquetado visible para leer su posición y su número de etiqueta en la línea de estado. Usa los metadatos de tu proyecto cuando necesites identificar el campo, la placa o el pozo de ese objeto."
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Gira la rueda del ratón sobre un objeto para ampliar alrededor del puntero. Acércate hasta que su borde sea fácil de revisar.",
+        "hold_after": 0.7,
+        "speech_text": "Gira la rueda del ratón sobre un objeto para ampliar alrededor del puntero. Acércate hasta que su borde sea fácil de revisar."
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Mantén pulsada Shift y arrastra con el botón izquierdo del ratón para desplazarte. También puedes arrastrar con el botón central. Recorre el campo manteniendo el zoom actual.",
+        "hold_after": 0.7,
+        "speech_text": "Mantén pulsada Shift y arrastra con el botón izquierdo del ratón para desplazarte. También puedes arrastrar con el botón central. Recorre el campo manteniendo el zoom actual."
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Haz clic en Fit para volver a ver el campo completo. Ajusta la forma del panel si la imagen ajustada se ve estirada.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Fit para volver a ver el campo completo. Ajusta la forma del panel si la imagen ajustada se ve estirada."
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Más Points y más Shapes añaden capas auxiliares vacías. Para dibujar o editar máscaras de segmentación, continúa en Make Masks; este visor no tiene controles de dibujo para esas capas vacías.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "Más Points y más Shapes añaden capas auxiliares vacías. Para dibujar o editar máscaras de segmentación, continúa en Make Masks; este visor no tiene controles de dibujo para esas capas vacías."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Selecciona una capa y usa Remove para quitarla de la vista. Su archivo original sigue en el disco, listo para volver a cargarse.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona una capa y usa Remove para quitarla de la vista. Su archivo original sigue en el disco, listo para volver a cargarse."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "El resultado es una vista de capas revisada. Para exportar una composición, usa stack_from_paths y LayerStack.render_uint8 desde Python. Continúa con Make Masks para guardar ediciones de máscaras, o con Measure para las mediciones de objetos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "El resultado es una vista de capas revisada. Para exportar una composición, usa stack_from_paths y LayerStack.render_uint8 desde Python. Continúa con Make Masks para guardar ediciones de máscaras, o con Measure para las mediciones de objetos."
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer : examiner des images et des superpositions d’étiquettes",
+      "description": "Chargez une image et son masque, réglez la superposition et zoomez pour examiner les contours des objets.",
+      "objectives": [
+       "Ouvrir une image et son masque correspondant.",
+       "Régler la visibilité, l’opacité, le mode de fusion et l’ordre des calques.",
+       "Examiner les étiquettes avec le zoom et le déplacement."
+      ],
+      "prerequisite": "Téléchargez et extrayez Layer_Viewer_real_image_mask.zip. Utilisez l’image d’intensité fournie et le masque d’étiquettes entières correspondant. Cet exemple n’a pas de calibration physique des pixels.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Depuis Home, ouvrez QC, puis Layer Viewer. Téléchargez et extrayez l’exemple image et masque associé. La visionneuse a ses propres commandes de fichiers pour ces deux entrées.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Depuis Home, ouvrez QC, puis Layer Viewer. Téléchargez et extrayez l’exemple image et masque associé. La visionneuse a ses propres commandes de fichiers pour ces deux entrées."
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Cliquez sur plus Image et ouvrez fov01_C1 point tif. L’image en niveaux de gris apparaît dans la zone d’affichage avec un étirement de contraste par percentiles.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur plus Image et ouvrez fov01_C1 point tif. L’image en niveaux de gris apparaît dans la zone d’affichage avec un étirement de contraste par percentiles."
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Cliquez sur Fit pour remplir le panneau de l’image. Fit peut étirer une image carrée dans un panneau large ; ajustez le séparateur pour que le panneau soit à peu près carré lorsque vous examinez des formes.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Fit pour remplir le panneau de l’image. Fit peut étirer une image carrée dans un panneau large ; ajustez le séparateur pour que le panneau soit à peu près carré lorsque vous examinez des formes."
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Cliquez sur plus Mask et ouvrez fov01_cell_mask point tif. Les quarante-quatre objets étiquetés apparaissent sur l’image. Zéro correspond au fond et reste transparent.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur plus Mask et ouvrez fov01_cell_mask point tif. Les quarante-quatre objets étiquetés apparaissent sur l’image. Zéro correspond au fond et reste transparent."
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Sélectionnez mask dans la liste des calques avant de modifier ses réglages. Cochez et décochez sa case pour comparer les contours avec l’image en dessous.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "Sélectionnez mask dans la liste des calques avant de modifier ses réglages. Cochez et décochez sa case pour comparer les contours avec l’image en dessous."
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Réglez l’Opacity de mask sur zéro pour masquer ses couleurs tout en gardant le calque chargé. Vérifiez la ligne sélectionnée avant de régler un autre calque.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "Réglez l’Opacity de mask sur zéro pour masquer ses couleurs tout en gardant le calque chargé. Vérifiez la ligne sélectionnée avant de régler un autre calque."
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Réglez Opacity sur cent pour cent pour examiner la forme des étiquettes. Les couleurs recouvrent l’image à l’intérieur de chaque objet étiqueté.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez Opacity sur cent pour cent pour examiner la forme des étiquettes. Les couleurs recouvrent l’image à l’intérieur de chaque objet étiqueté."
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Remettez Opacity à cinquante pour cent et choisissez la fusion translucent pour voir la texture de l’image à travers le masque. Comparez les contours des objets avec le signal sous-jacent.",
+        "hold_after": 0.7,
+        "speech_text": "Remettez Opacity à cinquante pour cent et choisissez la fusion translucent pour voir la texture de l’image à travers le masque. Comparez les contours des objets avec le signal sous-jacent."
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Choisissez la fusion additive pour ajouter les couleurs du masque à l’image. Les zones claires peuvent saturer dans cet affichage ; revenez à translucent lorsque vous avez besoin d’une comparaison plus nette.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez la fusion additive pour ajouter les couleurs du masque à l’image. Les zones claires peuvent saturer dans cet affichage ; revenez à translucent lorsque vous avez besoin d’une comparaison plus nette."
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Essayez les fusions multiply et minimum pour comparer des superpositions plus sombres. Ces options modifient le composite affiché, tandis que les valeurs d’intensité d’origine restent disponibles dans l’image source.",
+        "hold_after": 0.7,
+        "speech_text": "Essayez les fusions multiply et minimum pour comparer des superpositions plus sombres. Ces options modifient le composite affiché, tandis que les valeurs d’intensité d’origine restent disponibles dans l’image source."
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Choisissez opaque et déplacez le curseur Opacity pour comparer son aspect. Avec ce masque d’entiers, la fusion opaque à cinquante pour cent ressemble à la fusion translucent à cinquante pour cent. Revenez à translucent pour continuer.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez opaque et déplacez le curseur Opacity pour comparer son aspect. Avec ce masque d’entiers, la fusion opaque à cinquante pour cent ressemble à la fusion translucent à cinquante pour cent. Revenez à translucent pour continuer."
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Sélectionnez image et choisissez cyan dans le sélecteur de palette. L’image d’intensité change de couleur tandis que le masque garde les couleurs de ses étiquettes. Choisissez gray pour revenir aux niveaux de gris.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez image et choisissez cyan dans le sélecteur de palette. L’image d’intensité change de couleur tandis que le masque garde les couleurs de ses étiquettes. Choisissez gray pour revenir aux niveaux de gris."
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Sélectionnez mask et appuyez sur la flèche vers le bas pour le placer derrière l’image. Le calque supérieur apparaît au premier plan. Remontez le masque pour examiner ses étiquettes.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez mask et appuyez sur la flèche vers le bas pour le placer derrière l’image. Le calque supérieur apparaît au premier plan. Remontez le masque pour examiner ses étiquettes."
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Cliquez sur un objet étiqueté visible pour lire sa position et son numéro d’étiquette dans la ligne d’état. Utilisez les métadonnées de votre projet pour identifier le champ, la plaque ou le puits de cet objet.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "Cliquez sur un objet étiqueté visible pour lire sa position et son numéro d’étiquette dans la ligne d’état. Utilisez les métadonnées de votre projet pour identifier le champ, la plaque ou le puits de cet objet."
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Tournez la molette de la souris au-dessus d’un objet pour zoomer autour du pointeur. Rapprochez-vous jusqu’à bien voir son contour.",
+        "hold_after": 0.7,
+        "speech_text": "Tournez la molette de la souris au-dessus d’un objet pour zoomer autour du pointeur. Rapprochez-vous jusqu’à bien voir son contour."
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Maintenez Maj et faites glisser avec le bouton gauche pour vous déplacer. Vous pouvez aussi faire glisser avec le bouton central. Parcourez le champ en gardant le zoom actuel.",
+        "hold_after": 0.7,
+        "speech_text": "Maintenez Maj et faites glisser avec le bouton gauche pour vous déplacer. Vous pouvez aussi faire glisser avec le bouton central. Parcourez le champ en gardant le zoom actuel."
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Cliquez sur Fit pour revenir au champ entier. Ajustez la forme du panneau si l’image ajustée paraît étirée.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Fit pour revenir au champ entier. Ajustez la forme du panneau si l’image ajustée paraît étirée."
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Plus Points et plus Shapes ajoutent des calques auxiliaires vides. Pour dessiner ou modifier des masques de segmentation, poursuivez dans Make Masks ; cette visionneuse n’a pas d’outils de dessin pour ces calques vides.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "Plus Points et plus Shapes ajoutent des calques auxiliaires vides. Pour dessiner ou modifier des masques de segmentation, poursuivez dans Make Masks ; cette visionneuse n’a pas d’outils de dessin pour ces calques vides."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Sélectionnez un calque et utilisez Remove pour le retirer de l’affichage. Son fichier d’origine reste sur le disque, prêt à être rechargé.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez un calque et utilisez Remove pour le retirer de l’affichage. Son fichier d’origine reste sur le disque, prêt à être rechargé."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Vous obtenez une vue de calques examinée. Pour exporter un composite, utilisez stack_from_paths et LayerStack.render_uint8 depuis Python. Poursuivez avec Make Masks pour enregistrer des modifications de masques, ou avec Measure pour les mesures d’objets.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "Vous obtenez une vue de calques examinée. Pour exporter un composite, utilisez stack_from_paths et LayerStack.render_uint8 depuis Python. Poursuivez avec Make Masks pour enregistrer des modifications de masques, ou avec Measure pour les mesures d’objets."
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: इमेज और लेबल ओवरले देखें",
+      "description": "मेल खाती इमेज और मास्क लोड करें, ओवरले समायोजित करें और वस्तुओं की सीमाएँ देखने के लिए ज़ूम करें।",
+      "objectives": [
+       "इमेज और उससे मेल खाता मास्क खोलें।",
+       "दृश्यता, अपारदर्शिता, मिश्रण और परतों का क्रम समायोजित करें।",
+       "ज़ूम और खिसकाकर लेबल देखें।"
+      ],
+      "prerequisite": "Layer_Viewer_real_image_mask.zip डाउनलोड करके निकालें। शामिल तीव्रता इमेज और उससे मेल खाता पूर्णांक लेबल मास्क इस्तेमाल करें। इस उदाहरण में पिक्सेल का भौतिक कैलिब्रेशन उपलब्ध नहीं है।",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Home से QC खोलें, फिर Layer Viewer। जुड़ा हुआ इमेज और मास्क उदाहरण डाउनलोड करके निकालें। इन दो इनपुट के लिए व्यूअर के अपने फ़ाइल नियंत्रण हैं।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Home से QC खोलें, फिर Layer Viewer। जुड़ा हुआ इमेज और मास्क उदाहरण डाउनलोड करके निकालें। इन दो इनपुट के लिए व्यूअर के अपने फ़ाइल नियंत्रण हैं।"
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "प्लस Image पर क्लिक करें और fov01_C1 डॉट tif खोलें। ग्रेस्केल इमेज कैनवास पर प्रदर्शन के लिए पर्सेंटाइल कंट्रास्ट के साथ दिखती है।",
+        "hold_after": 0.7,
+        "speech_text": "प्लस Image पर क्लिक करें और fov01_C1 डॉट tif खोलें। ग्रेस्केल इमेज कैनवास पर प्रदर्शन के लिए पर्सेंटाइल कंट्रास्ट के साथ दिखती है।"
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "इमेज पैनल भरने के लिए Fit पर क्लिक करें। Fit चौड़े पैनल में वर्गाकार इमेज को खींच सकता है; आकार देखते समय पैनल को लगभग वर्गाकार बनाने के लिए डिवाइडर समायोजित करें।",
+        "hold_after": 0.7,
+        "speech_text": "इमेज पैनल भरने के लिए Fit पर क्लिक करें। Fit चौड़े पैनल में वर्गाकार इमेज को खींच सकता है; आकार देखते समय पैनल को लगभग वर्गाकार बनाने के लिए डिवाइडर समायोजित करें।"
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "प्लस Mask पर क्लिक करें और fov01_cell_mask डॉट tif खोलें। चौवालीस लेबल वाली वस्तुएँ इमेज के ऊपर दिखती हैं। शून्य पृष्ठभूमि है और पारदर्शी रहता है।",
+        "hold_after": 0.7,
+        "speech_text": "प्लस Mask पर क्लिक करें और fov01_cell_mask डॉट tif खोलें। चौवालीस लेबल वाली वस्तुएँ इमेज के ऊपर दिखती हैं। शून्य पृष्ठभूमि है और पारदर्शी रहता है।"
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "नियंत्रण बदलने से पहले परत सूची में mask चुनें। नीचे की इमेज से सीमाओं की तुलना करने के लिए उसका चेकबॉक्स चालू-बंद करें।",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "नियंत्रण बदलने से पहले परत सूची में mask चुनें। नीचे की इमेज से सीमाओं की तुलना करने के लिए उसका चेकबॉक्स चालू-बंद करें।"
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "परत को लोड रखते हुए उसके रंग छिपाने के लिए mask की Opacity शून्य करें। किसी दूसरी परत को बदलने से पहले चुनी गई पंक्ति जाँचें।",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "परत को लोड रखते हुए उसके रंग छिपाने के लिए mask की Opacity शून्य करें। किसी दूसरी परत को बदलने से पहले चुनी गई पंक्ति जाँचें।"
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "लेबल के आकार देखने के लिए Opacity को सौ प्रतिशत करें। रंग हर लेबल वाली वस्तु के भीतर इमेज को ढक देते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "लेबल के आकार देखने के लिए Opacity को सौ प्रतिशत करें। रंग हर लेबल वाली वस्तु के भीतर इमेज को ढक देते हैं।"
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Opacity को फिर पचास प्रतिशत करें और मास्क के आर-पार इमेज की बनावट देखने के लिए translucent मिश्रण चुनें। वस्तुओं की सीमाओं की तुलना नीचे के संकेत से करें।",
+        "hold_after": 0.7,
+        "speech_text": "Opacity को फिर पचास प्रतिशत करें और मास्क के आर-पार इमेज की बनावट देखने के लिए translucent मिश्रण चुनें। वस्तुओं की सीमाओं की तुलना नीचे के संकेत से करें।"
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "मास्क के रंग इमेज में जोड़ने के लिए additive मिश्रण चुनें। इस दृश्य में चमकीले हिस्से संतृप्त हो सकते हैं, इसलिए साफ़ तुलना के लिए translucent पर लौटें।",
+        "hold_after": 0.7,
+        "speech_text": "मास्क के रंग इमेज में जोड़ने के लिए additive मिश्रण चुनें। इस दृश्य में चमकीले हिस्से संतृप्त हो सकते हैं, इसलिए साफ़ तुलना के लिए translucent पर लौटें।"
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "गहरे ओवरले की तुलना के लिए multiply और minimum मिश्रण आज़माएँ। ये विकल्प केवल दिखाई गई संयुक्त छवि बदलते हैं; मूल तीव्रता मान स्रोत इमेज में उपलब्ध रहते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "गहरे ओवरले की तुलना के लिए multiply और minimum मिश्रण आज़माएँ। ये विकल्प केवल दिखाई गई संयुक्त छवि बदलते हैं; मूल तीव्रता मान स्रोत इमेज में उपलब्ध रहते हैं।"
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "opaque चुनें और उसका रूप देखने के लिए Opacity स्लाइडर समायोजित करें। इस पूर्णांक मास्क के साथ पचास प्रतिशत opaque मिश्रण पचास प्रतिशत translucent जैसा दिखता है। आगे बढ़ने के लिए translucent पर लौटें।",
+        "hold_after": 0.7,
+        "speech_text": "opaque चुनें और उसका रूप देखने के लिए Opacity स्लाइडर समायोजित करें। इस पूर्णांक मास्क के साथ पचास प्रतिशत opaque मिश्रण पचास प्रतिशत translucent जैसा दिखता है। आगे बढ़ने के लिए translucent पर लौटें।"
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "image चुनें और रंग-मानचित्र चयनकर्ता में cyan चुनें। तीव्रता इमेज का रंग बदलता है, जबकि मास्क अपने लेबल रंग बनाए रखता है। ग्रेस्केल दृश्य पर लौटने के लिए gray चुनें।",
+        "hold_after": 0.7,
+        "speech_text": "image चुनें और रंग-मानचित्र चयनकर्ता में cyan चुनें। तीव्रता इमेज का रंग बदलता है, जबकि मास्क अपने लेबल रंग बनाए रखता है। ग्रेस्केल दृश्य पर लौटने के लिए gray चुनें।"
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "mask चुनें और उसे इमेज के पीछे ले जाने के लिए नीचे वाला तीर दबाएँ। ऊपर वाली परत सामने दिखती है। लेबल देखने के लिए मास्क को फिर ऊपर ले जाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "mask चुनें और उसे इमेज के पीछे ले जाने के लिए नीचे वाला तीर दबाएँ। ऊपर वाली परत सामने दिखती है। लेबल देखने के लिए मास्क को फिर ऊपर ले जाएँ।"
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "स्थिति पंक्ति में उसकी स्थिति और लेबल संख्या पढ़ने के लिए किसी दिखती लेबल वाली वस्तु पर क्लिक करें। उस वस्तु का फ़ील्ड, प्लेट या वेल पहचानने के लिए अपने प्रोजेक्ट का मेटाडेटा इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "स्थिति पंक्ति में उसकी स्थिति और लेबल संख्या पढ़ने के लिए किसी दिखती लेबल वाली वस्तु पर क्लिक करें। उस वस्तु का फ़ील्ड, प्लेट या वेल पहचानने के लिए अपने प्रोजेक्ट का मेटाडेटा इस्तेमाल करें।"
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "पॉइंटर के आसपास ज़ूम करने के लिए किसी वस्तु पर माउस व्हील घुमाएँ। तब तक पास जाएँ जब तक उसकी सीमा आसानी से न दिखे।",
+        "hold_after": 0.7,
+        "speech_text": "पॉइंटर के आसपास ज़ूम करने के लिए किसी वस्तु पर माउस व्हील घुमाएँ। तब तक पास जाएँ जब तक उसकी सीमा आसानी से न दिखे।"
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "खिसकाने के लिए Shift दबाए रखें और बाएँ माउस बटन से खींचें। आप बीच वाले बटन से भी खींच सकते हैं। मौजूदा ज़ूम बनाए रखते हुए फ़ील्ड में आगे-पीछे जाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "खिसकाने के लिए Shift दबाए रखें और बाएँ माउस बटन से खींचें। आप बीच वाले बटन से भी खींच सकते हैं। मौजूदा ज़ूम बनाए रखते हुए फ़ील्ड में आगे-पीछे जाएँ।"
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "पूरे फ़ील्ड पर लौटने के लिए Fit पर क्लिक करें। अगर फ़िट की गई इमेज खिंची हुई दिखे, तो पैनल का आकार बदलें।",
+        "hold_after": 0.7,
+        "speech_text": "पूरे फ़ील्ड पर लौटने के लिए Fit पर क्लिक करें। अगर फ़िट की गई इमेज खिंची हुई दिखे, तो पैनल का आकार बदलें।"
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "प्लस Points और प्लस Shapes खाली सहायक परतें जोड़ते हैं। सेगमेंटेशन मास्क बनाने या संपादित करने के लिए Make Masks में आगे बढ़ें; इस व्यूअर में उन खाली परतों के लिए ड्रॉइंग नियंत्रण नहीं हैं।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "प्लस Points और प्लस Shapes खाली सहायक परतें जोड़ते हैं। सेगमेंटेशन मास्क बनाने या संपादित करने के लिए Make Masks में आगे बढ़ें; इस व्यूअर में उन खाली परतों के लिए ड्रॉइंग नियंत्रण नहीं हैं।"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "कोई परत चुनें और उसे दृश्य से हटाने के लिए Remove इस्तेमाल करें। उसकी मूल फ़ाइल डिस्क पर रहती है और फिर से लोड की जा सकती है।",
+        "hold_after": 0.7,
+        "speech_text": "कोई परत चुनें और उसे दृश्य से हटाने के लिए Remove इस्तेमाल करें। उसकी मूल फ़ाइल डिस्क पर रहती है और फिर से लोड की जा सकती है।"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "परिणाम एक जाँचा हुआ परत दृश्य है। संयुक्त छवि निर्यात करने के लिए Python से stack_from_paths और LayerStack.render_uint8 इस्तेमाल करें। मास्क के संपादन सहेजने के लिए Make Masks, या वस्तुओं के माप के लिए Measure पर जाएँ।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "परिणाम एक जाँचा हुआ परत दृश्य है। संयुक्त छवि निर्यात करने के लिए Python से stack_from_paths और LayerStack.render_uint8 इस्तेमाल करें। मास्क के संपादन सहेजने के लिए Make Masks, या वस्तुओं के माप के लिए Measure पर जाएँ।"
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: esaminare immagini e sovrapposizioni di etichette",
+      "description": "Carica un’immagine e la maschera corrispondente, regola la sovrapposizione e ingrandisci per esaminare i contorni degli oggetti.",
+      "objectives": [
+       "Aprire un’immagine e la maschera corrispondente.",
+       "Regolare visibilità, opacità, fusione e ordine dei livelli.",
+       "Esaminare le etichette con zoom e spostamento."
+      ],
+      "prerequisite": "Scarica ed estrai Layer_Viewer_real_image_mask.zip. Usa l’immagine di intensità inclusa e la maschera di etichette intere corrispondente. Per questo esempio non è disponibile una calibrazione fisica dei pixel.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Da Home, apri QC e poi Layer Viewer. Scarica ed estrai l’esempio collegato con immagine e maschera. Il visualizzatore ha propri comandi per aprire questi due file.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Da Home, apri QC e poi Layer Viewer. Scarica ed estrai l’esempio collegato con immagine e maschera. Il visualizzatore ha propri comandi per aprire questi due file."
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Fai clic su più Image e apri fov01_C1 punto tif. L’immagine in scala di grigi compare nell’area di disegno con uno stiramento del contrasto per percentili.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su più Image e apri fov01_C1 punto tif. L’immagine in scala di grigi compare nell’area di disegno con uno stiramento del contrasto per percentili."
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Fai clic su Fit per riempire il pannello dell’immagine. Fit può stirare un’immagine quadrata in un pannello largo; regola il divisore per rendere il pannello circa quadrato quando esamini le forme.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Fit per riempire il pannello dell’immagine. Fit può stirare un’immagine quadrata in un pannello largo; regola il divisore per rendere il pannello circa quadrato quando esamini le forme."
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Fai clic su più Mask e apri fov01_cell_mask punto tif. I quarantaquattro oggetti etichettati compaiono sopra l’immagine. Lo zero è lo sfondo e resta trasparente.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su più Mask e apri fov01_cell_mask punto tif. I quarantaquattro oggetti etichettati compaiono sopra l’immagine. Lo zero è lo sfondo e resta trasparente."
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Seleziona mask nell’elenco dei livelli prima di cambiarne i comandi. Attiva e disattiva la sua casella per confrontare i contorni con l’immagine sottostante.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "Seleziona mask nell’elenco dei livelli prima di cambiarne i comandi. Attiva e disattiva la sua casella per confrontare i contorni con l’immagine sottostante."
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Porta a zero la Opacity di mask per nasconderne i colori mantenendo il livello caricato. Controlla la riga selezionata prima di regolare un altro livello.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "Porta a zero la Opacity di mask per nasconderne i colori mantenendo il livello caricato. Controlla la riga selezionata prima di regolare un altro livello."
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Porta Opacity al cento per cento per esaminare la forma delle etichette. I colori coprono l’immagine all’interno di ogni oggetto etichettato.",
+        "hold_after": 0.7,
+        "speech_text": "Porta Opacity al cento per cento per esaminare la forma delle etichette. I colori coprono l’immagine all’interno di ogni oggetto etichettato."
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Riporta Opacity al cinquanta per cento e scegli la fusione translucent per vedere la trama dell’immagine attraverso la maschera. Confronta i contorni degli oggetti con il segnale sottostante.",
+        "hold_after": 0.7,
+        "speech_text": "Riporta Opacity al cinquanta per cento e scegli la fusione translucent per vedere la trama dell’immagine attraverso la maschera. Confronta i contorni degli oggetti con il segnale sottostante."
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Scegli la fusione additive per sommare i colori della maschera all’immagine. Le zone chiare possono saturare in questa visualizzazione, quindi torna a translucent quando ti serve un confronto più chiaro.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli la fusione additive per sommare i colori della maschera all’immagine. Le zone chiare possono saturare in questa visualizzazione, quindi torna a translucent quando ti serve un confronto più chiaro."
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prova le fusioni multiply e minimum per confrontare sovrapposizioni più scure. Queste opzioni cambiano il composito visualizzato, mentre i valori di intensità originali restano disponibili nell’immagine di origine.",
+        "hold_after": 0.7,
+        "speech_text": "Prova le fusioni multiply e minimum per confrontare sovrapposizioni più scure. Queste opzioni cambiano il composito visualizzato, mentre i valori di intensità originali restano disponibili nell’immagine di origine."
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Scegli opaque e muovi il cursore Opacity per confrontarne l’aspetto. Con questa maschera di interi, la fusione opaque al cinquanta per cento appare come translucent al cinquanta per cento. Torna a translucent per continuare.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli opaque e muovi il cursore Opacity per confrontarne l’aspetto. Con questa maschera di interi, la fusione opaque al cinquanta per cento appare come translucent al cinquanta per cento. Torna a translucent per continuare."
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Seleziona image e scegli cyan nel selettore della mappa di colori. L’immagine di intensità cambia colore mentre la maschera mantiene i colori delle etichette. Scegli gray per tornare alla scala di grigi.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona image e scegli cyan nel selettore della mappa di colori. L’immagine di intensità cambia colore mentre la maschera mantiene i colori delle etichette. Scegli gray per tornare alla scala di grigi."
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Seleziona mask e premi la freccia verso il basso per spostarla dietro l’immagine. Il livello superiore appare davanti. Riporta la maschera in alto per esaminarne le etichette.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona mask e premi la freccia verso il basso per spostarla dietro l’immagine. Il livello superiore appare davanti. Riporta la maschera in alto per esaminarne le etichette."
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Fai clic su un oggetto etichettato visibile per leggere la posizione e il numero di etichetta nella riga di stato. Usa i metadati del progetto quando devi identificare campo, piastra o pozzetto di quell’oggetto.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "Fai clic su un oggetto etichettato visibile per leggere la posizione e il numero di etichetta nella riga di stato. Usa i metadati del progetto quando devi identificare campo, piastra o pozzetto di quell’oggetto."
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Ruota la rotella del mouse su un oggetto per ingrandire intorno al puntatore. Avvicinati finché il contorno è facile da esaminare.",
+        "hold_after": 0.7,
+        "speech_text": "Ruota la rotella del mouse su un oggetto per ingrandire intorno al puntatore. Avvicinati finché il contorno è facile da esaminare."
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Tieni premuto Shift e trascina con il tasto sinistro per spostarti. Puoi anche trascinare con il tasto centrale. Muoviti nel campo mantenendo lo zoom attuale.",
+        "hold_after": 0.7,
+        "speech_text": "Tieni premuto Shift e trascina con il tasto sinistro per spostarti. Puoi anche trascinare con il tasto centrale. Muoviti nel campo mantenendo lo zoom attuale."
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Fai clic su Fit per tornare al campo intero. Regola la forma del pannello se l’immagine adattata sembra stirata.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Fit per tornare al campo intero. Regola la forma del pannello se l’immagine adattata sembra stirata."
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Più Points e più Shapes aggiungono livelli ausiliari vuoti. Per disegnare o modificare maschere di segmentazione, prosegui in Make Masks; questo visualizzatore non ha strumenti di disegno per quei livelli vuoti.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "Più Points e più Shapes aggiungono livelli ausiliari vuoti. Per disegnare o modificare maschere di segmentazione, prosegui in Make Masks; questo visualizzatore non ha strumenti di disegno per quei livelli vuoti."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Seleziona un livello e usa Remove per toglierlo dalla vista. Il file originale resta sul disco, pronto per essere ricaricato.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona un livello e usa Remove per toglierlo dalla vista. Il file originale resta sul disco, pronto per essere ricaricato."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Il risultato è una vista a livelli esaminata. Per esportare un composito, usa stack_from_paths e LayerStack.render_uint8 da Python. Prosegui con Make Masks per salvare modifiche alle maschere, oppure con Measure per le misure degli oggetti.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "Il risultato è una vista a livelli esaminata. Per esportare un composito, usa stack_from_paths e LayerStack.render_uint8 da Python. Prosegui con Make Masks per salvare modifiche alle maschere, oppure con Measure per le misure degli oggetti."
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer：画像とラベルのオーバーレイを確認する",
+      "description": "対応する画像とマスクを読み込み、オーバーレイを調整して、拡大しながら物体の境界を確認します。",
+      "objectives": [
+       "画像とそれに対応するマスクを開く。",
+       "表示、不透明度、合成方法、レイヤーの順序を調整する。",
+       "拡大と移動でラベルを確認する。"
+      ],
+      "prerequisite": "Layer_Viewer_real_image_mask.zipをダウンロードして展開します。含まれている強度画像と、それに対応する整数ラベルのマスクを使います。この例には、ピクセルの物理的なキャリブレーションはありません。",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "HomeからQCを開き、続いてLayer Viewerを開きます。リンク先の画像とマスクの例をダウンロードして展開します。この二つの入力には、ビューアー専用のファイル操作があります。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "ホームからQCを開き、続いてLayer Viewerを開きます。リンク先の画像とマスクの例をダウンロードして展開します。この二つの入力には、ビューアー専用のファイル操作があります。"
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "プラスImageをクリックし、fov01_C1 ドット tifを開きます。グレースケールの画像が、表示用にパーセンタイルでコントラストを調整した状態でキャンバスに表示されます。",
+        "hold_after": 0.7,
+        "speech_text": "プラスImageをクリックし、fov01_C1 ドット tifを開きます。グレースケールの画像が、表示用にパーセンタイルでコントラストを調整した状態でキャンバスに表示されます。"
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Fitをクリックすると、画像が表示領域いっぱいに広がります。横長の領域では正方形の画像が引き伸ばされることがあるので、形を確認するときは区切り線を調整して領域をほぼ正方形にします。",
+        "hold_after": 0.7,
+        "speech_text": "Fitをクリックすると、画像が表示領域いっぱいに広がります。横長の領域では正方形の画像が引き伸ばされることがあるので、形を確認するときは区切り線を調整して領域をほぼ正方形にします。"
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "プラスMaskをクリックし、fov01_cell_mask ドット tifを開きます。ラベルの付いた四十四個の物体が画像の上に表示されます。ゼロは背景で、透明のままです。",
+        "hold_after": 0.7,
+        "speech_text": "プラスMaskをクリックし、fov01_cell_mask ドット tifを開きます。ラベルの付いた四十四個の物体が画像の上に表示されます。ゼロは背景で、透明のままです。"
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "設定を変える前に、レイヤーの一覧でmaskを選びます。チェックボックスを切り替えて、下の画像と境界を比べます。",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "設定を変える前に、レイヤーの一覧でmaskを選びます。チェックボックスを切り替えて、下の画像と境界を比べます。"
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "maskのOpacityをゼロにすると、レイヤーを読み込んだまま色を隠せます。別のレイヤーを調整する前に、選ばれている行を確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "maskのOpacityをゼロにすると、レイヤーを読み込んだまま色を隠せます。別のレイヤーを調整する前に、選ばれている行を確認します。"
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Opacityを百パーセントにして、ラベルの形を確認します。ラベルの付いた各物体の内側が、色で覆われます。",
+        "hold_after": 0.7,
+        "speech_text": "Opacityを百パーセントにして、ラベルの形を確認します。ラベルの付いた各物体の内側が、色で覆われます。"
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Opacityを五十パーセントに戻し、合成方法をtranslucentにして、マスク越しに画像の質感を見ます。物体の境界を下のシグナルと比べます。",
+        "hold_after": 0.7,
+        "speech_text": "Opacityを五十パーセントに戻し、合成方法をtranslucentにして、マスク越しに画像の質感を見ます。物体の境界を下のシグナルと比べます。"
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "合成方法をadditiveにすると、マスクの色が画像に加算されます。この表示では明るい部分が飽和することがあるので、はっきり比べたいときはtranslucentに戻します。",
+        "hold_after": 0.7,
+        "speech_text": "合成方法をadditiveにすると、マスクの色が画像に加算されます。この表示では明るい部分が飽和することがあるので、はっきり比べたいときはtranslucentに戻します。"
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "multiplyとminimumの合成方法も試して、暗めのオーバーレイを比べます。これらは表示される合成画像を変えるだけで、元の強度の値は元画像にそのまま残っています。",
+        "hold_after": 0.7,
+        "speech_text": "multiplyとminimumの合成方法も試して、暗めのオーバーレイを比べます。これらは表示される合成画像を変えるだけで、元の強度の値は元画像にそのまま残っています。"
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "opaqueを選び、Opacityのスライダーを動かして見え方を比べます。この整数マスクでは、五十パーセントのopaqueは五十パーセントのtranslucentと同じように見えます。続けるにはtranslucentに戻します。",
+        "hold_after": 0.7,
+        "speech_text": "opaqueを選び、Opacityのスライダーを動かして見え方を比べます。この整数マスクでは、五十パーセントのopaqueは五十パーセントのtranslucentと同じように見えます。続けるにはtranslucentに戻します。"
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "imageを選び、カラーマップの選択でcyanを選びます。強度画像の色が変わり、マスクはラベルの色のままです。グレースケールに戻すにはgrayを選びます。",
+        "hold_after": 0.7,
+        "speech_text": "imageを選び、カラーマップの選択でcyanを選びます。強度画像の色が変わり、マスクはラベルの色のままです。グレースケールに戻すにはgrayを選びます。"
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "maskを選び、下向きの矢印を押して画像の後ろに移動します。上のレイヤーが手前に表示されます。ラベルを確認するには、マスクをもう一度上に移動します。",
+        "hold_after": 0.7,
+        "speech_text": "maskを選び、下向きの矢印を押して画像の後ろに移動します。上のレイヤーが手前に表示されます。ラベルを確認するには、マスクをもう一度上に移動します。"
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "見えているラベル付きの物体をクリックすると、ステータス行にその位置とラベル番号が表示されます。その物体の視野、プレート、ウェルを特定するには、プロジェクトのメタデータを使います。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "見えているラベル付きの物体をクリックすると、ステータス行にその位置とラベル番号が表示されます。その物体の視野、プレート、ウェルを特定するには、プロジェクトのメタデータを使います。"
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "物体の上でマウスホイールを回すと、ポインターの周りが拡大されます。境界が確認しやすくなるまで近づきます。",
+        "hold_after": 0.7,
+        "speech_text": "物体の上でマウスホイールを回すと、ポインターの周りが拡大されます。境界が確認しやすくなるまで近づきます。"
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Shiftを押しながら左ボタンでドラッグすると、表示を移動できます。中ボタンでドラッグしても移動できます。今の拡大率のまま、視野の中を移動します。",
+        "hold_after": 0.7,
+        "speech_text": "Shiftを押しながら左ボタンでドラッグすると、表示を移動できます。中ボタンでドラッグしても移動できます。今の拡大率のまま、視野の中を移動します。"
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Fitをクリックすると、視野全体の表示に戻ります。合わせた画像が引き伸ばされて見える場合は、表示領域の形を調整します。",
+        "hold_after": 0.7,
+        "speech_text": "Fitをクリックすると、視野全体の表示に戻ります。合わせた画像が引き伸ばされて見える場合は、表示領域の形を調整します。"
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "プラスPointsとプラスShapesは、空の補助レイヤーを追加します。セグメンテーションのマスクを描いたり編集したりするにはMake Masksに進みます。このビューアーには、それらの空のレイヤーに描画する機能はありません。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "プラスPointsとプラスShapesは、空の補助レイヤーを追加します。セグメンテーションのマスクを描いたり編集したりするにはMake Masksに進みます。このビューアーには、それらの空のレイヤーに描画する機能はありません。"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "レイヤーを選び、Removeで表示から外します。元のファイルはディスクに残っているので、また読み込めます。",
+        "hold_after": 0.7,
+        "speech_text": "レイヤーを選び、Removeで表示から外します。元のファイルはディスクに残っているので、また読み込めます。"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "これで、レイヤー表示の確認ができました。合成画像を書き出すには、Pythonからstack_from_pathsとLayerStack.render_uint8を使います。マスクの編集を保存するにはMake Masksへ、物体の測定にはMeasureへ進みます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "これで、レイヤー表示の確認ができました。合成画像を書き出すには、Pythonからstack_from_pathsとLayerStack.render_uint8を使います。マスクの編集を保存するにはMake Masksへ、物体の測定にはMeasureへ進みます。"
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: inspecionar imagens e sobreposições de rótulos",
+      "description": "Carregue uma imagem e a máscara correspondente, ajuste a sobreposição e amplie para inspecionar os contornos dos objetos.",
+      "objectives": [
+       "Abrir uma imagem e a máscara correspondente.",
+       "Ajustar a visibilidade, a opacidade, a mesclagem e a ordem das camadas.",
+       "Inspecionar os rótulos com zoom e deslocamento."
+      ],
+      "prerequisite": "Baixe e extraia Layer_Viewer_real_image_mask.zip. Use a imagem de intensidade incluída e a máscara de rótulos inteiros correspondente. Este exemplo não tem calibração física de pixels.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Na tela Home, abra QC e depois Layer Viewer. Baixe e extraia o exemplo indicado de imagem e máscara. O visualizador tem seus próprios controles de arquivo para essas duas entradas.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Na tela Home, abra QC e depois Layer Viewer. Baixe e extraia o exemplo indicado de imagem e máscara. O visualizador tem seus próprios controles de arquivo para essas duas entradas."
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Clique em mais Image e abra fov01_C1 ponto tif. A imagem em tons de cinza aparece na tela com um ajuste de contraste por percentis para exibição.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em mais Image e abra fov01_C1 ponto tif. A imagem em tons de cinza aparece na tela com um ajuste de contraste por percentis para exibição."
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Clique em Fit para preencher o painel da imagem. O Fit pode esticar uma imagem quadrada num painel largo; ajuste o divisor para deixar o painel mais ou menos quadrado ao inspecionar formas.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Fit para preencher o painel da imagem. O Fit pode esticar uma imagem quadrada num painel largo; ajuste o divisor para deixar o painel mais ou menos quadrado ao inspecionar formas."
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Clique em mais Mask e abra fov01_cell_mask ponto tif. Os quarenta e quatro objetos rotulados aparecem sobre a imagem. O zero é o fundo e fica transparente.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em mais Mask e abra fov01_cell_mask ponto tif. Os quarenta e quatro objetos rotulados aparecem sobre a imagem. O zero é o fundo e fica transparente."
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Selecione mask na lista de camadas antes de mudar os controles dela. Marque e desmarque a caixa dela para comparar os contornos com a imagem por baixo.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "Selecione mask na lista de camadas antes de mudar os controles dela. Marque e desmarque a caixa dela para comparar os contornos com a imagem por baixo."
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Leve a Opacity de mask a zero para ocultar as cores mantendo a camada carregada. Confira a linha selecionada antes de ajustar outra camada.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "Leve a Opacity de mask a zero para ocultar as cores mantendo a camada carregada. Confira a linha selecionada antes de ajustar outra camada."
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Leve Opacity a cem por cento para inspecionar a forma dos rótulos. As cores cobrem a imagem dentro de cada objeto rotulado.",
+        "hold_after": 0.7,
+        "speech_text": "Leve Opacity a cem por cento para inspecionar a forma dos rótulos. As cores cobrem a imagem dentro de cada objeto rotulado."
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Volte Opacity para cinquenta por cento e escolha a mesclagem translucent para ver a textura da imagem através da máscara. Compare os contornos dos objetos com o sinal por baixo.",
+        "hold_after": 0.7,
+        "speech_text": "Volte Opacity para cinquenta por cento e escolha a mesclagem translucent para ver a textura da imagem através da máscara. Compare os contornos dos objetos com o sinal por baixo."
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Escolha a mesclagem additive para somar as cores da máscara à imagem. Áreas claras podem saturar nesta exibição, então volte para translucent quando precisar de uma comparação mais clara.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha a mesclagem additive para somar as cores da máscara à imagem. Áreas claras podem saturar nesta exibição, então volte para translucent quando precisar de uma comparação mais clara."
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Experimente as mesclagens multiply e minimum para comparar sobreposições mais escuras. Essas opções mudam a composição exibida, enquanto os valores de intensidade originais continuam disponíveis na imagem de origem.",
+        "hold_after": 0.7,
+        "speech_text": "Experimente as mesclagens multiply e minimum para comparar sobreposições mais escuras. Essas opções mudam a composição exibida, enquanto os valores de intensidade originais continuam disponíveis na imagem de origem."
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Escolha opaque e ajuste o controle Opacity para comparar a aparência. Com esta máscara de inteiros, a mesclagem opaque a cinquenta por cento fica igual à translucent a cinquenta por cento. Volte para translucent para continuar.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha opaque e ajuste o controle Opacity para comparar a aparência. Com esta máscara de inteiros, a mesclagem opaque a cinquenta por cento fica igual à translucent a cinquenta por cento. Volte para translucent para continuar."
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Selecione image e escolha cyan no seletor de mapa de cores. A imagem de intensidade muda de cor, e a máscara mantém as cores dos rótulos. Escolha gray para voltar aos tons de cinza.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione image e escolha cyan no seletor de mapa de cores. A imagem de intensidade muda de cor, e a máscara mantém as cores dos rótulos. Escolha gray para voltar aos tons de cinza."
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Selecione mask e pressione a seta para baixo para colocá-la atrás da imagem. A camada de cima aparece na frente. Suba a máscara de novo para inspecionar os rótulos.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione mask e pressione a seta para baixo para colocá-la atrás da imagem. A camada de cima aparece na frente. Suba a máscara de novo para inspecionar os rótulos."
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Clique num objeto rotulado visível para ler a posição e o número do rótulo na linha de status. Use os metadados do seu projeto quando precisar identificar o campo, a placa ou o poço desse objeto.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "Clique num objeto rotulado visível para ler a posição e o número do rótulo na linha de status. Use os metadados do seu projeto quando precisar identificar o campo, a placa ou o poço desse objeto."
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Gire a roda do mouse sobre um objeto para ampliar em torno do ponteiro. Aproxime até que o contorno fique fácil de inspecionar.",
+        "hold_after": 0.7,
+        "speech_text": "Gire a roda do mouse sobre um objeto para ampliar em torno do ponteiro. Aproxime até que o contorno fique fácil de inspecionar."
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Segure Shift e arraste com o botão esquerdo do mouse para se deslocar. Você também pode arrastar com o botão do meio. Percorra o campo mantendo o zoom atual.",
+        "hold_after": 0.7,
+        "speech_text": "Segure Shift e arraste com o botão esquerdo do mouse para se deslocar. Você também pode arrastar com o botão do meio. Percorra o campo mantendo o zoom atual."
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Clique em Fit para voltar ao campo inteiro. Ajuste o formato do painel se a imagem ajustada parecer esticada.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Fit para voltar ao campo inteiro. Ajuste o formato do painel se a imagem ajustada parecer esticada."
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "Mais Points e mais Shapes adicionam camadas auxiliares vazias. Para desenhar ou editar máscaras de segmentação, continue no Make Masks; este visualizador não tem controles de desenho para essas camadas vazias.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "Mais Points e mais Shapes adicionam camadas auxiliares vazias. Para desenhar ou editar máscaras de segmentação, continue no Make Masks; este visualizador não tem controles de desenho para essas camadas vazias."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Selecione uma camada e use Remove para tirá-la da visualização. O arquivo original continua no disco, pronto para ser carregado de novo.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione uma camada e use Remove para tirá-la da visualização. O arquivo original continua no disco, pronto para ser carregado de novo."
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "O resultado é uma visualização de camadas inspecionada. Para exportar uma composição, use stack_from_paths e LayerStack.render_uint8 pelo Python. Continue no Make Masks para salvar edições de máscaras, ou no Measure para medições de objetos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "O resultado é uma visualização de camadas inspecionada. Para exportar uma composição, use stack_from_paths e LayerStack.render_uint8 pelo Python. Continue no Make Masks para salvar edições de máscaras, ou no Measure para medições de objetos."
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer：查看图像和标签叠加",
+      "description": "加载匹配的图像和掩膜，调整叠加效果，并放大检查对象边界。",
+      "objectives": [
+       "打开图像及其对应的掩膜。",
+       "调整可见性、不透明度、混合方式和图层顺序。",
+       "通过缩放和平移检查标签。"
+      ],
+      "prerequisite": "下载并解压Layer_Viewer_real_image_mask.zip。使用其中的强度图像和对应的整数标签掩膜。本例没有像素的物理标定。",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "从Home打开QC，然后打开Layer Viewer。下载并解压链接中的图像和掩膜示例。查看器为这两个输入提供了自己的文件控件。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "从主页打开QC，然后打开Layer Viewer。下载并解压链接中的图像和掩膜示例。查看器为这两个输入提供了自己的文件控件。"
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "点击加号Image，打开fov01_C1点tif。灰度图像会以百分位对比度拉伸的方式显示在画布中。",
+        "hold_after": 0.7,
+        "speech_text": "点击加号Image，打开fov01_C1点tif。灰度图像会以百分位对比度拉伸的方式显示在画布中。"
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "点击Fit让图像填满面板。在较宽的面板中，Fit可能会拉伸正方形图像；检查形状时，请调整分隔条让面板大致呈正方形。",
+        "hold_after": 0.7,
+        "speech_text": "点击Fit让图像填满面板。在较宽的面板中，Fit可能会拉伸正方形图像；检查形状时，请调整分隔条让面板大致呈正方形。"
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "点击加号Mask，打开fov01_cell_mask点tif。四十四个带标签的对象显示在图像上方。零是背景，保持透明。",
+        "hold_after": 0.7,
+        "speech_text": "点击加号Mask，打开fov01_cell_mask点tif。四十四个带标签的对象显示在图像上方。零是背景，保持透明。"
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "更改控件之前，先在图层列表中选择mask。切换其复选框，把边界与下方的图像进行比较。",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ],
+        "speech_text": "更改控件之前，先在图层列表中选择mask。切换其复选框，把边界与下方的图像进行比较。"
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "把mask的Opacity调到零，在保留图层的同时隐藏其颜色。调整其他图层之前，请确认所选的行。",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ],
+        "speech_text": "把mask的Opacity调到零，在保留图层的同时隐藏其颜色。调整其他图层之前，请确认所选的行。"
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "把Opacity调到百分之百，检查标签的形状。颜色会覆盖每个带标签对象内部的图像。",
+        "hold_after": 0.7,
+        "speech_text": "把Opacity调到百分之百，检查标签的形状。颜色会覆盖每个带标签对象内部的图像。"
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "把Opacity恢复到百分之五十，并选择translucent混合，透过掩膜看到图像纹理。把对象边界与下方的信号进行比较。",
+        "hold_after": 0.7,
+        "speech_text": "把Opacity恢复到百分之五十，并选择translucent混合，透过掩膜看到图像纹理。把对象边界与下方的信号进行比较。"
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "选择additive混合，把掩膜颜色叠加到图像上。在这种显示中，明亮区域可能会饱和，因此需要更清晰的比较时请回到translucent。",
+        "hold_after": 0.7,
+        "speech_text": "选择additive混合，把掩膜颜色叠加到图像上。在这种显示中，明亮区域可能会饱和，因此需要更清晰的比较时请回到translucent。"
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "尝试multiply和minimum混合，比较较暗的叠加效果。这些选项只改变显示的合成图像，原始强度值仍保留在源图像中。",
+        "hold_after": 0.7,
+        "speech_text": "尝试multiply和minimum混合，比较较暗的叠加效果。这些选项只改变显示的合成图像，原始强度值仍保留在源图像中。"
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "选择opaque，并调节Opacity滑块比较其外观。对于这个整数掩膜，百分之五十的opaque混合看起来与百分之五十的translucent混合相同。请恢复translucent继续操作。",
+        "hold_after": 0.7,
+        "speech_text": "选择opaque，并调节Opacity滑块比较其外观。对于这个整数掩膜，百分之五十的opaque混合看起来与百分之五十的translucent混合相同。请恢复translucent继续操作。"
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "选择image，在色彩映射选择器中选择cyan。强度图像的颜色会改变，而掩膜保留其标签颜色。选择gray恢复灰度视图。",
+        "hold_after": 0.7,
+        "speech_text": "选择image，在色彩映射选择器中选择cyan。强度图像的颜色会改变，而掩膜保留其标签颜色。选择gray恢复灰度视图。"
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "选择mask，按向下箭头把它移到图像后面。上层图层显示在前面。再把掩膜移上来以检查其标签。",
+        "hold_after": 0.7,
+        "speech_text": "选择mask，按向下箭头把它移到图像后面。上层图层显示在前面。再把掩膜移上来以检查其标签。"
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "点击一个可见的带标签对象，在状态栏中读取其位置和标签编号。需要确定该对象所在的视野、板或孔时，请使用项目元数据。",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ],
+        "speech_text": "点击一个可见的带标签对象，在状态栏中读取其位置和标签编号。需要确定该对象所在的视野、板或孔时，请使用项目元数据。"
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "在对象上滚动鼠标滚轮，以指针为中心放大。放大到边界易于检查为止。",
+        "hold_after": 0.7,
+        "speech_text": "在对象上滚动鼠标滚轮，以指针为中心放大。放大到边界易于检查为止。"
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "按住Shift并用鼠标左键拖动以平移。也可以用鼠标中键拖动。在保持当前缩放的同时浏览整个视野。",
+        "hold_after": 0.7,
+        "speech_text": "按住Shift并用鼠标左键拖动以平移。也可以用鼠标中键拖动。在保持当前缩放的同时浏览整个视野。"
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "点击Fit返回整个视野。如果适配后的图像看起来被拉伸，请调整面板形状。",
+        "hold_after": 0.7,
+        "speech_text": "点击Fit返回整个视野。如果适配后的图像看起来被拉伸，请调整面板形状。"
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "加号Points和加号Shapes会添加空的辅助图层。要绘制或编辑分割掩膜，请转到Make Masks；这个查看器没有为这些空图层提供绘图控件。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "speech_text": "加号Points和加号Shapes会添加空的辅助图层。要绘制或编辑分割掩膜，请转到Make Masks；这个查看器没有为这些空图层提供绘图控件。"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "选择一个图层并使用Remove把它从视图中移除。其原始文件仍保留在磁盘上，可以再次加载。",
+        "hold_after": 0.7,
+        "speech_text": "选择一个图层并使用Remove把它从视图中移除。其原始文件仍保留在磁盘上，可以再次加载。"
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "这样就得到了一个检查过的图层视图。要导出合成图像，请在Python中使用stack_from_paths和LayerStack.render_uint8。要保存掩膜编辑，请继续使用Make Masks；要进行对象测量，请使用Measure。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ],
+        "speech_text": "这样就得到了一个检查过的图层视图。要导出合成图像，请在Python中使用stack_from_paths和LayerStack.render_uint8。要保存掩膜编辑，请继续使用Make Masks；要进行对象测量，请使用Measure。"
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: undersøg billeder og labeloverlejringer",
+      "description": "Indlæs et tilsvarende billede og en maske, justér overlejringen, og zoom ind for at undersøge objektgrænser.",
+      "objectives": [
+       "Åbne et billede og dets tilsvarende maske.",
+       "Justere synlighed, opacitet, blanding og lagrækkefølge.",
+       "Undersøge labels med zoom og panorering."
+      ],
+      "prerequisite": "Hent og udpak Layer_Viewer_real_image_mask.zip. Brug det medfølgende intensitetsbillede og den tilsvarende maske med heltalslabels. Eksemplet har ingen fysisk pixelkalibrering.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Fra Home åbner du QC og derefter Layer Viewer. Hent og udpak det linkede eksempel med billede og maske. Fremviseren har sine egne filkontroller til disse to input.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Klik på + Image, og åbn fov01_C1.tif. Gråtonebilledet vises på lærredet med percentilbaseret kontraststrækning til visningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Klik på Fit for at udfylde billedpanelet. Fit kan strække et kvadratisk billede i et bredt panel; justér skillelinjen, så panelet bliver nogenlunde kvadratisk, når du undersøger former.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Klik på + Mask, og åbn fov01_cell_mask.tif. De 44 mærkede objekter vises over billedet. 0 er baggrund og forbliver gennemsigtig.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Vælg mask på lagoversigten, før du ændrer dens kontroller. Slå dens afkrydsningsfelt til og fra for at sammenligne grænserne med billedet nedenunder.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Sæt Opacity for mask til 0 for at skjule farverne, mens laget forbliver indlæst. Kontrollér den valgte række, før du justerer et andet lag.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Sæt Opacity til 100 % for at undersøge labelernes former. Farverne dækker billedet inden for hvert mærket objekt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Sæt Opacity tilbage til 50 %, og vælg blandingen translucent for at se billedets tekstur gennem masken. Sammenlign objektgrænserne med det underliggende signal.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Vælg blandingen additive for at lægge maskens farver til billedet. Lyse områder kan blive mættede i denne visning, så vend tilbage til translucent, når du har brug for en tydeligere sammenligning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prøv blandingerne multiply og minimum for at sammenligne mørkere overlejringer. Disse valg ændrer den viste sammensætning, mens de oprindelige intensitetsværdier stadig findes i kildebilledet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Vælg opaque, og justér skyderen Opacity for at sammenligne udseendet. Med denne heltalsmaske ligner opaque ved 50 % translucent ved 50 %. Sæt translucent tilbage for at fortsætte.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Vælg image, og vælg cyan i farvekortvælgeren. Intensitetsbilledet skifter farve, mens masken beholder sine labelfarver. Vælg gray for at gendanne gråtonevisningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Vælg mask, og tryk på pil ned for at flytte den bag billedet. Det øverste lag vises forrest. Flyt masken op igen for at undersøge dens labels.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Klik på et synligt mærket objekt for at aflæse dets position og labelnummer i statuslinjen. Brug dit projekts metadata, når du skal identificere objektets synsfelt, plade eller brønd.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Rul musehjulet over et objekt for at zoome omkring markøren. Gå tættere på, indtil grænsen er let at undersøge.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Hold Shift nede, og træk med venstre museknap for at panorere. Du kan også trække med den midterste knap. Bevæg dig hen over synsfeltet, mens den aktuelle zoom bevares.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Klik på Fit for at vende tilbage til hele synsfeltet. Justér panelets form, hvis det tilpassede billede ser strakt ud.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points og + Shapes tilføjer tomme hjælpelag. For at tegne eller redigere segmenteringsmasker fortsætter du i Make Masks; denne fremviser har ingen tegneværktøjer til de tomme lag.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Vælg et lag, og brug Remove til at fjerne det fra visningen. Den oprindelige fil bliver liggende på disken, klar til at blive indlæst igen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Resultatet er en gennemgået lagvisning. Til en eksporteret sammensætning bruger du stack_from_paths og LayerStack.render_uint8 fra Python. Fortsæt til Make Masks for gemte maskeredigeringer eller Measure for objektmålinger.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: Bilder und Label-Überlagerungen prüfen",
+      "description": "Laden Sie ein passendes Bild und eine Maske, passen Sie die Überlagerung an und zoomen Sie hinein, um Objektgrenzen zu prüfen.",
+      "objectives": [
+       "Ein Bild und seine passende Maske öffnen.",
+       "Sichtbarkeit, Deckkraft, Überblendung und Ebenenreihenfolge anpassen.",
+       "Labels mit Zoomen und Verschieben prüfen."
+      ],
+      "prerequisite": "Laden Sie Layer_Viewer_real_image_mask.zip herunter und entpacken Sie es. Verwenden Sie das enthaltene Intensitätsbild und die passende Maske mit ganzzahligen Labels. Für dieses Beispiel gibt es keine physikalische Pixelkalibrierung.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Öffnen Sie von Home aus QC und dann Layer Viewer. Laden Sie das verlinkte Bild-und-Masken-Beispiel herunter und entpacken Sie es. Der Viewer hat eigene Dateisteuerelemente für diese beiden Eingaben.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Klicken Sie auf + Image und öffnen Sie fov01_C1.tif. Das Graustufenbild erscheint auf der Zeichenfläche mit einer perzentilbasierten Kontraststreckung für die Anzeige.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Klicken Sie auf Fit, um den Bildbereich auszufüllen. Fit kann ein quadratisches Bild in einem breiten Bereich strecken; passen Sie den Trenner an, damit der Bereich beim Prüfen von Formen etwa quadratisch ist.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Klicken Sie auf + Mask und öffnen Sie fov01_cell_mask.tif. Die 44 beschrifteten Objekte erscheinen über dem Bild. 0 ist Hintergrund und bleibt transparent.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Wählen Sie mask in der Ebenenliste, bevor Sie ihre Regler ändern. Schalten Sie ihr Kontrollkästchen ein und aus, um die Grenzen mit dem darunterliegenden Bild zu vergleichen.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Setzen Sie die Opacity von mask auf 0, um ihre Farben auszublenden, während die Ebene geladen bleibt. Prüfen Sie die ausgewählte Zeile, bevor Sie eine andere Ebene anpassen.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Setzen Sie Opacity auf 100 %, um die Formen der Labels zu prüfen. Die Farben verdecken das Bild innerhalb jedes beschrifteten Objekts.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Setzen Sie Opacity wieder auf 50 % und wählen Sie die Überblendung translucent, um die Bildtextur durch die Maske zu sehen. Vergleichen Sie die Objektgrenzen mit dem darunterliegenden Signal.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Wählen Sie die Überblendung additive, um die Maskenfarben zum Bild zu addieren. Helle Bereiche können in dieser Anzeige sättigen; kehren Sie für einen klareren Vergleich zu translucent zurück.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Probieren Sie die Überblendungen multiply und minimum aus, um dunklere Überlagerungen zu vergleichen. Diese Optionen ändern das angezeigte Komposit; die ursprünglichen Intensitätswerte bleiben im Quellbild erhalten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Wählen Sie opaque und bewegen Sie den Regler Opacity, um das Erscheinungsbild zu vergleichen. Bei dieser ganzzahligen Maske sieht opaque bei 50 % wie translucent bei 50 % aus. Stellen Sie translucent wieder ein, um fortzufahren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Wählen Sie image und im Farbkartenauswahlfeld cyan. Das Intensitätsbild ändert seine Farbe, während die Maske ihre Labelfarben behält. Wählen Sie gray, um die Graustufenansicht wiederherzustellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Wählen Sie mask und drücken Sie den Pfeil nach unten, um sie hinter das Bild zu verschieben. Die obere Ebene erscheint im Vordergrund. Schieben Sie die Maske wieder nach oben, um ihre Labels zu prüfen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Klicken Sie auf ein sichtbares beschriftetes Objekt, um seine Position und Labelnummer in der Statuszeile zu lesen. Verwenden Sie Ihre Projektmetadaten, um Bildfeld, Platte oder Well dieses Objekts zu bestimmen.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Drehen Sie das Mausrad über einem Objekt, um um den Zeiger herum zu zoomen. Gehen Sie so nah heran, bis seine Grenze gut zu prüfen ist.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Halten Sie die Umschalttaste gedrückt und ziehen Sie mit der linken Maustaste, um zu verschieben. Sie können auch mit der mittleren Taste ziehen. Bewegen Sie sich über das Bildfeld, ohne den Zoom zu ändern.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Klicken Sie auf Fit, um zum ganzen Bildfeld zurückzukehren. Passen Sie die Form des Bereichs an, wenn das eingepasste Bild gestreckt wirkt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points und + Shapes fügen leere Hilfsebenen hinzu. Zum Zeichnen oder Bearbeiten von Segmentierungsmasken wechseln Sie zu Make Masks; dieser Viewer hat für diese leeren Ebenen keine Zeichenwerkzeuge.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Wählen Sie eine Ebene und entfernen Sie sie mit Remove aus der Ansicht. Ihre Originaldatei bleibt auf der Festplatte und kann erneut geladen werden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Das Ergebnis ist eine geprüfte Ebenenansicht. Für ein exportiertes Komposit verwenden Sie stack_from_paths und LayerStack.render_uint8 aus Python. Fahren Sie mit Make Masks für gespeicherte Maskenbearbeitungen oder mit Measure für Objektmessungen fort.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: skoðaðu myndir og merkjayfirlagnir",
+      "description": "Hlaðu inn samsvarandi mynd og grímu, stilltu yfirlögnina og þysjaðu inn til að skoða mörk hluta.",
+      "objectives": [
+       "Opna mynd og samsvarandi grímu hennar.",
+       "Stilla sýnileika, ógegnsæi, blöndun og röð laga.",
+       "Skoða merki með þysjun og hliðrun."
+      ],
+      "prerequisite": "Sæktu og dragðu út Layer_Viewer_real_image_mask.zip. Notaðu meðfylgjandi styrkleikamynd og samsvarandi grímu með heiltölumerkjum. Engin eðlisfræðileg kvörðun díla er tiltæk fyrir þetta dæmi.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Frá Home opnarðu QC og svo Layer Viewer. Sæktu og dragðu út tengda mynd- og grímudæmið. Skoðarinn hefur eigin skráastýringar fyrir þessi tvö inntök.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Smelltu á + Image og opnaðu fov01_C1.tif. Gráskalamyndin birtist á teikniflötinum með birtuskilateygju eftir hundraðshlutum til birtingar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Smelltu á Fit til að fylla myndspjaldið. Fit getur teygt ferhyrnda mynd í breiðu spjaldi; stilltu skilrúmið svo spjaldið verði nokkurn veginn ferhyrnt þegar þú skoðar lögun.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Smelltu á + Mask og opnaðu fov01_cell_mask.tif. Hlutirnir 44 sem hafa merki birtast yfir myndinni. 0 er bakgrunnur og helst gegnsætt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Veldu mask í lagalistanum áður en þú breytir stýringum þess. Kveiktu og slökktu á gátreitnum til að bera mörkin saman við myndina undir.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Settu Opacity fyrir mask á 0 til að fela litina en halda laginu inni. Athugaðu valda línu áður en þú stillir annað lag.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Settu Opacity á 100 % til að skoða lögun merkjanna. Litirnir hylja myndina innan hvers merkts hlutar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Settu Opacity aftur á 50 % og veldu translucent-blöndun til að sjá áferð myndarinnar í gegnum grímuna. Berðu mörk hluta saman við undirliggjandi merki.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Veldu additive-blöndun til að leggja liti grímunnar við myndina. Björt svæði geta mettast í þessari birtingu, svo farðu aftur í translucent þegar þú þarft skýrari samanburð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prófaðu multiply- og minimum-blöndun til að bera saman dekkri yfirlagnir. Þessir valkostir breyta birtri samsetningu en upprunalegu styrkgildin eru áfram í upprunamyndinni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Veldu opaque og hreyfðu Opacity-sleðann til að bera útlitið saman. Með þessari heiltölugrímu lítur opaque við 50 % eins út og translucent við 50 %. Settu translucent aftur á til að halda áfram.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Veldu image og veldu cyan í litakortavalinu. Styrkleikamyndin skiptir um lit en gríman heldur merkjalitum sínum. Veldu gray til að fá gráskalasýnina aftur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Veldu mask og ýttu á örina niður til að færa hana aftur fyrir myndina. Efra lagið birtist fremst. Færðu grímuna aftur upp til að skoða merki hennar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Smelltu á sýnilegan merktan hlut til að lesa staðsetningu hans og merkjanúmer í stöðulínunni. Notaðu lýsigögn verkefnisins þegar þú þarft að finna sjónsvið, plötu eða brunn hlutarins.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Snúðu músarhjólinu yfir hlut til að þysja kringum bendilinn. Farðu nær þar til auðvelt er að skoða mörk hans.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Haltu Shift inni og dragðu með vinstri músarhnappi til að hliðra. Þú getur líka dregið með miðhnappinum. Færðu þig um sjónsviðið án þess að breyta þysjun.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Smelltu á Fit til að fara aftur í allt sjónsviðið. Breyttu lögun spjaldsins ef aðlagaða myndin virðist teygð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points og + Shapes bæta við tómum hjálparlögum. Til að teikna eða breyta aðgreiningargrímum heldurðu áfram í Make Masks; þessi skoðari hefur engar teiknistýringar fyrir þessi tómu lög.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Veldu lag og notaðu Remove til að taka það úr sýninni. Upprunalega skráin er áfram á diskinum, tilbúin til að hlaðast inn aftur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Niðurstaðan er yfirfarin lagasýn. Fyrir útflutta samsetningu notarðu stack_from_paths og LayerStack.render_uint8 úr Python. Haltu áfram í Make Masks til að vista breytingar á grímum eða Measure fyrir mælingar á hlutum.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: 이미지와 라벨 오버레이 확인",
+      "description": "대응하는 이미지와 마스크를 불러오고, 오버레이를 조정한 뒤 확대해 객체 경계를 확인합니다.",
+      "objectives": [
+       "이미지와 대응하는 마스크를 엽니다.",
+       "표시 여부, 불투명도, 혼합 방식, 레이어 순서를 조정합니다.",
+       "확대와 이동으로 라벨을 확인합니다."
+      ],
+      "prerequisite": "Layer_Viewer_real_image_mask.zip을 내려받아 압축을 푸세요. 포함된 강도 이미지와 대응하는 정수 라벨 마스크를 쓰세요. 이 예제에는 픽셀의 물리적 보정 값이 없습니다.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Home에서 QC를 연 뒤 Layer Viewer를 여세요. 연결된 이미지와 마스크 예제를 내려받아 압축을 푸세요. 뷰어에는 이 두 입력을 위한 자체 파일 컨트롤이 있습니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "+ Image를 클릭하고 fov01_C1.tif를 여세요. 회색조 이미지가 표시용 백분위수 대비 조정과 함께 캔버스에 나타납니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Fit을 클릭하면 이미지가 패널을 채웁니다. 넓은 패널에서는 정사각형 이미지가 늘어날 수 있으니, 형태를 확인할 때는 구분선을 조정해 패널을 거의 정사각형으로 만드세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "+ Mask를 클릭하고 fov01_cell_mask.tif를 여세요. 라벨이 붙은 객체 44개가 이미지 위에 나타납니다. 0은 배경이며 투명하게 남습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "컨트롤을 바꾸기 전에 레이어 목록에서 mask를 선택하세요. 체크박스를 켜고 끄며 아래 이미지와 경계를 비교하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "mask의 Opacity를 0으로 두면 레이어를 불러온 채로 색만 숨길 수 있습니다. 다른 레이어를 조정하기 전에 선택된 행을 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Opacity를 100%로 두고 라벨 모양을 확인하세요. 라벨이 붙은 각 객체 안쪽의 이미지가 색으로 덮입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Opacity를 50%로 되돌리고 translucent 혼합을 골라 마스크 너머로 이미지 질감을 보세요. 객체 경계를 아래의 신호와 비교하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "additive 혼합을 고르면 마스크 색이 이미지에 더해집니다. 이 표시에서는 밝은 부분이 포화될 수 있으니, 더 분명하게 비교하려면 translucent로 돌아가세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "multiply와 minimum 혼합도 써 보며 더 어두운 오버레이를 비교하세요. 이 옵션은 표시되는 합성 이미지만 바꾸며, 원래 강도 값은 원본 이미지에 그대로 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "opaque를 고르고 Opacity 슬라이더를 움직여 모양을 비교하세요. 이 정수 마스크에서는 50% opaque 혼합이 50% translucent 혼합과 똑같이 보입니다. 계속하려면 translucent로 되돌리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "image를 선택하고 색상 맵 선택기에서 cyan을 고르세요. 강도 이미지의 색이 바뀌고 마스크는 라벨 색을 유지합니다. 회색조로 돌아가려면 gray를 고르세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "mask를 선택하고 아래쪽 화살표를 눌러 이미지 뒤로 옮기세요. 위쪽 레이어가 앞에 표시됩니다. 라벨을 확인하려면 마스크를 다시 위로 올리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "보이는 라벨 객체를 클릭하면 상태 줄에 위치와 라벨 번호가 나옵니다. 그 객체의 시야, 플레이트, 웰을 확인하려면 프로젝트 메타데이터를 쓰세요.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "객체 위에서 마우스 휠을 굴리면 포인터를 중심으로 확대됩니다. 경계가 잘 보일 때까지 확대하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Shift를 누른 채 왼쪽 버튼으로 드래그하면 화면이 이동합니다. 가운데 버튼으로 드래그해도 됩니다. 현재 확대 배율을 유지한 채 시야를 둘러보세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Fit을 클릭하면 시야 전체 보기로 돌아갑니다. 맞춘 이미지가 늘어나 보이면 패널 모양을 조정하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points와 + Shapes는 빈 보조 레이어를 추가합니다. 분할 마스크를 그리거나 편집하려면 Make Masks로 넘어가세요. 이 뷰어에는 그 빈 레이어용 그리기 도구가 없습니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "레이어를 선택하고 Remove로 보기에서 빼세요. 원본 파일은 디스크에 남아 있어 다시 불러올 수 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "이제 레이어 보기 확인이 끝났습니다. 합성 이미지를 내보내려면 Python에서 stack_from_paths와 LayerStack.render_uint8을 쓰세요. 마스크 편집을 저장하려면 Make Masks로, 객체 측정은 Measure로 넘어가세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: undersøk bilder og etikettoverlegg",
+      "description": "Last inn et tilhørende bilde og en maske, juster overlegget og zoom inn for å undersøke objektgrenser.",
+      "objectives": [
+       "Åpne et bilde og den tilhørende masken.",
+       "Justere synlighet, opasitet, blanding og lagrekkefølge.",
+       "Undersøke etiketter med zoom og panorering."
+      ],
+      "prerequisite": "Last ned og pakk ut Layer_Viewer_real_image_mask.zip. Bruk det medfølgende intensitetsbildet og den tilhørende masken med heltallsetiketter. Eksemplet har ingen fysisk pikselkalibrering.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Fra Home åpner du QC og deretter Layer Viewer. Last ned og pakk ut det lenkede eksemplet med bilde og maske. Visningen har egne filkontroller for disse to inndataene.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Klikk på + Image og åpne fov01_C1.tif. Gråtonebildet vises på lerretet med persentilbasert kontraststrekk for visningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Klikk på Fit for å fylle bildepanelet. Fit kan strekke et kvadratisk bilde i et bredt panel; juster skillelinjen slik at panelet blir omtrent kvadratisk når du undersøker former.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Klikk på + Mask og åpne fov01_cell_mask.tif. De 44 merkede objektene vises over bildet. 0 er bakgrunn og forblir gjennomsiktig.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Velg mask i lagoversikten før du endrer kontrollene. Slå avmerkingsboksen av og på for å sammenligne grensene med bildet under.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Sett Opacity for mask til 0 for å skjule fargene mens laget forblir lastet inn. Kontroller den valgte raden før du justerer et annet lag.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Sett Opacity til 100 % for å undersøke formene på etikettene. Fargene dekker bildet innenfor hvert merket objekt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Sett Opacity tilbake til 50 % og velg blandingen translucent for å se bildets tekstur gjennom masken. Sammenlign objektgrensene med det underliggende signalet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Velg blandingen additive for å legge maskefargene til bildet. Lyse områder kan bli mettet i denne visningen, så gå tilbake til translucent når du trenger en tydeligere sammenligning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prøv blandingene multiply og minimum for å sammenligne mørkere overlegg. Valgene endrer den viste sammensetningen, mens de opprinnelige intensitetsverdiene fortsatt finnes i kildebildet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Velg opaque og juster glidebryteren Opacity for å sammenligne utseendet. Med denne heltallsmasken ser opaque ved 50 % ut som translucent ved 50 %. Sett tilbake translucent for å fortsette.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Velg image og velg cyan i fargekartvelgeren. Intensitetsbildet skifter farge, mens masken beholder etikettfargene. Velg gray for å gå tilbake til gråtonevisningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Velg mask og trykk på pil ned for å flytte den bak bildet. Det øverste laget vises foran. Flytt masken opp igjen for å undersøke etikettene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Klikk på et synlig merket objekt for å lese posisjonen og etikettnummeret i statuslinjen. Bruk prosjektets metadata når du må identifisere objektets synsfelt, plate eller brønn.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Rull musehjulet over et objekt for å zoome rundt pekeren. Gå nærmere til grensen er lett å undersøke.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Hold nede Shift og dra med venstre museknapp for å panorere. Du kan også dra med midtknappen. Beveg deg over synsfeltet mens gjeldende zoom beholdes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Klikk på Fit for å gå tilbake til hele synsfeltet. Juster formen på panelet hvis det tilpassede bildet ser strukket ut.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points og + Shapes legger til tomme hjelpelag. For å tegne eller redigere segmenteringsmasker fortsetter du i Make Masks; denne visningen har ingen tegneverktøy for de tomme lagene.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Velg et lag og bruk Remove for å fjerne det fra visningen. Den opprinnelige filen ligger fortsatt på disken, klar til å lastes inn igjen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Resultatet er en gjennomgått lagvisning. For en eksportert sammensetning bruker du stack_from_paths og LayerStack.render_uint8 fra Python. Fortsett til Make Masks for lagrede maskeendringer eller Measure for objektmålinger.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 47,
+     "preceding": [
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "56_lineage",
+     "next": "58_graph_builder",
+     "entry": {
+      "id": "57_layer_viewer",
+      "number": 57,
+      "slug": "layer_viewer",
+      "series": 5,
+      "app_key": "layer_viewer",
+      "section": "Explore",
+      "title": "Layer Viewer: granska bilder och etikettöverlagringar",
+      "description": "Läs in en matchande bild och mask, justera överlagringen och zooma in för att granska objektgränser.",
+      "objectives": [
+       "Öppna en bild och dess matchande mask.",
+       "Justera synlighet, opacitet, blandning och lagerordning.",
+       "Granska etiketter med zoom och panorering."
+      ],
+      "prerequisite": "Hämta och packa upp Layer_Viewer_real_image_mask.zip. Använd den medföljande intensitetsbilden och den matchande masken med heltalsetiketter. Exemplet saknar fysisk pixelkalibrering.",
+      "scenes": [
+       {
+        "visual": "01_qc_host",
+        "narration": "Från Home öppnar du QC och sedan Layer Viewer. Hämta och packa upp det länkade exemplet med bild och mask. Visaren har egna filkontroller för dessa två indata.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "04_raw_image_in_wide_pane",
+        "narration": "Klicka på + Image och öppna fov01_C1.tif. Gråskalebilden visas på ritytan med percentilbaserad kontraststräckning för visningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_fit_after_actual_splitter_resize",
+        "narration": "Klicka på Fit för att fylla bildpanelen. Fit kan sträcka ut en kvadratisk bild i en bred panel; justera avdelaren så att panelen blir ungefär kvadratisk när du granskar former.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_real_44_label_overlay",
+        "narration": "Klicka på + Mask och öppna fov01_cell_mask.tif. De 44 etiketterade objekten visas ovanpå bilden. 0 är bakgrund och förblir genomskinlig.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_mask_visible_again",
+        "narration": "Välj mask i lagerlistan innan du ändrar dess kontroller. Slå av och på dess kryssruta för att jämföra gränserna med bilden under.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         365,
+         1840,
+         100
+        ]
+       },
+       {
+        "visual": "10_opacity_zero_not_deleted",
+        "narration": "Sätt Opacity för mask till 0 för att dölja färgerna medan lagret förblir inläst. Kontrollera den valda raden innan du justerar ett annat lager.",
+        "hold_after": 0.7,
+        "focus": [
+         1970,
+         1800,
+         1840,
+         250
+        ]
+       },
+       {
+        "visual": "11_full_label_colours",
+        "narration": "Sätt Opacity till 100 % för att granska etiketternas former. Färgerna täcker bilden inom varje etiketterat objekt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_half_opacity_restored",
+        "narration": "Sätt tillbaka Opacity till 50 % och välj blandningen translucent för att se bildens struktur genom masken. Jämför objektgränserna med den underliggande signalen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_blend_additive",
+        "narration": "Välj blandningen additive för att lägga till maskfärgerna i bilden. Ljusa områden kan bli mättade i den här visningen, så gå tillbaka till translucent när du behöver en tydligare jämförelse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_blend_minimum",
+        "narration": "Prova blandningarna multiply och minimum för att jämföra mörkare överlagringar. Alternativen ändrar den visade sammansättningen medan de ursprungliga intensitetsvärdena finns kvar i källbilden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_blend_opaque",
+        "narration": "Välj opaque och justera reglaget Opacity för att jämföra utseendet. Med den här heltalsmasken ser opaque vid 50 % ut som translucent vid 50 %. Återställ translucent för att fortsätta.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_cyan_image_not_changed_measurements",
+        "narration": "Välj image och välj cyan i färgkartsväljaren. Intensitetsbilden byter färg medan masken behåller sina etikettfärger. Välj gray för att återställa gråskalevyn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "19_mask_under_image",
+        "narration": "Välj mask och tryck på nedåtpilen för att flytta den bakom bilden. Det övre lagret visas framför. Flytta upp masken igen för att granska dess etiketter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_actual_label_no_field_identity",
+        "narration": "Klicka på ett synligt etiketterat objekt för att läsa dess position och etikettnummer i statusraden. Använd projektets metadata när du behöver identifiera objektets synfält, platta eller brunn.",
+        "hold_after": 0.7,
+        "focus": [
+         295,
+         1920,
+         3500,
+         165
+        ]
+       },
+       {
+        "visual": "22_native_wheel_zoom_keeps_world_anchor",
+        "narration": "Rulla mushjulet över ett objekt för att zooma kring pekaren. Gå närmare tills gränsen är lätt att granska.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_native_pan",
+        "narration": "Håll ned Skift och dra med vänster musknapp för att panorera. Du kan också dra med mittenknappen. Rör dig över synfältet med nuvarande zoom.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_fit_restores_original_view",
+        "narration": "Klicka på Fit för att återgå till hela synfältet. Justera panelens form om den anpassade bilden ser utsträckt ut.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "25_empty_shapes_layer",
+        "narration": "+ Points och + Shapes lägger till tomma hjälplager. För att rita eller redigera segmenteringsmasker fortsätter du i Make Masks; visaren saknar ritverktyg för de tomma lagren.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "14_make_masks"
+        ]
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Välj ett lager och använd Remove för att ta bort det från vyn. Originalfilen ligger kvar på disken, redo att läsas in igen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "28_remove_mask_only_from_view",
+        "narration": "Resultatet är en granskad lagervy. För en exporterad sammansättning använder du stack_from_paths och LayerStack.render_uint8 från Python. Fortsätt till Make Masks för sparade maskredigeringar eller Measure för objektmätningar.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "14_make_masks",
+         "31_external_masks"
+        ]
+       }
+      ],
+      "example_files": [
+       "Layer_Viewer_real_image_mask.zip"
+      ],
+      "host_app_key": "qc_dashboard",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 1,
+     "links": [
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 5,
+     "links": [
+      "14_make_masks",
+      "57_layer_viewer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "54_qc_dashboard",
+     "scene": 11,
+     "links": [
+      "06_api",
+      "57_layer_viewer",
+      "51_control_charts",
+      "66_outliers"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       7,
+       "lessons"
+      ],
+      "preceding": [
+       "51_control_charts"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 42,
+     "value": {
+      "kind": "submodule",
+      "app_key": "layer_viewer",
+      "host_app_key": "qc_dashboard",
+      "host_lesson": "54_qc_dashboard",
+      "host_title": "QC"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/57_layer_viewer -> tools/tutorials/archive/production/docs/57_layer_viewer"
+ ],
+ "prose": []
+}

@@ -1,0 +1,3847 @@
+{
+ "schema": 1,
+ "id": "75_regression_diagnostics",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
+      "objectives": [
+       "Open the diagnostic folder for the intended Regression run.",
+       "Read design support, identifiability and inference summaries.",
+       "Keep diagnostics with their settings and rerun after changing an analysis."
+      ],
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "75_regression_diagnostics/poster.jpg",
+      "silent": "75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4",
+      "web": "75_regression_diagnostics/web/75_regression_diagnostics_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: inspect the saved analysis reports",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
+      "objectives": [
+       "Open the diagnostic folder for the intended Regression run.",
+       "Read design support, identifiability and inference summaries.",
+       "Keep diagnostics with their settings and rerun after changing an analysis."
+      ],
+      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: revisar los informes de análisis guardados",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Abre los informes de diseño e inferencia de una ejecución terminada, revisa el respaldo y las dependencias, y usa lo que encuentres al elegir el siguiente análisis.",
+      "objectives": [
+       "Abrir la carpeta de diagnóstico de la ejecución de Regression que te interesa.",
+       "Leer los resúmenes de respaldo del diseño, identificabilidad e inferencia.",
+       "Guardar los diagnósticos con sus ajustes y volver a ejecutar tras cambiar un análisis."
+      ],
+      "prerequisite": "Completa el ejemplo de Regression con sus cuatro pares de puntuaciones y recuentos. La ejecución por permutaciones que se muestra usa 199 permutaciones y un mínimo de dos pocillos. Mantén juntos sus ajustes y sus familias de resultados al interpretar los paneles de diagnóstico.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Desde Home, abre Regression. Cuando termine un análisis, haz clic en Diagnostics. Comprueba la ruta de la carpeta: este acceso directo abre la carpeta de diagnósticos más reciente que encuentra en el proyecto.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "Desde Home, abre Regression. Cuando termine un análisis, haz clic en Diagnostics. Comprueba la ruta de la carpeta: este acceso directo abre la carpeta de diagnósticos más reciente que encuentra en el proyecto."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lee en orden los archivos de diagnóstico de esa carpeta: primero la identificabilidad del diseño, después los diagnósticos del diseño con los pares de guías colineales, luego los diagnósticos de inferencia y, por último, el resumen que los reúne.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "Lee en orden los archivos de diagnóstico de esa carpeta: primero la identificabilidad del diseño, después los diagnósticos del diseño con los pares de guías colineales, luego los diagnósticos de inferencia y, por último, el resumen que los reúne."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Empieza por Design identifiability. Compara el número de pocillos, el de parámetros y el rango del diseño. Este ejemplo tiene más parámetros de los que admite su rango, así que no puede identificar un coeficiente simultáneo único para cada guía.",
+        "hold_after": 0.7,
+        "speech_text": "Empieza por Design identifiability. Compara el número de pocillos, el de parámetros y el rango del diseño. Este ejemplo tiene más parámetros de los que admite su rango, así que no puede identificar un coeficiente simultáneo único para cada guía."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Revisa el respaldo de cada guía entre pocillos. El ejemplo incluye muchas guías presentes en un solo pocillo. Distingue el diseño completo de la familia filtrada de guías que realmente se evaluaron.",
+        "hold_after": 0.7,
+        "speech_text": "Revisa el respaldo de cada guía entre pocillos. El ejemplo incluye muchas guías presentes en un solo pocillo. Distingue el diseño completo de la familia filtrada de guías que realmente se evaluaron."
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Abre Design diagnostics y la tabla de pares colineales. Identifica los predictores que siempre aparecen juntos o que tienen poco respaldo antes de atribuirles efectos por separado.",
+        "hold_after": 0.7,
+        "speech_text": "Abre Design diagnostics y la tabla de pares colineales. Identifica los predictores que siempre aparecen juntos o que tienen poco respaldo antes de atribuirles efectos por separado."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Abre Inference diagnostics. Revisa la distribución de valores P, la comparación con la hipótesis nula y los descubrimientos con distintos umbrales ajustados. Este ejemplo no tiene descubrimientos con el umbral mostrado.",
+        "hold_after": 0.7,
+        "speech_text": "Abre Inference diagnostics. Revisa la distribución de valores P, la comparación con la hipótesis nula y los descubrimientos con distintos umbrales ajustados. Este ejemplo no tiene descubrimientos con el umbral mostrado."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Comprueba el número de permutaciones al interpretar los valores P. Con ciento noventa y nueve permutaciones, el menor valor P empírico posible es cero coma cero cero cinco. Planifica la resolución que necesita tu corrección por comparaciones múltiples.",
+        "hold_after": 0.7,
+        "speech_text": "Comprueba el número de permutaciones al interpretar los valores P. Con ciento noventa y nueve permutaciones, el menor valor P empírico posible es cero coma cero cero cinco. Planifica la resolución que necesita tu corrección por comparaciones múltiples."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Un análisis por permutaciones no produce residuos ajustados de un modelo de regresión simultáneo. Busca los paneles de residuos cuando uses un modo que proporcione valores observados y ajustados.",
+        "hold_after": 0.7,
+        "speech_text": "Un análisis por permutaciones no produce residuos ajustados de un modelo de regresión simultáneo. Busca los paneles de residuos cuando uses un modo que proporcione valores observados y ajustados."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lee el resumen junto con los paneles individuales. Su valoración global refleja la peor valoración de los paneles, así que abre el informe correspondiente para entender el motivo.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Lee el resumen junto con los paneles individuales. Su valoración global refleja la peor valoración de los paneles, así que abre el informe correspondiente para entender el motivo."
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Vuelve a Regression para revisar las entradas o los ajustes del análisis de forma deliberada. Ejecuta el análisis revisado y revisa sus nuevos diagnósticos. Mantén separadas las carpetas de salida anteriores para que cada informe siga asociado a sus ajustes.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "Vuelve a Regression para revisar las entradas o los ajustes del análisis de forma deliberada. Ejecuta el análisis revisado y revisa sus nuevos diagnósticos. Mantén separadas las carpetas de salida anteriores para que cada informe siga asociado a sus ajustes."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics : inspecter les rapports d’analyse enregistrés",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Ouvrez les rapports de plan et d’inférence d’une exécution terminée, inspectez le soutien et les dépendances, et servez-vous des constats pour choisir l’analyse suivante.",
+      "objectives": [
+       "Ouvrir le dossier de diagnostic de l’exécution Regression voulue.",
+       "Lire les résumés de soutien du plan, d’identifiabilité et d’inférence.",
+       "Conserver les diagnostics avec leurs paramètres et relancer après une modification de l’analyse."
+      ],
+      "prerequisite": "Terminez l’exemple Regression avec ses quatre paires score/comptage. L’exécution par permutations illustrée utilise 199 permutations et un minimum de deux puits. Gardez ensemble ses paramètres et ses familles de résultats pour interpréter les panneaux de diagnostic.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Depuis Home, ouvrez Regression. Une fois l’analyse terminée, cliquez sur Diagnostics. Vérifiez le chemin du dossier : ce raccourci ouvre le dossier de diagnostics le plus récent qu’il trouve dans le projet.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "Depuis Home, ouvrez Regression. Une fois l’analyse terminée, cliquez sur Diagnostics. Vérifiez le chemin du dossier : ce raccourci ouvre le dossier de diagnostics le plus récent qu’il trouve dans le projet."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lisez les fichiers de diagnostic de ce dossier dans l’ordre : l’identifiabilité du plan, puis les diagnostics du plan avec les paires de guides colinéaires, puis les diagnostics d’inférence, et enfin le résumé qui les rassemble.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "Lisez les fichiers de diagnostic de ce dossier dans l’ordre : l’identifiabilité du plan, puis les diagnostics du plan avec les paires de guides colinéaires, puis les diagnostics d’inférence, et enfin le résumé qui les rassemble."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Commencez par Design identifiability. Comparez le nombre de puits, le nombre de paramètres et le rang du plan. Cet exemple a plus de paramètres que son rang ne le permet ; il ne peut donc pas identifier un coefficient simultané unique pour chaque guide.",
+        "hold_after": 0.7,
+        "speech_text": "Commencez par Design identifiability. Comparez le nombre de puits, le nombre de paramètres et le rang du plan. Cet exemple a plus de paramètres que son rang ne le permet ; il ne peut donc pas identifier un coefficient simultané unique pour chaque guide."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Inspectez le soutien de chaque guide sur l’ensemble des puits. L’exemple comprend de nombreux guides présents dans un seul puits. Distinguez le plan complet de la famille filtrée des guides réellement testés.",
+        "hold_after": 0.7,
+        "speech_text": "Inspectez le soutien de chaque guide sur l’ensemble des puits. L’exemple comprend de nombreux guides présents dans un seul puits. Distinguez le plan complet de la famille filtrée des guides réellement testés."
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Ouvrez Design diagnostics et la table des paires colinéaires. Repérez les prédicteurs qui apparaissent toujours ensemble ou qui ont un faible soutien avant de leur attribuer des effets séparés.",
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Design diagnostics et la table des paires colinéaires. Repérez les prédicteurs qui apparaissent toujours ensemble ou qui ont un faible soutien avant de leur attribuer des effets séparés."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Ouvrez Inference diagnostics. Inspectez la distribution des valeurs P, la comparaison avec l’hypothèse nulle et les découvertes selon les seuils ajustés. Cet exemple ne compte aucune découverte au seuil affiché.",
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Inference diagnostics. Inspectez la distribution des valeurs P, la comparaison avec l’hypothèse nulle et les découvertes selon les seuils ajustés. Cet exemple ne compte aucune découverte au seuil affiché."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Vérifiez le nombre de permutations lorsque vous interprétez les valeurs P. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P empirique atteignable est zéro virgule zéro zéro cinq. Prévoyez la résolution nécessaire à votre correction pour tests multiples.",
+        "hold_after": 0.7,
+        "speech_text": "Vérifiez le nombre de permutations lorsque vous interprétez les valeurs P. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P empirique atteignable est zéro virgule zéro zéro cinq. Prévoyez la résolution nécessaire à votre correction pour tests multiples."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Une analyse par permutations ne produit pas de résidus ajustés issus d’un modèle de régression simultané. Cherchez les panneaux de résidus lorsque vous utilisez un mode qui fournit des valeurs observées et ajustées.",
+        "hold_after": 0.7,
+        "speech_text": "Une analyse par permutations ne produit pas de résidus ajustés issus d’un modèle de régression simultané. Cherchez les panneaux de résidus lorsque vous utilisez un mode qui fournit des valeurs observées et ajustées."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lisez le résumé en parallèle des panneaux individuels. Son évaluation globale reprend la moins bonne évaluation des panneaux ; ouvrez donc le rapport correspondant pour en comprendre la raison.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Lisez le résumé en parallèle des panneaux individuels. Son évaluation globale reprend la moins bonne évaluation des panneaux ; ouvrez donc le rapport correspondant pour en comprendre la raison."
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Revenez à Regression pour modifier les entrées ou les paramètres d’analyse de façon réfléchie. Lancez l’analyse révisée et inspectez ses nouveaux diagnostics. Gardez les anciens dossiers de sortie séparés afin que chaque rapport reste associé à ses paramètres.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "Revenez à Regression pour modifier les entrées ou les paramètres d’analyse de façon réfléchie. Lancez l’analyse révisée et inspectez ses nouveaux diagnostics. Gardez les anciens dossiers de sortie séparés afin que chaque rapport reste associé à ses paramètres."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: सहेजी गई विश्लेषण रिपोर्ट देखें",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "पूरे हो चुके रन की डिज़ाइन और अनुमान रिपोर्ट खोलें, समर्थन और निर्भरताएँ देखें, और अगला विश्लेषण चुनते समय निष्कर्षों का उपयोग करें।",
+      "objectives": [
+       "इच्छित Regression रन का डायग्नॉस्टिक फ़ोल्डर खोलें।",
+       "डिज़ाइन समर्थन, पहचान-योग्यता और अनुमान के सारांश पढ़ें।",
+       "डायग्नॉस्टिक को उनकी सेटिंग के साथ रखें और विश्लेषण बदलने के बाद दोबारा चलाएँ।"
+      ],
+      "prerequisite": "Regression उदाहरण को उसके चार स्कोर/गिनती जोड़ों के साथ पूरा करें। दिखाया गया क्रमचय रन 199 क्रमचय और कम से कम दो वेल इस्तेमाल करता है। डायग्नॉस्टिक पैनलों की व्याख्या करते समय उसकी सेटिंग और परिणाम परिवारों को साथ रखें।",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Home से Regression खोलें। विश्लेषण पूरा होने के बाद Diagnostics पर क्लिक करें। फ़ोल्डर का पथ जाँचें: यह शॉर्टकट प्रोजेक्ट में मिलने वाला सबसे नया डायग्नॉस्टिक फ़ोल्डर खोलता है।",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "Home से Regression खोलें। विश्लेषण पूरा होने के बाद Diagnostics पर क्लिक करें। फ़ोल्डर का पथ जाँचें: यह शॉर्टकट प्रोजेक्ट में मिलने वाला सबसे नया डायग्नॉस्टिक फ़ोल्डर खोलता है।"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "उस फ़ोल्डर की डायग्नॉस्टिक फ़ाइलें क्रम से पढ़ें: पहले डिज़ाइन की पहचान-योग्यता, फिर सहरेखीय गाइड जोड़ों के साथ डिज़ाइन डायग्नॉस्टिक, फिर अनुमान डायग्नॉस्टिक, और आख़िर में वह सारांश जो इन सबको जोड़ता है।",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "उस फ़ोल्डर की डायग्नॉस्टिक फ़ाइलें क्रम से पढ़ें: पहले डिज़ाइन की पहचान-योग्यता, फिर सहरेखीय गाइड जोड़ों के साथ डिज़ाइन डायग्नॉस्टिक, फिर अनुमान डायग्नॉस्टिक, और आख़िर में वह सारांश जो इन सबको जोड़ता है।"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Design identifiability से शुरू करें। वेलों की संख्या, पैरामीटरों की संख्या और डिज़ाइन की रैंक की तुलना करें। इस उदाहरण में रैंक जितने पैरामीटर संभाल सकती है उससे ज़्यादा पैरामीटर हैं, इसलिए यह हर गाइड के लिए एक अनोखा साथ-साथ गुणांक नहीं पहचान सकता।",
+        "hold_after": 0.7,
+        "speech_text": "Design identifiability से शुरू करें। वेलों की संख्या, पैरामीटरों की संख्या और डिज़ाइन की रैंक की तुलना करें। इस उदाहरण में रैंक जितने पैरामीटर संभाल सकती है उससे ज़्यादा पैरामीटर हैं, इसलिए यह हर गाइड के लिए एक अनोखा साथ-साथ गुणांक नहीं पहचान सकता।"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "वेलों में हर गाइड का समर्थन देखें। उदाहरण में कई गाइड केवल एक वेल में मिलती हैं। पूरे डिज़ाइन और वास्तव में जाँची गई गाइडों के फ़िल्टर किए गए परिवार में अंतर करें।",
+        "hold_after": 0.7,
+        "speech_text": "वेलों में हर गाइड का समर्थन देखें। उदाहरण में कई गाइड केवल एक वेल में मिलती हैं। पूरे डिज़ाइन और वास्तव में जाँची गई गाइडों के फ़िल्टर किए गए परिवार में अंतर करें।"
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Design diagnostics और सहरेखीय जोड़ों की तालिका खोलें। उनके प्रभावों को अलग-अलग मानने से पहले उन प्रेडिक्टरों को पहचानें जो हमेशा साथ आते हैं या जिनका समर्थन कमज़ोर है।",
+        "hold_after": 0.7,
+        "speech_text": "Design diagnostics और सहरेखीय जोड़ों की तालिका खोलें। उनके प्रभावों को अलग-अलग मानने से पहले उन प्रेडिक्टरों को पहचानें जो हमेशा साथ आते हैं या जिनका समर्थन कमज़ोर है।"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Inference diagnostics खोलें। P मानों का वितरण, शून्य परिकल्पना से तुलना और समायोजित सीमाओं पर खोजें देखें। इस उदाहरण में दिखाई गई सीमा पर कोई खोज नहीं है।",
+        "hold_after": 0.7,
+        "speech_text": "Inference diagnostics खोलें। P मानों का वितरण, शून्य परिकल्पना से तुलना और समायोजित सीमाओं पर खोजें देखें। इस उदाहरण में दिखाई गई सीमा पर कोई खोज नहीं है।"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "P मानों की व्याख्या करते समय क्रमचयों की संख्या जाँचें। एक सौ निन्यानबे क्रमचयों के साथ सबसे छोटा प्राप्त हो सकने वाला अनुभवजन्य P मान शून्य दशमलव शून्य शून्य पाँच है। अपने बहु-परीक्षण सुधार के लिए ज़रूरी विभेदन की योजना बनाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "P मानों की व्याख्या करते समय क्रमचयों की संख्या जाँचें। एक सौ निन्यानबे क्रमचयों के साथ सबसे छोटा प्राप्त हो सकने वाला अनुभवजन्य P मान शून्य दशमलव शून्य शून्य पाँच है। अपने बहु-परीक्षण सुधार के लिए ज़रूरी विभेदन की योजना बनाएँ।"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "क्रमचय विश्लेषण किसी साथ-साथ रिग्रेशन मॉडल से फ़िट किए गए अवशेष नहीं बनाता। जब आप ऐसा मोड इस्तेमाल करें जो देखे गए और फ़िट किए गए मान देता है, तब अवशेष पैनल देखें।",
+        "hold_after": 0.7,
+        "speech_text": "क्रमचय विश्लेषण किसी साथ-साथ रिग्रेशन मॉडल से फ़िट किए गए अवशेष नहीं बनाता। जब आप ऐसा मोड इस्तेमाल करें जो देखे गए और फ़िट किए गए मान देता है, तब अवशेष पैनल देखें।"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "सारांश को अलग-अलग पैनलों के साथ पढ़ें। उसका समग्र आकलन सबसे कमज़ोर पैनल आकलन को दर्शाता है, इसलिए कारण समझने के लिए संबंधित रिपोर्ट खोलें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "सारांश को अलग-अलग पैनलों के साथ पढ़ें। उसका समग्र आकलन सबसे कमज़ोर पैनल आकलन को दर्शाता है, इसलिए कारण समझने के लिए संबंधित रिपोर्ट खोलें।"
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "इनपुट या विश्लेषण सेटिंग सोच-समझकर बदलने के लिए Regression पर लौटें। बदला हुआ विश्लेषण चलाएँ और उसके नए डायग्नॉस्टिक देखें। पुराने आउटपुट फ़ोल्डर अलग रखें, ताकि हर रिपोर्ट अपनी सेटिंग से जुड़ी रहे।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "इनपुट या विश्लेषण सेटिंग सोच-समझकर बदलने के लिए Regression पर लौटें। बदला हुआ विश्लेषण चलाएँ और उसके नए डायग्नॉस्टिक देखें। पुराने आउटपुट फ़ोल्डर अलग रखें, ताकि हर रिपोर्ट अपनी सेटिंग से जुड़ी रहे।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: esaminare i rapporti di analisi salvati",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Apri i rapporti sul disegno e sull’inferenza di un’esecuzione completata, esamina supporto e dipendenze, e usa quanto emerge per scegliere l’analisi successiva.",
+      "objectives": [
+       "Aprire la cartella di diagnostica dell’esecuzione di Regression desiderata.",
+       "Leggere i riepiloghi su supporto del disegno, identificabilità e inferenza.",
+       "Conservare la diagnostica con le impostazioni e rieseguire dopo aver modificato un’analisi."
+      ],
+      "prerequisite": "Completa l’esempio di Regression con le sue quattro coppie punteggi/conteggi. L’esecuzione per permutazioni mostrata usa 199 permutazioni e un minimo di due pozzetti. Tieni insieme impostazioni e famiglie di risultati quando interpreti i pannelli diagnostici.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Da Home, apri Regression. Al termine di un’analisi, fai clic su Diagnostics. Controlla il percorso della cartella: questa scorciatoia apre la cartella di diagnostica più recente che trova nel progetto.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "Da Home, apri Regression. Al termine di un’analisi, fai clic su Diagnostics. Controlla il percorso della cartella: questa scorciatoia apre la cartella di diagnostica più recente che trova nel progetto."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Leggi in ordine i file di diagnostica in quella cartella: prima l’identificabilità del disegno, poi la diagnostica del disegno con le coppie di guide collineari, quindi la diagnostica dell’inferenza e infine il riepilogo che le riunisce.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "Leggi in ordine i file di diagnostica in quella cartella: prima l’identificabilità del disegno, poi la diagnostica del disegno con le coppie di guide collineari, quindi la diagnostica dell’inferenza e infine il riepilogo che le riunisce."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Inizia da Design identifiability. Confronta il numero di pozzetti, il numero di parametri e il rango del disegno. Questo esempio ha più parametri di quanti il suo rango ne consenta, quindi non può identificare un coefficiente simultaneo univoco per ogni guida.",
+        "hold_after": 0.7,
+        "speech_text": "Inizia da Design identifiability. Confronta il numero di pozzetti, il numero di parametri e il rango del disegno. Questo esempio ha più parametri di quanti il suo rango ne consenta, quindi non può identificare un coefficiente simultaneo univoco per ogni guida."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Esamina il supporto di ogni guida tra i pozzetti. L’esempio comprende molte guide presenti in un solo pozzetto. Distingui il disegno completo dalla famiglia filtrata delle guide effettivamente testate.",
+        "hold_after": 0.7,
+        "speech_text": "Esamina il supporto di ogni guida tra i pozzetti. L’esempio comprende molte guide presenti in un solo pozzetto. Distingui il disegno completo dalla famiglia filtrata delle guide effettivamente testate."
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Apri Design diagnostics e la tabella delle coppie collineari. Individua i predittori che compaiono sempre insieme o che hanno un supporto debole prima di attribuire loro effetti separati.",
+        "hold_after": 0.7,
+        "speech_text": "Apri Design diagnostics e la tabella delle coppie collineari. Individua i predittori che compaiono sempre insieme o che hanno un supporto debole prima di attribuire loro effetti separati."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Apri Inference diagnostics. Esamina la distribuzione dei valori P, il confronto con l’ipotesi nulla e le scoperte alle diverse soglie corrette. Questo esempio non ha scoperte alla soglia mostrata.",
+        "hold_after": 0.7,
+        "speech_text": "Apri Inference diagnostics. Esamina la distribuzione dei valori P, il confronto con l’ipotesi nulla e le scoperte alle diverse soglie corrette. Questo esempio non ha scoperte alla soglia mostrata."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Controlla il numero di permutazioni quando interpreti i valori P. Con centonovantanove permutazioni, il valore P empirico più piccolo ottenibile è zero virgola zero zero cinque. Pianifica la risoluzione necessaria per la tua correzione per test multipli.",
+        "hold_after": 0.7,
+        "speech_text": "Controlla il numero di permutazioni quando interpreti i valori P. Con centonovantanove permutazioni, il valore P empirico più piccolo ottenibile è zero virgola zero zero cinque. Pianifica la risoluzione necessaria per la tua correzione per test multipli."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Un’analisi per permutazioni non produce residui adattati da un modello di regressione simultaneo. Cerca i pannelli dei residui quando usi una modalità che fornisce valori osservati e adattati.",
+        "hold_after": 0.7,
+        "speech_text": "Un’analisi per permutazioni non produce residui adattati da un modello di regressione simultaneo. Cerca i pannelli dei residui quando usi una modalità che fornisce valori osservati e adattati."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Leggi il riepilogo insieme ai singoli pannelli. La sua valutazione complessiva riflette la peggiore valutazione tra i pannelli, quindi apri il rapporto corrispondente per capirne il motivo.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Leggi il riepilogo insieme ai singoli pannelli. La sua valutazione complessiva riflette la peggiore valutazione tra i pannelli, quindi apri il rapporto corrispondente per capirne il motivo."
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Torna a Regression per modificare in modo mirato input o impostazioni dell’analisi. Esegui l’analisi rivista ed esamina la nuova diagnostica. Tieni separate le cartelle di output precedenti, così ogni rapporto resta associato alle sue impostazioni.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "Torna a Regression per modificare in modo mirato input o impostazioni dell’analisi. Esegui l’analisi rivista ed esamina la nuova diagnostica. Tieni separate le cartelle di output precedenti, così ogni rapporto resta associato alle sue impostazioni."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics：保存された解析レポートを確認する",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "完了した実行の計画と推論のレポートを開き、裏付けと依存関係を確認して、その結果を次の解析を選ぶときに役立てます。",
+      "objectives": [
+       "目的のRegressionの実行の診断フォルダーを開く。",
+       "計画の裏付け、識別可能性、推論の要約を読む。",
+       "診断結果を設定と一緒に保管し、解析を変更したら再実行する。"
+      ],
+      "prerequisite": "四組のスコアとカウントを使うRegressionの例を完了させておきます。図示した並べ替えの実行では、並べ替えを199回、ウェルの最小数を二にしています。診断パネルを解釈するときは、その設定と結果のファミリーをまとめて扱ってください。",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "HomeからRegressionを開きます。解析が完了したら、Diagnosticsをクリックします。フォルダーのパスを確認してください。このショートカットは、プロジェクト内で見つかった最新の診断フォルダーを開きます。",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "ホームからRegressionを開きます。解析が完了したら、Diagnosticsをクリックします。フォルダーのパスを確認してください。このショートカットは、プロジェクト内で見つかった最新の診断フォルダーを開きます。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "そのフォルダーの診断ファイルを順に読みます。まず計画の識別可能性、次に共線的なガイドの組を含む計画の診断、続いて推論の診断、最後にそれらをまとめた要約です。",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "そのフォルダーの診断ファイルを順に読みます。まず計画の識別可能性、次に共線的なガイドの組を含む計画の診断、続いて推論の診断、最後にそれらをまとめた要約です。"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Design identifiabilityから始めます。ウェルの数、パラメーターの数、計画の階数を比べます。この例では、階数で支えられる数よりパラメーターが多いため、ガイドごとに一意の同時係数を特定できません。",
+        "hold_after": 0.7,
+        "speech_text": "Design identifiabilityから始めます。ウェルの数、パラメーターの数、計画の階数を比べます。この例では、階数で支えられる数よりパラメーターが多いため、ガイドごとに一意の同時係数を特定できません。"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "ウェル全体での各ガイドの裏付けを確認します。この例には、一つのウェルにしか現れないガイドが多く含まれています。計画全体と、実際に検定されたガイドのフィルター後のファミリーを区別してください。",
+        "hold_after": 0.7,
+        "speech_text": "ウェル全体での各ガイドの裏付けを確認します。この例には、一つのウェルにしか現れないガイドが多く含まれています。計画全体と、実際に検定されたガイドのフィルター後のファミリーを区別してください。"
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Design diagnosticsと共線的な組の表を開きます。効果を個別に割り当てる前に、常に一緒に現れる予測変数や、裏付けの弱い予測変数を見つけます。",
+        "hold_after": 0.7,
+        "speech_text": "Design diagnosticsと共線的な組の表を開きます。効果を個別に割り当てる前に、常に一緒に現れる予測変数や、裏付けの弱い予測変数を見つけます。"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Inference diagnosticsを開きます。P値の分布、帰無仮説との比較、補正後のしきい値ごとの発見数を確認します。この例では、表示されているしきい値での発見はありません。",
+        "hold_after": 0.7,
+        "speech_text": "Inference diagnosticsを開きます。P値の分布、帰無仮説との比較、補正後のしきい値ごとの発見数を確認します。この例では、表示されているしきい値での発見はありません。"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "P値を解釈するときは、並べ替えの回数を確認します。百九十九回の並べ替えでは、得られる経験的P値の最小値は零点零零五です。多重検定の補正に必要な分解能を見越して計画してください。",
+        "hold_after": 0.7,
+        "speech_text": "P値を解釈するときは、並べ替えの回数を確認します。百九十九回の並べ替えでは、得られる経験的P値の最小値は零点零零五です。多重検定の補正に必要な分解能を見越して計画してください。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "並べ替えによる解析では、同時回帰モデルの当てはめ残差は得られません。観測値と当てはめ値を出力するモードを使うときに、残差のパネルを確認します。",
+        "hold_after": 0.7,
+        "speech_text": "並べ替えによる解析では、同時回帰モデルの当てはめ残差は得られません。観測値と当てはめ値を出力するモードを使うときに、残差のパネルを確認します。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "要約は個々のパネルと合わせて読みます。全体の評価は最も悪いパネルの評価を反映しているので、該当するレポートを開いて理由を確かめます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "要約は個々のパネルと合わせて読みます。全体の評価は最も悪いパネルの評価を反映しているので、該当するレポートを開いて理由を確かめます。"
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "入力や解析の設定を意図して見直すには、Regressionに戻ります。見直した解析を実行し、新しい診断を確認します。各レポートが自分の設定と結び付いたままになるよう、以前の出力フォルダーは分けて保管します。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "入力や解析の設定を意図して見直すには、Regressionに戻ります。見直した解析を実行し、新しい診断を確認します。各レポートが自分の設定と結び付いたままになるよう、以前の出力フォルダーは分けて保管します。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: inspecionar os relatórios de análise salvos",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Abra os relatórios de delineamento e de inferência de uma execução concluída, inspecione o suporte e as dependências e use o que encontrar ao escolher a próxima análise.",
+      "objectives": [
+       "Abrir a pasta de diagnóstico da execução de Regression desejada.",
+       "Ler os resumos de suporte do delineamento, identificabilidade e inferência.",
+       "Manter os diagnósticos com as configurações e executar de novo após mudar uma análise."
+      ],
+      "prerequisite": "Conclua o exemplo de Regression com os quatro pares de pontuações e contagens. A execução por permutações ilustrada usa 199 permutações e um mínimo de dois poços. Mantenha juntas as configurações e as famílias de resultados ao interpretar os painéis de diagnóstico.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Na tela Home, abra Regression. Depois que uma análise terminar, clique em Diagnostics. Confira o caminho da pasta: este atalho abre a pasta de diagnósticos mais recente que encontra no projeto.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "Na tela Home, abra Regression. Depois que uma análise terminar, clique em Diagnostics. Confira o caminho da pasta: este atalho abre a pasta de diagnósticos mais recente que encontra no projeto."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Leia os arquivos de diagnóstico dessa pasta em ordem: primeiro a identificabilidade do delineamento, depois os diagnósticos do delineamento com os pares de guias colineares, em seguida os diagnósticos de inferência e, por último, o resumo que junta tudo.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "Leia os arquivos de diagnóstico dessa pasta em ordem: primeiro a identificabilidade do delineamento, depois os diagnósticos do delineamento com os pares de guias colineares, em seguida os diagnósticos de inferência e, por último, o resumo que junta tudo."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Comece por Design identifiability. Compare o número de poços, o número de parâmetros e o posto do delineamento. Este exemplo tem mais parâmetros do que o posto comporta, então não consegue identificar um coeficiente simultâneo único para cada guia.",
+        "hold_after": 0.7,
+        "speech_text": "Comece por Design identifiability. Compare o número de poços, o número de parâmetros e o posto do delineamento. Este exemplo tem mais parâmetros do que o posto comporta, então não consegue identificar um coeficiente simultâneo único para cada guia."
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Inspecione o suporte de cada guia entre os poços. O exemplo inclui muitas guias presentes em um único poço. Diferencie o delineamento completo da família filtrada de guias que foram de fato testadas.",
+        "hold_after": 0.7,
+        "speech_text": "Inspecione o suporte de cada guia entre os poços. O exemplo inclui muitas guias presentes em um único poço. Diferencie o delineamento completo da família filtrada de guias que foram de fato testadas."
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Abra Design diagnostics e a tabela de pares colineares. Identifique os preditores que sempre aparecem juntos ou que têm suporte fraco antes de atribuir efeitos a eles separadamente.",
+        "hold_after": 0.7,
+        "speech_text": "Abra Design diagnostics e a tabela de pares colineares. Identifique os preditores que sempre aparecem juntos ou que têm suporte fraco antes de atribuir efeitos a eles separadamente."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Abra Inference diagnostics. Inspecione a distribuição dos valores P, a comparação com a hipótese nula e as descobertas em diferentes limiares ajustados. Este exemplo não tem descobertas no limiar exibido.",
+        "hold_after": 0.7,
+        "speech_text": "Abra Inference diagnostics. Inspecione a distribuição dos valores P, a comparação com a hipótese nula e as descobertas em diferentes limiares ajustados. Este exemplo não tem descobertas no limiar exibido."
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Confira o número de permutações ao interpretar os valores P. Com cento e noventa e nove permutações, o menor valor P empírico possível é zero vírgula zero zero cinco. Planeje a resolução necessária para a sua correção de testes múltiplos.",
+        "hold_after": 0.7,
+        "speech_text": "Confira o número de permutações ao interpretar os valores P. Com cento e noventa e nove permutações, o menor valor P empírico possível é zero vírgula zero zero cinco. Planeje a resolução necessária para a sua correção de testes múltiplos."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Uma análise por permutações não produz resíduos ajustados de um modelo de regressão simultâneo. Procure os painéis de resíduos ao usar um modo que forneça valores observados e ajustados.",
+        "hold_after": 0.7,
+        "speech_text": "Uma análise por permutações não produz resíduos ajustados de um modelo de regressão simultâneo. Procure os painéis de resíduos ao usar um modo que forneça valores observados e ajustados."
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Leia o resumo junto com os painéis individuais. A avaliação geral reflete a pior avaliação entre os painéis, então abra o relatório correspondente para entender o motivo.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Leia o resumo junto com os painéis individuais. A avaliação geral reflete a pior avaliação entre os painéis, então abra o relatório correspondente para entender o motivo."
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Volte a Regression para revisar as entradas ou as configurações da análise de forma deliberada. Execute a análise revisada e inspecione os novos diagnósticos. Mantenha separadas as pastas de saída anteriores para que cada relatório continue associado às suas configurações.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "Volte a Regression para revisar as entradas ou as configurações da análise de forma deliberada. Execute a análise revisada e inspecione os novos diagnósticos. Mantenha separadas as pastas de saída anteriores para que cada relatório continue associado às suas configurações."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics：检查保存的分析报告",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "打开已完成运行的设计和推断报告，检查支持度和依赖关系，并在选择下一次分析时运用这些发现。",
+      "objectives": [
+       "打开目标Regression运行的诊断文件夹。",
+       "阅读设计支持度、可识别性和推断的摘要。",
+       "把诊断结果与其设置放在一起，并在修改分析后重新运行。"
+      ],
+      "prerequisite": "使用四组分数与计数完成Regression示例。图示的置换运行使用199次置换，最少两个孔。解读诊断面板时，请把其设置和结果族放在一起。",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "从Home打开Regression。分析完成后，点击Diagnostics。请检查文件夹路径：这个快捷方式会打开它在项目中找到的最新诊断文件夹。",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "speech_text": "从主页打开Regression。分析完成后，点击Diagnostics。请检查文件夹路径：这个快捷方式会打开它在项目中找到的最新诊断文件夹。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "按顺序阅读该文件夹中的诊断文件：先看设计可识别性，再看包含共线向导对的设计诊断，然后是推断诊断，最后是汇总前面内容的摘要。",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ],
+        "speech_text": "按顺序阅读该文件夹中的诊断文件：先看设计可识别性，再看包含共线向导对的设计诊断，然后是推断诊断，最后是汇总前面内容的摘要。"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "从Design identifiability开始。比较孔的数量、参数数量和设计矩阵的秩。本例的参数多于秩所能支持的数量，因此无法为每个向导识别出唯一的联合系数。",
+        "hold_after": 0.7,
+        "speech_text": "从Design identifiability开始。比较孔的数量、参数数量和设计矩阵的秩。本例的参数多于秩所能支持的数量，因此无法为每个向导识别出唯一的联合系数。"
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "检查每个向导在各孔中的支持度。本例包含许多只出现在一个孔中的向导。请把完整设计与实际检验的、经过过滤的向导族区分开。",
+        "hold_after": 0.7,
+        "speech_text": "检查每个向导在各孔中的支持度。本例包含许多只出现在一个孔中的向导。请把完整设计与实际检验的、经过过滤的向导族区分开。"
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "打开Design diagnostics和共线对表。在分别归因各自的效应之前，先找出总是同时出现或支持度较弱的预测变量。",
+        "hold_after": 0.7,
+        "speech_text": "打开Design diagnostics和共线对表。在分别归因各自的效应之前，先找出总是同时出现或支持度较弱的预测变量。"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "打开Inference diagnostics。检查P值分布、与零假设的比较，以及在不同校正阈值下的发现数。本例在所显示的阈值下没有发现。",
+        "hold_after": 0.7,
+        "speech_text": "打开Inference diagnostics。检查P值分布、与零假设的比较，以及在不同校正阈值下的发现数。本例在所显示的阈值下没有发现。"
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "解读P值时，请检查置换次数。在一百九十九次置换下，可以得到的最小经验P值是零点零零五。请根据多重检验校正的需要规划分辨率。",
+        "hold_after": 0.7,
+        "speech_text": "解读P值时，请检查置换次数。在一百九十九次置换下，可以得到的最小经验P值是零点零零五。请根据多重检验校正的需要规划分辨率。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "置换分析不会产生联合回归模型的拟合残差。当使用能提供观测值和拟合值的模式时，再查看残差面板。",
+        "hold_after": 0.7,
+        "speech_text": "置换分析不会产生联合回归模型的拟合残差。当使用能提供观测值和拟合值的模式时，再查看残差面板。"
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "把摘要与各个面板结合起来阅读。它的总体评估反映的是各面板中最差的评估，因此请打开对应的报告了解原因。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "把摘要与各个面板结合起来阅读。它的总体评估反映的是各面板中最差的评估，因此请打开对应的报告了解原因。"
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "回到Regression，有针对性地修改输入或分析设置。运行修改后的分析，并检查新的诊断结果。请把之前的输出文件夹分开保存，让每份报告都与其设置保持对应。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ],
+        "speech_text": "回到Regression，有针对性地修改输入或分析设置。运行修改后的分析，并检查新的诊断结果。请把之前的输出文件夹分开保存，让每份报告都与其设置保持对应。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: undersøg de gemte analyserapporter",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Åbn design- og inferensrapporterne for en afsluttet kørsel, undersøg støtte og afhængigheder, og brug fundene, når du vælger den næste analyse.",
+      "objectives": [
+       "Åbne diagnosticeringsmappen for den ønskede Regression-kørsel.",
+       "Læse oversigterne over designstøtte, identificerbarhed og inferens.",
+       "Opbevare diagnosticeringen med dens indstillinger og køre igen efter at have ændret en analyse."
+      ],
+      "prerequisite": "Gennemfør Regression-eksemplet med dets fire par af scorer og tællinger. Den viste permutationskørsel bruger 199 permutationer og mindst to brønde. Hold indstillingerne og resultatfamilierne samlet, når du fortolker diagnosticeringspanelerne.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Fra Home åbner du Regression. Når en analyse er færdig, klikker du på Diagnostics. Kontrollér mappestien: denne genvej åbner den nyeste diagnosticeringsmappe, den finder i projektet.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Læs diagnosticeringsfilerne i mappen i rækkefølge: først designets identificerbarhed, derefter designdiagnosticeringen med de kollineære guidepar, så inferensdiagnosticeringen og til sidst oversigten, der samler dem.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Begynd med Design identifiability. Sammenlign antallet af brønde, antallet af parametre og designets rang. Dette eksempel har flere parametre, end rangen understøtter, så det kan ikke identificere en entydig samtidig koefficient for hver guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Undersøg hver guides støtte på tværs af brøndene. Eksemplet indeholder mange guides, der kun findes i én brønd. Skeln mellem det fulde design og den filtrerede familie af guides, der faktisk blev testet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Åbn Design diagnostics og tabellen over kollineære par. Find prædiktorer, der altid optræder sammen eller har svag støtte, før du tilskriver dem separate effekter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Åbn Inference diagnostics. Undersøg fordelingen af P-værdier, sammenligningen med nulhypotesen og fundene ved forskellige justerede tærskler. Dette eksempel har ingen fund ved den viste tærskel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Kontrollér antallet af permutationer, når du fortolker P-værdier. Med 199 permutationer er den mindst opnåelige empiriske P-værdi 0,005. Planlæg den opløsning, som din korrektion for multipel testning kræver.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "En permutationsanalyse giver ikke tilpassede residualer fra en samtidig regressionsmodel. Se efter residualpaneler, når du bruger en tilstand, der leverer observerede og tilpassede værdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Læs oversigten sammen med de enkelte paneler. Dens samlede vurdering afspejler den dårligste panelvurdering, så åbn den tilsvarende rapport for at forstå årsagen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Vend tilbage til Regression for bevidst at ændre input eller analyseindstillinger. Kør den reviderede analyse, og undersøg dens nye diagnosticering. Hold tidligere outputmapper adskilt, så hver rapport forbliver knyttet til sine indstillinger.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: die gespeicherten Analyseberichte prüfen",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Öffnen Sie die Design- und Inferenzberichte eines abgeschlossenen Laufs, prüfen Sie Stützung und Abhängigkeiten und nutzen Sie die Befunde bei der Wahl der nächsten Analyse.",
+      "objectives": [
+       "Den Diagnoseordner des gewünschten Regression-Laufs öffnen.",
+       "Zusammenfassungen zu Designstützung, Identifizierbarkeit und Inferenz lesen.",
+       "Diagnosen mit ihren Einstellungen aufbewahren und nach einer Änderung der Analyse erneut ausführen."
+      ],
+      "prerequisite": "Schließen Sie das Regression-Beispiel mit seinen vier Score/Zählungs-Paaren ab. Der gezeigte Permutationslauf verwendet 199 Permutationen und mindestens zwei Wells. Halten Sie Einstellungen und Ergebnisfamilien zusammen, wenn Sie die Diagnosepanels interpretieren.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Öffnen Sie von Home aus Regression. Klicken Sie nach Abschluss einer Analyse auf Diagnostics. Prüfen Sie den Ordnerpfad: Diese Verknüpfung öffnet den neuesten Diagnoseordner, den sie im Projekt findet.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lesen Sie die Diagnosedateien in diesem Ordner der Reihe nach: zuerst die Identifizierbarkeit des Designs, dann die Designdiagnose mit den kollinearen Guide-Paaren, dann die Inferenzdiagnose und zuletzt die Zusammenfassung, die alles bündelt.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Beginnen Sie mit Design identifiability. Vergleichen Sie die Anzahl der Wells, die Anzahl der Parameter und den Rang des Designs. Dieses Beispiel hat mehr Parameter, als sein Rang stützt; es kann daher nicht für jeden Guide einen eindeutigen simultanen Koeffizienten bestimmen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Prüfen Sie die Stützung jedes Guides über die Wells hinweg. Das Beispiel enthält viele Guides, die nur in einem Well vorkommen. Unterscheiden Sie das vollständige Design von der gefilterten Familie der tatsächlich getesteten Guides.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Öffnen Sie Design diagnostics und die Tabelle der kollinearen Paare. Ermitteln Sie Prädiktoren, die immer gemeinsam auftreten oder schwach gestützt sind, bevor Sie ihnen getrennte Effekte zuschreiben.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Öffnen Sie Inference diagnostics. Prüfen Sie die Verteilung der P-Werte, den Vergleich mit der Nullhypothese und die Entdeckungen bei verschiedenen adjustierten Schwellen. Dieses Beispiel hat bei der angezeigten Schwelle keine Entdeckungen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Prüfen Sie beim Interpretieren von P-Werten die Anzahl der Permutationen. Mit 199 Permutationen ist der kleinste erreichbare empirische P-Wert 0,005. Planen Sie die Auflösung, die Ihre Korrektur für multiples Testen braucht.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Eine Permutationsanalyse liefert keine angepassten Residuen aus einem simultanen Regressionsmodell. Suchen Sie nach Residuenpanels, wenn Sie einen Modus verwenden, der beobachtete und angepasste Werte liefert.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lesen Sie die Zusammenfassung zusammen mit den einzelnen Panels. Ihre Gesamtbewertung spiegelt die schlechteste Panelbewertung wider; öffnen Sie daher den zugehörigen Bericht, um den Grund zu verstehen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Kehren Sie zu Regression zurück, um Eingaben oder Analyseeinstellungen gezielt zu ändern. Führen Sie die überarbeitete Analyse aus und prüfen Sie ihre neuen Diagnosen. Halten Sie frühere Ausgabeordner getrennt, damit jeder Bericht seinen Einstellungen zugeordnet bleibt.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: skoðaðu vistaðar greiningarskýrslur",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Opnaðu hönnunar- og ályktunarskýrslur lokinnar keyrslu, skoðaðu stuðning og tengsl og notaðu niðurstöðurnar þegar þú velur næstu greiningu.",
+      "objectives": [
+       "Opna greiningarmöppu réttu Regression-keyrslunnar.",
+       "Lesa samantektir um stuðning hönnunar, greinanleika og ályktanir.",
+       "Geyma greiningarnar með stillingum sínum og keyra aftur eftir að greiningu er breytt."
+      ],
+      "prerequisite": "Ljúktu Regression-dæminu með fjórum pörum þess af stigum og talningum. Umröðunarkeyrslan sem sýnd er notar 199 umraðanir og að lágmarki tvo brunna. Haltu stillingum hennar og niðurstöðufjölskyldum saman þegar þú túlkar greiningarspjöldin.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Frá Home opnarðu Regression. Þegar greiningu lýkur smellirðu á Diagnostics. Athugaðu slóð möppunnar: þessi flýtileið opnar nýjustu greiningarmöppuna sem hún finnur í verkefninu.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lestu greiningarskrárnar í möppunni í röð: fyrst greinanleika hönnunarinnar, svo hönnunargreininguna með samlínulegu pörunum af leiðsagnar-RNA, þá ályktunargreininguna og loks samantektina sem dregur þær saman.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Byrjaðu á Design identifiability. Berðu saman fjölda brunna, fjölda stika og stig hönnunarinnar. Þetta dæmi hefur fleiri stika en stigið styður, svo það getur ekki ákvarðað einn samtímis stuðul fyrir hvert leiðsagnar-RNA.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Skoðaðu stuðning hvers leiðsagnar-RNA milli brunna. Dæmið inniheldur mörg leiðsagnar-RNA sem finnast aðeins í einum brunni. Greindu á milli allrar hönnunarinnar og síaðrar fjölskyldu þeirra leiðsagnar-RNA sem voru í raun prófuð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Opnaðu Design diagnostics og töfluna yfir samlínuleg pör. Finndu spábreytur sem koma alltaf fram saman eða hafa veikan stuðning áður en þú eignar þeim aðskilin áhrif.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Opnaðu Inference diagnostics. Skoðaðu dreifingu P-gilda, samanburð við núlltilgátuna og uppgötvanir við leiðrétta þröskulda. Í þessu dæmi eru engar uppgötvanir við þröskuldinn sem sýndur er.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Athugaðu fjölda umraðana þegar þú túlkar P-gildi. Með 199 umröðunum er minnsta mögulega reynslubundna P-gildið 0,005. Skipuleggðu þá upplausn sem leiðrétting þín fyrir fjölprófanir þarfnast.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Umröðunargreining skilar ekki aðlöguðum leifum úr samtímis aðhvarfslíkani. Leitaðu að leifaspjöldum þegar þú notar hátt sem gefur mæld og aðlöguð gildi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Lestu samantektina samhliða einstökum spjöldum. Heildarmat hennar endurspeglar versta mat spjaldanna, svo opnaðu samsvarandi skýrslu til að skilja ástæðuna.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Farðu aftur í Regression til að endurskoða inntök eða greiningarstillingar af ásettu ráði. Keyrðu endurskoðuðu greininguna og skoðaðu nýju greiningarnar hennar. Haltu eldri úttaksmöppum aðskildum svo hver skýrsla haldist tengd stillingum sínum.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: 저장된 분석 보고서 확인",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "완료된 실행의 설계와 추론 보고서를 열고, 뒷받침 정도와 의존 관계를 확인한 뒤, 그 결과를 다음 분석을 고를 때 활용합니다.",
+      "objectives": [
+       "원하는 Regression 실행의 진단 폴더를 엽니다.",
+       "설계 뒷받침, 식별 가능성, 추론 요약을 읽습니다.",
+       "진단 결과를 설정과 함께 보관하고, 분석을 바꾼 뒤 다시 실행합니다."
+      ],
+      "prerequisite": "점수와 개수 쌍 네 개를 사용하는 Regression 예제를 완료하세요. 그림의 순열 실행은 순열 199회와 최소 웰 2개를 사용합니다. 진단 패널을 해석할 때는 설정과 결과 계열을 함께 보세요.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Home에서 Regression을 여세요. 분석이 끝나면 Diagnostics를 클릭하세요. 폴더 경로를 확인하세요. 이 바로 가기는 프로젝트에서 찾은 가장 최근의 진단 폴더를 엽니다.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "그 폴더의 진단 파일을 순서대로 읽으세요. 먼저 설계 식별 가능성, 다음으로 공선 가이드 쌍이 포함된 설계 진단, 이어서 추론 진단, 마지막으로 이들을 한데 모은 요약입니다.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Design identifiability부터 시작하세요. 웰 수, 매개변수 수, 설계 행렬의 계수를 비교하세요. 이 예제는 계수가 뒷받침할 수 있는 것보다 매개변수가 많아서, 가이드마다 고유한 동시 계수를 식별할 수 없습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "웰 전체에서 각 가이드의 뒷받침 정도를 확인하세요. 이 예제에는 웰 하나에서만 나타나는 가이드가 많습니다. 전체 설계와 실제로 검정한, 필터링된 가이드 계열을 구분하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Design diagnostics와 공선 쌍 표를 여세요. 효과를 따로따로 돌리기 전에, 항상 함께 나타나거나 뒷받침이 약한 예측 변수를 찾으세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Inference diagnostics를 여세요. P값 분포, 귀무 가설과의 비교, 보정된 임곗값별 발견 수를 확인하세요. 이 예제는 표시된 임곗값에서 발견이 없습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "P값을 해석할 때는 순열 횟수를 확인하세요. 순열이 199번이면 얻을 수 있는 가장 작은 경험적 P값은 0.005입니다. 다중 검정 보정에 필요한 해상도를 미리 계획하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "순열 분석은 동시 회귀 모델의 적합 잔차를 만들지 않습니다. 관측값과 적합값을 제공하는 모드를 사용할 때 잔차 패널을 찾아보세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "요약은 개별 패널과 함께 읽으세요. 전체 평가는 가장 나쁜 패널 평가를 반영하므로, 해당 보고서를 열어 이유를 확인하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "입력이나 분석 설정을 의도적으로 수정하려면 Regression으로 돌아가세요. 수정한 분석을 실행하고 새 진단 결과를 확인하세요. 각 보고서가 해당 설정과 연결된 채 남도록 이전 출력 폴더는 따로 보관하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: undersøk de lagrede analyserapportene",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Åpne design- og inferensrapportene for en fullført kjøring, undersøk støtte og avhengigheter, og bruk funnene når du velger neste analyse.",
+      "objectives": [
+       "Åpne diagnostikkmappen for den ønskede Regression-kjøringen.",
+       "Lese sammendragene om designstøtte, identifiserbarhet og inferens.",
+       "Oppbevare diagnostikken sammen med innstillingene og kjøre på nytt etter at en analyse er endret."
+      ],
+      "prerequisite": "Fullfør Regression-eksemplet med de fire parene av poengsummer og tellinger. Permutasjonskjøringen som vises, bruker 199 permutasjoner og minst to brønner. Hold innstillingene og resultatfamiliene samlet når du tolker diagnostikkpanelene.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Fra Home åpner du Regression. Når en analyse er ferdig, klikker du på Diagnostics. Kontroller mappebanen: denne snarveien åpner den nyeste diagnostikkmappen den finner i prosjektet.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Les diagnostikkfilene i mappen i rekkefølge: først designets identifiserbarhet, deretter designdiagnostikken med de kollineære guideparene, så inferensdiagnostikken og til slutt sammendraget som samler dem.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Begynn med Design identifiability. Sammenlign antall brønner, antall parametere og designets rang. Dette eksemplet har flere parametere enn rangen støtter, så det kan ikke identifisere én unik samtidig koeffisient for hver guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Undersøk støtten for hver guide på tvers av brønnene. Eksemplet inneholder mange guider som bare finnes i én brønn. Skill det fullstendige designet fra den filtrerte familien av guider som faktisk ble testet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Åpne Design diagnostics og tabellen over kollineære par. Finn prediktorer som alltid opptrer sammen eller har svak støtte, før du tilskriver dem separate effekter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Åpne Inference diagnostics. Undersøk fordelingen av P-verdier, sammenligningen med nullhypotesen og funnene ved ulike justerte terskler. Dette eksemplet har ingen funn ved terskelen som vises.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Kontroller antallet permutasjoner når du tolker P-verdier. Med 199 permutasjoner er den minste oppnåelige empiriske P-verdien 0,005. Planlegg oppløsningen som korreksjonen for multippel testing trenger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "En permutasjonsanalyse gir ikke tilpassede residualer fra en samtidig regresjonsmodell. Se etter residualpaneler når du bruker en modus som gir observerte og tilpassede verdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Les sammendraget sammen med de enkelte panelene. Den samlede vurderingen gjenspeiler den dårligste panelvurderingen, så åpne den tilhørende rapporten for å forstå årsaken.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Gå tilbake til Regression for å endre inndata eller analyseinnstillinger med vilje. Kjør den reviderte analysen og undersøk den nye diagnostikken. Hold tidligere utdatamapper atskilt, slik at hver rapport forblir knyttet til innstillingene sine.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 54,
+     "preceding": [
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "77_embeddings",
+     "entry": {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: granska de sparade analysrapporterna",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Öppna design- och inferensrapporterna för en slutförd körning, granska stöd och beroenden och använd fynden när du väljer nästa analys.",
+      "objectives": [
+       "Öppna diagnostikmappen för den avsedda Regression-körningen.",
+       "Läsa sammanfattningarna av designstöd, identifierbarhet och inferens.",
+       "Behålla diagnostiken med dess inställningar och köra om efter att ha ändrat en analys."
+      ],
+      "prerequisite": "Slutför Regression-exemplet med dess fyra par av poäng och antal. Den visade permutationskörningen använder 199 permutationer och minst två brunnar. Håll ihop inställningarna och resultatfamiljerna när du tolkar diagnostikpanelerna.",
+      "scenes": [
+       {
+        "visual": "02_diagnostics_button",
+        "narration": "Från Home öppnar du Regression. När en analys är klar klickar du på Diagnostics. Kontrollera mappsökvägen: genvägen öppnar den senaste diagnostikmapp den hittar i projektet.",
+        "hold_after": 0.7,
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ]
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Läs diagnostikfilerna i mappen i ordning: först designens identifierbarhet, sedan designdiagnostiken med de kollinjära guideparen, därefter inferensdiagnostiken och sist sammanfattningen som knyter ihop dem.",
+        "hold_after": 0.7,
+        "focus": [
+         535,
+         230,
+         1420,
+         285
+        ]
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Börja med Design identifiability. Jämför antalet brunnar, antalet parametrar och designens rang. Exemplet har fler parametrar än rangen stöder, så det kan inte identifiera en unik samtidig koefficient för varje guide.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_design_identifiability",
+        "narration": "Granska varje guides stöd över brunnarna. Exemplet innehåller många guider som bara finns i en brunn. Skilj den fullständiga designen från den filtrerade familjen av guider som faktiskt testades.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_design_diagnostics",
+        "narration": "Öppna Design diagnostics och tabellen över kollinjära par. Identifiera prediktorer som alltid förekommer tillsammans eller har svagt stöd innan du tillskriver dem separata effekter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Öppna Inference diagnostics. Granska fördelningen av P-värden, jämförelsen med nollhypotesen och upptäckterna vid olika justerade trösklar. Exemplet har inga upptäckter vid den visade tröskeln.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_inference_diagnostics",
+        "narration": "Kontrollera antalet permutationer när du tolkar P-värden. Med 199 permutationer är det minsta uppnåeliga empiriska P-värdet 0,005. Planera den upplösning som din korrektion för multipla tester behöver.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "En permutationsanalys ger inga anpassade residualer från en samtidig regressionsmodell. Leta efter residualpaneler när du använder ett läge som ger observerade och anpassade värden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_diagnostics_folder",
+        "narration": "Läs sammanfattningen tillsammans med de enskilda panelerna. Dess helhetsbedömning speglar den sämsta panelbedömningen, så öppna motsvarande rapport för att förstå orsaken.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       },
+       {
+        "visual": "07_back_to_regression",
+        "narration": "Gå tillbaka till Regression för att medvetet ändra indata eller analysinställningar. Kör den reviderade analysen och granska dess nya diagnostik. Håll tidigare utdatamappar åtskilda så att varje rapport förblir kopplad till sina inställningar.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list",
+         "72_volcano_explorer"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "13_regression",
+     "scene": 13,
+     "links": [
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "53_prediction_profiler",
+     "scene": 9,
+     "links": [
+      "06_api",
+      "75_regression_diagnostics"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "related_lessons",
+      "hold_after"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       5,
+       "lessons"
+      ],
+      "preceding": [
+       "73_parameter_sweep",
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "53_prediction_profiler",
+       "49_methods_results",
+       "48_hit_list"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "74_import_images",
+       "73_parameter_sweep",
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 49,
+     "value": {
+      "kind": "submodule",
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/75_regression_diagnostics -> tools/tutorials/archive/production/docs/75_regression_diagnostics"
+ ],
+ "prose": []
+}

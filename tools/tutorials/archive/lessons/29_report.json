@@ -1,0 +1,3567 @@
+{
+ "schema": 1,
+ "id": "29_report",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: create a document from project results",
+      "description": "Choose a completed project, select the output format and figure limit, then generate and read its report.",
+      "objectives": [
+       "Choose a completed project and inspect its available report sections.",
+       "Set the format, figure limit and output filename.",
+       "Generate the report and inspect its results, settings and provenance."
+      ],
+      "prerequisite": "Start with a completed spaCR project containing its saved settings, measurements and figures. You can reuse the project from the External Masks tutorial. Report collects files already present in the project.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Open Help, then Report. Use this tool to collect a completed project’s results, figures and settings into a document.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Click Choose run folder and select your project. For this example, use the two-field project from External Masks, keeping its measurements, settings and figures together.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Read the processing status after the scan. Complete means the recorded processing steps finished. Review the available quality-control results separately when assessing the analysis.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Check the section list to see which project artifacts are available. A missing section remains labelled in the report. Add the relevant analysis outputs to the project if you need that section.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Choose HTML, PDF or Both under Format. HTML opens in a browser; PDF provides a document version. This example uses HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Set Embed at most to limit the number of raster figures included in the document. Vector PDFs are listed as source files rather than embedded previews. Use a smaller limit for a compact report.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Click Choose output and enter the destination filename. Check that the selected format and extension agree. Before sharing the report, review any project paths and metadata it includes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Press Generate report and wait for the written-file confirmation. Open the saved HTML file in a browser to inspect the result.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Use the contents links to jump between sections. Start with the processing summary, then review figures, result tables and saved settings.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Open Key figures to find the project’s figures. Follow the listed file locations for vector PDFs, or inspect embedded raster previews when available.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Review Statistics and result tables for the available object tables and their row counts. This cell-only example has matching cell and cytoplasm regions, so treat them as measurements of the same cells.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Expand Saved settings to inspect the configuration retained with the project. Keep the report together with the project files when sharing an analysis that refers to external figures.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "29_report/poster.jpg",
+      "silent": "29_report/video/29_report_silent.mp4",
+      "web": "29_report/web/29_report_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: create a document from project results",
+      "description": "Choose a completed project, select the output format and figure limit, then generate and read its report.",
+      "objectives": [
+       "Choose a completed project and inspect its available report sections.",
+       "Set the format, figure limit and output filename.",
+       "Generate the report and inspect its results, settings and provenance."
+      ],
+      "prerequisite": "Start with a completed spaCR project containing its saved settings, measurements and figures. You can reuse the project from the External Masks tutorial. Report collects files already present in the project.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Open Help, then Report. Use this tool to collect a completed project’s results, figures and settings into a document.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Click Choose run folder and select your project. For this example, use the two-field project from External Masks, keeping its measurements, settings and figures together.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Read the processing status after the scan. Complete means the recorded processing steps finished. Review the available quality-control results separately when assessing the analysis.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Check the section list to see which project artifacts are available. A missing section remains labelled in the report. Add the relevant analysis outputs to the project if you need that section.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Choose HTML, PDF or Both under Format. HTML opens in a browser; PDF provides a document version. This example uses HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Set Embed at most to limit the number of raster figures included in the document. Vector PDFs are listed as source files rather than embedded previews. Use a smaller limit for a compact report.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Click Choose output and enter the destination filename. Check that the selected format and extension agree. Before sharing the report, review any project paths and metadata it includes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Press Generate report and wait for the written-file confirmation. Open the saved HTML file in a browser to inspect the result.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Use the contents links to jump between sections. Start with the processing summary, then review figures, result tables and saved settings.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Open Key figures to find the project’s figures. Follow the listed file locations for vector PDFs, or inspect embedded raster previews when available.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Review Statistics and result tables for the available object tables and their row counts. This cell-only example has matching cell and cytoplasm regions, so treat them as measurements of the same cells.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Expand Saved settings to inspect the configuration retained with the project. Keep the report together with the project files when sharing an analysis that refers to external figures.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: crear un documento con los resultados de un proyecto",
+      "description": "Elige un proyecto terminado, selecciona el formato de salida y el límite de figuras, y luego genera y lee su informe.",
+      "objectives": [
+       "Elegir un proyecto terminado y revisar las secciones de informe disponibles.",
+       "Ajustar el formato, el límite de figuras y el nombre del archivo de salida.",
+       "Generar el informe y revisar sus resultados, ajustes y procedencia."
+      ],
+      "prerequisite": "Empieza con un proyecto de spaCR terminado que contenga sus ajustes guardados, mediciones y figuras. Puedes reutilizar el proyecto del tutorial External Masks. Report reúne archivos que ya están en el proyecto.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Abre Help y luego Report. Usa esta herramienta para reunir en un documento los resultados, las figuras y los ajustes de un proyecto terminado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Abre Help y luego Report. Usa esta herramienta para reunir en un documento los resultados, las figuras y los ajustes de un proyecto terminado."
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Haz clic en Choose run folder y selecciona tu proyecto. En este ejemplo, usa el proyecto de dos campos de External Masks, con sus mediciones, ajustes y figuras juntos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Haz clic en Choose run folder y selecciona tu proyecto. En este ejemplo, usa el proyecto de dos campos de External Masks, con sus mediciones, ajustes y figuras juntos."
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Lee el estado de procesamiento después del análisis de la carpeta. Complete significa que terminaron los pasos de procesamiento registrados. Revisa por separado los resultados de control de calidad disponibles al evaluar el análisis.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "Lee el estado de procesamiento después del análisis de la carpeta. Complete significa que terminaron los pasos de procesamiento registrados. Revisa por separado los resultados de control de calidad disponibles al evaluar el análisis."
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Revisa la lista de secciones para ver qué elementos del proyecto están disponibles. Una sección que falta sigue apareciendo rotulada en el informe. Añade al proyecto las salidas de análisis correspondientes si necesitas esa sección.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "Revisa la lista de secciones para ver qué elementos del proyecto están disponibles. Una sección que falta sigue apareciendo rotulada en el informe. Añade al proyecto las salidas de análisis correspondientes si necesitas esa sección."
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Elige HTML, PDF o Both en Format. El HTML se abre en un navegador; el PDF ofrece una versión en documento. Este ejemplo usa HTML.",
+        "hold_after": 0.7,
+        "speech_text": "Elige HTML, PDF o Both en Format. El HTML se abre en un navegador; el PDF ofrece una versión en documento. Este ejemplo usa HTML."
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Ajusta Embed at most para limitar el número de figuras rasterizadas incluidas en el documento. Los PDF vectoriales se listan como archivos de origen en lugar de vistas previas incrustadas. Usa un límite menor para un informe compacto.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "Ajusta Embed at most para limitar el número de figuras rasterizadas incluidas en el documento. Los PDF vectoriales se listan como archivos de origen en lugar de vistas previas incrustadas. Usa un límite menor para un informe compacto."
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Haz clic en Choose output e introduce el nombre del archivo de destino. Comprueba que el formato seleccionado y la extensión coinciden. Antes de compartir el informe, revisa las rutas del proyecto y los metadatos que incluya.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Choose output e introduce el nombre del archivo de destino. Comprueba que el formato seleccionado y la extensión coinciden. Antes de compartir el informe, revisa las rutas del proyecto y los metadatos que incluya."
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Pulsa Generate report y espera la confirmación de que se escribió el archivo. Abre el archivo HTML guardado en un navegador para revisar el resultado.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Pulsa Generate report y espera la confirmación de que se escribió el archivo. Abre el archivo HTML guardado en un navegador para revisar el resultado."
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Usa los enlaces del índice para saltar entre secciones. Empieza por el resumen de procesamiento y luego revisa las figuras, las tablas de resultados y los ajustes guardados.",
+        "hold_after": 0.7,
+        "speech_text": "Usa los enlaces del índice para saltar entre secciones. Empieza por el resumen de procesamiento y luego revisa las figuras, las tablas de resultados y los ajustes guardados."
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Abre Key figures para encontrar las figuras del proyecto. Sigue las ubicaciones de archivo indicadas para los PDF vectoriales, o revisa las vistas previas rasterizadas incrustadas cuando estén disponibles.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Abre Key figures para encontrar las figuras del proyecto. Sigue las ubicaciones de archivo indicadas para los PDF vectoriales, o revisa las vistas previas rasterizadas incrustadas cuando estén disponibles."
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Revisa Statistics and result tables para ver las tablas de objetos disponibles y su número de filas. Este ejemplo solo de células tiene regiones de célula y de citoplasma coincidentes, así que trátalas como mediciones de las mismas células.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "Revisa Statistics and result tables para ver las tablas de objetos disponibles y su número de filas. Este ejemplo solo de células tiene regiones de célula y de citoplasma coincidentes, así que trátalas como mediciones de las mismas células."
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Despliega Saved settings para revisar la configuración conservada con el proyecto. Mantén el informe junto con los archivos del proyecto cuando compartas un análisis que remite a figuras externas.",
+        "hold_after": 0.7,
+        "speech_text": "Despliega Saved settings para revisar la configuración conservada con el proyecto. Mantén el informe junto con los archivos del proyecto cuando compartas un análisis que remite a figuras externas."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report : créer un document à partir des résultats d’un projet",
+      "description": "Choisissez un projet terminé, sélectionnez le format de sortie et la limite de figures, puis générez et lisez son rapport.",
+      "objectives": [
+       "Choisir un projet terminé et examiner les sections de rapport disponibles.",
+       "Régler le format, la limite de figures et le nom du fichier de sortie.",
+       "Générer le rapport et examiner ses résultats, ses paramètres et sa provenance."
+      ],
+      "prerequisite": "Partez d’un projet spaCR terminé qui contient ses paramètres enregistrés, ses mesures et ses figures. Vous pouvez réutiliser le projet du tutoriel External Masks. Report rassemble des fichiers déjà présents dans le projet.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Ouvrez Help, puis Report. Cet outil rassemble dans un document les résultats, les figures et les paramètres d’un projet terminé.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Ouvrez Help, puis Report. Cet outil rassemble dans un document les résultats, les figures et les paramètres d’un projet terminé."
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Cliquez sur Choose run folder et sélectionnez votre projet. Pour cet exemple, utilisez le projet à deux champs d’External Masks, en gardant ensemble ses mesures, ses paramètres et ses figures.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Cliquez sur Choose run folder et sélectionnez votre projet. Pour cet exemple, utilisez le projet à deux champs d’External Masks, en gardant ensemble ses mesures, ses paramètres et ses figures."
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Lisez l’état du traitement après l’analyse du dossier. Complete signifie que les étapes de traitement enregistrées sont terminées. Examinez séparément les résultats de contrôle qualité disponibles pour évaluer l’analyse.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "Lisez l’état du traitement après l’analyse du dossier. Complete signifie que les étapes de traitement enregistrées sont terminées. Examinez séparément les résultats de contrôle qualité disponibles pour évaluer l’analyse."
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Consultez la liste des sections pour voir quels éléments du projet sont disponibles. Une section manquante reste signalée dans le rapport. Ajoutez au projet les sorties d’analyse correspondantes si vous avez besoin de cette section.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "Consultez la liste des sections pour voir quels éléments du projet sont disponibles. Une section manquante reste signalée dans le rapport. Ajoutez au projet les sorties d’analyse correspondantes si vous avez besoin de cette section."
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Choisissez HTML, PDF ou Both sous Format. Le HTML s’ouvre dans un navigateur ; le PDF fournit une version document. Cet exemple utilise HTML.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez HTML, PDF ou Both sous Format. Le HTML s’ouvre dans un navigateur ; le PDF fournit une version document. Cet exemple utilise HTML."
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Réglez Embed at most pour limiter le nombre de figures matricielles incluses dans le document. Les PDF vectoriels sont listés comme fichiers sources plutôt qu’en aperçus intégrés. Choisissez une limite plus basse pour un rapport compact.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "Réglez Embed at most pour limiter le nombre de figures matricielles incluses dans le document. Les PDF vectoriels sont listés comme fichiers sources plutôt qu’en aperçus intégrés. Choisissez une limite plus basse pour un rapport compact."
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Cliquez sur Choose output et saisissez le nom du fichier de destination. Vérifiez que le format choisi et l’extension concordent. Avant de partager le rapport, vérifiez les chemins de projet et les métadonnées qu’il contient.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Choose output et saisissez le nom du fichier de destination. Vérifiez que le format choisi et l’extension concordent. Avant de partager le rapport, vérifiez les chemins de projet et les métadonnées qu’il contient."
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Appuyez sur Generate report et attendez la confirmation de l’écriture du fichier. Ouvrez le fichier HTML enregistré dans un navigateur pour examiner le résultat.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Appuyez sur Generate report et attendez la confirmation de l’écriture du fichier. Ouvrez le fichier HTML enregistré dans un navigateur pour examiner le résultat."
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Utilisez les liens de la table des matières pour passer d’une section à l’autre. Commencez par le résumé du traitement, puis examinez les figures, les tables de résultats et les paramètres enregistrés.",
+        "hold_after": 0.7,
+        "speech_text": "Utilisez les liens de la table des matières pour passer d’une section à l’autre. Commencez par le résumé du traitement, puis examinez les figures, les tables de résultats et les paramètres enregistrés."
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Ouvrez Key figures pour trouver les figures du projet. Suivez les emplacements de fichiers indiqués pour les PDF vectoriels, ou examinez les aperçus matriciels intégrés lorsqu’ils sont disponibles.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Ouvrez Key figures pour trouver les figures du projet. Suivez les emplacements de fichiers indiqués pour les PDF vectoriels, ou examinez les aperçus matriciels intégrés lorsqu’ils sont disponibles."
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Consultez Statistics and result tables pour voir les tables d’objets disponibles et leur nombre de lignes. Cet exemple limité aux cellules a des régions de cellule et de cytoplasme identiques ; considérez-les comme des mesures des mêmes cellules.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "Consultez Statistics and result tables pour voir les tables d’objets disponibles et leur nombre de lignes. Cet exemple limité aux cellules a des régions de cellule et de cytoplasme identiques ; considérez-les comme des mesures des mêmes cellules."
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Dépliez Saved settings pour examiner la configuration conservée avec le projet. Gardez le rapport avec les fichiers du projet lorsque vous partagez une analyse qui renvoie à des figures externes.",
+        "hold_after": 0.7,
+        "speech_text": "Dépliez Saved settings pour examiner la configuration conservée avec le projet. Gardez le rapport avec les fichiers du projet lorsque vous partagez une analyse qui renvoie à des figures externes."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: प्रोजेक्ट के परिणामों से दस्तावेज़ बनाएँ",
+      "description": "पूरा हो चुका प्रोजेक्ट चुनें, आउटपुट फ़ॉर्मेट और चित्रों की सीमा चुनें, फिर रिपोर्ट बनाएँ और पढ़ें।",
+      "objectives": [
+       "पूरा हो चुका प्रोजेक्ट चुनें और रिपोर्ट के उपलब्ध खंड देखें।",
+       "फ़ॉर्मेट, चित्रों की सीमा और आउटपुट फ़ाइल का नाम तय करें।",
+       "रिपोर्ट बनाएँ और उसके परिणाम, सेटिंग और उत्पत्ति की जानकारी देखें।"
+      ],
+      "prerequisite": "ऐसे पूरे हो चुके spaCR प्रोजेक्ट से शुरू करें जिसमें उसकी सहेजी गई सेटिंग, माप और चित्र हों। आप External Masks ट्यूटोरियल का प्रोजेक्ट फिर से इस्तेमाल कर सकते हैं। Report उन्हीं फ़ाइलों को इकट्ठा करता है जो प्रोजेक्ट में पहले से हैं।",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Help खोलें, फिर Report। इस टूल से किसी पूरे हो चुके प्रोजेक्ट के परिणाम, चित्र और सेटिंग एक दस्तावेज़ में इकट्ठा करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Help खोलें, फिर Report। इस टूल से किसी पूरे हो चुके प्रोजेक्ट के परिणाम, चित्र और सेटिंग एक दस्तावेज़ में इकट्ठा करें।"
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Choose run folder पर क्लिक करें और अपना प्रोजेक्ट चुनें। इस उदाहरण के लिए External Masks का दो फ़ील्ड वाला प्रोजेक्ट इस्तेमाल करें, और उसके माप, सेटिंग और चित्र साथ रखें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Choose run folder पर क्लिक करें और अपना प्रोजेक्ट चुनें। इस उदाहरण के लिए External Masks का दो फ़ील्ड वाला प्रोजेक्ट इस्तेमाल करें, और उसके माप, सेटिंग और चित्र साथ रखें।"
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "फ़ोल्डर स्कैन होने के बाद प्रोसेसिंग की स्थिति पढ़ें। Complete का मतलब है कि दर्ज किए गए प्रोसेसिंग चरण पूरे हो गए। विश्लेषण का आकलन करते समय उपलब्ध गुणवत्ता जाँच के परिणाम अलग से देखें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "फ़ोल्डर स्कैन होने के बाद प्रोसेसिंग की स्थिति पढ़ें। Complete का मतलब है कि दर्ज किए गए प्रोसेसिंग चरण पूरे हो गए। विश्लेषण का आकलन करते समय उपलब्ध गुणवत्ता जाँच के परिणाम अलग से देखें।"
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "खंडों की सूची से देखें कि प्रोजेक्ट की कौन-सी सामग्री उपलब्ध है। छूटा हुआ खंड भी रिपोर्ट में नाम के साथ दिखता है। अगर वह खंड चाहिए, तो संबंधित विश्लेषण आउटपुट प्रोजेक्ट में जोड़ें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "खंडों की सूची से देखें कि प्रोजेक्ट की कौन-सी सामग्री उपलब्ध है। छूटा हुआ खंड भी रिपोर्ट में नाम के साथ दिखता है। अगर वह खंड चाहिए, तो संबंधित विश्लेषण आउटपुट प्रोजेक्ट में जोड़ें।"
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Format में HTML, PDF या Both चुनें। HTML ब्राउज़र में खुलता है; PDF दस्तावेज़ वाला संस्करण देता है। यह उदाहरण HTML इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "speech_text": "Format में HTML, PDF या Both चुनें। HTML ब्राउज़र में खुलता है; PDF दस्तावेज़ वाला संस्करण देता है। यह उदाहरण HTML इस्तेमाल करता है।"
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "दस्तावेज़ में शामिल रास्टर चित्रों की संख्या सीमित करने के लिए Embed at most सेट करें। वेक्टर PDF, एम्बेड किए गए पूर्वावलोकन के बजाय स्रोत फ़ाइलों के रूप में सूचीबद्ध होते हैं। छोटी रिपोर्ट के लिए कम सीमा रखें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "दस्तावेज़ में शामिल रास्टर चित्रों की संख्या सीमित करने के लिए Embed at most सेट करें। वेक्टर PDF, एम्बेड किए गए पूर्वावलोकन के बजाय स्रोत फ़ाइलों के रूप में सूचीबद्ध होते हैं। छोटी रिपोर्ट के लिए कम सीमा रखें।"
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Choose output पर क्लिक करें और गंतव्य फ़ाइल का नाम दर्ज करें। जाँचें कि चुना गया फ़ॉर्मेट और एक्सटेंशन मेल खाते हैं। रिपोर्ट साझा करने से पहले उसमें शामिल प्रोजेक्ट पथ और मेटाडेटा देखें।",
+        "hold_after": 0.7,
+        "speech_text": "Choose output पर क्लिक करें और गंतव्य फ़ाइल का नाम दर्ज करें। जाँचें कि चुना गया फ़ॉर्मेट और एक्सटेंशन मेल खाते हैं। रिपोर्ट साझा करने से पहले उसमें शामिल प्रोजेक्ट पथ और मेटाडेटा देखें।"
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Generate report दबाएँ और फ़ाइल लिखे जाने की पुष्टि की प्रतीक्षा करें। परिणाम देखने के लिए सहेजी गई HTML फ़ाइल ब्राउज़र में खोलें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Generate report दबाएँ और फ़ाइल लिखे जाने की पुष्टि की प्रतीक्षा करें। परिणाम देखने के लिए सहेजी गई HTML फ़ाइल ब्राउज़र में खोलें।"
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "खंडों के बीच जाने के लिए विषय-सूची के लिंक इस्तेमाल करें। प्रोसेसिंग सारांश से शुरू करें, फिर चित्र, परिणाम तालिकाएँ और सहेजी गई सेटिंग देखें।",
+        "hold_after": 0.7,
+        "speech_text": "खंडों के बीच जाने के लिए विषय-सूची के लिंक इस्तेमाल करें। प्रोसेसिंग सारांश से शुरू करें, फिर चित्र, परिणाम तालिकाएँ और सहेजी गई सेटिंग देखें।"
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "प्रोजेक्ट के चित्र खोजने के लिए Key figures खोलें। वेक्टर PDF के लिए दिए गए फ़ाइल स्थानों पर जाएँ, या उपलब्ध होने पर एम्बेड किए गए रास्टर पूर्वावलोकन देखें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "प्रोजेक्ट के चित्र खोजने के लिए Key figures खोलें। वेक्टर PDF के लिए दिए गए फ़ाइल स्थानों पर जाएँ, या उपलब्ध होने पर एम्बेड किए गए रास्टर पूर्वावलोकन देखें।"
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "उपलब्ध वस्तु तालिकाएँ और उनकी पंक्तियों की संख्या देखने के लिए Statistics and result tables देखें। केवल कोशिकाओं वाले इस उदाहरण में कोशिका और साइटोप्लाज़्म क्षेत्र एक जैसे हैं, इसलिए उन्हें उन्हीं कोशिकाओं के माप मानें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "उपलब्ध वस्तु तालिकाएँ और उनकी पंक्तियों की संख्या देखने के लिए Statistics and result tables देखें। केवल कोशिकाओं वाले इस उदाहरण में कोशिका और साइटोप्लाज़्म क्षेत्र एक जैसे हैं, इसलिए उन्हें उन्हीं कोशिकाओं के माप मानें।"
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "प्रोजेक्ट के साथ रखे गए कॉन्फ़िगरेशन को देखने के लिए Saved settings खोलें। बाहरी चित्रों का हवाला देने वाला विश्लेषण साझा करते समय रिपोर्ट को प्रोजेक्ट फ़ाइलों के साथ रखें।",
+        "hold_after": 0.7,
+        "speech_text": "प्रोजेक्ट के साथ रखे गए कॉन्फ़िगरेशन को देखने के लिए Saved settings खोलें। बाहरी चित्रों का हवाला देने वाला विश्लेषण साझा करते समय रिपोर्ट को प्रोजेक्ट फ़ाइलों के साथ रखें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: creare un documento dai risultati di un progetto",
+      "description": "Scegli un progetto completato, seleziona il formato di output e il limite di figure, poi genera e leggi il report.",
+      "objectives": [
+       "Scegliere un progetto completato ed esaminare le sezioni di report disponibili.",
+       "Impostare il formato, il limite di figure e il nome del file di output.",
+       "Generare il report ed esaminarne risultati, impostazioni e provenienza."
+      ],
+      "prerequisite": "Parti da un progetto spaCR completato che contenga le impostazioni salvate, le misure e le figure. Puoi riusare il progetto del tutorial External Masks. Report raccoglie file già presenti nel progetto.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Apri Help e poi Report. Usa questo strumento per raccogliere in un documento i risultati, le figure e le impostazioni di un progetto completato.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Apri Help e poi Report. Usa questo strumento per raccogliere in un documento i risultati, le figure e le impostazioni di un progetto completato."
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Fai clic su Choose run folder e seleziona il tuo progetto. Per questo esempio, usa il progetto con due campi di External Masks, tenendo insieme misure, impostazioni e figure.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Fai clic su Choose run folder e seleziona il tuo progetto. Per questo esempio, usa il progetto con due campi di External Masks, tenendo insieme misure, impostazioni e figure."
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Leggi lo stato dell’elaborazione dopo la scansione. Complete significa che i passaggi di elaborazione registrati sono terminati. Esamina separatamente i risultati del controllo qualità disponibili quando valuti l’analisi.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "Leggi lo stato dell’elaborazione dopo la scansione. Complete significa che i passaggi di elaborazione registrati sono terminati. Esamina separatamente i risultati del controllo qualità disponibili quando valuti l’analisi."
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Controlla l’elenco delle sezioni per vedere quali elementi del progetto sono disponibili. Una sezione mancante resta indicata nel report. Aggiungi al progetto gli output di analisi pertinenti se ti serve quella sezione.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "Controlla l’elenco delle sezioni per vedere quali elementi del progetto sono disponibili. Una sezione mancante resta indicata nel report. Aggiungi al progetto gli output di analisi pertinenti se ti serve quella sezione."
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Scegli HTML, PDF o Both in Format. L’HTML si apre in un browser; il PDF fornisce una versione documento. Questo esempio usa HTML.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli HTML, PDF o Both in Format. L’HTML si apre in un browser; il PDF fornisce una versione documento. Questo esempio usa HTML."
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Imposta Embed at most per limitare il numero di figure raster incluse nel documento. I PDF vettoriali sono elencati come file di origine, non come anteprime incorporate. Usa un limite più basso per un report compatto.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "Imposta Embed at most per limitare il numero di figure raster incluse nel documento. I PDF vettoriali sono elencati come file di origine, non come anteprime incorporate. Usa un limite più basso per un report compatto."
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Fai clic su Choose output e inserisci il nome del file di destinazione. Controlla che formato ed estensione coincidano. Prima di condividere il report, controlla i percorsi del progetto e i metadati che contiene.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Choose output e inserisci il nome del file di destinazione. Controlla che formato ed estensione coincidano. Prima di condividere il report, controlla i percorsi del progetto e i metadati che contiene."
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Premi Generate report e attendi la conferma della scrittura del file. Apri il file HTML salvato in un browser per esaminare il risultato.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Premi Generate report e attendi la conferma della scrittura del file. Apri il file HTML salvato in un browser per esaminare il risultato."
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Usa i collegamenti dell’indice per spostarti tra le sezioni. Parti dal riepilogo dell’elaborazione, poi esamina figure, tabelle dei risultati e impostazioni salvate.",
+        "hold_after": 0.7,
+        "speech_text": "Usa i collegamenti dell’indice per spostarti tra le sezioni. Parti dal riepilogo dell’elaborazione, poi esamina figure, tabelle dei risultati e impostazioni salvate."
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Apri Key figures per trovare le figure del progetto. Segui i percorsi dei file indicati per i PDF vettoriali, oppure esamina le anteprime raster incorporate quando sono disponibili.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Apri Key figures per trovare le figure del progetto. Segui i percorsi dei file indicati per i PDF vettoriali, oppure esamina le anteprime raster incorporate quando sono disponibili."
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Esamina Statistics and result tables per le tabelle di oggetti disponibili e il loro numero di righe. Questo esempio con sole cellule ha regioni di cellula e di citoplasma coincidenti, quindi considerale misure delle stesse cellule.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "Esamina Statistics and result tables per le tabelle di oggetti disponibili e il loro numero di righe. Questo esempio con sole cellule ha regioni di cellula e di citoplasma coincidenti, quindi considerale misure delle stesse cellule."
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Espandi Saved settings per esaminare la configurazione conservata con il progetto. Tieni il report insieme ai file del progetto quando condividi un’analisi che rimanda a figure esterne.",
+        "hold_after": 0.7,
+        "speech_text": "Espandi Saved settings per esaminare la configurazione conservata con il progetto. Tieni il report insieme ai file del progetto quando condividi un’analisi che rimanda a figure esterne."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report：プロジェクトの結果から文書を作る",
+      "description": "完了したプロジェクトを選び、出力形式と図の上限を選んで、レポートを作成して読みます。",
+      "objectives": [
+       "完了したプロジェクトを選び、利用できるレポートのセクションを確認する。",
+       "形式、図の上限、出力ファイル名を設定する。",
+       "レポートを作成し、結果、設定、来歴を確認する。"
+      ],
+      "prerequisite": "保存された設定、測定値、図を含む、完了したspaCRのプロジェクトから始めます。External Masksのチュートリアルのプロジェクトを再利用できます。Reportは、プロジェクトにすでにあるファイルを集めます。",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Helpを開き、続いてReportを開きます。このツールで、完了したプロジェクトの結果、図、設定を一つの文書にまとめます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Helpを開き、続いてReportを開きます。このツールで、完了したプロジェクトの結果、図、設定を一つの文書にまとめます。"
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Choose run folderをクリックし、プロジェクトを選びます。この例では、External Masksの二視野のプロジェクトを使い、測定値、設定、図を一緒にしておきます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Choose run folderをクリックし、プロジェクトを選びます。この例では、External Masksの二視野のプロジェクトを使い、測定値、設定、図を一緒にしておきます。"
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "スキャンの後、処理の状態を読みます。Completeは、記録された処理の手順が終わったことを意味します。解析を評価するときは、利用できる品質管理の結果を別に確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "スキャンの後、処理の状態を読みます。Completeは、記録された処理の手順が終わったことを意味します。解析を評価するときは、利用できる品質管理の結果を別に確認します。"
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "セクションの一覧で、プロジェクトのどの成果物が利用できるかを確認します。欠けているセクションも、レポートには見出しとして残ります。そのセクションが必要なら、対応する解析の出力をプロジェクトに加えます。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "セクションの一覧で、プロジェクトのどの成果物が利用できるかを確認します。欠けているセクションも、レポートには見出しとして残ります。そのセクションが必要なら、対応する解析の出力をプロジェクトに加えます。"
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "FormatでHTML、PDF、Bothのいずれかを選びます。HTMLはブラウザーで開き、PDFは文書版になります。この例ではHTMLを使います。",
+        "hold_after": 0.7,
+        "speech_text": "FormatでHTML、PDF、Bothのいずれかを選びます。HTMLはブラウザーで開き、PDFは文書版になります。この例ではHTMLを使います。"
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Embed at mostで、文書に含めるラスター形式の図の数を制限します。ベクター形式のPDFは、埋め込みのプレビューではなく、元のファイルとして一覧に載ります。コンパクトなレポートにするには上限を小さくします。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "Embed at mostで、文書に含めるラスター形式の図の数を制限します。ベクター形式のPDFは、埋め込みのプレビューではなく、元のファイルとして一覧に載ります。コンパクトなレポートにするには上限を小さくします。"
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Choose outputをクリックし、出力先のファイル名を入力します。選んだ形式と拡張子が一致しているか確認します。レポートを共有する前に、含まれるプロジェクトのパスやメタデータを確認します。",
+        "hold_after": 0.7,
+        "speech_text": "Choose outputをクリックし、出力先のファイル名を入力します。選んだ形式と拡張子が一致しているか確認します。レポートを共有する前に、含まれるプロジェクトのパスやメタデータを確認します。"
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Generate reportを押し、ファイルが書き出されたという確認を待ちます。保存されたHTMLファイルをブラウザーで開いて、結果を確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Generate reportを押し、ファイルが書き出されたという確認を待ちます。保存されたHTMLファイルをブラウザーで開いて、結果を確認します。"
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "目次のリンクで、セクション間を移動します。処理の要約から始め、図、結果の表、保存された設定を確認します。",
+        "hold_after": 0.7,
+        "speech_text": "目次のリンクで、セクション間を移動します。処理の要約から始め、図、結果の表、保存された設定を確認します。"
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Key figuresを開いて、プロジェクトの図を探します。ベクター形式のPDFは記載されたファイルの場所をたどり、ラスター形式のプレビューが埋め込まれていればそれを確認します。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Key figuresを開いて、プロジェクトの図を探します。ベクター形式のPDFは記載されたファイルの場所をたどり、ラスター形式のプレビューが埋め込まれていればそれを確認します。"
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Statistics and result tablesで、利用できる物体の表とその行数を確認します。この細胞だけの例では、細胞と細胞質の領域が一致しているので、同じ細胞の測定値として扱います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "Statistics and result tablesで、利用できる物体の表とその行数を確認します。この細胞だけの例では、細胞と細胞質の領域が一致しているので、同じ細胞の測定値として扱います。"
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Saved settingsを展開して、プロジェクトと一緒に保存された設定を確認します。外部の図を参照する解析を共有するときは、レポートをプロジェクトのファイルと一緒にしておきます。",
+        "hold_after": 0.7,
+        "speech_text": "Saved settingsを展開して、プロジェクトと一緒に保存された設定を確認します。外部の図を参照する解析を共有するときは、レポートをプロジェクトのファイルと一緒にしておきます。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: criar um documento com os resultados de um projeto",
+      "description": "Escolha um projeto concluído, selecione o formato de saída e o limite de figuras e depois gere e leia o relatório.",
+      "objectives": [
+       "Escolher um projeto concluído e inspecionar as seções de relatório disponíveis.",
+       "Definir o formato, o limite de figuras e o nome do arquivo de saída.",
+       "Gerar o relatório e inspecionar os resultados, as configurações e a procedência."
+      ],
+      "prerequisite": "Comece com um projeto concluído do spaCR que contenha as configurações salvas, as medições e as figuras. Você pode reutilizar o projeto do tutorial External Masks. O Report reúne arquivos que já estão no projeto.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Abra Help e depois Report. Use esta ferramenta para reunir num documento os resultados, as figuras e as configurações de um projeto concluído.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "Abra Help e depois Report. Use esta ferramenta para reunir num documento os resultados, as figuras e as configurações de um projeto concluído."
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Clique em Choose run folder e selecione seu projeto. Neste exemplo, use o projeto de dois campos do External Masks, mantendo juntas as medições, as configurações e as figuras.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Clique em Choose run folder e selecione seu projeto. Neste exemplo, use o projeto de dois campos do External Masks, mantendo juntas as medições, as configurações e as figuras."
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Leia o status do processamento depois da varredura. Complete significa que as etapas de processamento registradas terminaram. Revise separadamente os resultados de controle de qualidade disponíveis ao avaliar a análise.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "Leia o status do processamento depois da varredura. Complete significa que as etapas de processamento registradas terminaram. Revise separadamente os resultados de controle de qualidade disponíveis ao avaliar a análise."
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Confira a lista de seções para ver quais itens do projeto estão disponíveis. Uma seção ausente continua identificada no relatório. Adicione ao projeto as saídas de análise correspondentes se precisar dessa seção.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "Confira a lista de seções para ver quais itens do projeto estão disponíveis. Uma seção ausente continua identificada no relatório. Adicione ao projeto as saídas de análise correspondentes se precisar dessa seção."
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Escolha HTML, PDF ou Both em Format. O HTML abre num navegador; o PDF oferece uma versão em documento. Este exemplo usa HTML.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha HTML, PDF ou Both em Format. O HTML abre num navegador; o PDF oferece uma versão em documento. Este exemplo usa HTML."
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Defina Embed at most para limitar o número de figuras rasterizadas incluídas no documento. PDFs vetoriais aparecem como arquivos de origem, não como pré-visualizações incorporadas. Use um limite menor para um relatório compacto.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "Defina Embed at most para limitar o número de figuras rasterizadas incluídas no documento. PDFs vetoriais aparecem como arquivos de origem, não como pré-visualizações incorporadas. Use um limite menor para um relatório compacto."
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Clique em Choose output e informe o nome do arquivo de destino. Confira se o formato escolhido e a extensão correspondem. Antes de compartilhar o relatório, revise os caminhos do projeto e os metadados que ele inclui.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Choose output e informe o nome do arquivo de destino. Confira se o formato escolhido e a extensão correspondem. Antes de compartilhar o relatório, revise os caminhos do projeto e os metadados que ele inclui."
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Pressione Generate report e aguarde a confirmação de que o arquivo foi gravado. Abra o arquivo HTML salvo num navegador para inspecionar o resultado.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "Pressione Generate report e aguarde a confirmação de que o arquivo foi gravado. Abra o arquivo HTML salvo num navegador para inspecionar o resultado."
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Use os links do sumário para pular entre as seções. Comece pelo resumo do processamento e depois revise as figuras, as tabelas de resultados e as configurações salvas.",
+        "hold_after": 0.7,
+        "speech_text": "Use os links do sumário para pular entre as seções. Comece pelo resumo do processamento e depois revise as figuras, as tabelas de resultados e as configurações salvas."
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Abra Key figures para encontrar as figuras do projeto. Siga os locais de arquivo indicados para os PDFs vetoriais, ou inspecione as pré-visualizações rasterizadas incorporadas quando estiverem disponíveis.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "Abra Key figures para encontrar as figuras do projeto. Siga os locais de arquivo indicados para os PDFs vetoriais, ou inspecione as pré-visualizações rasterizadas incorporadas quando estiverem disponíveis."
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Revise Statistics and result tables para ver as tabelas de objetos disponíveis e o número de linhas delas. Este exemplo só com células tem regiões de célula e de citoplasma coincidentes; trate-as como medições das mesmas células.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "Revise Statistics and result tables para ver as tabelas de objetos disponíveis e o número de linhas delas. Este exemplo só com células tem regiões de célula e de citoplasma coincidentes; trate-as como medições das mesmas células."
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Expanda Saved settings para inspecionar a configuração mantida com o projeto. Mantenha o relatório junto com os arquivos do projeto ao compartilhar uma análise que faz referência a figuras externas.",
+        "hold_after": 0.7,
+        "speech_text": "Expanda Saved settings para inspecionar a configuração mantida com o projeto. Mantenha o relatório junto com os arquivos do projeto ao compartilhar uma análise que faz referência a figuras externas."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report：根据项目结果生成文档",
+      "description": "选择已完成的项目，选择输出格式和图数量上限，然后生成并阅读报告。",
+      "objectives": [
+       "选择已完成的项目，并查看可用的报告章节。",
+       "设置格式、图数量上限和输出文件名。",
+       "生成报告，并检查其中的结果、设置和来源信息。"
+      ],
+      "prerequisite": "从一个已完成的spaCR项目开始，其中应包含保存的设置、测量数据和图。可以重用External Masks教程中的项目。Report只收集项目中已有的文件。",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "打开Help，然后打开Report。用这个工具把已完成项目的结果、图和设置汇集到一个文档中。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ],
+        "speech_text": "打开Help，然后打开Report。用这个工具把已完成项目的结果、图和设置汇集到一个文档中。"
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "点击Choose run folder并选择您的项目。本例使用External Masks中包含两个视野的项目，并把其测量数据、设置和图放在一起。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "点击Choose run folder并选择您的项目。本例使用External Masks中包含两个视野的项目，并把其测量数据、设置和图放在一起。"
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "扫描完成后，阅读处理状态。Complete表示记录的处理步骤都已完成。评估分析时，请另外查看可用的质控结果。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ],
+        "speech_text": "扫描完成后，阅读处理状态。Complete表示记录的处理步骤都已完成。评估分析时，请另外查看可用的质控结果。"
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "查看章节列表，了解项目中有哪些内容可用。缺失的章节在报告中仍会标出。如果需要该章节，请把相应的分析输出添加到项目中。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ],
+        "speech_text": "查看章节列表，了解项目中有哪些内容可用。缺失的章节在报告中仍会标出。如果需要该章节，请把相应的分析输出添加到项目中。"
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "在Format下选择HTML、PDF或Both。HTML在浏览器中打开；PDF提供文档版本。本例使用HTML。",
+        "hold_after": 0.7,
+        "speech_text": "在Format下选择HTML、PDF或Both。HTML在浏览器中打开；PDF提供文档版本。本例使用HTML。"
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "设置Embed at most，限制文档中嵌入的栅格图数量。矢量PDF会作为源文件列出，而不是嵌入预览。想要紧凑的报告，请设置较小的上限。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ],
+        "speech_text": "设置Embed at most，限制文档中嵌入的栅格图数量。矢量PDF会作为源文件列出，而不是嵌入预览。想要紧凑的报告，请设置较小的上限。"
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "点击Choose output并输入目标文件名。检查所选格式与扩展名是否一致。共享报告之前，请检查其中包含的项目路径和元数据。",
+        "hold_after": 0.7,
+        "speech_text": "点击Choose output并输入目标文件名。检查所选格式与扩展名是否一致。共享报告之前，请检查其中包含的项目路径和元数据。"
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "按Generate report，等待文件写入完成的确认。在浏览器中打开保存的HTML文件查看结果。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ],
+        "speech_text": "按Generate report，等待文件写入完成的确认。在浏览器中打开保存的HTML文件查看结果。"
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "使用目录链接在各章节之间跳转。先看处理摘要，然后查看图、结果表和保存的设置。",
+        "hold_after": 0.7,
+        "speech_text": "使用目录链接在各章节之间跳转。先看处理摘要，然后查看图、结果表和保存的设置。"
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "打开Key figures查找项目的图。对于矢量PDF，请按列出的文件位置查找；如有嵌入的栅格预览，可直接查看。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ],
+        "speech_text": "打开Key figures查找项目的图。对于矢量PDF，请按列出的文件位置查找；如有嵌入的栅格预览，可直接查看。"
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "查看Statistics and result tables，了解可用的对象表及其行数。这个仅含细胞的示例中，细胞区域和细胞质区域相同，因此应把它们视为同一批细胞的测量值。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ],
+        "speech_text": "查看Statistics and result tables，了解可用的对象表及其行数。这个仅含细胞的示例中，细胞区域和细胞质区域相同，因此应把它们视为同一批细胞的测量值。"
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "展开Saved settings，查看随项目保存的配置。共享引用外部图的分析时，请把报告与项目文件放在一起。",
+        "hold_after": 0.7,
+        "speech_text": "展开Saved settings，查看随项目保存的配置。共享引用外部图的分析时，请把报告与项目文件放在一起。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: lav et dokument ud fra projektresultater",
+      "description": "Vælg et færdigt projekt, vælg outputformat og figurgrænse, og generér og læs derefter rapporten.",
+      "objectives": [
+       "Vælge et færdigt projekt og undersøge de tilgængelige rapportafsnit.",
+       "Indstille format, figurgrænse og navn på outputfilen.",
+       "Generere rapporten og undersøge dens resultater, indstillinger og oprindelse."
+      ],
+      "prerequisite": "Begynd med et færdigt spaCR-projekt, der indeholder de gemte indstillinger, målinger og figurer. Du kan genbruge projektet fra vejledningen External Masks. Report samler filer, der allerede findes i projektet.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Åbn Help og derefter Report. Brug værktøjet til at samle et færdigt projekts resultater, figurer og indstillinger i ét dokument.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Klik på Choose run folder, og vælg dit projekt. I dette eksempel bruger du projektet med to synsfelter fra External Masks og holder målinger, indstillinger og figurer samlet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Læs behandlingsstatus efter scanningen. Complete betyder, at de registrerede behandlingstrin er gennemført. Gennemgå de tilgængelige kvalitetskontrolresultater separat, når du vurderer analysen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Se på listen over afsnit, hvilke projektelementer der er tilgængelige. Et manglende afsnit står stadig med overskrift i rapporten. Tilføj de relevante analyseoutput til projektet, hvis du har brug for det afsnit.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Vælg HTML, PDF eller Both under Format. HTML åbnes i en browser; PDF giver en dokumentversion. Eksemplet bruger HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Indstil Embed at most for at begrænse antallet af rasterfigurer i dokumentet. Vektor-PDF'er vises som kildefiler i stedet for indlejrede forhåndsvisninger. Brug en lavere grænse til en kompakt rapport.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Klik på Choose output, og indtast navnet på destinationsfilen. Kontrollér, at det valgte format og filendelsen stemmer overens. Før du deler rapporten, gennemgår du de projektstier og metadata, den indeholder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Tryk på Generate report, og vent på bekræftelsen af, at filen er skrevet. Åbn den gemte HTML-fil i en browser for at undersøge resultatet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Brug linkene i indholdsfortegnelsen til at springe mellem afsnit. Begynd med behandlingsoversigten, og gennemgå derefter figurer, resultattabeller og gemte indstillinger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Åbn Key figures for at finde projektets figurer. Følg de angivne filplaceringer for vektor-PDF'er, eller undersøg indlejrede rasterforhåndsvisninger, når de findes.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Gennemgå Statistics and result tables for de tilgængelige objekttabeller og deres antal rækker. Dette eksempel med kun celler har matchende celle- og cytoplasmaområder, så behandl dem som målinger af de samme celler.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Fold Saved settings ud for at undersøge den konfiguration, der er gemt med projektet. Hold rapporten sammen med projektfilerne, når du deler en analyse, der henviser til eksterne figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: ein Dokument aus Projektergebnissen erstellen",
+      "description": "Wählen Sie ein abgeschlossenes Projekt, legen Sie Ausgabeformat und Abbildungslimit fest und erstellen und lesen Sie dann den Bericht.",
+      "objectives": [
+       "Ein abgeschlossenes Projekt wählen und die verfügbaren Berichtsabschnitte prüfen.",
+       "Format, Abbildungslimit und Ausgabedateiname festlegen.",
+       "Den Bericht erstellen und Ergebnisse, Einstellungen und Herkunft prüfen."
+      ],
+      "prerequisite": "Beginnen Sie mit einem abgeschlossenen spaCR-Projekt, das seine gespeicherten Einstellungen, Messwerte und Abbildungen enthält. Sie können das Projekt aus dem Tutorial External Masks wiederverwenden. Report sammelt Dateien, die bereits im Projekt vorhanden sind.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Öffnen Sie Help und dann Report. Mit diesem Werkzeug fassen Sie Ergebnisse, Abbildungen und Einstellungen eines abgeschlossenen Projekts in einem Dokument zusammen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Klicken Sie auf Choose run folder und wählen Sie Ihr Projekt. Verwenden Sie für dieses Beispiel das Projekt mit zwei Bildfeldern aus External Masks und halten Sie Messwerte, Einstellungen und Abbildungen zusammen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Lesen Sie nach dem Durchsuchen den Verarbeitungsstatus. Complete bedeutet, dass die aufgezeichneten Verarbeitungsschritte abgeschlossen sind. Prüfen Sie die verfügbaren Qualitätskontrollergebnisse gesondert, wenn Sie die Analyse bewerten.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Sehen Sie in der Abschnittsliste nach, welche Projektbestandteile verfügbar sind. Ein fehlender Abschnitt bleibt im Bericht beschriftet. Fügen Sie dem Projekt die passenden Analyseausgaben hinzu, wenn Sie diesen Abschnitt benötigen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Wählen Sie unter Format HTML, PDF oder Both. HTML öffnet sich im Browser; PDF liefert eine Dokumentfassung. Dieses Beispiel verwendet HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Begrenzen Sie mit Embed at most die Zahl der eingebetteten Rasterabbildungen. Vektor-PDFs werden als Quelldateien statt als eingebettete Vorschauen aufgeführt. Wählen Sie ein kleineres Limit für einen kompakten Bericht.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Klicken Sie auf Choose output und geben Sie den Zieldateinamen ein. Prüfen Sie, ob gewähltes Format und Dateiendung übereinstimmen. Prüfen Sie vor dem Weitergeben des Berichts die enthaltenen Projektpfade und Metadaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Drücken Sie Generate report und warten Sie auf die Bestätigung, dass die Datei geschrieben wurde. Öffnen Sie die gespeicherte HTML-Datei im Browser, um das Ergebnis zu prüfen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Springen Sie über die Links im Inhaltsverzeichnis zwischen den Abschnitten. Beginnen Sie mit der Verarbeitungsübersicht und prüfen Sie dann Abbildungen, Ergebnistabellen und gespeicherte Einstellungen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Öffnen Sie Key figures, um die Abbildungen des Projekts zu finden. Folgen Sie bei Vektor-PDFs den angegebenen Dateipfaden oder prüfen Sie eingebettete Rastervorschauen, sofern vorhanden.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Prüfen Sie unter Statistics and result tables die verfügbaren Objekttabellen und ihre Zeilenzahlen. In diesem reinen Zellbeispiel stimmen Zell- und Zytoplasmabereiche überein; behandeln Sie sie daher als Messungen derselben Zellen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Klappen Sie Saved settings auf, um die mit dem Projekt gespeicherte Konfiguration zu prüfen. Bewahren Sie den Bericht zusammen mit den Projektdateien auf, wenn Sie eine Analyse weitergeben, die auf externe Abbildungen verweist.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: búðu til skjal úr niðurstöðum verkefnis",
+      "description": "Veldu lokið verkefni, veldu úttakssnið og hámarksfjölda mynda og búðu svo til og lestu skýrsluna.",
+      "objectives": [
+       "Velja lokið verkefni og skoða tiltæka hluta skýrslunnar.",
+       "Stilla snið, hámarksfjölda mynda og heiti úttaksskrár.",
+       "Búa til skýrsluna og skoða niðurstöður hennar, stillingar og uppruna."
+      ],
+      "prerequisite": "Byrjaðu á loknu spaCR-verkefni sem inniheldur vistaðar stillingar, mælingar og myndir. Þú getur endurnýtt verkefnið úr kennsluefninu External Masks. Report safnar saman skrám sem eru þegar í verkefninu.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Opnaðu Help og svo Report. Notaðu tólið til að safna niðurstöðum, myndum og stillingum lokins verkefnis í eitt skjal.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Smelltu á Choose run folder og veldu verkefnið þitt. Í þessu dæmi notarðu verkefnið með tveimur sjónsviðum úr External Masks og heldur mælingum, stillingum og myndum saman.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Lestu vinnslustöðuna eftir skönnunina. Complete þýðir að skráðum vinnsluskrefum er lokið. Farðu sérstaklega yfir tiltækar niðurstöður gæðaeftirlits þegar þú metur greininguna.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Skoðaðu lista hlutanna til að sjá hvaða efni verkefnisins er tiltækt. Hluti sem vantar er samt merktur í skýrslunni. Bættu viðeigandi greiningarúttaki við verkefnið ef þú þarft þann hluta.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Veldu HTML, PDF eða Both undir Format. HTML opnast í vafra; PDF gefur skjalaútgáfu. Dæmið notar HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Stilltu Embed at most til að takmarka fjölda rastamynda í skjalinu. Vigur-PDF-skrár eru taldar upp sem upprunaskrár í stað innfelldra forskoðana. Notaðu lægra hámark fyrir hnitmiðaða skýrslu.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Smelltu á Choose output og sláðu inn heiti áfangaskrárinnar. Athugaðu að valið snið og skráarending passi saman. Áður en þú deilir skýrslunni skaltu fara yfir slóðir verkefnisins og lýsigögn sem hún inniheldur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Ýttu á Generate report og bíddu eftir staðfestingu á að skráin hafi verið skrifuð. Opnaðu vistuðu HTML-skrána í vafra til að skoða niðurstöðuna.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Notaðu tenglana í efnisyfirlitinu til að fara á milli hluta. Byrjaðu á samantekt vinnslunnar og skoðaðu svo myndir, niðurstöðutöflur og vistaðar stillingar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Opnaðu Key figures til að finna myndir verkefnisins. Fylgdu uppgefnum skráarstöðum fyrir vigur-PDF-skrár, eða skoðaðu innfelldar rastaforskoðanir þegar þær eru til.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Skoðaðu Statistics and result tables fyrir tiltækar töflur hluta og fjölda lína í þeim. Í þessu dæmi með frumum eingöngu eru frumusvæði og umfrymissvæði eins, svo líttu á þau sem mælingar á sömu frumum.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Opnaðu Saved settings til að skoða stillingarnar sem geymdar eru með verkefninu. Haltu skýrslunni með skrám verkefnisins þegar þú deilir greiningu sem vísar í ytri myndir.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: 프로젝트 결과로 문서 만들기",
+      "description": "완료된 프로젝트를 고르고, 출력 형식과 그림 한도를 선택한 뒤 보고서를 만들어 읽습니다.",
+      "objectives": [
+       "완료된 프로젝트를 고르고 사용할 수 있는 보고서 섹션을 확인합니다.",
+       "형식, 그림 한도, 출력 파일 이름을 정합니다.",
+       "보고서를 만들고 결과, 설정, 출처 정보를 확인합니다."
+      ],
+      "prerequisite": "저장된 설정, 측정값, 그림이 있는 완료된 spaCR 프로젝트로 시작하세요. External Masks 튜토리얼의 프로젝트를 다시 써도 됩니다. Report는 프로젝트에 이미 있는 파일을 모읍니다.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Help를 연 뒤 Report를 여세요. 이 도구로 완료된 프로젝트의 결과, 그림, 설정을 하나의 문서로 모읍니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Choose run folder를 클릭하고 프로젝트를 선택하세요. 이 예제에서는 External Masks의 시야 2개짜리 프로젝트를 쓰고, 측정값, 설정, 그림을 함께 두세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "스캔이 끝나면 처리 상태를 읽으세요. Complete는 기록된 처리 단계가 모두 끝났다는 뜻입니다. 분석을 평가할 때는 사용할 수 있는 품질 관리 결과를 따로 검토하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "섹션 목록에서 어떤 프로젝트 산출물을 쓸 수 있는지 확인하세요. 빠진 섹션도 보고서에 제목은 표시됩니다. 그 섹션이 필요하면 해당 분석 출력을 프로젝트에 추가하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Format에서 HTML, PDF, Both 중 하나를 고르세요. HTML은 브라우저에서 열리고, PDF는 문서 버전을 제공합니다. 이 예제는 HTML을 씁니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Embed at most로 문서에 넣을 래스터 그림 수를 제한하세요. 벡터 PDF는 삽입된 미리 보기가 아니라 원본 파일로 목록에 나옵니다. 간결한 보고서를 원하면 한도를 작게 두세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Choose output을 클릭하고 대상 파일 이름을 입력하세요. 선택한 형식과 확장자가 맞는지 확인하세요. 보고서를 공유하기 전에 포함된 프로젝트 경로와 메타데이터를 검토하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Generate report를 누르고 파일이 저장되었다는 확인을 기다리세요. 저장된 HTML 파일을 브라우저에서 열어 결과를 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "목차 링크로 섹션 사이를 이동하세요. 처리 요약부터 시작해 그림, 결과 표, 저장된 설정을 검토하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Key figures를 열어 프로젝트의 그림을 찾으세요. 벡터 PDF는 표시된 파일 위치를 따라가고, 삽입된 래스터 미리 보기가 있으면 그것을 확인하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Statistics and result tables에서 사용할 수 있는 객체 표와 행 수를 검토하세요. 세포만 있는 이 예제는 세포 영역과 세포질 영역이 같으므로, 같은 세포의 측정값으로 다루세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Saved settings를 펼쳐 프로젝트와 함께 보관된 구성을 확인하세요. 외부 그림을 참조하는 분석을 공유할 때는 보고서를 프로젝트 파일과 함께 두세요.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: lag et dokument fra prosjektresultater",
+      "description": "Velg et fullført prosjekt, velg utdataformat og figurgrense, og lag og les deretter rapporten.",
+      "objectives": [
+       "Velge et fullført prosjekt og undersøke de tilgjengelige rapportdelene.",
+       "Angi format, figurgrense og navn på utdatafilen.",
+       "Lage rapporten og undersøke resultatene, innstillingene og opphavet."
+      ],
+      "prerequisite": "Begynn med et fullført spaCR-prosjekt som inneholder de lagrede innstillingene, målingene og figurene. Du kan gjenbruke prosjektet fra veiledningen External Masks. Report samler filer som allerede finnes i prosjektet.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Åpne Help og deretter Report. Bruk verktøyet til å samle et fullført prosjekts resultater, figurer og innstillinger i ett dokument.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Klikk på Choose run folder og velg prosjektet ditt. I dette eksemplet bruker du prosjektet med to synsfelt fra External Masks, og holder målinger, innstillinger og figurer samlet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Les behandlingsstatusen etter skanningen. Complete betyr at de registrerte behandlingstrinnene er fullført. Gå gjennom tilgjengelige kvalitetskontrollresultater separat når du vurderer analysen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Se i listen over deler hvilke prosjektelementer som er tilgjengelige. En manglende del står likevel oppført i rapporten. Legg til de aktuelle analyseutdataene i prosjektet hvis du trenger den delen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Velg HTML, PDF eller Both under Format. HTML åpnes i en nettleser; PDF gir en dokumentversjon. Eksemplet bruker HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Angi Embed at most for å begrense antallet rasterfigurer i dokumentet. Vektor-PDF-er listes som kildefiler i stedet for innebygde forhåndsvisninger. Bruk en lavere grense for en kompakt rapport.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Klikk på Choose output og skriv inn navnet på målfilen. Kontroller at valgt format og filendelse stemmer overens. Før du deler rapporten, går du gjennom prosjektbaner og metadata den inneholder.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Trykk på Generate report og vent på bekreftelsen på at filen er skrevet. Åpne den lagrede HTML-filen i en nettleser for å undersøke resultatet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Bruk lenkene i innholdsfortegnelsen for å hoppe mellom delene. Begynn med behandlingssammendraget, og gå deretter gjennom figurer, resultattabeller og lagrede innstillinger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Åpne Key figures for å finne prosjektets figurer. Følg de oppgitte filplasseringene for vektor-PDF-er, eller undersøk innebygde rasterforhåndsvisninger når de finnes.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Gå gjennom Statistics and result tables for de tilgjengelige objekttabellene og antall rader. Dette eksemplet med bare celler har samsvarende celle- og cytoplasmaområder, så behandle dem som målinger av de samme cellene.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Utvid Saved settings for å undersøke konfigurasjonen som er lagret med prosjektet. Hold rapporten sammen med prosjektfilene når du deler en analyse som viser til eksterne figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 24,
+     "preceding": [
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "30_plate_queue",
+     "entry": {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Help",
+      "title": "Report: skapa ett dokument från projektresultat",
+      "description": "Välj ett slutfört projekt, välj utdataformat och figurgräns och generera och läs sedan rapporten.",
+      "objectives": [
+       "Välja ett slutfört projekt och granska tillgängliga rapportavsnitt.",
+       "Ställa in format, figurgräns och utdatafilnamn.",
+       "Generera rapporten och granska dess resultat, inställningar och ursprung."
+      ],
+      "prerequisite": "Börja med ett slutfört spaCR-projekt som innehåller sparade inställningar, mätningar och figurer. Du kan återanvända projektet från handledningen External Masks. Report samlar filer som redan finns i projektet.",
+      "scenes": [
+       {
+        "visual": "00a_help_report_menu",
+        "narration": "Öppna Help och sedan Report. Använd verktyget för att samla ett slutfört projekts resultat, figurer och inställningar i ett dokument.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks",
+         "54_qc_dashboard"
+        ]
+       },
+       {
+        "visual": "02_existing_project_picker",
+        "narration": "Klicka på Choose run folder och välj ditt projekt. I det här exemplet använder du projektet med två synfält från External Masks och håller ihop mätningar, inställningar och figurer.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "03_actual_completion_not_qc_pass",
+        "narration": "Läs bearbetningsstatusen efter genomsökningen. Complete betyder att de registrerade bearbetningsstegen är klara. Granska tillgängliga kvalitetskontrollresultat separat när du bedömer analysen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         275,
+         3000,
+         150
+        ]
+       },
+       {
+        "visual": "04_read_only_missing_sections",
+        "narration": "Titta i avsnittslistan för att se vilka projektdelar som finns. Ett saknat avsnitt visas ändå med rubrik i rapporten. Lägg till relevanta analysutdata i projektet om du behöver det avsnittet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         330,
+         2800,
+         350
+        ]
+       },
+       {
+        "visual": "05_actual_output_format_choices",
+        "narration": "Välj HTML, PDF eller Both under Format. HTML öppnas i en webbläsare; PDF ger en dokumentversion. Exemplet använder HTML.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_figure_cap",
+        "narration": "Ställ in Embed at most för att begränsa antalet rasterfigurer i dokumentet. Vektor-PDF:er listas som källfiler i stället för inbäddade förhandsvisningar. Använd en lägre gräns för en kompakt rapport.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1900,
+         1650,
+         130
+        ]
+       },
+       {
+        "visual": "07_separate_output_picker",
+        "narration": "Klicka på Choose output och ange målfilens namn. Kontrollera att valt format och filändelse stämmer överens. Innan du delar rapporten granskar du eventuella projektsökvägar och metadata som den innehåller.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_report_written",
+        "narration": "Tryck på Generate report och vänta på bekräftelsen att filen har skrivits. Öppna den sparade HTML-filen i en webbläsare för att granska resultatet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         1975,
+         3370,
+         160
+        ]
+       },
+       {
+        "visual": "browser_01_report_top_completion_and_contents",
+        "narration": "Använd länkarna i innehållsförteckningen för att hoppa mellan avsnitt. Börja med bearbetningssammanfattningen och granska sedan figurer, resultattabeller och sparade inställningar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "browser_06_figures",
+        "narration": "Öppna Key figures för att hitta projektets figurer. Följ de angivna filplatserna för vektor-PDF:er, eller granska inbäddade rasterförhandsvisningar när de finns.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_07_statistics",
+        "narration": "Granska Statistics and result tables för de tillgängliga objekttabellerna och deras antal rader. Det här exemplet med enbart celler har matchande cell- och cytoplasmaområden, så behandla dem som mätningar av samma celler.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "34_database",
+         "31_external_masks"
+        ]
+       },
+       {
+        "visual": "browser_09_settings_first_native_disclosure",
+        "narration": "Fäll ut Saved settings för att granska konfigurationen som sparats med projektet. Håll ihop rapporten och projektfilerna när du delar en analys som hänvisar till externa figurer.",
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "40_run_history",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       13,
+       "lessons"
+      ],
+      "preceding": [
+       "06_api"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 19,
+     "value": {
+      "kind": "help",
+      "app_key": "report"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/29_report -> tools/tutorials/archive/production/docs/29_report"
+ ],
+ "prose": []
+}

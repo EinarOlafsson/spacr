@@ -26,8 +26,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/submodules/index>`.
 
-`Module tutorial <../../../tutorials/#lesson=24_plaque>`__.
-
 Recruitment
 ~~~~~~~~~~~
 
@@ -52,8 +50,6 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * :ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities.
 
 :doc:`API reference </api/spacr/submodules/index>`.
-
-`Module tutorial <../../../tutorials/#lesson=25_recruitment>`__.
 
 Invasion Assay
 ~~~~~~~~~~~~~~

@@ -22,5 +22,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/tabulate/index>`.
 
-`Module tutorial <../../../../../tutorials/#lesson=61_tabulate>`__.
-

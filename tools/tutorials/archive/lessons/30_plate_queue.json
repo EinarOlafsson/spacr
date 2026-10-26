@@ -1,0 +1,3480 @@
+{
+ "schema": 1,
+ "id": "30_plate_queue",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: run several prepared projects",
+      "description": "Add the current project or drop prepared folders into a queue, run jobs in order, and continue after a controlled stop.",
+      "objectives": [
+       "Add prepared projects with their saved module settings.",
+       "Run the queue and stop between jobs.",
+       "Find each project’s results and clear completed queue entries."
+      ],
+      "prerequisite": "Prepare a project and its saved module settings. For practice, use two copies of the Recruitment example in separate folders; they contain the same data and are not biological replicates.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Prepare the first project in its analysis module. In Recruitment, choose Import settings and open the project’s settings CSV. The example uses two separate copies of the same measured data to practise running several jobs.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Check Source, the channel mapping and the condition labels. Save the settings you want the queue to use, then leave this project open.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Open Help, then Plate queue. The queue runs one item at a time in the listed order.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Choose Add current plate. A new row stores the current module and settings. Check its module, source and label before starting the queue.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Drag another prepared project folder onto the queue. Its saved settings identify the module, and the dropped folder becomes its source. Use separate project folders when each job needs separate output files.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Choose Run queue. The first row changes to running while later items remain queued. Watch the status and elapsed time to follow progress.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Press Stop when you want the queue to finish its current item and pause before the next one. Wait until the active job finishes.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "The completed row now says success and the next row remains queued. Choose Run queue again to continue with the remaining item.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "When both jobs finish, open each project’s output folder. For Recruitment, inspect the cells and wells CSV results. Use Recruitment directly when you want its figure workflow; this queue does not display or save those plots.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Choose Clear finished to remove completed entries from the list. Their project folders and saved results remain available.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "30_plate_queue/poster.jpg",
+      "silent": "30_plate_queue/video/30_plate_queue_silent.mp4",
+      "web": "30_plate_queue/web/30_plate_queue_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: run several prepared projects",
+      "description": "Add the current project or drop prepared folders into a queue, run jobs in order, and continue after a controlled stop.",
+      "objectives": [
+       "Add prepared projects with their saved module settings.",
+       "Run the queue and stop between jobs.",
+       "Find each project’s results and clear completed queue entries."
+      ],
+      "prerequisite": "Prepare a project and its saved module settings. For practice, use two copies of the Recruitment example in separate folders; they contain the same data and are not biological replicates.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Prepare the first project in its analysis module. In Recruitment, choose Import settings and open the project’s settings CSV. The example uses two separate copies of the same measured data to practise running several jobs.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Check Source, the channel mapping and the condition labels. Save the settings you want the queue to use, then leave this project open.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Open Help, then Plate queue. The queue runs one item at a time in the listed order.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Choose Add current plate. A new row stores the current module and settings. Check its module, source and label before starting the queue.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Drag another prepared project folder onto the queue. Its saved settings identify the module, and the dropped folder becomes its source. Use separate project folders when each job needs separate output files.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Choose Run queue. The first row changes to running while later items remain queued. Watch the status and elapsed time to follow progress.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Press Stop when you want the queue to finish its current item and pause before the next one. Wait until the active job finishes.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "The completed row now says success and the next row remains queued. Choose Run queue again to continue with the remaining item.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "When both jobs finish, open each project’s output folder. For Recruitment, inspect the cells and wells CSV results. Use Recruitment directly when you want its figure workflow; this queue does not display or save those plots.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Choose Clear finished to remove completed entries from the list. Their project folders and saved results remain available.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: ejecutar varios proyectos preparados",
+      "description": "Añade el proyecto actual o arrastra carpetas preparadas a una cola, ejecuta los trabajos en orden y continúa después de una parada controlada.",
+      "objectives": [
+       "Añadir proyectos preparados con sus ajustes de módulo guardados.",
+       "Ejecutar la cola y detenerla entre trabajos.",
+       "Encontrar los resultados de cada proyecto y quitar de la cola las entradas terminadas."
+      ],
+      "prerequisite": "Prepara un proyecto y sus ajustes de módulo guardados. Para practicar, usa dos copias del ejemplo de Recruitment en carpetas separadas; contienen los mismos datos y no son réplicas biológicas.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Prepara el primer proyecto en su módulo de análisis. En Recruitment, elige Import settings y abre el CSV de ajustes del proyecto. El ejemplo usa dos copias separadas de los mismos datos medidos para practicar la ejecución de varios trabajos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "Prepara el primer proyecto en su módulo de análisis. En Recruitment, elige Import settings y abre el CSV de ajustes del proyecto. El ejemplo usa dos copias separadas de los mismos datos medidos para practicar la ejecución de varios trabajos."
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Comprueba Source, la asignación de canales y las etiquetas de condición. Guarda los ajustes que quieres que use la cola y deja este proyecto abierto.",
+        "hold_after": 0.7,
+        "speech_text": "Comprueba Source, la asignación de canales y las etiquetas de condición. Guarda los ajustes que quieres que use la cola y deja este proyecto abierto."
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Abre Help y luego Plate queue. La cola ejecuta un elemento cada vez, en el orden de la lista.",
+        "hold_after": 0.7,
+        "speech_text": "Abre Help y luego Plate queue. La cola ejecuta un elemento cada vez, en el orden de la lista."
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Elige Add current plate. Una fila nueva guarda el módulo y los ajustes actuales. Comprueba su módulo, su origen y su etiqueta antes de iniciar la cola.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Elige Add current plate. Una fila nueva guarda el módulo y los ajustes actuales. Comprueba su módulo, su origen y su etiqueta antes de iniciar la cola."
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Arrastra otra carpeta de proyecto preparada a la cola. Sus ajustes guardados identifican el módulo, y la carpeta arrastrada pasa a ser su origen. Usa carpetas de proyecto separadas cuando cada trabajo necesite sus propios archivos de salida.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Arrastra otra carpeta de proyecto preparada a la cola. Sus ajustes guardados identifican el módulo, y la carpeta arrastrada pasa a ser su origen. Usa carpetas de proyecto separadas cuando cada trabajo necesite sus propios archivos de salida."
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Elige Run queue. La primera fila cambia a running mientras los elementos siguientes siguen en queued. Observa el estado y el tiempo transcurrido para seguir el avance.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Elige Run queue. La primera fila cambia a running mientras los elementos siguientes siguen en queued. Observa el estado y el tiempo transcurrido para seguir el avance."
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Pulsa Stop cuando quieras que la cola termine el elemento actual y se detenga antes del siguiente. Espera a que termine el trabajo activo.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Pulsa Stop cuando quieras que la cola termine el elemento actual y se detenga antes del siguiente. Espera a que termine el trabajo activo."
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "La fila terminada muestra ahora success y la siguiente sigue en queued. Elige de nuevo Run queue para continuar con el elemento restante.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "La fila terminada muestra ahora success y la siguiente sigue en queued. Elige de nuevo Run queue para continuar con el elemento restante."
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Cuando terminen los dos trabajos, abre la carpeta de salida de cada proyecto. En Recruitment, revisa los resultados CSV de células y de pozos. Usa Recruitment directamente cuando quieras su flujo de figuras; esta cola no muestra ni guarda esos gráficos.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Cuando terminen los dos trabajos, abre la carpeta de salida de cada proyecto. En Recruitment, revisa los resultados CSV de células y de pozos. Usa Recruitment directamente cuando quieras su flujo de figuras; esta cola no muestra ni guarda esos gráficos."
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Elige Clear finished para quitar de la lista las entradas terminadas. Sus carpetas de proyecto y los resultados guardados siguen disponibles.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "Elige Clear finished para quitar de la lista las entradas terminadas. Sus carpetas de proyecto y los resultados guardados siguen disponibles."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue : exécuter plusieurs projets préparés",
+      "description": "Ajoutez le projet courant ou déposez des dossiers préparés dans une file, exécutez les tâches dans l’ordre et reprenez après un arrêt contrôlé.",
+      "objectives": [
+       "Ajouter des projets préparés avec leurs paramètres de module enregistrés.",
+       "Lancer la file et l’arrêter entre deux tâches.",
+       "Trouver les résultats de chaque projet et retirer les entrées terminées."
+      ],
+      "prerequisite": "Préparez un projet et ses paramètres de module enregistrés. Pour vous exercer, utilisez deux copies de l’exemple Recruitment dans des dossiers séparés ; elles contiennent les mêmes données et ne sont pas des réplicats biologiques.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Préparez le premier projet dans son module d’analyse. Dans Recruitment, choisissez Import settings et ouvrez le CSV de paramètres du projet. L’exemple utilise deux copies séparées des mêmes données mesurées pour s’exercer à lancer plusieurs tâches.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "Préparez le premier projet dans son module d’analyse. Dans Recruitment, choisissez Import settings et ouvrez le CSV de paramètres du projet. L’exemple utilise deux copies séparées des mêmes données mesurées pour s’exercer à lancer plusieurs tâches."
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Vérifiez Source, l’attribution des canaux et les étiquettes de conditions. Enregistrez les paramètres que la file doit utiliser, puis laissez ce projet ouvert.",
+        "hold_after": 0.7,
+        "speech_text": "Vérifiez Source, l’attribution des canaux et les étiquettes de conditions. Enregistrez les paramètres que la file doit utiliser, puis laissez ce projet ouvert."
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Ouvrez Help, puis Plate queue. La file exécute un élément à la fois, dans l’ordre de la liste.",
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Help, puis Plate queue. La file exécute un élément à la fois, dans l’ordre de la liste."
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Choisissez Add current plate. Une nouvelle ligne mémorise le module et les paramètres courants. Vérifiez son module, sa source et son étiquette avant de lancer la file.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Choisissez Add current plate. Une nouvelle ligne mémorise le module et les paramètres courants. Vérifiez son module, sa source et son étiquette avant de lancer la file."
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Faites glisser un autre dossier de projet préparé sur la file. Ses paramètres enregistrés indiquent le module, et le dossier déposé devient sa source. Utilisez des dossiers de projet séparés lorsque chaque tâche doit produire ses propres fichiers de sortie.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Faites glisser un autre dossier de projet préparé sur la file. Ses paramètres enregistrés indiquent le module, et le dossier déposé devient sa source. Utilisez des dossiers de projet séparés lorsque chaque tâche doit produire ses propres fichiers de sortie."
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Choisissez Run queue. La première ligne passe à running tandis que les éléments suivants restent en queued. Suivez l’état et le temps écoulé pour voir la progression.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Choisissez Run queue. La première ligne passe à running tandis que les éléments suivants restent en queued. Suivez l’état et le temps écoulé pour voir la progression."
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Appuyez sur Stop lorsque vous voulez que la file termine l’élément en cours et s’interrompe avant le suivant. Attendez la fin de la tâche active.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Appuyez sur Stop lorsque vous voulez que la file termine l’élément en cours et s’interrompe avant le suivant. Attendez la fin de la tâche active."
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "La ligne terminée affiche maintenant success et la suivante reste en queued. Choisissez à nouveau Run queue pour poursuivre avec l’élément restant.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "La ligne terminée affiche maintenant success et la suivante reste en queued. Choisissez à nouveau Run queue pour poursuivre avec l’élément restant."
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Une fois les deux tâches terminées, ouvrez le dossier de sortie de chaque projet. Pour Recruitment, examinez les résultats CSV des cellules et des puits. Utilisez directement Recruitment si vous voulez son flux de figures ; cette file n’affiche ni n’enregistre ces graphiques.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Une fois les deux tâches terminées, ouvrez le dossier de sortie de chaque projet. Pour Recruitment, examinez les résultats CSV des cellules et des puits. Utilisez directement Recruitment si vous voulez son flux de figures ; cette file n’affiche ni n’enregistre ces graphiques."
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Choisissez Clear finished pour retirer les entrées terminées de la liste. Leurs dossiers de projet et leurs résultats enregistrés restent disponibles.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "Choisissez Clear finished pour retirer les entrées terminées de la liste. Leurs dossiers de projet et leurs résultats enregistrés restent disponibles."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: कई तैयार प्रोजेक्ट चलाएँ",
+      "description": "मौजूदा प्रोजेक्ट जोड़ें या तैयार फ़ोल्डर कतार में डालें, काम क्रम से चलाएँ, और नियंत्रित रोक के बाद आगे बढ़ें।",
+      "objectives": [
+       "तैयार प्रोजेक्ट उनकी सहेजी गई मॉड्यूल सेटिंग के साथ जोड़ें।",
+       "कतार चलाएँ और कामों के बीच रोकें।",
+       "हर प्रोजेक्ट के परिणाम खोजें और पूरे हो चुके कतार प्रविष्टियाँ हटाएँ।"
+      ],
+      "prerequisite": "एक प्रोजेक्ट और उसकी सहेजी गई मॉड्यूल सेटिंग तैयार करें। अभ्यास के लिए Recruitment उदाहरण की दो प्रतियाँ अलग-अलग फ़ोल्डरों में इस्तेमाल करें; उनमें एक ही डेटा है और वे जैविक प्रतिकृतियाँ नहीं हैं।",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "पहला प्रोजेक्ट उसके विश्लेषण मॉड्यूल में तैयार करें। Recruitment में Import settings चुनें और प्रोजेक्ट की सेटिंग वाली CSV फ़ाइल खोलें। उदाहरण कई काम चलाने का अभ्यास करने के लिए एक ही मापे गए डेटा की दो अलग प्रतियाँ इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "पहला प्रोजेक्ट उसके विश्लेषण मॉड्यूल में तैयार करें। Recruitment में Import settings चुनें और प्रोजेक्ट की सेटिंग वाली CSV फ़ाइल खोलें। उदाहरण कई काम चलाने का अभ्यास करने के लिए एक ही मापे गए डेटा की दो अलग प्रतियाँ इस्तेमाल करता है।"
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Source, चैनल मैपिंग और स्थिति लेबल जाँचें। जो सेटिंग आप कतार से इस्तेमाल करवाना चाहते हैं उन्हें सहेजें, फिर यह प्रोजेक्ट खुला छोड़ दें।",
+        "hold_after": 0.7,
+        "speech_text": "Source, चैनल मैपिंग और स्थिति लेबल जाँचें। जो सेटिंग आप कतार से इस्तेमाल करवाना चाहते हैं उन्हें सहेजें, फिर यह प्रोजेक्ट खुला छोड़ दें।"
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Help खोलें, फिर Plate queue। कतार सूची के क्रम में एक बार में एक आइटम चलाती है।",
+        "hold_after": 0.7,
+        "speech_text": "Help खोलें, फिर Plate queue। कतार सूची के क्रम में एक बार में एक आइटम चलाती है।"
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Add current plate चुनें। एक नई पंक्ति मौजूदा मॉड्यूल और सेटिंग सहेजती है। कतार शुरू करने से पहले उसका मॉड्यूल, स्रोत और लेबल जाँचें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Add current plate चुनें। एक नई पंक्ति मौजूदा मॉड्यूल और सेटिंग सहेजती है। कतार शुरू करने से पहले उसका मॉड्यूल, स्रोत और लेबल जाँचें।"
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "एक और तैयार प्रोजेक्ट फ़ोल्डर खींचकर कतार पर छोड़ें। उसकी सहेजी गई सेटिंग मॉड्यूल बताती है, और छोड़ा गया फ़ोल्डर उसका स्रोत बन जाता है। जब हर काम को अलग आउटपुट फ़ाइलें चाहिए, तो अलग प्रोजेक्ट फ़ोल्डर इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "एक और तैयार प्रोजेक्ट फ़ोल्डर खींचकर कतार पर छोड़ें। उसकी सहेजी गई सेटिंग मॉड्यूल बताती है, और छोड़ा गया फ़ोल्डर उसका स्रोत बन जाता है। जब हर काम को अलग आउटपुट फ़ाइलें चाहिए, तो अलग प्रोजेक्ट फ़ोल्डर इस्तेमाल करें।"
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Run queue चुनें। पहली पंक्ति running में बदल जाती है, जबकि बाद के आइटम queued रहते हैं। प्रगति देखने के लिए स्थिति और बीता हुआ समय देखें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Run queue चुनें। पहली पंक्ति running में बदल जाती है, जबकि बाद के आइटम queued रहते हैं। प्रगति देखने के लिए स्थिति और बीता हुआ समय देखें।"
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "जब आप चाहते हैं कि कतार मौजूदा आइटम पूरा करके अगले से पहले रुक जाए, तो Stop दबाएँ। चल रहे काम के पूरा होने की प्रतीक्षा करें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "जब आप चाहते हैं कि कतार मौजूदा आइटम पूरा करके अगले से पहले रुक जाए, तो Stop दबाएँ। चल रहे काम के पूरा होने की प्रतीक्षा करें।"
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "पूरी हुई पंक्ति अब success दिखाती है और अगली पंक्ति queued रहती है। बचे हुए आइटम के साथ आगे बढ़ने के लिए फिर से Run queue चुनें।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "पूरी हुई पंक्ति अब success दिखाती है और अगली पंक्ति queued रहती है। बचे हुए आइटम के साथ आगे बढ़ने के लिए फिर से Run queue चुनें।"
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "दोनों काम पूरे होने पर हर प्रोजेक्ट का आउटपुट फ़ोल्डर खोलें। Recruitment के लिए कोशिकाओं और वेल के CSV परिणाम देखें। उसकी चित्र वाली प्रक्रिया चाहिए, तो सीधे Recruitment इस्तेमाल करें; यह कतार वे प्लॉट न दिखाती है, न सहेजती है।",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "दोनों काम पूरे होने पर हर प्रोजेक्ट का आउटपुट फ़ोल्डर खोलें। Recruitment के लिए कोशिकाओं और वेल के CSV परिणाम देखें। उसकी चित्र वाली प्रक्रिया चाहिए, तो सीधे Recruitment इस्तेमाल करें; यह कतार वे प्लॉट न दिखाती है, न सहेजती है।"
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "पूरी हो चुकी प्रविष्टियाँ सूची से हटाने के लिए Clear finished चुनें। उनके प्रोजेक्ट फ़ोल्डर और सहेजे गए परिणाम उपलब्ध रहते हैं।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "पूरी हो चुकी प्रविष्टियाँ सूची से हटाने के लिए Clear finished चुनें। उनके प्रोजेक्ट फ़ोल्डर और सहेजे गए परिणाम उपलब्ध रहते हैं।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: eseguire più progetti preparati",
+      "description": "Aggiungi il progetto corrente o trascina cartelle preparate in una coda, esegui i lavori in ordine e riprendi dopo un arresto controllato.",
+      "objectives": [
+       "Aggiungere progetti preparati con le relative impostazioni di modulo salvate.",
+       "Eseguire la coda e fermarla tra un lavoro e l’altro.",
+       "Trovare i risultati di ogni progetto e rimuovere le voci completate."
+      ],
+      "prerequisite": "Prepara un progetto e le sue impostazioni di modulo salvate. Per esercitarti, usa due copie dell’esempio di Recruitment in cartelle separate; contengono gli stessi dati e non sono repliche biologiche.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Prepara il primo progetto nel suo modulo di analisi. In Recruitment, scegli Import settings e apri il CSV delle impostazioni del progetto. L’esempio usa due copie separate degli stessi dati misurati per esercitarsi a eseguire più lavori.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "Prepara il primo progetto nel suo modulo di analisi. In Recruitment, scegli Import settings e apri il CSV delle impostazioni del progetto. L’esempio usa due copie separate degli stessi dati misurati per esercitarsi a eseguire più lavori."
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Controlla Source, l’assegnazione dei canali e le etichette delle condizioni. Salva le impostazioni che vuoi far usare alla coda, poi lascia aperto questo progetto.",
+        "hold_after": 0.7,
+        "speech_text": "Controlla Source, l’assegnazione dei canali e le etichette delle condizioni. Salva le impostazioni che vuoi far usare alla coda, poi lascia aperto questo progetto."
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Apri Help e poi Plate queue. La coda esegue un elemento alla volta, nell’ordine dell’elenco.",
+        "hold_after": 0.7,
+        "speech_text": "Apri Help e poi Plate queue. La coda esegue un elemento alla volta, nell’ordine dell’elenco."
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Scegli Add current plate. Una nuova riga memorizza il modulo e le impostazioni correnti. Controlla modulo, origine ed etichetta prima di avviare la coda.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Scegli Add current plate. Una nuova riga memorizza il modulo e le impostazioni correnti. Controlla modulo, origine ed etichetta prima di avviare la coda."
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Trascina sulla coda un’altra cartella di progetto preparata. Le sue impostazioni salvate identificano il modulo e la cartella trascinata diventa la sua origine. Usa cartelle di progetto separate quando ogni lavoro deve avere i propri file di output.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Trascina sulla coda un’altra cartella di progetto preparata. Le sue impostazioni salvate identificano il modulo e la cartella trascinata diventa la sua origine. Usa cartelle di progetto separate quando ogni lavoro deve avere i propri file di output."
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Scegli Run queue. La prima riga passa a running mentre gli elementi successivi restano in queued. Osserva lo stato e il tempo trascorso per seguire l’avanzamento.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Scegli Run queue. La prima riga passa a running mentre gli elementi successivi restano in queued. Osserva lo stato e il tempo trascorso per seguire l’avanzamento."
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Premi Stop quando vuoi che la coda finisca l’elemento corrente e si fermi prima del successivo. Attendi la fine del lavoro attivo.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Premi Stop quando vuoi che la coda finisca l’elemento corrente e si fermi prima del successivo. Attendi la fine del lavoro attivo."
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "La riga completata ora indica success e la successiva resta in queued. Scegli di nuovo Run queue per proseguire con l’elemento rimanente.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "La riga completata ora indica success e la successiva resta in queued. Scegli di nuovo Run queue per proseguire con l’elemento rimanente."
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Quando entrambi i lavori sono terminati, apri la cartella di output di ogni progetto. Per Recruitment, esamina i risultati CSV di cellule e pozzetti. Usa direttamente Recruitment quando vuoi il suo flusso di figure; questa coda non mostra né salva quei grafici.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Quando entrambi i lavori sono terminati, apri la cartella di output di ogni progetto. Per Recruitment, esamina i risultati CSV di cellule e pozzetti. Usa direttamente Recruitment quando vuoi il suo flusso di figure; questa coda non mostra né salva quei grafici."
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Scegli Clear finished per rimuovere dall’elenco le voci completate. Le cartelle di progetto e i risultati salvati restano disponibili.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "Scegli Clear finished per rimuovere dall’elenco le voci completate. Le cartelle di progetto e i risultati salvati restano disponibili."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue：準備した複数のプロジェクトを実行する",
+      "description": "現在のプロジェクトを追加するか、準備したフォルダーをキューにドロップし、ジョブを順番に実行して、制御された停止の後に再開します。",
+      "objectives": [
+       "保存したモジュール設定とともに、準備したプロジェクトを追加する。",
+       "キューを実行し、ジョブの間で止める。",
+       "各プロジェクトの結果を見つけ、完了したキューの項目を消す。"
+      ],
+      "prerequisite": "プロジェクトと、その保存済みのモジュール設定を準備します。練習には、Recruitmentの例のコピー二つを別々のフォルダーに置いて使います。同じデータなので、生物学的な反復ではありません。",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "最初のプロジェクトを、その解析モジュールで準備します。RecruitmentでImport settingsを選び、プロジェクトの設定のCSVを開きます。この例では、複数のジョブの実行を練習するため、同じ測定データの別々のコピーを二つ使います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "最初のプロジェクトを、その解析モジュールで準備します。RecruitmentでImport settingsを選び、プロジェクトの設定のCSVを開きます。この例では、複数のジョブの実行を練習するため、同じ測定データの別々のコピーを二つ使います。"
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Source、チャネルの対応、条件のラベルを確認します。キューで使いたい設定を保存し、このプロジェクトは開いたままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Source、チャネルの対応、条件のラベルを確認します。キューで使いたい設定を保存し、このプロジェクトは開いたままにします。"
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Helpを開き、続いてPlate queueを開きます。キューは、一覧の順に一つずつ項目を実行します。",
+        "hold_after": 0.7,
+        "speech_text": "Helpを開き、続いてPlate queueを開きます。キューは、一覧の順に一つずつ項目を実行します。"
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Add current plateを選びます。新しい行に、現在のモジュールと設定が保存されます。キューを始める前に、その行のモジュール、ソース、ラベルを確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Add current plateを選びます。新しい行に、現在のモジュールと設定が保存されます。キューを始める前に、その行のモジュール、ソース、ラベルを確認します。"
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "準備した別のプロジェクトのフォルダーを、キューにドラッグします。保存された設定からモジュールが決まり、ドロップしたフォルダーがそのソースになります。ジョブごとに別々の出力ファイルが必要な場合は、プロジェクトのフォルダーを分けます。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "準備した別のプロジェクトのフォルダーを、キューにドラッグします。保存された設定からモジュールが決まり、ドロップしたフォルダーがそのソースになります。ジョブごとに別々の出力ファイルが必要な場合は、プロジェクトのフォルダーを分けます。"
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Run queueを選びます。最初の行はrunningに変わり、後の項目はqueuedのままです。状態と経過時間を見て、進み具合を追います。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Run queueを選びます。最初の行はrunningに変わり、後の項目はqueuedのままです。状態と経過時間を見て、進み具合を追います。"
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "今の項目を終えてから次の項目の前で止めたいときは、Stopを押します。実行中のジョブが終わるのを待ちます。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "今の項目を終えてから次の項目の前で止めたいときは、Stopを押します。実行中のジョブが終わるのを待ちます。"
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "完了した行はsuccessと表示され、次の行はqueuedのままです。残りの項目を続けるには、もう一度Run queueを選びます。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "完了した行はsuccessと表示され、次の行はqueuedのままです。残りの項目を続けるには、もう一度Run queueを選びます。"
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "二つのジョブが終わったら、各プロジェクトの出力フォルダーを開きます。Recruitmentでは、細胞とウェルのCSVの結果を確認します。図を作る流れが必要な場合はRecruitmentを直接使います。このキューでは、それらのプロットは表示も保存もされません。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "二つのジョブが終わったら、各プロジェクトの出力フォルダーを開きます。Recruitmentでは、細胞とウェルのCSVの結果を確認します。図を作る流れが必要な場合はRecruitmentを直接使います。このキューでは、それらのプロットは表示も保存もされません。"
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Clear finishedを選ぶと、完了した項目が一覧から消えます。プロジェクトのフォルダーと保存された結果はそのまま残ります。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "Clear finishedを選ぶと、完了した項目が一覧から消えます。プロジェクトのフォルダーと保存された結果はそのまま残ります。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: executar vários projetos preparados",
+      "description": "Adicione o projeto atual ou arraste pastas preparadas para uma fila, execute os trabalhos em ordem e continue depois de uma parada controlada.",
+      "objectives": [
+       "Adicionar projetos preparados com as configurações de módulo salvas.",
+       "Executar a fila e pará-la entre trabalhos.",
+       "Encontrar os resultados de cada projeto e limpar as entradas concluídas."
+      ],
+      "prerequisite": "Prepare um projeto e as configurações de módulo salvas dele. Para praticar, use duas cópias do exemplo do Recruitment em pastas separadas; elas contêm os mesmos dados e não são réplicas biológicas.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Prepare o primeiro projeto no módulo de análise dele. No Recruitment, escolha Import settings e abra o CSV de configurações do projeto. O exemplo usa duas cópias separadas dos mesmos dados medidos para praticar a execução de vários trabalhos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "Prepare o primeiro projeto no módulo de análise dele. No Recruitment, escolha Import settings e abra o CSV de configurações do projeto. O exemplo usa duas cópias separadas dos mesmos dados medidos para praticar a execução de vários trabalhos."
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Confira Source, o mapeamento de canais e os rótulos de condição. Salve as configurações que a fila deve usar e deixe este projeto aberto.",
+        "hold_after": 0.7,
+        "speech_text": "Confira Source, o mapeamento de canais e os rótulos de condição. Salve as configurações que a fila deve usar e deixe este projeto aberto."
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Abra Help e depois Plate queue. A fila executa um item por vez, na ordem da lista.",
+        "hold_after": 0.7,
+        "speech_text": "Abra Help e depois Plate queue. A fila executa um item por vez, na ordem da lista."
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Escolha Add current plate. Uma linha nova guarda o módulo e as configurações atuais. Confira o módulo, a origem e o rótulo antes de iniciar a fila.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Escolha Add current plate. Uma linha nova guarda o módulo e as configurações atuais. Confira o módulo, a origem e o rótulo antes de iniciar a fila."
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Arraste outra pasta de projeto preparada para a fila. As configurações salvas dela identificam o módulo, e a pasta arrastada vira a origem. Use pastas de projeto separadas quando cada trabalho precisar dos próprios arquivos de saída.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Arraste outra pasta de projeto preparada para a fila. As configurações salvas dela identificam o módulo, e a pasta arrastada vira a origem. Use pastas de projeto separadas quando cada trabalho precisar dos próprios arquivos de saída."
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Escolha Run queue. A primeira linha muda para running enquanto os itens seguintes continuam em queued. Acompanhe o status e o tempo decorrido para ver o progresso.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Escolha Run queue. A primeira linha muda para running enquanto os itens seguintes continuam em queued. Acompanhe o status e o tempo decorrido para ver o progresso."
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Pressione Stop quando quiser que a fila termine o item atual e pare antes do próximo. Aguarde o trabalho ativo terminar.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Pressione Stop quando quiser que a fila termine o item atual e pare antes do próximo. Aguarde o trabalho ativo terminar."
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "A linha concluída agora mostra success e a próxima continua em queued. Escolha Run queue de novo para continuar com o item restante.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "A linha concluída agora mostra success e a próxima continua em queued. Escolha Run queue de novo para continuar com o item restante."
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Quando os dois trabalhos terminarem, abra a pasta de saída de cada projeto. No Recruitment, inspecione os resultados CSV de células e de poços. Use o Recruitment diretamente quando quiser o fluxo de figuras dele; esta fila não exibe nem salva esses gráficos.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "Quando os dois trabalhos terminarem, abra a pasta de saída de cada projeto. No Recruitment, inspecione os resultados CSV de células e de poços. Use o Recruitment diretamente quando quiser o fluxo de figuras dele; esta fila não exibe nem salva esses gráficos."
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Escolha Clear finished para remover as entradas concluídas da lista. As pastas de projeto e os resultados salvos continuam disponíveis.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "Escolha Clear finished para remover as entradas concluídas da lista. As pastas de projeto e os resultados salvos continuam disponíveis."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue：运行多个已准备好的项目",
+      "description": "添加当前项目，或把准备好的文件夹拖入队列，按顺序运行任务，并在受控停止后继续。",
+      "objectives": [
+       "添加已准备好的项目及其保存的模块设置。",
+       "运行队列，并在任务之间停止。",
+       "找到每个项目的结果，并清除已完成的队列条目。"
+      ],
+      "prerequisite": "准备一个项目及其保存的模块设置。练习时，请把Recruitment示例的两份副本放在不同的文件夹中；它们包含相同的数据，不是生物学重复。",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "在分析模块中准备第一个项目。在Recruitment中选择Import settings，打开项目的设置CSV。本例使用同一份测量数据的两份独立副本，用来练习运行多个任务。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ],
+        "speech_text": "在分析模块中准备第一个项目。在Recruitment中选择Import settings，打开项目的设置CSV。本例使用同一份测量数据的两份独立副本，用来练习运行多个任务。"
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "检查Source、通道映射和条件标签。保存希望队列使用的设置，然后保持这个项目打开。",
+        "hold_after": 0.7,
+        "speech_text": "检查Source、通道映射和条件标签。保存希望队列使用的设置，然后保持这个项目打开。"
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "打开Help，然后打开Plate queue。队列按列表顺序一次运行一个条目。",
+        "hold_after": 0.7,
+        "speech_text": "打开Help，然后打开Plate queue。队列按列表顺序一次运行一个条目。"
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "选择Add current plate。新的一行会保存当前的模块和设置。启动队列之前，请检查该行的模块、源和标签。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "选择Add current plate。新的一行会保存当前的模块和设置。启动队列之前，请检查该行的模块、源和标签。"
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "把另一个准备好的项目文件夹拖到队列上。其保存的设置决定模块，拖入的文件夹成为它的源。当每个任务都需要单独的输出文件时，请使用不同的项目文件夹。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "把另一个准备好的项目文件夹拖到队列上。其保存的设置决定模块，拖入的文件夹成为它的源。当每个任务都需要单独的输出文件时，请使用不同的项目文件夹。"
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "选择Run queue。第一行变为running，后面的条目仍为queued。通过状态和已用时间跟踪进度。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "选择Run queue。第一行变为running，后面的条目仍为queued。通过状态和已用时间跟踪进度。"
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "如果希望队列完成当前条目后在下一个条目之前暂停，请按Stop。等待正在运行的任务完成。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "如果希望队列完成当前条目后在下一个条目之前暂停，请按Stop。等待正在运行的任务完成。"
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "已完成的行现在显示success，下一行仍为queued。再次选择Run queue，继续运行剩下的条目。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "已完成的行现在显示success，下一行仍为queued。再次选择Run queue，继续运行剩下的条目。"
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "两个任务都完成后，打开每个项目的输出文件夹。对于Recruitment，请检查细胞和孔的CSV结果。如果需要其出图流程，请直接使用Recruitment；这个队列既不显示也不保存这些图。",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ],
+        "speech_text": "两个任务都完成后，打开每个项目的输出文件夹。对于Recruitment，请检查细胞和孔的CSV结果。如果需要其出图流程，请直接使用Recruitment；这个队列既不显示也不保存这些图。"
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "选择Clear finished，把已完成的条目从列表中移除。它们的项目文件夹和保存的结果仍然保留。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ],
+        "speech_text": "选择Clear finished，把已完成的条目从列表中移除。它们的项目文件夹和保存的结果仍然保留。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: kør flere forberedte projekter",
+      "description": "Tilføj det aktuelle projekt, eller slip forberedte mapper i en kø, kør job i rækkefølge, og fortsæt efter et kontrolleret stop.",
+      "objectives": [
+       "Tilføje forberedte projekter med deres gemte modulindstillinger.",
+       "Køre køen og stoppe mellem job.",
+       "Finde hvert projekts resultater og rydde færdige køposter."
+      ],
+      "prerequisite": "Forbered et projekt og dets gemte modulindstillinger. Til øvelse bruger du to kopier af Recruitment-eksemplet i separate mapper; de indeholder de samme data og er ikke biologiske replikater.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Forbered det første projekt i dets analysemodul. I Recruitment vælger du Import settings og åbner projektets indstillings-CSV. Eksemplet bruger to separate kopier af de samme målte data til at øve kørsel af flere job.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Kontrollér Source, kanaltilknytningen og betingelseslabels. Gem de indstillinger, køen skal bruge, og lad derefter projektet være åbent.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Åbn Help og derefter Plate queue. Køen kører ét element ad gangen i den viste rækkefølge.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Vælg Add current plate. En ny række gemmer det aktuelle modul og de aktuelle indstillinger. Kontrollér dens modul, kilde og label, før du starter køen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Træk endnu en forberedt projektmappe hen på køen. Dens gemte indstillinger angiver modulet, og den mappe, du slap, bliver dens kilde. Brug separate projektmapper, når hvert job skal have sine egne outputfiler.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Vælg Run queue. Den første række skifter til running, mens senere elementer forbliver queued. Følg status og forløbet tid for at se fremskridtet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Tryk på Stop, når køen skal afslutte det aktuelle element og holde pause før det næste. Vent, til det aktive job er færdigt.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "Den færdige række viser nu success, og den næste står stadig som queued. Vælg Run queue igen for at fortsætte med det resterende element.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Når begge job er færdige, åbner du hvert projekts outputmappe. For Recruitment undersøger du CSV-resultaterne for celler og brønde. Brug Recruitment direkte, når du vil have dets figurforløb; denne kø hverken viser eller gemmer de plot.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Vælg Clear finished for at fjerne færdige poster fra listen. Deres projektmapper og gemte resultater er stadig tilgængelige.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: mehrere vorbereitete Projekte ausführen",
+      "description": "Fügen Sie das aktuelle Projekt hinzu oder legen Sie vorbereitete Ordner in eine Warteschlange, führen Sie Jobs der Reihe nach aus und setzen Sie nach einem kontrollierten Stopp fort.",
+      "objectives": [
+       "Vorbereitete Projekte mit ihren gespeicherten Moduleinstellungen hinzufügen.",
+       "Die Warteschlange ausführen und zwischen Jobs anhalten.",
+       "Die Ergebnisse jedes Projekts finden und abgeschlossene Einträge entfernen."
+      ],
+      "prerequisite": "Bereiten Sie ein Projekt und seine gespeicherten Moduleinstellungen vor. Verwenden Sie zum Üben zwei Kopien des Recruitment-Beispiels in getrennten Ordnern; sie enthalten dieselben Daten und sind keine biologischen Replikate.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Bereiten Sie das erste Projekt in seinem Analysemodul vor. Wählen Sie in Recruitment Import settings und öffnen Sie die Einstellungs-CSV des Projekts. Das Beispiel verwendet zwei getrennte Kopien derselben Messdaten, um das Ausführen mehrerer Jobs zu üben.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Prüfen Sie Source, Kanalzuordnung und Bedingungslabels. Speichern Sie die Einstellungen, die die Warteschlange verwenden soll, und lassen Sie dieses Projekt geöffnet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Öffnen Sie Help und dann Plate queue. Die Warteschlange führt jeweils einen Eintrag in der angezeigten Reihenfolge aus.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Wählen Sie Add current plate. Eine neue Zeile speichert das aktuelle Modul und die aktuellen Einstellungen. Prüfen Sie Modul, Quelle und Label, bevor Sie die Warteschlange starten.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Ziehen Sie einen weiteren vorbereiteten Projektordner auf die Warteschlange. Seine gespeicherten Einstellungen bestimmen das Modul, und der abgelegte Ordner wird zur Quelle. Verwenden Sie getrennte Projektordner, wenn jeder Job eigene Ausgabedateien braucht.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Wählen Sie Run queue. Die erste Zeile wechselt zu running, während spätere Einträge queued bleiben. Verfolgen Sie Status und verstrichene Zeit, um den Fortschritt zu sehen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Drücken Sie Stop, wenn die Warteschlange den aktuellen Eintrag abschließen und vor dem nächsten anhalten soll. Warten Sie, bis der aktive Job fertig ist.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "Die abgeschlossene Zeile zeigt jetzt success, und die nächste bleibt queued. Wählen Sie erneut Run queue, um mit dem verbleibenden Eintrag fortzufahren.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Wenn beide Jobs abgeschlossen sind, öffnen Sie den Ausgabeordner jedes Projekts. Prüfen Sie bei Recruitment die CSV-Ergebnisse für Zellen und Wells. Verwenden Sie Recruitment direkt, wenn Sie dessen Abbildungsablauf möchten; diese Warteschlange zeigt und speichert diese Diagramme nicht.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Wählen Sie Clear finished, um abgeschlossene Einträge aus der Liste zu entfernen. Ihre Projektordner und gespeicherten Ergebnisse bleiben erhalten.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: keyrðu nokkur undirbúin verkefni",
+      "description": "Bættu núverandi verkefni við eða slepptu undirbúnum möppum í biðröð, keyrðu verk í röð og haltu áfram eftir stýrt stopp.",
+      "objectives": [
+       "Bæta við undirbúnum verkefnum ásamt vistuðum stillingum eininga.",
+       "Keyra biðröðina og stöðva hana milli verka.",
+       "Finna niðurstöður hvers verkefnis og hreinsa lokin atriði úr biðröðinni."
+      ],
+      "prerequisite": "Undirbúðu verkefni og vistaðar stillingar einingar þess. Til æfingar notarðu tvö afrit af Recruitment-dæminu í aðskildum möppum; þau innihalda sömu gögn og eru ekki líffræðilegar endurtekningar.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Undirbúðu fyrsta verkefnið í greiningareiningu þess. Í Recruitment velurðu Import settings og opnar CSV-stillingaskrá verkefnisins. Dæmið notar tvö aðskilin afrit af sömu mældu gögnum til að æfa keyrslu nokkurra verka.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Athugaðu Source, rásavörpunina og merki aðstæðna. Vistaðu stillingarnar sem biðröðin á að nota og hafðu þetta verkefni opið.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Opnaðu Help og svo Plate queue. Biðröðin keyrir eitt atriði í einu í þeirri röð sem listinn sýnir.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Veldu Add current plate. Ný lína geymir núverandi einingu og stillingar. Athugaðu einingu hennar, uppruna og merki áður en þú ræsir biðröðina.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Dragðu aðra undirbúna verkefnismöppu á biðröðina. Vistaðar stillingar hennar ákvarða eininguna og möppan sem þú slepptir verður uppruni hennar. Notaðu aðskildar verkefnismöppur þegar hvert verk þarf sínar eigin úttaksskrár.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Veldu Run queue. Fyrsta línan breytist í running meðan síðari atriði standa áfram sem queued. Fylgstu með stöðu og liðnum tíma til að sjá framvinduna.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Ýttu á Stop þegar þú vilt að biðröðin ljúki núverandi atriði og geri hlé á undan því næsta. Bíddu þar til virka verkinu lýkur.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "Lokna línan sýnir nú success og næsta lína stendur áfram sem queued. Veldu Run queue aftur til að halda áfram með atriðið sem eftir er.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Þegar báðum verkum er lokið opnarðu úttaksmöppu hvers verkefnis. Fyrir Recruitment skoðarðu CSV-niðurstöðurnar fyrir frumur og brunna. Notaðu Recruitment beint þegar þú vilt myndaferli þess; þessi biðröð hvorki sýnir né vistar þau gröf.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Veldu Clear finished til að fjarlægja lokin atriði af listanum. Verkefnismöppur þeirra og vistaðar niðurstöður eru áfram tiltækar.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: 준비된 여러 프로젝트 실행",
+      "description": "현재 프로젝트를 추가하거나 준비된 폴더를 큐에 끌어다 놓고, 작업을 순서대로 실행한 뒤 제어된 중지 후에 이어서 진행합니다.",
+      "objectives": [
+       "저장된 모듈 설정과 함께 준비된 프로젝트를 추가합니다.",
+       "큐를 실행하고 작업 사이에 멈춥니다.",
+       "각 프로젝트의 결과를 찾고 완료된 큐 항목을 지웁니다."
+      ],
+      "prerequisite": "프로젝트와 저장된 모듈 설정을 준비하세요. 연습용으로 Recruitment 예제 사본 두 개를 서로 다른 폴더에 두고 쓰세요. 같은 데이터이므로 생물학적 반복이 아닙니다.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "첫 번째 프로젝트를 해당 분석 모듈에서 준비하세요. Recruitment에서 Import settings를 선택하고 프로젝트의 설정 CSV를 여세요. 이 예제는 여러 작업 실행을 연습하려고 같은 측정 데이터의 사본 두 개를 따로 씁니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Source, 채널 매핑, 조건 라벨을 확인하세요. 큐가 쓸 설정을 저장한 뒤 이 프로젝트를 열어 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Help를 연 뒤 Plate queue를 여세요. 큐는 목록 순서대로 한 번에 한 항목씩 실행합니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Add current plate를 선택하세요. 새 행에 현재 모듈과 설정이 저장됩니다. 큐를 시작하기 전에 그 행의 모듈, 소스, 라벨을 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "준비된 다른 프로젝트 폴더를 큐로 끌어다 놓으세요. 저장된 설정으로 모듈이 정해지고, 끌어다 놓은 폴더가 소스가 됩니다. 작업마다 별도의 출력 파일이 필요하면 프로젝트 폴더를 따로 쓰세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Run queue를 선택하세요. 첫 번째 행은 running으로 바뀌고 나머지 항목은 queued로 남습니다. 상태와 경과 시간을 보며 진행 상황을 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "현재 항목을 마치고 다음 항목 전에 멈추게 하려면 Stop을 누르세요. 실행 중인 작업이 끝날 때까지 기다리세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "완료된 행에는 이제 success가 표시되고 다음 행은 queued로 남습니다. 남은 항목을 계속하려면 Run queue를 다시 선택하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "두 작업이 모두 끝나면 각 프로젝트의 출력 폴더를 여세요. Recruitment에서는 세포와 웰의 CSV 결과를 확인하세요. 그림 작업 흐름이 필요하면 Recruitment를 직접 쓰세요. 이 큐는 그 그래프를 표시하거나 저장하지 않습니다.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Clear finished를 선택해 완료된 항목을 목록에서 지우세요. 프로젝트 폴더와 저장된 결과는 그대로 남습니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: kjør flere forberedte prosjekter",
+      "description": "Legg til det gjeldende prosjektet eller slipp forberedte mapper i en kø, kjør jobbene i rekkefølge og fortsett etter et kontrollert stopp.",
+      "objectives": [
+       "Legge til forberedte prosjekter med de lagrede modulinnstillingene.",
+       "Kjøre køen og stoppe mellom jobber.",
+       "Finne resultatene for hvert prosjekt og fjerne fullførte køoppføringer."
+      ],
+      "prerequisite": "Forbered et prosjekt og de lagrede modulinnstillingene. For å øve bruker du to kopier av Recruitment-eksemplet i separate mapper; de inneholder de samme dataene og er ikke biologiske replikater.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Forbered det første prosjektet i analysemodulen. I Recruitment velger du Import settings og åpner prosjektets innstillings-CSV. Eksemplet bruker to separate kopier av de samme målte dataene for å øve på å kjøre flere jobber.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Kontroller Source, kanaltilordningen og betingelsesmerkelappene. Lagre innstillingene du vil at køen skal bruke, og la dette prosjektet være åpent.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Åpne Help og deretter Plate queue. Køen kjører ett element om gangen i den rekkefølgen listen viser.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Velg Add current plate. En ny rad lagrer gjeldende modul og innstillinger. Kontroller modul, kilde og merkelapp før du starter køen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Dra en annen forberedt prosjektmappe til køen. De lagrede innstillingene angir modulen, og mappen du slapp, blir kilden. Bruk separate prosjektmapper når hver jobb trenger egne utdatafiler.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Velg Run queue. Den første raden endres til running mens senere elementer står som queued. Følg status og medgått tid for å se fremdriften.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Trykk på Stop når du vil at køen skal fullføre det gjeldende elementet og stoppe før det neste. Vent til den aktive jobben er ferdig.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "Den fullførte raden viser nå success, og neste rad står fortsatt som queued. Velg Run queue igjen for å fortsette med det gjenværende elementet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "Når begge jobbene er ferdige, åpner du utdatamappen for hvert prosjekt. For Recruitment undersøker du CSV-resultatene for celler og brønner. Bruk Recruitment direkte når du vil ha figurflyten der; denne køen verken viser eller lagrer de plottene.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Velg Clear finished for å fjerne fullførte oppføringer fra listen. Prosjektmappene og de lagrede resultatene er fortsatt tilgjengelige.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 24,
+     "preceding": [
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "28_training_runs",
+     "next": "31_external_masks",
+     "entry": {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "title": "Plate Queue: kör flera förberedda projekt",
+      "description": "Lägg till det aktuella projektet eller släpp förberedda mappar i en kö, kör jobben i ordning och fortsätt efter ett kontrollerat stopp.",
+      "objectives": [
+       "Lägga till förberedda projekt med deras sparade modulinställningar.",
+       "Köra kön och stoppa mellan jobb.",
+       "Hitta varje projekts resultat och rensa slutförda köposter."
+      ],
+      "prerequisite": "Förbered ett projekt och dess sparade modulinställningar. För att öva använder du två kopior av Recruitment-exemplet i separata mappar; de innehåller samma data och är inte biologiska replikat.",
+      "scenes": [
+       {
+        "visual": "00a_import_recruitment_settings",
+        "narration": "Förbered det första projektet i dess analysmodul. I Recruitment väljer du Import settings och öppnar projektets inställnings-CSV. Exemplet använder två separata kopior av samma uppmätta data för att öva på att köra flera jobb.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "25_recruitment"
+        ]
+       },
+       {
+        "visual": "00b_current_recruitment_settings",
+        "narration": "Kontrollera Source, kanalmappningen och förhållandeetiketterna. Spara de inställningar du vill att kön ska använda och låt sedan projektet vara öppet.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_help_queue",
+        "narration": "Öppna Help och sedan Plate queue. Kön kör en post i taget i den ordning de står i listan.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_added_replay_1",
+        "narration": "Välj Add current plate. En ny rad sparar aktuell modul och aktuella inställningar. Kontrollera dess modul, källa och etikett innan du startar kön.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "03_added_replay_2",
+        "narration": "Dra ytterligare en förberedd projektmapp till kön. Dess sparade inställningar anger modulen, och den släppta mappen blir dess källa. Använd separata projektmappar när varje jobb behöver egna utdatafiler.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "04_first_job_running",
+        "narration": "Välj Run queue. Den första raden ändras till running medan senare poster står kvar som queued. Följ status och förfluten tid för att se förloppet.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "05_stop_requested",
+        "narration": "Tryck på Stop när du vill att kön ska slutföra aktuell post och pausa före nästa. Vänta tills det aktiva jobbet är klart.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "06_stopped_between_jobs",
+        "narration": "Den slutförda raden visar nu success och nästa rad står kvar som queued. Välj Run queue igen för att fortsätta med den återstående posten.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "07_both_jobs_finished",
+        "narration": "När båda jobben är klara öppnar du varje projekts utdatamapp. För Recruitment granskar du CSV-resultaten för celler och brunnar. Använd Recruitment direkt när du vill ha dess figurflöde; kön varken visar eller sparar de diagrammen.",
+        "hold_after": 0.7,
+        "focus": [
+         450,
+         160,
+         2120,
+         420
+        ]
+       },
+       {
+        "visual": "08_finished_records_cleared",
+        "narration": "Välj Clear finished för att ta bort slutförda poster från listan. Deras projektmappar och sparade resultat finns kvar.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "25_recruitment"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "37_batch",
+     "scene": 0,
+     "links": [
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "37_batch",
+     "scene": 13,
+     "links": [
+      "06_api",
+      "35_converter",
+      "30_plate_queue"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       13,
+       "lessons"
+      ],
+      "preceding": [
+       "29_report",
+       "06_api"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 19,
+     "value": {
+      "kind": "help",
+      "app_key": "queue"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/30_plate_queue -> tools/tutorials/archive/production/docs/30_plate_queue"
+ ],
+ "prose": []
+}

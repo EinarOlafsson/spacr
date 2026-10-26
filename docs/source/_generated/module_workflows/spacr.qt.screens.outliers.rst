@@ -23,5 +23,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/outliers/index>`.
 
-`Module tutorial <../../../../../tutorials/#lesson=66_outliers>`__.
-

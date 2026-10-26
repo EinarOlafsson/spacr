@@ -1,0 +1,4427 @@
+{
+ "schema": 1,
+ "id": "65_feature_explorer",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
+      "objectives": [
+       "Load measurements and choose the comparison groups.",
+       "Read rankings and distributions, then explore filters and computed columns.",
+       "Export the intended number of ranked features."
+      ],
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "65_feature_explorer/poster.jpg",
+      "silent": "65_feature_explorer/video/65_feature_explorer_silent.mp4",
+      "web": "65_feature_explorer/web/65_feature_explorer_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: compare groups and export a feature ranking",
+      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
+      "objectives": [
+       "Load measurements and choose the comparison groups.",
+       "Read rankings and distributions, then explore filters and computed columns.",
+       "Export the intended number of ranked features."
+      ],
+      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: comparar grupos y exportar una clasificación de características",
+      "description": "Elige una columna de agrupación, ordena las mediciones por AUC o KS, revisa las distribuciones y exporta las características seleccionadas.",
+      "objectives": [
+       "Cargar mediciones y elegir los grupos que se comparan.",
+       "Leer clasificaciones y distribuciones, y luego explorar filtros y columnas calculadas.",
+       "Exportar el número previsto de características clasificadas."
+      ],
+      "prerequisite": "Descarga el ejemplo de Annotate y abre una copia de trabajo de su measurements.db. Contiene 2341 células. Este recorrido compara los grupos de rowID r12 y r5, que identifican filas espaciales de la placa. Elige una columna de grupo adecuada a tu propio experimento y ten en cuenta que las células comparten pozos al interpretar la comparación.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Desde Home, abre Classify y luego Feature Explorer. Usa la base de datos de mediciones del ejemplo de Annotate para comparar características existentes entre grupos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "Desde Home, abre Classify y luego Feature Explorer. Usa la base de datos de mediciones del ejemplo de Annotate para comparar características existentes entre grupos."
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Haz clic en Load table, elige measurements.db y selecciona cell. Pon Split by en rowID. Los grupos del ejemplo son filas espaciales de la placa; comprueba que tu columna de agrupación representa la comparación que buscas.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Haz clic en Load table, elige measurements punto de be y selecciona cell. Pon Split by en rowID. Los grupos del ejemplo son filas espaciales de la placa; comprueba que tu columna de agrupación representa la comparación que buscas."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Elige AUC en Rank by. La separación es el valor absoluto de dos veces AUC menos uno. Higher in indica la dirección, y min n cuenta las mediciones finitas del grupo más pequeño.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Elige AUC en Rank by. La separación es el valor absoluto de dos veces AUC menos uno. Higher in indica la dirección, y min n cuenta las mediciones finitas del grupo más pequeño."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Pon Top en cuatro para ver cuatro histogramas superpuestos. Dentro de cada característica, los grupos comparten los límites de los intervalos, y la altura de las barras muestra recuentos. Lee tanto las distribuciones como la puntuación de la clasificación.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "Pon Top en cuatro para ver cuatro histogramas superpuestos. Dentro de cada característica, los grupos comparten los límites de los intervalos, y la altura de las barras muestra recuentos. Lee tanto las distribuciones como la puntuación de la clasificación."
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Haz clic en Export ranking para guardar las características principales mostradas. Con Top en cuatro, la exportación contiene cuatro filas de características. Aumenta Top antes de exportar una clasificación más larga.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Export ranking para guardar las características principales mostradas. Con Top en cuatro, la exportación contiene cuatro filas de características. Aumenta Top antes de exportar una clasificación más larga."
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Pon Top en quinientos para incluir las doscientas sesenta y una características puntuables de este ejemplo. El gráfico muestra como máximo ocho distribuciones, aunque la clasificación exportada sea más larga.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "Pon Top en quinientos para incluir las doscientas sesenta y una características puntuables de este ejemplo. El gráfico muestra como máximo ocho distribuciones, aunque la clasificación exportada sea más larga."
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Cambia Rank by a KS para comparar la mayor distancia entre las distribuciones acumuladas. KS puede revelar diferencias de dispersión que AUC no detecta. Vuelve a AUC para ver la dirección en Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "Cambia Rank by a KS para comparar la mayor distancia entre las distribuciones acumuladas. KS puede revelar diferencias de dispersión que AUC no detecta. Vuelve a AUC para ver la dirección en Higher in."
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "En Filter, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. La población pasa a mil ciento setenta y una células, y la clasificación se actualiza.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "En Filter, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. La población pasa a mil ciento setenta y una células, y la clasificación se actualiza."
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Haz clic en Clear all para recuperar la población y la clasificación completas. Vuelve a comprobar Split by después de cambiar los filtros, para saber qué grupos se están comparando.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Clear all para recuperar la población y la clasificación completas. Vuelve a comprobar Split by después de cambiar los filtros, para saber qué grupos se están comparando."
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Al filtrar rowID a r doce se elimina el segundo grupo. En esta versión, Split by cambia entonces automáticamente a otra columna. Revisa ese control siempre que un filtro elimine un grupo.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "Al filtrar rowID a r doce se elimina el segundo grupo. En esta versión, Split by cambia entonces automáticamente a otra columna. Revisa ese control siempre que un filtro elimine un grupo."
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Limpia el filtro y vuelve a poner rowID en Split by de forma explícita. Deja Shuffle test desactivado en este ejemplo: las células comparten pozos, así que barajar libremente las etiquetas de las células no representa réplicas experimentales independientes.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "Limpia el filtro y vuelve a poner rowID en Split by de forma explícita. Deja Shuffle test desactivado en este ejemplo: las células comparten pozos, así que barajar libremente las etiquetas de las células no representa réplicas experimentales independientes."
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Abre Columns y llama area_k a una columna calculada. Introduce cell_area dividido entre mil y haz clic en Add column con el reemplazo desactivado. Preview muestra las primeras dos mil filas; al añadirla, la fórmula se aplica a toda la tabla.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Abre Columns y llama area_k a una columna calculada. Introduce cell_area dividido entre mil y haz clic en Add column con el reemplazo desactivado. Preview muestra las primeras dos mil filas; al añadirla, la fórmula se aplica a toda la tabla."
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "La columna calculada se incorpora a la clasificación. Un reescalado positivo le da el mismo AUC y el mismo KS que cell_area. Quita la fórmula para volver a las características originales.",
+        "hold_after": 0.7,
+        "speech_text": "La columna calculada se incorpora a la clasificación. Un reescalado positivo le da el mismo AUC y el mismo KS que cell_area. Quita la fórmula para volver a las características originales."
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Exporta la clasificación después de comprobar la población, Split by y Top. En Python, usa rank_features y ExplorerSpec de spacr.qt.widgets.feature_rank. Continúa en Graph Builder para representar con más detalle una característica seleccionada.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "Exporta la clasificación después de comprobar la población, Split by y Top. En Python, usa rank_features y ExplorerSpec de espáquer.cu te.widgets.feature_rank. Continúa en Graph Builder para representar con más detalle una característica seleccionada."
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer : comparer des groupes et exporter un classement des caractéristiques",
+      "description": "Choisissez une colonne de regroupement, classez les mesures par AUC ou KS, examinez les distributions et exportez les caractéristiques sélectionnées.",
+      "objectives": [
+       "Charger des mesures et choisir les groupes à comparer.",
+       "Lire les classements et les distributions, puis explorer les filtres et les colonnes calculées.",
+       "Exporter le nombre voulu de caractéristiques classées."
+      ],
+      "prerequisite": "Téléchargez l’exemple Annotate et ouvrez une copie de travail de son measurements.db. Il contient 2341 cellules. Cette démonstration compare les groupes rowID r12 et r5, qui identifient des lignes spatiales de la plaque. Choisissez une colonne de groupe adaptée à votre expérience et tenez compte du fait que les cellules partagent des puits pour interpréter la comparaison.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Depuis Home, ouvrez Classify, puis Feature Explorer. Utilisez la base de données de mesures de l’exemple Annotate pour comparer des caractéristiques existantes entre groupes.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "Depuis Home, ouvrez Classify, puis Feature Explorer. Utilisez la base de données de mesures de l’exemple Annotate pour comparer des caractéristiques existantes entre groupes."
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Cliquez sur Load table, choisissez measurements.db et sélectionnez cell. Réglez Split by sur rowID. Les groupes de l’exemple sont des lignes spatiales de la plaque ; vérifiez que votre colonne de regroupement représente bien la comparaison voulue.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Cliquez sur Load table, choisissez measurements point dé bé et sélectionnez cell. Réglez Split by sur rowID. Les groupes de l’exemple sont des lignes spatiales de la plaque ; vérifiez que votre colonne de regroupement représente bien la comparaison voulue."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Choisissez AUC sous Rank by. La séparation est la valeur absolue de deux fois AUC moins un. Higher in indique le sens, et min n compte les mesures finies du plus petit groupe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Choisissez AUC sous Rank by. La séparation est la valeur absolue de deux fois AUC moins un. Higher in indique le sens, et min n compte les mesures finies du plus petit groupe."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque caractéristique, les groupes partagent les bornes des classes, et la hauteur des barres indique des effectifs. Lisez à la fois les distributions et le score de classement.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque caractéristique, les groupes partagent les bornes des classes, et la hauteur des barres indique des effectifs. Lisez à la fois les distributions et le score de classement."
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Cliquez sur Export ranking pour enregistrer les meilleures caractéristiques affichées. Avec Top à quatre, l’export contient quatre lignes de caractéristiques. Augmentez Top avant d’exporter un classement plus long.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Export ranking pour enregistrer les meilleures caractéristiques affichées. Avec Top à quatre, l’export contient quatre lignes de caractéristiques. Augmentez Top avant d’exporter un classement plus long."
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Réglez Top sur cinq cents pour inclure les deux cent soixante et une caractéristiques évaluables de cet exemple. Le graphique affiche au plus huit distributions, même lorsque le classement exporté est plus long.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "Réglez Top sur cinq cents pour inclure les deux cent soixante et une caractéristiques évaluables de cet exemple. Le graphique affiche au plus huit distributions, même lorsque le classement exporté est plus long."
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Passez Rank by sur KS pour comparer le plus grand écart entre les distributions cumulées. KS peut révéler des différences de dispersion qu’AUC ne voit pas. Revenez à AUC pour lire le sens dans Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "Passez Rank by sur KS pour comparer le plus grand écart entre les distributions cumulées. KS peut révéler des différences de dispersion qu’AUC ne voit pas. Revenez à AUC pour lire le sens dans Higher in."
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Dans Filter, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. La population passe à mille cent soixante et onze cellules, et le classement se met à jour.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "Dans Filter, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. La population passe à mille cent soixante et onze cellules, et le classement se met à jour."
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Cliquez sur Clear all pour rétablir la population et le classement complets. Revérifiez Split by après avoir modifié les filtres, afin de savoir quels groupes sont comparés.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Clear all pour rétablir la population et le classement complets. Revérifiez Split by après avoir modifié les filtres, afin de savoir quels groupes sont comparés."
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Filtrer rowID sur r douze supprime le second groupe. Dans cette version, Split by passe alors automatiquement à une autre colonne. Vérifiez cette commande chaque fois qu’un filtre supprime un groupe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "Filtrer rowID sur r douze supprime le second groupe. Dans cette version, Split by passe alors automatiquement à une autre colonne. Vérifiez cette commande chaque fois qu’un filtre supprime un groupe."
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Effacez le filtre et remettez explicitement rowID sous Split by. Laissez Shuffle test désactivé pour cet exemple : les cellules partagent des puits, donc des permutations libres des étiquettes de cellules ne représentent pas des réplicats expérimentaux indépendants.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "Effacez le filtre et remettez explicitement rowID sous Split by. Laissez Shuffle test désactivé pour cet exemple : les cellules partagent des puits, donc des permutations libres des étiquettes de cellules ne représentent pas des réplicats expérimentaux indépendants."
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Ouvrez Columns et nommez une colonne calculée area_k. Saisissez cell_area divisé par mille et cliquez sur Add column avec le remplacement désactivé. Preview affiche les deux mille premières lignes ; l’ajout applique la formule à toute la table.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Ouvrez Columns et nommez une colonne calculée area_k. Saisissez cell_area divisé par mille et cliquez sur Add column avec le remplacement désactivé. Preview affiche les deux mille premières lignes ; l’ajout applique la formule à toute la table."
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "La colonne calculée entre dans le classement. Un changement d’échelle positif lui donne les mêmes AUC et KS que cell_area. Supprimez la formule pour revenir aux caractéristiques d’origine.",
+        "hold_after": 0.7,
+        "speech_text": "La colonne calculée entre dans le classement. Un changement d’échelle positif lui donne les mêmes AUC et KS que cell_area. Supprimez la formule pour revenir aux caractéristiques d’origine."
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Exportez le classement après avoir vérifié la population, Split by et Top. En Python, utilisez rank_features et ExplorerSpec de spacr.qt.widgets.feature_rank. Continuez dans Graph Builder pour tracer plus en détail une caractéristique sélectionnée.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "Exportez le classement après avoir vérifié la population, Split by et Top. En Python, utilisez rank_features et ExplorerSpec de spakeur.ku té.widgets.feature_rank. Continuez dans Graph Builder pour tracer plus en détail une caractéristique sélectionnée."
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: समूहों की तुलना करें और विशेषता रैंकिंग निर्यात करें",
+      "description": "एक समूहन कॉलम चुनें, मापों को AUC या KS से रैंक करें, वितरण देखें और चुनी गई विशेषताएँ निर्यात करें।",
+      "objectives": [
+       "माप लोड करें और तुलना के समूह चुनें।",
+       "रैंकिंग और वितरण पढ़ें, फिर फ़िल्टर और गणना किए गए कॉलम आज़माएँ।",
+       "रैंक की गई विशेषताओं की इच्छित संख्या निर्यात करें।"
+      ],
+      "prerequisite": "Annotate उदाहरण डाउनलोड करें और उसके measurements.db की कार्य प्रति खोलें। इसमें 2341 कोशिकाएँ हैं। यह वॉकथ्रू rowID के समूह r12 और r5 की तुलना करता है, जो प्लेट की स्थानिक पंक्तियाँ बताते हैं। अपने प्रयोग के अनुकूल समूह कॉलम चुनें, और तुलना की व्याख्या करते समय ध्यान रखें कि कोशिकाएँ वेल साझा करती हैं।",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Home से Classify खोलें, फिर Feature Explorer। मौजूदा विशेषताओं की समूहों के बीच तुलना के लिए Annotate उदाहरण का माप डेटाबेस इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "Home से Classify खोलें, फिर Feature Explorer। मौजूदा विशेषताओं की समूहों के बीच तुलना के लिए Annotate उदाहरण का माप डेटाबेस इस्तेमाल करें।"
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Load table पर क्लिक करें, measurements.db चुनें और cell चुनें। Split by को rowID पर रखें। उदाहरण के समूह प्लेट की स्थानिक पंक्तियाँ हैं; जाँचें कि आपका समूहन कॉलम वही तुलना दर्शाता है जो आप चाहते हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Load table पर क्लिक करें, मेज़रमेंट्स डॉट डी बी चुनें और cell चुनें। Split by को rowID पर रखें। उदाहरण के समूह प्लेट की स्थानिक पंक्तियाँ हैं; जाँचें कि आपका समूहन कॉलम वही तुलना दर्शाता है जो आप चाहते हैं।"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Rank by में AUC चुनें। पृथक्करण, दो गुना AUC में से एक घटाने का निरपेक्ष मान है। Higher in दिशा दिखाता है, और min n छोटे समूह के सीमित मापों की गिनती है।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Rank by में AUC चुनें। पृथक्करण, दो गुना AUC में से एक घटाने का निरपेक्ष मान है। Higher in दिशा दिखाता है, और min n छोटे समूह के सीमित मापों की गिनती है।"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "चार परतदार हिस्टोग्राम देखने के लिए Top को चार पर रखें। हर विशेषता में समूह बिन की सीमाएँ साझा करते हैं, और बार की ऊँचाई गिनती दिखाती है। वितरण और रैंकिंग स्कोर दोनों पढ़ें।",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "चार परतदार हिस्टोग्राम देखने के लिए Top को चार पर रखें। हर विशेषता में समूह बिन की सीमाएँ साझा करते हैं, और बार की ऊँचाई गिनती दिखाती है। वितरण और रैंकिंग स्कोर दोनों पढ़ें।"
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "दिखाई गई शीर्ष विशेषताएँ सहेजने के लिए Export ranking पर क्लिक करें। Top चार होने पर निर्यात में चार विशेषता पंक्तियाँ होती हैं। लंबी रैंकिंग निर्यात करने से पहले Top बढ़ाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "दिखाई गई शीर्ष विशेषताएँ सहेजने के लिए Export ranking पर क्लिक करें। Top चार होने पर निर्यात में चार विशेषता पंक्तियाँ होती हैं। लंबी रैंकिंग निर्यात करने से पहले Top बढ़ाएँ।"
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "इस उदाहरण की सभी दो सौ इकसठ स्कोर योग्य विशेषताएँ शामिल करने के लिए Top को पाँच सौ पर रखें। निर्यात की गई रैंकिंग लंबी हो तब भी प्लॉट अधिकतम आठ वितरण दिखाता है।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "इस उदाहरण की सभी दो सौ इकसठ स्कोर योग्य विशेषताएँ शामिल करने के लिए Top को पाँच सौ पर रखें। निर्यात की गई रैंकिंग लंबी हो तब भी प्लॉट अधिकतम आठ वितरण दिखाता है।"
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "संचयी वितरणों के बीच सबसे बड़ा अंतर देखने के लिए Rank by को KS पर बदलें। KS फैलाव के ऐसे अंतर दिखा सकता है जो AUC से छूट जाते हैं। Higher in से दिशा देखने के लिए AUC पर लौटें।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "संचयी वितरणों के बीच सबसे बड़ा अंतर देखने के लिए Rank by को KS पर बदलें। KS फैलाव के ऐसे अंतर दिखा सकता है जो AUC से छूट जाते हैं। Higher in से दिशा देखने के लिए AUC पर लौटें।"
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Filter में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। आबादी एक हज़ार एक सौ इकहत्तर कोशिकाओं की हो जाती है, और रैंकिंग अपडेट होती है।",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "Filter में cell_area जोड़ें और न्यूनतम इक्कीस हज़ार नौ सौ पच्चीस रखें। आबादी एक हज़ार एक सौ इकहत्तर कोशिकाओं की हो जाती है, और रैंकिंग अपडेट होती है।"
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "पूरी आबादी और रैंकिंग वापस लाने के लिए Clear all पर क्लिक करें। फ़िल्टर बदलने के बाद Split by फिर से जाँचें, ताकि पता रहे कि किन समूहों की तुलना हो रही है।",
+        "hold_after": 0.7,
+        "speech_text": "पूरी आबादी और रैंकिंग वापस लाने के लिए Clear all पर क्लिक करें। फ़िल्टर बदलने के बाद Split by फिर से जाँचें, ताकि पता रहे कि किन समूहों की तुलना हो रही है।"
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "rowID को r बारह पर फ़िल्टर करने से दूसरा समूह हट जाता है। इस बिल्ड में Split by तब अपने आप किसी दूसरे कॉलम पर बदल जाता है। जब भी कोई फ़िल्टर कोई समूह हटाए, यह नियंत्रण जाँचें।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "rowID को r बारह पर फ़िल्टर करने से दूसरा समूह हट जाता है। इस बिल्ड में Split by तब अपने आप किसी दूसरे कॉलम पर बदल जाता है। जब भी कोई फ़िल्टर कोई समूह हटाए, यह नियंत्रण जाँचें।"
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "फ़िल्टर साफ़ करें और Split by में rowID स्पष्ट रूप से वापस रखें। इस उदाहरण में Shuffle test बंद रखें: कोशिकाएँ वेल साझा करती हैं, इसलिए कोशिका लेबलों का बेरोकटोक फेरबदल स्वतंत्र प्रयोगात्मक प्रतिकृतियों जैसा नहीं होता।",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "फ़िल्टर साफ़ करें और Split by में rowID स्पष्ट रूप से वापस रखें। इस उदाहरण में Shuffle test बंद रखें: कोशिकाएँ वेल साझा करती हैं, इसलिए कोशिका लेबलों का बेरोकटोक फेरबदल स्वतंत्र प्रयोगात्मक प्रतिकृतियों जैसा नहीं होता।"
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Columns खोलें और एक गणना किए गए कॉलम का नाम area_k रखें। cell_area को एक हज़ार से भाग देना लिखें और बदलाव बंद रखकर Add column पर क्लिक करें। Preview पहली दो हज़ार पंक्तियाँ दिखाता है; जोड़ने पर सूत्र पूरी तालिका पर लागू होता है।",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Columns खोलें और एक गणना किए गए कॉलम का नाम area_k रखें। cell_area को एक हज़ार से भाग देना लिखें और बदलाव बंद रखकर Add column पर क्लिक करें। Preview पहली दो हज़ार पंक्तियाँ दिखाता है; जोड़ने पर सूत्र पूरी तालिका पर लागू होता है।"
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "गणना किया गया कॉलम रैंकिंग में शामिल हो जाता है। धनात्मक पुनः स्केलिंग से उसका AUC और KS cell_area जैसा ही रहता है। मूल विशेषताओं पर लौटने के लिए सूत्र हटाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "गणना किया गया कॉलम रैंकिंग में शामिल हो जाता है। धनात्मक पुनः स्केलिंग से उसका AUC और KS cell_area जैसा ही रहता है। मूल विशेषताओं पर लौटने के लिए सूत्र हटाएँ।"
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "आबादी, Split by और Top जाँचने के बाद रैंकिंग निर्यात करें। Python में spacr.qt.widgets.feature_rank से rank_features और ExplorerSpec इस्तेमाल करें। किसी चुनी गई विशेषता को और विस्तार से प्लॉट करने के लिए Graph Builder पर आगे बढ़ें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "आबादी, Split by और Top जाँचने के बाद रैंकिंग निर्यात करें। Python में स्पेकर.क्यू टी.widgets.feature_rank से rank_features और ExplorerSpec इस्तेमाल करें। किसी चुनी गई विशेषता को और विस्तार से प्लॉट करने के लिए Graph Builder पर आगे बढ़ें।"
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: confrontare gruppi ed esportare una classifica delle caratteristiche",
+      "description": "Scegli una colonna di raggruppamento, ordina le misure per AUC o KS, esamina le distribuzioni ed esporta le caratteristiche selezionate.",
+      "objectives": [
+       "Caricare le misure e scegliere i gruppi da confrontare.",
+       "Leggere classifiche e distribuzioni, poi esplorare filtri e colonne calcolate.",
+       "Esportare il numero voluto di caratteristiche classificate."
+      ],
+      "prerequisite": "Scarica l’esempio di Annotate e apri una copia di lavoro del suo measurements.db. Contiene 2341 cellule. Questa guida confronta i gruppi di rowID r12 e r5, che identificano righe spaziali della piastra. Scegli una colonna di gruppo adatta al tuo esperimento e, nell’interpretare il confronto, tieni conto che le cellule condividono i pozzetti.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Da Home, apri Classify e poi Feature Explorer. Usa il database di misure dell’esempio di Annotate per confrontare caratteristiche esistenti tra gruppi.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "Da Home, apri Classify e poi Feature Explorer. Usa il database di misure dell’esempio di Annotate per confrontare caratteristiche esistenti tra gruppi."
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Fai clic su Load table, scegli measurements.db e seleziona cell. Imposta Split by su rowID. I gruppi dell’esempio sono righe spaziali della piastra; verifica che la tua colonna di raggruppamento rappresenti il confronto che intendi fare.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Fai clic su Load table, scegli measurements punto di bi e seleziona cell. Imposta Split by su rowID. I gruppi dell’esempio sono righe spaziali della piastra; verifica che la tua colonna di raggruppamento rappresenti il confronto che intendi fare."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Scegli AUC in Rank by. La separazione è il valore assoluto di due volte AUC meno uno. Higher in indica la direzione, e min n conta le misure finite nel gruppo più piccolo.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Scegli AUC in Rank by. La separazione è il valore assoluto di due volte AUC meno uno. Higher in indica la direzione, e min n conta le misure finite nel gruppo più piccolo."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Imposta Top su quattro per esaminare quattro istogrammi sovrapposti. Per ogni caratteristica i gruppi condividono i limiti delle classi, e l’altezza delle barre mostra i conteggi. Leggi sia le distribuzioni sia il punteggio della classifica.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "Imposta Top su quattro per esaminare quattro istogrammi sovrapposti. Per ogni caratteristica i gruppi condividono i limiti delle classi, e l’altezza delle barre mostra i conteggi. Leggi sia le distribuzioni sia il punteggio della classifica."
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Fai clic su Export ranking per salvare le caratteristiche principali mostrate. Con Top a quattro, l’esportazione contiene quattro righe di caratteristiche. Aumenta Top prima di esportare una classifica più lunga.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Export ranking per salvare le caratteristiche principali mostrate. Con Top a quattro, l’esportazione contiene quattro righe di caratteristiche. Aumenta Top prima di esportare una classifica più lunga."
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Imposta Top su cinquecento per includere tutte le duecentosessantuno caratteristiche valutabili di questo esempio. Il grafico mostra al massimo otto distribuzioni, anche quando la classifica esportata è più lunga.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "Imposta Top su cinquecento per includere tutte le duecentosessantuno caratteristiche valutabili di questo esempio. Il grafico mostra al massimo otto distribuzioni, anche quando la classifica esportata è più lunga."
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Porta Rank by su KS per confrontare la distanza massima tra le distribuzioni cumulative. KS può rivelare differenze di dispersione che AUC non coglie. Torna ad AUC per leggere la direzione in Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "Porta Rank by su KS per confrontare la distanza massima tra le distribuzioni cumulative. KS può rivelare differenze di dispersione che AUC non coglie. Torna ad AUC per leggere la direzione in Higher in."
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "In Filter, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. La popolazione passa a millecentosettantuno cellule e la classifica si aggiorna.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "In Filter, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. La popolazione passa a millecentosettantuno cellule e la classifica si aggiorna."
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Fai clic su Clear all per ripristinare la popolazione e la classifica complete. Ricontrolla Split by dopo aver cambiato i filtri, così sai quali gruppi stai confrontando.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Clear all per ripristinare la popolazione e la classifica complete. Ricontrolla Split by dopo aver cambiato i filtri, così sai quali gruppi stai confrontando."
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Filtrare rowID su r dodici elimina il secondo gruppo. In questa versione, Split by passa allora automaticamente a un’altra colonna. Controlla quel comando ogni volta che un filtro elimina un gruppo.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "Filtrare rowID su r dodici elimina il secondo gruppo. In questa versione, Split by passa allora automaticamente a un’altra colonna. Controlla quel comando ogni volta che un filtro elimina un gruppo."
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Azzera il filtro e rimetti esplicitamente rowID in Split by. Lascia disattivato Shuffle test per questo esempio: le cellule condividono i pozzetti, quindi rimescolare liberamente le etichette delle cellule non rappresenta repliche sperimentali indipendenti.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "Azzera il filtro e rimetti esplicitamente rowID in Split by. Lascia disattivato Shuffle test per questo esempio: le cellule condividono i pozzetti, quindi rimescolare liberamente le etichette delle cellule non rappresenta repliche sperimentali indipendenti."
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Apri Columns e chiama area_k una colonna calcolata. Inserisci cell_area diviso mille e fai clic su Add column con la sostituzione disattivata. Preview mostra le prime duemila righe; l’aggiunta applica la formula a tutta la tabella.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Apri Columns e chiama area_k una colonna calcolata. Inserisci cell_area diviso mille e fai clic su Add column con la sostituzione disattivata. Preview mostra le prime duemila righe; l’aggiunta applica la formula a tutta la tabella."
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "La colonna calcolata entra nella classifica. Un riscalamento positivo le dà gli stessi AUC e KS di cell_area. Rimuovi la formula per tornare alle caratteristiche originali.",
+        "hold_after": 0.7,
+        "speech_text": "La colonna calcolata entra nella classifica. Un riscalamento positivo le dà gli stessi AUC e KS di cell_area. Rimuovi la formula per tornare alle caratteristiche originali."
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Esporta la classifica dopo aver controllato popolazione, Split by e Top. In Python, usa rank_features ed ExplorerSpec da spacr.qt.widgets.feature_rank. Prosegui con Graph Builder per rappresentare più in dettaglio una caratteristica selezionata.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "Esporta la classifica dopo aver controllato popolazione, Split by e Top. In Python, usa rank_features ed ExplorerSpec da spàker.cu ti.widgets.feature_rank. Prosegui con Graph Builder per rappresentare più in dettaglio una caratteristica selezionata."
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer：グループを比べ、特徴量の順位を書き出す",
+      "description": "グループ化の列を選び、測定値をAUCまたはKSで順位付けし、分布を確認して、選んだ特徴量を書き出します。",
+      "objectives": [
+       "測定値を読み込み、比べるグループを選ぶ。",
+       "順位と分布を読み、フィルターと計算列を試す。",
+       "意図した数の順位付き特徴量を書き出す。"
+      ],
+      "prerequisite": "Annotateの例をダウンロードし、そのmeasurements.dbの作業用コピーを開きます。2341個の細胞が含まれています。このチュートリアルでは、プレートの空間上の行を示すrowIDのグループr12とr5を比べます。自分の実験に合ったグループの列を選び、比較を解釈するときは細胞がウェルを共有していることを考慮します。",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "HomeからClassifyを開き、Feature Explorerを選びます。Annotateの例の測定データベースを使い、既存の特徴量をグループ間で比べます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "ホームからClassifyを開き、Feature Explorerを選びます。Annotateの例の測定データベースを使い、既存の特徴量をグループ間で比べます。"
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Load tableをクリックし、measurements.dbを選んでcellを選びます。Split byをrowIDにします。例のグループはプレートの空間上の行です。グループ化の列が意図した比較を表しているかを確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Load tableをクリックし、メジャメンツ・ドット・ディービーを選んでcellを選びます。Split byをrowIDにします。例のグループはプレートの空間上の行です。グループ化の列が意図した比較を表しているかを確認します。"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Rank byでAUCを選びます。分離度は、AUCの二倍から一を引いた値の絶対値です。Higher inは向きを示し、min nは小さい方のグループにある有限の測定値の数です。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Rank byでAUCを選びます。分離度は、AUCの二倍から一を引いた値の絶対値です。Higher inは向きを示し、min nは小さい方のグループにある有限の測定値の数です。"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Topを四にすると、四つの重ねたヒストグラムを確認できます。各特徴量の中では、グループはビンの境界を共有し、棒の高さは件数を表します。分布と順位のスコアの両方を読みます。",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "Topを四にすると、四つの重ねたヒストグラムを確認できます。各特徴量の中では、グループはビンの境界を共有し、棒の高さは件数を表します。分布と順位のスコアの両方を読みます。"
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Export rankingをクリックすると、表示中の上位の特徴量が保存されます。Topが四なら、書き出しには特徴量の行が四つ入ります。長い順位を書き出す前にTopを増やします。",
+        "hold_after": 0.7,
+        "speech_text": "Export rankingをクリックすると、表示中の上位の特徴量が保存されます。Topが四なら、書き出しには特徴量の行が四つ入ります。長い順位を書き出す前にTopを増やします。"
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Topを五百にすると、この例で評価できる二百六十一個の特徴量がすべて含まれます。書き出す順位が長くても、プロットに表示される分布は最大八つです。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "Topを五百にすると、この例で評価できる二百六十一個の特徴量がすべて含まれます。書き出す順位が長くても、プロットに表示される分布は最大八つです。"
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Rank byをKSに切り替えると、累積分布どうしの最大の差で比べます。KSは、AUCでは見逃すばらつきの違いを示すことがあります。Higher inで向きを確認するにはAUCに戻します。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "Rank byをKSに切り替えると、累積分布どうしの最大の差で比べます。KSは、AUCでは見逃すばらつきの違いを示すことがあります。Higher inで向きを確認するにはAUCに戻します。"
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Filterでcell_areaを追加し、最小値を二万千九百二十五にします。集団は千百七十一個の細胞になり、順位が更新されます。",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "Filterでcell_areaを追加し、最小値を二万千九百二十五にします。集団は千百七十一個の細胞になり、順位が更新されます。"
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Clear allをクリックすると、すべての集団と順位に戻ります。フィルターを変えた後は、どのグループを比べているかわかるように、Split byを確認し直します。",
+        "hold_after": 0.7,
+        "speech_text": "Clear allをクリックすると、すべての集団と順位に戻ります。フィルターを変えた後は、どのグループを比べているかわかるように、Split byを確認し直します。"
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "rowIDをr十二に絞り込むと、二つ目のグループがなくなります。このビルドでは、そのときSplit byが自動的に別の列に変わります。フィルターでグループがなくなったときは、必ずこの設定を確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "rowIDをr十二に絞り込むと、二つ目のグループがなくなります。このビルドでは、そのときSplit byが自動的に別の列に変わります。フィルターでグループがなくなったときは、必ずこの設定を確認します。"
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "フィルターを解除し、Split byにrowIDを明示的に戻します。この例ではShuffle testはオフのままにします。細胞はウェルを共有しているので、細胞のラベルを自由に入れ替えても、独立した実験の反復にはなりません。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "フィルターを解除し、Split byにrowIDを明示的に戻します。この例ではShuffle testはオフのままにします。細胞はウェルを共有しているので、細胞のラベルを自由に入れ替えても、独立した実験の反復にはなりません。"
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Columnsを開き、計算列の名前をarea_kにします。cell_areaを千で割る式を入力し、置き換えをオフにしてAdd columnをクリックします。Previewには最初の二千行が表示されます。追加すると、式は表全体に適用されます。",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Columnsを開き、計算列の名前をarea_kにします。cell_areaを千で割る式を入力し、置き換えをオフにしてAdd columnをクリックします。Previewには最初の二千行が表示されます。追加すると、式は表全体に適用されます。"
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "計算列が順位に加わります。正の倍率での尺度変更なので、AUCとKSはcell_areaと同じです。元の特徴量に戻るには、式を削除します。",
+        "hold_after": 0.7,
+        "speech_text": "計算列が順位に加わります。正の倍率での尺度変更なので、AUCとKSはcell_areaと同じです。元の特徴量に戻るには、式を削除します。"
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "集団、Split by、Topを確認してから順位を書き出します。Pythonでは、spacr.qt.widgets.feature_rankのrank_featuresとExplorerSpecを使います。選んだ特徴量をさらに詳しくプロットするには、Graph Builderに進みます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "集団、Split by、Topを確認してから順位を書き出します。Pythonでは、スペーカー.キュー ティー.widgets.feature_rankのrank_featuresとExplorerSpecを使います。選んだ特徴量をさらに詳しくプロットするには、Graph Builderに進みます。"
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: comparar grupos e exportar uma classificação de características",
+      "description": "Escolha uma coluna de agrupamento, ordene as medições por AUC ou KS, inspecione as distribuições e exporte as características selecionadas.",
+      "objectives": [
+       "Carregar medições e escolher os grupos a comparar.",
+       "Ler classificações e distribuições e depois explorar filtros e colunas calculadas.",
+       "Exportar o número desejado de características classificadas."
+      ],
+      "prerequisite": "Baixe o exemplo do Annotate e abra uma cópia de trabalho do measurements.db dele. Ele contém 2341 células. Este passo a passo compara os grupos de rowID r12 e r5, que identificam linhas espaciais da placa. Escolha uma coluna de grupo adequada ao seu experimento e, ao interpretar a comparação, leve em conta que as células compartilham poços.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Na tela Home, abra Classify e depois Feature Explorer. Use o banco de dados de medições do exemplo do Annotate para comparar características existentes entre grupos.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "Na tela Home, abra Classify e depois Feature Explorer. Use o banco de dados de medições do exemplo do Annotate para comparar características existentes entre grupos."
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Clique em Load table, escolha measurements.db e selecione cell. Defina Split by como rowID. Os grupos do exemplo são linhas espaciais da placa; confira se a sua coluna de agrupamento representa a comparação que você pretende.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "Clique em Load table, escolha measurements ponto dê bê e selecione cell. Defina Split by como rowID. Os grupos do exemplo são linhas espaciais da placa; confira se a sua coluna de agrupamento representa a comparação que você pretende."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Escolha AUC em Rank by. A separação é o valor absoluto de duas vezes AUC menos um. Higher in mostra a direção, e min n conta as medições finitas no grupo menor.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "Escolha AUC em Rank by. A separação é o valor absoluto de duas vezes AUC menos um. Higher in mostra a direção, e min n conta as medições finitas no grupo menor."
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Defina Top como quatro para inspecionar quatro histogramas sobrepostos. Em cada característica, os grupos compartilham os limites das classes, e a altura das barras mostra contagens. Leia tanto as distribuições quanto a pontuação da classificação.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "Defina Top como quatro para inspecionar quatro histogramas sobrepostos. Em cada característica, os grupos compartilham os limites das classes, e a altura das barras mostra contagens. Leia tanto as distribuições quanto a pontuação da classificação."
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Clique em Export ranking para salvar as principais características exibidas. Com Top em quatro, a exportação contém quatro linhas de características. Aumente Top antes de exportar uma classificação mais longa.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Export ranking para salvar as principais características exibidas. Com Top em quatro, a exportação contém quatro linhas de características. Aumente Top antes de exportar uma classificação mais longa."
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Defina Top como quinhentos para incluir todas as duzentas e sessenta e uma características pontuáveis deste exemplo. O gráfico mostra no máximo oito distribuições, mesmo quando a classificação exportada é mais longa.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "Defina Top como quinhentos para incluir todas as duzentas e sessenta e uma características pontuáveis deste exemplo. O gráfico mostra no máximo oito distribuições, mesmo quando a classificação exportada é mais longa."
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Mude Rank by para KS para comparar a maior distância entre as distribuições acumuladas. O KS pode revelar diferenças de dispersão que o AUC não percebe. Volte para AUC para ver a direção em Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "Mude Rank by para KS para comparar a maior distância entre as distribuições acumuladas. O KS pode revelar diferenças de dispersão que o AUC não percebe. Volte para AUC para ver a direção em Higher in."
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Em Filter, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. A população passa a mil cento e setenta e uma células, e a classificação é atualizada.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "Em Filter, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. A população passa a mil cento e setenta e uma células, e a classificação é atualizada."
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Clique em Clear all para restaurar a população e a classificação completas. Confira de novo Split by depois de mudar os filtros, para saber quais grupos estão sendo comparados.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Clear all para restaurar a população e a classificação completas. Confira de novo Split by depois de mudar os filtros, para saber quais grupos estão sendo comparados."
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Filtrar rowID para r doze remove o segundo grupo. Nesta versão, Split by então muda automaticamente para outra coluna. Confira esse controle sempre que um filtro remover um grupo.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "Filtrar rowID para r doze remove o segundo grupo. Nesta versão, Split by então muda automaticamente para outra coluna. Confira esse controle sempre que um filtro remover um grupo."
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Limpe o filtro e volte a colocar rowID em Split by de forma explícita. Deixe Shuffle test desativado neste exemplo: as células compartilham poços, então embaralhar livremente os rótulos das células não representa réplicas experimentais independentes.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "Limpe o filtro e volte a colocar rowID em Split by de forma explícita. Deixe Shuffle test desativado neste exemplo: as células compartilham poços, então embaralhar livremente os rótulos das células não representa réplicas experimentais independentes."
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Abra Columns e dê o nome area_k a uma coluna calculada. Digite cell_area dividido por mil e clique em Add column com a substituição desativada. Preview mostra as primeiras duas mil linhas; ao adicionar, a fórmula é aplicada à tabela inteira.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "Abra Columns e dê o nome area_k a uma coluna calculada. Digite cell_area dividido por mil e clique em Add column com a substituição desativada. Preview mostra as primeiras duas mil linhas; ao adicionar, a fórmula é aplicada à tabela inteira."
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "A coluna calculada entra na classificação. Um reescalonamento positivo dá a ela o mesmo AUC e o mesmo KS de cell_area. Remova a fórmula para voltar às características originais.",
+        "hold_after": 0.7,
+        "speech_text": "A coluna calculada entra na classificação. Um reescalonamento positivo dá a ela o mesmo AUC e o mesmo KS de cell_area. Remova a fórmula para voltar às características originais."
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Exporte a classificação depois de conferir a população, Split by e Top. No Python, use rank_features e ExplorerSpec de spacr.qt.widgets.feature_rank. Continue no Graph Builder para representar com mais detalhes uma característica selecionada.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "Exporte a classificação depois de conferir a população, Split by e Top. No Python, use rank_features e ExplorerSpec de espáquer.quê tê.widgets.feature_rank. Continue no Graph Builder para representar com mais detalhes uma característica selecionada."
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer：比较分组并导出特征排名",
+      "description": "选择分组列，按AUC或KS对测量值排名，检查分布，并导出所选特征。",
+      "objectives": [
+       "加载测量数据并选择要比较的分组。",
+       "阅读排名和分布，然后探索过滤条件和计算列。",
+       "导出预期数量的排名特征。"
+      ],
+      "prerequisite": "下载Annotate示例，并打开其measurements.db的工作副本。其中包含2341个细胞。本演示比较rowID中的r12和r5两个分组，它们表示板上的空间行。请选择适合您实验的分组列，并在解读比较时考虑到细胞共享孔。",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "从Home打开Classify，然后选择Feature Explorer。使用Annotate示例中的测量数据库，在分组之间比较已有的特征。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ],
+        "speech_text": "从主页打开Classify，然后选择Feature Explorer。使用Annotate示例中的测量数据库，在分组之间比较已有的特征。"
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "点击Load table，选择measurements.db并选择cell。把Split by设为rowID。示例中的分组是板上的空间行；请确认您的分组列代表您想要的比较。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ],
+        "speech_text": "点击Load table，选择测量数据库文件并选择cell。把Split by设为rowID。示例中的分组是板上的空间行；请确认您的分组列代表您想要的比较。"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "在Rank by中选择AUC。分离度是AUC的两倍减一后的绝对值。Higher in显示方向，min n统计较小分组中的有限测量值数量。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ],
+        "speech_text": "在Rank by中选择AUC。分离度是AUC的两倍减一后的绝对值。Higher in显示方向，min n统计较小分组中的有限测量值数量。"
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "把Top设为四，查看四个叠加的直方图。在每个特征内，各组共享分箱边界，柱高表示计数。请同时阅读分布和排名得分。",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ],
+        "speech_text": "把Top设为四，查看四个叠加的直方图。在每个特征内，各组共享分箱边界，柱高表示计数。请同时阅读分布和排名得分。"
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "点击Export ranking保存当前显示的排名靠前的特征。Top为四时，导出内容包含四行特征。导出更长的排名前，请先增大Top。",
+        "hold_after": 0.7,
+        "speech_text": "点击Export ranking保存当前显示的排名靠前的特征。Top为四时，导出内容包含四行特征。导出更长的排名前，请先增大Top。"
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "把Top设为五百，以包含本例中全部两百六十一个可评分的特征。即使导出的排名更长，图中最多也只显示八个分布。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ],
+        "speech_text": "把Top设为五百，以包含本例中全部两百六十一个可评分的特征。即使导出的排名更长，图中最多也只显示八个分布。"
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "把Rank by切换为KS，比较累积分布之间的最大差距。KS可以发现AUC遗漏的离散程度差异。回到AUC即可通过Higher in查看方向。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ],
+        "speech_text": "把Rank by切换为KS，比较累积分布之间的最大差距。KS可以发现AUC遗漏的离散程度差异。回到AUC即可通过Higher in查看方向。"
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "在Filter中添加cell_area，并把最小值设为两万一千九百二十五。群体变为一千一百七十一个细胞，排名随之更新。",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ],
+        "speech_text": "在Filter中添加cell_area，并把最小值设为两万一千九百二十五。群体变为一千一百七十一个细胞，排名随之更新。"
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "点击Clear all恢复完整的群体和排名。更改过滤条件后请重新检查Split by，以便知道正在比较哪些分组。",
+        "hold_after": 0.7,
+        "speech_text": "点击Clear all恢复完整的群体和排名。更改过滤条件后请重新检查Split by，以便知道正在比较哪些分组。"
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "把rowID过滤为r十二会移除第二个分组。在此版本中，Split by随后会自动改为另一列。每当过滤条件移除某个分组时，请检查该控件。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ],
+        "speech_text": "把rowID过滤为r十二会移除第二个分组。在此版本中，Split by随后会自动改为另一列。每当过滤条件移除某个分组时，请检查该控件。"
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "清除过滤条件，并在Split by中明确恢复rowID。本例中请保持Shuffle test关闭：细胞共享孔，因此不加限制地打乱细胞标签并不代表独立的实验重复。",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ],
+        "speech_text": "清除过滤条件，并在Split by中明确恢复rowID。本例中请保持Shuffle test关闭：细胞共享孔，因此不加限制地打乱细胞标签并不代表独立的实验重复。"
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "打开Columns，把一个计算列命名为area_k。输入cell_area除以一千，在关闭替换的情况下点击Add column。Preview显示前两千行；添加时公式会应用到整张表。",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ],
+        "speech_text": "打开Columns，把一个计算列命名为area_k。输入cell_area除以一千，在关闭替换的情况下点击Add column。Preview显示前两千行；添加时公式会应用到整张表。"
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "计算列会加入排名。正向缩放使它的AUC和KS与cell_area相同。删除该公式即可回到原始特征。",
+        "hold_after": 0.7,
+        "speech_text": "计算列会加入排名。正向缩放使它的AUC和KS与cell_area相同。删除该公式即可回到原始特征。"
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "检查群体、Split by和Top后导出排名。在Python中，请使用spacr.qt.widgets.feature_rank中的rank_features和ExplorerSpec。继续使用Graph Builder，更详细地绘制所选特征。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ],
+        "speech_text": "检查群体、Split by和Top后导出排名。在Python中，请使用斯佩克尔.Q T.widgets.feature_rank中的rank_features和ExplorerSpec。继续使用Graph Builder，更详细地绘制所选特征。"
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: sammenlign grupper og eksportér en rangering af egenskaber",
+      "description": "Vælg en grupperingskolonne, rangér målinger efter AUC eller KS, undersøg fordelinger, og eksportér de valgte egenskaber.",
+      "objectives": [
+       "Indlæse målinger og vælge de grupper, der sammenlignes.",
+       "Læse rangeringer og fordelinger og derefter udforske filtre og beregnede kolonner.",
+       "Eksportere det ønskede antal rangerede egenskaber."
+      ],
+      "prerequisite": "Hent Annotate-eksemplet, og åbn en arbejdskopi af dets measurements.db. Den indeholder 2.341 celler. Gennemgangen sammenligner rowID-grupperne r12 og r5, som angiver rumlige pladerækker. Vælg en gruppekolonne, der passer til dit eget forsøg, og tag højde for, at celler deler brønde, når du fortolker sammenligningen.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Fra Home åbner du Classify og derefter Feature Explorer. Brug måledatabasen fra Annotate-eksemplet til at sammenligne eksisterende egenskaber mellem grupper.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Klik på Load table, vælg measurements.db, og vælg cell. Sæt Split by til rowID. Eksemplets grupper er rumlige pladerækker; kontrollér, at din grupperingskolonne repræsenterer den sammenligning, du har i sinde.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Vælg AUC under Rank by. Adskillelsen er den numeriske værdi af 2 × AUC − 1. Higher in viser retningen, og min n tæller endelige måleværdier i den mindste gruppe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Sæt Top til 4 for at undersøge fire overlejrede histogrammer. Inden for hver egenskab deler grupperne klassegrænser, og søjlehøjderne viser antal. Læs både fordelingerne og rangeringsscoren.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Klik på Export ranking for at gemme de viste topegenskaber. Med Top sat til 4 indeholder eksporten fire egenskabsrækker. Øg Top, før du eksporterer en længere rangering.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Sæt Top til 500 for at medtage alle 261 egenskaber i eksemplet, der kan scores. Plottet viser højst otte fordelinger, også når den eksporterede rangering er længere.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Skift Rank by til KS for at sammenligne den største afstand mellem kumulative fordelinger. KS kan afsløre forskelle i spredning, som AUC overser. Gå tilbage til AUC for at se retningen i Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Under Filter tilføjer du cell_area og sætter minimum til 21.925. Populationen ændres til 1.171 celler, og rangeringen opdateres.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Klik på Clear all for at gendanne hele populationen og rangeringen. Kontrollér Split by igen efter ændringer af filtre, så du ved, hvilke grupper der sammenlignes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Når rowID filtreres til r12, forsvinder den anden gruppe. I denne version skifter Split by så automatisk til en anden kolonne. Kontrollér den indstilling, hver gang et filter fjerner en gruppe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Ryd filteret, og sæt udtrykkeligt rowID tilbage under Split by. Lad Shuffle test være slået fra i dette eksempel: cellerne deler brønde, så frie ombytninger af cellelabels svarer ikke til uafhængige eksperimentelle replikater.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Åbn Columns, og navngiv en beregnet kolonne area_k. Indtast cell_area divideret med 1000, og klik på Add column med erstatning slået fra. Preview viser de første 2.000 rækker; når kolonnen tilføjes, anvendes formlen på hele tabellen.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "Den beregnede kolonne indgår i rangeringen. En positiv omskalering giver den samme AUC og KS som cell_area. Fjern formlen for at vende tilbage til de oprindelige egenskaber.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Eksportér rangeringen, når du har kontrolleret populationen, Split by og Top. I Python bruger du rank_features og ExplorerSpec fra spacr.qt.widgets.feature_rank. Fortsæt i Graph Builder for at plotte en valgt egenskab mere detaljeret.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: Gruppen vergleichen und ein Merkmalsranking exportieren",
+      "description": "Wählen Sie eine Gruppierungsspalte, ordnen Sie Messgrößen nach AUC oder KS, prüfen Sie Verteilungen und exportieren Sie die ausgewählten Merkmale.",
+      "objectives": [
+       "Messwerte laden und die Vergleichsgruppen wählen.",
+       "Rankings und Verteilungen lesen und dann Filter und berechnete Spalten erkunden.",
+       "Die gewünschte Anzahl gerankter Merkmale exportieren."
+      ],
+      "prerequisite": "Laden Sie das Annotate-Beispiel herunter und öffnen Sie eine Arbeitskopie seiner measurements.db. Sie enthält 2.341 Zellen. Diese Anleitung vergleicht die rowID-Gruppen r12 und r5, die räumliche Plattenzeilen kennzeichnen. Wählen Sie eine für Ihr Experiment passende Gruppenspalte und berücksichtigen Sie bei der Interpretation, dass Zellen Wells gemeinsam haben.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Öffnen Sie von Home aus Classify und dann Feature Explorer. Verwenden Sie die Messdatenbank aus dem Annotate-Beispiel, um vorhandene Merkmale zwischen Gruppen zu vergleichen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Klicken Sie auf Load table, wählen Sie measurements.db und dann cell. Setzen Sie Split by auf rowID. Die Beispielgruppen sind räumliche Plattenzeilen; prüfen Sie, ob Ihre Gruppierungsspalte den beabsichtigten Vergleich abbildet.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Wählen Sie AUC unter Rank by. Die Trennung ist der Betrag von 2 × AUC − 1. Higher in zeigt die Richtung, und min n zählt die endlichen Messwerte in der kleineren Gruppe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Setzen Sie Top auf 4, um vier überlagerte Histogramme zu prüfen. Innerhalb jedes Merkmals teilen die Gruppen die Klassengrenzen, und die Balkenhöhen zeigen Anzahlen. Lesen Sie sowohl die Verteilungen als auch den Ranking-Wert.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Klicken Sie auf Export ranking, um die angezeigten Top-Merkmale zu speichern. Mit Top 4 enthält der Export vier Merkmalszeilen. Erhöhen Sie Top, bevor Sie ein längeres Ranking exportieren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Setzen Sie Top auf 500, um alle 261 bewertbaren Merkmale dieses Beispiels einzuschließen. Das Diagramm zeigt höchstens acht Verteilungen, auch wenn das exportierte Ranking länger ist.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Stellen Sie Rank by auf KS um, um die größte Lücke zwischen kumulativen Verteilungen zu vergleichen. KS kann Streuungsunterschiede zeigen, die AUC übersieht. Kehren Sie zu AUC zurück, um die Richtung über Higher in zu prüfen.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Fügen Sie unter Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Die Population ändert sich auf 1.171 Zellen, und das Ranking wird aktualisiert.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Klicken Sie auf Clear all, um die vollständige Population und das Ranking wiederherzustellen. Prüfen Sie Split by nach Filteränderungen erneut, damit Sie wissen, welche Gruppen verglichen werden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Das Filtern von rowID auf r12 entfernt die zweite Gruppe. In diesem Build wechselt Split by dann automatisch zu einer anderen Spalte. Prüfen Sie dieses Steuerelement immer, wenn ein Filter eine Gruppe entfernt.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Löschen Sie den Filter und stellen Sie rowID unter Split by ausdrücklich wieder her. Lassen Sie Shuffle test in diesem Beispiel aus: Zellen teilen sich Wells, daher entsprechen uneingeschränkte Vertauschungen der Zelllabels keinen unabhängigen experimentellen Replikaten.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Öffnen Sie Columns und nennen Sie eine berechnete Spalte area_k. Geben Sie cell_area geteilt durch 1000 ein und klicken Sie bei ausgeschaltetem Ersetzen auf Add column. Preview zeigt die ersten 2.000 Zeilen; beim Hinzufügen gilt die Formel für die gesamte Tabelle.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "Die berechnete Spalte geht in das Ranking ein. Eine positive Umskalierung gibt ihr dieselben AUC- und KS-Werte wie cell_area. Entfernen Sie die Formel, um zu den ursprünglichen Merkmalen zurückzukehren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Exportieren Sie das Ranking, nachdem Sie Population, Split by und Top geprüft haben. Verwenden Sie in Python rank_features und ExplorerSpec aus spacr.qt.widgets.feature_rank. Fahren Sie mit Graph Builder fort, um ein ausgewähltes Merkmal genauer darzustellen.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: berðu saman hópa og fluttu út röðun eiginleika",
+      "description": "Veldu flokkunardálk, raðaðu mælingum eftir AUC eða KS, skoðaðu dreifingar og fluttu út valda eiginleika.",
+      "objectives": [
+       "Hlaða inn mælingum og velja hópa til samanburðar.",
+       "Lesa raðanir og dreifingar og kanna svo síur og reiknaða dálka.",
+       "Flytja út þann fjölda raðaðra eiginleika sem ætlunin er."
+      ],
+      "prerequisite": "Sæktu Annotate-dæmið og opnaðu vinnuafrit af measurements.db þess. Það inniheldur 2.341 frumu. Yfirferðin ber saman rowID-hópana r12 og r5, sem auðkenna rúmfræðilegar raðir á plötunni. Veldu hópdálk sem hentar tilrauninni þinni og hafðu í huga að frumur deila brunnum þegar þú túlkar samanburðinn.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Frá Home opnarðu Classify og svo Feature Explorer. Notaðu mælingagagnagrunninn úr Annotate-dæminu til að bera saman fyrirliggjandi eiginleika milli hópa.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Smelltu á Load table, veldu measurements.db og veldu cell. Stilltu Split by á rowID. Hóparnir í dæminu eru rúmfræðilegar raðir á plötunni; athugaðu að flokkunardálkurinn þinn tákni samanburðinn sem þú ætlar þér.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Veldu AUC undir Rank by. Aðgreiningin er tölugildi 2 × AUC − 1. Higher in sýnir stefnuna og min n telur endanleg mæligildi í minni hópnum.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Stilltu Top á 4 til að skoða fjögur yfirlögð stuðlarit. Innan hvers eiginleika deila hóparnir bilamörkum og hæð súlnanna sýnir fjölda. Lestu bæði dreifingarnar og röðunarstigið.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Smelltu á Export ranking til að vista efstu eiginleikana sem birtast. Með Top á 4 inniheldur útflutningurinn fjórar eiginleikalínur. Hækkaðu Top áður en þú flytur út lengri röðun.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Stilltu Top á 500 til að taka með alla 261 eiginleika dæmisins sem hægt er að gefa stig. Grafið sýnir í mesta lagi átta dreifingar, jafnvel þegar útflutta röðunin er lengri.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Skiptu Rank by yfir í KS til að bera saman mesta bilið milli uppsafnaðra dreifinga. KS getur leitt í ljós mun á dreifni sem AUC missir af. Farðu aftur í AUC til að sjá stefnuna í Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Í Filter bætirðu við cell_area og setur lágmarkið á 21.925. Þýðið breytist í 1.171 frumu og röðunin uppfærist.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Smelltu á Clear all til að fá allt þýðið og alla röðunina aftur. Athugaðu Split by aftur eftir að hafa breytt síum svo að þú vitir hvaða hópar eru bornir saman.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Ef rowID er síað á r12 hverfur seinni hópurinn. Í þessari útgáfu breytist Split by þá sjálfkrafa í annan dálk. Athugaðu þá stýringu í hvert sinn sem sía fjarlægir hóp.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Hreinsaðu síuna og settu rowID aftur með beinum hætti undir Split by. Hafðu Shuffle test óvirkt í þessu dæmi: frumur deila brunnum, svo óheft uppstokkun frumumerkja jafngildir ekki óháðum tilraunaendurtekningum.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Opnaðu Columns og nefndu reiknaðan dálk area_k. Sláðu inn cell_area deilt með 1000 og smelltu á Add column með útskiptingu óvirka. Preview sýnir fyrstu 2.000 línurnar; þegar dálkinum er bætt við gildir formúlan um alla töfluna.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "Reiknaði dálkurinn bætist við röðunina. Jákvæð kvarðabreyting gefur honum sama AUC og KS og cell_area. Fjarlægðu formúluna til að fara aftur í upprunalegu eiginleikana.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Fluttu röðunina út eftir að hafa athugað þýðið, Split by og Top. Í Python notarðu rank_features og ExplorerSpec úr spacr.qt.widgets.feature_rank. Haltu áfram í Graph Builder til að teikna valinn eiginleika nánar.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: 그룹 비교와 특징 순위 내보내기",
+      "description": "그룹 열을 고르고, 측정값을 AUC나 KS로 순위 매기고, 분포를 확인한 뒤 선택한 특징을 내보냅니다.",
+      "objectives": [
+       "측정값을 불러와 비교할 그룹을 고릅니다.",
+       "순위와 분포를 읽은 뒤 필터와 계산 열을 살펴봅니다.",
+       "원하는 개수의 순위 특징을 내보냅니다."
+      ],
+      "prerequisite": "Annotate 예제를 내려받아 그 measurements.db 작업 사본을 여세요. 세포 2,341개가 들어 있습니다. 이 안내에서는 플레이트의 공간상 행을 나타내는 rowID 그룹 r12와 r5를 비교합니다. 자신의 실험에 맞는 그룹 열을 고르고, 비교를 해석할 때 세포가 웰을 공유한다는 점을 고려하세요.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Home에서 Classify를 연 뒤 Feature Explorer를 여세요. Annotate 예제의 측정 데이터베이스로 기존 특징을 그룹 간에 비교합니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Load table을 클릭하고 measurements.db를 고른 뒤 cell을 고르세요. Split by를 rowID로 설정하세요. 예제의 그룹은 플레이트의 공간상 행이므로, 그룹 열이 의도한 비교를 나타내는지 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Rank by에서 AUC를 고르세요. 분리도는 2 × AUC − 1의 절댓값입니다. Higher in은 방향을 보여 주고, min n은 더 작은 그룹의 유한한 측정값 개수입니다.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Top을 4로 설정하면 겹친 히스토그램 4개를 볼 수 있습니다. 각 특징 안에서 그룹은 구간 경계를 공유하며, 막대 높이는 개수를 나타냅니다. 분포와 순위 점수를 함께 읽으세요.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Export ranking을 클릭하면 표시된 상위 특징이 저장됩니다. Top이 4이면 내보낸 파일에는 특징 행 4개가 들어 있습니다. 더 긴 순위를 내보내기 전에 Top을 늘리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Top을 500으로 설정하면 이 예제에서 점수를 매길 수 있는 특징 261개가 모두 포함됩니다. 내보낸 순위가 더 길어도 그래프에는 분포가 최대 8개만 표시됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Rank by를 KS로 바꾸면 누적 분포 사이의 가장 큰 차이로 비교합니다. KS는 AUC가 놓치는 퍼짐의 차이를 드러낼 수 있습니다. Higher in으로 방향을 보려면 AUC로 돌아가세요.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Filter에서 cell_area를 추가하고 최솟값을 21,925로 설정하세요. 집단이 세포 1,171개로 바뀌고 순위가 갱신됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Clear all을 클릭해 전체 집단과 순위로 돌아가세요. 필터를 바꾼 뒤에는 어떤 그룹을 비교하는지 알 수 있도록 Split by를 다시 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "rowID를 r12로 필터링하면 두 번째 그룹이 사라집니다. 이 빌드에서는 그때 Split by가 자동으로 다른 열로 바뀝니다. 필터 때문에 그룹이 사라질 때마다 이 컨트롤을 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "필터를 지우고 Split by에 rowID를 명시적으로 다시 설정하세요. 이 예제에서는 Shuffle test를 꺼 두세요. 세포가 웰을 공유하므로 세포 라벨을 제한 없이 섞는 것은 독립적인 실험 반복이 되지 않습니다.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Columns를 열고 계산 열 이름을 area_k로 하세요. cell_area를 1000으로 나누는 식을 입력하고, 대체를 끈 채로 Add column을 클릭하세요. Preview는 처음 2,000행을 보여 주며, 추가하면 식이 전체 표에 적용됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "계산 열이 순위에 들어갑니다. 양의 배율로 척도를 바꾼 것이므로 AUC와 KS는 cell_area와 같습니다. 원래 특징으로 돌아가려면 식을 제거하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "집단, Split by, Top을 확인한 뒤 순위를 내보내세요. Python에서는 spacr.qt.widgets.feature_rank의 rank_features와 ExplorerSpec을 쓰세요. 선택한 특징을 더 자세히 그리려면 Graph Builder로 이어 가세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: sammenlign grupper og eksporter en rangering av egenskaper",
+      "description": "Velg en grupperingskolonne, ranger målinger etter AUC eller KS, undersøk fordelinger og eksporter de valgte egenskapene.",
+      "objectives": [
+       "Laste inn målinger og velge sammenligningsgruppene.",
+       "Lese rangeringer og fordelinger og deretter utforske filtre og beregnede kolonner.",
+       "Eksportere ønsket antall rangerte egenskaper."
+      ],
+      "prerequisite": "Last ned Annotate-eksemplet og åpne en arbeidskopi av measurements.db. Den inneholder 2 341 celler. Gjennomgangen sammenligner rowID-gruppene r12 og r5, som angir romlige platerader. Velg en gruppekolonne som passer eksperimentet ditt, og ta hensyn til at celler deler brønner når du tolker sammenligningen.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Fra Home åpner du Classify og deretter Feature Explorer. Bruk måledatabasen fra Annotate-eksemplet til å sammenligne eksisterende egenskaper mellom grupper.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Klikk på Load table, velg measurements.db og velg cell. Sett Split by til rowID. Eksempelgruppene er romlige platerader; kontroller at grupperingskolonnen din representerer sammenligningen du ønsker.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Velg AUC under Rank by. Separasjonen er absoluttverdien av 2 × AUC − 1. Higher in viser retningen, og min n teller endelige måleverdier i den minste gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Sett Top til 4 for å undersøke fire overlagte histogrammer. Innenfor hver egenskap deler gruppene klassegrenser, og søylehøyden viser antall. Les både fordelingene og rangeringspoengsummen.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Klikk på Export ranking for å lagre de viste toppegenskapene. Med Top satt til 4 inneholder eksporten fire egenskapsrader. Øk Top før du eksporterer en lengre rangering.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Sett Top til 500 for å ta med alle de 261 egenskapene i eksemplet som kan gis poeng. Plottet viser høyst åtte fordelinger, selv når den eksporterte rangeringen er lengre.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Bytt Rank by til KS for å sammenligne den største avstanden mellom kumulative fordelinger. KS kan avdekke spredningsforskjeller som AUC går glipp av. Gå tilbake til AUC for å se retningen i Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Under Filter legger du til cell_area og setter minimum til 21 925. Populasjonen endres til 1 171 celler, og rangeringen oppdateres.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Klikk på Clear all for å gjenopprette hele populasjonen og rangeringen. Kontroller Split by på nytt etter filterendringer, slik at du vet hvilke grupper som sammenlignes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "Når rowID filtreres til r12, forsvinner den andre gruppen. I denne versjonen bytter Split by da automatisk til en annen kolonne. Kontroller den innstillingen hver gang et filter fjerner en gruppe.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Tøm filteret og sett rowID uttrykkelig tilbake under Split by. La Shuffle test være av i dette eksemplet: cellene deler brønner, så fri omstokking av celleetiketter tilsvarer ikke uavhengige eksperimentelle replikater.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Åpne Columns og gi en beregnet kolonne navnet area_k. Skriv inn cell_area delt på 1000 og klikk på Add column med erstatning slått av. Preview viser de første 2 000 radene; når kolonnen legges til, brukes formelen på hele tabellen.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "Den beregnede kolonnen tas med i rangeringen. En positiv omskalering gir den samme AUC og KS som cell_area. Fjern formelen for å gå tilbake til de opprinnelige egenskapene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Eksporter rangeringen etter at du har kontrollert populasjonen, Split by og Top. I Python bruker du rank_features og ExplorerSpec fra spacr.qt.widgets.feature_rank. Fortsett i Graph Builder for å plotte en valgt egenskap mer detaljert.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 51,
+     "preceding": [
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "64_gate_editor",
+     "next": "66_outliers",
+     "entry": {
+      "id": "65_feature_explorer",
+      "number": 65,
+      "slug": "feature_explorer",
+      "series": 5,
+      "app_key": "feature_explorer",
+      "section": "Explore",
+      "title": "Feature Explorer: jämför grupper och exportera en rangordning av egenskaper",
+      "description": "Välj en grupperingskolumn, rangordna mätningar efter AUC eller KS, granska fördelningar och exportera de valda egenskaperna.",
+      "objectives": [
+       "Läsa in mätningar och välja jämförelsegrupper.",
+       "Läsa rangordningar och fördelningar och sedan utforska filter och beräknade kolumner.",
+       "Exportera det avsedda antalet rangordnade egenskaper."
+      ],
+      "prerequisite": "Hämta Annotate-exemplet och öppna en arbetskopia av dess measurements.db. Den innehåller 2 341 celler. Genomgången jämför rowID-grupperna r12 och r5, som anger rumsliga plattrader. Välj en gruppkolumn som passar ditt eget experiment och ta hänsyn till att celler delar brunnar när du tolkar jämförelsen.",
+      "scenes": [
+       {
+        "visual": "01_classify_host",
+        "narration": "Från Home öppnar du Classify och sedan Feature Explorer. Använd mätdatabasen från Annotate-exemplet för att jämföra befintliga egenskaper mellan grupper.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "04_real_row_comparison",
+        "narration": "Klicka på Load table, välj measurements.db och välj cell. Ställ Split by på rowID. Exemplets grupper är rumsliga plattrader; kontrollera att din grupperingskolumn motsvarar den jämförelse du avser.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         280,
+         3460,
+         370
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Välj AUC under Rank by. Separationen är absolutbeloppet av 2 × AUC − 1. Higher in visar riktningen, och min n räknar ändliga mätvärden i den mindre gruppen.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         380,
+         950,
+         275
+        ]
+       },
+       {
+        "visual": "05_four_distributions",
+        "narration": "Ställ Top på 4 för att granska fyra överlagrade histogram. Inom varje egenskap delar grupperna klassgränser, och staplarnas höjd visar antal. Läs både fördelningarna och rangordningspoängen.",
+        "hold_after": 0.7,
+        "focus": [
+         1290,
+         460,
+         1810,
+         1590
+        ]
+       },
+       {
+        "visual": "06_top_four_ranking_complete",
+        "narration": "Klicka på Export ranking för att spara de visade topp-egenskaperna. Med Top på 4 innehåller exporten fyra egenskapsrader. Öka Top innan du exporterar en längre rangordning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_full_ranking_complete",
+        "narration": "Ställ Top på 500 för att ta med alla 261 poängsättbara egenskaper i exemplet. Diagrammet visar högst åtta fördelningar, även när den exporterade rangordningen är längre.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         1650
+        ]
+       },
+       {
+        "visual": "09_ks_comparison",
+        "narration": "Byt Rank by till KS för att jämföra det största avståndet mellan kumulativa fördelningar. KS kan visa spridningsskillnader som AUC missar. Gå tillbaka till AUC för att se riktningen i Higher in.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         2760,
+         400
+        ]
+       },
+       {
+        "visual": "10_live_area_filter",
+        "narration": "Under Filter lägger du till cell_area och sätter minimum till 21 925. Populationen ändras till 1 171 celler och rangordningen uppdateras.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         420
+        ]
+       },
+       {
+        "visual": "11_restore_all_cells",
+        "narration": "Klicka på Clear all för att återställa hela populationen och rangordningen. Kontrollera Split by igen efter filterändringar så att du vet vilka grupper som jämförs.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_one_row_changes_comparison",
+        "narration": "När rowID filtreras till r12 försvinner den andra gruppen. I den här versionen byter Split by då automatiskt till en annan kolumn. Kontrollera den inställningen varje gång ett filter tar bort en grupp.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         400
+        ]
+       },
+       {
+        "visual": "13_restore_two_classes",
+        "narration": "Rensa filtret och återställ uttryckligen rowID under Split by. Låt Shuffle test vara avstängt i exemplet: cellerna delar brunnar, så fria omblandningar av celletiketter motsvarar inte oberoende experimentella replikat.",
+        "hold_after": 0.7,
+        "focus": [
+         345,
+         375,
+         3460,
+         275
+        ]
+       },
+       {
+        "visual": "14_scaled_area_formula",
+        "narration": "Öppna Columns och namnge en beräknad kolumn area_k. Ange cell_area delat med 1000 och klicka på Add column med ersättning avstängd. Preview visar de första 2 000 raderna; när du lägger till kolumnen tillämpas formeln på hela tabellen.",
+        "hold_after": 0.7,
+        "focus": [
+         3105,
+         375,
+         355,
+         1030
+        ]
+       },
+       {
+        "visual": "16_ranking_with_derived_area_complete",
+        "narration": "Den beräknade kolumnen ingår i rangordningen. En positiv omskalning ger den samma AUC och KS som cell_area. Ta bort formeln för att återgå till de ursprungliga egenskaperna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_original_features_restored",
+        "narration": "Exportera rangordningen när du har kontrollerat populationen, Split by och Top. I Python använder du rank_features och ExplorerSpec från spacr.qt.widgets.feature_rank. Fortsätt i Graph Builder för att visa en vald egenskap mer i detalj.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "34_database",
+         "58_graph_builder"
+        ]
+       }
+      ],
+      "host_app_key": "classify_merged",
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "41_classify",
+     "scene": 10,
+     "links": [
+      "65_feature_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       3,
+       "lessons"
+      ],
+      "preceding": [
+       "39_classifier_evaluation",
+       "28_training_runs",
+       "16_activation",
+       "11_classify_ml",
+       "10_classify_cv"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 46,
+     "value": {
+      "kind": "submodule",
+      "app_key": "feature_explorer",
+      "host_app_key": "classify_merged",
+      "host_lesson": "41_classify",
+      "host_title": "Classify"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/65_feature_explorer -> tools/tutorials/archive/production/docs/65_feature_explorer"
+ ],
+ "prose": []
+}

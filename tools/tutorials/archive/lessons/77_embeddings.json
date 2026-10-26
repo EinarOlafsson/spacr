@@ -1,0 +1,4223 @@
+{
+ "schema": 1,
+ "id": "77_embeddings",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: load crops and compare channel policies",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
+      "objectives": [
+       "Load a crop folder through the Embeddings screen.",
+       "Choose the backbone, batch size and channel policy.",
+       "Inspect the vector preview and save full results through the supplied Python helper."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "77_embeddings/poster.jpg",
+      "silent": "77_embeddings/video/77_embeddings_silent.mp4",
+      "web": "77_embeddings/web/77_embeddings_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: load crops and compare channel policies",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
+      "objectives": [
+       "Load a crop folder through the Embeddings screen.",
+       "Choose the backbone, batch size and channel policy.",
+       "Inspect the vector preview and save full results through the supplied Python helper."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: cargar recortes y comparar políticas de canales",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Carga recortes de imagen desde Home, elige el codificador y la política de canales, ejecuta Embed y revisa la vista previa de características.",
+      "objectives": [
+       "Cargar una carpeta de recortes desde la pantalla Embeddings.",
+       "Elegir la red base, el tamaño de lote y la política de canales.",
+       "Revisar la vista previa de los vectores y guardar los resultados completos con el script de Python proporcionado."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Instala spaCR con su extra de embeddings. Descarga el ejemplo de Annotate y localiza plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Para el pequeño ejemplo mostrado, copia los primeros dieciséis PNG, en orden alfabético de nombre de archivo, a una carpeta nueva. La primera ejecución del codificador descarga los pesos preentrenados si no están en caché. El archivo opcional Embeddings_API_example.zip incluye un script auxiliar para guardar las matrices completas.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Desde Home, abre Embeddings en Data. Cargarás recortes de imagen, elegirás cómo se codifican sus canales y generarás un vector numérico de características por objeto.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "Desde Home, abre Embeddings en Data. Cargarás recortes de imagen, elegirás cómo se codifican sus canales y generarás un vector numérico de características por objeto."
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Elige crop folder en Crops from. También puedes usar una base de datos de mediciones cuando quieras seleccionar una clase de objeto, una placa o una condición. Este recorrido usa la carpeta de recortes del ejemplo descargable de Annotate.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Elige crop folder en Crops from. También puedes usar una base de datos de mediciones cuando quieras seleccionar una clase de objeto, una placa o una condición. Este recorrido usa la carpeta de recortes del ejemplo descargable de Annotate."
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copia dieciséis PNG de ejemplo en una carpeta de trabajo. Escribe la ruta de esa carpeta y pulsa Enter, o usa Browse. Pon At most en dieciséis y haz clic en Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Copia dieciséis PNG de ejemplo en una carpeta de trabajo. Escribe la ruta de esa carpeta y pulsa Enter, o usa Browse. Pon At most en dieciséis y haz clic en Load crops."
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Lee el número de recortes cargados, su tamaño y su número de canales. El ejemplo contiene dieciséis imágenes de doscientos veinticuatro píxeles de lado, con tres canales guardados. Comprueba la correspondencia de canales de la exportación de recortes antes de comparar resultados.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Lee el número de recortes cargados, su tamaño y su número de canales. El ejemplo contiene dieciséis imágenes de doscientos veinticuatro píxeles de lado, con tres canales guardados. Comprueba la correspondencia de canales de la exportación de recortes antes de comparar resultados."
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Elige Per channel para codificar cada canal por separado y concatenar sus características. Deja resnet18 como Backbone y pon Batch en cuatro para esta ejecución pequeña. Los lotes más pequeños reducen el uso de memoria.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Elige Per channel para codificar cada canal por separado y concatenar sus características. Deja resnet18 como Backbone y pon Batch en cuatro para esta ejecución pequeña. Los lotes más pequeños reducen el uso de memoria."
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Haz clic en Embed y espera la vista previa. El ejemplo genera dieciséis vectores de objeto con mil quinientas treinta y seis dimensiones. La tabla muestra solo las primeras dimensiones y, en ejecuciones más grandes, hasta cincuenta objetos.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Haz clic en Embed y espera la vista previa. El ejemplo genera dieciséis vectores de objeto con mil quinientas treinta y seis dimensiones. La tabla muestra solo las primeras dimensiones y, en ejecuciones más grandes, hasta cincuenta objetos."
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Selecciona Project to three y vuelve a hacer clic en Embed. Así se codifica la imagen combinada en lugar de cada canal por separado. Usa los mismos recortes y la misma red base al comparar las dos políticas.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona Project to three y vuelve a hacer clic en Embed. Así se codifica la imagen combinada en lugar de cada canal por separado. Usa los mismos recortes y la misma red base al comparar las dos políticas."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "El ejemplo proyectado tiene quinientas doce dimensiones por objeto. Guarda la política de canales y la configuración del codificador junto con los resultados. Usa los vectores completos en el análisis posterior; las dimensiones individuales no son mediciones biológicas.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "El ejemplo proyectado tiene quinientas doce dimensiones por objeto. Guarda la política de canales y la configuración del codificador junto con los resultados. Usa los vectores completos en el análisis posterior; las dimensiones individuales no son mediciones biológicas."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Por ahora, la pantalla ofrece una vista previa sin botón de exportación. Para guardar las matrices completas, descarga el script auxiliar de Python enlazado y sigue su README. Escribe los vectores, los nombres de archivo de los objetos, la configuración y gráficos exploratorios en una carpeta de salida nueva.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Por ahora, la pantalla ofrece una vista previa sin botón de exportación. Para guardar las matrices completas, descarga el script auxiliar de Python enlazado y sigue su README. Escribe los vectores, los nombres de archivo de los objetos, la configuración y gráficos exploratorios en una carpeta de salida nueva."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings : charger des vignettes et comparer les politiques de canaux",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Chargez des vignettes d’images depuis Home, choisissez l’encodeur et la politique de canaux, lancez Embed et examinez l’aperçu des caractéristiques.",
+      "objectives": [
+       "Charger un dossier de vignettes depuis l’écran Embeddings.",
+       "Choisir le réseau de base, la taille de lot et la politique de canaux.",
+       "Examiner l’aperçu des vecteurs et enregistrer les résultats complets avec le script Python fourni."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installez spaCR avec son extra embeddings. Téléchargez l’exemple Annotate et repérez plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Pour le petit exemple présenté ici, copiez les seize premiers PNG, triés par nom de fichier, dans un nouveau dossier. La première exécution de l’encodeur télécharge les poids pré-entraînés s’ils ne sont pas en cache. L’archive facultative Embeddings_API_example.zip fournit un script d’aide pour enregistrer les matrices complètes.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Depuis Home, ouvrez Embeddings dans Data. Vous allez charger des vignettes d’images, choisir comment leurs canaux sont encodés et produire un vecteur numérique de caractéristiques par objet.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "Depuis Home, ouvrez Embeddings dans Data. Vous allez charger des vignettes d’images, choisir comment leurs canaux sont encodés et produire un vecteur numérique de caractéristiques par objet."
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Choisissez crop folder sous Crops from. Vous pouvez aussi utiliser une base de mesures pour sélectionner une classe d’objets, une plaque ou une condition. Cette démonstration utilise le dossier de vignettes de l’exemple Annotate téléchargeable.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Choisissez crop folder sous Crops from. Vous pouvez aussi utiliser une base de mesures pour sélectionner une classe d’objets, une plaque ou une condition. Cette démonstration utilise le dossier de vignettes de l’exemple Annotate téléchargeable."
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copiez seize PNG d’exemple dans un dossier de travail. Saisissez le chemin de ce dossier et appuyez sur Entrée, ou utilisez Browse. Réglez At most sur seize, puis cliquez sur Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Copiez seize PNG d’exemple dans un dossier de travail. Saisissez le chemin de ce dossier et appuyez sur Entrée, ou utilisez Browse. Réglez At most sur seize, puis cliquez sur Load crops."
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Lisez le nombre de vignettes chargées, leur taille et leur nombre de canaux. L’exemple contient seize images de deux cent vingt-quatre pixels de côté, avec trois canaux enregistrés. Vérifiez la correspondance des canaux de l’export de vignettes avant de comparer des résultats.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Lisez le nombre de vignettes chargées, leur taille et leur nombre de canaux. L’exemple contient seize images de deux cent vingt-quatre pixels de côté, avec trois canaux enregistrés. Vérifiez la correspondance des canaux de l’export de vignettes avant de comparer des résultats."
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Choisissez Per channel pour encoder chaque canal séparément et concaténer ses caractéristiques. Gardez resnet18 comme Backbone et réglez Batch sur quatre pour ce petit calcul. Des lots plus petits réduisent l’utilisation de la mémoire.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Choisissez Per channel pour encoder chaque canal séparément et concaténer ses caractéristiques. Gardez resnet18 comme Backbone et réglez Batch sur quatre pour ce petit calcul. Des lots plus petits réduisent l’utilisation de la mémoire."
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Cliquez sur Embed et attendez l’aperçu. L’exemple produit seize vecteurs d’objets de mille cinq cent trente-six dimensions. La table n’affiche que les premières dimensions et, pour des calculs plus grands, jusqu’à cinquante objets.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Cliquez sur Embed et attendez l’aperçu. L’exemple produit seize vecteurs d’objets de mille cinq cent trente-six dimensions. La table n’affiche que les premières dimensions et, pour des calculs plus grands, jusqu’à cinquante objets."
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Sélectionnez Project to three et cliquez de nouveau sur Embed. L’image combinée est alors encodée au lieu de chaque canal séparément. Utilisez les mêmes vignettes et le même réseau de base pour comparer les deux politiques.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez Project to three et cliquez de nouveau sur Embed. L’image combinée est alors encodée au lieu de chaque canal séparément. Utilisez les mêmes vignettes et le même réseau de base pour comparer les deux politiques."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "L’exemple projeté compte cinq cent douze dimensions par objet. Conservez la politique de canaux et les réglages de l’encodeur avec vos résultats. Utilisez les vecteurs complets pour l’analyse en aval ; les dimensions prises isolément ne sont pas des mesures biologiques.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "L’exemple projeté compte cinq cent douze dimensions par objet. Conservez la politique de canaux et les réglages de l’encodeur avec vos résultats. Utilisez les vecteurs complets pour l’analyse en aval ; les dimensions prises isolément ne sont pas des mesures biologiques."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "L’écran fournit pour l’instant un aperçu sans bouton d’export. Pour enregistrer les matrices complètes, téléchargez le script d’aide Python associé et suivez son README. Il écrit les vecteurs, les noms de fichiers des objets, les réglages et des graphiques exploratoires dans un nouveau dossier de sortie.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "L’écran fournit pour l’instant un aperçu sans bouton d’export. Pour enregistrer les matrices complètes, téléchargez le script d’aide Python associé et suivez son README. Il écrit les vecteurs, les noms de fichiers des objets, les réglages et des graphiques exploratoires dans un nouveau dossier de sortie."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: क्रॉप लोड करें और चैनल नीतियों की तुलना करें",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Home से इमेज क्रॉप लोड करें, एनकोडर और चैनल नीति चुनें, Embed चलाएँ और विशेषताओं का पूर्वावलोकन देखें।",
+      "objectives": [
+       "Embeddings स्क्रीन से क्रॉप फ़ोल्डर लोड करें।",
+       "बैकबोन, बैच आकार और चैनल नीति चुनें।",
+       "वेक्टर पूर्वावलोकन देखें और दिए गए Python सहायक से पूरे परिणाम सहेजें।"
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR को उसके embeddings एक्स्ट्रा के साथ इंस्टॉल करें। Annotate उदाहरण डाउनलोड करें और plate1/data/single_nucleus/uninfected/plate1_E02/cell_png ढूँढें। यहाँ दिखाए गए छोटे उदाहरण के लिए फ़ाइल नाम के क्रम में पहली सोलह PNG एक नए फ़ोल्डर में कॉपी करें। अगर प्रीट्रेंड वेट कैश में नहीं हैं, तो एनकोडर का पहला रन उन्हें डाउनलोड करता है। वैकल्पिक Embeddings_API_example.zip पूरे मैट्रिक्स सहेजने के लिए एक सहायक देता है।",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Home से Data में Embeddings खोलें। आप इमेज क्रॉप लोड करेंगे, चुनेंगे कि उनके चैनल कैसे एनकोड हों, और हर वस्तु के लिए एक संख्यात्मक विशेषता वेक्टर बनाएँगे।",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "Home से Data में Embeddings खोलें। आप इमेज क्रॉप लोड करेंगे, चुनेंगे कि उनके चैनल कैसे एनकोड हों, और हर वस्तु के लिए एक संख्यात्मक विशेषता वेक्टर बनाएँगे।"
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Crops from में crop folder चुनें। जब आप कोई वस्तु वर्ग, प्लेट या स्थिति चुनना चाहें, तो माप डेटाबेस भी इस्तेमाल कर सकते हैं। यह वॉकथ्रू Annotate के डाउनलोड होने वाले उदाहरण का क्रॉप फ़ोल्डर इस्तेमाल करता है।",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Crops from में crop folder चुनें। जब आप कोई वस्तु वर्ग, प्लेट या स्थिति चुनना चाहें, तो माप डेटाबेस भी इस्तेमाल कर सकते हैं। यह वॉकथ्रू Annotate के डाउनलोड होने वाले उदाहरण का क्रॉप फ़ोल्डर इस्तेमाल करता है।"
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "सोलह उदाहरण PNG एक कार्य फ़ोल्डर में कॉपी करें। उस फ़ोल्डर का पथ लिखें और Enter दबाएँ, या Browse इस्तेमाल करें। At most को सोलह पर रखें, फिर Load crops पर क्लिक करें।",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "सोलह उदाहरण PNG एक कार्य फ़ोल्डर में कॉपी करें। उस फ़ोल्डर का पथ लिखें और Enter दबाएँ, या Browse इस्तेमाल करें। At most को सोलह पर रखें, फिर Load crops पर क्लिक करें।"
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "लोड हुए क्रॉप की संख्या, आकार और चैनल संख्या पढ़ें। उदाहरण में सोलह इमेज हैं, हर एक दो सौ चौबीस पिक्सेल वर्गाकार, तीन सहेजे गए चैनलों के साथ। परिणामों की तुलना से पहले क्रॉप निर्यात की चैनल मैपिंग जाँचें।",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "लोड हुए क्रॉप की संख्या, आकार और चैनल संख्या पढ़ें। उदाहरण में सोलह इमेज हैं, हर एक दो सौ चौबीस पिक्सेल वर्गाकार, तीन सहेजे गए चैनलों के साथ। परिणामों की तुलना से पहले क्रॉप निर्यात की चैनल मैपिंग जाँचें।"
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "हर चैनल को अलग से एनकोड करके उसकी विशेषताएँ जोड़ने के लिए Per channel चुनें। Backbone के रूप में resnet18 रहने दें और इस छोटे रन के लिए Batch को चार पर रखें। छोटे बैच मेमोरी का उपयोग घटाते हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "हर चैनल को अलग से एनकोड करके उसकी विशेषताएँ जोड़ने के लिए Per channel चुनें। Backbone के रूप में resnet18 रहने दें और इस छोटे रन के लिए Batch को चार पर रखें। छोटे बैच मेमोरी का उपयोग घटाते हैं।"
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Embed पर क्लिक करें और पूर्वावलोकन की प्रतीक्षा करें। उदाहरण एक हज़ार पाँच सौ छत्तीस आयामों वाले सोलह वस्तु वेक्टर बनाता है। तालिका केवल पहले कुछ आयाम दिखाती है, और बड़े रन में अधिकतम पचास वस्तुएँ।",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Embed पर क्लिक करें और पूर्वावलोकन की प्रतीक्षा करें। उदाहरण एक हज़ार पाँच सौ छत्तीस आयामों वाले सोलह वस्तु वेक्टर बनाता है। तालिका केवल पहले कुछ आयाम दिखाती है, और बड़े रन में अधिकतम पचास वस्तुएँ।"
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Project to three चुनें और फिर से Embed पर क्लिक करें। यह हर चैनल को अलग से नहीं, बल्कि संयुक्त इमेज को एनकोड करता है। दोनों नीतियों की तुलना करते समय वही क्रॉप और वही बैकबोन इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "speech_text": "Project to three चुनें और फिर से Embed पर क्लिक करें। यह हर चैनल को अलग से नहीं, बल्कि संयुक्त इमेज को एनकोड करता है। दोनों नीतियों की तुलना करते समय वही क्रॉप और वही बैकबोन इस्तेमाल करें।"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "प्रोजेक्ट किए गए उदाहरण में हर वस्तु के पाँच सौ बारह आयाम हैं। चैनल नीति और एनकोडर सेटिंग्स अपने परिणामों के साथ रखें। आगे के विश्लेषण के लिए पूरे वेक्टर इस्तेमाल करें; अलग-अलग आयाम जैविक माप नहीं हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "प्रोजेक्ट किए गए उदाहरण में हर वस्तु के पाँच सौ बारह आयाम हैं। चैनल नीति और एनकोडर सेटिंग्स अपने परिणामों के साथ रखें। आगे के विश्लेषण के लिए पूरे वेक्टर इस्तेमाल करें; अलग-अलग आयाम जैविक माप नहीं हैं।"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "अभी स्क्रीन बिना निर्यात बटन के केवल पूर्वावलोकन देती है। पूरे मैट्रिक्स सहेजने के लिए जुड़ा Python सहायक डाउनलोड करें और उसके README का पालन करें। यह वेक्टर, वस्तुओं के फ़ाइल नाम, सेटिंग्स और खोजपरक प्लॉट एक नए आउटपुट फ़ोल्डर में लिखता है।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "अभी स्क्रीन बिना निर्यात बटन के केवल पूर्वावलोकन देती है। पूरे मैट्रिक्स सहेजने के लिए जुड़ा Python सहायक डाउनलोड करें और उसके README का पालन करें। यह वेक्टर, वस्तुओं के फ़ाइल नाम, सेटिंग्स और खोजपरक प्लॉट एक नए आउटपुट फ़ोल्डर में लिखता है।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: caricare ritagli e confrontare le politiche dei canali",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Carica ritagli di immagini da Home, scegli il codificatore e la politica dei canali, esegui Embed ed esamina l’anteprima delle caratteristiche.",
+      "objectives": [
+       "Caricare una cartella di ritagli dalla schermata Embeddings.",
+       "Scegliere la rete di base, la dimensione del lotto e la politica dei canali.",
+       "Esaminare l’anteprima dei vettori e salvare i risultati completi con lo script Python fornito."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installa spaCR con il suo extra embeddings. Scarica l’esempio di Annotate e individua plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Per il piccolo esempio mostrato qui, copia i primi sedici PNG, in ordine di nome file, in una nuova cartella. La prima esecuzione del codificatore scarica i pesi preaddestrati se non sono in cache. L’archivio facoltativo Embeddings_API_example.zip fornisce uno script di supporto per salvare le matrici complete.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Da Home, apri Embeddings in Data. Caricherai ritagli di immagini, sceglierai come codificarne i canali e genererai un vettore numerico di caratteristiche per ogni oggetto.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "Da Home, apri Embeddings in Data. Caricherai ritagli di immagini, sceglierai come codificarne i canali e genererai un vettore numerico di caratteristiche per ogni oggetto."
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Scegli crop folder in Crops from. Puoi anche usare un database di misure quando vuoi selezionare una classe di oggetti, una piastra o una condizione. Questa guida usa la cartella dei ritagli dell’esempio scaricabile di Annotate.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Scegli crop folder in Crops from. Puoi anche usare un database di misure quando vuoi selezionare una classe di oggetti, una piastra o una condizione. Questa guida usa la cartella dei ritagli dell’esempio scaricabile di Annotate."
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copia sedici PNG d’esempio in una cartella di lavoro. Inserisci il percorso di quella cartella e premi Invio, oppure usa Browse. Imposta At most su sedici, poi fai clic su Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Copia sedici PNG d’esempio in una cartella di lavoro. Inserisci il percorso di quella cartella e premi Invio, oppure usa Browse. Imposta At most su sedici, poi fai clic su Load crops."
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Leggi il numero di ritagli caricati, la loro dimensione e il numero di canali. L’esempio contiene sedici immagini di duecentoventiquattro pixel per lato, con tre canali salvati. Controlla la corrispondenza dei canali dell’esportazione dei ritagli prima di confrontare i risultati.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Leggi il numero di ritagli caricati, la loro dimensione e il numero di canali. L’esempio contiene sedici immagini di duecentoventiquattro pixel per lato, con tre canali salvati. Controlla la corrispondenza dei canali dell’esportazione dei ritagli prima di confrontare i risultati."
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Scegli Per channel per codificare ogni canale separatamente e concatenarne le caratteristiche. Lascia resnet18 come Backbone e imposta Batch su quattro per questa piccola esecuzione. Lotti più piccoli riducono l’uso di memoria.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Scegli Per channel per codificare ogni canale separatamente e concatenarne le caratteristiche. Lascia resnet18 come Backbone e imposta Batch su quattro per questa piccola esecuzione. Lotti più piccoli riducono l’uso di memoria."
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Fai clic su Embed e attendi l’anteprima. L’esempio produce sedici vettori di oggetti con millecinquecentotrentasei dimensioni. La tabella mostra solo le prime dimensioni e, per esecuzioni più grandi, fino a cinquanta oggetti.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Fai clic su Embed e attendi l’anteprima. L’esempio produce sedici vettori di oggetti con millecinquecentotrentasei dimensioni. La tabella mostra solo le prime dimensioni e, per esecuzioni più grandi, fino a cinquanta oggetti."
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Seleziona Project to three e fai di nuovo clic su Embed. In questo modo si codifica l’immagine combinata invece di ciascun canale separatamente. Usa gli stessi ritagli e la stessa rete di base quando confronti le due politiche.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona Project to three e fai di nuovo clic su Embed. In questo modo si codifica l’immagine combinata invece di ciascun canale separatamente. Usa gli stessi ritagli e la stessa rete di base quando confronti le due politiche."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "L’esempio proiettato ha cinquecentododici dimensioni per oggetto. Conserva la politica dei canali e le impostazioni del codificatore insieme ai risultati. Usa i vettori completi per l’analisi successiva; le singole dimensioni non sono misure biologiche.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "L’esempio proiettato ha cinquecentododici dimensioni per oggetto. Conserva la politica dei canali e le impostazioni del codificatore insieme ai risultati. Usa i vettori completi per l’analisi successiva; le singole dimensioni non sono misure biologiche."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Al momento la schermata offre un’anteprima senza pulsante di esportazione. Per salvare le matrici complete, scarica lo script di supporto Python collegato e segui il suo README. Scrive vettori, nomi dei file degli oggetti, impostazioni e grafici esplorativi in una nuova cartella di output.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Al momento la schermata offre un’anteprima senza pulsante di esportazione. Per salvare le matrici complete, scarica lo script di supporto Python collegato e segui il suo README. Scrive vettori, nomi dei file degli oggetti, impostazioni e grafici esplorativi in una nuova cartella di output."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings：切り出し画像を読み込み、チャンネルの扱い方を比べる",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Homeから切り出し画像を読み込み、エンコーダーとチャンネルの扱い方を選び、Embedを実行して特徴量のプレビューを確認します。",
+      "objectives": [
+       "Embeddingsの画面から切り出し画像のフォルダーを読み込む。",
+       "バックボーン、バッチサイズ、チャンネルの扱い方を選ぶ。",
+       "ベクトルのプレビューを確認し、付属のPythonのスクリプトで結果全体を保存する。"
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCRをembeddingsの追加機能付きでインストールします。Annotateの例をダウンロードし、plate1/data/single_nucleus/uninfected/plate1_E02/cell_pngを探します。ここで示す小さな例では、ファイル名順で最初の十六枚のPNGを新しいフォルダーにコピーします。エンコーダーを初めて実行するとき、学習済みの重みがキャッシュになければダウンロードされます。任意のEmbeddings_API_example.zipには、行列全体を保存する補助スクリプトが入っています。",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "HomeからDataのEmbeddingsを開きます。切り出し画像を読み込み、チャンネルのエンコード方法を選んで、物体ごとに一つの数値の特徴ベクトルを作ります。",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "ホームからDataのEmbeddingsを開きます。切り出し画像を読み込み、チャンネルのエンコード方法を選んで、物体ごとに一つの数値の特徴ベクトルを作ります。"
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Crops fromでcrop folderを選びます。物体のクラス、プレート、条件で選びたいときは、測定データベースも使えます。このチュートリアルでは、ダウンロードできるAnnotateの例の切り出し画像のフォルダーを使います。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Crops fromでcrop folderを選びます。物体のクラス、プレート、条件で選びたいときは、測定データベースも使えます。このチュートリアルでは、ダウンロードできるAnnotateの例の切り出し画像のフォルダーを使います。"
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "例のPNGを十六枚、作業用フォルダーにコピーします。そのフォルダーのパスを入力してEnterキーを押すか、Browseを使います。At mostを十六にして、Load cropsをクリックします。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "例のPNGを十六枚、作業用フォルダーにコピーします。そのフォルダーのパスを入力してEnterキーを押すか、Browseを使います。At mostを十六にして、Load cropsをクリックします。"
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "読み込んだ切り出し画像の数、大きさ、チャンネル数を読みます。例には、一辺二百二十四ピクセルで、三つのチャンネルが保存された画像が十六枚あります。結果を比べる前に、切り出し画像を書き出したときのチャンネルの対応を確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "読み込んだ切り出し画像の数、大きさ、チャンネル数を読みます。例には、一辺二百二十四ピクセルで、三つのチャンネルが保存された画像が十六枚あります。結果を比べる前に、切り出し画像を書き出したときのチャンネルの対応を確認します。"
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Per channelを選ぶと、チャンネルごとに別々にエンコードし、その特徴量をつなげます。Backboneはresnet18のままにし、この小さな実行ではBatchを四にします。バッチを小さくすると、メモリの使用量が減ります。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Per channelを選ぶと、チャンネルごとに別々にエンコードし、その特徴量をつなげます。Backboneはresnet18のままにし、この小さな実行ではBatchを四にします。バッチを小さくすると、メモリの使用量が減ります。"
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Embedをクリックし、プレビューを待ちます。この例では、千五百三十六次元の物体ベクトルが十六個できます。表には最初のいくつかの次元だけが表示され、大きな実行では最大五十個の物体が表示されます。",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Embedをクリックし、プレビューを待ちます。この例では、千五百三十六次元の物体ベクトルが十六個できます。表には最初のいくつかの次元だけが表示され、大きな実行では最大五十個の物体が表示されます。"
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Project to threeを選び、もう一度Embedをクリックします。今度はチャンネルごとではなく、合成した画像がエンコードされます。二つの扱い方を比べるときは、同じ切り出し画像と同じバックボーンを使います。",
+        "hold_after": 0.7,
+        "speech_text": "Project to threeを選び、もう一度Embedをクリックします。今度はチャンネルごとではなく、合成した画像がエンコードされます。二つの扱い方を比べるときは、同じ切り出し画像と同じバックボーンを使います。"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "投影した例では、物体ごとに五百十二次元になります。チャンネルの扱い方とエンコーダーの設定は、結果と一緒に保管します。後の解析にはベクトル全体を使います。個々の次元は、生物学的な測定値ではありません。",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "投影した例では、物体ごとに五百十二次元になります。チャンネルの扱い方とエンコーダーの設定は、結果と一緒に保管します。後の解析にはベクトル全体を使います。個々の次元は、生物学的な測定値ではありません。"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "今のところ、この画面にはプレビューだけがあり、書き出しのボタンはありません。行列全体を保存するには、リンク先のPythonの補助スクリプトをダウンロードし、そのREADMEに従います。ベクトル、物体のファイル名、設定、探索用のプロットが、新しい出力フォルダーに書き出されます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "今のところ、この画面にはプレビューだけがあり、書き出しのボタンはありません。行列全体を保存するには、リンク先のPythonの補助スクリプトをダウンロードし、そのREADMEに従います。ベクトル、物体のファイル名、設定、探索用のプロットが、新しい出力フォルダーに書き出されます。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: carregar recortes e comparar políticas de canais",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Carregue recortes de imagem a partir da tela Home, escolha o codificador e a política de canais, execute Embed e inspecione a prévia das características.",
+      "objectives": [
+       "Carregar uma pasta de recortes pela tela Embeddings.",
+       "Escolher a rede base, o tamanho do lote e a política de canais.",
+       "Inspecionar a prévia dos vetores e salvar os resultados completos com o script Python fornecido."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Instale o spaCR com o extra embeddings. Baixe o exemplo do Annotate e localize plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Para o pequeno exemplo mostrado aqui, copie os primeiros dezesseis PNGs, em ordem de nome de arquivo, para uma pasta nova. A primeira execução do codificador baixa os pesos pré-treinados se eles não estiverem em cache. O arquivo opcional Embeddings_API_example.zip traz um script auxiliar para salvar as matrizes completas.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Na tela Home, abra Embeddings em Data. Você vai carregar recortes de imagem, escolher como os canais são codificados e gerar um vetor numérico de características por objeto.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "Na tela Home, abra Embeddings em Data. Você vai carregar recortes de imagem, escolher como os canais são codificados e gerar um vetor numérico de características por objeto."
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Escolha crop folder em Crops from. Você também pode usar um banco de dados de medições quando quiser selecionar uma classe de objeto, uma placa ou uma condição. Este passo a passo usa a pasta de recortes do exemplo do Annotate para download.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Escolha crop folder em Crops from. Você também pode usar um banco de dados de medições quando quiser selecionar uma classe de objeto, uma placa ou uma condição. Este passo a passo usa a pasta de recortes do exemplo do Annotate para download."
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Copie dezesseis PNGs de exemplo para uma pasta de trabalho. Digite o caminho dessa pasta e pressione Enter, ou use Browse. Defina At most como dezesseis e clique em Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Copie dezesseis PNGs de exemplo para uma pasta de trabalho. Digite o caminho dessa pasta e pressione Enter, ou use Browse. Defina At most como dezesseis e clique em Load crops."
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Leia o número de recortes carregados, o tamanho e o número de canais. O exemplo contém dezesseis imagens de duzentos e vinte e quatro pixels de lado, com três canais salvos. Confira o mapeamento de canais da exportação de recortes antes de comparar resultados.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Leia o número de recortes carregados, o tamanho e o número de canais. O exemplo contém dezesseis imagens de duzentos e vinte e quatro pixels de lado, com três canais salvos. Confira o mapeamento de canais da exportação de recortes antes de comparar resultados."
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Escolha Per channel para codificar cada canal separadamente e concatenar as características. Mantenha resnet18 como Backbone e defina Batch como quatro para esta execução pequena. Lotes menores reduzem o uso de memória.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "Escolha Per channel para codificar cada canal separadamente e concatenar as características. Mantenha resnet18 como Backbone e defina Batch como quatro para esta execução pequena. Lotes menores reduzem o uso de memória."
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Clique em Embed e aguarde a prévia. O exemplo gera dezesseis vetores de objetos com mil quinhentas e trinta e seis dimensões. A tabela mostra só as primeiras dimensões e, em execuções maiores, até cinquenta objetos.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "Clique em Embed e aguarde a prévia. O exemplo gera dezesseis vetores de objetos com mil quinhentas e trinta e seis dimensões. A tabela mostra só as primeiras dimensões e, em execuções maiores, até cinquenta objetos."
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Selecione Project to three e clique de novo em Embed. Assim, a imagem combinada é codificada em vez de cada canal separadamente. Use os mesmos recortes e a mesma rede base ao comparar as duas políticas.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione Project to three e clique de novo em Embed. Assim, a imagem combinada é codificada em vez de cada canal separadamente. Use os mesmos recortes e a mesma rede base ao comparar as duas políticas."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "O exemplo projetado tem quinhentas e doze dimensões por objeto. Mantenha a política de canais e as configurações do codificador junto com os resultados. Use os vetores completos na análise seguinte; dimensões individuais não são medições biológicas.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "O exemplo projetado tem quinhentas e doze dimensões por objeto. Mantenha a política de canais e as configurações do codificador junto com os resultados. Use os vetores completos na análise seguinte; dimensões individuais não são medições biológicas."
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Por enquanto, a tela oferece uma prévia sem botão de exportação. Para salvar as matrizes completas, baixe o script auxiliar em Python indicado e siga o README. Ele grava os vetores, os nomes de arquivo dos objetos, as configurações e gráficos exploratórios em uma pasta de saída nova.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "Por enquanto, a tela oferece uma prévia sem botão de exportação. Para salvar as matrizes completas, baixe o script auxiliar em Python indicado e siga o README. Ele grava os vetores, os nomes de arquivo dos objetos, as configurações e gráficos exploratórios em uma pasta de saída nova."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings：加载裁剪图像并比较通道策略",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "从Home加载裁剪图像，选择编码器和通道策略，运行Embed并检查特征预览。",
+      "objectives": [
+       "通过Embeddings界面加载裁剪图像文件夹。",
+       "选择骨干网络、批大小和通道策略。",
+       "检查向量预览，并通过提供的Python辅助脚本保存完整结果。"
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "安装带有embeddings附加组件的spaCR。下载Annotate示例，找到plate1/data/single_nucleus/uninfected/plate1_E02/cell_png。对于这里演示的小示例，请按文件名排序把前十六个PNG复制到新文件夹。如果预训练权重尚未缓存，编码器第一次运行时会下载它们。可选的Embeddings_API_example.zip提供了用于保存完整矩阵的辅助脚本。",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "从Home打开Data中的Embeddings。您将加载裁剪图像，选择通道的编码方式，并为每个对象生成一个数值特征向量。",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ],
+        "speech_text": "从主页打开Data中的Embeddings。您将加载裁剪图像，选择通道的编码方式，并为每个对象生成一个数值特征向量。"
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "在Crops from中选择crop folder。如果想按对象类别、板或条件进行选择，也可以使用测量数据库。本演示使用Annotate可下载示例中的裁剪图像文件夹。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "在Crops from中选择crop folder。如果想按对象类别、板或条件进行选择，也可以使用测量数据库。本演示使用Annotate可下载示例中的裁剪图像文件夹。"
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "把十六个示例PNG复制到一个工作文件夹。输入该文件夹的路径并按Enter，或使用Browse。把At most设为十六，然后点击Load crops。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "把十六个示例PNG复制到一个工作文件夹。输入该文件夹的路径并按Enter，或使用Browse。把At most设为十六，然后点击Load crops。"
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "阅读已加载的裁剪图像数量、尺寸和通道数。示例包含十六张边长两百二十四像素的图像，每张保存了三个通道。比较结果之前，请检查裁剪图像导出时的通道映射。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "阅读已加载的裁剪图像数量、尺寸和通道数。示例包含十六张边长两百二十四像素的图像，每张保存了三个通道。比较结果之前，请检查裁剪图像导出时的通道映射。"
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "选择Per channel，分别编码每个通道并拼接其特征。Backbone保持为resnet18，并为这次小规模运行把Batch设为四。较小的批次可以减少内存占用。",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ],
+        "speech_text": "选择Per channel，分别编码每个通道并拼接其特征。Backbone保持为resnet18，并为这次小规模运行把Batch设为四。较小的批次可以减少内存占用。"
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "点击Embed并等待预览。本例生成十六个对象向量，每个有一千五百三十六维。表中只显示前几维；运行规模较大时，最多显示五十个对象。",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "点击Embed并等待预览。本例生成十六个对象向量，每个有一千五百三十六维。表中只显示前几维；运行规模较大时，最多显示五十个对象。"
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "选择Project to three并再次点击Embed。这样会编码合成后的图像，而不是分别编码每个通道。比较两种策略时，请使用相同的裁剪图像和骨干网络。",
+        "hold_after": 0.7,
+        "speech_text": "选择Project to three并再次点击Embed。这样会编码合成后的图像，而不是分别编码每个通道。比较两种策略时，请使用相同的裁剪图像和骨干网络。"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "投影后的示例每个对象有五百一十二维。请把通道策略和编码器设置与结果放在一起。后续分析请使用完整向量；单个维度并不是生物学测量值。",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ],
+        "speech_text": "投影后的示例每个对象有五百一十二维。请把通道策略和编码器设置与结果放在一起。后续分析请使用完整向量；单个维度并不是生物学测量值。"
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "目前该界面只提供预览，没有导出按钮。要保存完整矩阵，请下载链接中的Python辅助脚本并按照其README操作。它会把向量、对象文件名、设置和探索性图写入一个新的输出文件夹。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ],
+        "speech_text": "目前该界面只提供预览，没有导出按钮。要保存完整矩阵，请下载链接中的Python辅助脚本并按照其README操作。它会把向量、对象文件名、设置和探索性图写入一个新的输出文件夹。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: indlæs udklip og sammenlign kanalpolitikker",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Indlæs billedudklip fra Home, vælg koder og kanalpolitik, kør Embed, og undersøg forhåndsvisningen af egenskaber.",
+      "objectives": [
+       "Indlæse en udklipsmappe via skærmen Embeddings.",
+       "Vælge basisnetværk, batchstørrelse og kanalpolitik.",
+       "Undersøge vektorforhåndsvisningen og gemme de fulde resultater med det medfølgende Python-hjælpescript."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installér spaCR med tilføjelsen embeddings. Hent Annotate-eksemplet, og find plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Til det lille eksempel, der vises her, kopierer du de første 16 PNG-filer i sorteret filnavnsrækkefølge til en ny mappe. Første kørsel af koderen henter fortrænede vægte, hvis de ikke ligger i cachen. Den valgfrie Embeddings_API_example.zip indeholder et hjælpescript til at gemme fulde matricer.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Fra Home åbner du Embeddings under Data. Du indlæser billedudklip, vælger, hvordan deres kanaler kodes, og danner én numerisk egenskabsvektor pr. objekt.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Vælg crop folder under Crops from. Du kan også bruge en måledatabase, når du vil vælge en objektklasse, plade eller betingelse. Gennemgangen bruger udklipsmappen fra Annotates eksempel til download.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Kopiér 16 eksempel-PNG-filer til en arbejdsmappe. Indtast mappens sti, og tryk på Enter, eller brug Browse. Sæt At most til 16, og klik derefter på Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Læs antallet af indlæste udklip, deres størrelse og antal kanaler. Eksemplet indeholder 16 billeder, hver på 224 × 224 pixels med tre gemte kanaler. Kontrollér kanaltildelingen i udklipseksporten, før du sammenligner resultater.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Vælg Per channel for at kode hver kanal separat og sammenkæde dens egenskaber. Behold resnet18 som Backbone, og sæt Batch til 4 til denne lille kørsel. Mindre batches reducerer hukommelsesforbruget.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Klik på Embed, og vent på forhåndsvisningen. Eksemplet giver 16 objektvektorer med 1.536 dimensioner. Tabellen viser kun de første dimensioner og, ved større kørsler, op til 50 objekter.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Vælg Project to three, og klik på Embed igen. Så kodes det kombinerede billede i stedet for hver kanal separat. Brug de samme udklip og det samme basisnetværk, når du sammenligner de to politikker.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Det projicerede eksempel har 512 dimensioner pr. objekt. Behold kanalpolitikken og koderindstillingerne sammen med dine resultater. Brug de fulde vektorer i den videre analyse; enkelte dimensioner er ikke biologiske målinger.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Skærmen giver i øjeblikket en forhåndsvisning uden eksportknap. For at gemme fulde matricer henter du det linkede Python-hjælpescript og følger dets README. Det skriver vektorer, objektfilnavne, indstillinger og udforskende plots til en ny outputmappe.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: Ausschnitte laden und Kanalstrategien vergleichen",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Laden Sie Bildausschnitte von Home aus, wählen Sie Encoder und Kanalstrategie, führen Sie Embed aus und prüfen Sie die Merkmalsvorschau.",
+      "objectives": [
+       "Einen Ausschnittordner über den Bildschirm Embeddings laden.",
+       "Backbone, Batchgröße und Kanalstrategie wählen.",
+       "Die Vektorvorschau prüfen und vollständige Ergebnisse mit dem mitgelieferten Python-Hilfsskript speichern."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installieren Sie spaCR mit dem Extra embeddings. Laden Sie das Annotate-Beispiel herunter und suchen Sie plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Kopieren Sie für das hier gezeigte kleine Beispiel die ersten 16 PNGs in sortierter Dateinamenreihenfolge in einen neuen Ordner. Beim ersten Encoder-Lauf werden vortrainierte Gewichte heruntergeladen, falls sie nicht zwischengespeichert sind. Das optionale Embeddings_API_example.zip enthält ein Hilfsskript zum Speichern vollständiger Matrizen.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Öffnen Sie von Home aus Embeddings unter Data. Sie laden Bildausschnitte, wählen, wie ihre Kanäle kodiert werden, und erzeugen pro Objekt einen numerischen Merkmalsvektor.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Wählen Sie crop folder unter Crops from. Sie können auch eine Messdatenbank verwenden, wenn Sie eine Objektklasse, Platte oder Bedingung auswählen möchten. Diese Anleitung verwendet den Ausschnittordner aus dem herunterladbaren Annotate-Beispiel.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Kopieren Sie 16 Beispiel-PNGs in einen Arbeitsordner. Geben Sie den Pfad dieses Ordners ein und drücken Sie Enter, oder verwenden Sie Browse. Setzen Sie At most auf 16 und klicken Sie dann auf Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Lesen Sie Anzahl, Größe und Kanalzahl der geladenen Ausschnitte. Das Beispiel enthält 16 Bilder mit je 224 × 224 Pixeln und drei gespeicherten Kanälen. Prüfen Sie die Kanalzuordnung des Ausschnittexports, bevor Sie Ergebnisse vergleichen.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Wählen Sie Per channel, um jeden Kanal separat zu kodieren und seine Merkmale aneinanderzuhängen. Behalten Sie resnet18 als Backbone und setzen Sie Batch für diesen kleinen Lauf auf 4. Kleinere Batches verringern den Speicherbedarf.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Klicken Sie auf Embed und warten Sie auf die Vorschau. Das Beispiel erzeugt 16 Objektvektoren mit 1.536 Dimensionen. Die Tabelle zeigt nur die ersten Dimensionen und bei größeren Läufen bis zu 50 Objekte.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Wählen Sie Project to three und klicken Sie erneut auf Embed. Damit wird das kombinierte Bild statt jedes einzelnen Kanals kodiert. Verwenden Sie beim Vergleich der beiden Strategien dieselben Ausschnitte und dasselbe Backbone.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Das projizierte Beispiel hat 512 Dimensionen pro Objekt. Bewahren Sie Kanalstrategie und Encoder-Einstellungen zusammen mit Ihren Ergebnissen auf. Verwenden Sie für nachgelagerte Analysen die vollständigen Vektoren; einzelne Dimensionen sind keine biologischen Messgrößen.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Der Bildschirm bietet derzeit eine Vorschau ohne Export-Schaltfläche. Um vollständige Matrizen zu speichern, laden Sie das verlinkte Python-Hilfsskript herunter und folgen Sie seiner README. Es schreibt Vektoren, Objektdateinamen, Einstellungen und explorative Diagramme in einen neuen Ausgabeordner.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: hlaða inn úrklippum og bera saman rásastefnur",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Hlaða inn myndúrklippum frá Home, velja kóðara og rásastefnu, keyra Embed og skoða forskoðun eiginleika.",
+      "objectives": [
+       "Hlaða inn úrklippumöppu í gegnum Embeddings-skjáinn.",
+       "Velja grunnnet, stærð skammts og rásastefnu.",
+       "Skoða forskoðun vigra og vista allar niðurstöður með meðfylgjandi Python-hjálparskriftu."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Settu upp spaCR með embeddings-viðbótinni. Sæktu Annotate-dæmið og finndu plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Fyrir litla dæmið sem hér er sýnt afritarðu fyrstu 16 PNG-skrárnar í raðaðri röð skráarheita í nýja möppu. Fyrsta keyrsla kóðarans sækir forþjálfuð vægi ef þau eru ekki í skyndiminni. Valfrjálsa skráin Embeddings_API_example.zip inniheldur hjálparskriftu til að vista heil fylki.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Frá Home opnarðu Embeddings undir Data. Þú hleður inn myndúrklippum, velur hvernig rásir þeirra eru kóðaðar og býrð til einn tölulegan eiginleikavigur fyrir hvern hlut.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Veldu crop folder undir Crops from. Þú getur líka notað mælingagagnagrunn þegar þú vilt velja flokk hluta, plötu eða skilyrði. Yfirferðin notar úrklippumöppuna úr niðurhalanlegu Annotate-dæmi.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Afritaðu 16 dæma-PNG í vinnumöppu. Sláðu inn slóð möppunnar og ýttu á Enter, eða notaðu Browse. Stilltu At most á 16 og smelltu svo á Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Lestu fjölda innhlaðinna úrklippa, stærð þeirra og fjölda rása. Dæmið inniheldur 16 myndir, hver 224 × 224 dílar með þremur vistuðum rásum. Athugaðu rásatengingu úrklippuútflutningsins áður en þú berð saman niðurstöður.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Veldu Per channel til að kóða hverja rás sérstaklega og skeyta eiginleikum hennar saman. Haltu resnet18 sem Backbone og stilltu Batch á 4 fyrir þessa litlu keyrslu. Minni skammtar draga úr minnisnotkun.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Smelltu á Embed og bíddu eftir forskoðuninni. Dæmið gefur 16 hlutavigra með 1.536 víddum. Taflan sýnir aðeins fyrstu víddirnar og, í stærri keyrslum, allt að 50 hluti.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Veldu Project to three og smelltu aftur á Embed. Þá er samsetta myndin kóðuð í stað hverrar rásar fyrir sig. Notaðu sömu úrklippur og sama grunnnet þegar þú berð stefnurnar tvær saman.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Varpaða dæmið hefur 512 víddir á hvern hlut. Geymdu rásastefnuna og stillingar kóðarans með niðurstöðunum. Notaðu heila vigra í frekari greiningu; einstakar víddir eru ekki líffræðilegar mælingar.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Skjárinn býður sem stendur upp á forskoðun án útflutningshnapps. Til að vista heil fylki sækirðu tengdu Python-hjálparskriftuna og fylgir README-skrá hennar. Hún skrifar vigra, skráarheiti hluta, stillingar og könnunargröf í nýja úttaksmöppu.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: 잘라 낸 이미지 불러오기와 채널 정책 비교",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Home에서 잘라 낸 이미지를 불러오고, 인코더와 채널 정책을 고르고, Embed를 실행한 뒤 특징 미리 보기를 확인합니다.",
+      "objectives": [
+       "Embeddings 화면에서 잘라 낸 이미지 폴더를 불러옵니다.",
+       "백본, 배치 크기, 채널 정책을 고릅니다.",
+       "벡터 미리 보기를 확인하고, 제공된 Python 도우미로 전체 결과를 저장합니다."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR을 embeddings 추가 기능과 함께 설치하세요. Annotate 예제를 내려받고 plate1/data/single_nucleus/uninfected/plate1_E02/cell_png를 찾으세요. 여기서 보여 주는 작은 예제에서는 파일 이름 순으로 처음 16개의 PNG를 새 폴더에 복사하세요. 사전 학습 가중치가 캐시에 없으면 인코더를 처음 실행할 때 내려받습니다. 선택 사항인 Embeddings_API_example.zip에는 전체 행렬을 저장하는 도우미가 들어 있습니다.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Home에서 Data의 Embeddings를 여세요. 잘라 낸 이미지를 불러오고, 채널을 인코딩할 방법을 고르고, 객체마다 숫자 특징 벡터 하나를 만듭니다.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Crops from에서 crop folder를 고르세요. 객체 클래스, 플레이트, 조건으로 고르고 싶을 때는 측정 데이터베이스도 쓸 수 있습니다. 이 안내에서는 내려받을 수 있는 Annotate 예제의 잘라 낸 이미지 폴더를 씁니다.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "예제 PNG 16개를 작업 폴더에 복사하세요. 그 폴더 경로를 입력하고 Enter를 누르거나 Browse를 쓰세요. At most를 16으로 설정한 뒤 Load crops를 클릭하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "불러온 이미지 수, 크기, 채널 수를 읽으세요. 예제에는 가로세로 224픽셀에 채널 3개가 저장된 이미지 16개가 있습니다. 결과를 비교하기 전에 잘라 낸 이미지를 내보낼 때의 채널 매핑을 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Per channel을 고르면 채널마다 따로 인코딩해 그 특징을 이어 붙입니다. Backbone은 resnet18으로 두고, 이 작은 실행에서는 Batch를 4로 설정하세요. 배치가 작을수록 메모리 사용량이 줄어듭니다.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Embed를 클릭하고 미리 보기를 기다리세요. 예제는 1,536차원의 객체 벡터 16개를 만듭니다. 표에는 앞쪽 몇 개 차원만 표시되며, 더 큰 실행에서는 객체가 최대 50개까지 표시됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Project to three를 고르고 Embed를 다시 클릭하세요. 이번에는 채널별이 아니라 합친 이미지를 인코딩합니다. 두 정책을 비교할 때는 같은 잘라 낸 이미지와 같은 백본을 쓰세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "투영한 예제는 객체마다 512차원입니다. 채널 정책과 인코더 설정을 결과와 함께 보관하세요. 후속 분석에는 전체 벡터를 쓰세요. 개별 차원은 생물학적 측정값이 아닙니다.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "현재 이 화면은 내보내기 버튼 없이 미리 보기만 제공합니다. 전체 행렬을 저장하려면 연결된 Python 도우미를 내려받고 그 README를 따르세요. 벡터, 객체 파일 이름, 설정, 탐색용 그래프를 새 출력 폴더에 기록합니다.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: last inn utklipp og sammenlign kanalpolicyer",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Last inn bildeutklipp fra Home, velg koder og kanalpolicy, kjør Embed og undersøk forhåndsvisningen av egenskaper.",
+      "objectives": [
+       "Laste inn en utklippsmappe via skjermen Embeddings.",
+       "Velge grunnnettverk, batchstørrelse og kanalpolicy.",
+       "Undersøke vektorforhåndsvisningen og lagre fullstendige resultater med det medfølgende Python-hjelpeskriptet."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installer spaCR med tillegget embeddings. Last ned Annotate-eksemplet og finn plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For det lille eksemplet som vises her, kopierer du de første 16 PNG-filene i sortert filnavnrekkefølge til en ny mappe. Første kjøring av koderen laster ned forhåndstrente vekter hvis de ikke er hurtigbufret. Den valgfrie filen Embeddings_API_example.zip inneholder et hjelpeskript for å lagre fullstendige matriser.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Fra Home åpner du Embeddings under Data. Du laster inn bildeutklipp, velger hvordan kanalene kodes, og lager én numerisk egenskapsvektor per objekt.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Velg crop folder under Crops from. Du kan også bruke en måledatabase når du vil velge en objektklasse, plate eller betingelse. Gjennomgangen bruker utklippsmappen fra Annotates nedlastbare eksempel.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Kopier 16 eksempel-PNG-filer til en arbeidsmappe. Skriv inn mappens bane og trykk Enter, eller bruk Browse. Sett At most til 16, og klikk deretter på Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Les antall innlastede utklipp, størrelsen og antall kanaler. Eksemplet inneholder 16 bilder, hvert på 224 × 224 piksler med tre lagrede kanaler. Kontroller kanalkoblingen i utklippseksporten før du sammenligner resultater.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Velg Per channel for å kode hver kanal separat og slå sammen egenskapene. Behold resnet18 som Backbone og sett Batch til 4 for denne lille kjøringen. Mindre batcher reduserer minnebruken.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Klikk på Embed og vent på forhåndsvisningen. Eksemplet gir 16 objektvektorer med 1 536 dimensjoner. Tabellen viser bare de første dimensjonene og, ved større kjøringer, opptil 50 objekter.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Velg Project to three og klikk på Embed igjen. Da kodes det kombinerte bildet i stedet for hver kanal separat. Bruk de samme utklippene og det samme grunnnettverket når du sammenligner de to policyene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Det projiserte eksemplet har 512 dimensjoner per objekt. Behold kanalpolicyen og koderinnstillingene sammen med resultatene. Bruk de fullstendige vektorene i videre analyse; enkeltdimensjoner er ikke biologiske målinger.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Skjermen gir foreløpig en forhåndsvisning uten eksportknapp. For å lagre fullstendige matriser laster du ned det lenkede Python-hjelpeskriptet og følger README-filen. Det skriver vektorer, objektfilnavn, innstillinger og utforskende plott til en ny utdatamappe.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 54,
+     "preceding": [
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "74_import_images",
+     "next": "76_ops",
+     "entry": {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: läs in utklipp och jämför kanalpolicyer",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Läs in bildutklipp från Home, välj kodare och kanalpolicy, kör Embed och granska förhandsvisningen av egenskaper.",
+      "objectives": [
+       "Läsa in en utklippsmapp via skärmen Embeddings.",
+       "Välja stomnät, batchstorlek och kanalpolicy.",
+       "Granska vektorförhandsvisningen och spara fullständiga resultat med det medföljande Python-hjälpskriptet."
+      ],
+      "example_files": [
+       "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "Installera spaCR med tillägget embeddings. Hämta Annotate-exemplet och leta upp plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. För det lilla exemplet som visas här kopierar du de första 16 PNG-filerna i sorterad filnamnsordning till en ny mapp. Första körningen av kodaren hämtar förtränade vikter om de inte finns i cachen. Den valfria filen Embeddings_API_example.zip innehåller ett hjälpskript för att spara fullständiga matriser.",
+      "scenes": [
+       {
+        "visual": "00_home",
+        "narration": "Från Home öppnar du Embeddings under Data. Du läser in bildutklipp, väljer hur deras kanaler kodas och skapar en numerisk egenskapsvektor per objekt.",
+        "hold_after": 0.7,
+        "focus_modules": [
+         "embeddings"
+        ],
+        "related_lessons": [
+         "05_home",
+         "09_annotate"
+        ]
+       },
+       {
+        "visual": "01_crop_loader",
+        "narration": "Välj crop folder under Crops from. Du kan också använda en mätdatabas när du vill välja en objektklass, platta eller betingelse. Genomgången använder utklippsmappen från Annotates nedladdningsbara exempel.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "02_folder_selected",
+        "narration": "Kopiera 16 exempel-PNG till en arbetsmapp. Ange mappens sökväg och tryck på Enter, eller använd Browse. Ställ At most på 16 och klicka sedan på Load crops.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "03_crops_loaded",
+        "narration": "Läs antalet inlästa utklipp, deras storlek och antal kanaler. Exemplet innehåller 16 bilder, var och en 224 × 224 pixlar med tre lagrade kanaler. Kontrollera kanalkopplingen i utklippsexporten innan du jämför resultat.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "04_per_channel_settings",
+        "narration": "Välj Per channel för att koda varje kanal separat och slå samman dess egenskaper. Behåll resnet18 som Backbone och ställ Batch på 4 för den här lilla körningen. Mindre batcher minskar minnesanvändningen.",
+        "hold_after": 0.7,
+        "focus": [
+         330,
+         40,
+         3500,
+         450
+        ]
+       },
+       {
+        "visual": "05_per_channel_result",
+        "narration": "Klicka på Embed och vänta på förhandsvisningen. Exemplet ger 16 objektvektorer med 1 536 dimensioner. Tabellen visar bara de första dimensionerna och, vid större körningar, upp till 50 objekt.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "04_project_settings",
+        "narration": "Välj Project to three och klicka på Embed igen. Då kodas den kombinerade bilden i stället för varje kanal separat. Använd samma utklipp och stomnät när du jämför de två policyerna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Det projicerade exemplet har 512 dimensioner per objekt. Behåll kanalpolicyn och kodarinställningarna tillsammans med resultaten. Använd de fullständiga vektorerna i efterföljande analys; enskilda dimensioner är inte biologiska mätningar.",
+        "hold_after": 0.7,
+        "focus": [
+         335,
+         295,
+         1600,
+         700
+        ]
+       },
+       {
+        "visual": "05_project_result",
+        "narration": "Skärmen ger för närvarande en förhandsvisning utan exportknapp. För att spara fullständiga matriser hämtar du det länkade Python-hjälpskriptet och följer dess README. Det skriver vektorer, objektfilnamn, inställningar och utforskande diagram till en ny utdatamapp.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "05_home",
+     "scene": 8,
+     "links": [
+      "77_embeddings"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_modules",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "80_image_analysis_pathways",
+     "scene": 5,
+     "links": [
+      "77_embeddings",
+      "15_image_umap"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       1,
+       "groups",
+       1,
+       "lessons"
+      ],
+      "preceding": [
+       "36_import"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "75_regression_diagnostics",
+       "74_import_images",
+       "73_parameter_sweep",
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 49,
+     "value": {
+      "kind": "main",
+      "app_key": "embeddings"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/77_embeddings -> tools/tutorials/archive/production/docs/77_embeddings"
+ ],
+ "prose": []
+}

@@ -1,0 +1,5027 @@
+{
+ "schema": 1,
+ "id": "34_database",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filter and export measurements",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
+      "objectives": [
+       "Open and browse a measurement table.",
+       "Select columns and filter rows.",
+       "Export the matching records."
+      ],
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
+      "scenes": [
+       {
+        "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "34_database/poster.jpg",
+      "silent": "34_database/video/34_database_silent.mp4",
+      "web": "34_database/web/34_database_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filter and export measurements",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Open a measurement database, select columns and rows, and export the result.",
+      "objectives": [
+       "Open and browse a measurement table.",
+       "Select columns and filter rows.",
+       "Export the matching records."
+      ],
+      "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
+      "scenes": [
+       {
+        "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrar y exportar mediciones",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Abre una base de datos de mediciones, selecciona columnas y filas y exporta el resultado.",
+      "objectives": [
+       "Abrir y recorrer una tabla de mediciones.",
+       "Seleccionar columnas y filtrar filas.",
+       "Exportar los registros que coinciden."
+      ],
+      "prerequisite": "Ten un archivo measurements.db de spaCR o una carpeta de ejecución que lo contenga. El proyecto de ejemplo de Measure proporciona una base de datos después de la medición.",
+      "scenes": [
+       {
+        "narration": "Abre Help y luego Database Browser para revisar y exportar tablas de mediciones.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "Abre Help y luego Database Browser para revisar y exportar tablas de mediciones."
+       },
+       {
+        "narration": "Elige measurements.db, o la carpeta de ejecución que lo contiene, y abre la base de datos.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "Elige measurements punto de be, o la carpeta de ejecución que lo contiene, y abre la base de datos."
+       },
+       {
+        "narration": "Selecciona la tabla que necesitas. Elige cell para las mediciones de células, u otra tabla de objetos para las características de ese objeto.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "Selecciona la tabla que necesitas. Elige cell para las mediciones de células, u otra tabla de objetos para las características de ese objeto."
+       },
+       {
+        "narration": "Lee el número total de filas y columnas y luego revisa la página mostrada. Usa los controles de página para recorrer tablas más grandes.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "Lee el número total de filas y columnas y luego revisa la página mostrada. Usa los controles de página para recorrer tablas más grandes."
+       },
+       {
+        "narration": "Busca en los nombres de columna para localizar una característica. Selecciona las columnas que quieres ver y exportar.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "Busca en los nombres de columna para localizar una característica. Selecciona las columnas que quieres ver y exportar."
+       },
+       {
+        "narration": "Crea un filtro eligiendo una columna, un operador y un valor. Aplícalo para seleccionar los registros que coinciden en toda la tabla.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "Crea un filtro eligiendo una columna, un operador y un valor. Aplícalo para seleccionar los registros que coinciden en toda la tabla."
+       },
+       {
+        "narration": "Comprueba el número de filas filtradas y revisa los registros que coinciden. Ajusta o borra el filtro para cambiar tu selección.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "Comprueba el número de filas filtradas y revisa los registros que coinciden. Ajusta o borra el filtro para cambiar tu selección."
+       },
+       {
+        "narration": "Elige Export y un archivo de destino. La exportación incluye todas las filas que coinciden y las columnas seleccionadas, sin modificar la base de datos de origen.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Elige Export y un archivo de destino. La exportación incluye todas las filas que coinciden y las columnas seleccionadas, sin modificar la base de datos de origen."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser : filtrer et exporter des mesures",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Ouvrez une base de données de mesures, sélectionnez des colonnes et des lignes, puis exportez le résultat.",
+      "objectives": [
+       "Ouvrir et parcourir une table de mesures.",
+       "Sélectionner des colonnes et filtrer des lignes.",
+       "Exporter les enregistrements correspondants."
+      ],
+      "prerequisite": "Disposez d’un fichier measurements.db de spaCR ou d’un dossier d’exécution qui en contient un. Le projet d’exemple de Measure fournit une base de données après la mesure.",
+      "scenes": [
+       {
+        "narration": "Ouvrez Help, puis Database Browser pour examiner et exporter des tables de mesures.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "Ouvrez Help, puis Database Browser pour examiner et exporter des tables de mesures."
+       },
+       {
+        "narration": "Choisissez measurements.db, ou le dossier d’exécution qui le contient, et ouvrez la base de données.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "Choisissez measurements point dé bé, ou le dossier d’exécution qui le contient, et ouvrez la base de données."
+       },
+       {
+        "narration": "Sélectionnez la table voulue. Choisissez cell pour les mesures de cellules, ou une autre table d’objets pour les caractéristiques de cet objet.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "Sélectionnez la table voulue. Choisissez cell pour les mesures de cellules, ou une autre table d’objets pour les caractéristiques de cet objet."
+       },
+       {
+        "narration": "Lisez le nombre total de lignes et de colonnes, puis examinez la page affichée. Utilisez les contrôles de page pour parcourir les tables plus grandes.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "Lisez le nombre total de lignes et de colonnes, puis examinez la page affichée. Utilisez les contrôles de page pour parcourir les tables plus grandes."
+       },
+       {
+        "narration": "Recherchez dans les noms de colonnes pour trouver une caractéristique. Sélectionnez les colonnes à afficher et à exporter.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "Recherchez dans les noms de colonnes pour trouver une caractéristique. Sélectionnez les colonnes à afficher et à exporter."
+       },
+       {
+        "narration": "Construisez un filtre en choisissant une colonne, un opérateur et une valeur. Appliquez-le pour sélectionner les enregistrements correspondants dans toute la table.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "Construisez un filtre en choisissant une colonne, un opérateur et une valeur. Appliquez-le pour sélectionner les enregistrements correspondants dans toute la table."
+       },
+       {
+        "narration": "Vérifiez le nombre de lignes filtrées et examinez les enregistrements correspondants. Modifiez ou effacez le filtre pour changer votre sélection.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "Vérifiez le nombre de lignes filtrées et examinez les enregistrements correspondants. Modifiez ou effacez le filtre pour changer votre sélection."
+       },
+       {
+        "narration": "Choisissez Export et un fichier de destination. L’export contient toutes les lignes correspondantes et les colonnes sélectionnées, sans modifier la base de données source.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Choisissez Export et un fichier de destination. L’export contient toutes les lignes correspondantes et les colonnes sélectionnées, sans modifier la base de données source."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: माप छाँटें और निर्यात करें",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "एक माप डेटाबेस खोलें, कॉलम और पंक्तियाँ चुनें, और परिणाम निर्यात करें।",
+      "objectives": [
+       "माप तालिका खोलें और देखें।",
+       "कॉलम चुनें और पंक्तियाँ छाँटें।",
+       "मेल खाते रिकॉर्ड निर्यात करें।"
+      ],
+      "prerequisite": "spaCR की measurements.db फ़ाइल या उसे रखने वाला रन फ़ोल्डर तैयार रखें। Measure का उदाहरण प्रोजेक्ट माप के बाद एक डेटाबेस देता है।",
+      "scenes": [
+       {
+        "narration": "माप तालिकाएँ देखने और निर्यात करने के लिए Help खोलें, फिर Database Browser।",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "माप तालिकाएँ देखने और निर्यात करने के लिए Help खोलें, फिर Database Browser।"
+       },
+       {
+        "narration": "measurements.db, या उसे रखने वाला रन फ़ोल्डर चुनें, और डेटाबेस खोलें।",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "मेज़रमेंट्स डॉट डी बी, या उसे रखने वाला रन फ़ोल्डर चुनें, और डेटाबेस खोलें।"
+       },
+       {
+        "narration": "ज़रूरी तालिका चुनें। कोशिका माप के लिए cell चुनें, या किसी दूसरी वस्तु की विशेषताओं के लिए उसकी तालिका।",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "ज़रूरी तालिका चुनें। कोशिका माप के लिए cell चुनें, या किसी दूसरी वस्तु की विशेषताओं के लिए उसकी तालिका।"
+       },
+       {
+        "narration": "कुल पंक्तियों और कॉलमों की संख्या पढ़ें, फिर दिखाया गया पेज देखें। बड़ी तालिकाओं में आगे बढ़ने के लिए पेज नियंत्रण इस्तेमाल करें।",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "कुल पंक्तियों और कॉलमों की संख्या पढ़ें, फिर दिखाया गया पेज देखें। बड़ी तालिकाओं में आगे बढ़ने के लिए पेज नियंत्रण इस्तेमाल करें।"
+       },
+       {
+        "narration": "किसी विशेषता को खोजने के लिए कॉलम नामों में खोजें। जिन कॉलमों को देखना और निर्यात करना है, उन्हें चुनें।",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "किसी विशेषता को खोजने के लिए कॉलम नामों में खोजें। जिन कॉलमों को देखना और निर्यात करना है, उन्हें चुनें।"
+       },
+       {
+        "narration": "एक कॉलम, एक ऑपरेटर और एक मान चुनकर फ़िल्टर बनाएँ। पूरी तालिका में मेल खाते रिकॉर्ड चुनने के लिए उसे लागू करें।",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "एक कॉलम, एक ऑपरेटर और एक मान चुनकर फ़िल्टर बनाएँ। पूरी तालिका में मेल खाते रिकॉर्ड चुनने के लिए उसे लागू करें।"
+       },
+       {
+        "narration": "छँटी हुई पंक्तियों की संख्या जाँचें और मेल खाते रिकॉर्ड देखें। चयन बदलने के लिए फ़िल्टर बदलें या हटाएँ।",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "छँटी हुई पंक्तियों की संख्या जाँचें और मेल खाते रिकॉर्ड देखें। चयन बदलने के लिए फ़िल्टर बदलें या हटाएँ।"
+       },
+       {
+        "narration": "Export और एक गंतव्य फ़ाइल चुनें। निर्यात में सभी मेल खाती पंक्तियाँ और आपके चुने कॉलम होते हैं, और स्रोत डेटाबेस नहीं बदलता।",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Export और एक गंतव्य फ़ाइल चुनें। निर्यात में सभी मेल खाती पंक्तियाँ और आपके चुने कॉलम होते हैं, और स्रोत डेटाबेस नहीं बदलता।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrare ed esportare le misure",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Apri un database delle misure, seleziona colonne e righe ed esporta il risultato.",
+      "objectives": [
+       "Aprire e scorrere una tabella di misure.",
+       "Selezionare colonne e filtrare righe.",
+       "Esportare i record corrispondenti."
+      ],
+      "prerequisite": "Tieni pronto un file measurements.db di spaCR o una cartella di esecuzione che lo contiene. Il progetto di esempio di Measure fornisce un database dopo la misurazione.",
+      "scenes": [
+       {
+        "narration": "Apri Help e poi Database Browser per esaminare ed esportare le tabelle delle misure.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "Apri Help e poi Database Browser per esaminare ed esportare le tabelle delle misure."
+       },
+       {
+        "narration": "Scegli measurements.db, o la cartella di esecuzione che lo contiene, e apri il database.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "Scegli measurements punto di bi, o la cartella di esecuzione che lo contiene, e apri il database."
+       },
+       {
+        "narration": "Seleziona la tabella che ti serve. Scegli cell per le misure delle cellule, oppure un’altra tabella di oggetti per le caratteristiche di quell’oggetto.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "Seleziona la tabella che ti serve. Scegli cell per le misure delle cellule, oppure un’altra tabella di oggetti per le caratteristiche di quell’oggetto."
+       },
+       {
+        "narration": "Leggi il numero totale di righe e colonne, poi esamina la pagina mostrata. Usa i controlli di pagina per scorrere le tabelle più grandi.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "Leggi il numero totale di righe e colonne, poi esamina la pagina mostrata. Usa i controlli di pagina per scorrere le tabelle più grandi."
+       },
+       {
+        "narration": "Cerca nei nomi delle colonne per trovare una caratteristica. Seleziona le colonne che vuoi vedere ed esportare.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "Cerca nei nomi delle colonne per trovare una caratteristica. Seleziona le colonne che vuoi vedere ed esportare."
+       },
+       {
+        "narration": "Crea un filtro scegliendo una colonna, un operatore e un valore. Applicalo per selezionare i record corrispondenti in tutta la tabella.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "Crea un filtro scegliendo una colonna, un operatore e un valore. Applicalo per selezionare i record corrispondenti in tutta la tabella."
+       },
+       {
+        "narration": "Controlla il numero di righe filtrate ed esamina i record corrispondenti. Modifica o cancella il filtro per cambiare la selezione.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "Controlla il numero di righe filtrate ed esamina i record corrispondenti. Modifica o cancella il filtro per cambiare la selezione."
+       },
+       {
+        "narration": "Scegli Export e un file di destinazione. L’esportazione include tutte le righe corrispondenti e le colonne selezionate, senza modificare il database di origine.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Scegli Export e un file di destinazione. L’esportazione include tutte le righe corrispondenti e le colonne selezionate, senza modificare il database di origine."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser：測定値を絞り込んで書き出す",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "測定データベースを開き、列と行を選んで、結果を書き出します。",
+      "objectives": [
+       "測定値の表を開いて閲覧する。",
+       "列を選び、行を絞り込む。",
+       "条件に合う記録を書き出す。"
+      ],
+      "prerequisite": "spaCRのmeasurements.dbファイル、またはそれを含む実行フォルダーを用意します。Measureの例のプロジェクトでは、測定後にデータベースができます。",
+      "scenes": [
+       {
+        "narration": "測定値の表を確認して書き出すには、Helpを開き、続いてDatabase Browserを開きます。",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "測定値の表を確認して書き出すには、Helpを開き、続いてDatabase Browserを開きます。"
+       },
+       {
+        "narration": "measurements.db、またはそれを含む実行フォルダーを選び、データベースを開きます。",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "メジャメンツ・ドット・ディービー、またはそれを含む実行フォルダーを選び、データベースを開きます。"
+       },
+       {
+        "narration": "必要な表を選びます。細胞の測定値にはcellを、ほかの物体の特徴量にはその物体の表を選びます。",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "必要な表を選びます。細胞の測定値にはcellを、ほかの物体の特徴量にはその物体の表を選びます。"
+       },
+       {
+        "narration": "行と列の総数を読み、表示されたページを確認します。大きな表では、ページの操作で移動します。",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "行と列の総数を読み、表示されたページを確認します。大きな表では、ページの操作で移動します。"
+       },
+       {
+        "narration": "列名を検索して、特徴量を探します。表示して書き出したい列を選びます。",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "列名を検索して、特徴量を探します。表示して書き出したい列を選びます。"
+       },
+       {
+        "narration": "列、演算子、値を選んでフィルターを作ります。適用すると、表全体から条件に合う記録が選ばれます。",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "列、演算子、値を選んでフィルターを作ります。適用すると、表全体から条件に合う記録が選ばれます。"
+       },
+       {
+        "narration": "絞り込んだ行数を確認し、条件に合う記録を確認します。選択を変えるには、フィルターを調整するか消します。",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "絞り込んだ行数を確認し、条件に合う記録を確認します。選択を変えるには、フィルターを調整するか消します。"
+       },
+       {
+        "narration": "Exportと出力先のファイルを選びます。書き出しには、条件に合うすべての行と選んだ列が含まれ、元のデータベースは変更されません。",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Exportと出力先のファイルを選びます。書き出しには、条件に合うすべての行と選んだ列が含まれ、元のデータベースは変更されません。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrar e exportar medições",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Abra um banco de dados de medições, selecione colunas e linhas e exporte o resultado.",
+      "objectives": [
+       "Abrir e percorrer uma tabela de medições.",
+       "Selecionar colunas e filtrar linhas.",
+       "Exportar os registros correspondentes."
+      ],
+      "prerequisite": "Tenha um arquivo measurements.db do spaCR ou uma pasta de execução que contenha um. O projeto de exemplo do Measure fornece um banco de dados depois da medição.",
+      "scenes": [
+       {
+        "narration": "Abra Help e depois Database Browser para inspecionar e exportar tabelas de medições.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "Abra Help e depois Database Browser para inspecionar e exportar tabelas de medições."
+       },
+       {
+        "narration": "Escolha measurements.db, ou a pasta de execução que o contém, e abra o banco de dados.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "Escolha measurements ponto dê bê, ou a pasta de execução que o contém, e abra o banco de dados."
+       },
+       {
+        "narration": "Selecione a tabela de que precisa. Escolha cell para as medições de células, ou outra tabela de objetos para as características desse objeto.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "Selecione a tabela de que precisa. Escolha cell para as medições de células, ou outra tabela de objetos para as características desse objeto."
+       },
+       {
+        "narration": "Leia o total de linhas e colunas e depois inspecione a página exibida. Use os controles de página para percorrer tabelas maiores.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "Leia o total de linhas e colunas e depois inspecione a página exibida. Use os controles de página para percorrer tabelas maiores."
+       },
+       {
+        "narration": "Pesquise nos nomes das colunas para localizar uma característica. Selecione as colunas que quer ver e exportar.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "Pesquise nos nomes das colunas para localizar uma característica. Selecione as colunas que quer ver e exportar."
+       },
+       {
+        "narration": "Monte um filtro escolhendo uma coluna, um operador e um valor. Aplique-o para selecionar os registros correspondentes na tabela inteira.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "Monte um filtro escolhendo uma coluna, um operador e um valor. Aplique-o para selecionar os registros correspondentes na tabela inteira."
+       },
+       {
+        "narration": "Confira o número de linhas filtradas e inspecione os registros correspondentes. Ajuste ou limpe o filtro para mudar a seleção.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "Confira o número de linhas filtradas e inspecione os registros correspondentes. Ajuste ou limpe o filtro para mudar a seleção."
+       },
+       {
+        "narration": "Escolha Export e um arquivo de destino. A exportação inclui todas as linhas correspondentes e as colunas selecionadas, sem alterar o banco de dados de origem.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "Escolha Export e um arquivo de destino. A exportação inclui todas as linhas correspondentes e as colunas selecionadas, sem alterar o banco de dados de origem."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser：过滤并导出测量数据",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "打开测量数据库，选择列和行，并导出结果。",
+      "objectives": [
+       "打开并浏览测量表。",
+       "选择列并过滤行。",
+       "导出符合条件的记录。"
+      ],
+      "prerequisite": "准备一个spaCR的measurements.db文件，或包含该文件的运行文件夹。Measure的示例项目在测量后会提供一个数据库。",
+      "scenes": [
+       {
+        "narration": "打开Help，然后打开Database Browser，查看并导出测量表。",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen",
+        "speech_text": "打开Help，然后打开Database Browser，查看并导出测量表。"
+       },
+       {
+        "narration": "选择measurements.db，或包含它的运行文件夹，然后打开数据库。",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source",
+        "speech_text": "选择测量数据库文件，或包含它的运行文件夹，然后打开数据库。"
+       },
+       {
+        "narration": "选择需要的表。细胞测量选择cell，其他对象的特征则选择相应的对象表。",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables",
+        "speech_text": "选择需要的表。细胞测量选择cell，其他对象的特征则选择相应的对象表。"
+       },
+       {
+        "narration": "阅读总行数和总列数，然后查看显示的页面。使用翻页控件浏览较大的表。",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview",
+        "speech_text": "阅读总行数和总列数，然后查看显示的页面。使用翻页控件浏览较大的表。"
+       },
+       {
+        "narration": "在列名中搜索以找到某个特征。选择要查看和导出的列。",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search",
+        "speech_text": "在列名中搜索以找到某个特征。选择要查看和导出的列。"
+       },
+       {
+        "narration": "选择一列、一个运算符和一个值来建立过滤条件。应用后即可在整张表中选出符合条件的记录。",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter",
+        "speech_text": "选择一列、一个运算符和一个值来建立过滤条件。应用后即可在整张表中选出符合条件的记录。"
+       },
+       {
+        "narration": "检查过滤后的行数，并查看符合条件的记录。调整或清除过滤条件以更改选择。",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status",
+        "speech_text": "检查过滤后的行数，并查看符合条件的记录。调整或清除过滤条件以更改选择。"
+       },
+       {
+        "narration": "选择Export和目标文件。导出包含所有符合条件的行和所选的列，源数据库保持不变。",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export",
+        "speech_text": "选择Export和目标文件。导出包含所有符合条件的行和所选的列，源数据库保持不变。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrér og eksportér målinger",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Åbn en måledatabase, vælg kolonner og rækker, og eksportér resultatet.",
+      "objectives": [
+       "Åbne og gennemse en måletabel.",
+       "Vælge kolonner og filtrere rækker.",
+       "Eksportere de matchende poster."
+      ],
+      "prerequisite": "Hav en spaCR-fil measurements.db eller en kørselsmappe, der indeholder en. Measures eksempelprojekt giver en database efter målingen.",
+      "scenes": [
+       {
+        "narration": "Åbn Help og derefter Database Browser for at undersøge og eksportere måletabeller.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Vælg measurements.db, eller den kørselsmappe, der indeholder den, og åbn databasen.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Vælg den tabel, du har brug for. Vælg cell for cellemålinger, eller en anden objekttabel for det objekts egenskaber.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Læs det samlede antal rækker og kolonner, og undersøg derefter den viste side. Brug sidekontrollerne til at bladre gennem større tabeller.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Søg i kolonnenavnene for at finde en egenskab. Vælg de kolonner, du vil se og eksportere.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Opbyg et filter ved at vælge en kolonne, en operator og en værdi. Anvend det for at vælge matchende poster i hele tabellen.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Kontrollér antallet af filtrerede rækker, og undersøg de matchende poster. Justér eller ryd filteret for at ændre dit udvalg.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Vælg Export og en destinationsfil. Eksporten indeholder alle matchende rækker og dine valgte kolonner, mens kildedatabasen forbliver uændret.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: Messwerte filtern und exportieren",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Öffnen Sie eine Messdatenbank, wählen Sie Spalten und Zeilen und exportieren Sie das Ergebnis.",
+      "objectives": [
+       "Eine Messtabelle öffnen und durchsuchen.",
+       "Spalten auswählen und Zeilen filtern.",
+       "Die passenden Datensätze exportieren."
+      ],
+      "prerequisite": "Halten Sie eine spaCR-Datei measurements.db oder einen Laufordner bereit, der eine enthält. Das Beispielprojekt von Measure liefert nach der Messung eine Datenbank.",
+      "scenes": [
+       {
+        "narration": "Öffnen Sie Help und dann Database Browser, um Messtabellen zu prüfen und zu exportieren.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Wählen Sie measurements.db oder den Laufordner, der sie enthält, und öffnen Sie die Datenbank.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Wählen Sie die benötigte Tabelle. Wählen Sie cell für Zellmesswerte oder eine andere Objekttabelle für die Merkmale dieses Objekts.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Lesen Sie die Gesamtzahl der Zeilen und Spalten und prüfen Sie dann die angezeigte Seite. Blättern Sie mit den Seitensteuerelementen durch größere Tabellen.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Durchsuchen Sie die Spaltennamen, um ein Merkmal zu finden. Wählen Sie die Spalten, die Sie anzeigen und exportieren möchten.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Erstellen Sie einen Filter, indem Sie eine Spalte, einen Operator und einen Wert wählen. Wenden Sie ihn an, um passende Datensätze in der gesamten Tabelle auszuwählen.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Prüfen Sie die Zahl der gefilterten Zeilen und die passenden Datensätze. Passen Sie den Filter an oder löschen Sie ihn, um Ihre Auswahl zu ändern.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Wählen Sie Export und eine Zieldatei. Der Export enthält alle passenden Zeilen und Ihre ausgewählten Spalten; die Quelldatenbank bleibt unverändert.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: síaðu og fluttu út mælingar",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Opnaðu mælingagagnagrunn, veldu dálka og línur og fluttu niðurstöðuna út.",
+      "objectives": [
+       "Opna og fletta í mælingatöflu.",
+       "Velja dálka og sía línur.",
+       "Flytja út færslurnar sem passa."
+      ],
+      "prerequisite": "Hafðu tiltæka spaCR-skrána measurements.db eða keyrslumöppu sem inniheldur hana. Dæmaverkefni Measure gefur gagnagrunn eftir mælingu.",
+      "scenes": [
+       {
+        "narration": "Opnaðu Help og svo Database Browser til að skoða og flytja út mælingatöflur.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Veldu measurements.db, eða keyrslumöppuna sem inniheldur hana, og opnaðu gagnagrunninn.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Veldu töfluna sem þú þarft. Veldu cell fyrir mælingar á frumum, eða aðra töflu hluta fyrir eiginleika þess hlutar.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Lestu heildarfjölda lína og dálka og skoðaðu svo síðuna sem birtist. Notaðu síðustýringarnar til að fletta í stærri töflum.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Leitaðu í dálkaheitum til að finna eiginleika. Veldu dálkana sem þú vilt skoða og flytja út.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Búðu til síu með því að velja dálk, virkja og gildi. Beittu henni til að velja færslur sem passa í allri töflunni.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Athugaðu fjölda síaðra lína og skoðaðu færslurnar sem passa. Breyttu síunni eða hreinsaðu hana til að breyta valinu.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Veldu Export og áfangaskrá. Útflutningurinn inniheldur allar línur sem passa og dálkana sem þú valdir, án þess að breyta upprunagagnagrunninum.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: 측정값 필터링과 내보내기",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "측정 데이터베이스를 열고, 열과 행을 고른 뒤 결과를 내보냅니다.",
+      "objectives": [
+       "측정 표를 열고 살펴봅니다.",
+       "열을 고르고 행을 필터링합니다.",
+       "조건에 맞는 레코드를 내보냅니다."
+      ],
+      "prerequisite": "spaCR measurements.db 파일이나 이를 담은 실행 폴더를 준비하세요. Measure의 예제 프로젝트는 측정 후 데이터베이스를 제공합니다.",
+      "scenes": [
+       {
+        "narration": "측정 표를 확인하고 내보내려면 Help를 연 뒤 Database Browser를 여세요.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "measurements.db나 이를 담은 실행 폴더를 선택하고 데이터베이스를 여세요.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "필요한 표를 선택하세요. 세포 측정값에는 cell을, 다른 객체의 특징에는 해당 객체 표를 고르세요.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "전체 행 수와 열 수를 읽은 뒤 표시된 페이지를 확인하세요. 큰 표는 페이지 컨트롤로 넘겨 보세요.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "열 이름을 검색해 특징을 찾으세요. 보고 내보낼 열을 선택하세요.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "열, 연산자, 값을 골라 필터를 만드세요. 적용하면 전체 표에서 조건에 맞는 레코드가 선택됩니다.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "필터링된 행 수를 확인하고 조건에 맞는 레코드를 살펴보세요. 선택을 바꾸려면 필터를 조정하거나 지우세요.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Export와 대상 파일을 고르세요. 내보내기에는 조건에 맞는 모든 행과 선택한 열이 들어가며, 원본 데이터베이스는 바뀌지 않습니다.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrer og eksporter målinger",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Åpne en måledatabase, velg kolonner og rader, og eksporter resultatet.",
+      "objectives": [
+       "Åpne og bla i en måletabell.",
+       "Velge kolonner og filtrere rader.",
+       "Eksportere de samsvarende postene."
+      ],
+      "prerequisite": "Ha en spaCR-fil measurements.db eller en kjøremappe som inneholder en. Eksempelprosjektet i Measure gir en database etter målingen.",
+      "scenes": [
+       {
+        "narration": "Åpne Help og deretter Database Browser for å undersøke og eksportere måletabeller.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Velg measurements.db, eller kjøremappen som inneholder den, og åpne databasen.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Velg tabellen du trenger. Velg cell for cellemålinger, eller en annen objekttabell for egenskapene til det objektet.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Les det totale antallet rader og kolonner, og undersøk deretter siden som vises. Bruk sidekontrollene for å bla gjennom større tabeller.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Søk i kolonnenavnene for å finne en egenskap. Velg kolonnene du vil vise og eksportere.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Lag et filter ved å velge en kolonne, en operator og en verdi. Bruk det for å velge samsvarende poster i hele tabellen.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Kontroller antallet filtrerte rader og undersøk de samsvarende postene. Juster eller fjern filteret for å endre utvalget.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Velg Export og en målfil. Eksporten inneholder alle samsvarende rader og kolonnene du valgte, mens kildedatabasen forblir uendret.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 27,
+     "preceding": [
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "33_plate_viewer",
+     "next": "35_converter",
+     "entry": {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser: filtrera och exportera mätningar",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data",
+      "description": "Öppna en mätdatabas, välj kolumner och rader och exportera resultatet.",
+      "objectives": [
+       "Öppna och bläddra i en mättabell.",
+       "Välja kolumner och filtrera rader.",
+       "Exportera matchande poster."
+      ],
+      "prerequisite": "Ha en spaCR-fil measurements.db eller en körmapp som innehåller en. Measures exempelprojekt ger en databas efter mätningen.",
+      "scenes": [
+       {
+        "narration": "Öppna Help och sedan Database Browser för att granska och exportera mättabeller.",
+        "visual": "01_overview",
+        "hold_after": 0.7,
+        "focus_key": "screen"
+       },
+       {
+        "narration": "Välj measurements.db, eller körmappen som innehåller den, och öppna databasen.",
+        "visual": "02_open",
+        "hold_after": 0.7,
+        "focus_key": "source"
+       },
+       {
+        "narration": "Välj den tabell du behöver. Välj cell för cellmätningar, eller en annan objekttabell för det objektets egenskaper.",
+        "visual": "03_tables",
+        "hold_after": 0.7,
+        "focus_key": "tables"
+       },
+       {
+        "narration": "Läs det totala antalet rader och kolumner och granska sedan den visade sidan. Använd sidkontrollerna för att bläddra i större tabeller.",
+        "visual": "04_cell_table",
+        "hold_after": 0.7,
+        "focus_key": "preview"
+       },
+       {
+        "narration": "Sök bland kolumnnamnen för att hitta en egenskap. Välj de kolumner du vill visa och exportera.",
+        "visual": "05_column_search",
+        "hold_after": 0.7,
+        "focus_key": "column_search"
+       },
+       {
+        "narration": "Bygg ett filter genom att välja en kolumn, en operator och ett värde. Tillämpa det för att välja matchande poster i hela tabellen.",
+        "visual": "08_filter",
+        "hold_after": 0.7,
+        "focus_key": "filter"
+       },
+       {
+        "narration": "Kontrollera antalet filtrerade rader och granska de matchande posterna. Justera eller rensa filtret för att ändra urvalet.",
+        "visual": "09_filtered",
+        "hold_after": 0.7,
+        "focus_key": "status"
+       },
+       {
+        "narration": "Välj Export och en målfil. Exporten innehåller alla matchande rader och dina valda kolumner, medan källdatabasen förblir oförändrad.",
+        "visual": "10_export",
+        "hold_after": 0.7,
+        "focus_key": "export"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "23_agreement",
+     "scene": 9,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "27_replication",
+     "scene": 11,
+     "links": [
+      "08_measure",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "36_import",
+     "scene": 16,
+     "links": [
+      "34_database",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "44_data_manager",
+     "scene": 12,
+     "links": [
+      "06_api",
+      "34_database",
+      "29_report"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "45_project_browser",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "40_run_history",
+      "34_database",
+      "44_data_manager"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "56_lineage",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "58_graph_builder",
+     "scene": 1,
+     "links": [
+      "09_annotate",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 0,
+     "links": [
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 6,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "62_feature_dictionary",
+     "scene": 8,
+     "links": [
+      "06_api",
+      "34_database"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       13,
+       "lessons"
+      ],
+      "preceding": [
+       "30_plate_queue",
+       "29_report",
+       "06_api"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 22,
+     "value": {
+      "kind": "help",
+      "app_key": "db_browser"
+     }
+    },
+    "host_lesson": [
+     [
+      2,
+      12
+     ]
+    ],
+    "route_host_lesson": [
+     "56_lineage",
+     "61_tabulate"
+    ]
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/34_database -> tools/tutorials/archive/production/docs/34_database"
+ ],
+ "prose": []
+}

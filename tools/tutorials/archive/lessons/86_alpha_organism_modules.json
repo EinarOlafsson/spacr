@@ -1,0 +1,4299 @@
+{
+ "schema": 1,
+ "id": "86_alpha_organism_modules",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organism modules",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Turn on Show alpha species and tour the unfinished organism pages: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells.",
+      "objectives": [
+       "Turn Show alpha species on and off in Preferences.",
+       "Read an organism page: introduction, cell diagram and assay tiles.",
+       "Tell open assay tiles from planned ones and know these pages are alpha."
+      ],
+      "prerequisite": "Open spaCR Home. No input files are needed. These organism pages are alpha: unfinished and subject to change.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "This is the one tutorial that shows spaCR's alpha organism modules. On a normal install the Assays tab on Home holds a single organism, Toxoplasma. The other organism pages are switched off until you ask for them.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Open Preferences from the spaCR menu and go to the Modules tab. Under Module visibility, the last switch is Show alpha species. It is off by default.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Turn it on. Treat everything it reveals as alpha: the pages are unfinished, most of their assay tiles are still planned, and names, layouts and analyses may change before they are released. Use them to explore, not to report results.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Press Save. The setting applies at once and is kept for your next session, so you only need to do this once.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Back on Home, the Assays tab now lists eight organisms: Toxoplasma, then Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells. Each tile opens a page built the same way, so once you know one, you can read them all.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Start with Plasmodium, the malaria parasites. On the left, a short introduction explains what imaging can measure in this organism: infection frequency, blood-stage development, liver infection, motility and drug responses. Below it, each section ties a biological question to the assay tiles on the right.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "The cell diagram is an interactive map of compartments taken from UniProt. Hover over the cell to identify a structure, and tick several compartments in the list to keep them highlighted together. Clear components resets the drawing.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "The assay tiles are where work starts. Bright tiles open a module that already runs: Parasitaemia opens Host–Pathogen Analysis, Sporozoite motility opens the Motility Assay. Dimmed tiles are planned and cannot be opened yet. The same rule holds on every organism page.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida covers yeasts that can switch between budding cells, germ tubes and hyphae. Its open tiles reuse existing modules for adhesion, epithelial invasion, phagocytosis and antifungal response; the planned ones will measure filamentation, germ tubes, biofilm and morphology.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma brings two parasites onto one page: Trypanosoma brucei, which swims in blood, and Trypanosoma cruzi, which replicates inside host cells. Flagellar motility, host-cell invasion, amastigote infection and drug response already open real modules.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania parasites replicate inside macrophages. Macrophage infection reports the infected fraction and amastigotes per macrophage, and promastigote motility measures swimming. Planned tiles will follow metacyclogenesis, amastigote conversion and vacuole size.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis attaches to the gut wall with its ventral disc. Here you can count trophozoites on epithelial cells, track their swimming and measure drug responses; encystation, excystation and disc morphology are still planned.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection is a page for host cells rather than a parasite. Infection rate counts virus-positive cells, Plaque Assay measures plaques, and Recruitment measures host proteins gathering at replication sites. Define positivity from mock-infected wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells covers screens with no pathogen at all. Its open tiles lead straight to Mask, Measure, the Motility Assay, phagocytosis and cytotoxicity, so the core pipeline is one click away from the organism page.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "When you are done exploring, return to Preferences and switch Show alpha species off again, then Save. The organism pages disappear; nothing you have measured is changed.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home is back to Toxoplasma alone. As each organism matures it will leave alpha and get its own walkthrough. Until then, use the Toxoplasma lesson for a full assay example, and the module lessons for each workflow these tiles open.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "86_alpha_organism_modules/poster.jpg",
+      "silent": "86_alpha_organism_modules/video/86_alpha_organism_modules_silent.mp4",
+      "web": "86_alpha_organism_modules/web/86_alpha_organism_modules_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organism modules",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Turn on Show alpha species and tour the unfinished organism pages: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells.",
+      "objectives": [
+       "Turn Show alpha species on and off in Preferences.",
+       "Read an organism page: introduction, cell diagram and assay tiles.",
+       "Tell open assay tiles from planned ones and know these pages are alpha."
+      ],
+      "prerequisite": "Open spaCR Home. No input files are needed. These organism pages are alpha: unfinished and subject to change.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "This is the one tutorial that shows spaCR's alpha organism modules. On a normal install the Assays tab on Home holds a single organism, Toxoplasma. The other organism pages are switched off until you ask for them.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Open Preferences from the spaCR menu and go to the Modules tab. Under Module visibility, the last switch is Show alpha species. It is off by default.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Turn it on. Treat everything it reveals as alpha: the pages are unfinished, most of their assay tiles are still planned, and names, layouts and analyses may change before they are released. Use them to explore, not to report results.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Press Save. The setting applies at once and is kept for your next session, so you only need to do this once.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Back on Home, the Assays tab now lists eight organisms: Toxoplasma, then Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells. Each tile opens a page built the same way, so once you know one, you can read them all.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Start with Plasmodium, the malaria parasites. On the left, a short introduction explains what imaging can measure in this organism: infection frequency, blood-stage development, liver infection, motility and drug responses. Below it, each section ties a biological question to the assay tiles on the right.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "The cell diagram is an interactive map of compartments taken from UniProt. Hover over the cell to identify a structure, and tick several compartments in the list to keep them highlighted together. Clear components resets the drawing.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "The assay tiles are where work starts. Bright tiles open a module that already runs: Parasitaemia opens Host–Pathogen Analysis, Sporozoite motility opens the Motility Assay. Dimmed tiles are planned and cannot be opened yet. The same rule holds on every organism page.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida covers yeasts that can switch between budding cells, germ tubes and hyphae. Its open tiles reuse existing modules for adhesion, epithelial invasion, phagocytosis and antifungal response; the planned ones will measure filamentation, germ tubes, biofilm and morphology.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma brings two parasites onto one page: Trypanosoma brucei, which swims in blood, and Trypanosoma cruzi, which replicates inside host cells. Flagellar motility, host-cell invasion, amastigote infection and drug response already open real modules.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania parasites replicate inside macrophages. Macrophage infection reports the infected fraction and amastigotes per macrophage, and promastigote motility measures swimming. Planned tiles will follow metacyclogenesis, amastigote conversion and vacuole size.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis attaches to the gut wall with its ventral disc. Here you can count trophozoites on epithelial cells, track their swimming and measure drug responses; encystation, excystation and disc morphology are still planned.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection is a page for host cells rather than a parasite. Infection rate counts virus-positive cells, Plaque Assay measures plaques, and Recruitment measures host proteins gathering at replication sites. Define positivity from mock-infected wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells covers screens with no pathogen at all. Its open tiles lead straight to Mask, Measure, the Motility Assay, phagocytosis and cytotoxicity, so the core pipeline is one click away from the organism page.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "When you are done exploring, return to Preferences and switch Show alpha species off again, then Save. The organism pages disappear; nothing you have measured is changed.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home is back to Toxoplasma alone. As each organism matures it will leave alpha and get its own walkthrough. Until then, use the Toxoplasma lesson for a full assay example, and the module lessons for each workflow these tiles open.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: módulos de organismos",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Active Show alpha species y recorra las páginas de organismos sin terminar: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection y Mammalian cells.",
+      "objectives": [
+       "Activar y desactivar Show alpha species en Preferences.",
+       "Leer una página de organismo: introducción, diagrama celular y mosaicos de ensayo.",
+       "Distinguir los mosaicos abiertos de los planificados y saber que estas páginas son alfa."
+      ],
+      "prerequisite": "Abra Home en spaCR. No se necesitan archivos de entrada. Estas páginas de organismos son alfa: están sin terminar y pueden cambiar.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Este es el único tutorial que muestra los módulos alfa de organismos de spaCR. En una instalación normal, la pestaña Assays de Home contiene un solo organismo, Toxoplasma. Las demás páginas de organismos permanecen desactivadas hasta que las pida.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Este es el único tutorial que muestra los módulos alfa de organismos de espáquer. En una instalación normal, la pestaña Assays de Home contiene un solo organismo, Toxoplasma. Las demás páginas de organismos permanecen desactivadas hasta que las pida."
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Abra Preferences desde el menú spaCR y vaya a la pestaña Modules. En Module visibility, el último interruptor es Show alpha species. Está desactivado por defecto.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Preferences desde el menú espáquer y vaya a la pestaña Modules. En Module visibility, el último interruptor es Show alpha species. Está desactivado por defecto."
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Actívelo. Trate todo lo que muestra como alfa: las páginas están sin terminar, la mayoría de sus mosaicos de ensayo siguen planificados, y los nombres, diseños y análisis pueden cambiar antes de publicarse. Úselas para explorar, no para informar resultados.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Actívelo. Trate todo lo que muestra como alfa: las páginas están sin terminar, la mayoría de sus mosaicos de ensayo siguen planificados, y los nombres, diseños y análisis pueden cambiar antes de publicarse. Úselas para explorar, no para informar resultados."
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Pulse Save. El ajuste se aplica de inmediato y se conserva para su próxima sesión, así que solo tiene que hacerlo una vez.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Pulse Save. El ajuste se aplica de inmediato y se conserva para su próxima sesión, así que solo tiene que hacerlo una vez."
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "De vuelta en Home, la pestaña Assays muestra ahora ocho organismos: Toxoplasma y luego Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection y Mammalian cells. Cada mosaico abre una página construida igual, así que si conoce una, puede leerlas todas.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "De vuelta en Home, la pestaña Assays muestra ahora ocho organismos: Toxoplasma y luego Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection y Mammalian cells. Cada mosaico abre una página construida igual, así que si conoce una, puede leerlas todas."
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Empiece por Plasmodium, los parásitos de la malaria. A la izquierda, una breve introducción explica qué puede medir la imagen en este organismo: frecuencia de infección, desarrollo en estadios sanguíneos, infección hepática, motilidad y respuesta a compuestos. Debajo, cada sección relaciona una pregunta biológica con los mosaicos de ensayo de la derecha.",
+        "hold_after": 0.7,
+        "speech_text": "Empiece por Plasmodium, los parásitos de la malaria. A la izquierda, una breve introducción explica qué puede medir la imagen en este organismo: frecuencia de infección, desarrollo en estadios sanguíneos, infección hepática, motilidad y respuesta a compuestos. Debajo, cada sección relaciona una pregunta biológica con los mosaicos de ensayo de la derecha."
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "El diagrama celular es un mapa interactivo de compartimentos tomado de UniProt. Pase el cursor sobre la célula para identificar una estructura y marque varios compartimentos en la lista para mantenerlos resaltados juntos. Clear components restablece el dibujo.",
+        "hold_after": 0.7,
+        "speech_text": "El diagrama celular es un mapa interactivo de compartimentos tomado de UniProt. Pase el cursor sobre la célula para identificar una estructura y marque varios compartimentos en la lista para mantenerlos resaltados juntos. Clear components restablece el dibujo."
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Los mosaicos de ensayo son donde empieza el trabajo. Los mosaicos brillantes abren un módulo que ya funciona: Parasitaemia abre Host–Pathogen Analysis y Sporozoite motility abre Motility Assay. Los mosaicos atenuados están planificados y aún no se pueden abrir. La misma regla vale en cada página de organismo.",
+        "hold_after": 0.7,
+        "speech_text": "Los mosaicos de ensayo son donde empieza el trabajo. Los mosaicos brillantes abren un módulo que ya funciona: Parasitaemia abre Host–Pathogen Analysis y Sporozoite motility abre Motility Assay. Los mosaicos atenuados están planificados y aún no se pueden abrir. La misma regla vale en cada página de organismo."
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida abarca levaduras que pueden pasar de células en gemación a tubos germinales e hifas. Sus mosaicos abiertos reutilizan módulos existentes para adhesión, invasión epitelial, fagocitosis y respuesta antifúngica; los planificados medirán filamentación, tubos germinales, biopelícula y morfología.",
+        "hold_after": 0.7,
+        "speech_text": "Candida abarca levaduras que pueden pasar de células en gemación a tubos germinales e hifas. Sus mosaicos abiertos reutilizan módulos existentes para adhesión, invasión epitelial, fagocitosis y respuesta antifúngica; los planificados medirán filamentación, tubos germinales, biopelícula y morfología."
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma reúne dos parásitos en una página: Trypanosoma brucei, que nada en la sangre, y Trypanosoma cruzi, que se replica dentro de las células huésped. Flagellar motility, Host-cell invasion, Amastigote infection y Drug response ya abren módulos reales.",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma reúne dos parásitos en una página: Trypanosoma brucei, que nada en la sangre, y Trypanosoma cruzi, que se replica dentro de las células huésped. Flagellar motility, Host-cell invasion, Amastigote infection y Drug response ya abren módulos reales."
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Los parásitos Leishmania se replican dentro de los macrófagos. Macrophage infection informa la fracción infectada y los amastigotes por macrófago, y Promastigote motility mide la natación. Los mosaicos planificados seguirán la metaciclogénesis, la conversión a amastigote y el tamaño de la vacuola.",
+        "hold_after": 0.7,
+        "speech_text": "Los parásitos Leishmania se replican dentro de los macrófagos. Macrophage infection informa la fracción infectada y los amastigotes por macrófago, y Promastigote motility mide la natación. Los mosaicos planificados seguirán la metaciclogénesis, la conversión a amastigote y el tamaño de la vacuola."
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis se adhiere a la pared intestinal con su disco ventral. Aquí puede contar trofozoítos sobre células epiteliales, seguir su natación y medir respuestas a fármacos; el enquistamiento, el desenquistamiento y la morfología del disco aún están planificados.",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis se adhiere a la pared intestinal con su disco ventral. Aquí puede contar trofozoítos sobre células epiteliales, seguir su natación y medir respuestas a fármacos; el enquistamiento, el desenquistamiento y la morfología del disco aún están planificados."
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection es una página para células huésped y no para un parásito. Infection rate cuenta células positivas para el virus, Plaque Assay mide placas y Recruitment mide proteínas del huésped que se acumulan en los sitios de replicación. Defina la positividad a partir de pocillos con infección simulada.",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection es una página para células huésped y no para un parásito. Infection rate cuenta células positivas para el virus, Plaque Assay mide placas y Recruitment mide proteínas del huésped que se acumulan en los sitios de replicación. Defina la positividad a partir de pocillos con infección simulada."
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells abarca cribados sin ningún patógeno. Sus mosaicos abiertos llevan directamente a Mask, Measure, Motility Assay, fagocitosis y citotoxicidad, así que la canalización principal está a un clic de la página del organismo.",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells abarca cribados sin ningún patógeno. Sus mosaicos abiertos llevan directamente a Mask, Measure, Motility Assay, fagocitosis y citotoxicidad, así que la canalización principal está a un clic de la página del organismo."
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Cuando termine de explorar, vuelva a Preferences, desactive Show alpha species y pulse Save. Las páginas de organismos desaparecen; nada de lo que haya medido cambia.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cuando termine de explorar, vuelva a Preferences, desactive Show alpha species y pulse Save. Las páginas de organismos desaparecen; nada de lo que haya medido cambia."
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home vuelve a mostrar solo Toxoplasma. A medida que cada organismo madure, saldrá de alfa y tendrá su propio recorrido. Mientras tanto, use la lección de Toxoplasma para un ejemplo de ensayo completo y las lecciones de módulos para cada flujo de trabajo que abren estos mosaicos.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home vuelve a mostrar solo Toxoplasma. A medida que cada organismo madure, saldrá de alfa y tendrá su propio recorrido. Mientras tanto, use la lección de Toxoplasma para un ejemplo de ensayo completo y las lecciones de módulos para cada flujo de trabajo que abren estos mosaicos."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha : modules d’organismes",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Activez Show alpha species et parcourez les pages d’organismes inachevées : Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection et Mammalian cells.",
+      "objectives": [
+       "Activer et désactiver Show alpha species dans Preferences.",
+       "Lire une page d’organisme : introduction, schéma cellulaire et tuiles d’essai.",
+       "Distinguer les tuiles ouvertes des tuiles prévues et savoir que ces pages sont alpha."
+      ],
+      "prerequisite": "Ouvrez Home dans spaCR. Aucun fichier d’entrée n’est nécessaire. Ces pages d’organismes sont alpha : inachevées et susceptibles de changer.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Ce tutoriel est le seul à montrer les modules d’organismes alpha de spaCR. Dans une installation normale, l’onglet Assays de Home ne contient qu’un organisme, Toxoplasma. Les autres pages d’organismes restent désactivées tant que vous ne les demandez pas.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ce tutoriel est le seul à montrer les modules d’organismes alpha de spakeur. Dans une installation normale, l’onglet Assays de Home ne contient qu’un organisme, Toxoplasma. Les autres pages d’organismes restent désactivées tant que vous ne les demandez pas."
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Ouvrez Preferences depuis le menu spaCR et allez dans l’onglet Modules. Sous Module visibility, le dernier interrupteur est Show alpha species. Il est désactivé par défaut.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Preferences depuis le menu spakeur et allez dans l’onglet Modules. Sous Module visibility, le dernier interrupteur est Show alpha species. Il est désactivé par défaut."
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Activez-le. Considérez tout ce qu’il révèle comme alpha : les pages sont inachevées, la plupart de leurs tuiles d’essai sont encore prévues, et les noms, mises en page et analyses peuvent changer avant leur publication. Servez-vous-en pour explorer, pas pour rapporter des résultats.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Activez-le. Considérez tout ce qu’il révèle comme alpha : les pages sont inachevées, la plupart de leurs tuiles d’essai sont encore prévues, et les noms, mises en page et analyses peuvent changer avant leur publication. Servez-vous-en pour explorer, pas pour rapporter des résultats."
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Appuyez sur Save. Le réglage s’applique tout de suite et est conservé pour votre prochaine session ; vous n’avez donc à le faire qu’une fois.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Appuyez sur Save. Le réglage s’applique tout de suite et est conservé pour votre prochaine session ; vous n’avez donc à le faire qu’une fois."
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "De retour sur Home, l’onglet Assays affiche maintenant huit organismes : Toxoplasma, puis Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection et Mammalian cells. Chaque tuile ouvre une page construite de la même façon : qui en connaît une sait les lire toutes.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "De retour sur Home, l’onglet Assays affiche maintenant huit organismes : Toxoplasma, puis Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection et Mammalian cells. Chaque tuile ouvre une page construite de la même façon : qui en connaît une sait les lire toutes."
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Commencez par Plasmodium, les parasites du paludisme. À gauche, une courte introduction explique ce que l’imagerie peut mesurer chez cet organisme : fréquence d’infection, développement des stades sanguins, infection du foie, motilité et réponse aux composés. Dessous, chaque section relie une question biologique aux tuiles d’essai de droite.",
+        "hold_after": 0.7,
+        "speech_text": "Commencez par Plasmodium, les parasites du paludisme. À gauche, une courte introduction explique ce que l’imagerie peut mesurer chez cet organisme : fréquence d’infection, développement des stades sanguins, infection du foie, motilité et réponse aux composés. Dessous, chaque section relie une question biologique aux tuiles d’essai de droite."
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Le schéma cellulaire est une carte interactive des compartiments issue d’UniProt. Survolez la cellule pour identifier une structure, et cochez plusieurs compartiments dans la liste pour les garder surlignés ensemble. Clear components réinitialise le dessin.",
+        "hold_after": 0.7,
+        "speech_text": "Le schéma cellulaire est une carte interactive des compartiments issue d’UniProt. Survolez la cellule pour identifier une structure, et cochez plusieurs compartiments dans la liste pour les garder surlignés ensemble. Clear components réinitialise le dessin."
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "C’est dans les tuiles d’essai que le travail commence. Les tuiles claires ouvrent un module qui fonctionne déjà : Parasitaemia ouvre Host–Pathogen Analysis, Sporozoite motility ouvre Motility Assay. Les tuiles atténuées sont prévues et ne s’ouvrent pas encore. La même règle vaut sur chaque page d’organisme.",
+        "hold_after": 0.7,
+        "speech_text": "C’est dans les tuiles d’essai que le travail commence. Les tuiles claires ouvrent un module qui fonctionne déjà : Parasitaemia ouvre Host–Pathogen Analysis, Sporozoite motility ouvre Motility Assay. Les tuiles atténuées sont prévues et ne s’ouvrent pas encore. La même règle vaut sur chaque page d’organisme."
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida regroupe des levures capables de passer de cellules bourgeonnantes à des tubes germinatifs et à des hyphes. Ses tuiles ouvertes réutilisent des modules existants pour l’adhésion, l’invasion épithéliale, la phagocytose et la réponse antifongique ; les tuiles prévues mesureront la filamentation, les tubes germinatifs, le biofilm et la morphologie.",
+        "hold_after": 0.7,
+        "speech_text": "Candida regroupe des levures capables de passer de cellules bourgeonnantes à des tubes germinatifs et à des hyphes. Ses tuiles ouvertes réutilisent des modules existants pour l’adhésion, l’invasion épithéliale, la phagocytose et la réponse antifongique ; les tuiles prévues mesureront la filamentation, les tubes germinatifs, le biofilm et la morphologie."
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma réunit deux parasites sur une page : Trypanosoma brucei, qui nage dans le sang, et Trypanosoma cruzi, qui se réplique dans les cellules hôtes. Flagellar motility, Host-cell invasion, Amastigote infection et Drug response ouvrent déjà de vrais modules.",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma réunit deux parasites sur une page : Trypanosoma brucei, qui nage dans le sang, et Trypanosoma cruzi, qui se réplique dans les cellules hôtes. Flagellar motility, Host-cell invasion, Amastigote infection et Drug response ouvrent déjà de vrais modules."
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Les parasites Leishmania se répliquent dans les macrophages. Macrophage infection indique la fraction infectée et les amastigotes par macrophage, et Promastigote motility mesure la nage. Les tuiles prévues suivront la métacyclogenèse, la conversion en amastigote et la taille de la vacuole.",
+        "hold_after": 0.7,
+        "speech_text": "Les parasites Leishmania se répliquent dans les macrophages. Macrophage infection indique la fraction infectée et les amastigotes par macrophage, et Promastigote motility mesure la nage. Les tuiles prévues suivront la métacyclogenèse, la conversion en amastigote et la taille de la vacuole."
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis se fixe à la paroi intestinale grâce à son disque ventral. Vous pouvez ici compter les trophozoïtes sur des cellules épithéliales, suivre leur nage et mesurer la réponse aux médicaments ; l’enkystement, le dékystement et la morphologie du disque sont encore prévus.",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis se fixe à la paroi intestinale grâce à son disque ventral. Vous pouvez ici compter les trophozoïtes sur des cellules épithéliales, suivre leur nage et mesurer la réponse aux médicaments ; l’enkystement, le dékystement et la morphologie du disque sont encore prévus."
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection est une page consacrée aux cellules hôtes plutôt qu’à un parasite. Infection rate compte les cellules positives au virus, Plaque Assay mesure les plages et Recruitment mesure les protéines de l’hôte qui s’accumulent aux sites de réplication. Définissez la positivité à partir de puits infectés à blanc.",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection est une page consacrée aux cellules hôtes plutôt qu’à un parasite. Infection rate compte les cellules positives au virus, Plaque Assay mesure les plages et Recruitment mesure les protéines de l’hôte qui s’accumulent aux sites de réplication. Définissez la positivité à partir de puits infectés à blanc."
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells couvre les cribles sans aucun pathogène. Ses tuiles ouvertes mènent directement à Mask, Measure, Motility Assay, la phagocytose et la cytotoxicité : le pipeline principal est à un clic de la page d’organisme.",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells couvre les cribles sans aucun pathogène. Ses tuiles ouvertes mènent directement à Mask, Measure, Motility Assay, la phagocytose et la cytotoxicité : le pipeline principal est à un clic de la page d’organisme."
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Quand vous avez fini d’explorer, revenez dans Preferences, désactivez Show alpha species puis appuyez sur Save. Les pages d’organismes disparaissent ; rien de ce que vous avez mesuré n’est modifié.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Quand vous avez fini d’explorer, revenez dans Preferences, désactivez Show alpha species puis appuyez sur Save. Les pages d’organismes disparaissent ; rien de ce que vous avez mesuré n’est modifié."
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home n’affiche de nouveau que Toxoplasma. À mesure que chaque organisme mûrira, il quittera l’alpha et aura son propre parcours. D’ici là, utilisez la leçon Toxoplasma pour un exemple d’essai complet et les leçons de modules pour chaque flux de travail ouvert par ces tuiles.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home n’affiche de nouveau que Toxoplasma. À mesure que chaque organisme mûrira, il quittera l’alpha et aura son propre parcours. D’ici là, utilisez la leçon Toxoplasma pour un exemple d’essai complet et les leçons de modules pour chaque flux de travail ouvert par ces tuiles."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: जीव मॉड्यूल",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Show alpha species चालू करें और अधूरे जीव पृष्ठों को देखें: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection और Mammalian cells.",
+      "objectives": [
+       "Preferences में Show alpha species चालू और बंद करना।",
+       "किसी जीव पृष्ठ को पढ़ना: परिचय, कोशिका आरेख और assay टाइलें।",
+       "खुली और नियोजित assay टाइलों में अंतर करना और जानना कि ये पृष्ठ alpha हैं।"
+      ],
+      "prerequisite": "spaCR में Home खोलें। किसी इनपुट फ़ाइल की ज़रूरत नहीं है। ये जीव पृष्ठ alpha हैं: अधूरे हैं और बदल सकते हैं।",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "यह अकेला ट्यूटोरियल है जो spaCR के alpha जीव मॉड्यूल दिखाता है। सामान्य इंस्टॉलेशन में Home के Assays टैब में केवल एक जीव होता है, Toxoplasma। बाकी जीव पृष्ठ तब तक बंद रहते हैं जब तक आप उन्हें न माँगें।",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "यह अकेला ट्यूटोरियल है जो स्पेकर के alpha जीव मॉड्यूल दिखाता है। सामान्य इंस्टॉलेशन में Home के Assays टैब में केवल एक जीव होता है, Toxoplasma। बाकी जीव पृष्ठ तब तक बंद रहते हैं जब तक आप उन्हें न माँगें।"
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "spaCR मेनू से Preferences खोलें और Modules टैब पर जाएँ। Module visibility के नीचे आखिरी स्विच Show alpha species है। यह डिफ़ॉल्ट रूप से बंद रहता है।",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "स्पेकर मेनू से Preferences खोलें और Modules टैब पर जाएँ। Module visibility के नीचे आखिरी स्विच Show alpha species है। यह डिफ़ॉल्ट रूप से बंद रहता है।"
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "इसे चालू करें। इससे जो कुछ दिखता है उसे alpha मानें: पृष्ठ अधूरे हैं, ज़्यादातर assay टाइलें अभी नियोजित हैं, और नाम, लेआउट और विश्लेषण रिलीज़ से पहले बदल सकते हैं। इनका उपयोग खोजबीन के लिए करें, परिणाम रिपोर्ट करने के लिए नहीं।",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "इसे चालू करें। इससे जो कुछ दिखता है उसे alpha मानें: पृष्ठ अधूरे हैं, ज़्यादातर assay टाइलें अभी नियोजित हैं, और नाम, लेआउट और विश्लेषण रिलीज़ से पहले बदल सकते हैं। इनका उपयोग खोजबीन के लिए करें, परिणाम रिपोर्ट करने के लिए नहीं।"
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Save दबाएँ। सेटिंग तुरंत लागू होती है और अगले सत्र के लिए बनी रहती है, इसलिए यह केवल एक बार करना होता है।",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Save दबाएँ। सेटिंग तुरंत लागू होती है और अगले सत्र के लिए बनी रहती है, इसलिए यह केवल एक बार करना होता है।"
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Home पर लौटने पर Assays टैब में अब आठ जीव हैं: Toxoplasma, फिर Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection और Mammalian cells। हर टाइल एक ही ढंग से बना पृष्ठ खोलती है, इसलिए एक को समझ लेने पर आप सभी पढ़ सकते हैं।",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home पर लौटने पर Assays टैब में अब आठ जीव हैं: Toxoplasma, फिर Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection और Mammalian cells। हर टाइल एक ही ढंग से बना पृष्ठ खोलती है, इसलिए एक को समझ लेने पर आप सभी पढ़ सकते हैं।"
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Plasmodium से शुरू करें, जो मलेरिया के परजीवी हैं। बाईं ओर एक छोटा परिचय बताता है कि इस जीव में इमेजिंग क्या माप सकती है: संक्रमण की आवृत्ति, रक्त-चरणों का विकास, यकृत संक्रमण, गतिशीलता और यौगिकों पर प्रतिक्रिया। उसके नीचे हर खंड एक जैविक प्रश्न को दाईं ओर की assay टाइलों से जोड़ता है।",
+        "hold_after": 0.7,
+        "speech_text": "Plasmodium से शुरू करें, जो मलेरिया के परजीवी हैं। बाईं ओर एक छोटा परिचय बताता है कि इस जीव में इमेजिंग क्या माप सकती है: संक्रमण की आवृत्ति, रक्त-चरणों का विकास, यकृत संक्रमण, गतिशीलता और यौगिकों पर प्रतिक्रिया। उसके नीचे हर खंड एक जैविक प्रश्न को दाईं ओर की assay टाइलों से जोड़ता है।"
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "कोशिका आरेख UniProt से लिए गए कक्षों का एक इंटरैक्टिव नक्शा है। किसी संरचना को पहचानने के लिए कोशिका पर पॉइंटर ले जाएँ, और कई कक्षों को एक साथ हाइलाइट रखने के लिए सूची में उन पर टिक करें। Clear components चित्र को फिर से शुरू की स्थिति में लाता है।",
+        "hold_after": 0.7,
+        "speech_text": "कोशिका आरेख UniProt से लिए गए कक्षों का एक इंटरैक्टिव नक्शा है। किसी संरचना को पहचानने के लिए कोशिका पर पॉइंटर ले जाएँ, और कई कक्षों को एक साथ हाइलाइट रखने के लिए सूची में उन पर टिक करें। Clear components चित्र को फिर से शुरू की स्थिति में लाता है।"
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "काम assay टाइलों से शुरू होता है। चमकीली टाइलें ऐसा मॉड्यूल खोलती हैं जो पहले से चलता है: Parasitaemia, Host–Pathogen Analysis खोलती है, और Sporozoite motility, Motility Assay खोलती है। धुंधली टाइलें नियोजित हैं और अभी खुलती नहीं। यही नियम हर जीव पृष्ठ पर लागू होता है।",
+        "hold_after": 0.7,
+        "speech_text": "काम assay टाइलों से शुरू होता है। चमकीली टाइलें ऐसा मॉड्यूल खोलती हैं जो पहले से चलता है: Parasitaemia, Host–Pathogen Analysis खोलती है, और Sporozoite motility, Motility Assay खोलती है। धुंधली टाइलें नियोजित हैं और अभी खुलती नहीं। यही नियम हर जीव पृष्ठ पर लागू होता है।"
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida में वे यीस्ट आते हैं जो मुकुलन करती कोशिकाओं, जर्म ट्यूब और हाइफ़ी के बीच बदल सकती हैं। इसकी खुली टाइलें आसंजन, उपकला आक्रमण, फ़ैगोसाइटोसिस और कवकरोधी प्रतिक्रिया के लिए मौजूदा मॉड्यूल का उपयोग करती हैं; नियोजित टाइलें तंतु-निर्माण, जर्म ट्यूब, बायोफ़िल्म और आकृति मापेंगी।",
+        "hold_after": 0.7,
+        "speech_text": "Candida में वे यीस्ट आते हैं जो मुकुलन करती कोशिकाओं, जर्म ट्यूब और हाइफ़ी के बीच बदल सकती हैं। इसकी खुली टाइलें आसंजन, उपकला आक्रमण, फ़ैगोसाइटोसिस और कवकरोधी प्रतिक्रिया के लिए मौजूदा मॉड्यूल का उपयोग करती हैं; नियोजित टाइलें तंतु-निर्माण, जर्म ट्यूब, बायोफ़िल्म और आकृति मापेंगी।"
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma एक पृष्ठ पर दो परजीवियों को लाता है: Trypanosoma brucei, जो रक्त में तैरता है, और Trypanosoma cruzi, जो मेज़बान कोशिकाओं के अंदर गुणन करता है। Flagellar motility, Host-cell invasion, Amastigote infection और Drug response पहले से असली मॉड्यूल खोलती हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma एक पृष्ठ पर दो परजीवियों को लाता है: Trypanosoma brucei, जो रक्त में तैरता है, और Trypanosoma cruzi, जो मेज़बान कोशिकाओं के अंदर गुणन करता है। Flagellar motility, Host-cell invasion, Amastigote infection और Drug response पहले से असली मॉड्यूल खोलती हैं।"
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania परजीवी मैक्रोफ़ेज के अंदर गुणन करते हैं। Macrophage infection संक्रमित अंश और प्रति मैक्रोफ़ेज अमास्टिगोट बताती है, और Promastigote motility तैरना मापती है। नियोजित टाइलें मेटासाइक्लोजेनेसिस, अमास्टिगोट रूपांतरण और रिक्तिका के आकार पर नज़र रखेंगी।",
+        "hold_after": 0.7,
+        "speech_text": "Leishmania परजीवी मैक्रोफ़ेज के अंदर गुणन करते हैं। Macrophage infection संक्रमित अंश और प्रति मैक्रोफ़ेज अमास्टिगोट बताती है, और Promastigote motility तैरना मापती है। नियोजित टाइलें मेटासाइक्लोजेनेसिस, अमास्टिगोट रूपांतरण और रिक्तिका के आकार पर नज़र रखेंगी।"
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis अपनी उदरीय डिस्क से आँत की दीवार से चिपकता है। यहाँ आप उपकला कोशिकाओं पर ट्रोफ़ोज़ोइट गिन सकते हैं, उनका तैरना देख सकते हैं और दवाओं पर प्रतिक्रिया माप सकते हैं; पुटी-निर्माण, पुटी से निकलना और डिस्क की आकृति अभी नियोजित हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis अपनी उदरीय डिस्क से आँत की दीवार से चिपकता है। यहाँ आप उपकला कोशिकाओं पर ट्रोफ़ोज़ोइट गिन सकते हैं, उनका तैरना देख सकते हैं और दवाओं पर प्रतिक्रिया माप सकते हैं; पुटी-निर्माण, पुटी से निकलना और डिस्क की आकृति अभी नियोजित हैं।"
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection किसी परजीवी के बजाय मेज़बान कोशिकाओं का पृष्ठ है। Infection rate वायरस-पॉज़िटिव कोशिकाएँ गिनती है, Plaque Assay प्लाक मापता है, और Recruitment प्रतिकृति स्थलों पर जमा होने वाले मेज़बान प्रोटीन मापता है। पॉज़िटिविटी mock-संक्रमित वेल से तय करें।",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection किसी परजीवी के बजाय मेज़बान कोशिकाओं का पृष्ठ है। Infection rate वायरस-पॉज़िटिव कोशिकाएँ गिनती है, Plaque Assay प्लाक मापता है, और Recruitment प्रतिकृति स्थलों पर जमा होने वाले मेज़बान प्रोटीन मापता है। पॉज़िटिविटी mock-संक्रमित वेल से तय करें।"
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells उन स्क्रीन के लिए है जिनमें कोई रोगजनक नहीं होता। इसकी खुली टाइलें सीधे Mask, Measure, Motility Assay, फ़ैगोसाइटोसिस और साइटोटॉक्सिसिटी तक ले जाती हैं, इसलिए मुख्य पाइपलाइन जीव पृष्ठ से बस एक क्लिक दूर है।",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells उन स्क्रीन के लिए है जिनमें कोई रोगजनक नहीं होता। इसकी खुली टाइलें सीधे Mask, Measure, Motility Assay, फ़ैगोसाइटोसिस और साइटोटॉक्सिसिटी तक ले जाती हैं, इसलिए मुख्य पाइपलाइन जीव पृष्ठ से बस एक क्लिक दूर है।"
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "खोजबीन पूरी होने पर Preferences में लौटें, Show alpha species फिर से बंद करें और Save दबाएँ। जीव पृष्ठ गायब हो जाते हैं; आपने जो कुछ मापा है वह नहीं बदलता।",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "खोजबीन पूरी होने पर Preferences में लौटें, Show alpha species फिर से बंद करें और Save दबाएँ। जीव पृष्ठ गायब हो जाते हैं; आपने जो कुछ मापा है वह नहीं बदलता।"
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home फिर से केवल Toxoplasma दिखाता है। जैसे-जैसे हर जीव परिपक्व होगा, वह alpha से बाहर आएगा और उसका अपना मार्गदर्शन होगा। तब तक पूरे assay उदाहरण के लिए Toxoplasma पाठ और इन टाइलों से खुलने वाले हर वर्कफ़्लो के लिए मॉड्यूल पाठों का उपयोग करें।",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home फिर से केवल Toxoplasma दिखाता है। जैसे-जैसे हर जीव परिपक्व होगा, वह alpha से बाहर आएगा और उसका अपना मार्गदर्शन होगा। तब तक पूरे assay उदाहरण के लिए Toxoplasma पाठ और इन टाइलों से खुलने वाले हर वर्कफ़्लो के लिए मॉड्यूल पाठों का उपयोग करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: moduli degli organismi",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Attivi Show alpha species ed esplori le pagine degli organismi non ancora complete: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells.",
+      "objectives": [
+       "Attivare e disattivare Show alpha species in Preferences.",
+       "Leggere una pagina di organismo: introduzione, diagramma cellulare e riquadri dei saggi.",
+       "Distinguere i riquadri aperti da quelli pianificati e sapere che queste pagine sono alfa."
+      ],
+      "prerequisite": "Apra Home in spaCR. Non servono file di input. Queste pagine di organismi sono alfa: incomplete e soggette a modifiche.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Questo è l’unico tutorial che mostra i moduli alfa degli organismi di spaCR. In un’installazione normale la scheda Assays di Home contiene un solo organismo, Toxoplasma. Le altre pagine di organismi restano disattivate finché non le richiede.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Questo è l’unico tutorial che mostra i moduli alfa degli organismi di spàker. In un’installazione normale la scheda Assays di Home contiene un solo organismo, Toxoplasma. Le altre pagine di organismi restano disattivate finché non le richiede."
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Apra Preferences dal menu spaCR e vada alla scheda Modules. In Module visibility, l’ultimo interruttore è Show alpha species. È disattivato per impostazione predefinita.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apra Preferences dal menu spàker e vada alla scheda Modules. In Module visibility, l’ultimo interruttore è Show alpha species. È disattivato per impostazione predefinita."
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Lo attivi. Consideri alfa tutto ciò che rende visibile: le pagine sono incomplete, la maggior parte dei riquadri dei saggi è ancora pianificata, e nomi, layout e analisi possono cambiare prima del rilascio. Le usi per esplorare, non per riportare risultati.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Lo attivi. Consideri alfa tutto ciò che rende visibile: le pagine sono incomplete, la maggior parte dei riquadri dei saggi è ancora pianificata, e nomi, layout e analisi possono cambiare prima del rilascio. Le usi per esplorare, non per riportare risultati."
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Prema Save. L’impostazione si applica subito e resta valida per la sessione successiva, quindi basta farlo una volta.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Prema Save. L’impostazione si applica subito e resta valida per la sessione successiva, quindi basta farlo una volta."
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Tornati su Home, la scheda Assays elenca ora otto organismi: Toxoplasma, poi Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Ogni riquadro apre una pagina costruita allo stesso modo: chi ne conosce una le sa leggere tutte.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Tornati su Home, la scheda Assays elenca ora otto organismi: Toxoplasma, poi Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Ogni riquadro apre una pagina costruita allo stesso modo: chi ne conosce una le sa leggere tutte."
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Cominci da Plasmodium, i parassiti della malaria. A sinistra, una breve introduzione spiega cosa può misurare l’imaging in questo organismo: frequenza di infezione, sviluppo degli stadi ematici, infezione epatica, motilità e risposta ai composti. Sotto, ogni sezione collega una domanda biologica ai riquadri dei saggi a destra.",
+        "hold_after": 0.7,
+        "speech_text": "Cominci da Plasmodium, i parassiti della malaria. A sinistra, una breve introduzione spiega cosa può misurare l’imaging in questo organismo: frequenza di infezione, sviluppo degli stadi ematici, infezione epatica, motilità e risposta ai composti. Sotto, ogni sezione collega una domanda biologica ai riquadri dei saggi a destra."
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Il diagramma cellulare è una mappa interattiva dei compartimenti tratta da UniProt. Passi il cursore sulla cellula per identificare una struttura e spunti più compartimenti nell’elenco per mantenerli evidenziati insieme. Clear components ripristina il disegno.",
+        "hold_after": 0.7,
+        "speech_text": "Il diagramma cellulare è una mappa interattiva dei compartimenti tratta da UniProt. Passi il cursore sulla cellula per identificare una struttura e spunti più compartimenti nell’elenco per mantenerli evidenziati insieme. Clear components ripristina il disegno."
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Il lavoro comincia dai riquadri dei saggi. I riquadri luminosi aprono un modulo già funzionante: Parasitaemia apre Host–Pathogen Analysis, Sporozoite motility apre Motility Assay. I riquadri attenuati sono pianificati e non si aprono ancora. La stessa regola vale su ogni pagina di organismo.",
+        "hold_after": 0.7,
+        "speech_text": "Il lavoro comincia dai riquadri dei saggi. I riquadri luminosi aprono un modulo già funzionante: Parasitaemia apre Host–Pathogen Analysis, Sporozoite motility apre Motility Assay. I riquadri attenuati sono pianificati e non si aprono ancora. La stessa regola vale su ogni pagina di organismo."
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida comprende lieviti che possono passare da cellule gemmanti a tubi germinativi e ife. I riquadri aperti riutilizzano moduli esistenti per adesione, invasione epiteliale, fagocitosi e risposta agli antifungini; quelli pianificati misureranno filamentazione, tubi germinativi, biofilm e morfologia.",
+        "hold_after": 0.7,
+        "speech_text": "Candida comprende lieviti che possono passare da cellule gemmanti a tubi germinativi e ife. I riquadri aperti riutilizzano moduli esistenti per adesione, invasione epiteliale, fagocitosi e risposta agli antifungini; quelli pianificati misureranno filamentazione, tubi germinativi, biofilm e morfologia."
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma riunisce due parassiti in una pagina: Trypanosoma brucei, che nuota nel sangue, e Trypanosoma cruzi, che si replica nelle cellule ospiti. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response aprono già moduli reali.",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma riunisce due parassiti in una pagina: Trypanosoma brucei, che nuota nel sangue, e Trypanosoma cruzi, che si replica nelle cellule ospiti. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response aprono già moduli reali."
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "I parassiti Leishmania si replicano nei macrofagi. Macrophage infection riporta la frazione infetta e gli amastigoti per macrofago, e Promastigote motility misura il nuoto. I riquadri pianificati seguiranno metaciclogenesi, conversione in amastigote e dimensione del vacuolo.",
+        "hold_after": 0.7,
+        "speech_text": "I parassiti Leishmania si replicano nei macrofagi. Macrophage infection riporta la frazione infetta e gli amastigoti per macrofago, e Promastigote motility misura il nuoto. I riquadri pianificati seguiranno metaciclogenesi, conversione in amastigote e dimensione del vacuolo."
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis aderisce alla parete intestinale con il disco ventrale. Qui può contare i trofozoiti sulle cellule epiteliali, seguirne il nuoto e misurare la risposta ai farmaci; incistamento, excistamento e morfologia del disco sono ancora pianificati.",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis aderisce alla parete intestinale con il disco ventrale. Qui può contare i trofozoiti sulle cellule epiteliali, seguirne il nuoto e misurare la risposta ai farmaci; incistamento, excistamento e morfologia del disco sono ancora pianificati."
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection è una pagina dedicata alle cellule ospiti anziché a un parassita. Infection rate conta le cellule positive al virus, Plaque Assay misura le placche e Recruitment misura le proteine dell’ospite che si raccolgono nei siti di replicazione. Definisca la positività dai pozzetti con infezione simulata.",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection è una pagina dedicata alle cellule ospiti anziché a un parassita. Infection rate conta le cellule positive al virus, Plaque Assay misura le placche e Recruitment misura le proteine dell’ospite che si raccolgono nei siti di replicazione. Definisca la positività dai pozzetti con infezione simulata."
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells copre screening senza alcun patogeno. I riquadri aperti portano direttamente a Mask, Measure, Motility Assay, fagocitosi e citotossicità, quindi la pipeline principale è a un clic dalla pagina dell’organismo.",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells copre screening senza alcun patogeno. I riquadri aperti portano direttamente a Mask, Measure, Motility Assay, fagocitosi e citotossicità, quindi la pipeline principale è a un clic dalla pagina dell’organismo."
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Quando ha finito di esplorare, torni a Preferences, disattivi Show alpha species e prema Save. Le pagine degli organismi scompaiono; nulla di ciò che ha misurato viene modificato.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Quando ha finito di esplorare, torni a Preferences, disattivi Show alpha species e prema Save. Le pagine degli organismi scompaiono; nulla di ciò che ha misurato viene modificato."
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home mostra di nuovo solo Toxoplasma. Man mano che ogni organismo maturerà, uscirà dall’alfa e avrà un proprio percorso guidato. Nel frattempo usi la lezione su Toxoplasma per un esempio completo di saggio e le lezioni sui moduli per ogni flusso di lavoro aperto da questi riquadri.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home mostra di nuovo solo Toxoplasma. Man mano che ogni organismo maturerà, uscirà dall’alfa e avrà un proprio percorso guidato. Nel frattempo usi la lezione su Toxoplasma per un esempio completo di saggio e le lezioni sui moduli per ogni flusso di lavoro aperto da questi riquadri."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: 生物種モジュール",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Show alpha species をオンにして、未完成の生物種ページを見て回ります: Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells。",
+      "objectives": [
+       "Preferences で Show alpha species をオン・オフする。",
+       "生物種ページを読む: 紹介、細胞図、アッセイタイル。",
+       "使えるアッセイタイルと計画中のタイルを見分け、これらのページが alpha であることを理解する。"
+      ],
+      "prerequisite": "spaCR の Home を開きます。入力ファイルは不要です。これらの生物種ページは alpha であり、未完成で変更される可能性があります。",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "これは spaCR の alpha 生物種モジュールを紹介する唯一のチュートリアルです。通常のインストールでは、Home の Assays タブにある生物種は Toxoplasma だけです。ほかの生物種ページは、求めるまでオフのままです。",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "これは スペーカー の alpha 生物種モジュールを紹介する唯一のチュートリアルです。通常のインストールでは、ホーム の Assays タブにある生物種は Toxoplasma だけです。ほかの生物種ページは、求めるまでオフのままです。"
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "spaCR メニューから Preferences を開き、Modules タブに移ります。Module visibility の最後のスイッチが Show alpha species です。初期設定ではオフになっています。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "スペーカー メニューから Preferences を開き、Modules タブに移ります。Module visibility の最後のスイッチが Show alpha species です。初期設定ではオフになっています。"
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "これをオンにします。表示されるものはすべて alpha として扱ってください。ページは未完成で、アッセイタイルの多くはまだ計画中です。名前、レイアウト、解析は公開までに変わる可能性があります。探索に使い、結果の報告には使わないでください。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "これをオンにします。表示されるものはすべて alpha として扱ってください。ページは未完成で、アッセイタイルの多くはまだ計画中です。名前、レイアウト、解析は公開までに変わる可能性があります。探索に使い、結果の報告には使わないでください。"
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Save を押します。設定はすぐに反映され、次のセッションにも引き継がれるので、一度行えば十分です。",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Save を押します。設定はすぐに反映され、次のセッションにも引き継がれるので、一度行えば十分です。"
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Home に戻ると、Assays タブには八つの生物種が並びます。Toxoplasma に続いて Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells です。どのタイルも同じ構成のページを開くので、一つ覚えればすべて読めます。",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホーム に戻ると、Assays タブには八つの生物種が並びます。Toxoplasma に続いて Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells です。どのタイルも同じ構成のページを開くので、一つ覚えればすべて読めます。"
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "まずマラリア原虫の Plasmodium から始めます。左側の短い紹介では、この生物種でイメージングが測定できることを説明しています。感染頻度、血液ステージの発達、肝臓感染、運動性、化合物への応答です。その下の各セクションは、生物学的な問いを右側のアッセイタイルに結び付けています。",
+        "hold_after": 0.7,
+        "speech_text": "まずマラリア原虫の Plasmodium から始めます。左側の短い紹介では、この生物種でイメージングが測定できることを説明しています。感染頻度、血液ステージの発達、肝臓感染、運動性、化合物への応答です。その下の各セクションは、生物学的な問いを右側のアッセイタイルに結び付けています。"
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "細胞図は UniProt に基づくコンパートメントの対話型マップです。細胞にカーソルを合わせると構造が分かり、リストで複数のコンパートメントにチェックを入れると同時に強調表示されたままになります。Clear components で図が元に戻ります。",
+        "hold_after": 0.7,
+        "speech_text": "細胞図は UniProt に基づくコンパートメントの対話型マップです。細胞にカーソルを合わせると構造が分かり、リストで複数のコンパートメントにチェックを入れると同時に強調表示されたままになります。Clear components で図が元に戻ります。"
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "作業はアッセイタイルから始まります。明るいタイルはすでに動作するモジュールを開きます。Parasitaemia は Host–Pathogen Analysis を、Sporozoite motility は Motility Assay を開きます。暗いタイルは計画中で、まだ開けません。このルールはどの生物種ページでも同じです。",
+        "hold_after": 0.7,
+        "speech_text": "作業はアッセイタイルから始まります。明るいタイルはすでに動作するモジュールを開きます。Parasitaemia は Host–Pathogen Analysis を、Sporozoite motility は Motility Assay を開きます。暗いタイルは計画中で、まだ開けません。このルールはどの生物種ページでも同じです。"
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida は、出芽細胞、発芽管、菌糸の間を行き来できる酵母を扱います。使えるタイルは、接着、上皮への侵入、貪食、抗真菌薬への応答に既存のモジュールを再利用します。計画中のタイルでは、菌糸形成、発芽管、バイオフィルム、形態を測定する予定です。",
+        "hold_after": 0.7,
+        "speech_text": "Candida は、出芽細胞、発芽管、菌糸の間を行き来できる酵母を扱います。使えるタイルは、接着、上皮への侵入、貪食、抗真菌薬への応答に既存のモジュールを再利用します。計画中のタイルでは、菌糸形成、発芽管、バイオフィルム、形態を測定する予定です。"
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma は二つの寄生虫を一つのページにまとめています。血中を泳ぐ Trypanosoma brucei と、宿主細胞内で増殖する Trypanosoma cruzi です。Flagellar motility、Host-cell invasion、Amastigote infection、Drug response はすでに実際のモジュールを開きます。",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma は二つの寄生虫を一つのページにまとめています。血中を泳ぐ Trypanosoma brucei と、宿主細胞内で増殖する Trypanosoma cruzi です。Flagellar motility、Host-cell invasion、Amastigote infection、Drug response はすでに実際のモジュールを開きます。"
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania はマクロファージの中で増殖します。Macrophage infection は感染した割合とマクロファージあたりのアマスチゴート数を示し、Promastigote motility は遊泳を測定します。計画中のタイルでは、メタサイクロジェネシス、アマスチゴートへの変換、液胞の大きさを追跡する予定です。",
+        "hold_after": 0.7,
+        "speech_text": "Leishmania はマクロファージの中で増殖します。Macrophage infection は感染した割合とマクロファージあたりのアマスチゴート数を示し、Promastigote motility は遊泳を測定します。計画中のタイルでは、メタサイクロジェネシス、アマスチゴートへの変換、液胞の大きさを追跡する予定です。"
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis は腹側吸着円盤で腸の壁に付着します。ここでは上皮細胞上の栄養型を数え、その遊泳を追い、薬剤への応答を測定できます。シスト形成、脱シスト、円盤の形態はまだ計画中です。",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis は腹側吸着円盤で腸の壁に付着します。ここでは上皮細胞上の栄養型を数え、その遊泳を追い、薬剤への応答を測定できます。シスト形成、脱シスト、円盤の形態はまだ計画中です。"
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection は寄生虫ではなく宿主細胞のためのページです。Infection rate はウイルス陽性細胞を数え、Plaque Assay はプラークを測定し、Recruitment は複製部位に集まる宿主タンパク質を測定します。陽性の基準は模擬感染ウェルから決めてください。",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection は寄生虫ではなく宿主細胞のためのページです。Infection rate はウイルス陽性細胞を数え、Plaque Assay はプラークを測定し、Recruitment は複製部位に集まる宿主タンパク質を測定します。陽性の基準は模擬感染ウェルから決めてください。"
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells は病原体を含まないスクリーニングを扱います。使えるタイルからは Mask、Measure、Motility Assay、貪食、細胞毒性へ直接進めるので、中核のパイプラインは生物種ページからワンクリックです。",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells は病原体を含まないスクリーニングを扱います。使えるタイルからは Mask、Measure、Motility Assay、貪食、細胞毒性へ直接進めるので、中核のパイプラインは生物種ページからワンクリックです。"
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "見終わったら Preferences に戻り、Show alpha species を再びオフにして Save を押します。生物種ページは消えますが、測定したデータは何も変わりません。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "見終わったら Preferences に戻り、Show alpha species を再びオフにして Save を押します。生物種ページは消えますが、測定したデータは何も変わりません。"
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home には再び Toxoplasma だけが表示されます。各生物種は成熟すると alpha を外れ、専用のチュートリアルが用意されます。それまでは、完全なアッセイの例には Toxoplasma のレッスンを、これらのタイルが開く各ワークフローにはモジュールのレッスンを使ってください。",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホーム には再び Toxoplasma だけが表示されます。各生物種は成熟すると alpha を外れ、専用のチュートリアルが用意されます。それまでは、完全なアッセイの例には Toxoplasma のレッスンを、これらのタイルが開く各ワークフローにはモジュールのレッスンを使ってください。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: módulos de organismos",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Ative Show alpha species e percorra as páginas de organismos ainda inacabadas: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells.",
+      "objectives": [
+       "Ativar e desativar Show alpha species em Preferences.",
+       "Ler uma página de organismo: introdução, diagrama celular e blocos de ensaio.",
+       "Distinguir blocos abertos de planejados e saber que essas páginas são alfa."
+      ],
+      "prerequisite": "Abra Home no spaCR. Nenhum arquivo de entrada é necessário. Essas páginas de organismos são alfa: inacabadas e sujeitas a mudanças.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Este é o único tutorial que mostra os módulos alfa de organismos do spaCR. Em uma instalação normal, a aba Assays da Home tem um só organismo, Toxoplasma. As outras páginas de organismos ficam desligadas até você pedir por elas.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Este é o único tutorial que mostra os módulos alfa de organismos do espáquer. Em uma instalação normal, a aba Assays da Home tem um só organismo, Toxoplasma. As outras páginas de organismos ficam desligadas até você pedir por elas."
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Abra Preferences pelo menu spaCR e vá para a aba Modules. Em Module visibility, a última chave é Show alpha species. Ela vem desligada por padrão.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Preferences pelo menu espáquer e vá para a aba Modules. Em Module visibility, a última chave é Show alpha species. Ela vem desligada por padrão."
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Ligue-a. Trate tudo o que ela revela como alfa: as páginas estão inacabadas, a maioria dos blocos de ensaio ainda é planejada, e nomes, layouts e análises podem mudar antes do lançamento. Use-as para explorar, não para relatar resultados.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ligue-a. Trate tudo o que ela revela como alfa: as páginas estão inacabadas, a maioria dos blocos de ensaio ainda é planejada, e nomes, layouts e análises podem mudar antes do lançamento. Use-as para explorar, não para relatar resultados."
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Clique em Save. A configuração vale na hora e é mantida para a próxima sessão, então você só precisa fazer isso uma vez.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Clique em Save. A configuração vale na hora e é mantida para a próxima sessão, então você só precisa fazer isso uma vez."
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "De volta à Home, a aba Assays agora lista oito organismos: Toxoplasma e depois Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Cada bloco abre uma página montada do mesmo jeito; quem conhece uma consegue ler todas.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "De volta à Home, a aba Assays agora lista oito organismos: Toxoplasma e depois Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Cada bloco abre uma página montada do mesmo jeito; quem conhece uma consegue ler todas."
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Comece por Plasmodium, os parasitas da malária. À esquerda, uma introdução curta explica o que a imagem pode medir nesse organismo: frequência de infecção, desenvolvimento dos estágios sanguíneos, infecção hepática, motilidade e resposta a compostos. Abaixo, cada seção liga uma pergunta biológica aos blocos de ensaio à direita.",
+        "hold_after": 0.7,
+        "speech_text": "Comece por Plasmodium, os parasitas da malária. À esquerda, uma introdução curta explica o que a imagem pode medir nesse organismo: frequência de infecção, desenvolvimento dos estágios sanguíneos, infecção hepática, motilidade e resposta a compostos. Abaixo, cada seção liga uma pergunta biológica aos blocos de ensaio à direita."
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "O diagrama celular é um mapa interativo de compartimentos tirado do UniProt. Passe o cursor sobre a célula para identificar uma estrutura e marque vários compartimentos na lista para mantê-los destacados juntos. Clear components redefine o desenho.",
+        "hold_after": 0.7,
+        "speech_text": "O diagrama celular é um mapa interativo de compartimentos tirado do UniProt. Passe o cursor sobre a célula para identificar uma estrutura e marque vários compartimentos na lista para mantê-los destacados juntos. Clear components redefine o desenho."
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Os blocos de ensaio são onde o trabalho começa. Blocos claros abrem um módulo que já funciona: Parasitaemia abre Host–Pathogen Analysis, Sporozoite motility abre Motility Assay. Blocos esmaecidos são planejados e ainda não abrem. A mesma regra vale em todas as páginas de organismos.",
+        "hold_after": 0.7,
+        "speech_text": "Os blocos de ensaio são onde o trabalho começa. Blocos claros abrem um módulo que já funciona: Parasitaemia abre Host–Pathogen Analysis, Sporozoite motility abre Motility Assay. Blocos esmaecidos são planejados e ainda não abrem. A mesma regra vale em todas as páginas de organismos."
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida reúne leveduras que podem alternar entre células em brotamento, tubos germinativos e hifas. Seus blocos abertos reutilizam módulos existentes para adesão, invasão epitelial, fagocitose e resposta antifúngica; os planejados vão medir filamentação, tubos germinativos, biofilme e morfologia.",
+        "hold_after": 0.7,
+        "speech_text": "Candida reúne leveduras que podem alternar entre células em brotamento, tubos germinativos e hifas. Seus blocos abertos reutilizam módulos existentes para adesão, invasão epitelial, fagocitose e resposta antifúngica; os planejados vão medir filamentação, tubos germinativos, biofilme e morfologia."
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma junta dois parasitas em uma página: Trypanosoma brucei, que nada no sangue, e Trypanosoma cruzi, que se replica dentro das células hospedeiras. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response já abrem módulos reais.",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma junta dois parasitas em uma página: Trypanosoma brucei, que nada no sangue, e Trypanosoma cruzi, que se replica dentro das células hospedeiras. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response já abrem módulos reais."
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Os parasitas Leishmania se replicam dentro de macrófagos. Macrophage infection informa a fração infectada e os amastigotas por macrófago, e Promastigote motility mede o nado. Blocos planejados vão acompanhar a metaciclogênese, a conversão em amastigota e o tamanho do vacúolo.",
+        "hold_after": 0.7,
+        "speech_text": "Os parasitas Leishmania se replicam dentro de macrófagos. Macrophage infection informa a fração infectada e os amastigotas por macrófago, e Promastigote motility mede o nado. Blocos planejados vão acompanhar a metaciclogênese, a conversão em amastigota e o tamanho do vacúolo."
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis se prende à parede do intestino pelo disco ventral. Aqui você pode contar trofozoítos sobre células epiteliais, acompanhar o nado e medir respostas a fármacos; encistamento, desencistamento e morfologia do disco ainda são planejados.",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis se prende à parede do intestino pelo disco ventral. Aqui você pode contar trofozoítos sobre células epiteliais, acompanhar o nado e medir respostas a fármacos; encistamento, desencistamento e morfologia do disco ainda são planejados."
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection é uma página para células hospedeiras, e não para um parasita. Infection rate conta células positivas para o vírus, Plaque Assay mede placas e Recruitment mede proteínas do hospedeiro que se acumulam nos locais de replicação. Defina a positividade a partir de poços com infecção simulada.",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection é uma página para células hospedeiras, e não para um parasita. Infection rate conta células positivas para o vírus, Plaque Assay mede placas e Recruitment mede proteínas do hospedeiro que se acumulam nos locais de replicação. Defina a positividade a partir de poços com infecção simulada."
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells cobre triagens sem nenhum patógeno. Seus blocos abertos levam direto a Mask, Measure, Motility Assay, fagocitose e citotoxicidade, então o pipeline principal fica a um clique da página do organismo.",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells cobre triagens sem nenhum patógeno. Seus blocos abertos levam direto a Mask, Measure, Motility Assay, fagocitose e citotoxicidade, então o pipeline principal fica a um clique da página do organismo."
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Quando terminar de explorar, volte a Preferences, desligue Show alpha species e clique em Save. As páginas de organismos somem; nada do que você mediu é alterado.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Quando terminar de explorar, volte a Preferences, desligue Show alpha species e clique em Save. As páginas de organismos somem; nada do que você mediu é alterado."
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "A Home volta a mostrar só Toxoplasma. À medida que cada organismo amadurecer, ele sairá do alfa e ganhará seu próprio passo a passo. Até lá, use a lição de Toxoplasma para um exemplo completo de ensaio e as lições de módulos para cada fluxo de trabalho que esses blocos abrem.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "A Home volta a mostrar só Toxoplasma. À medida que cada organismo amadurecer, ele sairá do alfa e ganhará seu próprio passo a passo. Até lá, use a lição de Toxoplasma para um exemplo completo de ensaio e as lições de módulos para cada fluxo de trabalho que esses blocos abrem."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha：物种模块",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "打开 Show alpha species，浏览尚未完成的物种页面：Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。",
+      "objectives": [
+       "在 Preferences 中打开和关闭 Show alpha species。",
+       "阅读物种页面：简介、细胞示意图和检测图块。",
+       "区分可用和计划中的检测图块，并了解这些页面属于 alpha。"
+      ],
+      "prerequisite": "打开 spaCR 的 Home。不需要输入文件。这些物种页面属于 alpha：尚未完成，可能会变化。",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "这是唯一展示 spaCR alpha 物种模块的教程。在常规安装中，Home 的 Assays 选项卡只有一个物种：Toxoplasma。其他物种页面在您主动开启之前一直处于关闭状态。",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "这是唯一展示 斯佩克尔 alpha 物种模块的教程。在常规安装中，主页 的 Assays 选项卡只有一个物种：Toxoplasma。其他物种页面在您主动开启之前一直处于关闭状态。"
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "从 spaCR 菜单打开 Preferences，进入 Modules 选项卡。在 Module visibility 下，最后一个开关是 Show alpha species，默认是关闭的。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从 斯佩克尔 菜单打开 Preferences，进入 Modules 选项卡。在 Module visibility 下，最后一个开关是 Show alpha species，默认是关闭的。"
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "把它打开。它显示出的所有内容都应视为 alpha：页面尚未完成，大多数检测图块仍在计划中，名称、布局和分析在发布前都可能改变。请用它们来探索，而不是用来报告结果。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "把它打开。它显示出的所有内容都应视为 alpha：页面尚未完成，大多数检测图块仍在计划中，名称、布局和分析在发布前都可能改变。请用它们来探索，而不是用来报告结果。"
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "点击 Save。设置立即生效，并会保留到下一次会话，所以只需操作一次。",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7,
+        "speech_text": "点击 Save。设置立即生效，并会保留到下一次会话，所以只需操作一次。"
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "回到 Home，Assays 选项卡现在列出八个物种：Toxoplasma，然后是 Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。每个图块打开的页面结构都相同，熟悉一个就能读懂全部。",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7,
+        "speech_text": "回到 主页，Assays 选项卡现在列出八个物种：Toxoplasma，然后是 Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。每个图块打开的页面结构都相同，熟悉一个就能读懂全部。"
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "先从疟原虫 Plasmodium 开始。左侧的简短介绍说明了成像在这种生物中能测量什么：感染频率、血液期发育、肝脏感染、运动性以及对化合物的反应。下方每个部分都把一个生物学问题与右侧的检测图块联系起来。",
+        "hold_after": 0.7,
+        "speech_text": "先从疟原虫 Plasmodium 开始。左侧的简短介绍说明了成像在这种生物中能测量什么：感染频率、血液期发育、肝脏感染、运动性以及对化合物的反应。下方每个部分都把一个生物学问题与右侧的检测图块联系起来。"
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "细胞示意图是基于 UniProt 的区室交互地图。将指针悬停在细胞上可识别结构，在列表中勾选多个区室可让它们同时保持高亮。Clear components 会重置图示。",
+        "hold_after": 0.7,
+        "speech_text": "细胞示意图是基于 UniProt 的区室交互地图。将指针悬停在细胞上可识别结构，在列表中勾选多个区室可让它们同时保持高亮。Clear components 会重置图示。"
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "工作从检测图块开始。亮色图块会打开已经可以运行的模块：Parasitaemia 打开 Host–Pathogen Analysis，Sporozoite motility 打开 Motility Assay。变暗的图块仍在计划中，暂时无法打开。每个物种页面都遵循同样的规则。",
+        "hold_after": 0.7,
+        "speech_text": "工作从检测图块开始。亮色图块会打开已经可以运行的模块：Parasitaemia 打开 Host–Pathogen Analysis，Sporozoite motility 打开 Motility Assay。变暗的图块仍在计划中，暂时无法打开。每个物种页面都遵循同样的规则。"
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida 涵盖能在出芽细胞、芽管和菌丝之间转换的酵母。其可用图块复用现有模块来研究黏附、上皮侵袭、吞噬作用和抗真菌反应；计划中的图块将测量丝状化、芽管、生物膜和形态。",
+        "hold_after": 0.7,
+        "speech_text": "Candida 涵盖能在出芽细胞、芽管和菌丝之间转换的酵母。其可用图块复用现有模块来研究黏附、上皮侵袭、吞噬作用和抗真菌反应；计划中的图块将测量丝状化、芽管、生物膜和形态。"
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma 在一个页面中汇集了两种寄生虫：在血液中游动的 Trypanosoma brucei，以及在宿主细胞内增殖的 Trypanosoma cruzi。Flagellar motility、Host-cell invasion、Amastigote infection 和 Drug response 已经可以打开实际模块。",
+        "hold_after": 0.7,
+        "speech_text": "Trypanosoma 在一个页面中汇集了两种寄生虫：在血液中游动的 Trypanosoma brucei，以及在宿主细胞内增殖的 Trypanosoma cruzi。Flagellar motility、Host-cell invasion、Amastigote infection 和 Drug response 已经可以打开实际模块。"
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania 寄生虫在巨噬细胞内增殖。Macrophage infection 报告被感染细胞的比例和每个巨噬细胞中的无鞭毛体数量，Promastigote motility 测量游动。计划中的图块将追踪循环后期发育、向无鞭毛体的转化以及液泡大小。",
+        "hold_after": 0.7,
+        "speech_text": "Leishmania 寄生虫在巨噬细胞内增殖。Macrophage infection 报告被感染细胞的比例和每个巨噬细胞中的无鞭毛体数量，Promastigote motility 测量游动。计划中的图块将追踪循环后期发育、向无鞭毛体的转化以及液泡大小。"
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis 用腹吸盘附着在肠壁上。在这里可以统计上皮细胞上的滋养体、追踪它们的游动并测量药物反应；成囊、脱囊和吸盘形态仍在计划中。",
+        "hold_after": 0.7,
+        "speech_text": "Giardia duodenalis 用腹吸盘附着在肠壁上。在这里可以统计上皮细胞上的滋养体、追踪它们的游动并测量药物反应；成囊、脱囊和吸盘形态仍在计划中。"
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection 是面向宿主细胞而非寄生虫的页面。Infection rate 统计病毒阳性细胞，Plaque Assay 测量噬斑，Recruitment 测量在复制位点聚集的宿主蛋白。请根据模拟感染孔来确定阳性阈值。",
+        "hold_after": 0.7,
+        "speech_text": "Virus infection 是面向宿主细胞而非寄生虫的页面。Infection rate 统计病毒阳性细胞，Plaque Assay 测量噬斑，Recruitment 测量在复制位点聚集的宿主蛋白。请根据模拟感染孔来确定阳性阈值。"
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells 涵盖完全没有病原体的筛选。其可用图块直接通往 Mask、Measure、Motility Assay、吞噬作用和细胞毒性，因此核心流程离物种页面只有一次点击。",
+        "hold_after": 0.7,
+        "speech_text": "Mammalian cells 涵盖完全没有病原体的筛选。其可用图块直接通往 Mask、Measure、Motility Assay、吞噬作用和细胞毒性，因此核心流程离物种页面只有一次点击。"
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "浏览完毕后，回到 Preferences，再次关闭 Show alpha species 并点击 Save。物种页面随即消失；您测得的任何数据都不会改变。",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7,
+        "speech_text": "浏览完毕后，回到 Preferences，再次关闭 Show alpha species 并点击 Save。物种页面随即消失；您测得的任何数据都不会改变。"
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home 又只显示 Toxoplasma。每个物种成熟后都会脱离 alpha，并拥有自己的教程。在此之前，完整的检测示例请参阅 Toxoplasma 课程，这些图块打开的各个工作流程请参阅相应的模块课程。",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "主页 又只显示 Toxoplasma。每个物种成熟后都会脱离 alpha，并拥有自己的教程。在此之前，完整的检测示例请参阅 Toxoplasma 课程，这些图块打开的各个工作流程请参阅相应的模块课程。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organismemoduler",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Slå Show alpha species til, og gennemgå de ufærdige organismesider: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+      "objectives": [
+       "Slå Show alpha species til og fra i Preferences.",
+       "Læse en organismeside: introduktion, cellediagram og assayfliser.",
+       "Skelne åbne fra planlagte assayfliser og vide, at disse sider er alfa."
+      ],
+      "prerequisite": "Åbn Home i spaCR. Der kræves ingen inputfiler. Disse organismesider er alfa: ufærdige og kan ændre sig.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Dette er den eneste vejledning, der viser spaCR's alfa-organismemoduler. I en normal installation indeholder fanen Assays på Home kun én organisme, Toxoplasma. De andre organismesider forbliver slået fra, indtil du beder om dem.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Åbn Preferences fra spaCR-menuen, og gå til fanen Modules. Under Module visibility er den sidste kontakt Show alpha species. Den er som standard slået fra.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Slå den til. Betragt alt, hvad den viser, som alfa: Siderne er ufærdige, de fleste assayfliser er stadig planlagte, og navne, layout og analyser kan ændre sig før udgivelsen. Brug dem til at udforske, ikke til at rapportere resultater.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Tryk på Save. Indstillingen gælder med det samme og bevares til næste session, så du behøver kun at gøre det én gang.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Tilbage på Home viser fanen Assays nu otte organismer: Toxoplasma og derefter Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver flise åbner en side, der er bygget på samme måde, så kender du én, kan du læse dem alle.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Begynd med Plasmodium, malariaparasitterne. Til venstre forklarer en kort introduktion, hvad billeddannelse kan måle i denne organisme: infektionshyppighed, udvikling af blodstadier, leverinfektion, motilitet og respons på stoffer. Nedenunder knytter hver sektion et biologisk spørgsmål til assayfliserne til højre.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Cellediagrammet er et interaktivt kort over kompartmenter fra UniProt. Hold musen over cellen for at identificere en struktur, og sæt flueben ved flere kompartmenter på listen for at holde dem fremhævet sammen. Clear components nulstiller tegningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Det er ved assayfliserne, arbejdet begynder. Lyse fliser åbner et modul, der allerede kører: Parasitaemia åbner Host–Pathogen Analysis, Sporozoite motility åbner Motility Assay. Nedtonede fliser er planlagte og kan endnu ikke åbnes. Samme regel gælder på hver organismeside.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida omfatter gær, der kan skifte mellem knopskydende celler, kimrør og hyfer. De åbne fliser genbruger eksisterende moduler til adhæsion, epitelial invasion, fagocytose og svampemiddelrespons; de planlagte vil måle filamentering, kimrør, biofilm og morfologi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma samler to parasitter på én side: Trypanosoma brucei, der svømmer i blodet, og Trypanosoma cruzi, der formerer sig inde i værtsceller. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response åbner allerede rigtige moduler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania-parasitter formerer sig inde i makrofager. Macrophage infection rapporterer den inficerede andel og amastigoter pr. makrofag, og Promastigote motility måler svømning. Planlagte fliser vil følge metacyklogenese, omdannelse til amastigoter og vakuolestørrelse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis hæfter sig til tarmvæggen med sin ventrale skive. Her kan du tælle trofozoitter på epitelceller, følge deres svømning og måle lægemiddelrespons; encystering, excystering og skivemorfologi er stadig planlagte.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection er en side for værtsceller frem for en parasit. Infection rate tæller viruspositive celler, Plaque Assay måler plaques, og Recruitment måler værtsproteiner, der samles ved replikationssteder. Fastlæg positivitet ud fra mock-inficerede brønde.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells dækker screeninger helt uden patogen. De åbne fliser fører direkte til Mask, Measure, Motility Assay, fagocytose og cytotoksicitet, så kernepipelinen er ét klik fra organismesiden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Når du er færdig med at udforske, så gå tilbage til Preferences, slå Show alpha species fra igen, og tryk på Save. Organismesiderne forsvinder; intet af det, du har målt, ændres.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home viser igen kun Toxoplasma. Efterhånden som hver organisme modnes, forlader den alfa og får sin egen gennemgang. Indtil da kan du bruge Toxoplasma-lektionen til et fuldt assayeksempel og modullektionerne til hvert workflow, som disse fliser åbner.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: Organismusmodule",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Schalten Sie Show alpha species ein und erkunden Sie die unfertigen Organismusseiten: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection und Mammalian cells.",
+      "objectives": [
+       "Show alpha species in den Preferences ein- und ausschalten.",
+       "Eine Organismusseite lesen: Einführung, Zelldiagramm und Assay-Kacheln.",
+       "Offene von geplanten Assay-Kacheln unterscheiden und wissen, dass diese Seiten Alpha sind."
+      ],
+      "prerequisite": "Öffnen Sie Home in spaCR. Es werden keine Eingabedateien benötigt. Diese Organismusseiten sind Alpha: unfertig und können sich ändern.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Dies ist das einzige Tutorial, das die Alpha-Organismusmodule von spaCR zeigt. In einer normalen Installation enthält der Assays-Tab auf Home nur einen Organismus, Toxoplasma. Die anderen Organismusseiten bleiben ausgeschaltet, bis Sie sie anfordern.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Öffnen Sie die Preferences über das spaCR-Menü und wechseln Sie zum Modules-Tab. Unter Module visibility ist der letzte Schalter Show alpha species. Er ist standardmäßig aus.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Schalten Sie ihn ein. Behandeln Sie alles, was er sichtbar macht, als Alpha: Die Seiten sind unfertig, die meisten Assay-Kacheln sind noch geplant, und Namen, Layouts und Analysen können sich bis zur Veröffentlichung ändern. Nutzen Sie sie zum Erkunden, nicht um Ergebnisse zu berichten.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Drücken Sie Save. Die Einstellung gilt sofort und bleibt für Ihre nächste Sitzung erhalten, Sie müssen das also nur einmal tun.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Zurück auf Home listet der Assays-Tab jetzt acht Organismen: Toxoplasma, dann Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection und Mammalian cells. Jede Kachel öffnet eine gleich aufgebaute Seite; wer eine kennt, kann alle lesen.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Beginnen Sie mit Plasmodium, den Malariaerregern. Links erklärt eine kurze Einführung, was die Bildgebung bei diesem Organismus messen kann: Infektionshäufigkeit, Blutstadienentwicklung, Leberinfektion, Motilität und Wirkstoffantworten. Darunter verbindet jeder Abschnitt eine biologische Frage mit den Assay-Kacheln rechts.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Das Zelldiagramm ist eine interaktive Karte der Kompartimente aus UniProt. Fahren Sie mit der Maus über die Zelle, um eine Struktur zu erkennen, und haken Sie mehrere Kompartimente in der Liste an, um sie gemeinsam hervorzuheben. Clear components setzt die Zeichnung zurück.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Bei den Assay-Kacheln beginnt die Arbeit. Helle Kacheln öffnen ein Modul, das bereits läuft: Parasitaemia öffnet Host–Pathogen Analysis, Sporozoite motility öffnet den Motility Assay. Abgedunkelte Kacheln sind geplant und lassen sich noch nicht öffnen. Diese Regel gilt auf jeder Organismusseite.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida umfasst Hefen, die zwischen knospenden Zellen, Keimschläuchen und Hyphen wechseln können. Die offenen Kacheln nutzen vorhandene Module für Adhäsion, epitheliale Invasion, Phagozytose und Antimykotika-Antwort; die geplanten werden Filamentierung, Keimschläuche, Biofilm und Morphologie messen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma vereint zwei Parasiten auf einer Seite: Trypanosoma brucei, das im Blut schwimmt, und Trypanosoma cruzi, das sich in Wirtszellen vermehrt. Flagellar motility, Host-cell invasion, Amastigote infection und Drug response öffnen bereits echte Module.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania-Parasiten vermehren sich in Makrophagen. Macrophage infection berichtet den infizierten Anteil und die Amastigoten pro Makrophage, und Promastigote motility misst das Schwimmen. Geplante Kacheln werden Metazyklogenese, Amastigoten-Umwandlung und Vakuolengröße verfolgen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis haftet mit seiner Ventralscheibe an der Darmwand. Hier können Sie Trophozoiten auf Epithelzellen zählen, ihr Schwimmen verfolgen und Wirkstoffantworten messen; Enzystierung, Exzystierung und Scheibenmorphologie sind noch geplant.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection ist eine Seite für Wirtszellen statt für einen Parasiten. Infection rate zählt virus-positive Zellen, Plaque Assay misst Plaques, und Recruitment misst Wirtsproteine, die sich an Replikationsorten sammeln. Legen Sie die Positivität anhand scheininfizierter Wells fest.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells deckt Screens ganz ohne Erreger ab. Die offenen Kacheln führen direkt zu Mask, Measure, dem Motility Assay, Phagozytose und Zytotoxizität, die Kernpipeline ist also nur einen Klick von der Organismusseite entfernt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Wenn Sie mit dem Erkunden fertig sind, kehren Sie zu den Preferences zurück, schalten Show alpha species wieder aus und drücken Save. Die Organismusseiten verschwinden; nichts, was Sie gemessen haben, wird verändert.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home zeigt wieder nur Toxoplasma. Sobald ein Organismus ausgereift ist, verlässt er Alpha und erhält eine eigene Anleitung. Bis dahin nutzen Sie die Toxoplasma-Lektion für ein vollständiges Assay-Beispiel und die Modullektionen für jeden Workflow, den diese Kacheln öffnen.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: lífverueiningar",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Kveiktu á Show alpha species og skoðaðu ókláruðu lífverusíðurnar: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+      "objectives": [
+       "Kveikja og slökkva á Show alpha species í Preferences.",
+       "Lesa lífverusíðu: inngang, frumuskýringarmynd og prófunarreiti.",
+       "Greina opna prófunarreiti frá fyrirhuguðum og vita að þessar síður eru alfa."
+      ],
+      "prerequisite": "Opnaðu Home í spaCR. Engar inntaksskrár þarf. Þessar lífverusíður eru alfa: óklárar og geta breyst.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Þetta er eina kennsluefnið sem sýnir alfa-lífverueiningar spaCR. Í venjulegri uppsetningu er aðeins ein lífvera á Assays-flipanum á Home, Toxoplasma. Hinar lífverusíðurnar eru óvirkar þar til þú biður um þær.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Opnaðu Preferences úr spaCR-valmyndinni og farðu á Modules-flipann. Undir Module visibility er síðasti rofinn Show alpha species. Sjálfgefið er slökkt á honum.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Kveiktu á honum. Líttu á allt sem hann sýnir sem alfa: síðurnar eru óklárar, flestir prófunarreitir eru enn fyrirhugaðir, og heiti, útlit og greiningar geta breyst fyrir útgáfu. Notaðu þær til að skoða, ekki til að birta niðurstöður.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Ýttu á Save. Stillingin tekur gildi strax og helst í næstu lotu, svo þú þarft aðeins að gera þetta einu sinni.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Aftur á Home sýnir Assays-flipinn nú átta lífverur: Toxoplasma, síðan Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver reitur opnar síðu sem er byggð eins, svo ef þú þekkir eina geturðu lesið þær allar.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Byrjaðu á Plasmodium, malaríusníklunum. Vinstra megin útskýrir stuttur inngangur hvað myndgreining getur mælt í þessari lífveru: tíðni sýkinga, þroska blóðstiga, lifrarsýkingu, hreyfigetu og svörun við efnum. Fyrir neðan tengir hver hluti líffræðilega spurningu við prófunarreitina til hægri.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Frumuskýringarmyndin er gagnvirkt kort af hólfum úr UniProt. Haltu bendlinum yfir frumunni til að bera kennsl á byggingu, og hakaðu við nokkur hólf í listanum til að halda þeim auðkenndum saman. Clear components hreinsar teikninguna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Vinnan hefst við prófunarreitina. Ljósir reitir opna einingu sem þegar virkar: Parasitaemia opnar Host–Pathogen Analysis og Sporozoite motility opnar Motility Assay. Daufir reitir eru fyrirhugaðir og opnast ekki enn. Sama regla gildir á hverri lífverusíðu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida nær yfir gersveppi sem geta skipt á milli frumna í knappskotum, kímröra og sveppþráða. Opnu reitirnir nota fyrirliggjandi einingar fyrir viðloðun, innrás í þekjufrumur, átfrumuát og svörun við sveppalyfjum; þeir fyrirhuguðu munu mæla þráðmyndun, kímrör, líffilmu og formgerð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma sameinar tvo sníkla á einni síðu: Trypanosoma brucei, sem syndir í blóði, og Trypanosoma cruzi, sem fjölgar sér inni í hýsilfrumum. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response opna þegar raunverulegar einingar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania-sníklar fjölga sér inni í átfrumum. Macrophage infection sýnir hlutfall sýktra frumna og amastigota á hverja átfrumu, og Promastigote motility mælir sund. Fyrirhugaðir reitir munu fylgja metacyclogenesis, umbreytingu í amastigota og stærð bóla.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis festir sig við þarmavegginn með kviðdiski sínum. Hér geturðu talið trophozoita á þekjufrumum, fylgst með sundi þeirra og mælt svörun við lyfjum; hjúpmyndun, losun úr hjúp og formgerð disksins eru enn fyrirhuguð.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection er síða fyrir hýsilfrumur frekar en sníkil. Infection rate telur veirujákvæðar frumur, Plaque Assay mælir skellur og Recruitment mælir hýsilprótein sem safnast saman við fjölföldunarstaði. Ákvarðaðu jákvæðni út frá gervismituðum brunnum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells nær yfir skimanir án nokkurs sýkils. Opnu reitirnir leiða beint í Mask, Measure, Motility Assay, átfrumuát og frumueiturhrif, svo kjarnaferlið er einum smelli frá lífverusíðunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Þegar þú ert búin(n) að skoða skaltu fara aftur í Preferences, slökkva á Show alpha species og ýta á Save. Lífverusíðurnar hverfa; ekkert sem þú hefur mælt breytist.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home sýnir aftur aðeins Toxoplasma. Þegar hver lífvera þroskast fer hún úr alfa og fær eigin leiðsögn. Þangað til skaltu nota Toxoplasma-kennslustundina fyrir heilt dæmi um prófun og einingakennslustundirnar fyrir hvert vinnuflæði sem þessir reitir opna.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: 생물종 모듈",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Show alpha species를 켜고 아직 완성되지 않은 생물종 페이지를 둘러봅니다: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection, Mammalian cells.",
+      "objectives": [
+       "Preferences에서 Show alpha species를 켜고 끕니다.",
+       "생물종 페이지를 읽습니다: 소개, 세포 도식, 분석 타일.",
+       "열 수 있는 분석 타일과 계획된 타일을 구분하고 이 페이지들이 alpha임을 압니다."
+      ],
+      "prerequisite": "spaCR의 Home을 엽니다. 입력 파일은 필요하지 않습니다. 이 생물종 페이지는 alpha로, 미완성이며 바뀔 수 있습니다.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "이 튜토리얼은 spaCR의 alpha 생물종 모듈을 보여 주는 유일한 강의입니다. 일반 설치에서는 Home의 Assays 탭에 생물종이 Toxoplasma 하나뿐입니다. 다른 생물종 페이지는 요청하기 전까지 꺼져 있습니다.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "spaCR 메뉴에서 Preferences를 열고 Modules 탭으로 이동합니다. Module visibility 아래 마지막 스위치가 Show alpha species입니다. 기본값은 꺼짐입니다.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "이 스위치를 켭니다. 이것으로 보이는 모든 것은 alpha로 여기세요. 페이지는 미완성이고, 분석 타일 대부분은 아직 계획 단계이며, 이름과 레이아웃, 분석은 출시 전에 바뀔 수 있습니다. 탐색용으로만 쓰고 결과 보고에는 쓰지 마세요.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Save를 누릅니다. 설정은 바로 적용되고 다음 세션에도 유지되므로 한 번만 하면 됩니다.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Home으로 돌아오면 Assays 탭에 이제 여덟 개의 생물종이 보입니다. Toxoplasma 다음으로 Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection, Mammalian cells입니다. 각 타일은 같은 구조의 페이지를 열기 때문에 하나를 알면 모두 읽을 수 있습니다.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "말라리아 원충인 Plasmodium부터 시작합니다. 왼쪽의 짧은 소개는 이 생물종에서 이미징으로 무엇을 측정할 수 있는지 설명합니다. 감염 빈도, 혈액 단계 발달, 간 감염, 운동성, 화합물 반응입니다. 그 아래 각 섹션은 생물학적 질문을 오른쪽의 분석 타일과 연결합니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "세포 도식은 UniProt에서 가져온 구획을 보여 주는 대화형 지도입니다. 세포 위에 포인터를 올리면 구조를 확인할 수 있고, 목록에서 여러 구획을 체크하면 함께 강조된 상태로 유지됩니다. Clear components는 그림을 초기화합니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "작업은 분석 타일에서 시작됩니다. 밝은 타일은 이미 작동하는 모듈을 엽니다. Parasitaemia는 Host–Pathogen Analysis를, Sporozoite motility는 Motility Assay를 엽니다. 흐린 타일은 계획된 것으로 아직 열 수 없습니다. 이 규칙은 모든 생물종 페이지에 똑같이 적용됩니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida는 출아 세포, 발아관, 균사 사이를 오갈 수 있는 효모를 다룹니다. 열 수 있는 타일은 부착, 상피 침입, 식세포 작용, 항진균제 반응에 기존 모듈을 다시 사용하고, 계획된 타일은 균사 형성, 발아관, 바이오필름, 형태를 측정할 예정입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma는 두 기생충을 한 페이지에 모읍니다. 혈액 속을 헤엄치는 Trypanosoma brucei와 숙주 세포 안에서 증식하는 Trypanosoma cruzi입니다. Flagellar motility, Host-cell invasion, Amastigote infection, Drug response는 이미 실제 모듈을 엽니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania 기생충은 대식세포 안에서 증식합니다. Macrophage infection은 감염된 비율과 대식세포당 무편모충 수를 보고하고, Promastigote motility는 유영을 측정합니다. 계획된 타일은 메타사이클로제네시스, 무편모충 전환, 공포 크기를 추적할 예정입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis는 복측 흡착판으로 장벽에 붙습니다. 여기서는 상피 세포 위의 영양형을 세고, 유영을 추적하고, 약물 반응을 측정할 수 있습니다. 낭포 형성, 탈낭, 흡착판 형태는 아직 계획 단계입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection은 기생충이 아니라 숙주 세포를 위한 페이지입니다. Infection rate는 바이러스 양성 세포를 세고, Plaque Assay는 플라크를 측정하며, Recruitment는 복제 부위에 모이는 숙주 단백질을 측정합니다. 양성 기준은 모의 감염 웰로 정하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells는 병원체가 전혀 없는 스크리닝을 다룹니다. 열 수 있는 타일은 Mask, Measure, Motility Assay, 식세포 작용, 세포 독성으로 바로 이어지므로 핵심 파이프라인이 생물종 페이지에서 한 번의 클릭 거리입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "둘러보기를 마쳤으면 Preferences로 돌아가 Show alpha species를 다시 끄고 Save를 누릅니다. 생물종 페이지는 사라지지만 측정한 내용은 아무것도 바뀌지 않습니다.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home에는 다시 Toxoplasma만 표시됩니다. 각 생물종은 성숙하면 alpha에서 벗어나 자체 안내를 갖게 됩니다. 그때까지는 전체 분석 예시로 Toxoplasma 강의를, 이 타일들이 여는 각 워크플로에는 모듈 강의를 활용하세요.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organismemoduler",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Slå på Show alpha species og gå gjennom de uferdige organismesidene: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+      "objectives": [
+       "Slå Show alpha species av og på i Preferences.",
+       "Lese en organismeside: innledning, cellediagram og analysefliser.",
+       "Skille åpne fra planlagte analysefliser og vite at disse sidene er alfa."
+      ],
+      "prerequisite": "Åpne Home i spaCR. Det trengs ingen inndatafiler. Disse organismesidene er alfa: uferdige og kan endre seg.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Dette er den eneste veiledningen som viser spaCRs alfa-organismemoduler. I en vanlig installasjon har fanen Assays på Home bare én organisme, Toxoplasma. De andre organismesidene er slått av til du ber om dem.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Åpne Preferences fra spaCR-menyen og gå til fanen Modules. Under Module visibility er den siste bryteren Show alpha species. Den er av som standard.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Slå den på. Regn alt den viser som alfa: Sidene er uferdige, de fleste analysefliser er fortsatt planlagt, og navn, oppsett og analyser kan endre seg før lansering. Bruk dem til å utforske, ikke til å rapportere resultater.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Trykk Save. Innstillingen gjelder med en gang og beholdes til neste økt, så du trenger bare å gjøre dette én gang.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Tilbake på Home viser fanen Assays nå åtte organismer: Toxoplasma, deretter Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver flis åpner en side som er bygd på samme måte, så kjenner du én, kan du lese alle.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Begynn med Plasmodium, malariaparasittene. Til venstre forklarer en kort innledning hva avbildning kan måle hos denne organismen: infeksjonshyppighet, utvikling av blodstadier, leverinfeksjon, motilitet og respons på forbindelser. Under knytter hver seksjon et biologisk spørsmål til analyseflisene til høyre.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Cellediagrammet er et interaktivt kart over kompartmenter hentet fra UniProt. Hold pekeren over cellen for å kjenne igjen en struktur, og huk av flere kompartmenter i listen for å holde dem uthevet sammen. Clear components tilbakestiller tegningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Det er ved analyseflisene arbeidet begynner. Lyse fliser åpner en modul som allerede virker: Parasitaemia åpner Host–Pathogen Analysis, Sporozoite motility åpner Motility Assay. Dempede fliser er planlagt og kan ikke åpnes ennå. Den samme regelen gjelder på hver organismeside.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida omfatter gjær som kan veksle mellom knoppskytende celler, kimrør og hyfer. De åpne flisene gjenbruker eksisterende moduler for adhesjon, epitelial invasjon, fagocytose og soppmiddelrespons; de planlagte skal måle filamentering, kimrør, biofilm og morfologi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma samler to parasitter på én side: Trypanosoma brucei, som svømmer i blodet, og Trypanosoma cruzi, som formerer seg inne i vertsceller. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response åpner allerede ekte moduler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania-parasitter formerer seg inne i makrofager. Macrophage infection rapporterer den infiserte andelen og amastigoter per makrofag, og Promastigote motility måler svømming. Planlagte fliser skal følge metasyklogenese, omdanning til amastigoter og vakuolestørrelse.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis fester seg til tarmveggen med den ventrale skiven. Her kan du telle trofozoitter på epitelceller, følge svømmingen og måle legemiddelrespons; encystering, eksystering og skivemorfologi er fortsatt planlagt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection er en side for vertsceller heller enn en parasitt. Infection rate teller viruspositive celler, Plaque Assay måler plakk, og Recruitment måler vertsproteiner som samles ved replikasjonssteder. Fastsett positivitet ut fra brønner med falsk infeksjon.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells dekker screeninger helt uten patogen. De åpne flisene leder rett til Mask, Measure, Motility Assay, fagocytose og cytotoksisitet, så kjernepipelinen er ett klikk unna organismesiden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "Når du er ferdig med å utforske, går du tilbake til Preferences, slår av Show alpha species igjen og trykker Save. Organismesidene forsvinner; ingenting av det du har målt, endres.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home viser igjen bare Toxoplasma. Etter hvert som hver organisme modnes, forlater den alfa og får sin egen gjennomgang. Til da kan du bruke Toxoplasma-leksjonen for et fullstendig analyseeksempel og modulleksjonene for hver arbeidsflyt disse flisene åpner.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 59,
+     "preceding": [
+      "85_host_pathogen",
+      "82_toxoplasma",
+      "81_sequencing_pathways",
+      "80_image_analysis_pathways",
+      "79_module_inputs_outputs",
+      "78_spacr_screens",
+      "76_ops",
+      "77_embeddings",
+      "75_regression_diagnostics",
+      "74_import_images",
+      "73_parameter_sweep",
+      "72_volcano_explorer",
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "85_host_pathogen",
+     "next": "87_alpha_features",
+     "entry": {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organismmoduler",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Slå på Show alpha species och gå igenom de ofärdiga organismsidorna: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection och Mammalian cells.",
+      "objectives": [
+       "Slå på och av Show alpha species i Preferences.",
+       "Läsa en organismsida: introduktion, celldiagram och analysrutor.",
+       "Skilja öppna från planerade analysrutor och veta att dessa sidor är alfa."
+      ],
+      "prerequisite": "Öppna Home i spaCR. Inga indatafiler behövs. Dessa organismsidor är alfa: ofärdiga och kan ändras.",
+      "scenes": [
+       {
+        "visual": "00_home_assays_off",
+        "narration": "Det här är den enda handledningen som visar spaCR:s alfa-organismmoduler. I en vanlig installation innehåller fliken Assays på Home bara en organism, Toxoplasma. De andra organismsidorna är avstängda tills du ber om dem.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "05_home"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "01_prefs_species_off",
+        "narration": "Öppna Preferences från spaCR-menyn och gå till fliken Modules. Under Module visibility är den sista reglaget Show alpha species. Det är avstängt som standard.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on",
+        "narration": "Slå på det. Betrakta allt det visar som alfa: sidorna är ofärdiga, de flesta analysrutor är fortfarande planerade, och namn, layouter och analyser kan ändras före lansering. Använd dem för att utforska, inte för att rapportera resultat.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_prefs_species_on_save",
+        "narration": "Tryck på Save. Inställningen gäller direkt och sparas till nästa session, så du behöver bara göra det en gång.",
+        "focus": [
+         2420,
+         1700,
+         260,
+         80
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_home_assays_on",
+        "narration": "Tillbaka på Home visar fliken Assays nu åtta organismer: Toxoplasma, sedan Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection och Mammalian cells. Varje ruta öppnar en sida som är byggd på samma sätt, så kan du läsa en kan du läsa alla.",
+        "focus": [
+         30,
+         310,
+         2270,
+         200
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_page",
+        "narration": "Börja med Plasmodium, malariaparasiterna. Till vänster förklarar en kort introduktion vad avbildning kan mäta hos denna organism: infektionsfrekvens, blodstadiernas utveckling, leverinfektion, motilitet och svar på substanser. Nedanför kopplar varje avsnitt en biologisk fråga till analysrutorna till höger.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_diagram",
+        "narration": "Celldiagrammet är en interaktiv karta över kompartment hämtade från UniProt. Håll pekaren över cellen för att identifiera en struktur, och kryssa i flera kompartment i listan för att hålla dem markerade tillsammans. Clear components återställer teckningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "plasmodium_modules",
+        "narration": "Det är vid analysrutorna arbetet börjar. Ljusa rutor öppnar en modul som redan fungerar: Parasitaemia öppnar Host–Pathogen Analysis, Sporozoite motility öppnar Motility Assay. Nedtonade rutor är planerade och kan ännu inte öppnas. Samma regel gäller på varje organismsida.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "candida_page",
+        "narration": "Candida omfattar jästsvampar som kan växla mellan knoppande celler, groddrör och hyfer. De öppna rutorna återanvänder befintliga moduler för adhesion, epitelial invasion, fagocytos och svar på svampmedel; de planerade ska mäta filamentering, groddrör, biofilm och morfologi.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "trypanosoma_page",
+        "narration": "Trypanosoma samlar två parasiter på en sida: Trypanosoma brucei, som simmar i blodet, och Trypanosoma cruzi, som förökar sig inne i värdceller. Flagellar motility, Host-cell invasion, Amastigote infection och Drug response öppnar redan riktiga moduler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "leishmania_page",
+        "narration": "Leishmania-parasiter förökar sig inne i makrofager. Macrophage infection rapporterar den infekterade andelen och amastigoter per makrofag, och Promastigote motility mäter simning. Planerade rutor ska följa metacyklogenes, omvandling till amastigoter och vakuolstorlek.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "giardia_page",
+        "narration": "Giardia duodenalis fäster vid tarmväggen med sin ventrala skiva. Här kan du räkna trofozoiter på epitelceller, följa deras simning och mäta läkemedelssvar; encystering, excystering och skivmorfologi är fortfarande planerade.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "virus_page",
+        "narration": "Virus infection är en sida för värdceller snarare än en parasit. Infection rate räknar viruspositiva celler, Plaque Assay mäter plack och Recruitment mäter värdproteiner som samlas vid replikationsställen. Bestäm positivitet utifrån skeninfekterade brunnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "mammalian_page",
+        "narration": "Mammalian cells täcker screeningar helt utan patogen. De öppna rutorna leder direkt till Mask, Measure, Motility Assay, fagocytos och cytotoxicitet, så kärnflödet är ett klick bort från organismsidan.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "91_prefs_species_off_again",
+        "narration": "När du är klar med att utforska går du tillbaka till Preferences, stänger av Show alpha species igen och trycker på Save. Organismsidorna försvinner; inget av det du har mätt ändras.",
+        "focus": [
+         1330,
+         640,
+         1020,
+         70
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "92_home_assays_off_again",
+        "narration": "Home visar åter bara Toxoplasma. När varje organism mognar lämnar den alfa och får en egen genomgång. Fram till dess kan du använda Toxoplasma-lektionen för ett fullständigt analysexempel och modullektionerna för varje arbetsflöde som de här rutorna öppnar.",
+        "related_lessons": [
+         "82_toxoplasma",
+         "85_host_pathogen",
+         "18_motility"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       13,
+       "lessons"
+      ],
+      "preceding": [
+       "62_feature_dictionary",
+       "52_pipeline_graph",
+       "45_project_browser",
+       "44_data_manager",
+       "40_run_history",
+       "38_distributed_jobs",
+       "37_batch",
+       "34_database",
+       "30_plate_queue",
+       "29_report",
+       "06_api"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "85_host_pathogen",
+       "82_toxoplasma",
+       "81_sequencing_pathways",
+       "80_image_analysis_pathways",
+       "79_module_inputs_outputs",
+       "78_spacr_screens",
+       "76_ops",
+       "77_embeddings",
+       "75_regression_diagnostics",
+       "74_import_images",
+       "73_parameter_sweep",
+       "72_volcano_explorer",
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": null,
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/86_alpha_organism_modules -> tools/tutorials/archive/production/docs/86_alpha_organism_modules"
+ ],
+ "prose": []
+}

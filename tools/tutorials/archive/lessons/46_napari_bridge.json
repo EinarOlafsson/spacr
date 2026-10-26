@@ -1,0 +1,3533 @@
+{
+ "schema": 1,
+ "id": "46_napari_bridge",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: edit and return a label mask",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "objectives": [
+       "Open corresponding image and label files.",
+       "Edit and undo changes in napari.",
+       "Return and inspect the saved mask."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "46_napari_bridge/poster.jpg",
+      "silent": "46_napari_bridge/video/46_napari_bridge_silent.mp4",
+      "web": "46_napari_bridge/web/46_napari_bridge_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: edit and return a label mask",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "objectives": [
+       "Open corresponding image and label files.",
+       "Edit and undo changes in napari.",
+       "Return and inspect the saved mask."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: editar y devolver una máscara de etiquetas",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Abre una imagen y su máscara en napari, edita las etiquetas y guarda la máscara corregida de vuelta en spaCR.",
+      "objectives": [
+       "Abrir los archivos de imagen y de etiquetas correspondientes.",
+       "Editar y deshacer cambios en napari.",
+       "Devolver la máscara guardada y revisarla."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Instala la dependencia opcional de napari y descomprime el ejemplo sintético en una carpeta nueva. Guarda una copia de seguridad sin tocar: Take the mask back sobrescribe la máscara de trabajo seleccionada. Cierra y vuelve a abrir el visor entre rondas de edición guardadas.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Abre Make Masks y luego Napari Bridge. Úsalo para editar una máscara de etiquetas existente con su imagen de intensidad como referencia. Guarda una copia de seguridad sin tocar de la máscara.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abre Make Masks y luego Napari Bridge. Úsalo para editar una máscara de etiquetas existente con su imagen de intensidad como referencia. Guarda una copia de seguridad sin tocar de la máscara."
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Descarga y descomprime el ejemplo sintético. Elige mask punto tif para Mask e image punto tif para Image, y pulsa Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Descarga y descomprime el ejemplo sintético. Elige mask punto tif para Mask e image punto tif para Image, y pulsa Open in napari."
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Selecciona en napari la capa Labels de la máscara. La etiqueta cero es el fondo; cada etiqueta de objeto tiene un color de visualización. Haz las ediciones en la capa de etiquetas.",
+        "hold_after": 0.7,
+        "speech_text": "Selecciona en napari la capa Labels de la máscara. La etiqueta cero es el fondo; cada etiqueta de objeto tiene un color de visualización. Haz las ediciones en la capa de etiquetas."
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Vuelve a spaCR y usa Take the mask back para importar las etiquetas actuales del visor. Si no has hecho cambios, el estado indica que la máscara no ha cambiado.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Vuelve a espáquer y usa Take the mask back para importar las etiquetas actuales del visor. Si no has hecho cambios, el estado indica que la máscara no ha cambiado."
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Para practicar, selecciona la etiqueta dieciocho, elige Fill y haz clic en el objeto con la etiqueta dos. Revisa la etiqueta cambiada antes de importarla.",
+        "hold_after": 0.7,
+        "speech_text": "Para practicar, selecciona la etiqueta dieciocho, elige Fill y haz clic en el objeto con la etiqueta dos. Revisa la etiqueta cambiada antes de importarla."
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Usa Undo para revertir la última edición en el visor. Repite la operación Fill cuando quieras conservar el cambio.",
+        "hold_after": 0.7,
+        "speech_text": "Usa Undo para revertir la última edición en el visor. Repite la operación Fill cuando quieras conservar el cambio."
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Haz clic en Take the mask back en spaCR. Revisa el número de píxeles cambiados y luego la máscara guardada y su archivo auxiliar con el historial de correcciones.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Take the mask back en espáquer. Revisa el número de píxeles cambiados y luego la máscara guardada y su archivo auxiliar con el historial de correcciones."
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Haz clic en Close viewer y vuelve a abrir la máscara antes de la siguiente ronda de edición. Así la máscara guardada es el punto de partida de las correcciones posteriores.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Close viewer y vuelve a abrir la máscara antes de la siguiente ronda de edición. Así la máscara guardada es el punto de partida de las correcciones posteriores."
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Después de la siguiente edición, devuelve la máscara y revisa de nuevo el resultado. Cierra el visor al terminar, conserva el historial de correcciones y vuelve a ejecutar las mediciones afectadas por las etiquetas cambiadas.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Después de la siguiente edición, devuelve la máscara y revisa de nuevo el resultado. Cierra el visor al terminar, conserva el historial de correcciones y vuelve a ejecutar las mediciones afectadas por las etiquetas cambiadas."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge : modifier et renvoyer un masque d’étiquettes",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Ouvrez une image et son masque dans napari, modifiez les étiquettes et enregistrez le masque corrigé dans spaCR.",
+      "objectives": [
+       "Ouvrir les fichiers d’image et d’étiquettes correspondants.",
+       "Modifier et annuler des changements dans napari.",
+       "Renvoyer le masque enregistré et l’examiner."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installez la dépendance optionnelle napari et décompressez l’exemple synthétique dans un nouveau dossier. Gardez une sauvegarde intacte : Take the mask back écrase le masque de travail sélectionné. Fermez et rouvrez la visionneuse entre deux séries de modifications enregistrées.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Ouvrez Make Masks, puis Napari Bridge. Il permet de modifier un masque d’étiquettes existant en prenant son image d’intensité comme référence. Gardez une sauvegarde intacte du masque.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Ouvrez Make Masks, puis Napari Bridge. Il permet de modifier un masque d’étiquettes existant en prenant son image d’intensité comme référence. Gardez une sauvegarde intacte du masque."
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Téléchargez et décompressez l’exemple synthétique. Choisissez mask point tif pour Mask et image point tif pour Image, puis appuyez sur Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Téléchargez et décompressez l’exemple synthétique. Choisissez mask point tif pour Mask et image point tif pour Image, puis appuyez sur Open in napari."
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Sélectionnez dans napari le calque Labels du masque. L’étiquette zéro correspond au fond ; chaque étiquette d’objet a une couleur d’affichage. Faites vos modifications sur le calque d’étiquettes.",
+        "hold_after": 0.7,
+        "speech_text": "Sélectionnez dans napari le calque Labels du masque. L’étiquette zéro correspond au fond ; chaque étiquette d’objet a une couleur d’affichage. Faites vos modifications sur le calque d’étiquettes."
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Revenez dans spaCR et utilisez Take the mask back pour importer les étiquettes actuelles de la visionneuse. Si vous n’avez rien modifié, l’état indique que le masque est inchangé.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Revenez dans spakeur et utilisez Take the mask back pour importer les étiquettes actuelles de la visionneuse. Si vous n’avez rien modifié, l’état indique que le masque est inchangé."
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Pour vous exercer, sélectionnez l’étiquette dix-huit, choisissez Fill et cliquez sur l’objet portant l’étiquette deux. Examinez l’étiquette modifiée avant de l’importer.",
+        "hold_after": 0.7,
+        "speech_text": "Pour vous exercer, sélectionnez l’étiquette dix-huit, choisissez Fill et cliquez sur l’objet portant l’étiquette deux. Examinez l’étiquette modifiée avant de l’importer."
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Utilisez Undo pour annuler la dernière modification dans la visionneuse. Refaites l’opération Fill quand vous êtes prêt à garder le changement.",
+        "hold_after": 0.7,
+        "speech_text": "Utilisez Undo pour annuler la dernière modification dans la visionneuse. Refaites l’opération Fill quand vous êtes prêt à garder le changement."
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Cliquez sur Take the mask back dans spaCR. Vérifiez le nombre de pixels modifiés, puis examinez le masque enregistré et son fichier annexe d’historique des corrections.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Take the mask back dans spakeur. Vérifiez le nombre de pixels modifiés, puis examinez le masque enregistré et son fichier annexe d’historique des corrections."
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Cliquez sur Close viewer et rouvrez le masque avant la série de modifications suivante. Le masque enregistré devient ainsi le point de départ des corrections suivantes.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Close viewer et rouvrez le masque avant la série de modifications suivante. Le masque enregistré devient ainsi le point de départ des corrections suivantes."
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Après la modification suivante, renvoyez le masque et examinez de nouveau le résultat. Fermez la visionneuse à la fin, conservez l’historique des corrections et relancez les mesures touchées par les étiquettes modifiées.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Après la modification suivante, renvoyez le masque et examinez de nouveau le résultat. Fermez la visionneuse à la fin, conservez l’historique des corrections et relancez les mesures touchées par les étiquettes modifiées."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: लेबल मास्क संपादित करें और वापस लाएँ",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "napari में इमेज और मास्क खोलें, लेबल संपादित करें और सुधारा गया मास्क spaCR में वापस सहेजें।",
+      "objectives": [
+       "संबंधित इमेज और लेबल फ़ाइलें खोलें।",
+       "napari में बदलाव करें और उन्हें पूर्ववत करें।",
+       "सहेजा गया मास्क वापस लाएँ और देखें।"
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "napari की वैकल्पिक निर्भरता इंस्टॉल करें और कृत्रिम उदाहरण को एक नए फ़ोल्डर में अनज़िप करें। एक अछूता बैकअप रखें: Take the mask back चुने गए कार्यशील मास्क को बदल देता है। सहेजे गए संपादन दौरों के बीच व्यूअर बंद करके फिर खोलें।",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Make Masks खोलें, फिर Napari Bridge। इससे किसी मौजूदा लेबल मास्क को उसकी तीव्रता इमेज को संदर्भ मानकर संपादित करें। मास्क का एक अछूता बैकअप रखें।",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Make Masks खोलें, फिर Napari Bridge। इससे किसी मौजूदा लेबल मास्क को उसकी तीव्रता इमेज को संदर्भ मानकर संपादित करें। मास्क का एक अछूता बैकअप रखें।"
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "कृत्रिम उदाहरण डाउनलोड करके अनज़िप करें। Mask के लिए mask डॉट tif और Image के लिए image डॉट tif चुनें, फिर Open in napari दबाएँ।",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "कृत्रिम उदाहरण डाउनलोड करके अनज़िप करें। Mask के लिए mask डॉट tif और Image के लिए image डॉट tif चुनें, फिर Open in napari दबाएँ।"
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "napari में मास्क की Labels परत चुनें। लेबल शून्य पृष्ठभूमि है; हर वस्तु लेबल का एक प्रदर्शन रंग है। संपादन लेबल परत पर करें।",
+        "hold_after": 0.7,
+        "speech_text": "napari में मास्क की Labels परत चुनें। लेबल शून्य पृष्ठभूमि है; हर वस्तु लेबल का एक प्रदर्शन रंग है। संपादन लेबल परत पर करें।"
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "spaCR पर लौटें और व्यूअर के मौजूदा लेबल इंपोर्ट करने के लिए Take the mask back इस्तेमाल करें। अगर आपने कोई बदलाव नहीं किया, तो स्थिति बताती है कि मास्क नहीं बदला।",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "स्पेकर पर लौटें और व्यूअर के मौजूदा लेबल इंपोर्ट करने के लिए Take the mask back इस्तेमाल करें। अगर आपने कोई बदलाव नहीं किया, तो स्थिति बताती है कि मास्क नहीं बदला।"
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "अभ्यास के लिए लेबल अठारह चुनें, Fill चुनें, और लेबल दो वाली वस्तु पर क्लिक करें। इंपोर्ट करने से पहले बदला हुआ लेबल देखें।",
+        "hold_after": 0.7,
+        "speech_text": "अभ्यास के लिए लेबल अठारह चुनें, Fill चुनें, और लेबल दो वाली वस्तु पर क्लिक करें। इंपोर्ट करने से पहले बदला हुआ लेबल देखें।"
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "व्यूअर का आख़िरी संपादन पलटने के लिए Undo इस्तेमाल करें। जब बदलाव रखना हो, तो Fill फिर से करें।",
+        "hold_after": 0.7,
+        "speech_text": "व्यूअर का आख़िरी संपादन पलटने के लिए Undo इस्तेमाल करें। जब बदलाव रखना हो, तो Fill फिर से करें।"
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "spaCR में Take the mask back पर क्लिक करें। बदले गए पिक्सेल की गिनती देखें, फिर सहेजा गया मास्क और उसकी सुधार इतिहास वाली सहायक फ़ाइल देखें।",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "स्पेकर में Take the mask back पर क्लिक करें। बदले गए पिक्सेल की गिनती देखें, फिर सहेजा गया मास्क और उसकी सुधार इतिहास वाली सहायक फ़ाइल देखें।"
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "अगले संपादन दौर से पहले Close viewer पर क्लिक करें और मास्क फिर से खोलें। इससे सहेजा गया मास्क आगे के सुधारों का आरंभ बनता है।",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "अगले संपादन दौर से पहले Close viewer पर क्लिक करें और मास्क फिर से खोलें। इससे सहेजा गया मास्क आगे के सुधारों का आरंभ बनता है।"
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "अगले संपादन के बाद मास्क वापस लाएँ और परिणाम फिर से देखें। काम पूरा होने पर व्यूअर बंद करें, सुधार इतिहास रखें, और बदले गए लेबल से प्रभावित माप फिर से चलाएँ।",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "अगले संपादन के बाद मास्क वापस लाएँ और परिणाम फिर से देखें। काम पूरा होने पर व्यूअर बंद करें, सुधार इतिहास रखें, और बदले गए लेबल से प्रभावित माप फिर से चलाएँ।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: modificare e riportare una maschera di etichette",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Apri un’immagine e la sua maschera in napari, modifica le etichette e salva la maschera corretta di nuovo in spaCR.",
+      "objectives": [
+       "Aprire i file di immagine e di etichette corrispondenti.",
+       "Modificare e annullare modifiche in napari.",
+       "Riportare la maschera salvata ed esaminarla."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installa la dipendenza facoltativa di napari e decomprimi l’esempio sintetico in una nuova cartella. Conserva un backup intatto: Take the mask back sovrascrive la maschera di lavoro selezionata. Chiudi e riapri il visualizzatore tra un ciclo di modifiche salvate e l’altro.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Apri Make Masks e poi Napari Bridge. Usalo per modificare una maschera di etichette esistente, con la sua immagine di intensità come riferimento. Conserva un backup intatto della maschera.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Apri Make Masks e poi Napari Bridge. Usalo per modificare una maschera di etichette esistente, con la sua immagine di intensità come riferimento. Conserva un backup intatto della maschera."
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Scarica e decomprimi l’esempio sintetico. Scegli mask punto tif per Mask e image punto tif per Image, poi premi Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Scarica e decomprimi l’esempio sintetico. Scegli mask punto tif per Mask e image punto tif per Image, poi premi Open in napari."
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Seleziona in napari il livello Labels della maschera. L’etichetta zero è lo sfondo; ogni etichetta di oggetto ha un colore di visualizzazione. Fai le modifiche sul livello delle etichette.",
+        "hold_after": 0.7,
+        "speech_text": "Seleziona in napari il livello Labels della maschera. L’etichetta zero è lo sfondo; ogni etichetta di oggetto ha un colore di visualizzazione. Fai le modifiche sul livello delle etichette."
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Torna in spaCR e usa Take the mask back per importare le etichette correnti del visualizzatore. Se non hai fatto modifiche, lo stato indica che la maschera è invariata.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Torna in spàker e usa Take the mask back per importare le etichette correnti del visualizzatore. Se non hai fatto modifiche, lo stato indica che la maschera è invariata."
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Per esercitarti, seleziona l’etichetta diciotto, scegli Fill e fai clic sull’oggetto con etichetta due. Esamina l’etichetta cambiata prima di importarla.",
+        "hold_after": 0.7,
+        "speech_text": "Per esercitarti, seleziona l’etichetta diciotto, scegli Fill e fai clic sull’oggetto con etichetta due. Esamina l’etichetta cambiata prima di importarla."
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Usa Undo per annullare l’ultima modifica nel visualizzatore. Ripeti l’operazione Fill quando vuoi mantenere la modifica.",
+        "hold_after": 0.7,
+        "speech_text": "Usa Undo per annullare l’ultima modifica nel visualizzatore. Ripeti l’operazione Fill quando vuoi mantenere la modifica."
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Fai clic su Take the mask back in spaCR. Controlla il numero di pixel cambiati, poi esamina la maschera salvata e il suo file ausiliario con la cronologia delle correzioni.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Take the mask back in spàker. Controlla il numero di pixel cambiati, poi esamina la maschera salvata e il suo file ausiliario con la cronologia delle correzioni."
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Fai clic su Close viewer e riapri la maschera prima del ciclo di modifiche successivo. Così la maschera salvata diventa il punto di partenza per le correzioni seguenti.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Close viewer e riapri la maschera prima del ciclo di modifiche successivo. Così la maschera salvata diventa il punto di partenza per le correzioni seguenti."
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Dopo la modifica successiva, riporta la maschera ed esamina di nuovo il risultato. Chiudi il visualizzatore alla fine, conserva la cronologia delle correzioni e riesegui le misure interessate dalle etichette cambiate.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Dopo la modifica successiva, riporta la maschera ed esamina di nuovo il risultato. Chiudi il visualizzatore alla fine, conserva la cronologia delle correzioni e riesegui le misure interessate dalle etichette cambiate."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge：ラベルマスクを編集して戻す",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "napariで画像とマスクを開き、ラベルを編集して、修正したマスクをspaCRに保存し直します。",
+      "objectives": [
+       "対応する画像とラベルのファイルを開く。",
+       "napariで変更を加え、取り消す。",
+       "保存したマスクを戻して確認する。"
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "オプションのnapariの依存関係をインストールし、合成データの例を新しいフォルダーに展開します。手を付けないバックアップを残しておきます。Take the mask backは、選んだ作業用のマスクを上書きします。保存した編集の回と回の間では、ビューアーを閉じて開き直します。",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Make Masksを開き、続いてNapari Bridgeを開きます。強度画像を参照しながら、既存のラベルマスクを編集するのに使います。マスクの手を付けないバックアップを残しておきます。",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Make Masksを開き、続いてNapari Bridgeを開きます。強度画像を参照しながら、既存のラベルマスクを編集するのに使います。マスクの手を付けないバックアップを残しておきます。"
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "合成データの例をダウンロードして展開します。Maskにmask ドット tifを、Imageにimage ドット tifを選び、Open in napariを押します。",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "合成データの例をダウンロードして展開します。Maskにmask ドット tifを、Imageにimage ドット tifを選び、Open in napariを押します。"
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "napariで、マスクのLabelsレイヤーを選びます。ラベルゼロは背景で、各物体のラベルには表示用の色があります。編集はラベルのレイヤーで行います。",
+        "hold_after": 0.7,
+        "speech_text": "napariで、マスクのLabelsレイヤーを選びます。ラベルゼロは背景で、各物体のラベルには表示用の色があります。編集はラベルのレイヤーで行います。"
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "spaCRに戻り、Take the mask backを使って、ビューアーの現在のラベルを取り込みます。変更していない場合は、マスクが変わっていないことが状態に表示されます。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "スペーカーに戻り、Take the mask backを使って、ビューアーの現在のラベルを取り込みます。変更していない場合は、マスクが変わっていないことが状態に表示されます。"
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "練習として、ラベル十八を選び、Fillを選んで、ラベル二の物体をクリックします。取り込む前に、変わったラベルを確認します。",
+        "hold_after": 0.7,
+        "speech_text": "練習として、ラベル十八を選び、Fillを選んで、ラベル二の物体をクリックします。取り込む前に、変わったラベルを確認します。"
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Undoで、ビューアーでの最後の編集を元に戻します。変更を残す準備ができたら、もう一度Fillを行います。",
+        "hold_after": 0.7,
+        "speech_text": "Undoで、ビューアーでの最後の編集を元に戻します。変更を残す準備ができたら、もう一度Fillを行います。"
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "spaCRでTake the mask backをクリックします。変更されたピクセル数を確認し、保存されたマスクと、その修正履歴の付属ファイルを確認します。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "スペーカーでTake the mask backをクリックします。変更されたピクセル数を確認し、保存されたマスクと、その修正履歴の付属ファイルを確認します。"
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "次の編集の回の前に、Close viewerをクリックしてマスクを開き直します。これで、保存したマスクがその後の修正の出発点になります。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "次の編集の回の前に、Close viewerをクリックしてマスクを開き直します。これで、保存したマスクがその後の修正の出発点になります。"
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "次の編集の後、マスクを戻して、もう一度結果を確認します。終わったらビューアーを閉じ、修正履歴を残し、変わったラベルの影響を受ける測定をやり直します。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "次の編集の後、マスクを戻して、もう一度結果を確認します。終わったらビューアーを閉じ、修正履歴を残し、変わったラベルの影響を受ける測定をやり直します。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: editar e trazer de volta uma máscara de rótulos",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Abra uma imagem e a máscara dela no napari, edite os rótulos e salve a máscara corrigida de volta no spaCR.",
+      "objectives": [
+       "Abrir os arquivos de imagem e de rótulos correspondentes.",
+       "Editar e desfazer alterações no napari.",
+       "Trazer de volta a máscara salva e inspecioná-la."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Instale a dependência opcional do napari e descompacte o exemplo sintético numa pasta nova. Mantenha um backup intacto: Take the mask back sobrescreve a máscara de trabalho selecionada. Feche e reabra o visualizador entre rodadas de edição salvas.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Abra Make Masks e depois Napari Bridge. Use-o para editar uma máscara de rótulos existente tendo a imagem de intensidade como referência. Mantenha um backup intacto da máscara.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Abra Make Masks e depois Napari Bridge. Use-o para editar uma máscara de rótulos existente tendo a imagem de intensidade como referência. Mantenha um backup intacto da máscara."
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Baixe e descompacte o exemplo sintético. Escolha mask ponto tif em Mask e image ponto tif em Image e pressione Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Baixe e descompacte o exemplo sintético. Escolha mask ponto tif em Mask e image ponto tif em Image e pressione Open in napari."
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Selecione no napari a camada Labels da máscara. O rótulo zero é o fundo; cada rótulo de objeto tem uma cor de exibição. Faça as edições na camada de rótulos.",
+        "hold_after": 0.7,
+        "speech_text": "Selecione no napari a camada Labels da máscara. O rótulo zero é o fundo; cada rótulo de objeto tem uma cor de exibição. Faça as edições na camada de rótulos."
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Volte ao spaCR e use Take the mask back para importar os rótulos atuais do visualizador. Se você não fez alterações, o status informa que a máscara não mudou.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Volte ao espáquer e use Take the mask back para importar os rótulos atuais do visualizador. Se você não fez alterações, o status informa que a máscara não mudou."
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Para praticar, selecione o rótulo dezoito, escolha Fill e clique no objeto com rótulo dois. Inspecione o rótulo alterado antes de importá-lo.",
+        "hold_after": 0.7,
+        "speech_text": "Para praticar, selecione o rótulo dezoito, escolha Fill e clique no objeto com rótulo dois. Inspecione o rótulo alterado antes de importá-lo."
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Use Undo para reverter a última edição no visualizador. Repita a operação Fill quando quiser manter a alteração.",
+        "hold_after": 0.7,
+        "speech_text": "Use Undo para reverter a última edição no visualizador. Repita a operação Fill quando quiser manter a alteração."
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Clique em Take the mask back no spaCR. Revise a contagem de pixels alterados e depois inspecione a máscara salva e o arquivo auxiliar com o histórico de correções.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Clique em Take the mask back no espáquer. Revise a contagem de pixels alterados e depois inspecione a máscara salva e o arquivo auxiliar com o histórico de correções."
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Clique em Close viewer e reabra a máscara antes da próxima rodada de edição. Assim a máscara salva vira o ponto de partida das correções seguintes.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Clique em Close viewer e reabra a máscara antes da próxima rodada de edição. Assim a máscara salva vira o ponto de partida das correções seguintes."
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Depois da próxima edição, traga a máscara de volta e inspecione o resultado de novo. Feche o visualizador ao terminar, mantenha o histórico de correções e execute de novo as medições afetadas pelos rótulos alterados.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depois da próxima edição, traga a máscara de volta e inspecione o resultado de novo. Feche o visualizador ao terminar, mantenha o histórico de correções e execute de novo as medições afetadas pelos rótulos alterados."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge：编辑并取回标签掩膜",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "在napari中打开图像和掩膜，编辑标签，并把修正后的掩膜保存回spaCR。",
+      "objectives": [
+       "打开对应的图像和标签文件。",
+       "在napari中编辑并撤销更改。",
+       "取回保存的掩膜并检查。"
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "安装可选的napari依赖，并把合成示例解压到新文件夹。保留一份未改动的备份：Take the mask back会覆盖所选的工作掩膜。在两轮已保存的编辑之间，请关闭并重新打开查看器。",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "打开Make Masks，然后打开Napari Bridge。用它以强度图像为参考编辑已有的标签掩膜。请保留一份未改动的掩膜备份。",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "打开Make Masks，然后打开Napari Bridge。用它以强度图像为参考编辑已有的标签掩膜。请保留一份未改动的掩膜备份。"
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "下载并解压合成示例。Mask选择mask点tif，Image选择image点tif，然后按Open in napari。",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7,
+        "speech_text": "下载并解压合成示例。Mask选择mask点tif，Image选择image点tif，然后按Open in napari。"
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "在napari中选择掩膜的Labels图层。标签零是背景；每个对象标签都有显示颜色。请在标签图层上进行编辑。",
+        "hold_after": 0.7,
+        "speech_text": "在napari中选择掩膜的Labels图层。标签零是背景；每个对象标签都有显示颜色。请在标签图层上进行编辑。"
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "回到spaCR，使用Take the mask back导入查看器中当前的标签。如果没有做任何更改，状态会显示掩膜未改变。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "回到斯佩克尔，使用Take the mask back导入查看器中当前的标签。如果没有做任何更改，状态会显示掩膜未改变。"
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "练习时，选择标签十八，选择Fill，然后点击标签为二的对象。导入之前请检查更改后的标签。",
+        "hold_after": 0.7,
+        "speech_text": "练习时，选择标签十八，选择Fill，然后点击标签为二的对象。导入之前请检查更改后的标签。"
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "使用Undo撤销查看器中的最后一次编辑。准备保留更改时，再执行一次Fill。",
+        "hold_after": 0.7,
+        "speech_text": "使用Undo撤销查看器中的最后一次编辑。准备保留更改时，再执行一次Fill。"
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "在spaCR中点击Take the mask back。查看更改的像素数，然后检查保存的掩膜及其修正历史附属文件。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "在斯佩克尔中点击Take the mask back。查看更改的像素数，然后检查保存的掩膜及其修正历史附属文件。"
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "进行下一轮编辑之前，点击Close viewer并重新打开掩膜。这样保存的掩膜就成为后续修正的起点。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7,
+        "speech_text": "进行下一轮编辑之前，点击Close viewer并重新打开掩膜。这样保存的掩膜就成为后续修正的起点。"
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "下一次编辑后，取回掩膜并再次检查结果。完成后关闭查看器，保留修正历史，并重新运行受更改标签影响的测量。",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "下一次编辑后，取回掩膜并再次检查结果。完成后关闭查看器，保留修正历史，并重新运行受更改标签影响的测量。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: redigér og hent en labelmaske tilbage",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Åbn et billede og dets maske i napari, redigér labels, og gem den rettede maske tilbage i spaCR.",
+      "objectives": [
+       "Åbne tilsvarende billed- og labelfiler.",
+       "Redigere og fortryde ændringer i napari.",
+       "Hente den gemte maske tilbage og undersøge den."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installér den valgfri napari-afhængighed, og udpak det syntetiske eksempel i en ny mappe. Behold en urørt sikkerhedskopi: Take the mask back overskriver den valgte arbejdsmaske. Luk og genåbn fremviseren mellem gemte redigeringsrunder.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Åbn Make Masks og derefter Napari Bridge. Brug den til at redigere en eksisterende labelmaske med dens intensitetsbillede som reference. Behold en urørt sikkerhedskopi af masken.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Hent og udpak det syntetiske eksempel. Vælg mask.tif til Mask og image.tif til Image, og tryk derefter på Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Vælg maskens Labels-lag i napari. Label 0 er baggrund; hver objektlabel har en visningsfarve. Foretag ændringerne i labellaget.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Vend tilbage til spaCR, og brug Take the mask back til at importere fremviserens aktuelle labels. Hvis du ikke har ændret noget, viser status, at masken er uændret.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "For at øve vælger du label 18, vælger Fill og klikker på objektet med label 2. Undersøg den ændrede label, før du importerer den.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Brug Undo til at fortryde den seneste ændring i fremviseren. Gentag Fill, når du vil beholde ændringen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Klik på Take the mask back i spaCR. Gennemgå antallet af ændrede pixel, og undersøg derefter den gemte maske og dens sidefil med rettelseshistorik.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Klik på Close viewer, og genåbn masken før næste redigeringsrunde. Så bliver den gemte maske udgangspunkt for senere rettelser.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Efter næste redigering henter du masken tilbage og undersøger resultatet igen. Luk fremviseren, når du er færdig, behold rettelseshistorikken, og kør målinger, der påvirkes af de ændrede labels, igen.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: eine Labelmaske bearbeiten und zurückholen",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Öffnen Sie ein Bild und seine Maske in napari, bearbeiten Sie die Labels und speichern Sie die korrigierte Maske zurück in spaCR.",
+      "objectives": [
+       "Zugehörige Bild- und Labeldateien öffnen.",
+       "Änderungen in napari vornehmen und rückgängig machen.",
+       "Die gespeicherte Maske zurückholen und prüfen."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installieren Sie die optionale napari-Abhängigkeit und entpacken Sie das synthetische Beispiel in einen neuen Ordner. Behalten Sie eine unveränderte Sicherung: Take the mask back überschreibt die ausgewählte Arbeitsmaske. Schließen und öffnen Sie den Viewer zwischen gespeicherten Bearbeitungsrunden neu.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Öffnen Sie Make Masks und dann Napari Bridge. Damit bearbeiten Sie eine vorhandene Labelmaske mit ihrem Intensitätsbild als Referenz. Behalten Sie eine unveränderte Sicherung der Maske.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Laden Sie das synthetische Beispiel herunter und entpacken Sie es. Wählen Sie mask.tif für Mask und image.tif für Image und drücken Sie dann Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Wählen Sie in napari die Labels-Ebene der Maske. Label 0 ist Hintergrund; jedes Objektlabel hat eine Anzeigefarbe. Bearbeiten Sie die Labels-Ebene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Kehren Sie zu spaCR zurück und importieren Sie mit Take the mask back die aktuellen Labels des Viewers. Wenn Sie nichts geändert haben, meldet der Status, dass die Maske unverändert ist.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Wählen Sie zum Üben Label 18, dann Fill, und klicken Sie auf das Objekt mit Label 2. Prüfen Sie das geänderte Label, bevor Sie es importieren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Machen Sie mit Undo die letzte Bearbeitung im Viewer rückgängig. Wiederholen Sie Fill, wenn Sie die Änderung behalten möchten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Klicken Sie in spaCR auf Take the mask back. Prüfen Sie die Zahl der geänderten Pixel und dann die gespeicherte Maske und ihre Begleitdatei mit dem Korrekturverlauf.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Klicken Sie vor der nächsten Bearbeitungsrunde auf Close viewer und öffnen Sie die Maske erneut. So wird die gespeicherte Maske zum Ausgangspunkt für weitere Korrekturen.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Holen Sie die Maske nach der nächsten Bearbeitung zurück und prüfen Sie das Ergebnis erneut. Schließen Sie danach den Viewer, bewahren Sie den Korrekturverlauf auf und wiederholen Sie Messungen, die von geänderten Labels betroffen sind.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: breyttu merkjagrímu og sæktu hana aftur",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Opnaðu mynd og grímu hennar í napari, breyttu merkjum og vistaðu leiðréttu grímuna aftur í spaCR.",
+      "objectives": [
+       "Opna samsvarandi mynd- og merkjaskrár.",
+       "Gera breytingar í napari og afturkalla þær.",
+       "Sækja vistuðu grímuna aftur og skoða hana."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Settu upp valfrjálsu napari-kvöðina og afþjappaðu tilbúna dæmið í nýja möppu. Haltu ósnertu öryggisafriti: Take the mask back skrifar yfir valda vinnugrímu. Lokaðu skoðaranum og opnaðu hann aftur milli vistaðra breytingalotna.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Opnaðu Make Masks og svo Napari Bridge. Notaðu þetta til að breyta fyrirliggjandi merkjagrímu með styrkleikamyndina sem viðmið. Haltu ósnertu öryggisafriti af grímunni.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Sæktu og afþjappaðu tilbúna dæmið. Veldu mask.tif fyrir Mask og image.tif fyrir Image og ýttu svo á Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Veldu Labels-lag grímunnar í napari. Merki 0 er bakgrunnur; hvert hlutarmerki hefur birtingarlit. Gerðu breytingar á merkjalaginu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Farðu aftur í spaCR og notaðu Take the mask back til að flytja inn núverandi merki skoðarans. Ef þú hefur engu breytt sýnir staðan að gríman sé óbreytt.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "Til æfingar velurðu merki 18, velur Fill og smellir á hlutinn með merkið 2. Skoðaðu breytta merkið áður en þú flytur það inn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Notaðu Undo til að afturkalla síðustu breytingu í skoðaranum. Endurtaktu Fill þegar þú ert tilbúin að halda breytingunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Smelltu á Take the mask back í spaCR. Farðu yfir fjölda breyttra díla og skoðaðu svo vistuðu grímuna og fylgiskrá hennar með leiðréttingasögu.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Smelltu á Close viewer og opnaðu grímuna aftur fyrir næstu breytingalotu. Þá verður vistaða gríman upphafspunktur síðari leiðréttinga.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Eftir næstu breytingu sækirðu grímuna aftur og skoðar niðurstöðuna á ný. Lokaðu skoðaranum þegar þú ert búin, haltu leiðréttingasögunni og keyrðu aftur mælingar sem breyttu merkin hafa áhrif á.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: 라벨 마스크 편집 후 되가져오기",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "napari에서 이미지와 마스크를 열고, 라벨을 편집한 뒤 수정한 마스크를 spaCR로 다시 저장합니다.",
+      "objectives": [
+       "대응하는 이미지와 라벨 파일을 엽니다.",
+       "napari에서 변경하고 실행 취소합니다.",
+       "저장된 마스크를 되가져와 확인합니다."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "선택 사항인 napari 의존성을 설치하고 합성 예제를 새 폴더에 압축 해제하세요. 손대지 않은 백업을 두세요. Take the mask back은 선택한 작업 마스크를 덮어씁니다. 저장한 편집 회차 사이에는 뷰어를 닫았다가 다시 여세요.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Make Masks를 연 뒤 Napari Bridge를 여세요. 강도 이미지를 참고하며 기존 라벨 마스크를 편집할 때 씁니다. 마스크의 손대지 않은 백업을 두세요.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "합성 예제를 내려받아 압축을 푸세요. Mask에는 mask.tif를, Image에는 image.tif를 고른 뒤 Open in napari를 누르세요.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "napari에서 마스크의 Labels 레이어를 선택하세요. 라벨 0은 배경이며, 각 객체 라벨에는 표시 색이 있습니다. 편집은 라벨 레이어에서 하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "spaCR로 돌아가 Take the mask back으로 뷰어의 현재 라벨을 가져오세요. 아무것도 바꾸지 않았다면 마스크가 바뀌지 않았다고 상태에 표시됩니다.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "연습으로 라벨 18을 선택하고 Fill을 고른 뒤 라벨 2인 객체를 클릭하세요. 가져오기 전에 바뀐 라벨을 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Undo로 뷰어의 마지막 편집을 되돌리세요. 변경을 유지하려면 Fill을 다시 하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "spaCR에서 Take the mask back을 클릭하세요. 바뀐 픽셀 수를 확인한 뒤, 저장된 마스크와 수정 기록 보조 파일을 살펴보세요.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "다음 편집 회차 전에 Close viewer를 클릭하고 마스크를 다시 여세요. 그러면 저장된 마스크가 이후 수정의 시작점이 됩니다.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "다음 편집 후 마스크를 되가져와 결과를 다시 확인하세요. 끝나면 뷰어를 닫고, 수정 기록을 보관하고, 바뀐 라벨의 영향을 받는 측정을 다시 실행하세요.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: rediger og hent tilbake en etikettmaske",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Åpne et bilde og masken i napari, rediger etikettene og lagre den korrigerte masken tilbake i spaCR.",
+      "objectives": [
+       "Åpne tilhørende bilde- og etikettfiler.",
+       "Redigere og angre endringer i napari.",
+       "Hente tilbake og undersøke den lagrede masken."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installer den valgfrie napari-avhengigheten og pakk ut det syntetiske eksemplet i en ny mappe. Behold en urørt sikkerhetskopi: Take the mask back overskriver den valgte arbeidsmasken. Lukk og åpne visningen igjen mellom lagrede redigeringsrunder.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Åpne Make Masks og deretter Napari Bridge. Bruk den til å redigere en eksisterende etikettmaske med intensitetsbildet som referanse. Behold en urørt sikkerhetskopi av masken.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Last ned og pakk ut det syntetiske eksemplet. Velg mask.tif for Mask og image.tif for Image, og trykk deretter på Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Velg maskens Labels-lag i napari. Etikett 0 er bakgrunn; hver objektetikett har en visningsfarge. Gjør endringene i etikettlaget.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Gå tilbake til spaCR og bruk Take the mask back for å importere visningens gjeldende etiketter. Hvis du ikke har gjort endringer, viser statusen at masken er uendret.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "For å øve velger du etikett 18, velger Fill og klikker på objektet med etikett 2. Undersøk den endrede etiketten før du importerer den.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Bruk Undo for å angre den siste endringen i visningen. Gjenta Fill når du vil beholde endringen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Klikk på Take the mask back i spaCR. Se gjennom antallet endrede piksler, og undersøk deretter den lagrede masken og sidefilen med korreksjonshistorikk.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Klikk på Close viewer og åpne masken på nytt før neste redigeringsrunde. Da blir den lagrede masken utgangspunktet for senere korreksjoner.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Etter neste endring henter du tilbake masken og undersøker resultatet igjen. Lukk visningen når du er ferdig, behold korreksjonshistorikken, og kjør på nytt målinger som påvirkes av de endrede etikettene.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 38,
+     "preceding": [
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "45_project_browser",
+     "next": "47_barcode_qc",
+     "entry": {
+      "id": "46_napari_bridge",
+      "number": 46,
+      "slug": "napari_bridge",
+      "title": "Napari Bridge: redigera och hämta tillbaka en etikettmask",
+      "series": 5,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "section": "Mask correction",
+      "description": "Öppna en bild och dess mask i napari, redigera etiketterna och spara den korrigerade masken tillbaka till spaCR.",
+      "objectives": [
+       "Öppna motsvarande bild- och etikettfiler.",
+       "Redigera och ångra ändringar i napari.",
+       "Hämta tillbaka och granska den sparade masken."
+      ],
+      "example_files": [
+       "SYNTHETIC_napari_example.zip"
+      ],
+      "prerequisite": "Installera det valfria napari-beroendet och packa upp det syntetiska exemplet i en ny mapp. Behåll en orörd säkerhetskopia: Take the mask back skriver över den valda arbetsmasken. Stäng och öppna visaren igen mellan sparade redigeringsomgångar.",
+      "scenes": [
+       {
+        "visual": "02_actual_bridge",
+        "narration": "Öppna Make Masks och sedan Napari Bridge. Använd den för att redigera en befintlig etikettmask med dess intensitetsbild som referens. Behåll en orörd säkerhetskopia av masken.",
+        "focus": [
+         460,
+         235,
+         3350,
+         510
+        ],
+        "related_lessons": [
+         "14_make_masks"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_ready_to_open",
+        "narration": "Hämta och packa upp det syntetiska exemplet. Välj mask.tif för Mask och image.tif för Image och tryck sedan på Open in napari.",
+        "focus": [
+         460,
+         365,
+         3350,
+         370
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_actual_napari_layers",
+        "narration": "Välj maskens lager Labels i napari. Etikett 0 är bakgrund; varje objektetikett har en visningsfärg. Gör ändringarna i etikettlagret.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_unchanged_round_trip",
+        "narration": "Gå tillbaka till spaCR och använd Take the mask back för att importera visarens aktuella etiketter. Om du inte har ändrat något visar statusen att masken är oförändrad.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_fill_one_synthetic_object",
+        "narration": "För att öva väljer du etikett 18, väljer Fill och klickar på objektet med etikett 2. Granska den ändrade etiketten innan du importerar den.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_actual_napari_undo",
+        "narration": "Använd Undo för att ångra den senaste ändringen i visaren. Gör Fill igen när du vill behålla ändringen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_imported_and_recorded",
+        "narration": "Klicka på Take the mask back i spaCR. Granska antalet ändrade pixlar och sedan den sparade masken och dess sidofil med korrigeringshistorik.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12d_closed_before_next_edit",
+        "narration": "Klicka på Close viewer och öppna masken igen före nästa redigeringsomgång. Då blir den sparade masken utgångspunkt för senare korrigeringar.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_history_preserved_after_reopen",
+        "narration": "Efter nästa ändring hämtar du tillbaka masken och granskar resultatet igen. Stäng visaren när du är klar, behåll korrigeringshistoriken och kör om mätningar som påverkas av de ändrade etiketterna.",
+        "focus": [
+         460,
+         445,
+         3350,
+         295
+        ],
+        "related_lessons": [
+         "08_measure",
+         "06_api"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "14_make_masks",
+     "scene": 32,
+     "links": [
+      "21_model_compare",
+      "22_model_zoo",
+      "42_curate",
+      "46_napari_bridge"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "focus_buttons",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       8,
+       "lessons"
+      ],
+      "preceding": [
+       "42_curate",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 33,
+     "value": {
+      "kind": "submodule",
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "host_lesson": "14_make_masks",
+      "host_title": "Make Masks"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/46_napari_bridge -> tools/tutorials/archive/production/docs/46_napari_bridge"
+ ],
+ "prose": []
+}

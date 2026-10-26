@@ -21,5 +21,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/napari_bridge/index>`.
 
-`Module tutorial <../../../tutorials/#lesson=46_napari_bridge>`__.
-

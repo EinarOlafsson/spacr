@@ -1,0 +1,4118 @@
+{
+ "schema": 1,
+ "id": "72_volcano_explorer",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: inspect results and save a figure",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
+      "objectives": [
+       "Open a results family and inspect guide identities and support.",
+       "Choose adjusted values, display transforms and reference lines.",
+       "Save the style and export PDF or PNG figures."
+      ],
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "72_volcano_explorer/poster.jpg",
+      "silent": "72_volcano_explorer/video/72_volcano_explorer_silent.mp4",
+      "web": "72_volcano_explorer/web/72_volcano_explorer_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: inspect results and save a figure",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
+      "objectives": [
+       "Open a results family and inspect guide identities and support.",
+       "Choose adjusted values, display transforms and reference lines.",
+       "Save the style and export PDF or PNG figures."
+      ],
+      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: revisar resultados y guardar una figura",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Carga resultados de Regression, elige los valores representados y las líneas de referencia, y luego guarda un estilo reutilizable y exporta la figura.",
+      "objectives": [
+       "Abrir una familia de resultados y revisar la identidad y el respaldo de las guías.",
+       "Elegir valores ajustados, transformaciones de visualización y líneas de referencia.",
+       "Guardar el estilo y exportar figuras en PDF o PNG."
+      ],
+      "prerequisite": "Extrae Volcano_real_guide_family.zip y usa su carpeta results. Contiene 434 resultados de guías del ejemplo de Regression. Ninguna guía supera el umbral original de P ajustado de 0,05. Los efectos son efectos marginales estandarizados. Conserva la tabla de resultados original y los umbrales estadísticos junto con la figura.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Desde Home, abre Regression y luego Volcano Explorer. Extrae el archivo de ejemplo enlazado antes de elegir las tablas de resultados que quieres representar.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Regression y luego Volcano Explorer. Extrae el archivo de ejemplo enlazado antes de elegir las tablas de resultados que quieres representar."
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Haz clic en Open results y selecciona la carpeta results extraída. Cada punto representa una guía de esta familia de cuatrocientas treinta y cuatro pruebas. Mantén separadas las distintas familias de corrección.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Open results y selecciona la carpeta results extraída. Cada punto representa una guía de esta familia de cuatrocientas treinta y cuatro pruebas. Mantén separadas las distintas familias de corrección."
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Haz clic en Save style para guardar la configuración inicial de la figura, y luego en Load style y selecciona ese archivo. Así tienes un punto de partida guardado con los controles coincidentes antes de editar la figura.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Save style para guardar la configuración inicial de la figura, y luego en Load style y selecciona ese archivo. Así tienes un punto de partida guardado con los controles coincidentes antes de editar la figura."
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Comprueba alpha en cero coma cero cinco, el multiplicador en tres y la transformación logarítmica negativa activada. Lee las etiquetas de los ejes: este ejemplo representa efectos marginales estandarizados.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Comprueba alpha en cero coma cero cinco, el multiplicador en tres y la transformación logarítmica negativa activada. Lee las etiquetas de los ejes: este ejemplo representa efectos marginales estandarizados."
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Haz clic en un punto para revisar su fila de origen. Lee juntos el identificador de la guía, el P sin ajustar, el P ajustado y el número de pozos que la respaldan. El ejemplo seleccionado tiene un P ajustado de alrededor de cero coma tres nueve.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en un punto para revisar su fila de origen. Lee juntos el identificador de la guía, el P sin ajustar, el P ajustado y el número de pozos que la respaldan. El ejemplo seleccionado tiene un P ajustado de alrededor de cero coma tres nueve."
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Elige la columna del P de permutación sin ajustar para revisarla, y luego vuelve a adjusted_p_value. Cambiar la columna representada no modifica el análisis subyacente ni sus marcas de significación guardadas.",
+        "hold_after": 0.7,
+        "speech_text": "Elige la columna del P de permutación sin ajustar para revisarla, y luego vuelve a adjusted_p_value. Cambiar la columna representada no modifica el análisis subyacente ni sus marcas de significación guardadas."
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Activa y desactiva menos log diez para comparar los valores de P transformados y los originales. Con la transformación activada, los valores de P más pequeños aparecen más arriba. Vuelve a la vista del P ajustado transformado para esta figura.",
+        "hold_after": 0.7,
+        "speech_text": "Activa y desactiva menos log diez para comparar los valores de P transformados y los originales. Con la transformación activada, los valores de P más pequeños aparecen más arriba. Vuelve a la vista del P ajustado transformado para esta figura."
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Mueve alpha a cero coma cinco para ver cómo desplaza la línea de referencia horizontal, y luego vuelve a cero coma cero cinco. Editar esta línea no recalcula las pruebas estadísticas ni sus marcas de significación guardadas.",
+        "hold_after": 0.7,
+        "speech_text": "Mueve alpha a cero coma cinco para ver cómo desplaza la línea de referencia horizontal, y luego vuelve a cero coma cero cinco. Editar esta línea no recalcula las pruebas estadísticas ni sus marcas de significación guardadas."
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Fija un corte de efecto explícito de cero coma uno con multiplicador tres. Las líneas verticales aparecen en menos y más cero coma tres. Vuelve a Auto para recuperar la línea de efecto inicial.",
+        "hold_after": 0.7,
+        "speech_text": "Fija un corte de efecto explícito de cero coma uno con multiplicador tres. Las líneas verticales aparecen en menos y más cero coma tres. Vuelve a Auto para recuperar la línea de efecto inicial."
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Elige wells_with_guide para el color y revisa el respaldo de las guías representadas. Recupera los colores de significación antes de la exportación final si quieres la presentación original.",
+        "hold_after": 0.7,
+        "speech_text": "Elige wells_with_guide para el color y revisa el respaldo de las guías representadas. Recupera los colores de significación antes de la exportación final si quieres la presentación original."
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Define el tamaño de la figura, los tamaños de letra y la resolución. Este ejemplo usa siete por cinco pulgadas a ciento cincuenta puntos por pulgada. Comprueba la legibilidad; un recorte ajustado puede cambiar las dimensiones exteriores guardadas.",
+        "hold_after": 0.7,
+        "speech_text": "Define el tamaño de la figura, los tamaños de letra y la resolución. Este ejemplo usa siete por cinco pulgadas a ciento cincuenta puntos por pulgada. Comprueba la legibilidad; un recorte ajustado puede cambiar las dimensiones exteriores guardadas."
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Guarda el estilo final como JSON. Cambia el tamaño de los marcadores y luego usa Load style para recuperar el aspecto guardado. Guarda el archivo de estilo junto a la tabla de resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Guarda el estilo final como JSON. Cambia el tamaño de los marcadores y luego usa Load style para recuperar el aspecto guardado. Guarda el archivo de estilo junto a la tabla de resultados."
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Exporta en PDF y PNG, y abre los archivos para comprobar etiquetas, contraste y recorte. Guarda la salida con los resultados de entrada y el estilo. En Python, usa VolcanoStyle y render_volcano para el mismo flujo de representación.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Exporta en PDF y PNG, y abre los archivos para comprobar etiquetas, contraste y recorte. Guarda la salida con los resultados de entrada y el estilo. En Python, usa VolcanoStyle y render_volcano para el mismo flujo de representación."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer : examiner des résultats et enregistrer une figure",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Chargez des résultats de Regression, choisissez les valeurs tracées et les lignes de référence, puis enregistrez un style réutilisable et exportez la figure.",
+      "objectives": [
+       "Ouvrir une famille de résultats et examiner l’identité et le soutien des guides.",
+       "Choisir les valeurs ajustées, les transformations d’affichage et les lignes de référence.",
+       "Enregistrer le style et exporter des figures en PDF ou PNG."
+      ],
+      "prerequisite": "Extrayez Volcano_real_guide_family.zip et utilisez son dossier results. Il contient 434 résultats de guides issus de l’exemple Regression. Aucun guide ne franchit le seuil d’origine de P ajusté de 0,05. Les effets sont des effets marginaux standardisés. Conservez la table de résultats d’origine et les seuils statistiques avec la figure.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Depuis Home, ouvrez Regression, puis Volcano Explorer. Extrayez l’archive d’exemple associée avant de choisir les tables de résultats à tracer.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Regression, puis Volcano Explorer. Extrayez l’archive d’exemple associée avant de choisir les tables de résultats à tracer."
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Cliquez sur Open results et sélectionnez le dossier results extrait. Chaque point représente un guide dans cette famille de quatre cent trente-quatre tests. Gardez séparées les différentes familles de correction.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Open results et sélectionnez le dossier results extrait. Chaque point représente un guide dans cette famille de quatre cent trente-quatre tests. Gardez séparées les différentes familles de correction."
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Cliquez sur Save style pour enregistrer les réglages initiaux de la figure, puis sur Load style et sélectionnez ce fichier. Vous disposez ainsi d’un point de départ enregistré, avec des commandes cohérentes, avant de modifier la figure.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Save style pour enregistrer les réglages initiaux de la figure, puis sur Load style et sélectionnez ce fichier. Vous disposez ainsi d’un point de départ enregistré, avec des commandes cohérentes, avant de modifier la figure."
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Vérifiez alpha à zéro virgule zéro cinq, le multiplicateur à trois et la transformation logarithmique négative activée. Lisez les étiquettes des axes : cet exemple trace des effets marginaux standardisés.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Vérifiez alpha à zéro virgule zéro cinq, le multiplicateur à trois et la transformation logarithmique négative activée. Lisez les étiquettes des axes : cet exemple trace des effets marginaux standardisés."
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Cliquez sur un point pour examiner sa ligne source. Lisez ensemble l’identifiant du guide, le P brut, le P ajusté et le nombre de puits qui le soutiennent. L’exemple sélectionné a un P ajusté d’environ zéro virgule trois neuf.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur un point pour examiner sa ligne source. Lisez ensemble l’identifiant du guide, le P brut, le P ajusté et le nombre de puits qui le soutiennent. L’exemple sélectionné a un P ajusté d’environ zéro virgule trois neuf."
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Choisissez la colonne du P de permutation brut pour l’examiner, puis revenez à adjusted_p_value. Changer la colonne tracée ne modifie ni l’analyse sous-jacente ni ses indicateurs de significativité enregistrés.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez la colonne du P de permutation brut pour l’examiner, puis revenez à adjusted_p_value. Changer la colonne tracée ne modifie ni l’analyse sous-jacente ni ses indicateurs de significativité enregistrés."
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Activez et désactivez moins log dix pour comparer les valeurs de P transformées et d’origine. Avec la transformation, les plus petites valeurs de P apparaissent plus haut. Revenez à la vue du P ajusté transformé pour cette figure.",
+        "hold_after": 0.7,
+        "speech_text": "Activez et désactivez moins log dix pour comparer les valeurs de P transformées et d’origine. Avec la transformation, les plus petites valeurs de P apparaissent plus haut. Revenez à la vue du P ajusté transformé pour cette figure."
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Passez alpha à zéro virgule cinq pour voir comment la ligne de référence horizontale se déplace, puis revenez à zéro virgule zéro cinq. Modifier cette ligne ne recalcule ni les tests statistiques ni leurs indicateurs de significativité enregistrés.",
+        "hold_after": 0.7,
+        "speech_text": "Passez alpha à zéro virgule cinq pour voir comment la ligne de référence horizontale se déplace, puis revenez à zéro virgule zéro cinq. Modifier cette ligne ne recalcule ni les tests statistiques ni leurs indicateurs de significativité enregistrés."
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Fixez un seuil d’effet explicite de zéro virgule un avec un multiplicateur de trois. Les lignes verticales apparaissent à moins et plus zéro virgule trois. Revenez à Auto pour retrouver la ligne d’effet initiale.",
+        "hold_after": 0.7,
+        "speech_text": "Fixez un seuil d’effet explicite de zéro virgule un avec un multiplicateur de trois. Les lignes verticales apparaissent à moins et plus zéro virgule trois. Revenez à Auto pour retrouver la ligne d’effet initiale."
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Choisissez wells_with_guide pour la couleur afin d’examiner le soutien des guides tracés. Rétablissez les couleurs de significativité avant l’export final si vous voulez la présentation d’origine.",
+        "hold_after": 0.7,
+        "speech_text": "Choisissez wells_with_guide pour la couleur afin d’examiner le soutien des guides tracés. Rétablissez les couleurs de significativité avant l’export final si vous voulez la présentation d’origine."
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Réglez la taille de la figure, les tailles de police et la résolution. Cet exemple utilise sept pouces sur cinq à cent cinquante points par pouce. Vérifiez la lisibilité ; un recadrage serré peut modifier les dimensions extérieures enregistrées.",
+        "hold_after": 0.7,
+        "speech_text": "Réglez la taille de la figure, les tailles de police et la résolution. Cet exemple utilise sept pouces sur cinq à cent cinquante points par pouce. Vérifiez la lisibilité ; un recadrage serré peut modifier les dimensions extérieures enregistrées."
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Enregistrez le style final en JSON. Changez la taille des marqueurs, puis utilisez Load style pour rétablir l’apparence enregistrée. Gardez le fichier de style à côté de la table de résultats.",
+        "hold_after": 0.7,
+        "speech_text": "Enregistrez le style final en JSON. Changez la taille des marqueurs, puis utilisez Load style pour rétablir l’apparence enregistrée. Gardez le fichier de style à côté de la table de résultats."
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Exportez en PDF et en PNG, puis ouvrez les fichiers pour vérifier les étiquettes, le contraste et le recadrage. Conservez la sortie avec les résultats d’entrée et le style. En Python, utilisez VolcanoStyle et render_volcano pour le même flux de rendu.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Exportez en PDF et en PNG, puis ouvrez les fichiers pour vérifier les étiquettes, le contraste et le recadrage. Conservez la sortie avec les résultats d’entrée et le style. En Python, utilisez VolcanoStyle et render_volcano pour le même flux de rendu."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: परिणाम देखें और चित्र सहेजें",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Regression के परिणाम लोड करें, प्लॉट किए जाने वाले मान और संदर्भ रेखाएँ चुनें, फिर दोबारा इस्तेमाल होने वाली शैली सहेजें और चित्र निर्यात करें।",
+      "objectives": [
+       "परिणामों का एक परिवार खोलें और गाइडों की पहचान और समर्थन देखें।",
+       "समायोजित मान, प्रदर्शन रूपांतरण और संदर्भ रेखाएँ चुनें।",
+       "शैली सहेजें और PDF या PNG चित्र निर्यात करें।"
+      ],
+      "prerequisite": "Volcano_real_guide_family.zip को निकालें और उसका results फ़ोल्डर इस्तेमाल करें। इसमें Regression उदाहरण के 434 गाइड परिणाम हैं। कोई भी गाइड 0.05 की मूल समायोजित P सीमा पार नहीं करता। प्रभाव मानकीकृत सीमांत प्रभाव हैं। मूल परिणाम तालिका और सांख्यिकीय सीमाएँ चित्र के साथ रखें।",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Home से Regression खोलें, फिर Volcano Explorer। प्लॉट करने वाली परिणाम तालिकाएँ चुनने से पहले जुड़ा उदाहरण आर्काइव निकालें।",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home से Regression खोलें, फिर Volcano Explorer। प्लॉट करने वाली परिणाम तालिकाएँ चुनने से पहले जुड़ा उदाहरण आर्काइव निकालें।"
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Open results पर क्लिक करें और निकाला गया results फ़ोल्डर चुनें। हर बिंदु चार सौ चौंतीस परीक्षणों वाले इस परिवार का एक गाइड है। अलग-अलग सुधार परिवारों को अलग रखें।",
+        "hold_after": 0.7,
+        "speech_text": "Open results पर क्लिक करें और निकाला गया results फ़ोल्डर चुनें। हर बिंदु चार सौ चौंतीस परीक्षणों वाले इस परिवार का एक गाइड है। अलग-अलग सुधार परिवारों को अलग रखें।"
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "शुरुआती चित्र सेटिंग्स सहेजने के लिए Save style पर क्लिक करें, फिर Load style पर क्लिक करके वह फ़ाइल चुनें। इससे चित्र बदलने से पहले मेल खाते नियंत्रणों वाला एक सहेजा गया शुरुआती बिंदु मिल जाता है।",
+        "hold_after": 0.7,
+        "speech_text": "शुरुआती चित्र सेटिंग्स सहेजने के लिए Save style पर क्लिक करें, फिर Load style पर क्लिक करके वह फ़ाइल चुनें। इससे चित्र बदलने से पहले मेल खाते नियंत्रणों वाला एक सहेजा गया शुरुआती बिंदु मिल जाता है।"
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "जाँचें कि alpha शून्य दशमलव शून्य पाँच पर, गुणक तीन पर और ऋणात्मक लॉग रूपांतरण चालू है। अक्ष लेबल पढ़ें: यह उदाहरण मानकीकृत सीमांत प्रभाव प्लॉट करता है।",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "जाँचें कि alpha शून्य दशमलव शून्य पाँच पर, गुणक तीन पर और ऋणात्मक लॉग रूपांतरण चालू है। अक्ष लेबल पढ़ें: यह उदाहरण मानकीकृत सीमांत प्रभाव प्लॉट करता है।"
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "किसी बिंदु की स्रोत पंक्ति देखने के लिए उस पर क्लिक करें। गाइड पहचानकर्ता, कच्चा P, समायोजित P और समर्थन करने वाले वेल की गिनती साथ में पढ़ें। चुने गए उदाहरण का समायोजित P लगभग शून्य दशमलव तीन नौ है।",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "किसी बिंदु की स्रोत पंक्ति देखने के लिए उस पर क्लिक करें। गाइड पहचानकर्ता, कच्चा P, समायोजित P और समर्थन करने वाले वेल की गिनती साथ में पढ़ें। चुने गए उदाहरण का समायोजित P लगभग शून्य दशमलव तीन नौ है।"
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "देखने के लिए कच्चे परम्यूटेशन P का कॉलम चुनें, फिर adjusted_p_value वापस रखें। प्लॉट किया गया कॉलम बदलने से मूल विश्लेषण और उसके सहेजे गए महत्व चिह्न नहीं बदलते।",
+        "hold_after": 0.7,
+        "speech_text": "देखने के लिए कच्चे परम्यूटेशन P का कॉलम चुनें, फिर adjusted_p_value वापस रखें। प्लॉट किया गया कॉलम बदलने से मूल विश्लेषण और उसके सहेजे गए महत्व चिह्न नहीं बदलते।"
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "रूपांतरित और मूल P मानों की तुलना के लिए माइनस log दस चालू-बंद करें। रूपांतरण चालू होने पर छोटे P मान ऊपर दिखते हैं। इस चित्र के लिए रूपांतरित समायोजित P वाला दृश्य वापस लाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "रूपांतरित और मूल P मानों की तुलना के लिए माइनस log दस चालू-बंद करें। रूपांतरण चालू होने पर छोटे P मान ऊपर दिखते हैं। इस चित्र के लिए रूपांतरित समायोजित P वाला दृश्य वापस लाएँ।"
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "क्षैतिज संदर्भ रेखा कैसे खिसकती है यह देखने के लिए alpha को शून्य दशमलव पाँच करें, फिर शून्य दशमलव शून्य पाँच वापस रखें। इस रेखा को बदलने से सांख्यिकीय परीक्षण या उनके सहेजे गए महत्व चिह्न फिर से गणना नहीं होते।",
+        "hold_after": 0.7,
+        "speech_text": "क्षैतिज संदर्भ रेखा कैसे खिसकती है यह देखने के लिए alpha को शून्य दशमलव पाँच करें, फिर शून्य दशमलव शून्य पाँच वापस रखें। इस रेखा को बदलने से सांख्यिकीय परीक्षण या उनके सहेजे गए महत्व चिह्न फिर से गणना नहीं होते।"
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "गुणक तीन के साथ शून्य दशमलव एक की स्पष्ट प्रभाव सीमा रखें। ऊर्ध्वाधर रेखाएँ माइनस और प्लस शून्य दशमलव तीन पर दिखती हैं। शुरुआती प्रभाव रेखा पर लौटने के लिए Auto वापस रखें।",
+        "hold_after": 0.7,
+        "speech_text": "गुणक तीन के साथ शून्य दशमलव एक की स्पष्ट प्रभाव सीमा रखें। ऊर्ध्वाधर रेखाएँ माइनस और प्लस शून्य दशमलव तीन पर दिखती हैं। शुरुआती प्रभाव रेखा पर लौटने के लिए Auto वापस रखें।"
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "प्लॉट किए गए गाइडों का समर्थन देखने के लिए रंग के लिए wells_with_guide चुनें। मूल प्रस्तुति चाहिए तो अंतिम निर्यात से पहले महत्व वाले रंग वापस लाएँ।",
+        "hold_after": 0.7,
+        "speech_text": "प्लॉट किए गए गाइडों का समर्थन देखने के लिए रंग के लिए wells_with_guide चुनें। मूल प्रस्तुति चाहिए तो अंतिम निर्यात से पहले महत्व वाले रंग वापस लाएँ।"
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "चित्र का आकार, फ़ॉन्ट आकार और रिज़ॉल्यूशन तय करें। यह उदाहरण एक सौ पचास डॉट्स प्रति इंच पर सात गुणा पाँच इंच इस्तेमाल करता है। पढ़ने में आसानी जाँचें; कसी हुई कटाई से सहेजे गए बाहरी आयाम बदल सकते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "चित्र का आकार, फ़ॉन्ट आकार और रिज़ॉल्यूशन तय करें। यह उदाहरण एक सौ पचास डॉट्स प्रति इंच पर सात गुणा पाँच इंच इस्तेमाल करता है। पढ़ने में आसानी जाँचें; कसी हुई कटाई से सहेजे गए बाहरी आयाम बदल सकते हैं।"
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "अंतिम शैली JSON के रूप में सहेजें। मार्कर का आकार बदलें, फिर सहेजा गया रूप वापस लाने के लिए Load style इस्तेमाल करें। शैली फ़ाइल को परिणाम तालिका के पास रखें।",
+        "hold_after": 0.7,
+        "speech_text": "अंतिम शैली JSON के रूप में सहेजें। मार्कर का आकार बदलें, फिर सहेजा गया रूप वापस लाने के लिए Load style इस्तेमाल करें। शैली फ़ाइल को परिणाम तालिका के पास रखें।"
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "PDF और PNG निर्यात करें, फिर लेबल, कंट्रास्ट और कटाई जाँचने के लिए फ़ाइलें खोलें। आउटपुट को इनपुट परिणामों और शैली के साथ रखें। Python में इसी रेंडरिंग प्रक्रिया के लिए VolcanoStyle और render_volcano इस्तेमाल करें।",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "PDF और PNG निर्यात करें, फिर लेबल, कंट्रास्ट और कटाई जाँचने के लिए फ़ाइलें खोलें। आउटपुट को इनपुट परिणामों और शैली के साथ रखें। Python में इसी रेंडरिंग प्रक्रिया के लिए VolcanoStyle और render_volcano इस्तेमाल करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: esaminare i risultati e salvare una figura",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Carica i risultati di Regression, scegli i valori da rappresentare e le linee di riferimento, poi salva uno stile riutilizzabile ed esporta la figura.",
+      "objectives": [
+       "Aprire una famiglia di risultati ed esaminare identità e supporto delle guide.",
+       "Scegliere valori corretti, trasformazioni di visualizzazione e linee di riferimento.",
+       "Salvare lo stile ed esportare figure in PDF o PNG."
+      ],
+      "prerequisite": "Estrai Volcano_real_guide_family.zip e usa la sua cartella results. Contiene 434 risultati di guide dall’esempio di Regression. Nessuna guida supera la soglia originale di P corretto di 0,05. Gli effetti sono effetti marginali standardizzati. Conserva la tabella dei risultati originale e le soglie statistiche insieme alla figura.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Da Home, apri Regression e poi Volcano Explorer. Estrai l’archivio d’esempio collegato prima di scegliere le tabelle di risultati da rappresentare.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Regression e poi Volcano Explorer. Estrai l’archivio d’esempio collegato prima di scegliere le tabelle di risultati da rappresentare."
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Fai clic su Open results e seleziona la cartella results estratta. Ogni punto rappresenta una guida in questa famiglia di quattrocentotrentaquattro test. Tieni separate le diverse famiglie di correzione.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Open results e seleziona la cartella results estratta. Ogni punto rappresenta una guida in questa famiglia di quattrocentotrentaquattro test. Tieni separate le diverse famiglie di correzione."
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Fai clic su Save style per salvare le impostazioni iniziali della figura, poi su Load style e seleziona quel file. Così hai un punto di partenza salvato, con i comandi corrispondenti, prima di modificare la figura.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Save style per salvare le impostazioni iniziali della figura, poi su Load style e seleziona quel file. Così hai un punto di partenza salvato, con i comandi corrispondenti, prima di modificare la figura."
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Controlla alpha a zero virgola zero cinque, il moltiplicatore a tre e la trasformazione logaritmica negativa attiva. Leggi le etichette degli assi: questo esempio rappresenta effetti marginali standardizzati.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Controlla alpha a zero virgola zero cinque, il moltiplicatore a tre e la trasformazione logaritmica negativa attiva. Leggi le etichette degli assi: questo esempio rappresenta effetti marginali standardizzati."
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Fai clic su un punto per esaminarne la riga di origine. Leggi insieme l’identificativo della guida, il P grezzo, il P corretto e il numero di pozzetti a supporto. L’esempio selezionato ha un P corretto di circa zero virgola tre nove.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su un punto per esaminarne la riga di origine. Leggi insieme l’identificativo della guida, il P grezzo, il P corretto e il numero di pozzetti a supporto. L’esempio selezionato ha un P corretto di circa zero virgola tre nove."
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Scegli la colonna del P di permutazione grezzo per esaminarla, poi torna ad adjusted_p_value. Cambiare la colonna rappresentata non modifica l’analisi sottostante né i suoi indicatori di significatività salvati.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli la colonna del P di permutazione grezzo per esaminarla, poi torna ad adjusted_p_value. Cambiare la colonna rappresentata non modifica l’analisi sottostante né i suoi indicatori di significatività salvati."
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Attiva e disattiva meno log dieci per confrontare i valori di P trasformati e originali. Con la trasformazione attiva, i valori di P più piccoli compaiono più in alto. Ripristina la vista del P corretto trasformato per questa figura.",
+        "hold_after": 0.7,
+        "speech_text": "Attiva e disattiva meno log dieci per confrontare i valori di P trasformati e originali. Con la trasformazione attiva, i valori di P più piccoli compaiono più in alto. Ripristina la vista del P corretto trasformato per questa figura."
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Porta alpha a zero virgola cinque per vedere come si sposta la linea di riferimento orizzontale, poi torna a zero virgola zero cinque. Modificare questa linea non ricalcola i test statistici né i loro indicatori di significatività salvati.",
+        "hold_after": 0.7,
+        "speech_text": "Porta alpha a zero virgola cinque per vedere come si sposta la linea di riferimento orizzontale, poi torna a zero virgola zero cinque. Modificare questa linea non ricalcola i test statistici né i loro indicatori di significatività salvati."
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Imposta una soglia di effetto esplicita di zero virgola uno con moltiplicatore tre. Le linee verticali compaiono a meno e più zero virgola tre. Torna ad Auto per ripristinare la linea di effetto iniziale.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta una soglia di effetto esplicita di zero virgola uno con moltiplicatore tre. Le linee verticali compaiono a meno e più zero virgola tre. Torna ad Auto per ripristinare la linea di effetto iniziale."
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Scegli wells_with_guide per il colore ed esamina il supporto delle guide rappresentate. Ripristina i colori di significatività prima dell’esportazione finale se vuoi la presentazione originale.",
+        "hold_after": 0.7,
+        "speech_text": "Scegli wells_with_guide per il colore ed esamina il supporto delle guide rappresentate. Ripristina i colori di significatività prima dell’esportazione finale se vuoi la presentazione originale."
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Imposta dimensione della figura, dimensioni dei caratteri e risoluzione. Questo esempio usa sette per cinque pollici a centocinquanta punti per pollice. Controlla la leggibilità; un ritaglio stretto può cambiare le dimensioni esterne salvate.",
+        "hold_after": 0.7,
+        "speech_text": "Imposta dimensione della figura, dimensioni dei caratteri e risoluzione. Questo esempio usa sette per cinque pollici a centocinquanta punti per pollice. Controlla la leggibilità; un ritaglio stretto può cambiare le dimensioni esterne salvate."
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Salva lo stile finale come JSON. Cambia la dimensione dei marcatori, poi usa Load style per ripristinare l’aspetto salvato. Tieni il file di stile accanto alla tabella dei risultati.",
+        "hold_after": 0.7,
+        "speech_text": "Salva lo stile finale come JSON. Cambia la dimensione dei marcatori, poi usa Load style per ripristinare l’aspetto salvato. Tieni il file di stile accanto alla tabella dei risultati."
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Esporta in PDF e PNG, poi apri i file per controllare etichette, contrasto e ritaglio. Conserva l’output con i risultati di input e lo stile. In Python, usa VolcanoStyle e render_volcano per lo stesso flusso di rappresentazione.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Esporta in PDF e PNG, poi apri i file per controllare etichette, contrasto e ritaglio. Conserva l’output con i risultati di input e lo stile. In Python, usa VolcanoStyle e render_volcano per lo stesso flusso di rappresentazione."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer：結果を確認し、図を保存する",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Regressionの結果を読み込み、プロットする値と基準線を選び、再利用できるスタイルを保存して図を書き出します。",
+      "objectives": [
+       "結果のファミリーを開き、ガイドの識別子と裏付けを確認する。",
+       "補正済みの値、表示の変換、基準線を選ぶ。",
+       "スタイルを保存し、PDFまたはPNGの図を書き出す。"
+      ],
+      "prerequisite": "Volcano_real_guide_family.zipを展開し、その中のresultsフォルダーを使います。Regressionの例から得た434個のガイドの結果が入っています。元の補正済みPのしきい値0.05を満たすガイドはありません。効果は標準化した限界効果です。元の結果の表と統計のしきい値は、図と一緒に保管します。",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "HomeからRegressionを開き、Volcano Explorerを選びます。プロットする結果の表を選ぶ前に、リンク先の例のアーカイブを展開します。",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホームからRegressionを開き、Volcano Explorerを選びます。プロットする結果の表を選ぶ前に、リンク先の例のアーカイブを展開します。"
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Open resultsをクリックし、展開したresultsフォルダーを選びます。各点は、四百三十四の検定からなるこのファミリーの一つのガイドを表します。補正のファミリーが違うものは分けて扱います。",
+        "hold_after": 0.7,
+        "speech_text": "Open resultsをクリックし、展開したresultsフォルダーを選びます。各点は、四百三十四の検定からなるこのファミリーの一つのガイドを表します。補正のファミリーが違うものは分けて扱います。"
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Save styleをクリックして最初の図の設定を保存し、Load styleでそのファイルを選びます。これで、図を編集する前に、操作と一致した保存済みの出発点ができます。",
+        "hold_after": 0.7,
+        "speech_text": "Save styleをクリックして最初の図の設定を保存し、Load styleでそのファイルを選びます。これで、図を編集する前に、操作と一致した保存済みの出発点ができます。"
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "alphaがゼロ点ゼロ五、倍率が三、負の対数変換がオンになっていることを確認します。軸のラベルを読みます。この例では、標準化した限界効果をプロットしています。",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "alphaがゼロ点ゼロ五、倍率が三、負の対数変換がオンになっていることを確認します。軸のラベルを読みます。この例では、標準化した限界効果をプロットしています。"
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "点をクリックすると、その元の行を確認できます。ガイドの識別子、補正前のP、補正済みのP、裏付けとなるウェル数を合わせて読みます。選んだ例の補正済みのPは、およそゼロ点三九です。",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "点をクリックすると、その元の行を確認できます。ガイドの識別子、補正前のP、補正済みのP、裏付けとなるウェル数を合わせて読みます。選んだ例の補正済みのPは、およそゼロ点三九です。"
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "補正前の並べ替えPの列を選んで確認し、adjusted_p_valueに戻します。プロットする列を変えても、元の解析と保存された有意性のフラグは変わりません。",
+        "hold_after": 0.7,
+        "speech_text": "補正前の並べ替えPの列を選んで確認し、adjusted_p_valueに戻します。プロットする列を変えても、元の解析と保存された有意性のフラグは変わりません。"
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "マイナスログテンをオンとオフで切り替え、変換後と元のPの値を比べます。変換をオンにすると、小さいPの値ほど上に表示されます。この図では、変換した補正済みのPの表示に戻します。",
+        "hold_after": 0.7,
+        "speech_text": "マイナスログテンをオンとオフで切り替え、変換後と元のPの値を比べます。変換をオンにすると、小さいPの値ほど上に表示されます。この図では、変換した補正済みのPの表示に戻します。"
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "alphaをゼロ点五にすると、水平の基準線の動きがわかります。確認したらゼロ点ゼロ五に戻します。この線を変えても、統計検定や保存された有意性のフラグは計算し直されません。",
+        "hold_after": 0.7,
+        "speech_text": "alphaをゼロ点五にすると、水平の基準線の動きがわかります。確認したらゼロ点ゼロ五に戻します。この線を変えても、統計検定や保存された有意性のフラグは計算し直されません。"
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "効果のカットオフをゼロ点一に明示的に設定し、倍率を三にします。縦の線は、マイナスとプラスのゼロ点三に表示されます。最初の効果の線に戻すには、Autoに戻します。",
+        "hold_after": 0.7,
+        "speech_text": "効果のカットオフをゼロ点一に明示的に設定し、倍率を三にします。縦の線は、マイナスとプラスのゼロ点三に表示されます。最初の効果の線に戻すには、Autoに戻します。"
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "色にwells_with_guideを選び、プロットしたガイドの裏付けを確認します。元の見せ方にしたい場合は、最後の書き出しの前に有意性の色に戻します。",
+        "hold_after": 0.7,
+        "speech_text": "色にwells_with_guideを選び、プロットしたガイドの裏付けを確認します。元の見せ方にしたい場合は、最後の書き出しの前に有意性の色に戻します。"
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "図の大きさ、文字の大きさ、解像度を設定します。この例では、七かける五インチ、一インチあたり百五十ドットを使います。読みやすさを確認します。余白を詰めて切り取ると、保存される外寸が変わることがあります。",
+        "hold_after": 0.7,
+        "speech_text": "図の大きさ、文字の大きさ、解像度を設定します。この例では、七かける五インチ、一インチあたり百五十ドットを使います。読みやすさを確認します。余白を詰めて切り取ると、保存される外寸が変わることがあります。"
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "最終的なスタイルをJSONとして保存します。マーカーの大きさを変えてから、Load styleで保存した見た目に戻します。スタイルのファイルは、結果の表のそばに置きます。",
+        "hold_after": 0.7,
+        "speech_text": "最終的なスタイルをJSONとして保存します。マーカーの大きさを変えてから、Load styleで保存した見た目に戻します。スタイルのファイルは、結果の表のそばに置きます。"
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "PDFとPNGで書き出し、ファイルを開いてラベル、コントラスト、切り取りを確認します。出力は、入力の結果とスタイルと一緒に保管します。Pythonでは、同じ描画の流れにVolcanoStyleとrender_volcanoを使います。",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "PDFとPNGで書き出し、ファイルを開いてラベル、コントラスト、切り取りを確認します。出力は、入力の結果とスタイルと一緒に保管します。Pythonでは、同じ描画の流れにVolcanoStyleとrender_volcanoを使います。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: inspecionar resultados e salvar uma figura",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Carregue resultados do Regression, escolha os valores do gráfico e as linhas de referência e depois salve um estilo reutilizável e exporte a figura.",
+      "objectives": [
+       "Abrir uma família de resultados e inspecionar a identidade e o suporte das guias.",
+       "Escolher valores ajustados, transformações de exibição e linhas de referência.",
+       "Salvar o estilo e exportar figuras em PDF ou PNG."
+      ],
+      "prerequisite": "Extraia Volcano_real_guide_family.zip e use a pasta results dele. Ela contém 434 resultados de guias do exemplo do Regression. Nenhuma guia passa do limiar original de P ajustado de 0,05. Os efeitos são efeitos marginais padronizados. Mantenha a tabela de resultados original e os limiares estatísticos junto com a figura.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Na tela Home, abra Regression e depois Volcano Explorer. Extraia o arquivo de exemplo indicado antes de escolher as tabelas de resultados que você quer representar.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Regression e depois Volcano Explorer. Extraia o arquivo de exemplo indicado antes de escolher as tabelas de resultados que você quer representar."
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Clique em Open results e selecione a pasta results extraída. Cada ponto representa uma guia desta família de quatrocentos e trinta e quatro testes. Mantenha separadas as diferentes famílias de correção.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Open results e selecione a pasta results extraída. Cada ponto representa uma guia desta família de quatrocentos e trinta e quatro testes. Mantenha separadas as diferentes famílias de correção."
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Clique em Save style para salvar as configurações iniciais da figura e depois em Load style e selecione esse arquivo. Assim você tem um ponto de partida salvo, com controles correspondentes, antes de editar a figura.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Save style para salvar as configurações iniciais da figura e depois em Load style e selecione esse arquivo. Assim você tem um ponto de partida salvo, com controles correspondentes, antes de editar a figura."
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Confira alpha em zero vírgula zero cinco, o multiplicador em três e a transformação logarítmica negativa ativada. Leia os rótulos dos eixos: este exemplo representa efeitos marginais padronizados.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Confira alpha em zero vírgula zero cinco, o multiplicador em três e a transformação logarítmica negativa ativada. Leia os rótulos dos eixos: este exemplo representa efeitos marginais padronizados."
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Clique em um ponto para inspecionar a linha de origem. Leia juntos o identificador da guia, o P bruto, o P ajustado e o número de poços que dão suporte. O exemplo selecionado tem P ajustado de cerca de zero vírgula três nove.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Clique em um ponto para inspecionar a linha de origem. Leia juntos o identificador da guia, o P bruto, o P ajustado e o número de poços que dão suporte. O exemplo selecionado tem P ajustado de cerca de zero vírgula três nove."
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Escolha a coluna do P de permutação bruto para inspecioná-la e depois volte para adjusted_p_value. Mudar a coluna do gráfico não altera a análise subjacente nem os indicadores de significância salvos.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha a coluna do P de permutação bruto para inspecioná-la e depois volte para adjusted_p_value. Mudar a coluna do gráfico não altera a análise subjacente nem os indicadores de significância salvos."
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Ative e desative menos log dez para comparar os valores de P transformados e originais. Com a transformação ativada, valores de P menores aparecem mais acima. Volte à visualização do P ajustado transformado para esta figura.",
+        "hold_after": 0.7,
+        "speech_text": "Ative e desative menos log dez para comparar os valores de P transformados e originais. Com a transformação ativada, valores de P menores aparecem mais acima. Volte à visualização do P ajustado transformado para esta figura."
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Mude alpha para zero vírgula cinco para ver como a linha de referência horizontal se desloca e depois volte para zero vírgula zero cinco. Editar esta linha não recalcula os testes estatísticos nem os indicadores de significância salvos.",
+        "hold_after": 0.7,
+        "speech_text": "Mude alpha para zero vírgula cinco para ver como a linha de referência horizontal se desloca e depois volte para zero vírgula zero cinco. Editar esta linha não recalcula os testes estatísticos nem os indicadores de significância salvos."
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Defina um corte de efeito explícito de zero vírgula um com multiplicador três. As linhas verticais aparecem em menos e mais zero vírgula três. Volte para Auto para retornar à linha de efeito inicial.",
+        "hold_after": 0.7,
+        "speech_text": "Defina um corte de efeito explícito de zero vírgula um com multiplicador três. As linhas verticais aparecem em menos e mais zero vírgula três. Volte para Auto para retornar à linha de efeito inicial."
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Escolha wells_with_guide para a cor e inspecione o suporte das guias representadas. Restaure as cores de significância antes da exportação final se quiser a apresentação original.",
+        "hold_after": 0.7,
+        "speech_text": "Escolha wells_with_guide para a cor e inspecione o suporte das guias representadas. Restaure as cores de significância antes da exportação final se quiser a apresentação original."
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Defina o tamanho da figura, os tamanhos de fonte e a resolução. Este exemplo usa sete por cinco polegadas a cento e cinquenta pontos por polegada. Confira a legibilidade; um recorte justo pode mudar as dimensões externas salvas.",
+        "hold_after": 0.7,
+        "speech_text": "Defina o tamanho da figura, os tamanhos de fonte e a resolução. Este exemplo usa sete por cinco polegadas a cento e cinquenta pontos por polegada. Confira a legibilidade; um recorte justo pode mudar as dimensões externas salvas."
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Salve o estilo final como JSON. Mude o tamanho dos marcadores e depois use Load style para restaurar a aparência salva. Mantenha o arquivo de estilo ao lado da tabela de resultados.",
+        "hold_after": 0.7,
+        "speech_text": "Salve o estilo final como JSON. Mude o tamanho dos marcadores e depois use Load style para restaurar a aparência salva. Mantenha o arquivo de estilo ao lado da tabela de resultados."
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Exporte em PDF e PNG e abra os arquivos para conferir rótulos, contraste e recorte. Guarde a saída com os resultados de entrada e o estilo. No Python, use VolcanoStyle e render_volcano para o mesmo fluxo de renderização.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Exporte em PDF e PNG e abra os arquivos para conferir rótulos, contraste e recorte. Guarde a saída com os resultados de entrada e o estilo. No Python, use VolcanoStyle e render_volcano para o mesmo fluxo de renderização."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer：检查结果并保存图",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "加载Regression结果，选择绘制的数值和参考线，然后保存可复用的样式并导出图。",
+      "objectives": [
+       "打开一个结果族，检查向导的身份和支持情况。",
+       "选择校正后的数值、显示变换和参考线。",
+       "保存样式并导出PDF或PNG图。"
+      ],
+      "prerequisite": "解压Volcano_real_guide_family.zip并使用其中的results文件夹。它包含来自Regression示例的434个向导结果。没有任何向导通过原始的校正P阈值0.05。效应为标准化的边际效应。请把原始结果表和统计阈值与图放在一起。",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "从Home打开Regression，然后选择Volcano Explorer。在选择要绘制的结果表之前，先解压链接中的示例归档。",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Regression，然后选择Volcano Explorer。在选择要绘制的结果表之前，先解压链接中的示例归档。"
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "点击Open results并选择解压出的results文件夹。每个点代表这个包含四百三十四次检验的族中的一个向导。请把不同的校正族分开处理。",
+        "hold_after": 0.7,
+        "speech_text": "点击Open results并选择解压出的results文件夹。每个点代表这个包含四百三十四次检验的族中的一个向导。请把不同的校正族分开处理。"
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "点击Save style保存初始的图设置，然后点击Load style并选择该文件。这样在编辑图之前，您就有了一个控件一致的已保存起点。",
+        "hold_after": 0.7,
+        "speech_text": "点击Save style保存初始的图设置，然后点击Load style并选择该文件。这样在编辑图之前，您就有了一个控件一致的已保存起点。"
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "检查alpha是否为零点零五、乘数为三，并且负对数变换已开启。阅读坐标轴标签：本例绘制的是标准化的边际效应。",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7,
+        "speech_text": "检查alpha是否为零点零五、乘数为三，并且负对数变换已开启。阅读坐标轴标签：本例绘制的是标准化的边际效应。"
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "点击一个点查看其源行。请一起阅读向导标识符、原始P、校正P和提供支持的孔数。所选示例的校正P约为零点三九。",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7,
+        "speech_text": "点击一个点查看其源行。请一起阅读向导标识符、原始P、校正P和提供支持的孔数。所选示例的校正P约为零点三九。"
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "选择原始置换P列进行查看，然后恢复为adjusted_p_value。更改绘制的列不会改变底层分析及其保存的显著性标记。",
+        "hold_after": 0.7,
+        "speech_text": "选择原始置换P列进行查看，然后恢复为adjusted_p_value。更改绘制的列不会改变底层分析及其保存的显著性标记。"
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "切换负log十，比较变换后和原始的P值。开启变换时，较小的P值显示在更高的位置。为本图恢复变换后的校正P视图。",
+        "hold_after": 0.7,
+        "speech_text": "切换负log十，比较变换后和原始的P值。开启变换时，较小的P值显示在更高的位置。为本图恢复变换后的校正P视图。"
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "把alpha调到零点五，看看水平参考线如何移动，然后恢复为零点零五。编辑这条线不会重新计算统计检验或其保存的显著性标记。",
+        "hold_after": 0.7,
+        "speech_text": "把alpha调到零点五，看看水平参考线如何移动，然后恢复为零点零五。编辑这条线不会重新计算统计检验或其保存的显著性标记。"
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "设置明确的效应截断值零点一，乘数为三。竖线出现在负零点三和正零点三处。恢复Auto即可回到初始的效应线。",
+        "hold_after": 0.7,
+        "speech_text": "设置明确的效应截断值零点一，乘数为三。竖线出现在负零点三和正零点三处。恢复Auto即可回到初始的效应线。"
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "颜色选择wells_with_guide，查看所绘向导的支持情况。如果想要原始的呈现方式，请在最终导出前恢复显著性配色。",
+        "hold_after": 0.7,
+        "speech_text": "颜色选择wells_with_guide，查看所绘向导的支持情况。如果想要原始的呈现方式，请在最终导出前恢复显著性配色。"
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "设置图的尺寸、字号和分辨率。本例使用七乘五英寸、每英寸一百五十点。请检查可读性；紧凑裁剪可能会改变保存后的外部尺寸。",
+        "hold_after": 0.7,
+        "speech_text": "设置图的尺寸、字号和分辨率。本例使用七乘五英寸、每英寸一百五十点。请检查可读性；紧凑裁剪可能会改变保存后的外部尺寸。"
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "把最终样式保存为JSON。更改标记大小，然后用Load style恢复保存的外观。请把样式文件放在结果表旁边。",
+        "hold_after": 0.7,
+        "speech_text": "把最终样式保存为JSON。更改标记大小，然后用Load style恢复保存的外观。请把样式文件放在结果表旁边。"
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "导出PDF和PNG，然后打开文件检查标签、对比度和裁剪。把输出与输入结果和样式放在一起。在Python中，请使用VolcanoStyle和render_volcano完成相同的绘制流程。",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "导出PDF和PNG，然后打开文件检查标签、对比度和裁剪。把输出与输入结果和样式放在一起。在Python中，请使用VolcanoStyle和render_volcano完成相同的绘制流程。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: undersøg resultater og gem en figur",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Indlæs Regression-resultater, vælg viste værdier og referencelinjer, og gem derefter en genbrugelig stil, og eksportér figuren.",
+      "objectives": [
+       "Åbne en resultatfamilie og undersøge guidernes identitet og støtte.",
+       "Vælge justerede værdier, visningstransformationer og referencelinjer.",
+       "Gemme stilen og eksportere figurer som PDF eller PNG."
+      ],
+      "prerequisite": "Pak Volcano_real_guide_family.zip ud, og brug dens mappe results. Den indeholder 434 guideresultater fra Regression-eksemplet. Ingen guide klarer den oprindelige tærskel for justeret P på 0,05. Effekterne er standardiserede marginale effekter. Behold den oprindelige resultattabel og de statistiske tærskler sammen med figuren.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Fra Home åbner du Regression og derefter Volcano Explorer. Pak det linkede eksempelarkiv ud, før du vælger de resultattabeller, der skal plottes.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Klik på Open results, og vælg den udpakkede mappe results. Hvert punkt er en guide i denne familie på 434 test. Hold forskellige korrektionsfamilier adskilt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Klik på Save style for at gemme figurens startindstillinger, derefter på Load style, og vælg filen. Så har du et gemt udgangspunkt med tilsvarende kontroller, før du redigerer figuren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Kontrollér, at alpha er 0,05, multiplikatoren 3, og at den negative logtransformation er slået til. Læs akselabels: eksemplet plotter standardiserede marginale effekter.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Klik på et punkt for at undersøge dets kilderække. Læs guide-id, rå P, justeret P og antallet af understøttende brønde samlet. Det valgte eksempel har en justeret P omkring 0,39.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Vælg kolonnen for rå permutations-P for at undersøge den, og sæt derefter adjusted_p_value tilbage. At skifte den plottede kolonne ændrer hverken den underliggende analyse eller dens gemte signifikansflag.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Slå −log10 til og fra for at sammenligne transformerede og oprindelige P-værdier. Med transformationen slået til vises mindre P-værdier højere oppe. Gendan visningen med transformeret justeret P til denne figur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Flyt alpha til 0,5 for at se, hvordan den vandrette referencelinje flytter sig, og sæt derefter 0,05 tilbage. At redigere linjen genberegner hverken statistiske test eller deres gemte signifikansflag.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Angiv en eksplicit effektgrænse på 0,1 med multiplikator 3. De lodrette linjer vises ved −0,3 og +0,3. Sæt Auto tilbage for at vende tilbage til den oprindelige effektlinje.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Vælg wells_with_guide som farve for at undersøge støtten for de plottede guides. Gendan signifikansfarverne før den endelige eksport, hvis du vil have den oprindelige præsentation.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Angiv figurstørrelse, skriftstørrelser og opløsning. Eksemplet bruger 7 × 5 tommer ved 150 dpi. Kontrollér læsbarheden; stram beskæring kan ændre de gemte ydre mål.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Gem den endelige stil som JSON. Skift markørstørrelsen, og brug derefter Load style til at gendanne det gemte udseende. Behold stilfilen ved siden af resultattabellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Eksportér PDF og PNG, og åbn filerne for at kontrollere labels, kontrast og beskæring. Gem outputtet sammen med inputresultaterne og stilen. I Python bruger du VolcanoStyle og render_volcano til det samme renderingsforløb.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: Ergebnisse prüfen und eine Abbildung speichern",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Laden Sie Regression-Ergebnisse, wählen Sie dargestellte Werte und Referenzlinien, speichern Sie dann einen wiederverwendbaren Stil und exportieren Sie die Abbildung.",
+      "objectives": [
+       "Eine Ergebnisfamilie öffnen und Guide-Identitäten und Unterstützung prüfen.",
+       "Adjustierte Werte, Darstellungstransformationen und Referenzlinien wählen.",
+       "Den Stil speichern und Abbildungen als PDF oder PNG exportieren."
+      ],
+      "prerequisite": "Entpacken Sie Volcano_real_guide_family.zip und verwenden Sie den Ordner results. Er enthält 434 Guide-Ergebnisse aus dem Regression-Beispiel. Kein Guide unterschreitet die ursprüngliche Schwelle für adjustiertes P von 0,05. Die Effekte sind standardisierte marginale Effekte. Bewahren Sie die ursprüngliche Ergebnistabelle und die statistischen Schwellen zusammen mit der Abbildung auf.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Öffnen Sie von Home aus Regression und dann Volcano Explorer. Entpacken Sie das verlinkte Beispielarchiv, bevor Sie die darzustellenden Ergebnistabellen wählen.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Klicken Sie auf Open results und wählen Sie den entpackten Ordner results. Jeder Punkt steht für einen Guide in dieser Familie von 434 Tests. Halten Sie verschiedene Korrekturfamilien getrennt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Klicken Sie auf Save style, um die anfänglichen Abbildungseinstellungen zu speichern, dann auf Load style und wählen Sie diese Datei. So haben Sie einen gespeicherten Ausgangspunkt mit passenden Steuerelementen, bevor Sie die Abbildung bearbeiten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Prüfen Sie alpha bei 0,05, den Multiplikator bei 3 und die aktivierte negative Log-Transformation. Lesen Sie die Achsenbeschriftungen: Dieses Beispiel stellt standardisierte marginale Effekte dar.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Klicken Sie auf einen Punkt, um seine Quellzeile zu prüfen. Lesen Sie Guide-ID, rohes P, adjustiertes P und Anzahl unterstützender Wells zusammen. Das ausgewählte Beispiel hat ein adjustiertes P von etwa 0,39.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Wählen Sie die Spalte mit dem rohen Permutations-P zur Prüfung und stellen Sie dann adjusted_p_value wieder ein. Ein Wechsel der dargestellten Spalte ändert weder die zugrunde liegende Analyse noch ihre gespeicherten Signifikanz-Flags.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Schalten Sie −log10 ein und aus, um transformierte und ursprüngliche P-Werte zu vergleichen. Mit Transformation erscheinen kleinere P-Werte weiter oben. Stellen Sie für diese Abbildung die transformierte Ansicht des adjustierten P wieder her.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Setzen Sie alpha auf 0,5, um zu sehen, wie sich die horizontale Referenzlinie verschiebt, und stellen Sie dann 0,05 wieder ein. Das Bearbeiten dieser Linie berechnet weder statistische Tests noch ihre gespeicherten Signifikanz-Flags neu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Legen Sie einen expliziten Effekt-Cutoff von 0,1 mit Multiplikator 3 fest. Die vertikalen Linien erscheinen bei −0,3 und +0,3. Stellen Sie Auto wieder ein, um zur anfänglichen Effektlinie zurückzukehren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Wählen Sie wells_with_guide als Farbe, um die Unterstützung der dargestellten Guides zu prüfen. Stellen Sie vor dem endgültigen Export die Signifikanzfarben wieder her, wenn Sie die ursprüngliche Darstellung möchten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Legen Sie Abbildungsgröße, Schriftgrößen und Auflösung fest. Dieses Beispiel verwendet 7 × 5 Zoll bei 150 dpi. Prüfen Sie die Lesbarkeit; enger Zuschnitt kann die gespeicherten Außenmaße verändern.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Speichern Sie den endgültigen Stil als JSON. Ändern Sie die Markergröße und stellen Sie dann mit Load style das gespeicherte Erscheinungsbild wieder her. Bewahren Sie die Stildatei neben der Ergebnistabelle auf.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Exportieren Sie PDF und PNG und öffnen Sie die Dateien, um Beschriftungen, Kontrast und Zuschnitt zu prüfen. Bewahren Sie die Ausgabe mit den Eingabeergebnissen und dem Stil auf. Verwenden Sie in Python VolcanoStyle und render_volcano für denselben Darstellungsablauf.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: skoðaðu niðurstöður og vistaðu mynd",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Hlaða inn niðurstöðum úr Regression, velja gildi og viðmiðunarlínur sem teiknaðar eru, vista svo endurnýtanlegan stíl og flytja myndina út.",
+      "objectives": [
+       "Opna niðurstöðufjölskyldu og skoða auðkenni og stuðning leiðara.",
+       "Velja leiðrétt gildi, birtingarumbreytingar og viðmiðunarlínur.",
+       "Vista stílinn og flytja út myndir sem PDF eða PNG."
+      ],
+      "prerequisite": "Afþjappaðu Volcano_real_guide_family.zip og notaðu möppuna results. Hún inniheldur 434 niðurstöður leiðara úr Regression-dæminu. Enginn leiðari stenst upprunalega þröskuldinn 0,05 fyrir leiðrétt P. Áhrifin eru stöðluð jaðaráhrif. Geymdu upprunalegu niðurstöðutöfluna og tölfræðiþröskuldana með myndinni.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Frá Home opnarðu Regression og svo Volcano Explorer. Afþjappaðu tengda dæmasafnið áður en þú velur niðurstöðutöflurnar sem á að teikna.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Smelltu á Open results og veldu afþjöppuðu möppuna results. Hver punktur táknar leiðara í þessari fjölskyldu 434 prófa. Haltu ólíkum leiðréttingarfjölskyldum aðskildum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Smelltu á Save style til að vista upphafsstillingar myndarinnar, svo á Load style og veldu þá skrá. Þá hefurðu vistaðan upphafspunkt með samsvarandi stýringum áður en þú breytir myndinni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Athugaðu að alpha sé 0,05, margfaldarinn 3 og neikvæða lograumbreytingin virk. Lestu merki ásanna: dæmið teiknar stöðluð jaðaráhrif.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Smelltu á punkt til að skoða upprunalínu hans. Lestu saman auðkenni leiðarans, óleiðrétt P, leiðrétt P og fjölda brunna sem styðja hann. Valið dæmi hefur leiðrétt P í kringum 0,39.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Veldu dálkinn fyrir óleiðrétt umröðunar-P til að skoða hann og settu svo adjusted_p_value aftur. Breyting á teiknuðum dálki breytir hvorki undirliggjandi greiningu né vistuðum marktektarflöggum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Kveiktu og slökktu á −log10 til að bera saman umbreytt og upprunaleg P-gildi. Með umbreytingu birtast lægri P-gildi ofar. Settu aftur sýnina með umbreyttu leiðréttu P fyrir þessa mynd.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Færðu alpha í 0,5 til að sjá hvernig lárétta viðmiðunarlínan færist og settu svo aftur 0,05. Breyting á línunni endurreiknar hvorki tölfræðipróf né vistuð marktektarflögg þeirra.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Settu skýr áhrifamörk 0,1 með margfaldaranum 3. Lóðréttu línurnar birtast við −0,3 og +0,3. Settu Auto aftur til að fá upphaflegu áhrifalínuna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Veldu wells_with_guide fyrir lit til að skoða stuðning teiknaðra leiðara. Settu marktektarlitina aftur fyrir lokaútflutning ef þú vilt upprunalegu framsetninguna.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Stilltu stærð myndar, leturstærðir og upplausn. Dæmið notar 7 × 5 tommur við 150 dpi. Athugaðu læsileika; þröng skerðing getur breytt vistuðum ytri málum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Vistaðu lokastílinn sem JSON. Breyttu stærð merkja og notaðu svo Load style til að endurheimta vistaða útlitið. Geymdu stílskrána við hlið niðurstöðutöflunnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Fluttu út PDF og PNG og opnaðu svo skrárnar til að athuga merki, birtuskil og skerðingu. Geymdu úttakið með inntaksniðurstöðunum og stílnum. Í Python notarðu VolcanoStyle og render_volcano fyrir sama teikniferli.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: 결과 확인과 그림 저장",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Regression 결과를 불러오고, 그릴 값과 기준선을 고른 뒤 재사용할 스타일을 저장하고 그림을 내보냅니다.",
+      "objectives": [
+       "결과 패밀리를 열고 가이드의 식별자와 뒷받침을 확인합니다.",
+       "보정된 값, 표시 변환, 기준선을 고릅니다.",
+       "스타일을 저장하고 PDF 또는 PNG 그림을 내보냅니다."
+      ],
+      "prerequisite": "Volcano_real_guide_family.zip의 압축을 풀고 그 안의 results 폴더를 쓰세요. Regression 예제의 가이드 결과 434개가 들어 있습니다. 원래의 보정 P 임계값 0.05를 통과하는 가이드는 없습니다. 효과는 표준화된 한계 효과입니다. 원래 결과 표와 통계 임계값을 그림과 함께 보관하세요.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Home에서 Regression을 연 뒤 Volcano Explorer를 여세요. 그릴 결과 표를 고르기 전에 연결된 예제 압축 파일을 푸세요.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Open results를 클릭하고 압축을 푼 results 폴더를 고르세요. 각 점은 검정 434개로 이루어진 이 패밀리의 가이드 하나입니다. 보정 패밀리가 다르면 따로 다루세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Save style을 클릭해 처음 그림 설정을 저장한 뒤 Load style을 클릭하고 그 파일을 고르세요. 이렇게 하면 그림을 편집하기 전에 컨트롤이 일치하는 저장된 출발점이 생깁니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "alpha가 0.05, 배수가 3이고 음의 로그 변환이 켜져 있는지 확인하세요. 축 라벨을 읽으세요. 이 예제는 표준화된 한계 효과를 그립니다.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "점을 클릭해 원본 행을 확인하세요. 가이드 식별자, 원래 P, 보정 P, 뒷받침하는 웰 수를 함께 읽으세요. 선택한 예제의 보정 P는 약 0.39입니다.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "원래 순열 P 열을 골라 확인한 뒤 adjusted_p_value로 되돌리세요. 그리는 열을 바꿔도 바탕 분석과 저장된 유의성 플래그는 바뀌지 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "−log10을 켜고 끄며 변환된 P 값과 원래 P 값을 비교하세요. 변환을 켜면 작은 P 값이 더 위에 표시됩니다. 이 그림에서는 변환된 보정 P 보기로 되돌리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "alpha를 0.5로 옮겨 수평 기준선이 어떻게 움직이는지 본 뒤 0.05로 되돌리세요. 이 선을 바꿔도 통계 검정이나 저장된 유의성 플래그는 다시 계산되지 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "효과 컷오프를 0.1로, 배수를 3으로 명시적으로 설정하세요. 세로선이 −0.3과 +0.3에 나타납니다. 처음 효과선으로 돌아가려면 Auto로 되돌리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "색에 wells_with_guide를 골라 그린 가이드의 뒷받침을 확인하세요. 원래 표현을 원하면 최종 내보내기 전에 유의성 색으로 되돌리세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "그림 크기, 글꼴 크기, 해상도를 설정하세요. 이 예제는 150dpi에서 7 × 5인치를 씁니다. 가독성을 확인하세요. 여백을 빠듯하게 자르면 저장되는 바깥 크기가 바뀔 수 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "최종 스타일을 JSON으로 저장하세요. 마커 크기를 바꾼 뒤 Load style로 저장된 모양을 복원하세요. 스타일 파일은 결과 표 옆에 두세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "PDF와 PNG로 내보낸 뒤 파일을 열어 라벨, 대비, 자르기를 확인하세요. 출력을 입력 결과와 스타일과 함께 보관하세요. Python에서는 같은 렌더링 흐름에 VolcanoStyle과 render_volcano를 쓰세요.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: undersøk resultater og lagre en figur",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Last inn Regression-resultater, velg viste verdier og referanselinjer, og lagre deretter en gjenbrukbar stil og eksporter figuren.",
+      "objectives": [
+       "Åpne en resultatfamilie og undersøke guidenes identitet og støtte.",
+       "Velge justerte verdier, visningstransformasjoner og referanselinjer.",
+       "Lagre stilen og eksportere figurer som PDF eller PNG."
+      ],
+      "prerequisite": "Pakk ut Volcano_real_guide_family.zip og bruk mappen results. Den inneholder 434 guideresultater fra Regression-eksemplet. Ingen guide klarer den opprinnelige terskelen for justert P på 0,05. Effektene er standardiserte marginaleffekter. Behold den opprinnelige resultattabellen og de statistiske tersklene sammen med figuren.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Fra Home åpner du Regression og deretter Volcano Explorer. Pakk ut det lenkede eksempelarkivet før du velger resultattabellene som skal plottes.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Klikk på Open results og velg den utpakkede mappen results. Hvert punkt er en guide i denne familien med 434 tester. Hold ulike korreksjonsfamilier atskilt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Klikk på Save style for å lagre figurens startinnstillinger, og deretter på Load style og velg filen. Da har du et lagret utgangspunkt med samsvarende kontroller før du redigerer figuren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Kontroller at alpha er 0,05, multiplikatoren 3 og den negative logtransformasjonen aktivert. Les akseetikettene: eksemplet plotter standardiserte marginaleffekter.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Klikk på et punkt for å undersøke kilderaden. Les guideidentifikator, rå P, justert P og antall støttende brønner samlet. Det valgte eksemplet har en justert P rundt 0,39.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Velg kolonnen for rå permutasjons-P for å undersøke den, og sett deretter adjusted_p_value tilbake. Å bytte plottet kolonne endrer ikke den underliggende analysen eller de lagrede signifikansflaggene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Slå −log10 av og på for å sammenligne transformerte og opprinnelige P-verdier. Med transformasjonen på vises mindre P-verdier høyere opp. Gjenopprett visningen med transformert justert P for denne figuren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Flytt alpha til 0,5 for å se hvordan den horisontale referanselinjen flytter seg, og sett deretter 0,05 tilbake. Å redigere linjen beregner ikke statistiske tester eller de lagrede signifikansflaggene på nytt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Angi en eksplisitt effektgrense på 0,1 med multiplikator 3. De vertikale linjene vises ved −0,3 og +0,3. Sett Auto tilbake for å gå tilbake til den opprinnelige effektlinjen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Velg wells_with_guide for farge for å undersøke støtten for de plottede guidene. Gjenopprett signifikansfargene før den endelige eksporten hvis du vil ha den opprinnelige presentasjonen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Angi figurstørrelse, skriftstørrelser og oppløsning. Eksemplet bruker 7 × 5 tommer ved 150 dpi. Kontroller lesbarheten; stram beskjæring kan endre de lagrede yttermålene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Lagre den endelige stilen som JSON. Endre markørstørrelsen, og bruk deretter Load style for å gjenopprette det lagrede utseendet. Behold stilfilen ved siden av resultattabellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Eksporter PDF og PNG, og åpne filene for å kontrollere etiketter, kontrast og beskjæring. Behold utdataene sammen med inndataresultatene og stilen. I Python bruker du VolcanoStyle og render_volcano for samme gjengivelsesflyt.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 53,
+     "preceding": [
+      "71_investigate_hit",
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "73_parameter_sweep",
+     "entry": {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer: granska resultat och spara en figur",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Volcano_real_guide_family.zip"
+      ],
+      "description": "Läs in Regression-resultat, välj visade värden och referenslinjer, och spara sedan en återanvändbar stil och exportera figuren.",
+      "objectives": [
+       "Öppna en resultatfamilj och granska guidernas identitet och stöd.",
+       "Välja justerade värden, visningstransformer och referenslinjer.",
+       "Spara stilen och exportera figurer som PDF eller PNG."
+      ],
+      "prerequisite": "Packa upp Volcano_real_guide_family.zip och använd dess mapp results. Den innehåller 434 guideresultat från Regression-exemplet. Ingen guide klarar den ursprungliga tröskeln för justerat P på 0,05. Effekterna är standardiserade marginaleffekter. Behåll den ursprungliga resultattabellen och de statistiska trösklarna tillsammans med figuren.",
+      "scenes": [
+       {
+        "visual": "01_regression_host",
+        "narration": "Från Home öppnar du Regression och sedan Volcano Explorer. Packa upp det länkade exempelarkivet innan du väljer vilka resultattabeller som ska visas.",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_real_guide_family_no_adjusted_hits",
+        "narration": "Klicka på Open results och välj den uppackade mappen results. Varje punkt är en guide i den här familjen med 434 tester. Håll olika korrektionsfamiljer åtskilda.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03a_save_rendered_baseline_style",
+        "narration": "Klicka på Save style för att spara figurens startinställningar och sedan på Load style och välj filen. Då har du en sparad utgångspunkt med matchande kontroller innan du redigerar figuren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03c_rendered_baseline_and_controls_agree",
+        "narration": "Kontrollera att alpha är 0,05, multiplikatorn 3 och den negativa logtransformen aktiverad. Läs axeletiketterna: exemplet visar standardiserade marginaleffekter.",
+        "focus": [
+         2305,
+         270,
+         1500,
+         570
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_selected_real_guide",
+        "narration": "Klicka på en punkt för att granska dess källrad. Läs guideidentifierare, rått P, justerat P och antal stödjande brunnar tillsammans. Det valda exemplet har ett justerat P kring 0,39.",
+        "focus": [
+         305,
+         1830,
+         1990,
+         275
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_raw_p_values_not_new_hits",
+        "narration": "Välj kolumnen för rått permutations-P för att granska den och återställ sedan adjusted_p_value. Att byta visad kolumn ändrar inte den underliggande analysen eller dess sparade signifikansflaggor.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_log_transform_restored",
+        "narration": "Slå av och på −log10 för att jämföra transformerade och ursprungliga P-värden. Med transformen aktiverad hamnar mindre P-värden högre upp. Återställ vyn med transformerat justerat P för den här figuren.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_reference_line_does_not_retest",
+        "narration": "Flytta alpha till 0,5 för att se hur den horisontella referenslinjen flyttas och återställ sedan 0,05. Att redigera linjen räknar inte om statistiska tester eller deras sparade signifikansflaggor.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_explicit_effect_cut_times_multiplier",
+        "narration": "Ange en uttrycklig effektgräns på 0,1 med multiplikator 3. De vertikala linjerna visas vid −0,3 och +0,3. Återställ Auto för att gå tillbaka till den ursprungliga effektlinjen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_colour_by_actual_support",
+        "narration": "Välj wells_with_guide för färg för att granska stödet för de visade guiderna. Återställ signifikansfärgerna före den slutliga exporten om du vill ha den ursprungliga presentationen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_publication_size_settings",
+        "narration": "Ange figurstorlek, teckenstorlekar och upplösning. Exemplet använder 7 × 5 tum vid 150 dpi. Kontrollera läsbarheten; snäv beskärning kan ändra de sparade yttermåtten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "21_saved_style_restored",
+        "narration": "Spara den slutliga stilen som JSON. Ändra markörstorleken och använd sedan Load style för att återställa det sparade utseendet. Behåll stilfilen bredvid resultattabellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "24_export_finished_source_preserved",
+        "narration": "Exportera PDF och PNG och öppna sedan filerna för att kontrollera etiketter, kontrast och beskärning. Spara utdata tillsammans med indataresultaten och stilen. I Python använder du VolcanoStyle och render_volcano för samma renderingsflöde.",
+        "related_lessons": [
+         "06_api",
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "48_hit_list",
+     "scene": 10,
+     "links": [
+      "06_api",
+      "72_volcano_explorer"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "related_lessons",
+      "hold_after"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       5,
+       "lessons"
+      ],
+      "preceding": [
+       "71_investigate_hit",
+       "53_prediction_profiler",
+       "49_methods_results",
+       "48_hit_list"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "71_investigate_hit",
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 48,
+     "value": {
+      "kind": "submodule",
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/72_volcano_explorer -> tools/tutorials/archive/production/docs/72_volcano_explorer"
+ ],
+ "prose": []
+}

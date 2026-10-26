@@ -26,5 +26,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/sequencing_qc/index>`.
 
-`Module tutorial <../../../tutorials/#lesson=47_barcode_qc>`__.
-

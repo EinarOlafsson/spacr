@@ -5,8 +5,7 @@ From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after se
 and measurement. Supply the project containing
 ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen
 and cytoplasm measurements refer to the intended objects and channels.
-See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the
-`Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and
+See :ref:`Recruitment in the module map <workflow-module-recruitment>` and
 :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow.
 
 For whole-vacuole marker states, explicit host infection denominators and

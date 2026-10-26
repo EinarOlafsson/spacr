@@ -23,8 +23,8 @@ msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "Plackanalys: fält, figurer och granskade betingelser"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
-msgstr "Öppna **Hem → Organism → Toxoplasma → Plackanalys**. Välj **Plack** för plackfält eller **Figur** för publicerade figurer som innehåller brunnar, paneler och omgivande text. Dessa indata kräver ingen föregående körning av Mätning. Se :ref:`modulkartan <workflow-module-analyze_plaques>`, `handledningen för Plackanalys <tutorials/#lesson=24_plaque>`_ och :func:`spacr.submodules.analyze_plaques` för det omgivande arbetsflödet."
+msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>` and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "Öppna **Hem → Organism → Toxoplasma → Plackanalys**. Välj **Plack** för plackfält eller **Figur** för publicerade figurer som innehåller brunnar, paneler och omgivande text. Dessa indata kräver ingen föregående körning av Mätning. Se :ref:`modulkartan <workflow-module-analyze_plaques>` och :func:`spacr.submodules.analyze_plaques` för det omgivande arbetsflödet."
 
 msgid "Preview a plaque field"
 msgstr "Förhandsgranska ett plackfält"

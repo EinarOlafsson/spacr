@@ -26,5 +26,3 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 :doc:`API reference </api/spacr/qt/screens/db_browser/index>`.
 
-`Module tutorial <../../../../../tutorials/#lesson=34_database>`__.
-

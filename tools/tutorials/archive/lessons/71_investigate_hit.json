@@ -1,0 +1,4205 @@
+{
+ "schema": 1,
+ "id": "71_investigate_hit",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: trace a Regression gene back to measured cells",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send a Hit List gene to Investigate Hit, add the measurement database, cell predictions and guide fractions, then read the well-level evidence.",
+      "objectives": [
+       "Open a Regression run in Hit List, check q-values and send one gene to Investigate Hit.",
+       "Choose the measurement database, cell predictions, guide fractions and score column.",
+       "Read the evidence, wells, guides and threshold tabs and find the saved tables."
+      ],
+      "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. The example database contains 52 wells: every analysed well with a guide for gene 225160, plus three same-plate wells without that guide for each target well. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Regression. Investigate Hit starts from a finished Regression run. It asks whether the measured cells in the wells behind one gene look different from cells in wells without that gene.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Choose Hits to open Hit List. Extract the example archive first. It contains a Regression run on the test data, the matching per-cell CV predictions, and a measurement database for the same cells. All three come from one real screen.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Click Browse and select the guide_permutation folder inside regression_run, results. This is the output of the Regression tutorial's test-data run.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List ranks three hundred twenty-five genes. Read the effect, P value and q-value of each row together, along with the number of guides and how many of them agree.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Set Max q to zero point zero five. The table empties because no gene passes q at or below zero point zero five in this run. With one hundred ninety-nine permutations, the smallest possible P value is zero point zero zero five, and the lowest q-value is about zero point two seven. So what follows checks a ranked candidate, not a confirmed hit.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Set Max q back to one, search for two two five one six zero, and select its row. It has an effect of zero point three four, a q-value of zero point two seven, and three guides that all agree in direction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Click Investigate selected. Investigate Hit opens with the results folder, the gene, its three guides and a positive effect direction already filled in from that row.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Next to Measurements database, click Browse and choose measurements.db from the example. It holds shape, size and mean channel intensity for eight thousand nine hundred fifteen cells in fifty-two wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "For Existing CV predictions, choose cv_predictions.csv. Each row is one cell's saved CV score, keyed to the same measured object. Click the path and press Enter so the score columns are read, then keep pred as the phenotype score column.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "For Well/guide fractions, choose regression_data.csv in the same results folder. Regression wrote this table. It gives each guide's fraction in each analysed well.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Leave Independent morphology features empty. The module then uses the database's thirteen numeric cell measurements and leaves out identifiers, guide fractions and the CV score, so this check does not reuse the score. For your own database, list only measurement columns that contain no missing values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Click Investigate hit. The model is fitted with one plate held out at a time, so no cell is scored by a model trained on its own plate. A well's guide fraction only sets the starting expectation for that well's cells. It never marks a cell as carrying the guide. This example takes a few minutes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. This analysis provides no clear evidence of a difference for this candidate.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells lists each well's guide fraction, mean hit-like probability, prevalence and cell count. Each well counts as one independent unit, so the comparison uses thirteen target wells and thirty-nine control wells, not individual cells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides shows each target guide separately. Their dose responses point in different directions, which is one more reason not to treat this gene as a hit.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity repeats the comparison at probability cut-offs from zero point five to zero point nine. At every cut-off the difference stays close to zero point zero one, so the conclusion does not depend on the cut-off.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ranks the cells by hit-like probability, with the original score and the fold that scored each cell. These probabilities describe hit-like morphology, not which guide a cell carried. Promote calls to annotation only when the well-level evidence is convincing. Undo reverses a promotion.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "The tables are saved in the results folder under hit_investigation, then two two five one six zero. They include this embedding and a manifest, and each run is also stored as a new version in the database. The example has no crop images, so the review gallery stays empty. Next, investigate a gene that passes your threshold in a Regression run with more permutations.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "71_investigate_hit/poster.jpg",
+      "silent": "71_investigate_hit/video/71_investigate_hit_silent.mp4",
+      "web": "71_investigate_hit/web/71_investigate_hit_silent.mp4",
+      "visual_timings": "71_investigate_hit/video/original-visual-timings.json"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: trace a Regression gene back to measured cells",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send a Hit List gene to Investigate Hit, add the measurement database, cell predictions and guide fractions, then read the well-level evidence.",
+      "objectives": [
+       "Open a Regression run in Hit List, check q-values and send one gene to Investigate Hit.",
+       "Choose the measurement database, cell predictions, guide fractions and score column.",
+       "Read the evidence, wells, guides and threshold tabs and find the saved tables."
+      ],
+      "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. The example database contains 52 wells: every analysed well with a guide for gene 225160, plus three same-plate wells without that guide for each target well. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "From Home, open Regression. Investigate Hit starts from a finished Regression run. It asks whether the measured cells in the wells behind one gene look different from cells in wells without that gene.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Choose Hits to open Hit List. Extract the example archive first. It contains a Regression run on the test data, the matching per-cell CV predictions, and a measurement database for the same cells. All three come from one real screen.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Click Browse and select the guide_permutation folder inside regression_run, results. This is the output of the Regression tutorial's test-data run.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List ranks three hundred twenty-five genes. Read the effect, P value and q-value of each row together, along with the number of guides and how many of them agree.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Set Max q to zero point zero five. The table empties because no gene passes q at or below zero point zero five in this run. With one hundred ninety-nine permutations, the smallest possible P value is zero point zero zero five, and the lowest q-value is about zero point two seven. So what follows checks a ranked candidate, not a confirmed hit.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Set Max q back to one, search for two two five one six zero, and select its row. It has an effect of zero point three four, a q-value of zero point two seven, and three guides that all agree in direction.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Click Investigate selected. Investigate Hit opens with the results folder, the gene, its three guides and a positive effect direction already filled in from that row.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Next to Measurements database, click Browse and choose measurements.db from the example. It holds shape, size and mean channel intensity for eight thousand nine hundred fifteen cells in fifty-two wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "For Existing CV predictions, choose cv_predictions.csv. Each row is one cell's saved CV score, keyed to the same measured object. Click the path and press Enter so the score columns are read, then keep pred as the phenotype score column.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "For Well/guide fractions, choose regression_data.csv in the same results folder. Regression wrote this table. It gives each guide's fraction in each analysed well.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Leave Independent morphology features empty. The module then uses the database's thirteen numeric cell measurements and leaves out identifiers, guide fractions and the CV score, so this check does not reuse the score. For your own database, list only measurement columns that contain no missing values.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Click Investigate hit. The model is fitted with one plate held out at a time, so no cell is scored by a model trained on its own plate. A well's guide fraction only sets the starting expectation for that well's cells. It never marks a cell as carrying the guide. This example takes a few minutes.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. This analysis provides no clear evidence of a difference for this candidate.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells lists each well's guide fraction, mean hit-like probability, prevalence and cell count. Each well counts as one independent unit, so the comparison uses thirteen target wells and thirty-nine control wells, not individual cells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides shows each target guide separately. Their dose responses point in different directions, which is one more reason not to treat this gene as a hit.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity repeats the comparison at probability cut-offs from zero point five to zero point nine. At every cut-off the difference stays close to zero point zero one, so the conclusion does not depend on the cut-off.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ranks the cells by hit-like probability, with the original score and the fold that scored each cell. These probabilities describe hit-like morphology, not which guide a cell carried. Promote calls to annotation only when the well-level evidence is convincing. Undo reverses a promotion.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "The tables are saved in the results folder under hit_investigation, then two two five one six zero. They include this embedding and a manifest, and each run is also stored as a new version in the database. The example has no crop images, so the review gallery stays empty. Next, investigate a gene that passes your threshold in a Regression run with more permutations.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: rastrear un gen de Regression hasta las células medidas",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Envía un gen de Hit List a Investigate Hit, añade la base de datos de mediciones, las predicciones por célula y las fracciones de guías, y lee la evidencia a nivel de pocillo.",
+      "objectives": [
+       "Abrir una ejecución de Regression en Hit List, revisar los valores q y enviar un gen a Investigate Hit.",
+       "Elegir la base de datos de mediciones, las predicciones por célula, las fracciones de guías y la columna de puntuación.",
+       "Leer las pestañas de evidencia, pocillos, guías y umbral, y encontrar las tablas guardadas."
+      ],
+      "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. La base de datos de ejemplo contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160, más tres pocillos de la misma placa sin esa guía por cada pocillo diana. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Desde Home, abre Regression. Investigate Hit parte de una ejecución de Regression terminada. Se pregunta si las células medidas en los pocillos asociados a un gen se ven diferentes de las células de pocillos sin ese gen.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Desde Home, abre Regression. Investigate Hit parte de una ejecución de Regression terminada. Se pregunta si las células medidas en los pocillos asociados a un gen se ven diferentes de las células de pocillos sin ese gen."
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Elige Hits para abrir Hit List. Primero extrae el archivo de ejemplo. Contiene una ejecución de Regression con los datos de prueba, las predicciones CV por célula correspondientes y una base de datos de mediciones de esas mismas células. Las tres cosas proceden de un mismo cribado real.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Elige Hits para abrir Hit List. Primero extrae el archivo de ejemplo. Contiene una ejecución de Regression con los datos de prueba, las predicciones CV por célula correspondientes y una base de datos de mediciones de esas mismas células. Las tres cosas proceden de un mismo cribado real."
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Haz clic en Browse y selecciona la carpeta guide_permutation dentro de regression_run, results. Es la salida de la ejecución con datos de prueba del tutorial de Regression.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Browse y selecciona la carpeta guide_permutation dentro de regression_run, results. Es la salida de la ejecución con datos de prueba del tutorial de Regression."
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List ordena trescientos veinticinco genes. Lee juntos el efecto, el valor P y el valor q de cada fila, además del número de guías y cuántas de ellas coinciden.",
+        "hold_after": 0.7,
+        "speech_text": "Hit List ordena trescientos veinticinco genes. Lee juntos el efecto, el valor P y el valor q de cada fila, además del número de guías y cuántas de ellas coinciden."
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Pon Max q en cero coma cero cinco. La tabla se vacía porque en esta ejecución ningún gen tiene un valor q igual o inferior a cero coma cero cinco. Con ciento noventa y nueve permutaciones, el menor valor P posible es cero coma cero cero cinco, y el menor valor q es de aproximadamente cero coma veintisiete. Por eso, lo que sigue examina un candidato clasificado, no un hit confirmado.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Pon Max q en cero coma cero cinco. La tabla se vacía porque en esta ejecución ningún gen tiene un valor q igual o inferior a cero coma cero cinco. Con ciento noventa y nueve permutaciones, el menor valor P posible es cero coma cero cero cinco, y el menor valor q es de aproximadamente cero coma veintisiete. Por eso, lo que sigue examina un candidato clasificado, no un hit confirmado."
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Vuelve a poner Max q en uno, busca dos dos cinco uno seis cero y selecciona su fila. Tiene un efecto de cero coma treinta y cuatro, un valor q de cero coma veintisiete y tres guías que coinciden en la dirección.",
+        "hold_after": 0.7,
+        "speech_text": "Vuelve a poner Max q en uno, busca dos dos cinco uno seis cero y selecciona su fila. Tiene un efecto de cero coma treinta y cuatro, un valor q de cero coma veintisiete y tres guías que coinciden en la dirección."
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Haz clic en Investigate selected. Investigate Hit se abre con la carpeta de resultados, el gen, sus tres guías y una dirección de efecto positiva ya rellenados a partir de esa fila.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Investigate selected. Investigate Hit se abre con la carpeta de resultados, el gen, sus tres guías y una dirección de efecto positiva ya rellenados a partir de esa fila."
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Junto a Measurements database, haz clic en Browse y elige measurements.db del ejemplo. Contiene la forma, el tamaño y la intensidad media por canal de ocho mil novecientas quince células en cincuenta y dos pocillos.",
+        "hold_after": 0.7,
+        "speech_text": "Junto a Measurements database, haz clic en Browse y elige measurements punto de be del ejemplo. Contiene la forma, el tamaño y la intensidad media por canal de ocho mil novecientas quince células en cincuenta y dos pocillos."
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "En Existing CV predictions, elige cv_predictions.csv. Cada fila es la puntuación CV guardada de una célula, vinculada al mismo objeto medido. Haz clic en la ruta y pulsa Enter para que se lean las columnas de puntuación, y mantén pred como columna de puntuación del fenotipo.",
+        "hold_after": 0.7,
+        "speech_text": "En Existing CV predictions, elige cv_predictions.csv. Cada fila es la puntuación CV guardada de una célula, vinculada al mismo objeto medido. Haz clic en la ruta y pulsa Enter para que se lean las columnas de puntuación, y mantén pred como columna de puntuación del fenotipo."
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "En Well/guide fractions, elige regression_data.csv en la misma carpeta de resultados. Esta tabla la escribió Regression. Indica la fracción de cada guía en cada pocillo analizado.",
+        "hold_after": 0.7,
+        "speech_text": "En Well/guide fractions, elige regression_data.csv en la misma carpeta de resultados. Esta tabla la escribió Regression. Indica la fracción de cada guía en cada pocillo analizado."
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Deja vacío Independent morphology features. Así el módulo usa las trece mediciones celulares numéricas de la base de datos y excluye los identificadores, las fracciones de guías y la puntuación CV, de modo que esta comprobación no reutiliza la puntuación. Para tu propia base de datos, indica solo columnas de mediciones que no tengan valores ausentes.",
+        "hold_after": 0.7,
+        "speech_text": "Deja vacío Independent morphology features. Así el módulo usa las trece mediciones celulares numéricas de la base de datos y excluye los identificadores, las fracciones de guías y la puntuación CV, de modo que esta comprobación no reutiliza la puntuación. Para tu propia base de datos, indica solo columnas de mediciones que no tengan valores ausentes."
+       },
+       {
+        "visual": "12_running",
+        "narration": "Haz clic en Investigate hit. El modelo se ajusta dejando fuera una placa cada vez, así que ninguna célula se puntúa con un modelo entrenado con su propia placa. La fracción de guía de un pocillo solo fija la expectativa inicial para sus células. Nunca marca una célula como portadora de la guía. Este ejemplo tarda unos minutos.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Investigate hit. El modelo se ajusta dejando fuera una placa cada vez, así que ninguna célula se puntúa con un modelo entrenado con su propia placa. La fracción de guía de un pocillo solo fija la expectativa inicial para sus células. Nunca marca una célula como portadora de la guía. Este ejemplo tarda unos minutos."
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato.",
+        "hold_after": 0.7,
+        "speech_text": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato."
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells muestra, para cada pocillo, la fracción de guía, la probabilidad media de tipo hit, la prevalencia y el número de células. Cada pocillo cuenta como una unidad independiente, así que la comparación usa trece pocillos diana y treinta y nueve pocillos control, no células individuales.",
+        "hold_after": 0.7,
+        "speech_text": "Wells muestra, para cada pocillo, la fracción de guía, la probabilidad media de tipo hit, la prevalencia y el número de células. Cada pocillo cuenta como una unidad independiente, así que la comparación usa trece pocillos diana y treinta y nueve pocillos control, no células individuales."
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides muestra cada guía diana por separado. Sus respuestas a la dosis apuntan en direcciones distintas, otra razón más para no tratar este gen como un hit.",
+        "hold_after": 0.7,
+        "speech_text": "Guides muestra cada guía diana por separado. Sus respuestas a la dosis apuntan en direcciones distintas, otra razón más para no tratar este gen como un hit."
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity repite la comparación con umbrales de probabilidad de cero coma cinco a cero coma nueve. Con todos los umbrales la diferencia se mantiene cerca de cero coma cero uno, así que la conclusión no depende del umbral.",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity repite la comparación con umbrales de probabilidad de cero coma cinco a cero coma nueve. Con todos los umbrales la diferencia se mantiene cerca de cero coma cero uno, así que la conclusión no depende del umbral."
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ordena las células por probabilidad de tipo hit, con la puntuación original y el pliegue que puntuó cada célula. Estas probabilidades describen una morfología de tipo hit, no qué guía llevaba una célula. Pasa clasificaciones a la anotación solo cuando la evidencia a nivel de pocillo sea convincente. Undo revierte una promoción.",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells ordena las células por probabilidad de tipo hit, con la puntuación original y el pliegue que puntuó cada célula. Estas probabilidades describen una morfología de tipo hit, no qué guía llevaba una célula. Pasa clasificaciones a la anotación solo cuando la evidencia a nivel de pocillo sea convincente. Undo revierte una promoción."
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Las tablas se guardan en la carpeta de resultados, en hit_investigation y después en dos dos cinco uno seis cero. Incluyen esta representación y un manifiesto, y cada ejecución se guarda además como una versión nueva en la base de datos. El ejemplo no tiene imágenes de recortes, así que la galería de revisión queda vacía. A continuación, investiga un gen que supere tu umbral en una ejecución de Regression con más permutaciones.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Las tablas se guardan en la carpeta de resultados, en hit_investigation y después en dos dos cinco uno seis cero. Incluyen esta representación y un manifiesto, y cada ejecución se guarda además como una versión nueva en la base de datos. El ejemplo no tiene imágenes de recortes, así que la galería de revisión queda vacía. A continuación, investiga un gen que supere tu umbral en una ejecución de Regression con más permutaciones."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit : remonter d’un gène de Regression aux cellules mesurées",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Envoyez un gène de Hit List vers Investigate Hit, ajoutez la base de données de mesures, les prédictions par cellule et les fractions de guides, puis lisez les éléments de preuve au niveau des puits.",
+      "objectives": [
+       "Ouvrir une exécution Regression dans Hit List, vérifier les valeurs q et envoyer un gène vers Investigate Hit.",
+       "Choisir la base de données de mesures, les prédictions par cellule, les fractions de guides et la colonne de score.",
+       "Lire les onglets des éléments de preuve, des puits, des guides et du seuil, et trouver les tables enregistrées."
+      ],
+      "prerequisite": "Extrayez Investigate_Hit_real_screen_example.zip. Tout son contenu provient d’un même criblage réel : l’exécution Regression sur les données de test de Regression (les paramètres du tutoriel Regression), les prédictions CV par cellule correspondantes et une base de données de mesures contenant les vraies mesures de forme, de taille et d’intensité de ces mêmes cellules. La base de données d’exemple contient 52 puits : tous les puits analysés portant un guide du gène 225160, plus trois puits de la même plaque sans ce guide pour chaque puits cible. Aucun gène de cette exécution Regression rapide ne vérifie q ≤ 0,05. Considérez l’investigation comme un exemple d’application, pas comme un hit confirmé.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Depuis Home, ouvrez Regression. Investigate Hit part d’une exécution Regression terminée. Il demande si les cellules mesurées dans les puits associés à un gène diffèrent des cellules des puits sans ce gène.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Depuis Home, ouvrez Regression. Investigate Hit part d’une exécution Regression terminée. Il demande si les cellules mesurées dans les puits associés à un gène diffèrent des cellules des puits sans ce gène."
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Choisissez Hits pour ouvrir Hit List. Extrayez d’abord l’archive d’exemple. Elle contient une exécution Regression sur les données de test, les prédictions CV par cellule correspondantes et une base de données de mesures pour ces mêmes cellules. Les trois proviennent d’un même criblage réel.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Choisissez Hits pour ouvrir Hit List. Extrayez d’abord l’archive d’exemple. Elle contient une exécution Regression sur les données de test, les prédictions CV par cellule correspondantes et une base de données de mesures pour ces mêmes cellules. Les trois proviennent d’un même criblage réel."
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Cliquez sur Browse et sélectionnez le dossier guide_permutation dans regression_run, results. C’est la sortie de l’exécution sur données de test du tutoriel Regression.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Browse et sélectionnez le dossier guide_permutation dans regression_run, results. C’est la sortie de l’exécution sur données de test du tutoriel Regression."
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List classe trois cent vingt-cinq gènes. Lisez ensemble l’effet, la valeur P et la valeur q de chaque ligne, ainsi que le nombre de guides et combien d’entre eux concordent.",
+        "hold_after": 0.7,
+        "speech_text": "Hit List classe trois cent vingt-cinq gènes. Lisez ensemble l’effet, la valeur P et la valeur q de chaque ligne, ainsi que le nombre de guides et combien d’entre eux concordent."
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Réglez Max q sur zéro virgule zéro cinq. Le tableau se vide, car aucun gène de cette exécution n’a une valeur q inférieure ou égale à zéro virgule zéro cinq. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P possible est zéro virgule zéro zéro cinq, et la plus petite valeur q est d’environ zéro virgule vingt-sept. La suite examine donc un candidat classé, pas un hit confirmé.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Réglez Max q sur zéro virgule zéro cinq. Le tableau se vide, car aucun gène de cette exécution n’a une valeur q inférieure ou égale à zéro virgule zéro cinq. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P possible est zéro virgule zéro zéro cinq, et la plus petite valeur q est d’environ zéro virgule vingt-sept. La suite examine donc un candidat classé, pas un hit confirmé."
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Remettez Max q sur un, recherchez deux deux cinq un six zéro et sélectionnez sa ligne. Il a un effet de zéro virgule trente-quatre, une valeur q de zéro virgule vingt-sept et trois guides qui vont tous dans le même sens.",
+        "hold_after": 0.7,
+        "speech_text": "Remettez Max q sur un, recherchez deux deux cinq un six zéro et sélectionnez sa ligne. Il a un effet de zéro virgule trente-quatre, une valeur q de zéro virgule vingt-sept et trois guides qui vont tous dans le même sens."
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Cliquez sur Investigate selected. Investigate Hit s’ouvre avec le dossier de résultats, le gène, ses trois guides et un sens d’effet positif déjà remplis à partir de cette ligne.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Investigate selected. Investigate Hit s’ouvre avec le dossier de résultats, le gène, ses trois guides et un sens d’effet positif déjà remplis à partir de cette ligne."
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "À côté de Measurements database, cliquez sur Browse et choisissez measurements.db dans l’exemple. Il contient la forme, la taille et l’intensité moyenne par canal de huit mille neuf cent quinze cellules dans cinquante-deux puits.",
+        "hold_after": 0.7,
+        "speech_text": "À côté de Measurements database, cliquez sur Browse et choisissez measurements point dé bé dans l’exemple. Il contient la forme, la taille et l’intensité moyenne par canal de huit mille neuf cent quinze cellules dans cinquante-deux puits."
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Pour Existing CV predictions, choisissez cv_predictions.csv. Chaque ligne est le score CV enregistré d’une cellule, rattaché au même objet mesuré. Cliquez sur le chemin et appuyez sur Entrée pour que les colonnes de score soient lues, puis gardez pred comme colonne de score du phénotype.",
+        "hold_after": 0.7,
+        "speech_text": "Pour Existing CV predictions, choisissez cv_predictions.csv. Chaque ligne est le score CV enregistré d’une cellule, rattaché au même objet mesuré. Cliquez sur le chemin et appuyez sur Entrée pour que les colonnes de score soient lues, puis gardez pred comme colonne de score du phénotype."
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Pour Well/guide fractions, choisissez regression_data.csv dans le même dossier de résultats. C’est Regression qui a écrit cette table. Elle donne la fraction de chaque guide dans chaque puits analysé.",
+        "hold_after": 0.7,
+        "speech_text": "Pour Well/guide fractions, choisissez regression_data.csv dans le même dossier de résultats. C’est Regression qui a écrit cette table. Elle donne la fraction de chaque guide dans chaque puits analysé."
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Laissez Independent morphology features vide. Le module utilise alors les treize mesures cellulaires numériques de la base et écarte les identifiants, les fractions de guides et le score CV, afin que cette vérification ne réutilise pas le score. Pour votre propre base, n’indiquez que des colonnes de mesures sans valeurs manquantes.",
+        "hold_after": 0.7,
+        "speech_text": "Laissez Independent morphology features vide. Le module utilise alors les treize mesures cellulaires numériques de la base et écarte les identifiants, les fractions de guides et le score CV, afin que cette vérification ne réutilise pas le score. Pour votre propre base, n’indiquez que des colonnes de mesures sans valeurs manquantes."
+       },
+       {
+        "visual": "12_running",
+        "narration": "Cliquez sur Investigate hit. Le modèle est ajusté en laissant de côté une plaque à la fois, de sorte qu’aucune cellule n’est évaluée par un modèle entraîné sur sa propre plaque. La fraction de guide d’un puits ne fixe que l’attente de départ pour ses cellules. Elle n’indique jamais qu’une cellule porte le guide. Cet exemple prend quelques minutes.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Investigate hit. Le modèle est ajusté en laissant de côté une plaque à la fois, de sorte qu’aucune cellule n’est évaluée par un modèle entraîné sur sa propre plaque. La fraction de guide d’un puits ne fixe que l’attente de départ pour ses cellules. Elle n’indique jamais qu’une cellule porte le guide. Cet exemple prend quelques minutes."
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Cette analyse ne fournit pas d’éléments clairs en faveur d’une différence pour ce candidat.",
+        "hold_after": 0.7,
+        "speech_text": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Cette analyse ne fournit pas d’éléments clairs en faveur d’une différence pour ce candidat."
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells indique pour chaque puits la fraction de guide, la probabilité moyenne de type hit, la prévalence et le nombre de cellules. Chaque puits compte comme une unité indépendante ; la comparaison utilise donc treize puits cibles et trente-neuf puits témoins, et non des cellules individuelles.",
+        "hold_after": 0.7,
+        "speech_text": "Wells indique pour chaque puits la fraction de guide, la probabilité moyenne de type hit, la prévalence et le nombre de cellules. Chaque puits compte comme une unité indépendante ; la comparaison utilise donc treize puits cibles et trente-neuf puits témoins, et non des cellules individuelles."
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides montre chaque guide cible séparément. Leurs réponses à la dose vont dans des directions différentes, une raison de plus de ne pas traiter ce gène comme un hit.",
+        "hold_after": 0.7,
+        "speech_text": "Guides montre chaque guide cible séparément. Leurs réponses à la dose vont dans des directions différentes, une raison de plus de ne pas traiter ce gène comme un hit."
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity répète la comparaison avec des seuils de probabilité allant de zéro virgule cinq à zéro virgule neuf. À chaque seuil, la différence reste proche de zéro virgule zéro un ; la conclusion ne dépend donc pas du seuil.",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity répète la comparaison avec des seuils de probabilité allant de zéro virgule cinq à zéro virgule neuf. À chaque seuil, la différence reste proche de zéro virgule zéro un ; la conclusion ne dépend donc pas du seuil."
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells classe les cellules par probabilité de type hit, avec le score d’origine et le pli qui a évalué chaque cellule. Ces probabilités décrivent une morphologie de type hit, pas le guide que portait une cellule. Ne transférez des classifications vers l’annotation que si les éléments au niveau des puits sont convaincants. Undo annule un transfert.",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells classe les cellules par probabilité de type hit, avec le score d’origine et le pli qui a évalué chaque cellule. Ces probabilités décrivent une morphologie de type hit, pas le guide que portait une cellule. Ne transférez des classifications vers l’annotation que si les éléments au niveau des puits sont convaincants. Undo annule un transfert."
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Les tables sont enregistrées dans le dossier de résultats, sous hit_investigation, puis deux deux cinq un six zéro. Elles comprennent cette représentation et un manifeste, et chaque exécution est aussi conservée comme nouvelle version dans la base de données. L’exemple ne contient pas d’images de vignettes, la galerie de revue reste donc vide. Ensuite, examinez un gène qui passe votre seuil dans une exécution Regression avec davantage de permutations.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Les tables sont enregistrées dans le dossier de résultats, sous hit_investigation, puis deux deux cinq un six zéro. Elles comprennent cette représentation et un manifeste, et chaque exécution est aussi conservée comme nouvelle version dans la base de données. L’exemple ne contient pas d’images de vignettes, la galerie de revue reste donc vide. Ensuite, examinez un gène qui passe votre seuil dans une exécution Regression avec davantage de permutations."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: Regression के किसी जीन से मापी गई कोशिकाओं तक पहुँचें",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Hit List से कोई जीन Investigate Hit को भेजें, माप डेटाबेस, हर कोशिका की भविष्यवाणियाँ और गाइड अंश जोड़ें, फिर वेल स्तर के प्रमाण पढ़ें।",
+      "objectives": [
+       "Hit List में Regression रन खोलें, q-मान जाँचें और एक जीन Investigate Hit को भेजें।",
+       "माप डेटाबेस, कोशिका भविष्यवाणियाँ, गाइड अंश और स्कोर कॉलम चुनें।",
+       "प्रमाण, वेल, गाइड और थ्रेशोल्ड टैब पढ़ें और सहेजी गई तालिकाएँ खोजें।"
+      ],
+      "prerequisite": "Investigate_Hit_real_screen_example.zip निकालें। इसमें सब कुछ एक ही असली स्क्रीन से आता है: Regression के परीक्षण डेटा पर किया गया Regression रन (Regression ट्यूटोरियल की सेटिंग), उससे मेल खाती हर कोशिका की CV भविष्यवाणियाँ, और एक माप डेटाबेस जिसमें उन्हीं कोशिकाओं के असली आकार, माप और तीव्रता के माप हैं। उदाहरण डेटाबेस में 52 वेल हैं: जीन 225160 की गाइड वाले सभी विश्लेषित वेल, साथ ही हर लक्ष्य वेल के लिए उसी प्लेट के तीन वेल जिनमें वह गाइड नहीं है। इस त्वरित Regression रन में कोई जीन q ≤ 0.05 पार नहीं करता। इस जाँच को एक अभ्यास उदाहरण मानें, पुष्ट hit नहीं।",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home से Regression खोलें। Investigate Hit किसी पूरे हो चुके Regression रन से शुरू होता है। यह पूछता है कि किसी एक जीन वाले वेलों में मापी गई कोशिकाएँ उस जीन के बिना वाले वेलों की कोशिकाओं से अलग दिखती हैं या नहीं।",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Home से Regression खोलें। Investigate Hit किसी पूरे हो चुके Regression रन से शुरू होता है। यह पूछता है कि किसी एक जीन वाले वेलों में मापी गई कोशिकाएँ उस जीन के बिना वाले वेलों की कोशिकाओं से अलग दिखती हैं या नहीं।"
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Hit List खोलने के लिए Hits चुनें। पहले उदाहरण आर्काइव निकालें। इसमें परीक्षण डेटा पर एक Regression रन, उससे मेल खाती हर कोशिका की CV भविष्यवाणियाँ और उन्हीं कोशिकाओं का माप डेटाबेस है। तीनों एक ही असली स्क्रीन से आते हैं।",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Hit List खोलने के लिए Hits चुनें। पहले उदाहरण आर्काइव निकालें। इसमें परीक्षण डेटा पर एक Regression रन, उससे मेल खाती हर कोशिका की CV भविष्यवाणियाँ और उन्हीं कोशिकाओं का माप डेटाबेस है। तीनों एक ही असली स्क्रीन से आते हैं।"
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Browse पर क्लिक करें और regression_run, results के अंदर guide_permutation फ़ोल्डर चुनें। यह Regression ट्यूटोरियल के परीक्षण डेटा वाले रन का आउटपुट है।",
+        "hold_after": 0.7,
+        "speech_text": "Browse पर क्लिक करें और regression_run, results के अंदर guide_permutation फ़ोल्डर चुनें। यह Regression ट्यूटोरियल के परीक्षण डेटा वाले रन का आउटपुट है।"
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List तीन सौ पच्चीस जीनों को क्रम देता है। हर पंक्ति का प्रभाव, P मान और q-मान साथ में पढ़ें, साथ ही गाइडों की संख्या और उनमें से कितनी सहमत हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Hit List तीन सौ पच्चीस जीनों को क्रम देता है। हर पंक्ति का प्रभाव, P मान और q-मान साथ में पढ़ें, साथ ही गाइडों की संख्या और उनमें से कितनी सहमत हैं।"
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Max q को शून्य दशमलव शून्य पाँच पर सेट करें। तालिका खाली हो जाती है, क्योंकि इस रन में कोई भी जीन शून्य दशमलव शून्य पाँच या उससे कम q-मान तक नहीं पहुँचता। एक सौ निन्यानबे क्रमचयों के साथ सबसे छोटा संभव P मान शून्य दशमलव शून्य शून्य पाँच है, और सबसे कम q-मान लगभग शून्य दशमलव दो सात है। इसलिए आगे जो जाँच होती है वह एक क्रम में ऊपर आए उम्मीदवार की है, पुष्ट hit की नहीं।",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Max q को शून्य दशमलव शून्य पाँच पर सेट करें। तालिका खाली हो जाती है, क्योंकि इस रन में कोई भी जीन शून्य दशमलव शून्य पाँच या उससे कम q-मान तक नहीं पहुँचता। एक सौ निन्यानबे क्रमचयों के साथ सबसे छोटा संभव P मान शून्य दशमलव शून्य शून्य पाँच है, और सबसे कम q-मान लगभग शून्य दशमलव दो सात है। इसलिए आगे जो जाँच होती है वह एक क्रम में ऊपर आए उम्मीदवार की है, पुष्ट hit की नहीं।"
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Max q को वापस एक पर सेट करें, दो दो पाँच एक छह शून्य खोजें और उसकी पंक्ति चुनें। इसका प्रभाव शून्य दशमलव तीन चार, q-मान शून्य दशमलव दो सात है, और इसकी तीनों गाइड एक ही दिशा में सहमत हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Max q को वापस एक पर सेट करें, दो दो पाँच एक छह शून्य खोजें और उसकी पंक्ति चुनें। इसका प्रभाव शून्य दशमलव तीन चार, q-मान शून्य दशमलव दो सात है, और इसकी तीनों गाइड एक ही दिशा में सहमत हैं।"
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Investigate selected पर क्लिक करें। Investigate Hit उस पंक्ति से परिणाम फ़ोल्डर, जीन, उसकी तीन गाइड और सकारात्मक प्रभाव दिशा पहले से भरकर खुलता है।",
+        "hold_after": 0.7,
+        "speech_text": "Investigate selected पर क्लिक करें। Investigate Hit उस पंक्ति से परिणाम फ़ोल्डर, जीन, उसकी तीन गाइड और सकारात्मक प्रभाव दिशा पहले से भरकर खुलता है।"
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Measurements database के पास Browse पर क्लिक करें और उदाहरण से measurements.db चुनें। इसमें बावन वेलों की आठ हज़ार नौ सौ पंद्रह कोशिकाओं का आकार, माप और हर चैनल की औसत तीव्रता है।",
+        "hold_after": 0.7,
+        "speech_text": "Measurements database के पास Browse पर क्लिक करें और उदाहरण से मेज़रमेंट्स डॉट डी बी चुनें। इसमें बावन वेलों की आठ हज़ार नौ सौ पंद्रह कोशिकाओं का आकार, माप और हर चैनल की औसत तीव्रता है।"
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Existing CV predictions के लिए cv_predictions.csv चुनें। हर पंक्ति एक कोशिका का सहेजा गया CV स्कोर है, जो उसी मापी गई वस्तु से जुड़ा है। पथ पर क्लिक करें और Enter दबाएँ ताकि स्कोर कॉलम पढ़े जाएँ, फिर फ़ीनोटाइप स्कोर कॉलम के रूप में pred रहने दें।",
+        "hold_after": 0.7,
+        "speech_text": "Existing CV predictions के लिए cv_predictions.csv चुनें। हर पंक्ति एक कोशिका का सहेजा गया CV स्कोर है, जो उसी मापी गई वस्तु से जुड़ा है। पथ पर क्लिक करें और Enter दबाएँ ताकि स्कोर कॉलम पढ़े जाएँ, फिर फ़ीनोटाइप स्कोर कॉलम के रूप में pred रहने दें।"
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Well/guide fractions के लिए उसी परिणाम फ़ोल्डर में regression_data.csv चुनें। यह तालिका Regression ने लिखी है। यह हर विश्लेषित वेल में हर गाइड का अंश बताती है।",
+        "hold_after": 0.7,
+        "speech_text": "Well/guide fractions के लिए उसी परिणाम फ़ोल्डर में regression_data.csv चुनें। यह तालिका Regression ने लिखी है। यह हर विश्लेषित वेल में हर गाइड का अंश बताती है।"
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Independent morphology features खाली छोड़ें। तब मॉड्यूल डेटाबेस के तेरह संख्यात्मक कोशिका माप इस्तेमाल करता है और पहचानकर्ता, गाइड अंश और CV स्कोर छोड़ देता है, ताकि यह जाँच स्कोर को दोबारा इस्तेमाल न करे। अपने डेटाबेस के लिए केवल ऐसे माप कॉलम दें जिनमें कोई मान छूटा न हो।",
+        "hold_after": 0.7,
+        "speech_text": "Independent morphology features खाली छोड़ें। तब मॉड्यूल डेटाबेस के तेरह संख्यात्मक कोशिका माप इस्तेमाल करता है और पहचानकर्ता, गाइड अंश और CV स्कोर छोड़ देता है, ताकि यह जाँच स्कोर को दोबारा इस्तेमाल न करे। अपने डेटाबेस के लिए केवल ऐसे माप कॉलम दें जिनमें कोई मान छूटा न हो।"
+       },
+       {
+        "visual": "12_running",
+        "narration": "Investigate hit पर क्लिक करें। मॉडल एक बार में एक प्लेट अलग रखकर फ़िट किया जाता है, इसलिए किसी कोशिका को उसकी अपनी प्लेट पर प्रशिक्षित मॉडल स्कोर नहीं देता। किसी वेल का गाइड अंश केवल उस वेल की कोशिकाओं के लिए शुरुआती अपेक्षा तय करता है। वह कभी किसी कोशिका को गाइड वाली नहीं बताता। इस उदाहरण में कुछ मिनट लगते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Investigate hit पर क्लिक करें। मॉडल एक बार में एक प्लेट अलग रखकर फ़िट किया जाता है, इसलिए किसी कोशिका को उसकी अपनी प्लेट पर प्रशिक्षित मॉडल स्कोर नहीं देता। किसी वेल का गाइड अंश केवल उस वेल की कोशिकाओं के लिए शुरुआती अपेक्षा तय करता है। वह कभी किसी कोशिका को गाइड वाली नहीं बताता। इस उदाहरण में कुछ मिनट लगते हैं।"
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence परिणाम देता है। लक्ष्य वेलों में hit जैसी व्यापकता नियंत्रण वेलों से केवल शून्य दशमलव शून्य एक अधिक है। वेल बूटस्ट्रैप अंतराल ऋण शून्य दशमलव शून्य चार से धन शून्य दशमलव शून्य छह तक है, और ब्लॉक किए गए क्रमचय का P मान लगभग शून्य दशमलव छह तीन है। यह विश्लेषण इस उम्मीदवार के लिए अंतर का कोई स्पष्ट प्रमाण नहीं देता।",
+        "hold_after": 0.7,
+        "speech_text": "Evidence परिणाम देता है। लक्ष्य वेलों में hit जैसी व्यापकता नियंत्रण वेलों से केवल शून्य दशमलव शून्य एक अधिक है। वेल बूटस्ट्रैप अंतराल ऋण शून्य दशमलव शून्य चार से धन शून्य दशमलव शून्य छह तक है, और ब्लॉक किए गए क्रमचय का P मान लगभग शून्य दशमलव छह तीन है। यह विश्लेषण इस उम्मीदवार के लिए अंतर का कोई स्पष्ट प्रमाण नहीं देता।"
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells हर वेल का गाइड अंश, औसत hit जैसी संभावना, व्यापकता और कोशिकाओं की संख्या दिखाता है। हर वेल एक स्वतंत्र इकाई गिना जाता है, इसलिए तुलना अलग-अलग कोशिकाओं की नहीं, बल्कि तेरह लक्ष्य वेलों और उनतालीस नियंत्रण वेलों की होती है।",
+        "hold_after": 0.7,
+        "speech_text": "Wells हर वेल का गाइड अंश, औसत hit जैसी संभावना, व्यापकता और कोशिकाओं की संख्या दिखाता है। हर वेल एक स्वतंत्र इकाई गिना जाता है, इसलिए तुलना अलग-अलग कोशिकाओं की नहीं, बल्कि तेरह लक्ष्य वेलों और उनतालीस नियंत्रण वेलों की होती है।"
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides हर लक्ष्य गाइड को अलग दिखाता है। उनकी खुराक प्रतिक्रियाएँ अलग-अलग दिशाओं में जाती हैं, जो इस जीन को hit न मानने का एक और कारण है।",
+        "hold_after": 0.7,
+        "speech_text": "Guides हर लक्ष्य गाइड को अलग दिखाता है। उनकी खुराक प्रतिक्रियाएँ अलग-अलग दिशाओं में जाती हैं, जो इस जीन को hit न मानने का एक और कारण है।"
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity शून्य दशमलव पाँच से शून्य दशमलव नौ तक की संभावना सीमाओं पर तुलना दोहराता है। हर सीमा पर अंतर शून्य दशमलव शून्य एक के आसपास रहता है, इसलिए निष्कर्ष सीमा पर निर्भर नहीं करता।",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity शून्य दशमलव पाँच से शून्य दशमलव नौ तक की संभावना सीमाओं पर तुलना दोहराता है। हर सीमा पर अंतर शून्य दशमलव शून्य एक के आसपास रहता है, इसलिए निष्कर्ष सीमा पर निर्भर नहीं करता।"
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells कोशिकाओं को hit जैसी संभावना के क्रम में रखता है, मूल स्कोर और उस फ़ोल्ड के साथ जिसने हर कोशिका को स्कोर दिया। ये संभावनाएँ hit जैसी आकृति बताती हैं, यह नहीं कि किसी कोशिका में कौन-सी गाइड थी। निर्णयों को एनोटेशन में तभी भेजें जब वेल स्तर का प्रमाण भरोसेमंद हो। Undo भेजे गए निर्णय को वापस लेता है।",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells कोशिकाओं को hit जैसी संभावना के क्रम में रखता है, मूल स्कोर और उस फ़ोल्ड के साथ जिसने हर कोशिका को स्कोर दिया। ये संभावनाएँ hit जैसी आकृति बताती हैं, यह नहीं कि किसी कोशिका में कौन-सी गाइड थी। निर्णयों को एनोटेशन में तभी भेजें जब वेल स्तर का प्रमाण भरोसेमंद हो। Undo भेजे गए निर्णय को वापस लेता है।"
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "तालिकाएँ परिणाम फ़ोल्डर में hit_investigation के अंदर, फिर दो दो पाँच एक छह शून्य में सहेजी जाती हैं। इनमें यह एम्बेडिंग और एक मैनिफ़ेस्ट शामिल है, और हर रन डेटाबेस में एक नए संस्करण के रूप में भी रखा जाता है। उदाहरण में क्रॉप इमेज नहीं हैं, इसलिए समीक्षा गैलरी खाली रहती है। आगे, ज़्यादा क्रमचयों वाले Regression रन में आपकी सीमा पार करने वाले किसी जीन की जाँच करें।",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "तालिकाएँ परिणाम फ़ोल्डर में hit_investigation के अंदर, फिर दो दो पाँच एक छह शून्य में सहेजी जाती हैं। इनमें यह एम्बेडिंग और एक मैनिफ़ेस्ट शामिल है, और हर रन डेटाबेस में एक नए संस्करण के रूप में भी रखा जाता है। उदाहरण में क्रॉप इमेज नहीं हैं, इसलिए समीक्षा गैलरी खाली रहती है। आगे, ज़्यादा क्रमचयों वाले Regression रन में आपकी सीमा पार करने वाले किसी जीन की जाँच करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: risalire da un gene di Regression alle cellule misurate",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Invia un gene da Hit List a Investigate Hit, aggiungi il database delle misure, le predizioni per cellula e le frazioni delle guide, poi leggi le evidenze a livello di pozzetto.",
+      "objectives": [
+       "Aprire un’esecuzione di Regression in Hit List, controllare i valori q e inviare un gene a Investigate Hit.",
+       "Scegliere il database delle misure, le predizioni per cellula, le frazioni delle guide e la colonna del punteggio.",
+       "Leggere le schede di evidenze, pozzetti, guide e soglia, e trovare le tabelle salvate."
+      ],
+      "prerequisite": "Estrai Investigate_Hit_real_screen_example.zip. Tutto il contenuto proviene da un unico screening reale: l’esecuzione di Regression sui dati di prova di Regression (le impostazioni del tutorial di Regression), le corrispondenti predizioni CV per cellula e un database di misure con le reali misure di forma, dimensione e intensità delle stesse cellule. Il database di esempio comprende 52 pozzetti: tutti i pozzetti analizzati con una guida per il gene 225160, più tre pozzetti della stessa piastra senza quella guida per ogni pozzetto bersaglio. Nessun gene di questa esecuzione rapida di Regression soddisfa q ≤ 0,05. Considera l’indagine un esempio pratico, non un hit confermato.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Da Home, apri Regression. Investigate Hit parte da un’esecuzione di Regression completata. Si chiede se le cellule misurate nei pozzetti legati a un gene appaiano diverse da quelle dei pozzetti senza quel gene.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Da Home, apri Regression. Investigate Hit parte da un’esecuzione di Regression completata. Si chiede se le cellule misurate nei pozzetti legati a un gene appaiano diverse da quelle dei pozzetti senza quel gene."
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Scegli Hits per aprire Hit List. Prima estrai l’archivio di esempio. Contiene un’esecuzione di Regression sui dati di prova, le corrispondenti predizioni CV per cellula e un database di misure delle stesse cellule. Tutti e tre provengono da un unico screening reale.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Scegli Hits per aprire Hit List. Prima estrai l’archivio di esempio. Contiene un’esecuzione di Regression sui dati di prova, le corrispondenti predizioni CV per cellula e un database di misure delle stesse cellule. Tutti e tre provengono da un unico screening reale."
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Fai clic su Browse e seleziona la cartella guide_permutation dentro regression_run, results. È l’output dell’esecuzione sui dati di prova del tutorial di Regression.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Browse e seleziona la cartella guide_permutation dentro regression_run, results. È l’output dell’esecuzione sui dati di prova del tutorial di Regression."
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List ordina trecentoventicinque geni. Leggi insieme effetto, valore P e valore q di ogni riga, insieme al numero di guide e a quante di esse concordano.",
+        "hold_after": 0.7,
+        "speech_text": "Hit List ordina trecentoventicinque geni. Leggi insieme effetto, valore P e valore q di ogni riga, insieme al numero di guide e a quante di esse concordano."
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Imposta Max q a zero virgola zero cinque. La tabella si svuota perché in questa esecuzione nessun gene ha un valore q pari o inferiore a zero virgola zero cinque. Con centonovantanove permutazioni, il valore P più piccolo possibile è zero virgola zero zero cinque, e il valore q più basso è circa zero virgola ventisette. Quello che segue esamina quindi un candidato in graduatoria, non un hit confermato.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Imposta Max q a zero virgola zero cinque. La tabella si svuota perché in questa esecuzione nessun gene ha un valore q pari o inferiore a zero virgola zero cinque. Con centonovantanove permutazioni, il valore P più piccolo possibile è zero virgola zero zero cinque, e il valore q più basso è circa zero virgola ventisette. Quello che segue esamina quindi un candidato in graduatoria, non un hit confermato."
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Riporta Max q a uno, cerca due due cinque uno sei zero e seleziona la sua riga. Ha un effetto di zero virgola trentaquattro, un valore q di zero virgola ventisette e tre guide che concordano tutte nella direzione.",
+        "hold_after": 0.7,
+        "speech_text": "Riporta Max q a uno, cerca due due cinque uno sei zero e seleziona la sua riga. Ha un effetto di zero virgola trentaquattro, un valore q di zero virgola ventisette e tre guide che concordano tutte nella direzione."
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Fai clic su Investigate selected. Investigate Hit si apre con la cartella dei risultati, il gene, le sue tre guide e una direzione dell’effetto positiva già compilati da quella riga.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Investigate selected. Investigate Hit si apre con la cartella dei risultati, il gene, le sue tre guide e una direzione dell’effetto positiva già compilati da quella riga."
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Accanto a Measurements database, fai clic su Browse e scegli measurements.db dall’esempio. Contiene forma, dimensione e intensità media per canale di ottomilanovecentoquindici cellule in cinquantadue pozzetti.",
+        "hold_after": 0.7,
+        "speech_text": "Accanto a Measurements database, fai clic su Browse e scegli measurements punto di bi dall’esempio. Contiene forma, dimensione e intensità media per canale di ottomilanovecentoquindici cellule in cinquantadue pozzetti."
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Per Existing CV predictions, scegli cv_predictions.csv. Ogni riga è il punteggio CV salvato di una cellula, collegato allo stesso oggetto misurato. Fai clic sul percorso e premi Invio così vengono lette le colonne dei punteggi, poi mantieni pred come colonna del punteggio del fenotipo.",
+        "hold_after": 0.7,
+        "speech_text": "Per Existing CV predictions, scegli cv_predictions.csv. Ogni riga è il punteggio CV salvato di una cellula, collegato allo stesso oggetto misurato. Fai clic sul percorso e premi Invio così vengono lette le colonne dei punteggi, poi mantieni pred come colonna del punteggio del fenotipo."
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Per Well/guide fractions, scegli regression_data.csv nella stessa cartella dei risultati. Questa tabella l’ha scritta Regression. Riporta la frazione di ciascuna guida in ogni pozzetto analizzato.",
+        "hold_after": 0.7,
+        "speech_text": "Per Well/guide fractions, scegli regression_data.csv nella stessa cartella dei risultati. Questa tabella l’ha scritta Regression. Riporta la frazione di ciascuna guida in ogni pozzetto analizzato."
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Lascia vuoto Independent morphology features. Il modulo usa allora le tredici misure cellulari numeriche del database ed esclude identificatori, frazioni delle guide e punteggio CV, così questo controllo non riutilizza il punteggio. Per il tuo database, indica solo colonne di misure senza valori mancanti.",
+        "hold_after": 0.7,
+        "speech_text": "Lascia vuoto Independent morphology features. Il modulo usa allora le tredici misure cellulari numeriche del database ed esclude identificatori, frazioni delle guide e punteggio CV, così questo controllo non riutilizza il punteggio. Per il tuo database, indica solo colonne di misure senza valori mancanti."
+       },
+       {
+        "visual": "12_running",
+        "narration": "Fai clic su Investigate hit. Il modello viene adattato escludendo una piastra alla volta, quindi nessuna cellula riceve un punteggio da un modello addestrato sulla propria piastra. La frazione di guida di un pozzetto fissa solo l’aspettativa iniziale per le sue cellule. Non indica mai che una cellula porta la guida. Questo esempio richiede alcuni minuti.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Investigate hit. Il modello viene adattato escludendo una piastra alla volta, quindi nessuna cellula riceve un punteggio da un modello addestrato sulla propria piastra. La frazione di guida di un pozzetto fissa solo l’aspettativa iniziale per le sue cellule. Non indica mai che una cellula porta la guida. Questo esempio richiede alcuni minuti."
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Questa analisi non fornisce prove chiare di una differenza per questo candidato.",
+        "hold_after": 0.7,
+        "speech_text": "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Questa analisi non fornisce prove chiare di una differenza per questo candidato."
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells riporta per ogni pozzetto la frazione di guida, la probabilità media di tipo hit, la prevalenza e il numero di cellule. Ogni pozzetto conta come un’unità indipendente, quindi il confronto usa tredici pozzetti bersaglio e trentanove pozzetti di controllo, non le singole cellule.",
+        "hold_after": 0.7,
+        "speech_text": "Wells riporta per ogni pozzetto la frazione di guida, la probabilità media di tipo hit, la prevalenza e il numero di cellule. Ogni pozzetto conta come un’unità indipendente, quindi il confronto usa tredici pozzetti bersaglio e trentanove pozzetti di controllo, non le singole cellule."
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides mostra ogni guida bersaglio separatamente. Le loro risposte alla dose vanno in direzioni diverse, un motivo in più per non trattare questo gene come un hit.",
+        "hold_after": 0.7,
+        "speech_text": "Guides mostra ogni guida bersaglio separatamente. Le loro risposte alla dose vanno in direzioni diverse, un motivo in più per non trattare questo gene come un hit."
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity ripete il confronto con soglie di probabilità da zero virgola cinque a zero virgola nove. Con ogni soglia la differenza resta vicina a zero virgola zero uno, quindi la conclusione non dipende dalla soglia.",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity ripete il confronto con soglie di probabilità da zero virgola cinque a zero virgola nove. Con ogni soglia la differenza resta vicina a zero virgola zero uno, quindi la conclusione non dipende dalla soglia."
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ordina le cellule per probabilità di tipo hit, con il punteggio originale e la fold che ha assegnato il punteggio a ogni cellula. Queste probabilità descrivono una morfologia di tipo hit, non quale guida portasse una cellula. Promuovi le classificazioni all’annotazione solo quando le evidenze a livello di pozzetto sono convincenti. Undo annulla una promozione.",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells ordina le cellule per probabilità di tipo hit, con il punteggio originale e la fold che ha assegnato il punteggio a ogni cellula. Queste probabilità descrivono una morfologia di tipo hit, non quale guida portasse una cellula. Promuovi le classificazioni all’annotazione solo quando le evidenze a livello di pozzetto sono convincenti. Undo annulla una promozione."
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Le tabelle sono salvate nella cartella dei risultati, in hit_investigation e poi in due due cinque uno sei zero. Includono questa rappresentazione e un manifest, e ogni esecuzione viene anche conservata come nuova versione nel database. L’esempio non contiene immagini dei ritagli, quindi la galleria di revisione resta vuota. Come passo successivo, indaga un gene che superi la tua soglia in un’esecuzione di Regression con più permutazioni.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Le tabelle sono salvate nella cartella dei risultati, in hit_investigation e poi in due due cinque uno sei zero. Includono questa rappresentazione e un manifest, e ogni esecuzione viene anche conservata come nuova versione nel database. L’esempio non contiene immagini dei ritagli, quindi la galleria di revisione resta vuota. Come passo successivo, indaga un gene che superi la tua soglia in un’esecuzione di Regression con più permutazioni."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit：Regressionの遺伝子から測定した細胞までたどる",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Hit Listから遺伝子を一つInvestigate Hitに送り、測定データベース、細胞ごとの予測、ガイドの割合を加えて、ウェル単位の証拠を読みます。",
+      "objectives": [
+       "Hit ListでRegressionの実行を開き、q値を確認して、遺伝子を一つInvestigate Hitに送る。",
+       "測定データベース、細胞ごとの予測、ガイドの割合、スコアの列を選ぶ。",
+       "証拠、ウェル、ガイド、しきい値の各タブを読み、保存された表を見つける。"
+      ],
+      "prerequisite": "Investigate_Hit_real_screen_example.zipを展開します。中身はすべて一つの実際のスクリーンから得たものです。Regressionのテストデータで行ったRegressionの実行（Regressionのチュートリアルの設定）、それに対応する細胞ごとのCV予測、そして同じ細胞の実際の形、大きさ、強度の測定値を含む測定データベースです。この例のデータベースには52のウェルが入っています。遺伝子225160のガイドを持つ解析済みウェルすべてに加え、各標的ウェルに対して、同じプレートにあるそのガイドを持たないウェル三つを含みます。この短いRegressionの実行では、q ≤ 0.05を満たす遺伝子はありません。この調査は確定したヒットではなく、実践例として扱ってください。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "HomeからRegressionを開きます。Investigate Hitは、完了したRegressionの実行から始めます。ある遺伝子に対応するウェルで測定した細胞が、その遺伝子のないウェルの細胞と違って見えるかどうかを問います。",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "ホームからRegressionを開きます。Investigate Hitは、完了したRegressionの実行から始めます。ある遺伝子に対応するウェルで測定した細胞が、その遺伝子のないウェルの細胞と違って見えるかどうかを問います。"
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Hitsを選んでHit Listを開きます。まず例のアーカイブを展開します。テストデータでのRegressionの実行、それに対応する細胞ごとのCV予測、同じ細胞の測定データベースが入っています。三つとも、一つの実際のスクリーンから得たものです。",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Hitsを選んでHit Listを開きます。まず例のアーカイブを展開します。テストデータでのRegressionの実行、それに対応する細胞ごとのCV予測、同じ細胞の測定データベースが入っています。三つとも、一つの実際のスクリーンから得たものです。"
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Browseをクリックし、regression_runのresultsの中にあるguide_permutationフォルダーを選びます。これは、Regressionのチュートリアルでテストデータを使って実行した結果です。",
+        "hold_after": 0.7,
+        "speech_text": "Browseをクリックし、regression_runのresultsの中にあるguide_permutationフォルダーを選びます。これは、Regressionのチュートリアルでテストデータを使って実行した結果です。"
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit Listは三百二十五の遺伝子を順位付けします。各行の効果、P値、q値をまとめて読み、ガイドの数と、そのうちいくつの向きが一致しているかも確認します。",
+        "hold_after": 0.7,
+        "speech_text": "Hit Listは三百二十五の遺伝子を順位付けします。各行の効果、P値、q値をまとめて読み、ガイドの数と、そのうちいくつの向きが一致しているかも確認します。"
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Max qを零点零五に設定します。この実行ではq値が零点零五以下の遺伝子がないため、表は空になります。百九十九回の並べ替えでは、取りうる最小のP値は零点零零五で、最も低いq値はおよそ零点二七です。そのため、ここからは確定したヒットではなく、順位の高い候補を調べます。",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Max qを零点零五に設定します。この実行ではq値が零点零五以下の遺伝子がないため、表は空になります。百九十九回の並べ替えでは、取りうる最小のP値は零点零零五で、最も低いq値はおよそ零点二七です。そのため、ここからは確定したヒットではなく、順位の高い候補を調べます。"
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Max qを一に戻し、二二五一六〇を検索して、その行を選びます。効果は零点三四、q値は零点二七で、三つのガイドはすべて同じ向きです。",
+        "hold_after": 0.7,
+        "speech_text": "Max qを一に戻し、二二五一六〇を検索して、その行を選びます。効果は零点三四、q値は零点二七で、三つのガイドはすべて同じ向きです。"
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Investigate selectedをクリックします。Investigate Hitが開き、その行から結果フォルダー、遺伝子、三つのガイド、正の効果の向きがすでに入力されています。",
+        "hold_after": 0.7,
+        "speech_text": "Investigate selectedをクリックします。Investigate Hitが開き、その行から結果フォルダー、遺伝子、三つのガイド、正の効果の向きがすでに入力されています。"
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Measurements databaseの横でBrowseをクリックし、例のmeasurements.dbを選びます。五十二のウェルにある八千九百十五個の細胞について、形、大きさ、チャネルごとの平均強度が入っています。",
+        "hold_after": 0.7,
+        "speech_text": "Measurements databaseの横でBrowseをクリックし、例のメジャメンツ・ドット・ディービーを選びます。五十二のウェルにある八千九百十五個の細胞について、形、大きさ、チャネルごとの平均強度が入っています。"
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Existing CV predictionsには、cv_predictions.csvを選びます。各行は一つの細胞について保存されたCVのスコアで、同じ測定済みの物体に結び付いています。パスをクリックしてEnterを押すとスコアの列が読み込まれるので、表現型のスコアの列はpredのままにします。",
+        "hold_after": 0.7,
+        "speech_text": "Existing CV predictionsには、cv_predictions.csvを選びます。各行は一つの細胞について保存されたCVのスコアで、同じ測定済みの物体に結び付いています。パスをクリックしてEnterを押すとスコアの列が読み込まれるので、表現型のスコアの列はpredのままにします。"
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Well/guide fractionsには、同じ結果フォルダーのregression_data.csvを選びます。この表はRegressionが書き出したもので、解析した各ウェルにおける各ガイドの割合を示しています。",
+        "hold_after": 0.7,
+        "speech_text": "Well/guide fractionsには、同じ結果フォルダーのregression_data.csvを選びます。この表はRegressionが書き出したもので、解析した各ウェルにおける各ガイドの割合を示しています。"
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Independent morphology featuresは空欄のままにします。するとモジュールは、データベースにある十三の数値の細胞測定値を使い、識別子、ガイドの割合、CVのスコアは除きます。そのため、この確認でスコアが再利用されることはありません。自分のデータベースでは、欠損値のない測定値の列だけを指定してください。",
+        "hold_after": 0.7,
+        "speech_text": "Independent morphology featuresは空欄のままにします。するとモジュールは、データベースにある十三の数値の細胞測定値を使い、識別子、ガイドの割合、CVのスコアは除きます。そのため、この確認でスコアが再利用されることはありません。自分のデータベースでは、欠損値のない測定値の列だけを指定してください。"
+       },
+       {
+        "visual": "12_running",
+        "narration": "Investigate hitをクリックします。モデルは一度に一つのプレートを除いて当てはめられるので、どの細胞も自分のプレートで学習したモデルでスコア付けされることはありません。ウェルのガイドの割合は、そのウェルの細胞に対する最初の見込みを決めるだけです。細胞がそのガイドを持つと判定することはありません。この例は数分かかります。",
+        "hold_after": 0.7,
+        "speech_text": "Investigate hitをクリックします。モデルは一度に一つのプレートを除いて当てはめられるので、どの細胞も自分のプレートで学習したモデルでスコア付けされることはありません。ウェルのガイドの割合は、そのウェルの細胞に対する最初の見込みを決めるだけです。細胞がそのガイドを持つと判定することはありません。この例は数分かかります。"
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidenceに結果が表示されます。標的ウェルのヒット様の有病率は、対照ウェルよりわずか零点零一高いだけです。ウェル単位のブートストラップ区間はマイナス零点零四からプラス零点零六で、ブロック並べ替えのP値はおよそ零点六三です。この解析では、この候補について差があることを示す明確な証拠は得られていません。",
+        "hold_after": 0.7,
+        "speech_text": "Evidenceに結果が表示されます。標的ウェルのヒット様の有病率は、対照ウェルよりわずか零点零一高いだけです。ウェル単位のブートストラップ区間はマイナス零点零四からプラス零点零六で、ブロック並べ替えのP値はおよそ零点六三です。この解析では、この候補について差があることを示す明確な証拠は得られていません。"
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wellsには、ウェルごとのガイドの割合、ヒット様の確率の平均、有病率、細胞数が表示されます。各ウェルを独立した一つの単位として数えるので、比較は個々の細胞ではなく、十三の標的ウェルと三十九の対照ウェルで行われます。",
+        "hold_after": 0.7,
+        "speech_text": "Wellsには、ウェルごとのガイドの割合、ヒット様の確率の平均、有病率、細胞数が表示されます。各ウェルを独立した一つの単位として数えるので、比較は個々の細胞ではなく、十三の標的ウェルと三十九の対照ウェルで行われます。"
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guidesでは、標的ガイドが一つずつ表示されます。用量反応の向きがばらばらで、この遺伝子をヒットとして扱わない理由がもう一つ増えます。",
+        "hold_after": 0.7,
+        "speech_text": "Guidesでは、標的ガイドが一つずつ表示されます。用量反応の向きがばらばらで、この遺伝子をヒットとして扱わない理由がもう一つ増えます。"
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivityは、確率のしきい値を零点五から零点九まで変えて比較を繰り返します。どのしきい値でも差は零点零一付近のままなので、結論はしきい値に左右されません。",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivityは、確率のしきい値を零点五から零点九まで変えて比較を繰り返します。どのしきい値でも差は零点零一付近のままなので、結論はしきい値に左右されません。"
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cellsは、ヒット様の確率で細胞を順位付けし、元のスコアと、各細胞をスコア付けしたフォールドも示します。これらの確率はヒット様の形態を表すもので、細胞がどのガイドを持っていたかを示すものではありません。ウェル単位の証拠が確かな場合にだけ、判定をアノテーションに昇格させてください。Undoで昇格を取り消せます。",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cellsは、ヒット様の確率で細胞を順位付けし、元のスコアと、各細胞をスコア付けしたフォールドも示します。これらの確率はヒット様の形態を表すもので、細胞がどのガイドを持っていたかを示すものではありません。ウェル単位の証拠が確かな場合にだけ、判定をアノテーションに昇格させてください。Undoで昇格を取り消せます。"
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "表は結果フォルダーのhit_investigationの中の、二二五一六〇に保存されます。この埋め込みとマニフェストが含まれ、各実行はデータベースにも新しい版として保存されます。この例には切り出し画像がないため、確認用のギャラリーは空のままです。次は、並べ替えの回数を増やしたRegressionの実行で、しきい値を満たす遺伝子を調べましょう。",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "表は結果フォルダーのhit_investigationの中の、二二五一六〇に保存されます。この埋め込みとマニフェストが含まれ、各実行はデータベースにも新しい版として保存されます。この例には切り出し画像がないため、確認用のギャラリーは空のままです。次は、並べ替えの回数を増やしたRegressionの実行で、しきい値を満たす遺伝子を調べましょう。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: rastrear um gene de Regression até as células medidas",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Envie um gene da Hit List para o Investigate Hit, adicione o banco de dados de medições, as predições por célula e as frações de guias e leia as evidências no nível do poço.",
+      "objectives": [
+       "Abrir uma execução de Regression na Hit List, conferir os valores q e enviar um gene para o Investigate Hit.",
+       "Escolher o banco de dados de medições, as predições por célula, as frações de guias e a coluna de pontuação.",
+       "Ler as abas de evidências, poços, guias e limiar e encontrar as tabelas salvas."
+      ],
+      "prerequisite": "Extraia Investigate_Hit_real_screen_example.zip. Todo o conteúdo vem de uma mesma triagem real: a execução de Regression com os dados de teste de Regression (as configurações do tutorial de Regression), as predições CV por célula correspondentes e um banco de dados de medições com as medidas reais de forma, tamanho e intensidade dessas mesmas células. O banco de dados de exemplo contém 52 poços: todos os poços analisados com uma guia para o gene 225160, mais três poços da mesma placa sem essa guia para cada poço-alvo. Nenhum gene desta execução rápida de Regression atende a q ≤ 0,05. Trate a investigação como um exemplo prático, e não como um hit confirmado.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Na tela Home, abra Regression. O Investigate Hit parte de uma execução de Regression concluída. Ele pergunta se as células medidas nos poços ligados a um gene parecem diferentes das células de poços sem esse gene.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Na tela Home, abra Regression. O Investigate Hit parte de uma execução de Regression concluída. Ele pergunta se as células medidas nos poços ligados a um gene parecem diferentes das células de poços sem esse gene."
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Escolha Hits para abrir a Hit List. Primeiro extraia o arquivo de exemplo. Ele contém uma execução de Regression com os dados de teste, as predições CV por célula correspondentes e um banco de dados de medições das mesmas células. Os três vêm de uma mesma triagem real.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Escolha Hits para abrir a Hit List. Primeiro extraia o arquivo de exemplo. Ele contém uma execução de Regression com os dados de teste, as predições CV por célula correspondentes e um banco de dados de medições das mesmas células. Os três vêm de uma mesma triagem real."
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Clique em Browse e selecione a pasta guide_permutation dentro de regression_run, results. Essa é a saída da execução com dados de teste do tutorial de Regression.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Browse e selecione a pasta guide_permutation dentro de regression_run, results. Essa é a saída da execução com dados de teste do tutorial de Regression."
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "A Hit List ordena trezentos e vinte e cinco genes. Leia juntos o efeito, o valor P e o valor q de cada linha, além do número de guias e de quantas delas concordam.",
+        "hold_after": 0.7,
+        "speech_text": "A Hit List ordena trezentos e vinte e cinco genes. Leia juntos o efeito, o valor P e o valor q de cada linha, além do número de guias e de quantas delas concordam."
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Defina Max q como zero vírgula zero cinco. A tabela fica vazia porque nenhum gene desta execução tem valor q igual ou menor que zero vírgula zero cinco. Com cento e noventa e nove permutações, o menor valor P possível é zero vírgula zero zero cinco, e o menor valor q fica em torno de zero vírgula vinte e sete. Por isso, o que vem a seguir examina um candidato ranqueado, e não um hit confirmado.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "Defina Max q como zero vírgula zero cinco. A tabela fica vazia porque nenhum gene desta execução tem valor q igual ou menor que zero vírgula zero cinco. Com cento e noventa e nove permutações, o menor valor P possível é zero vírgula zero zero cinco, e o menor valor q fica em torno de zero vírgula vinte e sete. Por isso, o que vem a seguir examina um candidato ranqueado, e não um hit confirmado."
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Volte Max q para um, busque dois dois cinco um seis zero e selecione a linha dele. Ele tem efeito de zero vírgula trinta e quatro, valor q de zero vírgula vinte e sete e três guias que concordam na direção.",
+        "hold_after": 0.7,
+        "speech_text": "Volte Max q para um, busque dois dois cinco um seis zero e selecione a linha dele. Ele tem efeito de zero vírgula trinta e quatro, valor q de zero vírgula vinte e sete e três guias que concordam na direção."
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Clique em Investigate selected. O Investigate Hit abre com a pasta de resultados, o gene, as três guias e uma direção de efeito positiva já preenchidos a partir dessa linha.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Investigate selected. O Investigate Hit abre com a pasta de resultados, o gene, as três guias e uma direção de efeito positiva já preenchidos a partir dessa linha."
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Ao lado de Measurements database, clique em Browse e escolha o measurements.db do exemplo. Ele contém forma, tamanho e intensidade média por canal de oito mil novecentas e quinze células em cinquenta e dois poços.",
+        "hold_after": 0.7,
+        "speech_text": "Ao lado de Measurements database, clique em Browse e escolha o measurements ponto dê bê do exemplo. Ele contém forma, tamanho e intensidade média por canal de oito mil novecentas e quinze células em cinquenta e dois poços."
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Em Existing CV predictions, escolha cv_predictions.csv. Cada linha é a pontuação CV salva de uma célula, ligada ao mesmo objeto medido. Clique no caminho e aperte Enter para que as colunas de pontuação sejam lidas, e mantenha pred como a coluna de pontuação do fenótipo.",
+        "hold_after": 0.7,
+        "speech_text": "Em Existing CV predictions, escolha cv_predictions.csv. Cada linha é a pontuação CV salva de uma célula, ligada ao mesmo objeto medido. Clique no caminho e aperte Enter para que as colunas de pontuação sejam lidas, e mantenha pred como a coluna de pontuação do fenótipo."
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Em Well/guide fractions, escolha regression_data.csv na mesma pasta de resultados. Foi o Regression que gravou essa tabela. Ela traz a fração de cada guia em cada poço analisado.",
+        "hold_after": 0.7,
+        "speech_text": "Em Well/guide fractions, escolha regression_data.csv na mesma pasta de resultados. Foi o Regression que gravou essa tabela. Ela traz a fração de cada guia em cada poço analisado."
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Deixe Independent morphology features vazio. Assim o módulo usa as treze medições celulares numéricas do banco de dados e deixa de fora identificadores, frações de guias e a pontuação CV, de modo que esta verificação não reaproveita a pontuação. No seu próprio banco de dados, liste apenas colunas de medição sem valores ausentes.",
+        "hold_after": 0.7,
+        "speech_text": "Deixe Independent morphology features vazio. Assim o módulo usa as treze medições celulares numéricas do banco de dados e deixa de fora identificadores, frações de guias e a pontuação CV, de modo que esta verificação não reaproveita a pontuação. No seu próprio banco de dados, liste apenas colunas de medição sem valores ausentes."
+       },
+       {
+        "visual": "12_running",
+        "narration": "Clique em Investigate hit. O modelo é ajustado deixando uma placa de fora de cada vez, então nenhuma célula é pontuada por um modelo treinado na própria placa. A fração de guia de um poço só define a expectativa inicial para as células desse poço. Ela nunca marca uma célula como portadora da guia. Este exemplo leva alguns minutos.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Investigate hit. O modelo é ajustado deixando uma placa de fora de cada vez, então nenhuma célula é pontuada por um modelo treinado na própria placa. A fração de guia de um poço só define a expectativa inicial para as células desse poço. Ela nunca marca uma célula como portadora da guia. Este exemplo leva alguns minutos."
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence mostra o resultado. Os poços-alvo têm uma prevalência do tipo hit apenas zero vírgula zero um maior que a dos poços-controle. O intervalo bootstrap por poço vai de menos zero vírgula zero quatro a mais zero vírgula zero seis, e o valor P da permutação em blocos é de cerca de zero vírgula sessenta e três. Esta análise não fornece evidência clara de uma diferença para este candidato.",
+        "hold_after": 0.7,
+        "speech_text": "Evidence mostra o resultado. Os poços-alvo têm uma prevalência do tipo hit apenas zero vírgula zero um maior que a dos poços-controle. O intervalo bootstrap por poço vai de menos zero vírgula zero quatro a mais zero vírgula zero seis, e o valor P da permutação em blocos é de cerca de zero vírgula sessenta e três. Esta análise não fornece evidência clara de uma diferença para este candidato."
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells lista, para cada poço, a fração de guia, a probabilidade média do tipo hit, a prevalência e o número de células. Cada poço conta como uma unidade independente, por isso a comparação usa treze poços-alvo e trinta e nove poços-controle, e não células individuais.",
+        "hold_after": 0.7,
+        "speech_text": "Wells lista, para cada poço, a fração de guia, a probabilidade média do tipo hit, a prevalência e o número de células. Cada poço conta como uma unidade independente, por isso a comparação usa treze poços-alvo e trinta e nove poços-controle, e não células individuais."
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides mostra cada guia-alvo separadamente. As respostas à dose apontam em direções diferentes, mais um motivo para não tratar este gene como um hit.",
+        "hold_after": 0.7,
+        "speech_text": "Guides mostra cada guia-alvo separadamente. As respostas à dose apontam em direções diferentes, mais um motivo para não tratar este gene como um hit."
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity repete a comparação com limiares de probabilidade de zero vírgula cinco a zero vírgula nove. Em todos os limiares a diferença fica perto de zero vírgula zero um, então a conclusão não depende do limiar.",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity repete a comparação com limiares de probabilidade de zero vírgula cinco a zero vírgula nove. Em todos os limiares a diferença fica perto de zero vírgula zero um, então a conclusão não depende do limiar."
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ordena as células pela probabilidade do tipo hit, com a pontuação original e a dobra que pontuou cada célula. Essas probabilidades descrevem uma morfologia do tipo hit, e não qual guia uma célula carregava. Promova classificações para a anotação apenas quando as evidências no nível do poço forem convincentes. Undo desfaz uma promoção.",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells ordena as células pela probabilidade do tipo hit, com a pontuação original e a dobra que pontuou cada célula. Essas probabilidades descrevem uma morfologia do tipo hit, e não qual guia uma célula carregava. Promova classificações para a anotação apenas quando as evidências no nível do poço forem convincentes. Undo desfaz uma promoção."
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "As tabelas são salvas na pasta de resultados, em hit_investigation e depois em dois dois cinco um seis zero. Elas incluem esta representação e um manifesto, e cada execução também é guardada como uma nova versão no banco de dados. O exemplo não tem imagens de recortes, então a galeria de revisão fica vazia. Em seguida, investigue um gene que passe no seu limiar em uma execução de Regression com mais permutações.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "As tabelas são salvas na pasta de resultados, em hit_investigation e depois em dois dois cinco um seis zero. Elas incluem esta representação e um manifesto, e cada execução também é guardada como uma nova versão no banco de dados. O exemplo não tem imagens de recortes, então a galeria de revisão fica vazia. Em seguida, investigue um gene que passe no seu limiar em uma execução de Regression com mais permutações."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit：从Regression的基因追溯到测量的细胞",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "从Hit List把一个基因发送到Investigate Hit，添加测量数据库、单细胞预测和向导比例，然后阅读孔水平的证据。",
+      "objectives": [
+       "在Hit List中打开一次Regression运行，检查q值，并把一个基因发送到Investigate Hit。",
+       "选择测量数据库、细胞预测、向导比例和分数列。",
+       "阅读证据、孔、向导和阈值选项卡，并找到保存的表格。"
+      ],
+      "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。示例数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个目标孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "从Home打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "从主页打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。"
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。"
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。",
+        "hold_after": 0.7,
+        "speech_text": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。"
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。",
+        "hold_after": 0.7,
+        "speech_text": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。"
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。"
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。",
+        "hold_after": 0.7,
+        "speech_text": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。"
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。",
+        "hold_after": 0.7,
+        "speech_text": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。"
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "在Measurements database旁点击Browse，选择示例中的measurements.db。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。",
+        "hold_after": 0.7,
+        "speech_text": "在Measurements database旁点击Browse，选择示例中的测量数据库文件。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。"
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。",
+        "hold_after": 0.7,
+        "speech_text": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。"
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。",
+        "hold_after": 0.7,
+        "speech_text": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。"
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。",
+        "hold_after": 0.7,
+        "speech_text": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。"
+       },
+       {
+        "visual": "12_running",
+        "narration": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。",
+        "hold_after": 0.7,
+        "speech_text": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。"
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。对于这个候选，这项分析未提供存在差异的明确证据。",
+        "hold_after": 0.7,
+        "speech_text": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。对于这个候选，这项分析未提供存在差异的明确证据。"
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。",
+        "hold_after": 0.7,
+        "speech_text": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。"
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。",
+        "hold_after": 0.7,
+        "speech_text": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。"
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。",
+        "hold_after": 0.7,
+        "speech_text": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。"
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。",
+        "hold_after": 0.7,
+        "speech_text": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。"
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7,
+        "speech_text": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: spor et gen fra Regression tilbage til de målte celler",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send et gen fra Hit List til Investigate Hit, tilføj måledatabasen, celleprædiktionerne og guideandelene, og læs derefter evidensen på brøndniveau.",
+      "objectives": [
+       "Åbne en Regression-kørsel i Hit List, kontrollere q-værdier og sende ét gen til Investigate Hit.",
+       "Vælge måledatabase, celleprædiktioner, guideandele og scorekolonne.",
+       "Læse fanerne for evidens, brønde, guides og tærskel og finde de gemte tabeller."
+      ],
+      "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. Eksempeldatabasen indeholder 52 brønde: alle analyserede brønde med en guide til gen 225160 samt tre brønde fra samme plade uden denne guide for hver målbrønd. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åbner du Regression. Investigate Hit tager udgangspunkt i en afsluttet Regression-kørsel. Det spørger, om de målte celler i brøndene bag ét gen ser anderledes ud end celler i brønde uden det gen.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Vælg Hits for at åbne Hit List. Udpak først eksempelarkivet. Det indeholder en Regression-kørsel på testdataene, de tilsvarende CV-prædiktioner pr. celle og en måledatabase for de samme celler. Alle tre stammer fra én og samme reelle screening.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Klik på Browse, og vælg mappen guide_permutation i regression_run, results. Det er outputtet fra testdatakørslen i Regression-vejledningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List rangerer 325 gener. Læs effekt, P-værdi og q-værdi for hver række samlet, sammen med antallet af guides og hvor mange af dem, der er enige.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Sæt Max q til 0,05. Tabellen tømmes, fordi intet gen i denne kørsel har en q-værdi på højst 0,05. Med 199 permutationer er den mindst mulige P-værdi 0,005, og den laveste q-værdi er omkring 0,27. Det, der følger, undersøger derfor en rangeret kandidat, ikke et bekræftet hit.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Sæt Max q tilbage til 1, søg efter 225160, og markér dets række. Det har en effekt på 0,34, en q-værdi på 0,27 og tre guides, der alle peger i samme retning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Klik på Investigate selected. Investigate Hit åbner med resultatmappen, genet, dets tre guides og en positiv effektretning allerede udfyldt fra rækken.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Ved siden af Measurements database klikker du på Browse og vælger measurements.db fra eksemplet. Den indeholder form, størrelse og gennemsnitlig kanalintensitet for 8.915 celler i 52 brønde.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Til Existing CV predictions vælger du cv_predictions.csv. Hver række er én celles gemte CV-score, knyttet til det samme målte objekt. Klik på stien, og tryk på Enter, så scorekolonnerne indlæses, og behold derefter pred som fænotypescorekolonne.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Til Well/guide fractions vælger du regression_data.csv i den samme resultatmappe. Den tabel er skrevet af Regression. Den angiver hver guides andel i hver analyseret brønd.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Lad Independent morphology features stå tomt. Modulet bruger så databasens 13 numeriske cellemålinger og udelader identifikatorer, guideandele og CV-scoren, så kontrollen ikke genbruger scoren. Til din egen database angiver du kun målekolonner uden manglende værdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Klik på Investigate hit. Modellen tilpasses med én plade holdt ude ad gangen, så ingen celle scores af en model, der er trænet på dens egen plade. En brønds guideandel fastlægger kun udgangsforventningen for brøndens celler. Den markerer aldrig en celle som bærer af guiden. Eksemplet tager et par minutter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Denne analyse giver ingen klar evidens for en forskel for denne kandidat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells viser hver brønds guideandel, gennemsnitlige hit-lignende sandsynlighed, prævalens og celleantal. Hver brønd tæller som én uafhængig enhed, så sammenligningen bruger 13 målbrønde og 39 kontrolbrønde, ikke enkeltceller.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides viser hver målguide for sig. Deres dosis-respons-forløb peger i forskellige retninger, hvilket er endnu en grund til ikke at behandle genet som et hit.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity gentager sammenligningen ved sandsynlighedsgrænser fra 0,5 til 0,9. Ved hver grænse forbliver forskellen tæt på 0,01, så konklusionen afhænger ikke af grænsen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells rangerer cellerne efter hit-lignende sandsynlighed med den oprindelige score og den fold, der scorede hver celle. Disse sandsynligheder beskriver hit-lignende morfologi, ikke hvilken guide en celle bar. Overfør kun vurderinger til annotering, når evidensen på brøndniveau er overbevisende. Undo fortryder en overførsel.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Tabellerne gemmes i resultatmappen under hit_investigation og derefter 225160. De indeholder denne indlejring og et manifest, og hver kørsel gemmes desuden som en ny version i databasen. Eksemplet har ingen udsnitsbilleder, så gennemgangsgalleriet forbliver tomt. Undersøg derefter et gen, der klarer din tærskel i en Regression-kørsel med flere permutationer.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: ein Regression-Gen bis zu den gemessenen Zellen zurückverfolgen",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Senden Sie ein Gen aus Hit List an Investigate Hit, fügen Sie Messdatenbank, Zellvorhersagen und Guide-Anteile hinzu und lesen Sie dann die Belege auf Well-Ebene.",
+      "objectives": [
+       "Einen Regression-Lauf in Hit List öffnen, q-Werte prüfen und ein Gen an Investigate Hit senden.",
+       "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
+       "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
+      ],
+      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Die Beispieldatenbank enthält 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 sowie für jedes Ziel-Well drei Wells derselben Platte ohne diesen Guide. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Öffnen Sie von Home aus Regression. Investigate Hit beginnt mit einem abgeschlossenen Regression-Lauf. Es fragt, ob die gemessenen Zellen in den Wells hinter einem Gen anders aussehen als Zellen in Wells ohne dieses Gen.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Wählen Sie Hits, um Hit List zu öffnen. Entpacken Sie zuerst das Beispielarchiv. Es enthält einen Regression-Lauf auf den Testdaten, die passenden CV-Vorhersagen pro Zelle und eine Messdatenbank für dieselben Zellen. Alle drei stammen aus einem einzigen echten Screen.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Klicken Sie auf Browse und wählen Sie den Ordner guide_permutation in regression_run, results. Das ist die Ausgabe des Testdatenlaufs aus dem Regression-Tutorial.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List ordnet 325 Gene. Lesen Sie Effekt, P-Wert und q-Wert jeder Zeile zusammen, dazu die Anzahl der Guides und wie viele davon übereinstimmen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Setzen Sie Max q auf 0,05. Die Tabelle leert sich, weil in diesem Lauf kein Gen einen q-Wert von höchstens 0,05 erreicht. Mit 199 Permutationen ist der kleinstmögliche P-Wert 0,005, und der niedrigste q-Wert liegt bei etwa 0,27. Was folgt, prüft daher einen gerankten Kandidaten, keinen bestätigten Hit.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Setzen Sie Max q wieder auf 1, suchen Sie nach 225160 und wählen Sie seine Zeile. Es hat einen Effekt von 0,34, einen q-Wert von 0,27 und drei Guides, die alle in dieselbe Richtung zeigen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Klicken Sie auf Investigate selected. Investigate Hit öffnet sich mit dem Ergebnisordner, dem Gen, seinen drei Guides und einer positiven Effektrichtung, die bereits aus dieser Zeile übernommen sind.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Klicken Sie neben Measurements database auf Browse und wählen Sie measurements.db aus dem Beispiel. Sie enthält Form, Größe und mittlere Kanalintensität für 8.915 Zellen in 52 Wells.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Wählen Sie für Existing CV predictions cv_predictions.csv. Jede Zeile ist der gespeicherte CV-Score einer Zelle, verknüpft mit demselben gemessenen Objekt. Klicken Sie auf den Pfad und drücken Sie Enter, damit die Score-Spalten eingelesen werden, und behalten Sie pred als Phänotyp-Score-Spalte.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Wählen Sie für Well/guide fractions regression_data.csv im selben Ergebnisordner. Diese Tabelle hat Regression geschrieben. Sie gibt den Anteil jedes Guides in jedem analysierten Well an.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Lassen Sie Independent morphology features leer. Das Modul verwendet dann die 13 numerischen Zellmessungen der Datenbank und lässt Kennungen, Guide-Anteile und den CV-Score weg, sodass diese Prüfung den Score nicht wiederverwendet. Geben Sie für Ihre eigene Datenbank nur Messspalten ohne fehlende Werte an.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Klicken Sie auf Investigate hit. Das Modell wird angepasst, während jeweils eine Platte zurückgehalten wird, sodass keine Zelle von einem Modell bewertet wird, das auf ihrer eigenen Platte trainiert wurde. Der Guide-Anteil eines Wells legt nur die Ausgangserwartung für dessen Zellen fest. Er kennzeichnet nie eine Zelle als Trägerin des Guides. Dieses Beispiel dauert einige Minuten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Diese Analyse liefert keine klaren Hinweise auf einen Unterschied bei diesem Kandidaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells listet für jedes Well Guide-Anteil, mittlere hit-ähnliche Wahrscheinlichkeit, Prävalenz und Zellzahl auf. Jedes Well zählt als eine unabhängige Einheit; der Vergleich verwendet also 13 Ziel-Wells und 39 Kontroll-Wells, nicht einzelne Zellen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides zeigt jeden Ziel-Guide einzeln. Ihre Dosis-Wirkungs-Verläufe zeigen in verschiedene Richtungen – ein weiterer Grund, dieses Gen nicht als Hit zu behandeln.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity wiederholt den Vergleich bei Wahrscheinlichkeitsgrenzen von 0,5 bis 0,9. Bei jeder Grenze bleibt der Unterschied nahe 0,01; die Schlussfolgerung hängt also nicht von der Grenze ab.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells ordnet die Zellen nach hit-ähnlicher Wahrscheinlichkeit, mit dem ursprünglichen Score und dem Fold, der jede Zelle bewertet hat. Diese Wahrscheinlichkeiten beschreiben hit-ähnliche Morphologie, nicht, welchen Guide eine Zelle trug. Übernehmen Sie Zuordnungen nur dann in die Annotation, wenn die Belege auf Well-Ebene überzeugen. Undo macht eine Übernahme rückgängig.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Die Tabellen werden im Ergebnisordner unter hit_investigation und dann 225160 gespeichert. Sie enthalten diese Einbettung und ein Manifest, und jeder Lauf wird außerdem als neue Version in der Datenbank abgelegt. Das Beispiel hat keine Ausschnittbilder, daher bleibt die Prüfgalerie leer. Untersuchen Sie als Nächstes ein Gen, das in einem Regression-Lauf mit mehr Permutationen Ihre Schwelle erreicht.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: rektu gen úr Regression aftur til mældra frumna",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Sendu gen úr Hit List í Investigate Hit, bættu við mæligagnagrunninum, spám fyrir hverja frumu og hlutföllum leiðsagnar-RNA og lestu svo vísbendingarnar á brunnastigi.",
+      "objectives": [
+       "Opna Regression-keyrslu í Hit List, athuga q-gildi og senda eitt gen í Investigate Hit.",
+       "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
+       "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
+      ],
+      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Dæmisgagnagrunnurinn inniheldur 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og þrjá brunna af sömu plötu án þess fyrir hvern markbrunn. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Frá Home opnarðu Regression. Investigate Hit byrjar á lokinni Regression-keyrslu. Það spyr hvort mældar frumur í brunnunum á bak við eitt gen líti öðruvísi út en frumur í brunnum án þess gens.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Veldu Hits til að opna Hit List. Afþjappaðu fyrst dæmasafnið. Það inniheldur Regression-keyrslu á prófunargögnunum, samsvarandi CV-spár fyrir hverja frumu og mæligagnagrunn fyrir sömu frumur. Allt þrennt kemur úr einni raunverulegri skimun.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Smelltu á Browse og veldu möppuna guide_permutation í regression_run, results. Þetta er úttak keyrslunnar á prófunargögnunum í Regression-kennslunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List raðar 325 genum. Lestu áhrifin, P-gildið og q-gildið í hverri línu saman, ásamt fjölda leiðsagnar-RNA og hversu mörg þeirra eru samstíga.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Stilltu Max q á 0,05. Taflan tæmist því ekkert gen í þessari keyrslu nær q-gildi upp á 0,05 eða lægra. Með 199 umröðunum er minnsta mögulega P-gildið 0,005 og lægsta q-gildið um 0,27. Það sem á eftir fer skoðar því raðaðan kandídat, ekki staðfestan smell.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Stilltu Max q aftur á 1, leitaðu að 225160 og veldu línuna. Það hefur áhrifin 0,34, q-gildið 0,27 og þrjú leiðsagnar-RNA sem öll vísa í sömu átt.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Smelltu á Investigate selected. Investigate Hit opnast með niðurstöðumöppunni, geninu, þremur leiðsagnar-RNA þess og jákvæðri áhrifastefnu sem þegar hafa verið fyllt út úr línunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Við hliðina á Measurements database smellirðu á Browse og velur measurements.db úr dæminu. Hann geymir lögun, stærð og meðalstyrk rása fyrir 8.915 frumur í 52 brunnum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Fyrir Existing CV predictions velurðu cv_predictions.csv. Hver lína er vistað CV-stig einnar frumu, tengt sama mælda hlutnum. Smelltu á slóðina og ýttu á Enter svo stigadálkarnir séu lesnir og haltu svo pred sem stigadálki svipgerðar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Fyrir Well/guide fractions velurðu regression_data.csv í sömu niðurstöðumöppu. Regression skrifaði þessa töflu. Hún gefur hlutfall hvers leiðsagnar-RNA í hverjum greindum brunni.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Hafðu Independent morphology features tómt. Þá notar einingin 13 tölulegar frumumælingar gagnagrunnsins og sleppir auðkennum, hlutföllum leiðsagnar-RNA og CV-stiginu, svo þessi athugun endurnýti ekki stigið. Fyrir eigin gagnagrunn tilgreinirðu aðeins mælidálka án gilda sem vantar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Smelltu á Investigate hit. Líkanið er aðlagað þannig að ein plata er haldin utan í einu, svo engin fruma fær stig frá líkani sem var þjálfað á hennar eigin plötu. Hlutfall leiðsagnar-RNA í brunni ákvarðar aðeins upphafsvæntingu fyrir frumur hans. Það merkir aldrei frumu sem bera leiðsagnar-RNA-ið. Þetta dæmi tekur nokkrar mínútur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Þessi greining gefur engar skýrar vísbendingar um mun fyrir þennan kandídat.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells sýnir hlutfall leiðsagnar-RNA, meðallíkur á smell-líkri svipgerð, tíðni og fjölda frumna fyrir hvern brunn. Hver brunnur telst ein óháð eining, svo samanburðurinn notar 13 markbrunna og 39 viðmiðunarbrunna, ekki einstakar frumur.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides sýnir hvert markleiðsagnar-RNA fyrir sig. Skammtasvörun þeirra vísar í ólíkar áttir, sem er enn ein ástæða til að líta ekki á þetta gen sem smell.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity endurtekur samanburðinn við líkindamörk frá 0,5 upp í 0,9. Við hver mörk helst munurinn nálægt 0,01, svo niðurstaðan veltur ekki á mörkunum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells raðar frumunum eftir smell-líkum líkum, með upprunalega stiginu og brotinu sem gaf hverri frumu stig. Þessar líkur lýsa smell-líkri lögun, ekki því hvaða leiðsagnar-RNA fruma bar. Færðu flokkanir aðeins yfir í merkingu þegar vísbendingarnar á brunnastigi eru sannfærandi. Undo afturkallar færslu.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Töflurnar vistast í niðurstöðumöppunni undir hit_investigation og svo 225160. Þær innihalda þessa innfellingu og upptalningarskrá, og hver keyrsla er líka geymd sem ný útgáfa í gagnagrunninum. Dæmið hefur engar úrklippumyndir, svo yfirferðarsafnið er tómt. Næst skaltu rannsaka gen sem stenst þröskuldinn þinn í Regression-keyrslu með fleiri umröðunum.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: Regression 유전자를 측정된 세포까지 추적하기",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Hit List의 유전자를 Investigate Hit로 보내고, 측정 데이터베이스, 세포별 예측, 가이드 비율을 추가한 뒤 웰 수준의 근거를 읽습니다.",
+      "objectives": [
+       "Hit List에서 Regression 실행을 열고 q값을 확인한 뒤 유전자 하나를 Investigate Hit로 보냅니다.",
+       "측정 데이터베이스, 세포 예측, 가이드 비율, 점수 열을 고릅니다.",
+       "근거, 웰, 가이드, 임곗값 탭을 읽고 저장된 표를 찾습니다."
+      ],
+      "prerequisite": "Investigate_Hit_real_screen_example.zip의 압축을 푸세요. 안의 모든 내용은 하나의 실제 스크린에서 나왔습니다. Regression 테스트 데이터로 한 Regression 실행(Regression 튜토리얼의 설정), 이에 대응하는 세포별 CV 예측, 같은 세포의 실제 형태, 크기, 강도 측정값이 담긴 측정 데이터베이스입니다. 예제 데이터베이스에는 웰 52개가 들어 있습니다. 유전자 225160의 가이드가 있는 분석 웰 전부와, 각 표적 웰에 대해 같은 플레이트에서 해당 가이드가 없는 웰 3개를 포함합니다. 이 빠른 Regression 실행에서는 q ≤ 0.05를 통과하는 유전자가 없습니다. 이 조사는 확정된 히트가 아니라 실습 예제로 보세요.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Home에서 Regression을 여세요. Investigate Hit는 완료된 Regression 실행에서 시작합니다. 한 유전자에 해당하는 웰에서 측정한 세포가 그 유전자가 없는 웰의 세포와 다르게 보이는지를 묻습니다.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Hits를 선택해 Hit List를 여세요. 먼저 예제 압축 파일을 푸세요. 테스트 데이터로 한 Regression 실행, 이에 대응하는 세포별 CV 예측, 같은 세포의 측정 데이터베이스가 들어 있습니다. 셋 다 하나의 실제 스크린에서 나왔습니다.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Browse를 클릭하고 regression_run, results 안의 guide_permutation 폴더를 선택하세요. Regression 튜토리얼에서 테스트 데이터로 실행한 결과입니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List는 유전자 325개의 순위를 매깁니다. 각 행의 효과, P값, q값을 함께 읽고, 가이드 수와 그중 몇 개가 같은 방향인지도 확인하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Max q를 0.05로 설정하세요. 이 실행에서는 q값이 0.05 이하인 유전자가 없어서 표가 비게 됩니다. 순열이 199번이면 가능한 가장 작은 P값은 0.005이고, 가장 낮은 q값은 약 0.27입니다. 따라서 이어지는 내용은 확정된 히트가 아니라 순위가 높은 후보를 검토하는 것입니다.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Max q를 다시 1로 되돌리고 225160을 검색한 다음 그 행을 선택하세요. 효과는 0.34, q값은 0.27이며, 가이드 세 개가 모두 같은 방향을 가리킵니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Investigate selected를 클릭하세요. Investigate Hit가 열리며, 그 행에서 가져온 결과 폴더, 유전자, 가이드 세 개, 양의 효과 방향이 미리 채워져 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Measurements database 옆의 Browse를 클릭하고 예제의 measurements.db를 고르세요. 웰 52개에 있는 세포 8,915개의 형태, 크기, 채널별 평균 강도가 들어 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "Existing CV predictions에는 cv_predictions.csv를 고르세요. 각 행은 한 세포에 대해 저장된 CV 점수이며, 같은 측정 객체와 연결되어 있습니다. 경로를 클릭하고 Enter를 눌러 점수 열을 읽어 들인 뒤, 표현형 점수 열은 pred로 유지하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "Well/guide fractions에는 같은 결과 폴더의 regression_data.csv를 고르세요. 이 표는 Regression이 저장한 것으로, 분석한 각 웰에서 각 가이드가 차지하는 비율을 보여 줍니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Independent morphology features는 비워 두세요. 그러면 모듈이 데이터베이스의 숫자형 세포 측정값 13개를 사용하고 식별자, 가이드 비율, CV 점수는 제외하므로, 이 검사가 점수를 다시 사용하지 않습니다. 자신의 데이터베이스에서는 결측값이 없는 측정 열만 지정하세요.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Investigate hit를 클릭하세요. 모델은 한 번에 플레이트 하나를 제외하고 적합되므로, 어떤 세포도 자기 플레이트로 학습한 모델의 점수를 받지 않습니다. 웰의 가이드 비율은 그 웰 세포에 대한 초기 기대치만 정할 뿐, 세포가 가이드를 가졌다고 표시하지는 않습니다. 이 예제는 몇 분 걸립니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence에 결과가 나옵니다. 표적 웰의 히트 유사 유병률은 대조 웰보다 0.01 높을 뿐입니다. 웰 부트스트랩 구간은 -0.04부터 +0.06까지이고, 블록 순열의 P값은 약 0.63입니다. 이 분석은 이 후보에서 차이가 있다는 명확한 근거를 제공하지 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells에는 웰별 가이드 비율, 평균 히트 유사 확률, 유병률, 세포 수가 나열됩니다. 각 웰을 독립된 단위 하나로 세므로, 비교에는 개별 세포가 아니라 표적 웰 13개와 대조 웰 39개가 사용됩니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides는 표적 가이드를 하나씩 따로 보여 줍니다. 용량 반응의 방향이 서로 달라서, 이 유전자를 히트로 보지 말아야 할 이유가 하나 더 생깁니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity는 확률 기준값을 0.5부터 0.9까지 바꿔 가며 비교를 반복합니다. 모든 기준값에서 차이가 0.01 가까이에 머물므로, 결론은 기준값에 좌우되지 않습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells는 히트 유사 확률에 따라 세포의 순위를 매기며, 원래 점수와 각 세포의 점수를 매긴 폴드도 보여 줍니다. 이 확률은 히트와 비슷한 형태를 나타낼 뿐, 세포가 어떤 가이드를 가졌는지를 뜻하지는 않습니다. 웰 수준의 근거가 설득력 있을 때만 판정을 주석으로 승격하세요. Undo로 승격을 되돌릴 수 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "표는 결과 폴더의 hit_investigation 아래 225160에 저장됩니다. 이 임베딩과 매니페스트가 포함되며, 각 실행은 데이터베이스에 새 버전으로도 저장됩니다. 이 예제에는 크롭 이미지가 없어 검토 갤러리는 비어 있습니다. 다음에는 순열 수를 늘린 Regression 실행에서 임곗값을 통과하는 유전자를 조사해 보세요.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: spor et gen fra Regression tilbake til de målte cellene",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send et gen fra Hit List til Investigate Hit, legg til måledatabasen, celleprediksjonene og guideandelene, og les deretter bevisene på brønnivå.",
+      "objectives": [
+       "Åpne en Regression-kjøring i Hit List, kontrollere q-verdier og sende ett gen til Investigate Hit.",
+       "Velge måledatabase, celleprediksjoner, guideandeler og poengkolonne.",
+       "Lese fanene for bevis, brønner, guider og terskel og finne de lagrede tabellene."
+      ],
+      "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. Eksempeldatabasen inneholder 52 brønner: alle analyserte brønner med en guide for gen 225160, pluss tre brønner fra samme plate uten denne guiden for hver målbrønn. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Fra Home åpner du Regression. Investigate Hit tar utgangspunkt i en ferdig Regression-kjøring. Det spør om de målte cellene i brønnene bak ett gen ser annerledes ut enn celler i brønner uten det genet.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Velg Hits for å åpne Hit List. Pakk først ut eksempelarkivet. Det inneholder en Regression-kjøring på testdataene, de tilsvarende CV-prediksjonene per celle og en måledatabase for de samme cellene. Alle tre kommer fra én og samme reelle screening.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Klikk på Browse og velg mappen guide_permutation i regression_run, results. Dette er utdataene fra testdatakjøringen i Regression-veiledningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List rangerer 325 gener. Les effekt, P-verdi og q-verdi for hver rad samlet, sammen med antallet guider og hvor mange av dem som er enige.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Sett Max q til 0,05. Tabellen tømmes fordi ingen gener i denne kjøringen har en q-verdi på høyst 0,05. Med 199 permutasjoner er den minste mulige P-verdien 0,005, og den laveste q-verdien er omtrent 0,27. Det som følger, undersøker derfor en rangert kandidat, ikke et bekreftet treff.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Sett Max q tilbake til 1, søk etter 225160 og merk raden. Den har en effekt på 0,34, en q-verdi på 0,27 og tre guider som alle peker i samme retning.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Klikk på Investigate selected. Investigate Hit åpnes med resultatmappen, genet, de tre guidene og en positiv effektretning allerede fylt inn fra raden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Ved siden av Measurements database klikker du på Browse og velger measurements.db fra eksemplet. Den inneholder form, størrelse og gjennomsnittlig kanalintensitet for 8 915 celler i 52 brønner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "For Existing CV predictions velger du cv_predictions.csv. Hver rad er den lagrede CV-poengsummen for én celle, koblet til det samme målte objektet. Klikk på banen og trykk på Enter slik at poengkolonnene leses inn, og behold deretter pred som fenotypepoengkolonne.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "For Well/guide fractions velger du regression_data.csv i den samme resultatmappen. Denne tabellen ble skrevet av Regression. Den angir andelen for hver guide i hver analysert brønn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "La Independent morphology features stå tomt. Modulen bruker da databasens 13 numeriske cellemålinger og utelater identifikatorer, guideandeler og CV-poengsummen, slik at denne kontrollen ikke gjenbruker poengsummen. For din egen database oppgir du bare målekolonner uten manglende verdier.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Klikk på Investigate hit. Modellen tilpasses med én plate holdt utenfor om gangen, slik at ingen celle får poeng av en modell som er trent på dens egen plate. Guideandelen i en brønn setter bare utgangsforventningen for cellene i brønnen. Den merker aldri en celle som bærer av guiden. Dette eksemplet tar noen minutter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Denne analysen gir ingen klare holdepunkter for en forskjell for denne kandidaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells viser guideandel, gjennomsnittlig treff-lignende sannsynlighet, prevalens og celleantall for hver brønn. Hver brønn teller som én uavhengig enhet, så sammenligningen bruker 13 målbrønner og 39 kontrollbrønner, ikke enkeltceller.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides viser hver målguide for seg. Dose-respons-forløpene deres peker i ulike retninger, noe som er enda en grunn til ikke å behandle dette genet som et treff.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity gjentar sammenligningen ved sannsynlighetsgrenser fra 0,5 til 0,9. Ved hver grense holder forskjellen seg nær 0,01, så konklusjonen avhenger ikke av grensen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells rangerer cellene etter treff-lignende sannsynlighet, med den opprinnelige poengsummen og folden som ga hver celle poeng. Disse sannsynlighetene beskriver treff-lignende morfologi, ikke hvilken guide en celle bar. Overfør vurderinger til annotering bare når bevisene på brønnivå er overbevisende. Undo angrer en overføring.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Tabellene lagres i resultatmappen under hit_investigation og deretter 225160. De inneholder denne innbyggingen og et manifest, og hver kjøring lagres også som en ny versjon i databasen. Eksemplet har ingen utsnittsbilder, så gjennomgangsgalleriet forblir tomt. Undersøk deretter et gen som klarer terskelen din i en Regression-kjøring med flere permutasjoner.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 53,
+     "preceding": [
+      "70_explain_cv",
+      "69_dose_response",
+      "68_power_design",
+      "67_experiment_design",
+      "66_outliers",
+      "65_feature_explorer",
+      "64_gate_editor",
+      "63_small_multiples",
+      "62_feature_dictionary",
+      "61_tabulate",
+      "60_pca",
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "70_explain_cv",
+     "next": "72_volcano_explorer",
+     "entry": {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit: spåra en gen från Regression tillbaka till uppmätta celler",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+       "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Skicka en gen från Hit List till Investigate Hit, lägg till mätdatabasen, cellprediktionerna och guideandelarna och läs sedan evidensen på brunnsnivå.",
+      "objectives": [
+       "Öppna en Regression-körning i Hit List, kontrollera q-värden och skicka en gen till Investigate Hit.",
+       "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
+       "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
+      ],
+      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. Exempeldatabasen innehåller 52 brunnar: alla analyserade brunnar med en guide för gen 225160 samt tre brunnar från samma platta utan den guiden för varje målbrunn. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+      "scenes": [
+       {
+        "visual": "01_module",
+        "narration": "Från Home öppnar du Regression. Investigate Hit utgår från en färdig Regression-körning. Den frågar om de uppmätta cellerna i brunnarna bakom en gen ser annorlunda ut än celler i brunnar utan den genen.",
+        "focus_buttons": "FoldButton",
+        "related_lessons": [
+         "13_regression"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "02_hit_list_open",
+        "narration": "Välj Hits för att öppna Hit List. Packa först upp exempelarkivet. Det innehåller en Regression-körning på testdata, motsvarande CV-prediktioner per cell och en mätdatabas för samma celler. Alla tre kommer från en och samma verkliga screening.",
+        "related_lessons": [
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "03_choose_regression_run",
+        "narration": "Klicka på Browse och välj mappen guide_permutation i regression_run, results. Det är utdata från testdatakörningen i Regression-handledningen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_ranked_genes",
+        "narration": "Hit List rangordnar 325 gener. Läs effekt, P-värde och q-värde för varje rad tillsammans, liksom antalet guider och hur många av dem som stämmer överens.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "05_no_gene_passes_q",
+        "narration": "Ställ Max q på 0,05. Tabellen töms eftersom ingen gen i den här körningen når ett q-värde på högst 0,05. Med 199 permutationer är det minsta möjliga P-värdet 0,005, och det lägsta q-värdet är ungefär 0,27. Det som följer granskar alltså en rangordnad kandidat, inte en bekräftad träff.",
+        "related_lessons": [
+         "75_regression_diagnostics"
+        ],
+        "hold_after": 0.7
+       },
+       {
+        "visual": "06_selected_gene",
+        "narration": "Ställ tillbaka Max q på 1, sök efter 225160 och markera dess rad. Den har effekten 0,34, q-värdet 0,27 och tre guider som alla pekar åt samma håll.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "07_investigate_prefilled",
+        "narration": "Klicka på Investigate selected. Investigate Hit öppnas med resultatmappen, genen, dess tre guider och en positiv effektriktning redan ifyllda från raden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "08_choose_database",
+        "narration": "Bredvid Measurements database klickar du på Browse och väljer measurements.db från exemplet. Den innehåller form, storlek och medelintensitet per kanal för 8 915 celler i 52 brunnar.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "09_choose_predictions",
+        "narration": "För Existing CV predictions väljer du cv_predictions.csv. Varje rad är en cells sparade CV-poäng, kopplad till samma uppmätta objekt. Klicka på sökvägen och tryck på Enter så att poängkolumnerna läses in, och behåll sedan pred som fenotyppoängkolumn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "10_choose_fractions",
+        "narration": "För Well/guide fractions väljer du regression_data.csv i samma resultatmapp. Tabellen skrevs av Regression. Den anger varje guides andel i varje analyserad brunn.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "11_form_ready",
+        "narration": "Lämna Independent morphology features tomt. Modulen använder då databasens 13 numeriska cellmätningar och utelämnar identifierare, guideandelar och CV-poängen, så att kontrollen inte återanvänder poängen. För din egen databas anger du bara mätkolumner utan saknade värden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "12_running",
+        "narration": "Klicka på Investigate hit. Modellen anpassas med en platta i taget undanhållen, så ingen cell poängsätts av en modell som tränats på dess egen platta. En brunns guideandel anger bara utgångsförväntningen för brunnens celler. Den markerar aldrig en cell som bärare av guiden. Exemplet tar några minuter.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "13_evidence",
+        "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Den här analysen ger inga tydliga belägg för en skillnad för den här kandidaten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "14_wells",
+        "narration": "Wells listar varje brunns guideandel, genomsnittliga träfflika sannolikhet, prevalens och antal celler. Varje brunn räknas som en oberoende enhet, så jämförelsen använder 13 målbrunnar och 39 kontrollbrunnar, inte enskilda celler.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "15_guides",
+        "narration": "Guides visar varje målguide för sig. Deras dos-responskurvor pekar åt olika håll, vilket är ytterligare ett skäl att inte behandla genen som en träff.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "16_threshold_sensitivity",
+        "narration": "Threshold sensitivity upprepar jämförelsen vid sannolikhetsgränser från 0,5 till 0,9. Vid varje gräns ligger skillnaden kvar nära 0,01, så slutsatsen beror inte på gränsen.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "17_candidate_cells",
+        "narration": "Candidate cells rangordnar cellerna efter träfflik sannolikhet, med den ursprungliga poängen och det veck som poängsatte varje cell. Sannolikheterna beskriver träfflik morfologi, inte vilken guide en cell bar på. För bara över klassningar till annoteringen när evidensen på brunnsnivå är övertygande. Undo ångrar en överföring.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "18_control_fitted_embedding",
+        "narration": "Tabellerna sparas i resultatmappen under hit_investigation och sedan 225160. De innehåller den här inbäddningen och ett manifest, och varje körning sparas dessutom som en ny version i databasen. Exemplet har inga utsnittsbilder, så granskningsgalleriet är tomt. Undersök sedan en gen som klarar din tröskel i en Regression-körning med fler permutationer.",
+        "related_lessons": [
+         "13_regression",
+         "48_hit_list"
+        ],
+        "hold_after": 0.7
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "speech_text",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "13_regression",
+     "scene": 14,
+     "links": [
+      "72_volcano_explorer",
+      "48_hit_list",
+      "71_investigate_hit"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       5,
+       "lessons"
+      ],
+      "preceding": [
+       "53_prediction_profiler",
+       "49_methods_results",
+       "48_hit_list"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "70_explain_cv",
+       "69_dose_response",
+       "68_power_design",
+       "67_experiment_design",
+       "66_outliers",
+       "65_feature_explorer",
+       "64_gate_editor",
+       "63_small_multiples",
+       "62_feature_dictionary",
+       "61_tabulate",
+       "60_pca",
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 48,
+     "value": {
+      "kind": "submodule",
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/71_investigate_hit -> tools/tutorials/archive/production/docs/71_investigate_hit"
+ ],
+ "prose": []
+}

@@ -1,0 +1,5114 @@
+{
+ "schema": 1,
+ "id": "60_pca",
+ "trees": {
+  "docs": {
+   "catalogs": {
+    "lesson_catalog.js": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
+      "objectives": [
+       "Load a measurement database or CSV and select features.",
+       "Choose scaling, missing-value handling and filters.",
+       "Inspect component scores and loadings, then export three result tables."
+      ],
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      },
+      "poster": "60_pca/poster.jpg",
+      "silent": "60_pca/video/60_pca_silent.mp4",
+      "web": "60_pca/web/60_pca_silent.mp4"
+     }
+    },
+    "catalog/lessons_en.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: explore measurements and export components",
+      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
+      "objectives": [
+       "Load a measurement database or CSV and select features.",
+       "Choose scaling, missing-value handling and filters.",
+       "Inspect component scores and loadings, then export three result tables."
+      ],
+      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_es.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: explorar mediciones y exportar componentes",
+      "description": "Carga objetos medidos, elige características, compara componentes principales y exporta puntuaciones, cargas y varianza explicada.",
+      "objectives": [
+       "Cargar una base de datos de mediciones o un CSV y seleccionar características.",
+       "Elegir el escalado, el tratamiento de valores faltantes y los filtros.",
+       "Revisar las puntuaciones y cargas de los componentes y exportar tres tablas de resultados."
+      ],
+      "prerequisite": "Descarga el ejemplo del tutorial de Annotate y trabaja con una copia de measurements.db. Este recorrido usa su tabla cell, con 2341 objetos medidos en cuatro pozos. Conserva la base de datos original y anota tu lista de características, los filtros, el escalado y la política de valores faltantes.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Desde Home, abre Image UMAP y luego elige PCA. Usa PCA para resumir varias columnas de mediciones como componentes principales. Empieza con la base de datos de mediciones del ejemplo de Annotate enlazado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "Desde Home, abre Image ú map y luego elige PCA. Usa PCA para resumir varias columnas de mediciones como componentes principales. Empieza con la base de datos de mediciones del ejemplo de Annotate enlazado."
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Haz clic en Load table junto al título de PCA. Abre measurements.db y selecciona cell. Comprueba la tabla mostrada y el número de objetos. También puedes cargar un CSV con columnas de mediciones.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Load table junto al título de PCA. Abre measurements punto de be y selecciona cell. Comprueba la tabla mostrada y el número de objetos. También puedes cargar un CSV con columnas de mediciones."
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Borra la búsqueda de características y haz clic en None para desmarcar todas las características visibles. Selecciona cell_area, cell_channel_1_mean_intensity y cell_perimeter. Vuelve a borrar la búsqueda, pon Components en tres y haz clic en Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Borra la búsqueda de características y haz clic en None para desmarcar todas las características visibles. Selecciona cell_area, cell_channel_1_mean_intensity y cell_perimeter. Vuelve a borrar la búsqueda, pon Components en tres y haz clic en Run PCA."
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Deja Scale en Standardise para centrar cada característica y dividirla por su desviación estándar muestral. Lee el gráfico de sedimentación: los dos primeros componentes explican aproximadamente el sesenta y cinco coma siete y el treinta y uno coma siete por ciento de la varianza de las características seleccionadas.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Deja Scale en Standardise para centrar cada característica y dividirla por su desviación estándar muestral. Lee el gráfico de sedimentación: los dos primeros componentes explican aproximadamente el sesenta y cinco coma siete y el treinta y uno coma siete por ciento de la varianza de las características seleccionadas."
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Elige rowID en Colour, PC tres en X y PC uno en Y. Estos controles vuelven a dibujar el resultado ajustado. Cada punto representa una célula; en este ejemplo, rowID identifica una fila espacial.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "Elige rowID en Colour, PC tres en X y PC uno en Y. Estos controles vuelven a dibujar el resultado ajustado. Cada punto representa una célula; en este ejemplo, rowID identifica una fila espacial."
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Vuelve a PC uno y PC dos. Activa o desactiva Loadings biplot para mostrar u ocultar las flechas de las características. Las flechas muestran las correlaciones con los componentes mostrados; usa sus direcciones y el círculo de referencia discontinuo para comparar características.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "Vuelve a PC uno y PC dos. Activa o desactiva Loadings biplot para mostrar u ocultar las flechas de las características. Las flechas muestran las correlaciones con los componentes mostrados; usa sus direcciones y el círculo de referencia discontinuo para comparar características."
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Elige Centre only para ajustar con las escalas originales de las mediciones. Ahora el primer componente explica aproximadamente el noventa coma uno por ciento. El escalado cambia la pregunta que se resume. Vuelve a Standardise para comparar las características en una escala común.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Elige Centre only para ajustar con las escalas originales de las mediciones. Ahora el primer componente explica aproximadamente el noventa coma uno por ciento. El escalado cambia la pregunta que se resume. Vuelve a Standardise para comparar las características en una escala común."
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "En el filtro de la derecha, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. El panel vuelve a ajustar el PCA con las mil ciento setenta y una células restantes, así que cambian tanto la población como las direcciones de los componentes.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "En el filtro de la derecha, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. El panel vuelve a ajustar el PCA con las mil ciento setenta y una células restantes, así que cambian tanto la población como las direcciones de los componentes."
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Haz clic en Clear all en el filtro para recuperar la población completa. Comprueba el número de objetos después de filtrar. La base de datos de origen no cambia; el resultado mostrado se recalcula para la población elegida.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "Haz clic en Clear all en el filtro para recuperar la población completa. Comprueba el número de objetos después de filtrar. La base de datos de origen no cambia; el resultado mostrado se recalcula para la población elegida."
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Selecciona cell_channel_0_homogeneity_distance_32 como cuarta característica. Haz clic en Run PCA para incluirla en el resultado. Este ejemplo tiene siete mediciones faltantes en esa columna; usa NaN para elegir cómo las trata el ajuste.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Selecciona cell_channel_0_homogeneity_distance_32 como cuarta característica. Haz clic en Run PCA para incluirla en el resultado. Este ejemplo tiene siete mediciones faltantes en esa columna; usa NaN para elegir cómo las trata el ajuste."
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Con Auto, se quitan las características que faltan en más del dos por ciento de las filas y luego se descartan las filas incompletas. Aquí se mantienen las cuatro características y se excluyen siete células. Lee el informe para ver las características y los objetos que realmente se analizaron.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Con Auto, se quitan las características que faltan en más del dos por ciento de las filas y luego se descartan las filas incompletas. Aquí se mantienen las cuatro características y se excluyen siete células. Lee el informe para ver las características y los objetos que realmente se analizaron."
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Elige Drop features para quitar cualquier característica seleccionada que contenga valores faltantes. En este ejemplo se quita la característica de textura y se mantienen todas las células. El aviso del resultado indica qué características se excluyeron, aunque sus casillas sigan marcadas.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Elige Drop features para quitar cualquier característica seleccionada que contenga valores faltantes. En este ejemplo se quita la característica de textura y se mantienen todas las células. El aviso del resultado indica qué características se excluyeron, aunque sus casillas sigan marcadas."
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Elige Mean-impute para conservar todas las células y características sustituyendo durante el cálculo los valores faltantes por la media observada de cada característica. Aquí se sustituyen siete valores. Anota esta elección al presentar el resultado; los valores sustituidos son estimaciones.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Elige Mean-impute para conservar todas las células y características sustituyendo durante el cálculo los valores faltantes por la media observada de cada característica. Aquí se sustituyen siete valores. Anota esta elección al presentar el resultado; los valores sustituidos son estimaciones."
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Elige Complete cases para conservar las características seleccionadas y excluir las filas incompletas. Para volver al ejemplo original, elige Auto, desmarca la característica de textura, borra la búsqueda, haz clic en Run PCA y pon Colour en none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Elige Complete cases para conservar las características seleccionadas y excluir las filas incompletas. Para volver al ejemplo original, elige Auto, desmarca la característica de textura, borra la búsqueda, haz clic en Run PCA y pon Colour en none."
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Haz clic en Export y elige un nombre base, como pca_example. El panel escribe tres archivos CSV: las puntuaciones de los objetos analizados, las cargas y correlaciones de las características, y la varianza explicada de los componentes. La tabla de puntuaciones incluye también las columnas de mediciones de origen.",
+        "hold_after": 0.7,
+        "speech_text": "Haz clic en Export y elige un nombre base, como pca_example. El panel escribe tres archivos CSV: las puntuaciones de los objetos analizados, las cargas y correlaciones de las características, y la varianza explicada de los componentes. La tabla de puntuaciones incluye también las columnas de mediciones de origen."
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Abre las tablas exportadas y guárdalas junto con tu lista de características, los filtros y los ajustes del análisis. Trata las células como observaciones dentro de sus pozos al interpretar la separación. Para un análisis reproducible en Python, usa pca y PCASpec de spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "Abre las tablas exportadas y guárdalas junto con tu lista de características, los filtros y los ajustes del análisis. Trata las células como observaciones dentro de sus pozos al interpretar la separación. Para un análisis reproducible en Python, usa pca y PCASpec de espáquer.cu te.widgets.pca_model."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_fr.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA : explorer des mesures et exporter des composantes",
+      "description": "Chargez des objets mesurés, choisissez des caractéristiques, comparez des composantes principales et exportez les scores, les contributions et la variance expliquée.",
+      "objectives": [
+       "Charger une base de données de mesures ou un CSV et sélectionner des caractéristiques.",
+       "Choisir la mise à l’échelle, le traitement des valeurs manquantes et les filtres.",
+       "Examiner les scores et contributions des composantes, puis exporter trois tables de résultats."
+      ],
+      "prerequisite": "Téléchargez l’exemple du tutoriel Annotate et travaillez sur une copie de measurements.db. Cette démonstration utilise sa table cell, avec 2341 objets mesurés répartis sur quatre puits. Conservez la base de données d’origine et notez votre liste de caractéristiques, vos filtres, votre mise à l’échelle et votre règle pour les valeurs manquantes.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Depuis Home, ouvrez Image UMAP, puis choisissez PCA. La PCA résume plusieurs colonnes de mesures sous forme de composantes principales. Commencez avec la base de données de mesures de l’exemple Annotate associé.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "Depuis Home, ouvrez Image you map, puis choisissez PCA. La PCA résume plusieurs colonnes de mesures sous forme de composantes principales. Commencez avec la base de données de mesures de l’exemple Annotate associé."
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Cliquez sur Load table à côté du titre PCA. Ouvrez measurements.db et sélectionnez cell. Vérifiez la table affichée et le nombre d’objets. Vous pouvez aussi charger un CSV contenant des colonnes de mesures.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Load table à côté du titre PCA. Ouvrez measurements point dé bé et sélectionnez cell. Vérifiez la table affichée et le nombre d’objets. Vous pouvez aussi charger un CSV contenant des colonnes de mesures."
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Effacez la recherche de caractéristiques et cliquez sur None pour décocher toutes les caractéristiques visibles. Sélectionnez cell_area, cell_channel_1_mean_intensity et cell_perimeter. Effacez de nouveau la recherche, réglez Components sur trois, puis cliquez sur Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Effacez la recherche de caractéristiques et cliquez sur None pour décocher toutes les caractéristiques visibles. Sélectionnez cell_area, cell_channel_1_mean_intensity et cell_perimeter. Effacez de nouveau la recherche, réglez Components sur trois, puis cliquez sur Run PCA."
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Laissez Scale sur Standardise pour centrer chaque caractéristique et la diviser par son écart-type d’échantillon. Lisez l’éboulis des valeurs propres : les deux premières composantes expliquent environ soixante-cinq virgule sept et trente et un virgule sept pour cent de la variance des caractéristiques sélectionnées.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Laissez Scale sur Standardise pour centrer chaque caractéristique et la diviser par son écart-type d’échantillon. Lisez l’éboulis des valeurs propres : les deux premières composantes expliquent environ soixante-cinq virgule sept et trente et un virgule sept pour cent de la variance des caractéristiques sélectionnées."
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Choisissez rowID dans Colour, PC trois sur X et PC un sur Y. Ces réglages redessinent le résultat ajusté. Chaque point représente une cellule ; dans cet exemple, rowID identifie une ligne spatiale.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "Choisissez rowID dans Colour, PC trois sur X et PC un sur Y. Ces réglages redessinent le résultat ajusté. Chaque point représente une cellule ; dans cet exemple, rowID identifie une ligne spatiale."
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Revenez à PC un et PC deux. Activez ou désactivez Loadings biplot pour afficher ou masquer les flèches des caractéristiques. Les flèches montrent les corrélations avec les composantes affichées ; utilisez leurs directions et le cercle de référence en pointillés pour comparer les caractéristiques.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "Revenez à PC un et PC deux. Activez ou désactivez Loadings biplot pour afficher ou masquer les flèches des caractéristiques. Les flèches montrent les corrélations avec les composantes affichées ; utilisez leurs directions et le cercle de référence en pointillés pour comparer les caractéristiques."
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Choisissez Centre only pour ajuster sur les échelles de mesure d’origine. La première composante explique alors environ quatre-vingt-dix virgule un pour cent. La mise à l’échelle change la question résumée. Revenez à Standardise pour comparer les caractéristiques sur une échelle commune.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Choisissez Centre only pour ajuster sur les échelles de mesure d’origine. La première composante explique alors environ quatre-vingt-dix virgule un pour cent. La mise à l’échelle change la question résumée. Revenez à Standardise pour comparer les caractéristiques sur une échelle commune."
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "Dans le filtre de droite, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. Le panneau réajuste la PCA sur les mille cent soixante et onze cellules restantes ; la population et les directions des composantes changent donc toutes les deux.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "Dans le filtre de droite, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. Le panneau réajuste la PCA sur les mille cent soixante et onze cellules restantes ; la population et les directions des composantes changent donc toutes les deux."
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Cliquez sur Clear all dans le filtre pour retrouver la population complète. Vérifiez le nombre d’objets après filtrage. La base de données source reste inchangée ; le résultat affiché est recalculé pour la population choisie.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "Cliquez sur Clear all dans le filtre pour retrouver la population complète. Vérifiez le nombre d’objets après filtrage. La base de données source reste inchangée ; le résultat affiché est recalculé pour la population choisie."
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Sélectionnez cell_channel_0_homogeneity_distance_32 comme quatrième caractéristique. Cliquez sur Run PCA pour l’inclure dans le résultat. Cet exemple compte sept mesures manquantes dans cette colonne ; utilisez NaN pour choisir comment l’ajustement les traite.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Sélectionnez cell_channel_0_homogeneity_distance_32 comme quatrième caractéristique. Cliquez sur Run PCA pour l’inclure dans le résultat. Cet exemple compte sept mesures manquantes dans cette colonne ; utilisez NaN pour choisir comment l’ajustement les traite."
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Avec Auto, les caractéristiques manquantes dans plus de deux pour cent des lignes sont retirées, puis les lignes incomplètes sont écartées. Ici, les quatre caractéristiques restent et sept cellules sont exclues. Lisez le rapport pour voir les caractéristiques et les objets réellement analysés.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Avec Auto, les caractéristiques manquantes dans plus de deux pour cent des lignes sont retirées, puis les lignes incomplètes sont écartées. Ici, les quatre caractéristiques restent et sept cellules sont exclues. Lisez le rapport pour voir les caractéristiques et les objets réellement analysés."
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Choisissez Drop features pour retirer toute caractéristique sélectionnée qui contient des valeurs manquantes. Dans cet exemple, la caractéristique de texture est retirée et toutes les cellules restent. L’avis de résultat indique les caractéristiques exclues, même si leurs cases restent cochées.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Choisissez Drop features pour retirer toute caractéristique sélectionnée qui contient des valeurs manquantes. Dans cet exemple, la caractéristique de texture est retirée et toutes les cellules restent. L’avis de résultat indique les caractéristiques exclues, même si leurs cases restent cochées."
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Choisissez Mean-impute pour garder toutes les cellules et caractéristiques en remplaçant, pendant le calcul, les valeurs manquantes par la moyenne observée de la caractéristique. Ici, sept valeurs sont remplacées. Mentionnez ce choix en présentant le résultat ; les valeurs remplacées sont des estimations.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Choisissez Mean-impute pour garder toutes les cellules et caractéristiques en remplaçant, pendant le calcul, les valeurs manquantes par la moyenne observée de la caractéristique. Ici, sept valeurs sont remplacées. Mentionnez ce choix en présentant le résultat ; les valeurs remplacées sont des estimations."
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Choisissez Complete cases pour garder les caractéristiques sélectionnées et exclure les lignes incomplètes. Pour revenir à l’exemple d’origine, choisissez Auto, décochez la caractéristique de texture, effacez la recherche, cliquez sur Run PCA et réglez Colour sur none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Choisissez Complete cases pour garder les caractéristiques sélectionnées et exclure les lignes incomplètes. Pour revenir à l’exemple d’origine, choisissez Auto, décochez la caractéristique de texture, effacez la recherche, cliquez sur Run PCA et réglez Colour sur none."
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Cliquez sur Export et choisissez un nom de base, par exemple pca_example. Le panneau écrit trois fichiers CSV : les scores des objets analysés, les contributions et corrélations des caractéristiques, et la variance expliquée des composantes. La table des scores contient aussi les colonnes de mesures sources.",
+        "hold_after": 0.7,
+        "speech_text": "Cliquez sur Export et choisissez un nom de base, par exemple pca_example. Le panneau écrit trois fichiers CSV : les scores des objets analysés, les contributions et corrélations des caractéristiques, et la variance expliquée des composantes. La table des scores contient aussi les colonnes de mesures sources."
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Ouvrez les tables exportées et conservez-les avec votre liste de caractéristiques, vos filtres et vos paramètres d’analyse. Considérez les cellules comme des observations au sein de leurs puits lorsque vous interprétez une séparation. Pour une analyse Python reproductible, utilisez pca et PCASpec de spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "Ouvrez les tables exportées et conservez-les avec votre liste de caractéristiques, vos filtres et vos paramètres d’analyse. Considérez les cellules comme des observations au sein de leurs puits lorsque vous interprétez une séparation. Pour une analyse Python reproductible, utilisez pca et PCASpec de spakeur.ku té.widgets.pca_model."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_hi.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: माप देखें और घटक निर्यात करें",
+      "description": "मापी गई वस्तुएँ लोड करें, विशेषताएँ चुनें, मुख्य घटकों की तुलना करें और स्कोर, लोडिंग तथा समझाया गया प्रसरण निर्यात करें।",
+      "objectives": [
+       "माप डेटाबेस या CSV लोड करें और विशेषताएँ चुनें।",
+       "स्केलिंग, छूटे मानों का प्रबंधन और फ़िल्टर चुनें।",
+       "घटक स्कोर और लोडिंग देखें, फिर तीन परिणाम तालिकाएँ निर्यात करें।"
+      ],
+      "prerequisite": "Annotate ट्यूटोरियल से उदाहरण डाउनलोड करें और measurements.db की एक प्रति पर काम करें। यह वॉकथ्रू उसकी cell तालिका इस्तेमाल करता है, जिसमें चार वेल में 2341 मापी गई वस्तुएँ हैं। मूल डेटाबेस रखें और अपनी विशेषता सूची, फ़िल्टर, स्केलिंग और छूटे मानों की नीति दर्ज करें।",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Home से Image UMAP खोलें, फिर PCA चुनें। कई माप कॉलमों को मुख्य घटकों के रूप में सारांशित करने के लिए PCA इस्तेमाल करें। जुड़े Annotate उदाहरण के माप डेटाबेस से शुरू करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "Home से Image यू मैप खोलें, फिर PCA चुनें। कई माप कॉलमों को मुख्य घटकों के रूप में सारांशित करने के लिए PCA इस्तेमाल करें। जुड़े Annotate उदाहरण के माप डेटाबेस से शुरू करें।"
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "PCA शीर्षक के पास Load table पर क्लिक करें। measurements.db खोलें और cell चुनें। दिखाई गई तालिका और वस्तुओं की संख्या जाँचें। आप माप कॉलम वाली CSV भी लोड कर सकते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "PCA शीर्षक के पास Load table पर क्लिक करें। मेज़रमेंट्स डॉट डी बी खोलें और cell चुनें। दिखाई गई तालिका और वस्तुओं की संख्या जाँचें। आप माप कॉलम वाली CSV भी लोड कर सकते हैं।"
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "विशेषता खोज साफ़ करें और सभी दिखती विशेषताओं का चयन हटाने के लिए None पर क्लिक करें। cell_area, cell_channel_1_mean_intensity और cell_perimeter चुनें। खोज फिर साफ़ करें, Components को तीन पर रखें, फिर Run PCA पर क्लिक करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "विशेषता खोज साफ़ करें और सभी दिखती विशेषताओं का चयन हटाने के लिए None पर क्लिक करें। cell_area, cell_channel_1_mean_intensity और cell_perimeter चुनें। खोज फिर साफ़ करें, Components को तीन पर रखें, फिर Run PCA पर क्लिक करें।"
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "हर विशेषता को केंद्रित करने और उसके नमूना मानक विचलन से भाग देने के लिए Scale को Standardise पर रखें। स्क्री प्लॉट पढ़ें: पहले दो घटक चुनी गई विशेषताओं के प्रसरण का लगभग पैंसठ दशमलव सात और इकतीस दशमलव सात प्रतिशत समझाते हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "हर विशेषता को केंद्रित करने और उसके नमूना मानक विचलन से भाग देने के लिए Scale को Standardise पर रखें। स्क्री प्लॉट पढ़ें: पहले दो घटक चुनी गई विशेषताओं के प्रसरण का लगभग पैंसठ दशमलव सात और इकतीस दशमलव सात प्रतिशत समझाते हैं।"
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Colour में rowID, X पर PC तीन और Y पर PC एक चुनें। ये नियंत्रण फ़िट किए गए परिणाम को फिर से बनाते हैं। हर बिंदु एक कोशिका है; इस उदाहरण में rowID एक स्थानिक पंक्ति बताता है।",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "Colour में rowID, X पर PC तीन और Y पर PC एक चुनें। ये नियंत्रण फ़िट किए गए परिणाम को फिर से बनाते हैं। हर बिंदु एक कोशिका है; इस उदाहरण में rowID एक स्थानिक पंक्ति बताता है।"
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "PC एक और PC दो पर लौटें। विशेषताओं के तीर दिखाने या छिपाने के लिए Loadings biplot चालू-बंद करें। तीर दिखाए गए घटकों से सहसंबंध दर्शाते हैं; विशेषताओं की तुलना के लिए उनकी दिशाएँ और धराशायी संदर्भ वृत्त इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "PC एक और PC दो पर लौटें। विशेषताओं के तीर दिखाने या छिपाने के लिए Loadings biplot चालू-बंद करें। तीर दिखाए गए घटकों से सहसंबंध दर्शाते हैं; विशेषताओं की तुलना के लिए उनकी दिशाएँ और धराशायी संदर्भ वृत्त इस्तेमाल करें।"
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "मूल माप पैमानों पर फ़िट करने के लिए Centre only चुनें। अब पहला घटक लगभग नब्बे दशमलव एक प्रतिशत समझाता है। स्केलिंग से सारांशित होने वाला प्रश्न बदल जाता है। विशेषताओं की साझा पैमाने पर तुलना के लिए Standardise पर लौटें।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "मूल माप पैमानों पर फ़िट करने के लिए Centre only चुनें। अब पहला घटक लगभग नब्बे दशमलव एक प्रतिशत समझाता है। स्केलिंग से सारांशित होने वाला प्रश्न बदल जाता है। विशेषताओं की साझा पैमाने पर तुलना के लिए Standardise पर लौटें।"
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "दाईं ओर के फ़िल्टर में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। पैनल बची हुई एक हज़ार एक सौ इकहत्तर कोशिकाओं पर PCA फिर से फ़िट करता है, इसलिए समूह और घटकों की दिशाएँ दोनों बदलती हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "दाईं ओर के फ़िल्टर में cell_area जोड़ें और न्यूनतम मान इक्कीस हज़ार नौ सौ पच्चीस रखें। पैनल बची हुई एक हज़ार एक सौ इकहत्तर कोशिकाओं पर PCA फिर से फ़िट करता है, इसलिए समूह और घटकों की दिशाएँ दोनों बदलती हैं।"
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "पूरा समूह वापस लाने के लिए फ़िल्टर में Clear all पर क्लिक करें। छाँटने के बाद वस्तुओं की संख्या जाँचें। स्रोत डेटाबेस नहीं बदलता; दिखाया गया परिणाम चुने गए समूह के लिए फिर से गणना किया जाता है।",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "पूरा समूह वापस लाने के लिए फ़िल्टर में Clear all पर क्लिक करें। छाँटने के बाद वस्तुओं की संख्या जाँचें। स्रोत डेटाबेस नहीं बदलता; दिखाया गया परिणाम चुने गए समूह के लिए फिर से गणना किया जाता है।"
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "चौथी विशेषता के रूप में cell_channel_0_homogeneity_distance_32 चुनें। उसे परिणाम में शामिल करने के लिए Run PCA पर क्लिक करें। इस उदाहरण में उस कॉलम में सात माप छूटे हैं; फ़िट उन्हें कैसे संभाले, यह चुनने के लिए NaN इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "चौथी विशेषता के रूप में cell_channel_0_homogeneity_distance_32 चुनें। उसे परिणाम में शामिल करने के लिए Run PCA पर क्लिक करें। इस उदाहरण में उस कॉलम में सात माप छूटे हैं; फ़िट उन्हें कैसे संभाले, यह चुनने के लिए NaN इस्तेमाल करें।"
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Auto के साथ, जो विशेषताएँ दो प्रतिशत से ज़्यादा पंक्तियों में छूटी हों, वे हटती हैं, फिर अधूरी पंक्तियाँ हटती हैं। यहाँ चारों विशेषताएँ रहती हैं और सात कोशिकाएँ बाहर होती हैं। वास्तव में विश्लेषित विशेषताएँ और वस्तुएँ देखने के लिए रिपोर्ट पढ़ें।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Auto के साथ, जो विशेषताएँ दो प्रतिशत से ज़्यादा पंक्तियों में छूटी हों, वे हटती हैं, फिर अधूरी पंक्तियाँ हटती हैं। यहाँ चारों विशेषताएँ रहती हैं और सात कोशिकाएँ बाहर होती हैं। वास्तव में विश्लेषित विशेषताएँ और वस्तुएँ देखने के लिए रिपोर्ट पढ़ें।"
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "छूटे मानों वाली किसी भी चुनी गई विशेषता को हटाने के लिए Drop features चुनें। इस उदाहरण में बनावट वाली विशेषता हटती है और सभी कोशिकाएँ रहती हैं। परिणाम की सूचना बताती है कि कौन-सी विशेषताएँ बाहर हुईं, भले ही उनके चेकबॉक्स चुने रहें।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "छूटे मानों वाली किसी भी चुनी गई विशेषता को हटाने के लिए Drop features चुनें। इस उदाहरण में बनावट वाली विशेषता हटती है और सभी कोशिकाएँ रहती हैं। परिणाम की सूचना बताती है कि कौन-सी विशेषताएँ बाहर हुईं, भले ही उनके चेकबॉक्स चुने रहें।"
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "गणना के दौरान छूटे मानों को विशेषता के देखे गए औसत से बदलकर सभी कोशिकाएँ और विशेषताएँ रखने के लिए Mean-impute चुनें। यहाँ सात मान बदले जाते हैं। परिणाम प्रस्तुत करते समय यह चुनाव दर्ज करें; बदले गए मान अनुमान हैं।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "गणना के दौरान छूटे मानों को विशेषता के देखे गए औसत से बदलकर सभी कोशिकाएँ और विशेषताएँ रखने के लिए Mean-impute चुनें। यहाँ सात मान बदले जाते हैं। परिणाम प्रस्तुत करते समय यह चुनाव दर्ज करें; बदले गए मान अनुमान हैं।"
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "चुनी गई विशेषताएँ रखने और अधूरी पंक्तियाँ बाहर करने के लिए Complete cases चुनें। मूल उदाहरण पर लौटने के लिए Auto चुनें, बनावट वाली विशेषता का चयन हटाएँ, खोज साफ़ करें, Run PCA पर क्लिक करें और Colour को none पर रखें।",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "चुनी गई विशेषताएँ रखने और अधूरी पंक्तियाँ बाहर करने के लिए Complete cases चुनें। मूल उदाहरण पर लौटने के लिए Auto चुनें, बनावट वाली विशेषता का चयन हटाएँ, खोज साफ़ करें, Run PCA पर क्लिक करें और Colour को none पर रखें।"
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Export पर क्लिक करें और pca_example जैसा एक मूल नाम चुनें। पैनल तीन CSV फ़ाइलें लिखता है: विश्लेषित वस्तुओं के स्कोर, विशेषताओं के लोडिंग और सहसंबंध, और घटकों का समझाया गया प्रसरण। स्कोर तालिका में स्रोत माप कॉलम भी होते हैं।",
+        "hold_after": 0.7,
+        "speech_text": "Export पर क्लिक करें और pca_example जैसा एक मूल नाम चुनें। पैनल तीन CSV फ़ाइलें लिखता है: विश्लेषित वस्तुओं के स्कोर, विशेषताओं के लोडिंग और सहसंबंध, और घटकों का समझाया गया प्रसरण। स्कोर तालिका में स्रोत माप कॉलम भी होते हैं।"
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "निर्यात की गई तालिकाएँ खोलें और उन्हें अपनी विशेषता सूची, फ़िल्टर और विश्लेषण सेटिंग के साथ रखें। अलगाव की व्याख्या करते समय कोशिकाओं को उनके वेल के भीतर के अवलोकन मानें। Python में दोहराने योग्य विश्लेषण के लिए spacr.qt.widgets.pca_model से pca और PCASpec इस्तेमाल करें।",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "निर्यात की गई तालिकाएँ खोलें और उन्हें अपनी विशेषता सूची, फ़िल्टर और विश्लेषण सेटिंग के साथ रखें। अलगाव की व्याख्या करते समय कोशिकाओं को उनके वेल के भीतर के अवलोकन मानें। Python में दोहराने योग्य विश्लेषण के लिए स्पेकर.क्यू टी.widgets.pca_model से pca और PCASpec इस्तेमाल करें।"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_it.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: esplorare le misure ed esportare le componenti",
+      "description": "Carica oggetti misurati, scegli le caratteristiche, confronta le componenti principali ed esporta punteggi, pesi e varianza spiegata.",
+      "objectives": [
+       "Caricare un database delle misure o un CSV e selezionare le caratteristiche.",
+       "Scegliere la scalatura, la gestione dei valori mancanti e i filtri.",
+       "Esaminare punteggi e pesi delle componenti, poi esportare tre tabelle di risultati."
+      ],
+      "prerequisite": "Scarica l’esempio del tutorial di Annotate e lavora su una copia di measurements.db. Questa guida usa la sua tabella cell, con 2341 oggetti misurati in quattro pozzetti. Conserva il database originale e annota l’elenco delle caratteristiche, i filtri, la scalatura e la regola per i valori mancanti.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Da Home, apri Image UMAP e poi scegli PCA. Usa la PCA per riassumere più colonne di misure come componenti principali. Parti dal database delle misure dell’esempio di Annotate collegato.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "Da Home, apri Image iu map e poi scegli PCA. Usa la PCA per riassumere più colonne di misure come componenti principali. Parti dal database delle misure dell’esempio di Annotate collegato."
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Fai clic su Load table accanto al titolo PCA. Apri measurements.db e seleziona cell. Controlla la tabella visualizzata e il numero di oggetti. Puoi anche caricare un CSV con colonne di misure.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Load table accanto al titolo PCA. Apri measurements punto di bi e seleziona cell. Controlla la tabella visualizzata e il numero di oggetti. Puoi anche caricare un CSV con colonne di misure."
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Cancella la ricerca delle caratteristiche e fai clic su None per deselezionare tutte le caratteristiche visibili. Seleziona cell_area, cell_channel_1_mean_intensity e cell_perimeter. Cancella di nuovo la ricerca, imposta Components su tre, poi fai clic su Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Cancella la ricerca delle caratteristiche e fai clic su None per deselezionare tutte le caratteristiche visibili. Seleziona cell_area, cell_channel_1_mean_intensity e cell_perimeter. Cancella di nuovo la ricerca, imposta Components su tre, poi fai clic su Run PCA."
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Lascia Scale su Standardise per centrare ogni caratteristica e dividerla per la sua deviazione standard campionaria. Leggi il grafico degli autovalori: le prime due componenti spiegano circa il sessantacinque virgola sette e il trentuno virgola sette per cento della varianza delle caratteristiche selezionate.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Lascia Scale su Standardise per centrare ogni caratteristica e dividerla per la sua deviazione standard campionaria. Leggi il grafico degli autovalori: le prime due componenti spiegano circa il sessantacinque virgola sette e il trentuno virgola sette per cento della varianza delle caratteristiche selezionate."
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Scegli rowID in Colour, PC tre su X e PC uno su Y. Questi comandi ridisegnano il risultato adattato. Ogni punto rappresenta una cellula; in questo esempio rowID identifica una riga spaziale.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "Scegli rowID in Colour, PC tre su X e PC uno su Y. Questi comandi ridisegnano il risultato adattato. Ogni punto rappresenta una cellula; in questo esempio rowID identifica una riga spaziale."
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Torna a PC uno e PC due. Attiva o disattiva Loadings biplot per mostrare o nascondere le frecce delle caratteristiche. Le frecce mostrano le correlazioni con le componenti visualizzate; usa le loro direzioni e il cerchio di riferimento tratteggiato per confrontare le caratteristiche.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "Torna a PC uno e PC due. Attiva o disattiva Loadings biplot per mostrare o nascondere le frecce delle caratteristiche. Le frecce mostrano le correlazioni con le componenti visualizzate; usa le loro direzioni e il cerchio di riferimento tratteggiato per confrontare le caratteristiche."
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Scegli Centre only per adattare il modello sulle scale di misura originali. Ora la prima componente spiega circa il novanta virgola uno per cento. La scalatura cambia la domanda che viene riassunta. Torna a Standardise per confrontare le caratteristiche su una scala comune.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Scegli Centre only per adattare il modello sulle scale di misura originali. Ora la prima componente spiega circa il novanta virgola uno per cento. La scalatura cambia la domanda che viene riassunta. Torna a Standardise per confrontare le caratteristiche su una scala comune."
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "Nel filtro a destra, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. Il pannello ricalcola la PCA sulle millecentosettantuno cellule rimanenti, quindi cambiano sia la popolazione sia le direzioni delle componenti.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "Nel filtro a destra, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. Il pannello ricalcola la PCA sulle millecentosettantuno cellule rimanenti, quindi cambiano sia la popolazione sia le direzioni delle componenti."
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Fai clic su Clear all nel filtro per ripristinare l’intera popolazione. Controlla il numero di oggetti dopo il filtraggio. Il database di origine non cambia; il risultato visualizzato viene ricalcolato per la popolazione scelta.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "Fai clic su Clear all nel filtro per ripristinare l’intera popolazione. Controlla il numero di oggetti dopo il filtraggio. Il database di origine non cambia; il risultato visualizzato viene ricalcolato per la popolazione scelta."
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Seleziona cell_channel_0_homogeneity_distance_32 come quarta caratteristica. Fai clic su Run PCA per includerla nel risultato. Questo esempio ha sette misure mancanti in quella colonna; usa NaN per scegliere come le gestisce l’adattamento.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Seleziona cell_channel_0_homogeneity_distance_32 come quarta caratteristica. Fai clic su Run PCA per includerla nel risultato. Questo esempio ha sette misure mancanti in quella colonna; usa NaN per scegliere come le gestisce l’adattamento."
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Con Auto, le caratteristiche mancanti in più del due per cento delle righe vengono rimosse, poi vengono scartate le righe incomplete. Qui restano tutte e quattro le caratteristiche e vengono escluse sette cellule. Leggi il report per vedere le caratteristiche e gli oggetti effettivamente analizzati.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Con Auto, le caratteristiche mancanti in più del due per cento delle righe vengono rimosse, poi vengono scartate le righe incomplete. Qui restano tutte e quattro le caratteristiche e vengono escluse sette cellule. Leggi il report per vedere le caratteristiche e gli oggetti effettivamente analizzati."
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Scegli Drop features per rimuovere ogni caratteristica selezionata che contiene valori mancanti. In questo esempio viene rimossa la caratteristica di tessitura e restano tutte le cellule. L’avviso del risultato indica quali caratteristiche sono state escluse, anche se le loro caselle restano selezionate.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Scegli Drop features per rimuovere ogni caratteristica selezionata che contiene valori mancanti. In questo esempio viene rimossa la caratteristica di tessitura e restano tutte le cellule. L’avviso del risultato indica quali caratteristiche sono state escluse, anche se le loro caselle restano selezionate."
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Scegli Mean-impute per mantenere tutte le cellule e le caratteristiche, sostituendo durante il calcolo i valori mancanti con la media osservata della caratteristica. Qui vengono sostituiti sette valori. Annota questa scelta quando presenti il risultato; i valori sostituiti sono stime.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Scegli Mean-impute per mantenere tutte le cellule e le caratteristiche, sostituendo durante il calcolo i valori mancanti con la media osservata della caratteristica. Qui vengono sostituiti sette valori. Annota questa scelta quando presenti il risultato; i valori sostituiti sono stime."
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Scegli Complete cases per mantenere le caratteristiche selezionate ed escludere le righe incomplete. Per tornare all’esempio originale, scegli Auto, deseleziona la caratteristica di tessitura, cancella la ricerca, fai clic su Run PCA e imposta Colour su none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Scegli Complete cases per mantenere le caratteristiche selezionate ed escludere le righe incomplete. Per tornare all’esempio originale, scegli Auto, deseleziona la caratteristica di tessitura, cancella la ricerca, fai clic su Run PCA e imposta Colour su none."
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Fai clic su Export e scegli un nome base, per esempio pca_example. Il pannello scrive tre file CSV: i punteggi degli oggetti analizzati, i pesi e le correlazioni delle caratteristiche, e la varianza spiegata delle componenti. La tabella dei punteggi include anche le colonne di misure di origine.",
+        "hold_after": 0.7,
+        "speech_text": "Fai clic su Export e scegli un nome base, per esempio pca_example. Il pannello scrive tre file CSV: i punteggi degli oggetti analizzati, i pesi e le correlazioni delle caratteristiche, e la varianza spiegata delle componenti. La tabella dei punteggi include anche le colonne di misure di origine."
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Apri le tabelle esportate e conservale insieme all’elenco delle caratteristiche, ai filtri e alle impostazioni dell’analisi. Considera le cellule come osservazioni all’interno dei loro pozzetti quando interpreti una separazione. Per un’analisi ripetibile in Python, usa pca e PCASpec da spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "Apri le tabelle esportate e conservale insieme all’elenco delle caratteristiche, ai filtri e alle impostazioni dell’analisi. Considera le cellule come osservazioni all’interno dei loro pozzetti quando interpreti una separazione. Per un’analisi ripetibile in Python, usa pca e PCASpec da spàker.cu ti.widgets.pca_model."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_ja.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA：測定値を探索し、主成分を書き出す",
+      "description": "測定した物体を読み込み、特徴量を選び、主成分を比べて、スコア、負荷量、寄与率を書き出します。",
+      "objectives": [
+       "測定データベースかCSVを読み込み、特徴量を選ぶ。",
+       "スケーリング、欠損値の扱い、フィルターを選ぶ。",
+       "主成分のスコアと負荷量を確認し、三つの結果の表を書き出す。"
+      ],
+      "prerequisite": "Annotateのチュートリアルの例をダウンロードし、measurements.dbのコピーで作業します。このチュートリアルでは、そのcellの表を使います。四つのウェルにわたって測定された物体が2341個あります。元のデータベースは残し、特徴量の一覧、フィルター、スケーリング、欠損値の方針を記録しておきます。",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "HomeからImage UMAPを開き、PCAを選びます。PCAを使うと、複数の測定値の列を主成分としてまとめられます。リンク先のAnnotateの例の測定データベースから始めます。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "ホームからImage ユーマップを開き、PCAを選びます。PCAを使うと、複数の測定値の列を主成分としてまとめられます。リンク先のAnnotateの例の測定データベースから始めます。"
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "PCAの見出しの横にあるLoad tableをクリックします。measurements.dbを開き、cellを選びます。表示された表と物体の数を確認します。測定値の列を含むCSVを読み込むこともできます。",
+        "hold_after": 0.7,
+        "speech_text": "PCAの見出しの横にあるLoad tableをクリックします。メジャメンツ・ドット・ディービーを開き、cellを選びます。表示された表と物体の数を確認します。測定値の列を含むCSVを読み込むこともできます。"
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "特徴量の検索を消し、Noneをクリックして、表示されている特徴量のチェックをすべて外します。cell_area、cell_channel_1_mean_intensity、cell_perimeterを選びます。もう一度検索を消し、Componentsを三にして、Run PCAをクリックします。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "特徴量の検索を消し、Noneをクリックして、表示されている特徴量のチェックをすべて外します。cell_area、cell_channel_1_mean_intensity、cell_perimeterを選びます。もう一度検索を消し、Componentsを三にして、Run PCAをクリックします。"
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "ScaleはStandardiseのままにして、各特徴量を中心化し、標本標準偏差で割ります。スクリープロットを読みます。最初の二つの主成分で、選んだ特徴量の分散のおよそ六十五点七パーセントと三十一点七パーセントが説明されます。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "ScaleはStandardiseのままにして、各特徴量を中心化し、標本標準偏差で割ります。スクリープロットを読みます。最初の二つの主成分で、選んだ特徴量の分散のおよそ六十五点七パーセントと三十一点七パーセントが説明されます。"
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "ColourにrowIDを、XにPC三を、YにPC一を選びます。これらの操作で、当てはめた結果が描き直されます。各点は細胞一つを表し、この例ではrowIDが空間上の行を示します。",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "ColourにrowIDを、XにPC三を、YにPC一を選びます。これらの操作で、当てはめた結果が描き直されます。各点は細胞一つを表し、この例ではrowIDが空間上の行を示します。"
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "PC一とPC二に戻します。Loadings biplotを切り替えると、特徴量の矢印を表示したり隠したりできます。矢印は表示している主成分との相関を示します。特徴量を比べるには、矢印の向きと破線の参照円を使います。",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "PC一とPC二に戻します。Loadings biplotを切り替えると、特徴量の矢印を表示したり隠したりできます。矢印は表示している主成分との相関を示します。特徴量を比べるには、矢印の向きと破線の参照円を使います。"
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Centre onlyを選ぶと、元の測定値の尺度のまま当てはめます。今度は最初の主成分で、およそ九十点一パーセントが説明されます。スケーリングによって、まとめている問い自体が変わります。共通の尺度で特徴量を比べるには、Standardiseに戻します。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Centre onlyを選ぶと、元の測定値の尺度のまま当てはめます。今度は最初の主成分で、およそ九十点一パーセントが説明されます。スケーリングによって、まとめている問い自体が変わります。共通の尺度で特徴量を比べるには、Standardiseに戻します。"
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "右側のフィルターでcell_areaを追加し、最小値を二万千九百二十五にします。パネルは残った千百七十一個の細胞でPCAを当てはめ直すので、集団と主成分の向きの両方が変わります。",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "右側のフィルターでcell_areaを追加し、最小値を二万千九百二十五にします。パネルは残った千百七十一個の細胞でPCAを当てはめ直すので、集団と主成分の向きの両方が変わります。"
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "フィルターのClear allをクリックすると、集団全体に戻ります。絞り込んだ後は物体の数を確認します。元のデータベースは変わらず、表示される結果が選んだ集団に対して計算し直されます。",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "フィルターのClear allをクリックすると、集団全体に戻ります。絞り込んだ後は物体の数を確認します。元のデータベースは変わらず、表示される結果が選んだ集団に対して計算し直されます。"
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "四つ目の特徴量としてcell_channel_0_homogeneity_distance_32を選びます。Run PCAをクリックして結果に含めます。この例ではその列に欠損した測定値が七つあります。当てはめでの扱いは、NaNで選びます。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "四つ目の特徴量としてcell_channel_0_homogeneity_distance_32を選びます。Run PCAをクリックして結果に含めます。この例ではその列に欠損した測定値が七つあります。当てはめでの扱いは、NaNで選びます。"
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Autoでは、二パーセントを超える行で欠けている特徴量が除かれ、その後、不完全な行が除かれます。ここでは四つの特徴量がすべて残り、七個の細胞が除外されます。実際に解析された特徴量と物体は、レポートで確認します。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Autoでは、二パーセントを超える行で欠けている特徴量が除かれ、その後、不完全な行が除かれます。ここでは四つの特徴量がすべて残り、七個の細胞が除外されます。実際に解析された特徴量と物体は、レポートで確認します。"
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Drop featuresを選ぶと、欠損値を含む選択中の特徴量が除かれます。この例ではテクスチャーの特徴量が除かれ、細胞はすべて残ります。チェックボックスがオンのままでも、除外された特徴量は結果の通知に表示されます。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Drop featuresを選ぶと、欠損値を含む選択中の特徴量が除かれます。この例ではテクスチャーの特徴量が除かれ、細胞はすべて残ります。チェックボックスがオンのままでも、除外された特徴量は結果の通知に表示されます。"
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Mean-imputeを選ぶと、計算の際に欠損値を特徴量の観測平均で置き換え、すべての細胞と特徴量を残します。ここでは七つの値が置き換えられます。置き換えた値は推定値なので、結果を示すときはこの選択を記録しておきます。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Mean-imputeを選ぶと、計算の際に欠損値を特徴量の観測平均で置き換え、すべての細胞と特徴量を残します。ここでは七つの値が置き換えられます。置き換えた値は推定値なので、結果を示すときはこの選択を記録しておきます。"
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Complete casesを選ぶと、選んだ特徴量を残し、不完全な行を除きます。元の例に戻すには、Autoを選び、テクスチャーの特徴量のチェックを外し、検索を消してからRun PCAをクリックし、Colourをnoneにします。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Complete casesを選ぶと、選んだ特徴量を残し、不完全な行を除きます。元の例に戻すには、Autoを選び、テクスチャーの特徴量のチェックを外し、検索を消してからRun PCAをクリックし、Colourをnoneにします。"
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Exportをクリックし、pca_exampleなどの基本名を選びます。パネルは三つのCSVファイルを書き出します。解析した物体のスコア、特徴量の負荷量と相関、主成分ごとの寄与率です。スコアの表には、元の測定値の列も含まれます。",
+        "hold_after": 0.7,
+        "speech_text": "Exportをクリックし、pca_exampleなどの基本名を選びます。パネルは三つのCSVファイルを書き出します。解析した物体のスコア、特徴量の負荷量と相関、主成分ごとの寄与率です。スコアの表には、元の測定値の列も含まれます。"
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "書き出した表を開き、特徴量の一覧、フィルター、解析の設定と一緒に保管します。分離を解釈するときは、細胞をそれぞれのウェルの中の観測値として扱います。Pythonで再現できる解析には、spacr.qt.widgets.pca_modelのpcaとPCASpecを使います。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "書き出した表を開き、特徴量の一覧、フィルター、解析の設定と一緒に保管します。分離を解釈するときは、細胞をそれぞれのウェルの中の観測値として扱います。Pythonで再現できる解析には、スペーカー.キュー ティー.widgets.pca_modelのpcaとPCASpecを使います。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_pt-BR.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: explorar medições e exportar componentes",
+      "description": "Carregue objetos medidos, escolha características, compare componentes principais e exporte pontuações, cargas e variância explicada.",
+      "objectives": [
+       "Carregar um banco de dados de medições ou um CSV e selecionar características.",
+       "Escolher o escalonamento, o tratamento de valores ausentes e os filtros.",
+       "Inspecionar pontuações e cargas dos componentes e exportar três tabelas de resultados."
+      ],
+      "prerequisite": "Baixe o exemplo do tutorial do Annotate e trabalhe com uma cópia de measurements.db. Este passo a passo usa a tabela cell dele, com 2341 objetos medidos em quatro poços. Mantenha o banco de dados original e registre sua lista de características, os filtros, o escalonamento e a regra para valores ausentes.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Na tela Home, abra Image UMAP e escolha PCA. Use o PCA para resumir várias colunas de medições como componentes principais. Comece com o banco de dados de medições do exemplo do Annotate indicado.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "Na tela Home, abra Image iu mép e escolha PCA. Use o PCA para resumir várias colunas de medições como componentes principais. Comece com o banco de dados de medições do exemplo do Annotate indicado."
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Clique em Load table ao lado do título PCA. Abra measurements.db e selecione cell. Confira a tabela exibida e o número de objetos. Você também pode carregar um CSV com colunas de medições.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Load table ao lado do título PCA. Abra measurements ponto dê bê e selecione cell. Confira a tabela exibida e o número de objetos. Você também pode carregar um CSV com colunas de medições."
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Limpe a busca de características e clique em None para desmarcar todas as características visíveis. Selecione cell_area, cell_channel_1_mean_intensity e cell_perimeter. Limpe a busca de novo, defina Components como três e clique em Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Limpe a busca de características e clique em None para desmarcar todas as características visíveis. Selecione cell_area, cell_channel_1_mean_intensity e cell_perimeter. Limpe a busca de novo, defina Components como três e clique em Run PCA."
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Mantenha Scale em Standardise para centralizar cada característica e dividi-la pelo desvio padrão amostral. Leia o gráfico de autovalores: os dois primeiros componentes explicam cerca de sessenta e cinco vírgula sete e trinta e um vírgula sete por cento da variância das características selecionadas.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Mantenha Scale em Standardise para centralizar cada característica e dividi-la pelo desvio padrão amostral. Leia o gráfico de autovalores: os dois primeiros componentes explicam cerca de sessenta e cinco vírgula sete e trinta e um vírgula sete por cento da variância das características selecionadas."
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Escolha rowID em Colour, PC três em X e PC um em Y. Esses controles redesenham o resultado ajustado. Cada ponto representa uma célula; neste exemplo, rowID identifica uma linha espacial.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "Escolha rowID em Colour, PC três em X e PC um em Y. Esses controles redesenham o resultado ajustado. Cada ponto representa uma célula; neste exemplo, rowID identifica uma linha espacial."
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Volte para PC um e PC dois. Ative ou desative Loadings biplot para mostrar ou ocultar as setas das características. As setas mostram as correlações com os componentes exibidos; use as direções delas e o círculo de referência tracejado para comparar características.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "Volte para PC um e PC dois. Ative ou desative Loadings biplot para mostrar ou ocultar as setas das características. As setas mostram as correlações com os componentes exibidos; use as direções delas e o círculo de referência tracejado para comparar características."
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Escolha Centre only para ajustar com as escalas originais das medições. Agora o primeiro componente explica cerca de noventa vírgula um por cento. O escalonamento muda a pergunta que está sendo resumida. Volte para Standardise para comparar as características numa escala comum.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Escolha Centre only para ajustar com as escalas originais das medições. Agora o primeiro componente explica cerca de noventa vírgula um por cento. O escalonamento muda a pergunta que está sendo resumida. Volte para Standardise para comparar as características numa escala comum."
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "No filtro à direita, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. O painel reajusta o PCA com as mil cento e setenta e uma células restantes, então mudam tanto a população quanto as direções dos componentes.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "No filtro à direita, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. O painel reajusta o PCA com as mil cento e setenta e uma células restantes, então mudam tanto a população quanto as direções dos componentes."
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Clique em Clear all no filtro para restaurar a população completa. Confira o número de objetos depois de filtrar. O banco de dados de origem não muda; o resultado exibido é recalculado para a população escolhida.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "Clique em Clear all no filtro para restaurar a população completa. Confira o número de objetos depois de filtrar. O banco de dados de origem não muda; o resultado exibido é recalculado para a população escolhida."
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Selecione cell_channel_0_homogeneity_distance_32 como quarta característica. Clique em Run PCA para incluí-la no resultado. Este exemplo tem sete medições ausentes nessa coluna; use NaN para escolher como o ajuste as trata.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Selecione cell_channel_0_homogeneity_distance_32 como quarta característica. Clique em Run PCA para incluí-la no resultado. Este exemplo tem sete medições ausentes nessa coluna; use NaN para escolher como o ajuste as trata."
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Com Auto, as características ausentes em mais de dois por cento das linhas são removidas e depois as linhas incompletas são descartadas. Aqui as quatro características permanecem e sete células são excluídas. Leia o relatório para ver as características e os objetos que foram de fato analisados.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Com Auto, as características ausentes em mais de dois por cento das linhas são removidas e depois as linhas incompletas são descartadas. Aqui as quatro características permanecem e sete células são excluídas. Leia o relatório para ver as características e os objetos que foram de fato analisados."
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Escolha Drop features para remover qualquer característica selecionada que tenha valores ausentes. Neste exemplo, a característica de textura é removida e todas as células permanecem. O aviso do resultado mostra quais características foram excluídas, mesmo que as caixas delas continuem marcadas.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Escolha Drop features para remover qualquer característica selecionada que tenha valores ausentes. Neste exemplo, a característica de textura é removida e todas as células permanecem. O aviso do resultado mostra quais características foram excluídas, mesmo que as caixas delas continuem marcadas."
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Escolha Mean-impute para manter todas as células e características, substituindo durante o cálculo os valores ausentes pela média observada da característica. Aqui, sete valores são substituídos. Registre essa escolha ao apresentar o resultado; os valores substituídos são estimativas.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Escolha Mean-impute para manter todas as células e características, substituindo durante o cálculo os valores ausentes pela média observada da característica. Aqui, sete valores são substituídos. Registre essa escolha ao apresentar o resultado; os valores substituídos são estimativas."
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Escolha Complete cases para manter as características selecionadas e excluir as linhas incompletas. Para voltar ao exemplo original, escolha Auto, desmarque a característica de textura, limpe a busca, clique em Run PCA e defina Colour como none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "Escolha Complete cases para manter as características selecionadas e excluir as linhas incompletas. Para voltar ao exemplo original, escolha Auto, desmarque a característica de textura, limpe a busca, clique em Run PCA e defina Colour como none."
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Clique em Export e escolha um nome base, como pca_example. O painel grava três arquivos CSV: as pontuações dos objetos analisados, as cargas e correlações das características e a variância explicada dos componentes. A tabela de pontuações também inclui as colunas de medições de origem.",
+        "hold_after": 0.7,
+        "speech_text": "Clique em Export e escolha um nome base, como pca_example. O painel grava três arquivos CSV: as pontuações dos objetos analisados, as cargas e correlações das características e a variância explicada dos componentes. A tabela de pontuações também inclui as colunas de medições de origem."
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Abra as tabelas exportadas e guarde-as junto com a lista de características, os filtros e as configurações da análise. Trate as células como observações dentro dos seus poços ao interpretar uma separação. Para uma análise reproduzível em Python, use pca e PCASpec de spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "Abra as tabelas exportadas e guarde-as junto com a lista de características, os filtros e as configurações da análise. Trate as células como observações dentro dos seus poços ao interpretar uma separação. Para uma análise reproduzível em Python, use pca e PCASpec de espáquer.quê tê.widgets.pca_model."
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/lessons_zh-CN.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA：探索测量数据并导出主成分",
+      "description": "加载已测量对象，选择特征，比较主成分，并导出得分、载荷和解释方差。",
+      "objectives": [
+       "加载测量数据库或CSV并选择特征。",
+       "选择缩放方式、缺失值处理和过滤条件。",
+       "检查主成分得分和载荷，然后导出三张结果表。"
+      ],
+      "prerequisite": "从Annotate教程下载示例，并在measurements.db的副本上操作。本演示使用其中的cell表，包含四个孔中的2341个已测量对象。请保留原始数据库，并记录特征列表、过滤条件、缩放方式和缺失值策略。",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "从Home打开Image UMAP，然后选择PCA。用PCA把多列测量数据概括为主成分。请从链接中的Annotate示例的测量数据库开始。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ],
+        "speech_text": "从主页打开Image 优麦普，然后选择PCA。用PCA把多列测量数据概括为主成分。请从链接中的Annotate示例的测量数据库开始。"
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "点击PCA标题旁的Load table。打开measurements.db并选择cell。检查显示的表和对象数量。也可以加载包含测量列的CSV。",
+        "hold_after": 0.7,
+        "speech_text": "点击PCA标题旁的Load table。打开测量数据库文件并选择cell。检查显示的表和对象数量。也可以加载包含测量列的CSV。"
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "清空特征搜索，点击None取消勾选所有可见特征。选择cell_area、cell_channel_1_mean_intensity和cell_perimeter。再次清空搜索，把Components设为三，然后点击Run PCA。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "清空特征搜索，点击None取消勾选所有可见特征。选择cell_area、cell_channel_1_mean_intensity和cell_perimeter。再次清空搜索，把Components设为三，然后点击Run PCA。"
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "保持Scale为Standardise，对每个特征进行中心化并除以其样本标准差。阅读碎石图：前两个主成分分别解释所选特征约百分之六十五点七和百分之三十一点七的方差。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "保持Scale为Standardise，对每个特征进行中心化并除以其样本标准差。阅读碎石图：前两个主成分分别解释所选特征约百分之六十五点七和百分之三十一点七的方差。"
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "在Colour中选择rowID，X选择PC三，Y选择PC一。这些控件会重新绘制拟合结果。每个点代表一个细胞；在本例中，rowID表示空间上的一行。",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ],
+        "speech_text": "在Colour中选择rowID，X选择PC三，Y选择PC一。这些控件会重新绘制拟合结果。每个点代表一个细胞；在本例中，rowID表示空间上的一行。"
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "回到PC一和PC二。切换Loadings biplot以显示或隐藏特征箭头。箭头表示与所显示主成分的相关性；请根据箭头方向和虚线参考圆比较各特征。",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ],
+        "speech_text": "回到PC一和PC二。切换Loadings biplot以显示或隐藏特征箭头。箭头表示与所显示主成分的相关性；请根据箭头方向和虚线参考圆比较各特征。"
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "选择Centre only，按原始测量尺度进行拟合。此时第一主成分约解释百分之九十点一。缩放方式会改变所概括的问题。恢复Standardise，以便在共同尺度上比较特征。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择Centre only，按原始测量尺度进行拟合。此时第一主成分约解释百分之九十点一。缩放方式会改变所概括的问题。恢复Standardise，以便在共同尺度上比较特征。"
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "在右侧过滤器中添加cell_area，把最小值设为两万一千九百二十五。面板会在剩下的一千一百七十一个细胞上重新拟合PCA，因此群体和主成分方向都会改变。",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ],
+        "speech_text": "在右侧过滤器中添加cell_area，把最小值设为两万一千九百二十五。面板会在剩下的一千一百七十一个细胞上重新拟合PCA，因此群体和主成分方向都会改变。"
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "点击过滤器中的Clear all恢复完整群体。过滤后请检查对象数量。源数据库不会改变；显示的结果会针对所选群体重新计算。",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ],
+        "speech_text": "点击过滤器中的Clear all恢复完整群体。过滤后请检查对象数量。源数据库不会改变；显示的结果会针对所选群体重新计算。"
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "选择cell_channel_0_homogeneity_distance_32作为第四个特征。点击Run PCA把它纳入结果。本例中该列有七个缺失的测量值；请用NaN选择拟合时如何处理它们。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择cell_channel_0_homogeneity_distance_32作为第四个特征。点击Run PCA把它纳入结果。本例中该列有七个缺失的测量值；请用NaN选择拟合时如何处理它们。"
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "选择Auto时，缺失比例超过百分之二的特征会被移除，然后删除不完整的行。这里四个特征都保留，七个细胞被排除。阅读报告，查看实际参与分析的特征和对象。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择Auto时，缺失比例超过百分之二的特征会被移除，然后删除不完整的行。这里四个特征都保留，七个细胞被排除。阅读报告，查看实际参与分析的特征和对象。"
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "选择Drop features，移除任何含有缺失值的所选特征。在本例中，纹理特征被移除，所有细胞都保留。即使复选框仍处于勾选状态，结果提示也会列出被排除的特征。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择Drop features，移除任何含有缺失值的所选特征。在本例中，纹理特征被移除，所有细胞都保留。即使复选框仍处于勾选状态，结果提示也会列出被排除的特征。"
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "选择Mean-impute，在计算时用特征的观测均值替换缺失值，从而保留所有细胞和特征。这里替换了七个值。展示结果时请记录这一选择；替换值只是估计值。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择Mean-impute，在计算时用特征的观测均值替换缺失值，从而保留所有细胞和特征。这里替换了七个值。展示结果时请记录这一选择；替换值只是估计值。"
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "选择Complete cases，保留所选特征并排除不完整的行。要回到原始示例，请选择Auto，取消勾选纹理特征，清空搜索，点击Run PCA，并把Colour设为none。",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ],
+        "speech_text": "选择Complete cases，保留所选特征并排除不完整的行。要回到原始示例，请选择Auto，取消勾选纹理特征，清空搜索，点击Run PCA，并把Colour设为none。"
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "点击Export并选择一个基本名称，例如pca_example。面板会写出三个CSV文件：已分析对象的得分、特征的载荷和相关性，以及各主成分的解释方差。得分表还包含源测量列。",
+        "hold_after": 0.7,
+        "speech_text": "点击Export并选择一个基本名称，例如pca_example。面板会写出三个CSV文件：已分析对象的得分、特征的载荷和相关性，以及各主成分的解释方差。得分表还包含源测量列。"
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "打开导出的表，并与特征列表、过滤条件和分析设置一起保存。解读分离时，请把细胞视为其所在孔内的观测。若要在Python中进行可重复的分析，请使用spacr.qt.widgets.pca_model中的pca和PCASpec。",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ],
+        "speech_text": "打开导出的表，并与特征列表、过滤条件和分析设置一起保存。解读分离时，请把细胞视为其所在孔内的观测。若要在Python中进行可重复的分析，请使用斯佩克尔.Q T.widgets.pca_model中的pca和PCASpec。"
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_da.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: udforsk målinger, og eksportér komponenter",
+      "description": "Indlæs målte objekter, vælg egenskaber, sammenlign hovedkomponenter, og eksportér scorer, ladninger og forklaret varians.",
+      "objectives": [
+       "Indlæse en måledatabase eller en CSV og vælge egenskaber.",
+       "Vælge skalering, håndtering af manglende værdier og filtre.",
+       "Undersøge komponentscorer og ladninger og derefter eksportere tre resultattabeller."
+      ],
+      "prerequisite": "Hent eksemplet fra Annotate-vejledningen, og arbejd med en kopi af measurements.db. Gennemgangen bruger dets tabel cell med 2.341 målte objekter fra fire brønde. Behold den oprindelige database, og notér din egenskabsliste, dine filtre, din skalering og din politik for manglende værdier.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Fra Home åbner du Image UMAP og vælger derefter PCA. Brug PCA til at opsummere flere målekolonner som hovedkomponenter. Begynd med måledatabasen fra det linkede Annotate-eksempel.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Klik på Load table ved siden af overskriften PCA. Åbn measurements.db, og vælg cell. Kontrollér den viste tabel og antallet af objekter. Du kan også indlæse en CSV med målekolonner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Ryd egenskabssøgningen, og klik på None for at fravælge alle synlige egenskaber. Vælg cell_area, cell_channel_1_mean_intensity og cell_perimeter. Ryd søgningen igen, sæt Components til 3, og klik derefter på Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Lad Scale stå på Standardise for at centrere hver egenskab og dividere med dens stikprøvestandardafvigelse. Læs scree-plottet: de to første komponenter forklarer omkring 65,7 % og 31,7 % af variansen i de valgte egenskaber.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Vælg rowID i Colour, PC 3 på X og PC 1 på Y. Disse kontroller tegner det tilpassede resultat igen. Hvert punkt repræsenterer en celle; i dette eksempel angiver rowID en rumlig række.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Vend tilbage til PC 1 og PC 2. Slå Loadings biplot til og fra for at vise eller skjule egenskabspilene. Pilene viser korrelationer med de viste komponenter; brug deres retninger og den stiplede referencecirkel til at sammenligne egenskaber.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Vælg Centre only for at tilpasse med de oprindelige måleskalaer. Den første komponent forklarer nu omkring 90,1 %. Skaleringen ændrer det spørgsmål, der opsummeres. Sæt Standardise tilbage for at sammenligne egenskaber på en fælles skala.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "I filteret til højre tilføjer du cell_area og sætter minimum til 21.925. Panelet tilpasser PCA igen på de resterende 1.171 celler, så både populationen og komponenternes retninger ændres.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Klik på Clear all i filteret for at gendanne hele populationen. Kontrollér antallet af objekter efter filtreringen. Kildedatabasen er uændret; det viste resultat genberegnes for den valgte population.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Vælg cell_channel_0_homogeneity_distance_32 som fjerde egenskab. Klik på Run PCA for at medtage den i resultatet. Eksemplet har syv manglende målinger i den kolonne; brug NaN til at vælge, hvordan tilpasningen håndterer dem.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Med Auto fjernes egenskaber, der mangler i mere end 2 % af rækkerne, og derefter udelades ufuldstændige rækker. Her bevares alle fire egenskaber, og syv celler udelukkes. Læs rapporten for at se, hvilke egenskaber og objekter der faktisk blev analyseret.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Vælg Drop features for at fjerne alle valgte egenskaber, der indeholder manglende værdier. I dette eksempel fjernes teksturegenskaben, og alle celler bevares. Resultatmeddelelsen viser, hvilke egenskaber der blev udelukket, selvom deres afkrydsningsfelter stadig er markeret.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Vælg Mean-impute for at bevare alle celler og egenskaber ved at erstatte manglende værdier med egenskabens observerede gennemsnit under beregningen. Her erstattes syv værdier. Notér dette valg, når du præsenterer resultatet; erstatningerne er skøn.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Vælg Complete cases for at bevare de valgte egenskaber og udelukke ufuldstændige rækker. For at vende tilbage til det oprindelige eksempel vælger du Auto, fravælger teksturegenskaben, rydder søgningen, klikker på Run PCA og sætter Colour til none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Klik på Export, og vælg et basisnavn som pca_example. Panelet skriver tre CSV-filer: scorer for analyserede objekter, ladninger og korrelationer for egenskaber samt forklaret varians for komponenter. Scoretabellen indeholder også kildens målekolonner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Åbn de eksporterede tabeller, og behold dem sammen med din egenskabsliste, dine filtre og analyseindstillinger. Behandl cellerne som observationer inden for deres brønde, når du fortolker en adskillelse. Til en reproducerbar Python-analyse bruger du pca og PCASpec fra spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_de.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: Messwerte erkunden und Komponenten exportieren",
+      "description": "Laden Sie gemessene Objekte, wählen Sie Merkmale, vergleichen Sie Hauptkomponenten und exportieren Sie Scores, Ladungen und erklärte Varianz.",
+      "objectives": [
+       "Eine Messdatenbank oder CSV laden und Merkmale auswählen.",
+       "Skalierung, Umgang mit fehlenden Werten und Filter wählen.",
+       "Komponentenscores und Ladungen prüfen und dann drei Ergebnistabellen exportieren."
+      ],
+      "prerequisite": "Laden Sie das Beispiel aus dem Annotate-Tutorial herunter und arbeiten Sie mit einer Kopie von measurements.db. Diese Anleitung verwendet dessen Tabelle cell mit 2.341 gemessenen Objekten aus vier Wells. Behalten Sie die Originaldatenbank und notieren Sie Merkmalsliste, Filter, Skalierung und Regel für fehlende Werte.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Öffnen Sie von Home aus Image UMAP und wählen Sie dann PCA. Mit PCA fassen Sie mehrere Messspalten als Hauptkomponenten zusammen. Beginnen Sie mit der Messdatenbank aus dem verlinkten Annotate-Beispiel.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Klicken Sie neben der Überschrift PCA auf Load table. Öffnen Sie measurements.db und wählen Sie cell. Prüfen Sie die angezeigte Tabelle und die Objektzahl. Sie können auch eine CSV mit Messspalten laden.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Leeren Sie die Merkmalssuche und klicken Sie auf None, um alle sichtbaren Merkmale abzuwählen. Wählen Sie cell_area, cell_channel_1_mean_intensity und cell_perimeter. Leeren Sie die Suche erneut, setzen Sie Components auf 3 und klicken Sie auf Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Lassen Sie Scale auf Standardise, um jedes Merkmal zu zentrieren und durch seine Stichproben-Standardabweichung zu teilen. Lesen Sie den Scree-Plot: Die ersten beiden Komponenten erklären etwa 65,7 % und 31,7 % der Varianz der ausgewählten Merkmale.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Wählen Sie rowID unter Colour, PC 3 auf X und PC 1 auf Y. Diese Regler zeichnen das angepasste Ergebnis neu. Jeder Punkt steht für eine Zelle; rowID kennzeichnet in diesem Beispiel eine räumliche Zeile.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Kehren Sie zu PC 1 und PC 2 zurück. Schalten Sie Loadings biplot um, um Merkmalspfeile ein- oder auszublenden. Die Pfeile zeigen Korrelationen mit den angezeigten Komponenten; vergleichen Sie Merkmale anhand ihrer Richtungen und des gestrichelten Referenzkreises.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Wählen Sie Centre only, um mit den ursprünglichen Messskalen anzupassen. Die erste Komponente erklärt nun etwa 90,1 %. Die Skalierung verändert die Frage, die zusammengefasst wird. Stellen Sie Standardise wieder ein, um Merkmale auf einer gemeinsamen Skala zu vergleichen.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "Fügen Sie im Filter rechts cell_area hinzu und setzen Sie das Minimum auf 21.925. Der Bereich passt die PCA an die verbleibenden 1.171 Zellen neu an; damit ändern sich sowohl die Population als auch die Komponentenrichtungen.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Klicken Sie im Filter auf Clear all, um die vollständige Population wiederherzustellen. Prüfen Sie nach dem Filtern die Objektzahl. Die Quelldatenbank bleibt unverändert; das angezeigte Ergebnis wird für die gewählte Population neu berechnet.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Wählen Sie cell_channel_0_homogeneity_distance_32 als viertes Merkmal. Klicken Sie auf Run PCA, um es in das Ergebnis aufzunehmen. Dieses Beispiel hat in dieser Spalte sieben fehlende Messwerte; legen Sie mit NaN fest, wie die Anpassung damit umgeht.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Mit Auto werden Merkmale entfernt, die in mehr als 2 % der Zeilen fehlen, und anschließend unvollständige Zeilen verworfen. Hier bleiben alle vier Merkmale erhalten, und sieben Zellen werden ausgeschlossen. Lesen Sie im Bericht, welche Merkmale und Objekte tatsächlich analysiert wurden.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Wählen Sie Drop features, um jedes ausgewählte Merkmal mit fehlenden Werten zu entfernen. In diesem Beispiel wird das Texturmerkmal entfernt, und alle Zellen bleiben erhalten. Der Ergebnishinweis zeigt, welche Merkmale ausgeschlossen wurden, auch wenn ihre Kontrollkästchen aktiviert bleiben.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Wählen Sie Mean-impute, um alle Zellen und Merkmale zu behalten, indem fehlende Werte bei der Berechnung durch den beobachteten Merkmalsmittelwert ersetzt werden. Hier werden sieben Werte ersetzt. Dokumentieren Sie diese Wahl, wenn Sie das Ergebnis darstellen; die Ersatzwerte sind Schätzungen.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Wählen Sie Complete cases, um die ausgewählten Merkmale zu behalten und unvollständige Zeilen auszuschließen. Um zum ursprünglichen Beispiel zurückzukehren, wählen Sie Auto, wählen das Texturmerkmal ab, leeren die Suche, klicken auf Run PCA und setzen Colour auf none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Klicken Sie auf Export und wählen Sie einen Basisnamen wie pca_example. Der Bereich schreibt drei CSV-Dateien: Scores für analysierte Objekte, Ladungen und Korrelationen für Merkmale sowie erklärte Varianz für Komponenten. Die Score-Tabelle enthält auch die Quell-Messspalten.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Öffnen Sie die exportierten Tabellen und bewahren Sie sie mit Merkmalsliste, Filtern und Analyseeinstellungen auf. Behandeln Sie die Zellen beim Deuten einer Trennung als Beobachtungen innerhalb ihrer Wells. Für eine reproduzierbare Python-Analyse verwenden Sie pca und PCASpec aus spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_is.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: kannaðu mælingar og fluttu út þætti",
+      "description": "Hlaðu inn mældum hlutum, veldu eiginleika, berðu saman höfuðþætti og fluttu út stig, hleðslur og útskýrða dreifni.",
+      "objectives": [
+       "Hlaða inn mælingagagnagrunni eða CSV og velja eiginleika.",
+       "Velja kvörðun, meðferð gilda sem vantar og síur.",
+       "Skoða stig og hleðslur þátta og flytja svo út þrjár niðurstöðutöflur."
+      ],
+      "prerequisite": "Sæktu dæmið úr Annotate-kennsluefninu og vinndu með afrit af measurements.db. Yfirferðin notar töfluna cell með 2.341 mældum hlut úr fjórum brunnum. Haltu upprunalega gagnagrunninum og skráðu lista eiginleika, síur, kvörðun og reglu fyrir gildi sem vantar.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Frá Home opnarðu Image UMAP og velur svo PCA. Notaðu PCA til að taka saman nokkra mælingadálka sem höfuðþætti. Byrjaðu á mælingagagnagrunni tengda Annotate-dæmisins.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Smelltu á Load table við hlið PCA-fyrirsagnarinnar. Opnaðu measurements.db og veldu cell. Athugaðu birtu töfluna og fjölda hluta. Þú getur líka hlaðið inn CSV með mælingadálkum.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Hreinsaðu eiginleikaleitina og smelltu á None til að afvelja alla sýnilega eiginleika. Veldu cell_area, cell_channel_1_mean_intensity og cell_perimeter. Hreinsaðu leitina aftur, stilltu Components á 3 og smelltu svo á Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Hafðu Scale á Standardise til að miðja hvern eiginleika og deila með staðalfráviki úrtaksins. Lestu skriðuritið: fyrstu tveir þættirnir skýra um 65,7 % og 31,7 % af dreifni valinna eiginleika.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Veldu rowID í Colour, PC 3 á X og PC 1 á Y. Þessar stýringar teikna aðlöguðu niðurstöðuna aftur. Hver punktur táknar frumu; í þessu dæmi auðkennir rowID rúmfræðilega röð.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Farðu aftur í PC 1 og PC 2. Kveiktu og slökktu á Loadings biplot til að sýna eða fela örvar eiginleika. Örvarnar sýna fylgni við birtu þættina; notaðu stefnu þeirra og strikaða viðmiðunarhringinn til að bera eiginleika saman.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Veldu Centre only til að aðlaga með upprunalegum kvörðum mælinganna. Fyrsti þátturinn skýrir nú um 90,1 %. Kvörðunin breytir spurningunni sem tekin er saman. Settu Standardise aftur á til að bera eiginleika saman á sameiginlegum kvarða.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "Í síunni hægra megin bætirðu við cell_area og stillir lágmarkið á 21.925. Spjaldið aðlagar PCA aftur á þeim 1.171 frumum sem eftir eru, svo bæði þýðið og stefna þáttanna breytast.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Smelltu á Clear all í síunni til að fá allt þýðið aftur. Athugaðu fjölda hluta eftir síun. Upprunagagnagrunnurinn breytist ekki; birta niðurstaðan er endurreiknuð fyrir valið þýði.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Veldu cell_channel_0_homogeneity_distance_32 sem fjórða eiginleika. Smelltu á Run PCA til að taka hann með í niðurstöðuna. Í þessu dæmi vantar sjö mælingar í þann dálk; notaðu NaN til að velja hvernig aðlögunin fer með þær.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Með Auto eru fjarlægðir eiginleikar sem vantar í meira en 2 % lína og síðan er ófullgerðum línum sleppt. Hér haldast allir fjórir eiginleikarnir og sjö frumur eru útilokaðar. Lestu skýrsluna til að sjá hvaða eiginleikar og hlutir voru raunverulega greindir.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Veldu Drop features til að fjarlægja alla valda eiginleika sem innihalda gildi sem vantar. Í þessu dæmi er áferðareiginleikinn fjarlægður og allar frumur haldast. Tilkynning niðurstöðunnar sýnir hvaða eiginleikar voru útilokaðir, jafnvel þótt gátreitir þeirra séu enn hakaðir.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Veldu Mean-impute til að halda öllum frumum og eiginleikum með því að setja sýnilegt meðaltal eiginleikans í stað gilda sem vantar við útreikninginn. Hér er sjö gildum skipt út. Skráðu þetta val þegar þú kynnir niðurstöðuna; gildin sem sett eru inn eru áætlanir.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Veldu Complete cases til að halda völdum eiginleikum og útiloka ófullgerðar línur. Til að fara aftur í upprunalega dæmið velurðu Auto, afhakar áferðareiginleikann, hreinsar leitina, smellir á Run PCA og stillir Colour á none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Smelltu á Export og veldu grunnheiti, til dæmis pca_example. Spjaldið skrifar þrjár CSV-skrár: stig greindra hluta, hleðslur og fylgni eiginleika og útskýrða dreifni þátta. Stigataflan inniheldur líka upprunalegu mælingadálkana.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Opnaðu útfluttu töflurnar og geymdu þær með lista eiginleika, síum og greiningarstillingum. Líttu á frumurnar sem athuganir innan brunna sinna þegar þú túlkar aðgreiningu. Fyrir endurtakanlega greiningu í Python notarðu pca og PCASpec úr spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_ko.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: 측정값 탐색과 주성분 내보내기",
+      "description": "측정된 객체를 불러오고, 특징을 고르고, 주성분을 비교한 뒤 점수, 적재값, 설명 분산을 내보냅니다.",
+      "objectives": [
+       "측정 데이터베이스나 CSV를 불러오고 특징을 선택합니다.",
+       "척도 조정, 결측값 처리, 필터를 고릅니다.",
+       "주성분 점수와 적재값을 확인한 뒤 결과 표 세 개를 내보냅니다."
+      ],
+      "prerequisite": "Annotate 튜토리얼의 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내는 그 cell 표를 쓰며, 웰 4개에 걸친 측정 객체 2,341개가 들어 있습니다. 원본 데이터베이스를 보관하고, 특징 목록, 필터, 척도 조정, 결측값 정책을 기록하세요.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Home에서 Image UMAP을 연 뒤 PCA를 선택하세요. PCA로 여러 측정 열을 주성분으로 요약합니다. 연결된 Annotate 예제의 측정 데이터베이스로 시작하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "PCA 제목 옆의 Load table을 클릭하세요. measurements.db를 열고 cell을 선택하세요. 표시된 표와 객체 수를 확인하세요. 측정 열이 있는 CSV를 불러올 수도 있습니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "특징 검색을 지우고 None을 클릭해 보이는 특징의 선택을 모두 해제하세요. cell_area, cell_channel_1_mean_intensity, cell_perimeter를 선택하세요. 검색을 다시 지우고 Components를 3으로 둔 뒤 Run PCA를 클릭하세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Scale을 Standardise로 두어 각 특징을 중심화하고 표본 표준 편차로 나누세요. 스크리 그림을 읽으세요. 처음 두 주성분이 선택한 특징 분산의 약 65.7%와 31.7%를 설명합니다.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Colour에서 rowID를, X에서 PC 3을, Y에서 PC 1을 고르세요. 이 컨트롤은 적합된 결과를 다시 그립니다. 각 점은 세포 하나를 나타내며, 이 예제에서 rowID는 공간상의 행을 나타냅니다.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "PC 1과 PC 2로 돌아가세요. Loadings biplot을 켜고 끄며 특징 화살표를 표시하거나 숨기세요. 화살표는 표시된 주성분과의 상관을 보여 주므로, 방향과 점선 기준 원을 이용해 특징을 비교하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Centre only를 고르면 원래 측정 척도로 적합합니다. 이제 첫 번째 주성분이 약 90.1%를 설명합니다. 척도 조정에 따라 요약하는 질문이 달라집니다. 공통 척도로 특징을 비교하려면 Standardise로 되돌리세요.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "오른쪽 필터에서 cell_area를 추가하고 최솟값을 21,925로 두세요. 패널은 남은 세포 1,171개로 PCA를 다시 적합하므로, 집단과 주성분 방향이 모두 바뀝니다.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "필터의 Clear all을 클릭해 전체 집단으로 되돌리세요. 필터링 후 객체 수를 확인하세요. 원본 데이터베이스는 바뀌지 않으며, 표시된 결과만 선택한 집단에 대해 다시 계산됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "네 번째 특징으로 cell_channel_0_homogeneity_distance_32를 선택하세요. Run PCA를 클릭해 결과에 포함하세요. 이 예제는 그 열에 측정값 7개가 비어 있으니, NaN으로 적합에서 이를 어떻게 처리할지 고르세요.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Auto에서는 행의 2%를 넘게 결측된 특징을 제거한 뒤 불완전한 행을 뺍니다. 여기서는 특징 4개가 모두 남고 세포 7개가 제외됩니다. 실제로 분석된 특징과 객체는 보고서에서 확인하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Drop features를 고르면 결측값이 있는 선택 특징이 제거됩니다. 이 예제에서는 질감 특징이 제거되고 세포는 모두 남습니다. 체크박스가 켜져 있더라도, 제외된 특징은 결과 안내에 표시됩니다.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Mean-impute를 고르면 계산 중 결측값을 특징의 관측 평균으로 대체해 모든 세포와 특징을 유지합니다. 여기서는 값 7개가 대체됩니다. 대체된 값은 추정치이므로 결과를 발표할 때 이 선택을 기록하세요.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Complete cases를 고르면 선택한 특징을 유지하고 불완전한 행을 제외합니다. 원래 예제로 돌아가려면 Auto를 고르고, 질감 특징의 선택을 해제하고, 검색을 지운 뒤 Run PCA를 클릭하고 Colour를 none으로 두세요.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Export를 클릭하고 pca_example 같은 기본 이름을 고르세요. 패널은 CSV 파일 세 개를 씁니다. 분석한 객체의 점수, 특징의 적재값과 상관, 주성분별 설명 분산입니다. 점수 표에는 원본 측정 열도 포함됩니다.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "내보낸 표를 열고 특징 목록, 필터, 분석 설정과 함께 보관하세요. 분리를 해석할 때는 세포를 각 웰 안의 관측값으로 다루세요. Python에서 재현 가능한 분석에는 spacr.qt.widgets.pca_model의 pca와 PCASpec을 쓰세요.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_nb.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: utforsk målinger og eksporter komponenter",
+      "description": "Last inn målte objekter, velg egenskaper, sammenlign hovedkomponenter og eksporter skårer, ladninger og forklart varians.",
+      "objectives": [
+       "Laste inn en måledatabase eller CSV og velge egenskaper.",
+       "Velge skalering, håndtering av manglende verdier og filtre.",
+       "Undersøke komponentskårer og ladninger, og deretter eksportere tre resultattabeller."
+      ],
+      "prerequisite": "Last ned eksemplet fra Annotate-veiledningen og arbeid med en kopi av measurements.db. Gjennomgangen bruker tabellen cell med 2 341 målte objekter fra fire brønner. Behold den opprinnelige databasen, og noter egenskapslisten, filtrene, skaleringen og policyen for manglende verdier.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Fra Home åpner du Image UMAP og velger deretter PCA. Bruk PCA til å oppsummere flere målekolonner som hovedkomponenter. Begynn med måledatabasen fra det lenkede Annotate-eksemplet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Klikk på Load table ved siden av overskriften PCA. Åpne measurements.db og velg cell. Kontroller tabellen som vises, og antall objekter. Du kan også laste inn en CSV med målekolonner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Tøm egenskapssøket og klikk på None for å fjerne avmerkingen for alle synlige egenskaper. Velg cell_area, cell_channel_1_mean_intensity og cell_perimeter. Tøm søket igjen, sett Components til 3 og klikk på Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "La Scale stå på Standardise for å sentrere hver egenskap og dele på utvalgets standardavvik. Les scree-plottet: de to første komponentene forklarer omtrent 65,7 % og 31,7 % av variansen i de valgte egenskapene.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Velg rowID i Colour, PC 3 på X og PC 1 på Y. Disse kontrollene tegner det tilpassede resultatet på nytt. Hvert punkt er en celle; i dette eksemplet angir rowID en romlig rad.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Gå tilbake til PC 1 og PC 2. Slå Loadings biplot av og på for å vise eller skjule egenskapspilene. Pilene viser korrelasjoner med de viste komponentene; bruk retningene og den stiplede referansesirkelen til å sammenligne egenskaper.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Velg Centre only for å tilpasse med de opprinnelige måleskalaene. Den første komponenten forklarer nå omtrent 90,1 %. Skaleringen endrer spørsmålet som oppsummeres. Sett Standardise tilbake for å sammenligne egenskaper på en felles skala.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "I filteret til høyre legger du til cell_area og setter minimum til 21 925. Panelet tilpasser PCA på nytt til de gjenværende 1 171 cellene, så både populasjonen og komponentretningene endres.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Klikk på Clear all i filteret for å gjenopprette hele populasjonen. Kontroller antall objekter etter filtrering. Kildedatabasen er uendret; resultatet som vises, beregnes på nytt for den valgte populasjonen.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Velg cell_channel_0_homogeneity_distance_32 som fjerde egenskap. Klikk på Run PCA for å ta den med i resultatet. Dette eksemplet har sju manglende målinger i den kolonnen; bruk NaN til å velge hvordan tilpasningen håndterer dem.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Med Auto fjernes egenskaper som mangler i mer enn 2 % av radene, og deretter utelates ufullstendige rader. Her beholdes alle fire egenskaper, og sju celler utelates. Les rapporten for å se hvilke egenskaper og objekter som faktisk ble analysert.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Velg Drop features for å fjerne alle valgte egenskaper som inneholder manglende verdier. I dette eksemplet fjernes teksturegenskapen, og alle cellene beholdes. Resultatmeldingen viser hvilke egenskaper som ble utelatt, selv om avmerkingsboksene fortsatt er huket av.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Velg Mean-impute for å beholde alle celler og egenskaper ved å erstatte manglende verdier med egenskapens observerte gjennomsnitt under beregningen. Her erstattes sju verdier. Noter dette valget når du presenterer resultatet; erstatningene er anslag.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Velg Complete cases for å beholde de valgte egenskapene og utelate ufullstendige rader. For å gå tilbake til det opprinnelige eksemplet velger du Auto, fjerner avmerkingen for teksturegenskapen, tømmer søket, klikker på Run PCA og setter Colour til none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Klikk på Export og velg et basisnavn, for eksempel pca_example. Panelet skriver tre CSV-filer: skårer for analyserte objekter, ladninger og korrelasjoner for egenskaper, og forklart varians for komponenter. Skårtabellen inneholder også kildemålekolonnene.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Åpne de eksporterte tabellene og behold dem sammen med egenskapslisten, filtrene og analyseinnstillingene. Behandle cellene som observasjoner innenfor brønnene sine når du tolker en separasjon. For en reproduserbar Python-analyse bruker du pca og PCASpec fra spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    },
+    "catalog/captions_sv.json": {
+     "index": 48,
+     "preceding": [
+      "59_anndata_export",
+      "58_graph_builder",
+      "57_layer_viewer",
+      "56_lineage",
+      "55_image_scatter",
+      "54_qc_dashboard",
+      "53_prediction_profiler",
+      "52_pipeline_graph",
+      "51_control_charts",
+      "50_run_compare",
+      "49_methods_results",
+      "48_hit_list",
+      "47_barcode_qc",
+      "46_napari_bridge",
+      "45_project_browser",
+      "44_data_manager",
+      "43_illumination",
+      "42_curate",
+      "41_classify",
+      "40_run_history",
+      "39_classifier_evaluation",
+      "38_distributed_jobs",
+      "37_batch",
+      "36_import",
+      "35_converter",
+      "34_database",
+      "33_plate_viewer",
+      "32_align_stitch",
+      "31_external_masks",
+      "30_plate_queue",
+      "29_report",
+      "28_training_runs",
+      "27_replication",
+      "26_invasion",
+      "25_recruitment",
+      "24_plaque",
+      "23_agreement",
+      "22_model_zoo",
+      "21_model_compare",
+      "20_cellpose_masks",
+      "19_train_cellpose",
+      "18_motility",
+      "17_timelapse",
+      "16_activation",
+      "15_image_umap",
+      "14_make_masks",
+      "13_regression",
+      "12_map_barcodes",
+      "11_classify_ml",
+      "10_classify_cv",
+      "09_annotate",
+      "08_measure",
+      "07_mask",
+      "06_api",
+      "05_home",
+      "04_platform_installers",
+      "02_install_spacr",
+      "01_pypi_github"
+     ],
+     "previous": "58_graph_builder",
+     "next": "61_tabulate",
+     "entry": {
+      "id": "60_pca",
+      "number": 60,
+      "slug": "pca",
+      "series": 5,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "section": "Explore",
+      "title": "PCA: utforska mätningar och exportera komponenter",
+      "description": "Läs in uppmätta objekt, välj egenskaper, jämför huvudkomponenter och exportera poäng, laddningar och förklarad varians.",
+      "objectives": [
+       "Läsa in en mätdatabas eller CSV och välja egenskaper.",
+       "Välja skalning, hantering av saknade värden och filter.",
+       "Granska komponentpoäng och laddningar och sedan exportera tre resultattabeller."
+      ],
+      "prerequisite": "Hämta exemplet från Annotate-handledningen och arbeta med en kopia av measurements.db. Genomgången använder dess tabell cell, med 2 341 uppmätta objekt från fyra brunnar. Behåll originaldatabasen och anteckna din egenskapslista, filter, skalning och policy för saknade värden.",
+      "scenes": [
+       {
+        "visual": "01_image_umap_host",
+        "narration": "Från Home öppnar du Image UMAP och väljer sedan PCA. Använd PCA för att sammanfatta flera mätkolumner som huvudkomponenter. Börja med mätdatabasen från det länkade Annotate-exemplet.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "09_annotate",
+         "15_image_umap"
+        ]
+       },
+       {
+        "visual": "03_real_measurement_picker",
+        "narration": "Klicka på Load table bredvid rubriken PCA. Öppna measurements.db och välj cell. Kontrollera den visade tabellen och antalet objekt. Du kan också läsa in en CSV med mätkolumner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "04_three_features_before_run",
+        "narration": "Rensa egenskapssökningen och klicka på None för att avmarkera alla synliga egenskaper. Välj cell_area, cell_channel_1_mean_intensity och cell_perimeter. Rensa sökningen igen, ställ Components på 3 och klicka på Run PCA.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "62_feature_dictionary"
+        ],
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "05_standardised_three_features",
+        "narration": "Låt Scale stå på Standardise för att centrera varje egenskap och dela med dess standardavvikelse i urvalet. Läs scree-diagrammet: de två första komponenterna förklarar ungefär 65,7 % och 31,7 % av de valda egenskapernas varians.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "07_pc3_against_pc1",
+        "narration": "Välj rowID i Colour, PC 3 på X och PC 1 på Y. Kontrollerna ritar om det anpassade resultatet. Varje punkt är en cell; i exemplet anger rowID en rumslig rad.",
+        "hold_after": 0.7,
+        "focus": [
+         1420,
+         335,
+         2220,
+         1600
+        ]
+       },
+       {
+        "visual": "09_biplot_restored",
+        "narration": "Gå tillbaka till PC 1 och PC 2. Slå av och på Loadings biplot för att visa eller dölja egenskapspilarna. Pilarna visar korrelationer med de visade komponenterna; använd deras riktningar och den streckade referenscirkeln för att jämföra egenskaper.",
+        "hold_after": 0.7,
+        "focus": [
+         1600,
+         500,
+         1660,
+         1070
+        ]
+       },
+       {
+        "visual": "11_raw_units_pca",
+        "narration": "Välj Centre only för att anpassa med de ursprungliga mätskalorna. Den första komponenten förklarar nu ungefär 90,1 %. Skalningen ändrar frågan som sammanfattas. Återställ Standardise för att jämföra egenskaper på en gemensam skala.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "13_live_filter_refits_basis",
+        "narration": "I filtret till höger lägger du till cell_area och ställer minimum på 21 925. Panelen anpassar PCA på nytt till de återstående 1 171 cellerna, så både populationen och komponenternas riktningar ändras.",
+        "hold_after": 0.7,
+        "focus": [
+         3360,
+         325,
+         470,
+         620
+        ]
+       },
+       {
+        "visual": "14_clear_restores_full_basis",
+        "narration": "Klicka på Clear all i filtret för att återställa hela populationen. Kontrollera antalet objekt efter filtreringen. Källdatabasen är oförändrad; det visade resultatet beräknas om för den valda populationen.",
+        "hold_after": 0.7,
+        "focus": [
+         1410,
+         1890,
+         2400,
+         225
+        ]
+       },
+       {
+        "visual": "15_missing_feature_ticked_not_run",
+        "narration": "Välj cell_channel_0_homogeneity_distance_32 som fjärde egenskap. Klicka på Run PCA för att ta med den i resultatet. Exemplet har sju saknade mätningar i kolumnen; använd NaN för att välja hur anpassningen hanterar dem.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "16_auto_seven_rows_removed",
+        "narration": "Med Auto tas egenskaper bort som saknas i mer än 2 % av raderna, och därefter utesluts ofullständiga rader. Här behålls alla fyra egenskaper och sju celler utesluts. Läs rapporten för att se vilka egenskaper och objekt som faktiskt analyserades.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "18_drop_feature_keeps_objects",
+        "narration": "Välj Drop features för att ta bort alla valda egenskaper som innehåller saknade värden. I exemplet tas texturegenskapen bort och alla celler behålls. Resultatmeddelandet visar vilka egenskaper som uteslöts, även om deras kryssrutor fortfarande är markerade.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "19_mean_imputes_seven_values",
+        "narration": "Välj Mean-impute för att behålla alla celler och egenskaper genom att saknade värden ersätts med egenskapens observerade medelvärde under beräkningen. Här ersätts sju värden. Notera valet när du presenterar resultatet; ersättningarna är skattningar.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "20_complete_cases",
+        "narration": "Välj Complete cases för att behålla de valda egenskaperna och utesluta ofullständiga rader. För att gå tillbaka till originalexemplet väljer du Auto, avmarkerar texturegenskapen, rensar sökningen, klickar på Run PCA och ställer Colour på none.",
+        "hold_after": 0.7,
+        "focus": [
+         300,
+         1490,
+         3350,
+         610
+        ]
+       },
+       {
+        "visual": "22_actual_three_file_export",
+        "narration": "Klicka på Export och välj ett basnamn, till exempel pca_example. Panelen skriver tre CSV-filer: poäng för analyserade objekt, laddningar och korrelationer för egenskaper samt förklarad varians för komponenter. Poängtabellen innehåller även källans mätkolumner.",
+        "hold_after": 0.7
+       },
+       {
+        "visual": "23_export_confirmation",
+        "narration": "Öppna de exporterade tabellerna och behåll dem med din egenskapslista, dina filter och analysinställningar. Behandla cellerna som observationer inom sina brunnar när du tolkar en separation. För en upprepbar Python-analys använder du pca och PCASpec från spacr.qt.widgets.pca_model.",
+        "hold_after": 0.7,
+        "related_lessons": [
+         "06_api",
+         "15_image_umap"
+        ]
+       }
+      ],
+      "narration_voices": {
+       "en": [
+        "af_heart"
+       ],
+       "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+       ],
+       "fr": [
+        "ff_siwis"
+       ],
+       "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+       ],
+       "it": [
+        "if_sara",
+        "im_nicola"
+       ],
+       "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+       ],
+       "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+       ],
+       "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+       ]
+      }
+     }
+    }
+   },
+   "related": [
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "lesson_catalog.js",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/lessons_en.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_es.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_fr.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_hi.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_it.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_ja.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_pt-BR.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/lessons_zh-CN.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus",
+      "speech_text"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_da.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_de.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_is.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_ko.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_nb.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "15_image_umap",
+     "scene": 14,
+     "links": [
+      "55_image_scatter",
+      "60_pca"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "focus_buttons",
+      "related_lessons",
+      "hold_after"
+     ]
+    },
+    {
+     "file": "catalog/captions_sv.json",
+     "lesson": "55_image_scatter",
+     "scene": 11,
+     "links": [
+      "34_database",
+      "60_pca",
+      "09_annotate"
+     ],
+     "keys": [
+      "visual",
+      "narration",
+      "hold_after",
+      "related_lessons",
+      "focus"
+     ]
+    }
+   ],
+   "aliases": {},
+   "navigation": {
+    "lists": [
+     {
+      "path": [
+       "sections",
+       2,
+       "groups",
+       9,
+       "lessons"
+      ],
+      "preceding": [
+       "55_image_scatter"
+      ]
+     },
+     {
+      "path": [
+       "preserved_lesson_ids"
+      ],
+      "preceding": [
+       "59_anndata_export",
+       "58_graph_builder",
+       "57_layer_viewer",
+       "56_lineage",
+       "55_image_scatter",
+       "54_qc_dashboard",
+       "53_prediction_profiler",
+       "52_pipeline_graph",
+       "51_control_charts",
+       "50_run_compare",
+       "49_methods_results",
+       "48_hit_list",
+       "47_barcode_qc",
+       "46_napari_bridge",
+       "45_project_browser",
+       "44_data_manager",
+       "43_illumination",
+       "42_curate",
+       "41_classify",
+       "40_run_history",
+       "39_classifier_evaluation",
+       "38_distributed_jobs",
+       "37_batch",
+       "36_import",
+       "35_converter",
+       "34_database",
+       "33_plate_viewer",
+       "32_align_stitch",
+       "31_external_masks",
+       "30_plate_queue",
+       "29_report",
+       "28_training_runs",
+       "27_replication",
+       "26_invasion",
+       "25_recruitment",
+       "24_plaque",
+       "23_agreement",
+       "22_model_zoo",
+       "21_model_compare",
+       "20_cellpose_masks",
+       "19_train_cellpose",
+       "18_motility",
+       "17_timelapse",
+       "16_activation",
+       "15_image_umap",
+       "14_make_masks",
+       "13_regression",
+       "12_map_barcodes",
+       "11_classify_ml",
+       "10_classify_cv",
+       "09_annotate",
+       "08_measure",
+       "07_mask",
+       "06_api",
+       "05_home",
+       "04_platform_installers",
+       "02_install_spacr",
+       "01_pypi_github"
+      ]
+     }
+    ],
+    "route": {
+     "position": 43,
+     "value": {
+      "kind": "submodule",
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "host_lesson": "15_image_umap",
+      "host_title": "Image UMAP"
+     }
+    },
+    "host_lesson": [],
+    "route_host_lesson": []
+   }
+  }
+ },
+ "posters": [
+  "docs/source/_extra/tutorials/production/60_pca -> tools/tutorials/archive/production/docs/60_pca"
+ ],
+ "prose": []
+}
