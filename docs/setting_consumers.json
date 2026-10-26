@@ -11988,7 +11988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 11603,
+    "line": 11613,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -16800,7 +16800,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 13494,
+    "line": 13567,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -25959,7 +25959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 12135,
+    "line": 12142,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -25968,7 +25968,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 13384,
+    "line": 13391,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -28427,7 +28427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 11971,
+    "line": 11978,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -37496,7 +37496,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 11599,
+    "line": 11609,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -37505,6 +37505,17 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_channels",
+    "line": 8292,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_overview_default_settings"
+   }
+  ],
+  "overview_color_mode": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "overview_color_mode",
     "line": 8292,
     "module": "spacr.settings",
     "nested": false,
@@ -37611,6 +37622,39 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_gamma",
+    "line": 8292,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_overview_default_settings"
+   }
+  ],
+  "overview_ink_intensity": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "overview_ink_intensity",
+    "line": 8292,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_overview_default_settings"
+   }
+  ],
+  "overview_max_fields": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "overview_max_fields",
+    "line": 8292,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_overview_default_settings"
+   }
+  ],
+  "overview_max_wells": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "overview_max_wells",
     "line": 8292,
     "module": "spacr.settings",
     "nested": false,
@@ -38044,12 +38088,23 @@
     "qualname": "_describe_objects"
    }
   ],
+  "overview_normalization_scope": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "overview_normalization_scope",
+    "line": 8292,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_overview_default_settings"
+   }
+  ],
   "overview_normalize": [
    {
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 11604,
+    "line": 11614,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38262,7 +38317,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 11606,
+    "line": 11616,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38282,7 +38337,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 11605,
+    "line": 11615,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -41407,7 +41462,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 12139,
+    "line": 12146,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -41416,7 +41471,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 13417,
+    "line": 13424,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
@@ -53068,7 +53123,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11590,
+    "line": 11600,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -53077,7 +53132,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11967,
+    "line": 11974,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -65136,7 +65191,7 @@
  "exact_targets": 735,
  "nested_consumers_only": 0,
  "no_consumer_found": 131,
- "setting_count": 1323,
+ "setting_count": 1328,
  "target_count": 1046,
  "targets": {
   "CP_prob": {
@@ -70503,6 +70558,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1192,
- "with_any_consumer": 1192
+ "with_addressable_consumer": 1197,
+ "with_any_consumer": 1197
 }
