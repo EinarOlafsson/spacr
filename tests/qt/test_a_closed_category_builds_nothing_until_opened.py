@@ -367,6 +367,16 @@ def _styling(screen) -> dict:
         sheeted = control
         while sheeted is not None and not sheeted.styleSheet():
             sheeted = sheeted.parentWidget()
+        # Hidden editors can retain a parent's pre-polish layout hint.
+        # Compare fresh native style metrics in both construction orders.
+        for child in reversed(control.findChildren(QWidget)):
+            layout = child.layout()
+            if layout is not None:
+                layout.invalidate()
+            child.updateGeometry()
+        layout = control.layout()
+        if layout is not None:
+            layout.invalidate()
         found[key] = (
             control.style().metaObject().className(),
             control.testAttribute(Qt.WA_WState_Polished),
