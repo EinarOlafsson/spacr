@@ -1865,6 +1865,7 @@ class _MaskCanvas(QLabel):
     #: width below 1 is a thinner line rather than a blurred pixel.
     outline_thickness = engine._OUTLINE_THICKNESS_DEFAULT
     _outline_view = None
+    display_ids = None
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -2408,6 +2409,10 @@ class _MaskCanvas(QLabel):
         (:meth:`resizeEvent`). An edit that leaves the field, the view and
         the levels as they were recomposes only the box of labels it changed
         (:meth:`_recompose_changed`).
+
+        While :attr:`display_ids` holds an array of ids, only those objects
+        are filled; the others are drawn as background, and the mask itself
+        is unchanged.
         """
         self._lookup_dirty = True
         self._label_positions = None
@@ -2428,6 +2433,8 @@ class _MaskCanvas(QLabel):
         lo, hi = self._display_bounds(source)
         view = source[y0:y1:step, x0:x1:step]
         labels = self.mask[y0:y1:step, x0:x1:step]
+        if self.display_ids is not None:
+            labels = labels * np.isin(labels, self.display_ids)
         key = self._composed_key(source, step)
         reused = self._recompose_changed(kept, key, view, labels, (lo, hi))
         if reused is None:
@@ -13420,7 +13427,9 @@ class MakeMasksScreen(QWidget):
         if handed and handed.get("layers"):
             self._set_layers(handed["layers"], root=folder,
                              settings_root=str(handed.get("root") or queue.folder),
-                             target=handed.get("save_to"))
+                             target=handed.get("save_to"),
+                             require=handed.get("require"),
+                             require_mode=handed.get("require_mode"))
         if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
@@ -13509,7 +13518,8 @@ class MakeMasksScreen(QWidget):
         return str(self._queue.folder)
 
     def _set_layers(self, paths, *, root: str, settings_root: str,
-                    target: Optional[str] = None) -> None:
+                    target: Optional[str] = None, require=None,
+                    require_mode: Optional[str] = None) -> None:
         """Load mask layers for the images in ``root``.
 
         Colours, visibility, the base and the save folder chosen in an
@@ -13522,6 +13532,9 @@ class MakeMasksScreen(QWidget):
         :param settings_root: where the session's choices are kept.
         :param target: the save folder; the stored one, or a new
             ``masks_curated_<date>`` folder, when omitted.
+        :param require: layer folders whose objects decide which images are
+            shown; the stored choice when None.
+        :param require_mode: ``any`` or ``all``; the stored one when None.
         """
         stored = engine._read_layer_settings(settings_root)
         kept = {os.path.abspath(str(item.get("path", ""))): item
@@ -13534,11 +13547,21 @@ class MakeMasksScreen(QWidget):
             old = kept.get(path, {})
             colour = str(old.get("colour") or "")
             if not re.fullmatch(r"#[0-9a-fA-F]{6}", colour):
-                used = {layer["colour"] for layer in layers}
+                used = {layer["colour"] for layer in layers} | {
+                    str(kept.get(os.path.abspath(str(other)), {}).get("colour") or "")
+                    for other in paths}
                 colour = next((c for c in engine._LAYER_COLOURS if c not in used),
                               engine._LAYER_COLOURS[len(layers) % len(engine._LAYER_COLOURS)])
+            flagged = old.get("flagged")
+            if not isinstance(flagged, bool):
+                flagged = engine._layer_flagged_by_name(path)
             layers.append({"path": path, "name": os.path.basename(path) or path,
-                           "colour": colour, "visible": bool(old.get("visible", True))})
+                           "colour": colour, "visible": bool(old.get("visible", True)),
+                           "flagged": flagged, "required": bool(old.get("required", False))})
+        if require is not None:
+            wanted = {os.path.abspath(str(item)) for item in require}
+            for layer in layers:
+                layer["required"] = layer["path"] in wanted
         if not layers:
             self._clear_layers()
             return
@@ -13552,6 +13575,15 @@ class MakeMasksScreen(QWidget):
             target or stored.get("target")
             or engine._default_curated_folder(str(settings_root))))
         self._layer_pending_target = None
+        any_flagged = any(layer["flagged"] for layer in layers)
+        only = stored.get("show_only_flagged")
+        self._layer_only_flagged = bool(only) if isinstance(only, bool) else any_flagged
+        mode = require_mode if require_mode is not None else stored.get("require_mode")
+        self._layer_require_mode = (mode if mode in engine._LAYER_REQUIRE_MODES
+                                    else engine._LAYER_REQUIRE_MODES[0])
+        self._layer_object_cache = {}
+        self._layer_scan_generation = getattr(self, "_layer_scan_generation", 0) + 1
+        self._layer_flag_removed = {}
         if "outline_thickness" in stored:
             box = getattr(self, "_outline_thickness", None)
             if box is not None:
@@ -13575,9 +13607,16 @@ class MakeMasksScreen(QWidget):
         self._layer_edges = []
         self._layer_added = {}
         self._layer_previous = {}
+        self._layer_object_cache = {}
+        self._layer_scan_generation = getattr(self, "_layer_scan_generation", 0) + 1
+        self._layer_flag_removed = {}
+        self._layer_merges = []
         self._canvas.layer_overlay = None
         self._canvas.layer_source = None
         self._canvas._outline_view = None
+        if self._canvas.display_ids is not None:
+            self._canvas.display_ids = None
+            self._canvas.refresh()
         section = getattr(self, "_layer_section", None)
         if section is not None:
             section.hide()
@@ -13592,14 +13631,73 @@ class MakeMasksScreen(QWidget):
         """Keep the layers, colours, visibility, base and save folder."""
         if not self._layers_active():
             return
-        engine._write_layer_settings(self._layer_settings_root, {
-            "layers": [{"path": layer["path"], "colour": layer["colour"],
-                        "visible": layer["visible"]} for layer in self._layers],
+        rows = []
+        for layer in self._layers:
+            row = {"path": layer["path"], "colour": layer["colour"],
+                   "visible": layer["visible"]}
+            if layer.get("flagged", False) != engine._layer_flagged_by_name(layer["path"]):
+                row["flagged"] = bool(layer.get("flagged", False))
+            if layer.get("required"):
+                row["required"] = True
+            rows.append(row)
+        data = {
+            "layers": rows,
             "base": self._layers[self._layer_base]["path"],
             "target": self._layer_target,
             "outline_thickness": engine._outline_thickness(
                 self._canvas.outline_thickness),
-        })
+        }
+        if self._layers_flagged():
+            data["show_only_flagged"] = bool(self._layer_only_flagged)
+        mode = getattr(self, "_layer_require_mode", engine._LAYER_REQUIRE_MODES[0])
+        if self._layers_required() or mode != engine._LAYER_REQUIRE_MODES[0]:
+            data["require_mode"] = mode
+        engine._write_layer_settings(self._layer_settings_root, data)
+
+    def _layers_flagged(self) -> list:
+        """Indices of the loaded layers flagged for review."""
+        return [index for index, layer in enumerate(getattr(self, "_layers", None) or [])
+                if layer.get("flagged")]
+
+    def _flag_review_on(self) -> bool:
+        """Whether Show only flagged is on and a layer is flagged."""
+        return (self._layers_active() and bool(getattr(self, "_layer_only_flagged", False))
+                and bool(self._layers_flagged()))
+
+    def _layers_required(self) -> list:
+        """Folders of the layers whose objects decide which images are shown."""
+        return [layer["path"] for layer in getattr(self, "_layers", None) or []
+                if layer.get("required")]
+
+    def _layer_filter_on(self) -> bool:
+        """Whether the required-layers filter limits the images shown."""
+        return self._layers_active() and bool(self._layers_required())
+
+    def _layer_has_objects(self, path: str, filename: str) -> bool:
+        """Whether a layer has an object in a field, read once per session.
+
+        :param path: the layer's folder.
+        :param filename: the field's image name.
+        """
+        key = (path, filename)
+        cache = self._layer_object_cache
+        if key not in cache:
+            cache[key] = engine._layer_has_objects(path, filename)
+        return cache[key]
+
+    def _field_matches_layers(self, index: int) -> bool:
+        """Whether a field passes the required-layers filter.
+
+        :param index: the field's index in the folder.
+        :returns: True when no layer is required.
+        """
+        required = self._layers_required()
+        if not required or not self._layers_active():
+            return True
+        filename = self._image_files[index]
+        return engine._layers_match(
+            (self._layer_has_objects(path, filename) for path in required),
+            self._layer_require_mode)
 
     def _edits_unsaved(self) -> bool:
         """Whether the mask on screen differs from what was last saved."""
@@ -13638,6 +13736,7 @@ class MakeMasksScreen(QWidget):
         self._set_layers(paths, root=self._folder, settings_root=settings_root,
                          target=self._layer_target)
         self._load_current()
+        self._start_layer_count()
         return True
 
     def _seed_layer_field(self, filename: str, image: np.ndarray,
@@ -13672,6 +13771,8 @@ class MakeMasksScreen(QWidget):
         target = self._layer_target
         previous = engine._read_layer_decisions(target, filename)
         self._layer_previous = previous
+        self._layer_flag_removed = {}
+        self._layer_merges = []
         self._layer_added = {}
         for row in previous.get("added", []) or []:
             if isinstance(row, dict) and row.get("id") is not None:
@@ -13696,22 +13797,39 @@ class MakeMasksScreen(QWidget):
         return mask, from_target
 
     def _refresh_layer_overlay(self) -> None:
-        """Redraw the layers' outlines against the curated overlay."""
+        """Redraw the layers' outlines against the curated overlay.
+
+        While Show only flagged is on, only flagged layers are drawn and the
+        curated overlay is filled only for objects that overlap a flagged
+        layer's object or were edited in this field.
+        """
         mask = self._canvas.mask
         if not self._layers_active() or mask is None or mask.ndim != 2:
             self._canvas.layer_overlay = None
             self._canvas.layer_source = None
+            self._show_curated_ids(None)
             self._canvas.update()
             return
+        review = self._flag_review_on()
         entries = []
         for index, layer in enumerate(self._layers):
             labels = (self._layer_masks[index]
                       if index < len(self._layer_masks) else None)
-            entries.append((labels, layer["colour"], layer["visible"]))
+            shown = layer["visible"] and (layer.get("flagged") or not review)
+            entries.append((labels, layer["colour"], shown))
+        if review:
+            loaded = getattr(self, "_loaded_mask", None)
+            changed = (mask != loaded if loaded is not None
+                       and loaded.shape == mask.shape else None)
+            self._show_curated_ids(engine._flagged_curated_ids(
+                mask, [self._layer_masks[i] for i in self._layers_flagged()
+                       if i < len(self._layer_masks)], changed))
+        else:
+            self._show_curated_ids(None)
         base = (self._layer_masks[self._layer_base]
                 if self._layer_base is not None
                 and self._layer_base < len(self._layer_masks)
-                and self._layers[self._layer_base]["visible"] else None)
+                and entries[self._layer_base][2] else None)
         removed = engine._layer_removed_ids(base, mask) if base is not None else []
         rgba = engine._layer_overlay(entries, mask, self._layer_base,
                                      edges=self._layer_edges, removed=removed)
@@ -13728,11 +13846,30 @@ class MakeMasksScreen(QWidget):
                 rgba.data, w, h, 4 * w, QImage.Format_RGBA8888).copy()
         self._canvas.update()
 
+    def _show_curated_ids(self, ids) -> None:
+        """Fill only ``ids`` of the curated overlay, or every object for None.
+
+        :param ids: the ids to fill, or None.
+        """
+        before = self._canvas.display_ids
+        if ids is None and before is None:
+            return
+        if (ids is not None and before is not None
+                and np.array_equal(np.asarray(ids), before)):
+            return
+        self._canvas.display_ids = None if ids is None else np.asarray(ids)
+        self._canvas.refresh()
+
     def _on_layer_pick(self, x: int, y: int) -> None:
         """Remove, restore or add the object under a Pick click.
 
         One click is one edit: it goes through the stroke history, so Undo
         and Redo take it back and the curation ledger records it.
+
+        While Show only flagged is on, a click on a flagged layer's object
+        removes the curated objects it overlaps, a second click brings them
+        back, and a flagged object that overlaps nothing is added; the base
+        layer need not be visible. Hidden curated objects are not picked.
 
         :param x: column clicked, in image pixels.
         :param y: row clicked, in image pixels.
@@ -13742,15 +13879,35 @@ class MakeMasksScreen(QWidget):
         mask = self._canvas.mask
         if not self._layers_active() or mask is None or mask.ndim != 2:
             return
-        base_layer = self._layers[self._layer_base]
-        base = (self._layer_masks[self._layer_base]
-                if base_layer["visible"] and self._layer_base < len(self._layer_masks)
-                else None)
-        others = [(index, labels) for index, labels in enumerate(self._layer_masks)
-                  if index != self._layer_base and labels is not None
-                  and self._layers[index]["visible"]]
-        changed, action = engine._layer_pick(mask, base, others, x, y,
-                                             self._layer_next_id)
+        review = self._flag_review_on()
+        changed = action = None
+        if review:
+            flagged = [(index, self._layer_masks[index])
+                       for index in self._layers_flagged()
+                       if index < len(self._layer_masks)
+                       and self._layer_masks[index] is not None
+                       and self._layers[index]["visible"]]
+            changed, action = engine._flagged_pick(
+                mask, flagged, x, y, self._layer_next_id, self._layer_flag_removed)
+            if changed is not None and action["kind"] == "remove":
+                kept = self._layer_flag_removed.setdefault(
+                    (action["layer"], action["source_id"]), {})
+                kept.update(action.pop("pixels"))
+        if changed is None:
+            current = int(mask[y, x])
+            hidden = (review and current and self._canvas.display_ids is not None
+                      and current not in self._canvas.display_ids)
+            base_layer = self._layers[self._layer_base]
+            base = (self._layer_masks[self._layer_base]
+                    if base_layer["visible"] and self._layer_base < len(self._layer_masks)
+                    and (base_layer.get("flagged") or not review)
+                    else None)
+            others = [(index, labels) for index, labels in enumerate(self._layer_masks)
+                      if index != self._layer_base and labels is not None
+                      and self._layers[index]["visible"] and not review]
+            if not hidden:
+                changed, action = engine._layer_pick(mask, base, others, x, y,
+                                                     self._layer_next_id)
         if changed is None:
             self._status_label.setText(tr(
                 "Nothing to pick here: no object of the curated overlay or of a "
@@ -13763,12 +13920,18 @@ class MakeMasksScreen(QWidget):
                                                "source_id": action["source_id"]}
             self._layer_next_id = max(self._layer_next_id, action["id"] + 1)
             detail = {"layer": layer["path"], "source_id": action["source_id"]}
+        elif "layer" in action:
+            detail = {"layer": self._layers[action["layer"]]["path"],
+                      "source_id": action["source_id"],
+                      "ids": [int(v) for v in action["ids"]]}
         self._canvas._emit_stroke_start()
         self._canvas.mask = changed
         self._canvas.refresh()
         self._canvas._emit_stroke_end(kind="layer_" + action["kind"],
                                       target=int(action["id"]), **detail)
-        if action["kind"] == "remove":
+        if action["kind"] == "remove" and "layer" in action:
+            text = tr("Removed object {id}; click the flagged outline again to restore it.")
+        elif action["kind"] == "remove":
             text = tr("Removed object {id}; click its dashed outline to restore it.")
         elif action["kind"] == "restore":
             text = tr("Restored object {id}.")
@@ -13776,6 +13939,52 @@ class MakeMasksScreen(QWidget):
             text = tr("Added object {id} from {layer}.")
         self._status_label.setText(text.format(
             id=action["id"], layer=os.path.basename(detail.get("layer", ""))))
+
+    def _on_merge_layers(self) -> bool:
+        """Add every object of the visible layers to the curated overlay.
+
+        The base layer is what the overlay started from and is not merged;
+        hidden layers are not merged, nor, with Show only flagged on,
+        unflagged ones. Objects fill only background, in layer order, each
+        under a new id. The merge is one edit in the undo history and the
+        ledger, and the decisions log lists the objects added per layer.
+
+        :returns: whether anything was added.
+        """
+        from ..i18n import tr
+
+        mask = self._canvas.mask
+        if not self._layers_active() or mask is None or mask.ndim != 2:
+            return False
+        review = self._flag_review_on()
+        layers = [(index, labels) for index, labels in enumerate(self._layer_masks)
+                  if index != self._layer_base and labels is not None
+                  and self._layers[index]["visible"]
+                  and (self._layers[index].get("flagged") or not review)]
+        changed, added = engine._layer_merge(mask, layers, self._layer_next_id)
+        if changed is None:
+            self._status_label.setText(tr(
+                "Nothing to merge: the visible layers have no object over background."))
+            return False
+        per_layer = {}
+        for row in added:
+            path = self._layers[row["layer"]]["path"]
+            self._layer_added[row["id"]] = {"layer": path, "source_id": row["source_id"]}
+            entry = per_layer.setdefault(path, {"layer": path, "ids": [], "source_ids": []})
+            entry["ids"].append(int(row["id"]))
+            entry["source_ids"].append(int(row["source_id"]))
+        self._layer_merges.extend(per_layer.values())
+        self._layer_next_id = max(self._layer_next_id, added[-1]["id"] + 1)
+        self._canvas._emit_stroke_start()
+        self._canvas.mask = changed
+        self._canvas.refresh()
+        self._canvas._emit_stroke_end(
+            kind="layer_merge", target=int(added[0]["id"]),
+            merged={path: entry["ids"] for path, entry in per_layer.items()})
+        self._status_label.setText(tr(
+            "Merged {count} objects from {layers} layers.").format(
+                count=len(added), layers=len(per_layer)))
+        return True
 
     def _write_layer_decisions(self, filename: str) -> Optional[str]:
         """Write the decisions log of a field just saved to the save folder.
@@ -13790,7 +13999,8 @@ class MakeMasksScreen(QWidget):
                 if self._layer_base < len(self._layer_masks) else None)
         log = engine._layer_decisions(
             filename, self._layers[self._layer_base]["path"], base,
-            self._canvas.mask, self._layer_added, self._layer_previous)
+            self._canvas.mask, self._layer_added, self._layer_previous,
+            merged=getattr(self, "_layer_merges", None))
         try:
             path = engine._write_layer_decisions(self._layer_target, filename, log)
         except OSError:
@@ -13840,6 +14050,32 @@ class MakeMasksScreen(QWidget):
         self._layer_outline_thickness = self._outline_thickness_box(section)
         self._layer_outline_thickness.setObjectName("MakeMasksLayerOutlineThickness")
         form.addRow(tr("Outline thickness"), self._layer_outline_thickness)
+        self._layer_only_flagged_box = QCheckBox(tr("Show only flagged"), section)
+        self._layer_only_flagged_box.setObjectName("MakeMasksLayerOnlyFlagged")
+        self._layer_only_flagged_box.setToolTip(tr(
+            "Draw only the flagged layers, and fill only the curated objects "
+            "that overlap a flagged object or that you edited on this field. "
+            "Hidden objects are saved unchanged. Pick: click a flagged object "
+            "to remove the curated object under it, again to restore it; a "
+            "flagged object over background is added."))
+        self._layer_only_flagged_box.toggled.connect(self._on_layer_only_flagged)
+        form.addRow(self._layer_only_flagged_box)
+        self._layer_require_combo = QComboBox(section)
+        self._layer_require_combo.setObjectName("MakeMasksLayerRequireMode")
+        self._layer_require_combo.addItem(tr("Any required layer"), "any")
+        self._layer_require_combo.addItem(tr("Every required layer"), "all")
+        self._layer_require_combo.setToolTip(tr(
+            "Which images Previous, Next and Keep visit: those where any "
+            "required layer has an object, or those where every required "
+            "layer has one. With no layer required, every image is shown."))
+        self._layer_require_combo.currentIndexChanged.connect(self._on_layer_require_mode)
+        form.addRow(tr("Show images with objects in"), self._layer_require_combo)
+        self._layer_match_label = QLabel(section)
+        self._layer_match_label.setObjectName("MakeMasksLayerMatchCount")
+        form.addRow(self._layer_match_label)
+        self._layer_count_timer = QTimer(section)
+        self._layer_count_timer.setInterval(250)
+        self._layer_count_timer.timeout.connect(self._tick_layer_count)
         body.addLayout(form)
         self._layer_confirm = QFrame(section)
         self._layer_confirm.setObjectName("MakeMasksLayerConfirm")
@@ -13868,6 +14104,16 @@ class MakeMasksScreen(QWidget):
         self._layer_legend.setObjectName("CardSubtitle")
         self._layer_legend.setWordWrap(True)
         body.addWidget(self._layer_legend)
+        merge = QPushButton(tr("Merge visible layers"), section)
+        merge.setObjectName("MakeMasksMergeLayers")
+        merge.setToolTip(tr(
+            "Add every object of the visible layers, other than the base, to "
+            "the curated overlay of this image, each with a new id. Where "
+            "objects overlap, the curated overlay keeps its pixels and an "
+            "added object fills only background, as Pick does. With Show "
+            "only flagged on, only flagged layers are merged. One undo step."))
+        merge.clicked.connect(lambda _checked=False: self._on_merge_layers())
+        body.addWidget(merge)
         add = QPushButton(tr("Add mask layer…"), section)
         add.setObjectName("MakeMasksAddLayer")
         add.clicked.connect(lambda _checked=False: self._on_add_mask_layer())
@@ -13955,8 +14201,24 @@ class MakeMasksScreen(QWidget):
             shown.setToolTip(layer["path"])
             shown.setChecked(layer["visible"])
             shown.toggled.connect(lambda on, i=index: self._on_layer_visible(i, on))
+            flag = QCheckBox(tr("Flag"), row)
+            flag.setObjectName("MakeMasksLayerFlag")
+            flag.setToolTip(tr(
+                "This layer's objects are problems to review: with Show only "
+                "flagged on, only they and the curated objects they overlap "
+                "are drawn."))
+            flag.setChecked(bool(layer.get("flagged")))
+            flag.toggled.connect(lambda on, i=index: self._on_layer_flagged(i, on))
+            need = QCheckBox(tr("Require objects"), row)
+            need.setObjectName("MakeMasksLayerRequire")
+            need.setToolTip(tr(
+                "Visit only images where this layer has at least one object."))
+            need.setChecked(bool(layer.get("required")))
+            need.toggled.connect(lambda on, i=index: self._on_layer_required(i, on))
             line.addWidget(swatch)
             line.addWidget(shown, 1)
+            line.addWidget(flag)
+            line.addWidget(need)
             self._layer_rows.addWidget(row)
         for combo in (self._layer_base_combo, self._layer_target_combo):
             combo.blockSignals(True)
@@ -13971,6 +14233,14 @@ class MakeMasksScreen(QWidget):
         self._sync_layer_target_combo()
         for combo in (self._layer_base_combo, self._layer_target_combo):
             combo.blockSignals(False)
+        blocked = self._layer_only_flagged_box.blockSignals(True)
+        self._layer_only_flagged_box.setChecked(bool(self._layer_only_flagged))
+        self._layer_only_flagged_box.setEnabled(bool(self._layers_flagged()))
+        self._layer_only_flagged_box.blockSignals(blocked)
+        blocked = self._layer_require_combo.blockSignals(True)
+        self._layer_require_combo.setCurrentIndex(
+            max(0, self._layer_require_combo.findData(self._layer_require_mode)))
+        self._layer_require_combo.blockSignals(blocked)
         self._layer_confirm.hide()
         self._layer_section.show()
 
@@ -14021,6 +14291,131 @@ class MakeMasksScreen(QWidget):
             self._layers[index]["visible"] = bool(visible)
             self._save_layer_settings()
             self._refresh_layer_overlay()
+
+    def _on_layer_flagged(self, index: int, flagged: bool) -> None:
+        """Flag or unflag one layer's objects as problems to review.
+
+        Flagging the first layer turns Show only flagged on.
+
+        :param index: the layer.
+        :param flagged: whether it is flagged.
+        """
+        if not 0 <= index < len(self._layers):
+            return
+        before = bool(self._layers_flagged())
+        self._layers[index]["flagged"] = bool(flagged)
+        if not before and flagged:
+            self._layer_only_flagged = True
+        self._save_layer_settings()
+        self._rebuild_layer_panel()
+        self._refresh_layer_overlay()
+
+    def _on_layer_only_flagged(self, enabled: bool) -> None:
+        """Draw only flagged layers and the curated objects they overlap.
+
+        :param enabled: whether Show only flagged is on.
+        """
+        self._layer_only_flagged = bool(enabled)
+        self._save_layer_settings()
+        self._refresh_layer_overlay()
+
+    def _on_layer_required(self, index: int, required: bool) -> None:
+        """Make one layer's objects decide which images are visited.
+
+        :param index: the layer.
+        :param required: whether it is required.
+        """
+        if 0 <= index < len(self._layers):
+            self._layers[index]["required"] = bool(required)
+            self._save_layer_settings()
+            self._apply_layer_filter()
+
+    def _on_layer_require_mode(self, index: int) -> None:
+        """Choose whether any or every required layer must have objects.
+
+        :param index: the entry chosen.
+        """
+        mode = self._layer_require_combo.itemData(index)
+        if mode in engine._LAYER_REQUIRE_MODES and mode != self._layer_require_mode:
+            self._layer_require_mode = mode
+            self._save_layer_settings()
+            self._apply_layer_filter()
+
+    def _apply_layer_filter(self) -> None:
+        """Count the images the required layers match and leave a field they do not.
+
+        Nothing is written: done and skipped states stay as they are, and a
+        field left out comes back when the filter changes.
+        """
+        self._start_layer_count()
+        if (not self._image_files or not self._layer_filter_on()
+                or self._field_matches_layers(self._current_index)):
+            return
+        target = self._step_target(1)
+        if target is None:
+            target = next((i for i in range(len(self._image_files))
+                           if self._field_matches_layers(i)), None)
+        if target is not None:
+            self._go_to_index(target)
+
+    def _start_layer_count(self) -> None:
+        """Count, off the GUI thread, how many images the required layers match."""
+        from ..i18n import tr
+
+        self._layer_scan_generation = getattr(self, "_layer_scan_generation", 0) + 1
+        label = getattr(self, "_layer_match_label", None)
+        if label is None:
+            return
+        required = self._layers_required()
+        files = list(self._image_files or [])
+        if not required or not files or not self._layers_active():
+            self._layer_count_timer.stop()
+            label.setText(tr("All {total} images are shown.").format(total=len(files)))
+            return
+        threading.Thread(target=self._scan_layer_objects,
+                         args=(files, required, self._layer_scan_generation),
+                         name="mask-layer-count", daemon=True).start()
+        self._layer_count_files = files
+        self._tick_layer_count()
+        self._layer_count_timer.start()
+
+    def _scan_layer_objects(self, files, required, generation: int) -> None:
+        """Read which required layers have objects in each field, off the GUI thread.
+
+        :param files: the fields' image names.
+        :param required: the required layers' folders.
+        :param generation: the count this scan belongs to; a newer count
+            stops it.
+        """
+        cache = self._layer_object_cache
+        for filename in files:
+            for path in required:
+                if self._layer_scan_generation != generation:
+                    return
+                key = (path, filename)
+                if key not in cache:
+                    cache[key] = engine._layer_has_objects(path, filename)
+
+    def _tick_layer_count(self) -> None:
+        """Show how many images match, or how far the count has got."""
+        from ..i18n import tr
+
+        required = self._layers_required()
+        files = getattr(self, "_layer_count_files", [])
+        cache = self._layer_object_cache
+        known = [f for f in files if all((p, f) in cache for p in required)]
+        if len(known) < len(files):
+            self._layer_match_label.setText(tr(
+                "Checking images… {checked} of {total}").format(
+                    checked=len(known), total=len(files)))
+            return
+        self._layer_count_timer.stop()
+        matched = sum(engine._layers_match([cache[(p, f)] for p in required],
+                                           self._layer_require_mode)
+                      for f in files)
+        self._layer_match_label.setText(tr(
+            "{matched} of {total} images match").format(
+                matched=matched, total=len(files)))
 
     def _on_layer_base_changed(self, index: int) -> None:
         """Make another layer the base.
@@ -19607,14 +20002,17 @@ class MakeMasksScreen(QWidget):
 
         :param step: -1 or +1.
         :returns: the index, or None at the end of the queue; while Hide
-            judged fields is on, judged fields are passed over.
+            judged fields is on, judged fields are passed over, and while
+            mask layers are required, fields they do not match.
         """
         if not self._image_files:
             return None
         flags = self._judged_flags() if self._hide_judged else None
+        filtered = self._layer_filter_on()
         index = self._current_index + step
         while 0 <= index < len(self._image_files):
-            if flags is None or not flags[index]:
+            if ((flags is None or not flags[index])
+                    and (not filtered or self._field_matches_layers(index))):
                 return index
             index += step
         return None
@@ -23877,8 +24275,14 @@ class MakeMasksScreen(QWidget):
         self._verdict_cache.clear()
         self._current_index = 0
         self._restore_hide_judged()
+        if self._layer_filter_on() and not self._field_matches_layers(0):
+            first = self._step_target(1)
+            if first is not None:
+                self._current_index = first
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
+        if self._layers_active():
+            self._start_layer_count()
         self._sync_button_states()
         prefs.push_recent_source("make_masks", folder)
         self._body_stack.setCurrentWidget(self._image_page)

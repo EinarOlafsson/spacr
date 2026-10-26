@@ -184,6 +184,15 @@ def build_parser() -> argparse.ArgumentParser:
              "<folder>/masks_curated_<date>, or the newest such folder "
              "already there). Its curate_status.csv holds this review's "
              "progress.")
+    parser.add_argument(
+        "--require-layers", nargs="+", default=None, metavar="DIR",
+        help="with --layers: visit only images where these layers (named "
+             "like --layers, each one of them) have at least one object. "
+             "The choice is kept in curate_layers.json; the panel changes it.")
+    parser.add_argument(
+        "--require-mode", choices=("any", "all"), default=None,
+        help="with --require-layers: an image is visited when any required "
+             "layer has an object (default) or only when all of them do.")
     return parser
 
 
@@ -400,6 +409,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             queue = _layer_queue(queue, target, args.limit)
             layers = {"layers": [str(p) for p in paths],
                       "save_to": str(target), "root": str(folder)}
+            if args.require_layers:
+                required = _resolve_layers(folder, args.require_layers)
+                unknown = [str(p) for p in required if p not in paths]
+                if unknown:
+                    raise CurationQueueError(
+                        "--require-layers: not among --layers: " + ", ".join(unknown))
+                layers["require"] = [str(p) for p in required]
+            if args.require_mode:
+                layers["require_mode"] = args.require_mode
+        elif args.require_layers or args.require_mode:
+            raise CurationQueueError("--require-layers and --require-mode need --layers")
     except CurationQueueError as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_USAGE
@@ -409,6 +429,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"mask layers ({len(layers['layers'])}, the first is the base): "
               + ", ".join(layers["layers"]))
         print(f"curated masks are saved to {layers['save_to']}")
+        if layers.get("require"):
+            print(f"only images with objects in {layers.get('require_mode') or 'any'} "
+                  f"of: " + ", ".join(layers["require"]))
     if queue.exclude_verdicts:
         print(f"{queue.excluded_by_verdict} excluded by Keep/Discard verdict")
 

@@ -7586,6 +7586,47 @@ def _layer_pick(curated: np.ndarray, base: Optional[np.ndarray], layers,
     return None, None
 
 
+def _layer_merge(curated: np.ndarray, layers, next_id: int):
+    """Every object of ``layers`` added to the curated overlay, as Pick adds one.
+
+    Each object takes the next free id and fills only pixels that are still
+    background, so where objects overlap the curated overlay keeps its
+    pixels, and an earlier layer's object keeps its pixels over a later
+    one's. An object with no background left is not added.
+
+    :param curated: the curated overlay.
+    :param layers: ``[(layer index, labels), ...]`` in the order they are
+        merged; None labels are skipped.
+    :param next_id: the id the first added object takes.
+    :returns: ``(new overlay, added)``, where ``added`` lists ``{"id",
+        "layer", "source_id"}`` per added object; ``(None, [])`` when nothing
+        was added.
+    """
+    from scipy.ndimage import find_objects
+
+    out = None
+    added = []
+    value = int(next_id)
+    for index, labels in layers:
+        if labels is None or not labels.any():
+            continue
+        boxes = find_objects(np.asarray(labels).astype(np.int64, copy=False))
+        for offset, box in enumerate(boxes):
+            if box is None:
+                continue
+            source = offset + 1
+            work = curated if out is None else out
+            region = (labels[box] == source) & (work[box] == 0)
+            if not region.any():
+                continue
+            out = _widen_labels(np.array(curated, copy=True) if out is None else out,
+                                value)
+            out[box][region] = value
+            added.append({"id": value, "layer": int(index), "source_id": source})
+            value += 1
+    return out, added
+
+
 def _widen_labels(labels: np.ndarray, value: int) -> np.ndarray:
     """``labels`` in a dtype that can hold ``value``.
 
@@ -7613,6 +7654,142 @@ def _layer_removed_ids(base: Optional[np.ndarray], curated: np.ndarray,
     if base is not None:
         removed |= set(int(v) for v in np.unique(base) if v) - present
     return sorted(removed)
+
+
+_LAYER_FLAG_WORDS: Tuple[str, ...] = ("suspect", "wrong")
+"""Words that flag a layer by default when its folder name holds one."""
+
+
+def _layer_flagged_by_name(path: str) -> bool:
+    """Whether a layer is flagged for review unless someone chose otherwise.
+
+    :param path: the layer's folder.
+    :returns: True when the folder's name holds ``suspect`` or ``wrong``.
+    """
+    name = os.path.basename(os.path.normpath(str(path))).lower()
+    return any(word in name for word in _LAYER_FLAG_WORDS)
+
+
+def _flagged_curated_ids(curated: np.ndarray, flagged,
+                         changed: Optional[np.ndarray] = None) -> np.ndarray:
+    """The curated ids a review of flagged layers shows.
+
+    :param curated: the curated overlay.
+    :param flagged: the flagged layers' labels for the field (None entries
+        are skipped).
+    :param changed: pixels edited in this field, whose objects stay shown.
+    :returns: the ids that overlap an object of a flagged layer or an
+        edited pixel, sorted.
+    """
+    hit = np.zeros(curated.shape[:2], dtype=bool)
+    for labels in flagged:
+        if labels is not None and labels.shape == hit.shape:
+            hit |= labels > 0
+    if changed is not None and changed.shape == hit.shape:
+        hit |= changed
+    ids = np.unique(curated[hit])
+    return ids[ids > 0]
+
+
+def _flagged_pick(curated: np.ndarray, flagged, x: int, y: int, next_id: int,
+                  removed: Dict):
+    """What one Pick click on a flagged layer's object does.
+
+    The curated object under the click, or else every curated object that
+    overlaps the flagged object, is removed; a flagged object whose curated
+    objects this review removed brings them back; a flagged object that
+    overlaps nothing is added under ``next_id`` onto background.
+
+    :param curated: the curated overlay.
+    :param flagged: ``[(layer index, labels), ...]`` of the visible flagged
+        layers, in the order they are tried.
+    :param x: column clicked.
+    :param y: row clicked.
+    :param next_id: the id an added object takes.
+    :param removed: ``{(layer index, source id): {id: flat pixel indices}}``
+        of the removals made from flagged objects in this field.
+    :returns: ``(new overlay, action)``, or ``(None, None)`` when no flagged
+        object is under the click or the click changed nothing. ``action``
+        holds ``kind``, ``id``, ``ids``, ``layer``, ``source_id`` and, for a
+        removal, ``pixels`` (``{id: flat indices}``).
+    """
+    for index, labels in flagged:
+        if labels is None or not int(labels[y, x]):
+            continue
+        source = int(labels[y, x])
+        region = labels == source
+        current = int(curated[y, x])
+        ids = ([current] if current else
+               [int(v) for v in np.unique(curated[region]) if v])
+        info = {"layer": int(index), "source_id": source}
+        if ids:
+            out = np.array(curated, copy=True)
+            pixels = {}
+            for value in ids:
+                where = out == value
+                pixels[value] = np.flatnonzero(where)
+                out[where] = 0
+            return out, dict(info, kind="remove", id=ids[0], ids=ids,
+                             pixels=pixels)
+        present = set(int(v) for v in np.unique(curated) if v)
+        back = {int(k): v for k, v in (removed.get((int(index), source)) or {}).items()
+                if int(k) not in present}
+        if back:
+            out = _widen_labels(np.array(curated, copy=True), max(back))
+            flat = out.reshape(-1)
+            filled = []
+            for value, where in sorted(back.items()):
+                free = where[flat[where] == 0]
+                if free.size:
+                    flat[free] = value
+                    filled.append(value)
+            if filled:
+                return out, dict(info, kind="restore", id=filled[0], ids=filled)
+        region &= curated == 0
+        if region.any():
+            out = _widen_labels(np.array(curated, copy=True), next_id)
+            out[region] = next_id
+            return out, dict(info, kind="add", id=int(next_id), ids=[int(next_id)])
+        return None, None
+    return None, None
+
+
+_LAYER_REQUIRE_MODES: Tuple[str, ...] = ("any", "all")
+"""How required layers decide which images a session shows; the first is
+the default."""
+
+
+def _layer_has_objects(layer_dir: str, filename: str) -> bool:
+    """Whether one layer holds an object for one field.
+
+    :param layer_dir: the layer's folder.
+    :param filename: the field's image name.
+    :returns: True when its label file has a nonzero pixel; False when it
+        has no file or the file cannot be read.
+    """
+    path = _layer_mask_file(layer_dir, filename)
+    if path is None:
+        return False
+    try:
+        raw = np.load(path) if path.endswith(".npy") else imageio.imread(path)
+    except (OSError, ValueError):
+        return False
+    return bool(np.any(np.asarray(raw)))
+
+
+def _layers_match(present, mode: str = "any") -> bool:
+    """Whether a field passes the required-layers filter.
+
+    :param present: for each required layer, whether it has an object in
+        the field.
+    :param mode: ``any`` (one required layer has an object) or ``all``
+        (every required layer has one).
+    :returns: the answer; True when no layer is required.
+    """
+    present = [bool(v) for v in present]
+    if not present:
+        return True
+    return all(present) if mode == "all" else any(present)
 
 
 _OUTLINE_THICKNESS_DEFAULT = 1.0
@@ -7933,7 +8110,7 @@ def _read_layer_decisions(target: str, filename: str) -> Dict:
 def _layer_decisions(filename: str, base_path: Optional[str],
                      base: Optional[np.ndarray], curated: np.ndarray,
                      added: Dict[int, Dict], previous: Optional[Dict] = None,
-                     saved: Optional[str] = None) -> Dict:
+                     saved: Optional[str] = None, merged=None) -> Dict:
     """The decisions log of one field: what was removed and what was added.
 
     :param filename: the field's image name.
@@ -7946,6 +8123,9 @@ def _layer_decisions(filename: str, base_path: Optional[str],
     :param previous: the log an earlier session wrote, whose removals are
         carried forward.
     :param saved: the ISO time of the save; now when omitted.
+    :param merged: ``[{"layer": folder, "ids": [...], "source_ids": [...]},
+        ...]`` from Merge visible layers; logged under ``merged`` with only
+        the ids still in ``curated``, and left out when there are none.
     :returns: the log, ready for :func:`json.dump`.
     """
     import datetime
@@ -7954,7 +8134,7 @@ def _layer_decisions(filename: str, base_path: Optional[str],
     rows = [{"id": int(new), "layer": info.get("layer"),
              "source_id": info.get("source_id")}
             for new, info in sorted(added.items()) if int(new) in present]
-    return {
+    log = {
         "schema": 1,
         "image": os.path.basename(str(filename)),
         "base_layer": base_path,
@@ -7963,6 +8143,20 @@ def _layer_decisions(filename: str, base_path: Optional[str],
         "added": rows,
         "saved": saved or datetime.datetime.now().isoformat(timespec="seconds"),
     }
+    merges = []
+    seen = set()
+    for entry in list((previous or {}).get("merged", []) or []) + list(merged or []):
+        pairs = [(int(i), int(s)) for i, s in zip(entry.get("ids", []),
+                                                    entry.get("source_ids", []))
+                 if int(i) in present and int(i) not in seen]
+        seen.update(i for i, _ in pairs)
+        if pairs:
+            merges.append({"layer": entry.get("layer"),
+                           "ids": [i for i, _ in pairs],
+                           "source_ids": [s for _, s in pairs]})
+    if merges:
+        log["merged"] = merges
+    return log
 
 
 def _write_layer_decisions(target: str, filename: str, log: Dict) -> str:
