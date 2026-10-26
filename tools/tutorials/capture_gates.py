@@ -403,9 +403,15 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     else:
         tree.scrollToItem(item)
     rect = tree.visualItemRect(item)
+    def row_point():
+        # A wide row's centre can lie beyond the visible viewport (the real pointer then lands on the window edge):
+        # aim at the label end of the row, inside the viewport.
+        r = tree.visualItemRect(item)
+        from PySide6.QtCore import QPoint
+        return QPoint(max(4, min(r.left() + 60, tree.viewport().width() - 8)), r.center().y())
     modal_wait(capture, 400, rename)
-    QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
-    QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
+    QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=row_point())
+    QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=row_point())
     settle(0.8)
     if capture_ui.live(capture) and not errors and not renamed:
         # A live double-click that lands as click + click (compositor timing) opens nothing: wait briefly for the
@@ -415,7 +421,7 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
             settle(0.2)
         if not renamed and not errors:
             modal_wait(capture, 400, rename)
-            QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=tree.visualItemRect(item).center())
+            QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=row_point())
             settle(1.2)
     if errors or not renamed or 'dense_core' not in screen.gates.gates.names:
         raise RuntimeError('; '.join(errors) or 'The gate was not renamed')
