@@ -358,3 +358,9 @@ Scope:59 visible lessons;25 archived lessons stay hidden/preserved. Deliver all5
 Seven new-look lessons are published; remaining15:74,36,41,58,64,16,22,31,50,13,70,19,10,04,01.
 Publish74 then36; stage41 after compatible10. Home owns app fixes;01 waits for1.5.1.6 onPyPI.
 Preserve autonomous recording chain, one app base per lesson, quiet recording windows, unrelated work and no-deletion/no-env-change rules.
+
+2026-10-26 — All50voices acceptance also requires23missingEnglishvoices for06 and48; preserve their27existingtracks and acceptedvisuals.
+Visiblecatalog59:44alreadyoffer50voices,15offer27. The handed-over15recording/publicationlessons remain, plus these2voice-onlycompletions.
+Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abdfdbe,16GPU saliency maxdifference<=1,22literalerrorifstillfailing.
+Actual13firstattemptfailsall15clips despitebothlensfixes;stacksin t18/FOR_HOME_pending.md;plannedretryrunning,noacceptanceclaim.
+Codex ownsdelivery;Home ownsappfixes;01stillwaitsforPyPI1.5.1.6.
