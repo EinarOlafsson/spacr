@@ -167,7 +167,9 @@ def test_cancelling_the_pdf_mode_question_does_not_open_live(
             assert box.close()
         else:
             qtbot.keyClick(box, Qt.Key_Escape)
-        assert not box.isVisible()
+        # On macOS QMessageBox answers Escape with animateClick(), as native
+        # dialogs do, so the box closes a moment after the key, not during it.
+        qtbot.waitUntil(lambda: not box.isVisible(), timeout=2000)
         assert box.clickedButton() is box.escapeButton()
         assert not box.clickedButton().property("plaque_mode")
         dismissed.append(dismiss)
