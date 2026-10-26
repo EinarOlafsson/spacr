@@ -17,6 +17,13 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-26 Claude WS to Home — app items blocking tutorials 58, 64, 31, 60 and 13/34/68/70
+1. **58 Graph Builder segfault** in `spacr/qt/widgets/graph_builder.py` `_rebuild_items` (line 271, `self._list.clear()`), reached from `set_frame` via `_on_frame_loaded`/`job_runner._on_settled` right after the merged table loads (clip 18). Reproduced twice (crash-reports/t18-58-graph_builder.txt).
+2. **64 Gate Editor segfault** in `spacr/qt/i18n.py` `_translate_shown_dialog` (line 4771) fired by the `_fire_after` timer while `gate_editor.choose_save_gates` opens its file dialog (the timer probably touches a dialog that was already closed).
+3. **31 / 79 External Masks**: after Run with six figures the runtime pane is only 577 px, so the console viewport stays 155 px (readable tour needs 240 px in the 2560x1440 window).
+4. **Repeating app-freeze clips** (13 01_module/02_download/21_batch_running/26_detail_coefficients, 34 10_export, 68 01_module/09_real_simulation_running, 70 01_classify_host, 60 22_actual_three_file_export): in every stall dump the other running thread is `spacr/qt/widgets/ambient.py` `_shade` -> `_frame_impulse_lens` (about lines 8223-8226) while the GUI thread stalls 0.13-0.18 s and the paint rate dips for a second. Yielding or moving the lens off the GIL under the capture profile (field density 0.1) should clear all of them.
+Details and file paths: capture_host_proto/t18/FOR_HOME_pending.md on the workstation.
+
 ## 2026-10-25 Claude WS to Home — OPS example section never re-shown (blocks tutorial 76)
 Left by the tutorial lane while Home was unreachable after the account switch; first written to features/HANDOFF.md and moved here, the one place handoffs live.
 - Reproduced on nightly 7883b5ee11. On the OPS page (Mask -> OPS) the example section with "Load test data…" stays hidden: isVisibleTo(parent) is False even at level All, with Modified off and an empty query.
