@@ -190,8 +190,53 @@ _STRAP_FADE_S = 0.6
 #: the window over this long instead of blowing it away.
 _PLAIN_FADE_S = 1.0
 
-#: Frame interval of the blow-away, in milliseconds: 60 frames a second.
-_MOSAIC_FRAME_MS = 16
+#: The display rate assumed when a screen does not report its own, in
+#: frames a second. The blow-away's frames are paced to the window's screen
+#: (:meth:`QScreen.refreshRate`), not to a fixed timer: a 16 ms timer beats
+#: against a 60 Hz display and caps a 120 or 144 Hz one near 62 frames a
+#: second (item 727).
+_DEFAULT_REFRESH_HZ = 60.0
+
+#: The refresh rates believed, in hertz; a screen reporting outside this
+#: range is taken to be at :data:`_DEFAULT_REFRESH_HZ`.
+_REFRESH_RANGE_HZ = (23.0, 500.0)
+
+#: Platforms whose :meth:`QWindow.requestUpdate` is delivered by the
+#: display (the macOS display link), so frames follow it instead of a
+#: timer. On X11 and Windows it is a 5 ms timer, and the blow-away keeps
+#: its own deadlines one refresh interval apart. Wayland's frame callbacks
+#: qualify in principle, but measured on GNOME at 144 Hz (2026-10-25) a
+#: chain of them paced a widget window at 56 frames a second against 79
+#: for the deadlines, with a 95th percentile interval of 25 ms against
+#: 19, so Wayland keeps the deadlines too.
+_VSYNC_PLATFORMS = ("cocoa",)
+
+#: A frame that paints in more than this share of the frame budget is slow
+#: and one under the second share is fast (14 ms and 9 ms at 60 Hz).
+_SLOW_SHARE = 0.84
+_FAST_SHARE = 0.54
+
+#: Slow frames in a row, with the faint-tile floor already at its top,
+#: before the blow-away steps down a stage: half the flying tiles, then a
+#: quarter, then every second display frame, and so on.
+_SLOW_STREAK = 6
+
+#: Fewest flying tiles kept when stepping down: one in this many.
+_MOST_STRIDE = 4
+
+#: Slowest pace stepping down may reach, in frames a second.
+_SLOWEST_HZ = 30.0
+
+#: Highest faint-tile floor :meth:`LoadingScreen._adapt` raises to.
+_TOP_FLOOR = 0.5
+
+#: An interval longer than this many display frames counts as late.
+_LATE_FRAMES = 1.5
+
+#: Frames in one look at the pacing, and the share of them that may be late
+#: (against the frame budget) before each frame takes a display frame more.
+_PACING_WINDOW = 24
+_LATE_SHARE = 0.25
 
 #: The seed of the blow-away's randomness, so every start looks the same and
 #: a test can reproduce a frame.
@@ -255,6 +300,72 @@ def will_blow_away(screen) -> bool:
     """
     return (isinstance(screen, LoadingScreen) and screen.mosaic_shown()
             and not screen._skip_requested and startup_animation_allowed())
+
+
+def _screen_refresh_hz(screen) -> float:
+    """The refresh rate of ``screen``, or :data:`_DEFAULT_REFRESH_HZ`.
+
+    :param screen: a :class:`QScreen`, or ``None``.
+    :returns: the rate in hertz, within :data:`_REFRESH_RANGE_HZ`.
+    """
+    try:
+        rate = float(screen.refreshRate())
+    except Exception:
+        return _DEFAULT_REFRESH_HZ
+    low, high = _REFRESH_RANGE_HZ
+    if not math.isfinite(rate) or not low <= rate <= high:
+        return _DEFAULT_REFRESH_HZ
+    return rate
+
+
+def _frame_interval_ms(rate_hz: float) -> float:
+    """One display frame at ``rate_hz``, in milliseconds."""
+    return 1000.0 / float(rate_hz)
+
+
+def _display_paced(platform_name: str) -> bool:
+    """Whether ``platform_name`` delivers :meth:`QWindow.requestUpdate` at
+    the display's refresh."""
+    name = str(platform_name or "").lower()
+    return any(name.startswith(p) for p in _VSYNC_PLATFORMS)
+
+
+def _pacing_stats(stamps, refresh_ms: float) -> dict:
+    """Frame-to-frame pacing of the frames painted at ``stamps``.
+
+    :param stamps: when each frame was painted, in seconds, in order.
+    :param refresh_ms: the display's frame interval, in milliseconds.
+    :returns: ``interval_mean_ms``, ``interval_p50_ms``, ``interval_p95_ms``,
+        ``interval_p99_ms`` and ``longest_gap_ms``; ``late_frames``, the
+        intervals longer than :data:`_LATE_FRAMES` display frames;
+        ``dropped_frames``, the display frames that passed without a new
+        frame; and ``dropped_share``, those as a share of the display frames
+        the span covered.
+    """
+    gaps = np.diff(np.asarray(stamps, dtype=float)) * 1000.0
+    if gaps.size == 0:
+        return {"interval_mean_ms": 0.0, "interval_p50_ms": 0.0,
+                "interval_p95_ms": 0.0, "interval_p99_ms": 0.0,
+                "longest_gap_ms": 0.0, "late_frames": 0,
+                "dropped_frames": 0, "dropped_share": 0.0}
+    dropped = int(np.sum(np.maximum(0.0, np.rint(gaps / refresh_ms) - 1.0)))
+    return {
+        "interval_mean_ms": float(np.mean(gaps)),
+        "interval_p50_ms": float(np.percentile(gaps, 50)),
+        "interval_p95_ms": float(np.percentile(gaps, 95)),
+        "interval_p99_ms": float(np.percentile(gaps, 99)),
+        "longest_gap_ms": float(np.max(gaps)),
+        "late_frames": int(np.sum(gaps > _LATE_FRAMES * refresh_ms)),
+        "dropped_frames": dropped,
+        "dropped_share": dropped / float(gaps.size + 1 + dropped),
+    }
+
+
+def _cover_is_showing(cover) -> bool:
+    """Whether ``cover``'s startup sequence is still on show, for the hold
+    on background imports."""
+    return getattr(cover, "_state", "done") in ("waiting", "holding",
+                                                 "playing")
 
 
 class MosaicMap:
@@ -537,6 +648,17 @@ class LoadingScreen(QWidget):
         self._floor = 0.02
         self._frame_ms: list = []
         self._drawn: list = []
+        self._presented: list = []
+        self._pace_clock: Callable[[], float] = time.perf_counter
+        self._refresh_hz = _DEFAULT_REFRESH_HZ
+        self._divisor = 1
+        self._stride = 1
+        self._slow_streak = 0
+        self._next_due: Optional[float] = None
+        self._paced_window = None
+        self._vsync = False
+        self._prepared = None
+        self._judged = 0
         self.setAutoFillBackground(True)
         self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -690,9 +812,26 @@ class LoadingScreen(QWidget):
         :param event: the event; only a resize is acted on.
         :returns: ``False``, so the window still sees every event.
         """
-        if event.type() == QEvent.Type.Resize and watched is self.parent():
+        kind = event.type()
+        if kind == QEvent.Type.Resize and watched is self.parent():
             self.setGeometry(watched.rect())
+        elif kind == QEvent.Type.UpdateRequest:
+            self._follow_the_display(watched)
         return False
+
+    def _follow_the_display(self, watched) -> None:
+        """Ask for the display's next frame after the one it delivered.
+
+        Where the display delivers the window's update requests
+        (:func:`_display_paced`), each one paints the window, this cover
+        included; asking again here keeps one frame per display refresh.
+
+        :param watched: the object the update request was sent to.
+        """
+        if (watched is self._paced_window and self._vsync
+                and self._state == "playing" and self._divisor == 1
+                and self.elapsed() < self._duration):
+            watched.requestUpdate()
 
     def resizeEvent(self, event) -> None:
         """Re-centre the message for the new size.
@@ -907,20 +1046,66 @@ class LoadingScreen(QWidget):
         self._take_the_keys()
         _PLAYING.add(self)
         self._state = "waiting"
+        self._hold_the_imports()
         if self._first_paint_at is not None:
             self._hold_then_begin()
         else:
             self.update()
         return True
 
+    def _hold_the_imports(self) -> None:
+        """Keep the optional background imports out while the show is on.
+
+        The same hold an Overview takes while it loads
+        (:func:`spacr.qt.gil_priority.hold_background_imports`): a warm
+        import started now would take the interpreter lock from the frames.
+        It lapses when the cover is done, or with the hold's own limit.
+        """
+        try:
+            from ..gil_priority import hold_background_imports
+
+            hold_background_imports(self, _cover_is_showing)
+        except Exception:
+            pass
+
+    def _release_the_imports(self) -> None:
+        """End the hold :meth:`_hold_the_imports` took."""
+        try:
+            from ..gil_priority import release_background_imports
+
+            release_background_imports(self)
+        except Exception:
+            pass
+
     def _hold_then_begin(self) -> None:
-        """Begin once the mosaic has been up for the hold."""
+        """Begin once the mosaic has been up for the hold.
+
+        The tiles are cut while the logo still holds, so the first moving
+        frame does not wait for them.
+        """
         from .. import _after
 
         self._state = "holding"
         held = self._clock() - self._first_paint_at
         wait_ms = max(0, int(math.ceil((_MOSAIC_MIN_HOLD_S - held) * 1000.0)))
+        if wait_ms > 0 and not self._plain:
+            _after(0, self, self._prepare)
         _after(wait_ms, self, self._begin)
+
+    def _prepare(self) -> None:
+        """Decode the mosaic and cut its tiles for the current layout.
+
+        Done during the hold; :meth:`_begin` uses them when the layout has
+        not changed since, and cuts them itself otherwise.
+        """
+        if self._state != "holding" or self._mosaic is None:
+            return
+        x, y, side, tile, ratio = self._mosaic_layout()
+        picture = self._mosaic_picture(tile, ratio)
+        if picture is None:
+            return
+        self._cut_tiles(picture, x, y, side, tile)
+        self._prepared = (x, y, side, tile, ratio)
 
     def _begin(self) -> None:
         """Cut the mosaic into its tiles and start the frames.
@@ -941,8 +1126,9 @@ class LoadingScreen(QWidget):
         self._rest_target = QRectF(x, y, side, side)
         if self._plain:
             self._duration = _PLAIN_FADE_S
-        else:
+        elif self._prepared != (x, y, side, tile, ratio):
             self._cut_tiles(picture, x, y, side, tile)
+        self._prepared = None
         self.setAutoFillBackground(False)
         self._capture_underlay()
         self.setAttribute(Qt.WA_OpaquePaintEvent, self._underlay is not None)
@@ -951,11 +1137,102 @@ class LoadingScreen(QWidget):
         self._began_at = self._clock()
         timer = QTimer(self)
         timer.setTimerType(Qt.TimerType.PreciseTimer)
-        timer.setInterval(_MOSAIC_FRAME_MS)
+        timer.setSingleShot(True)
         timer.timeout.connect(self._tick)
-        timer.start()
         self._tick_timer = timer
+        self._start_pacing()
         self.update()
+
+    def _start_pacing(self) -> None:
+        """Pace the frames to the window's screen, and follow it.
+
+        The frame interval is the screen's refresh interval, and changes
+        when the window moves to another screen. Where the display delivers
+        update requests (:func:`_display_paced`) the frames follow them;
+        elsewhere the timer keeps to deadlines one refresh interval apart,
+        so the frames do not drift against the display.
+        """
+        from PySide6.QtGui import QGuiApplication
+
+        handle = None
+        try:
+            handle = self.window().windowHandle()
+        except RuntimeError:
+            handle = None
+        self._paced_window = handle
+        self._vsync = (handle is not None
+                       and _display_paced(QGuiApplication.platformName()))
+        screen = None
+        if handle is not None:
+            screen = handle.screen()
+            handle.screenChanged.connect(self._repace)
+            if self._vsync:
+                handle.installEventFilter(self)
+        self._pace_to(screen if screen is not None else self.screen())
+        if self._vsync:
+            handle.requestUpdate()
+
+    def _stop_pacing(self) -> None:
+        """Let go of the native window :meth:`_start_pacing` followed."""
+        handle, self._paced_window = self._paced_window, None
+        if handle is None:
+            return
+        try:
+            handle.screenChanged.disconnect(self._repace)
+        except (RuntimeError, TypeError):
+            pass
+        try:
+            handle.removeEventFilter(self)
+        except RuntimeError:
+            pass
+
+    def _repace(self, screen) -> None:
+        """The window moved to ``screen``: pace the frames to it."""
+        self._pace_to(screen)
+
+    def _pace_to(self, screen) -> None:
+        """Take ``screen``'s refresh as the frame interval and reschedule.
+
+        :param screen: the :class:`QScreen` the window is on, or ``None``.
+        """
+        self._refresh_hz = _screen_refresh_hz(screen)
+        self._divisor = min(self._divisor, self._slowest_divisor())
+        self._next_due = None
+        self._schedule_tick()
+
+    def _slowest_divisor(self) -> int:
+        """The most display frames one blow-away frame may take."""
+        return max(1, int(self._refresh_hz // _SLOWEST_HZ))
+
+    def _frame_budget_ms(self) -> float:
+        """How long one frame of the blow-away may take, in milliseconds.
+
+        :returns: the screen's refresh interval, times the display frames
+            each blow-away frame takes after stepping down (1 to start).
+        """
+        return _frame_interval_ms(self._refresh_hz) * self._divisor
+
+    def _schedule_tick(self) -> None:
+        """Start the timer for the next frame's deadline.
+
+        Deadlines are one frame budget apart from the first, so whole
+        milliseconds of timer resolution do not add up to a drift; a
+        deadline already missed is skipped, not caught up.
+        """
+        timer = self._tick_timer
+        if timer is None or self._state != "playing":
+            return
+        step = self._frame_budget_ms() / 1000.0
+        now = self._pace_clock()
+        due = self._next_due
+        if due is None or due < now - step:
+            due = now + step
+        else:
+            due += step
+            while due <= now:
+                due += step
+        self._next_due = due
+        timer.start(max(0, int(round((due - now) * 1000.0))))
 
     def _capture_underlay(self) -> None:
         """Composite over a single native Mac frame during the short dissolve.
@@ -1036,11 +1313,50 @@ class LoadingScreen(QWidget):
         return _container_opacity(self.elapsed(), self._plain)
 
     def _tick(self) -> None:
-        """Ask for the next frame, or finish when the last tile has gone."""
+        """Ask for the next frame, or finish when the last tile has gone.
+
+        In display-driven pacing the frames follow the display: this asks
+        for the display's next frame only after stepping down to every
+        second display frame or slower, and paints directly only when no
+        frame has come for one and a half frame budgets (a display that
+        stopped delivering, which a pending request would otherwise wait
+        on for good).
+        """
         if self.elapsed() >= self._duration:
             self._finish()
             return
-        self.update()
+        handle = self._paced_window
+        if self._vsync and handle is not None:
+            last = self._presented[-1] if self._presented else 0.0
+            if (self._pace_clock() - last) * 1000.0 > (
+                    _LATE_FRAMES * self._frame_budget_ms()):
+                self.update()
+            elif self._divisor > 1:
+                handle.requestUpdate()
+        else:
+            self.update()
+        self._schedule_tick()
+
+    def _judge_pacing(self) -> None:
+        """Take a display frame more per frame when too many come late.
+
+        Every :data:`_PACING_WINDOW` frames, when more than
+        :data:`_LATE_SHARE` of their intervals were longer than
+        :data:`_LATE_FRAMES` frame budgets, each frame takes one display
+        frame more, down to :data:`_SLOWEST_HZ`: an even 72 frames a second
+        on a 144 Hz display reads smoother than 90 that miss at random. This
+        is the cost :meth:`_adapt` cannot see, outside the paint: flushing
+        and compositing the window.
+        """
+        stamps = self._presented
+        if len(stamps) - self._judged < _PACING_WINDOW + 1:
+            return
+        recent = np.diff(np.asarray(stamps[-(_PACING_WINDOW + 1):])) * 1000.0
+        self._judged = len(stamps)
+        late = float(np.mean(recent > _LATE_FRAMES * self._frame_budget_ms()))
+        if late > _LATE_SHARE and self._divisor < self._slowest_divisor():
+            self._divisor += 1
+            self._next_due = None
 
     def _clear_launched(self, t: float) -> None:
         """Take every tile the front has reached out of the still picture.
@@ -1066,6 +1382,7 @@ class LoadingScreen(QWidget):
 
     def _paint_blow_away(self) -> None:
         """Draw one frame of the blow-away, or of the plain cross-fade."""
+        self._presented.append(self._pace_clock())
         began = time.perf_counter()
         t = self.elapsed()
         drawn = 0
@@ -1095,6 +1412,7 @@ class LoadingScreen(QWidget):
         self._frame_ms.append(spent)
         self._drawn.append(drawn)
         self._adapt(spent)
+        self._judge_pacing()
 
     def _paint_tiles(self, painter: QPainter, t: float) -> int:
         """Draw the tiles still at rest and every tile in flight at ``t``.
@@ -1110,6 +1428,11 @@ class LoadingScreen(QWidget):
         index, m11, m12, m21, m22, dx, dy, alpha = model.frame(
             t, (0.0, 0.0, float(self.width()), float(self.height())),
             self._floor)
+        if self._stride > 1:
+            keep = index % self._stride == 0
+            index, m11, m12, m21, m22, dx, dy, alpha = (
+                index[keep], m11[keep], m12[keep], m21[keep], m22[keep],
+                dx[keep], dy[keep], alpha[keep])
         tiles = self._tiles
         anchor = self._anchor
         matrix = QTransform()
@@ -1129,12 +1452,41 @@ class LoadingScreen(QWidget):
     def _adapt(self, spent_ms: float) -> None:
         """Drop the faintest tiles while frames are slow, and take them back.
 
+        Slow and fast are shares of the frame budget
+        (:meth:`_frame_budget_ms`), so a 144 Hz display asks for frames of
+        under 6 ms where a 60 Hz one allows 14. When the faintest tiles are
+        already gone and frames stay slow for :data:`_SLOW_STREAK` in a
+        row, the blow-away steps down (:meth:`_step_down`).
+
         :param spent_ms: how long the last frame took to draw.
         """
-        if spent_ms > 14.0:
-            self._floor = min(0.5, self._floor + 0.08)
-        elif spent_ms < 9.0:
+        budget = self._frame_budget_ms()
+        if spent_ms > _SLOW_SHARE * budget:
+            if self._floor >= _TOP_FLOOR:
+                self._slow_streak += 1
+                if self._slow_streak >= _SLOW_STREAK:
+                    self._slow_streak = 0
+                    self._step_down()
+            self._floor = min(_TOP_FLOOR, self._floor + 0.08)
+        elif spent_ms < _FAST_SHARE * budget:
+            self._slow_streak = 0
             self._floor = max(0.02, self._floor - 0.04)
+        else:
+            self._slow_streak = 0
+
+    def _step_down(self) -> None:
+        """Draw less, a stage at a time: fewer tiles, then fewer frames.
+
+        Half the flying tiles first, then a quarter; then each frame takes
+        one display frame more, which keeps an even cadence where frames
+        that miss the display at random would judder, down to
+        :data:`_SLOWEST_HZ`.
+        """
+        if self._stride < _MOST_STRIDE:
+            self._stride *= 2
+        elif self._divisor < self._slowest_divisor():
+            self._divisor += 1
+            self._next_due = None
 
     def frame_stats(self) -> dict:
         """What drawing the blow-away cost, for measuring it.
@@ -1143,12 +1495,38 @@ class LoadingScreen(QWidget):
             milliseconds, and the most tiles drawn in one frame.
         """
         spent = self._frame_ms
-        return {
+        stats = {
             "frames": len(spent),
             "mean_ms": float(np.mean(spent)) if spent else 0.0,
             "max_ms": float(np.max(spent)) if spent else 0.0,
             "most_tiles": max(self._drawn) if self._drawn else 0,
         }
+        stats.update(self._pacing_report())
+        return stats
+
+    def _pacing_report(self) -> dict:
+        """How evenly the blow-away was paced, for :meth:`frame_stats`.
+
+        :returns: ``paint_p95_ms``, the 95th percentile paint time;
+            ``refresh_hz`` and ``refresh_ms``, the display's rate and frame
+            interval; ``paced_ms``, the frame budget at the end, with the
+            ``stride`` and ``divisor`` stepping down left it at; ``vsync``,
+            whether the display drove the frames; and the frame-to-frame
+            pacing of :func:`_pacing_stats` against the display's interval.
+        """
+        spent = self._frame_ms
+        refresh_ms = _frame_interval_ms(self._refresh_hz)
+        report = {
+            "paint_p95_ms": float(np.percentile(spent, 95)) if spent else 0.0,
+            "refresh_hz": float(self._refresh_hz),
+            "refresh_ms": refresh_ms,
+            "paced_ms": self._frame_budget_ms(),
+            "stride": int(self._stride),
+            "divisor": int(self._divisor),
+            "vsync": bool(self._vsync),
+        }
+        report.update(_pacing_stats(self._presented, refresh_ms))
+        return report
 
     def skip(self) -> None:
         """Skip to the end: take the cover down now, or as soon as allowed.
@@ -1199,6 +1577,8 @@ class LoadingScreen(QWidget):
             return
         self._state = "done"
         _PLAYING.discard(self)
+        self._release_the_imports()
+        self._stop_pacing()
         self._give_the_keys_back()
         if self._tick_timer is not None:
             self._tick_timer.stop()

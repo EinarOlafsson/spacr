@@ -14,6 +14,7 @@ tests/qt/test_695_startup_sequence_and_borderless_window.py tests the rest.
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 
@@ -339,7 +340,10 @@ def test_the_blow_away_waits_for_the_hold_then_plays_and_finishes(
     assert len(cover._tiles) == cover._model.flyers.size
     timer = cover._tick_timer
     assert timer is not None and timer.parent() is cover
-    assert timer.interval() == ls._MOSAIC_FRAME_MS
+    assert timer.isSingleShot() and timer.isActive()
+    budget = ls._frame_interval_ms(ls._screen_refresh_hz(cover.screen()))
+    assert cover._frame_budget_ms() == pytest.approx(budget)
+    assert 0 <= timer.interval() <= math.ceil(budget)
 
     for step in range(4):
         cover.clock.now += 0.4
@@ -525,8 +529,12 @@ def test_skip_while_holding_ends_without_frames(cover):
     assert cover.blow_away(force=True)
     cover.skip()
     assert cover._state == "done"
-    assert cover.frame_stats() == {"frames": 0, "mean_ms": 0.0,
-                                   "max_ms": 0.0, "most_tiles": 0}
+    stats = cover.frame_stats()
+    assert {k: stats[k] for k in ("frames", "mean_ms", "max_ms",
+                                  "most_tiles")} == {
+        "frames": 0, "mean_ms": 0.0, "max_ms": 0.0, "most_tiles": 0}
+    assert stats["interval_p95_ms"] == stats["longest_gap_ms"] == 0.0
+    assert stats["dropped_frames"] == stats["late_frames"] == 0
     cover.skip()
     cover._finish()
     assert cover._state == "done"
