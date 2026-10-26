@@ -234,3 +234,4 @@ No new tutorial/native acceptance or release claim; those remain with their exis
 
 2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
 Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.
+2026-10-25 — Mac (Apple M-series MacBook, macOS 27.0 (Darwin 27.0.0), arm64 CPython 3.12.15 venv, PySide6 6.11.2, Cocoa, Retina DPR 2, work area 1710x1074) on nightly f726fb39b+: the diameter-field owning tests (test_696_the_diameter_field_takes_auto, test_cpsam_diameter) all pass on native Cocoa. Programmatic Qt input only; no physical keyboard/clipboard, Cellpose run or settings export/import round trip was done, so the native acceptance steps 2-5 above stay open.
