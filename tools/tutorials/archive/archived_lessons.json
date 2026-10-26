@@ -10,7 +10,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "measure",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 18,
       "position": 16,
@@ -30,7 +30,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "toxoplasma",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 24,
       "position": 22,
@@ -50,7 +50,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "toxoplasma",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 25,
       "position": 23,
@@ -70,7 +70,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 29,
       "position": 27,
@@ -90,7 +90,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 30,
       "position": 28,
@@ -110,7 +110,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 34,
       "position": 32,
@@ -130,7 +130,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "make_masks",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 46,
       "position": 44,
@@ -150,7 +150,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "map_barcodes",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 47,
       "position": 45,
@@ -170,7 +170,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "qc_dashboard",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 57,
       "position": 55,
@@ -190,7 +190,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "measure",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 59,
       "position": 57,
@@ -210,7 +210,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "umap",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 60,
       "position": 58,
@@ -230,7 +230,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "db_browser",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 61,
       "position": 59,
@@ -250,7 +250,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "classify_merged",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 65,
       "position": 63,
@@ -270,7 +270,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "qc_dashboard",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 66,
       "position": 64,
@@ -290,7 +290,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 68,
       "position": 66,
@@ -310,7 +310,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 69,
       "position": 67,
@@ -330,7 +330,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "regression",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 71,
       "position": 69,
@@ -350,7 +350,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "regression",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 72,
       "position": 70,
@@ -370,7 +370,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "regression",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 73,
       "position": 71,
@@ -390,7 +390,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "regression",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 75,
       "position": 73,
@@ -410,7 +410,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": "mask",
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 76,
       "position": 75,
@@ -430,7 +430,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 77,
       "position": 74,
@@ -450,7 +450,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 79,
       "position": 77,
@@ -470,7 +470,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 86,
       "position": 82,
@@ -490,7 +490,7 @@
         "source_revision": "1919200809407897a9b2f3e8bf38b3b4d5b71ed0"
       },
       "host_app_key": null,
-      "local_copy": "/nas_mnt/data/spacr_tutorial_archive/20261026",
+      "local_copy": "/nas_mnt/data/sync/tutorial-archive-20261026",
       "local_copy_verified": "2026-10-26: 2278 HF files at pin 1919200809, SHA256SUMS checked on NAS",
       "number": 87,
       "position": 83,

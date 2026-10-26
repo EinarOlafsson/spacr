@@ -633,7 +633,7 @@ def main(argv=None) -> int:
     archive.add_argument('ids', nargs='*', help='ids or numbers; default: the approved 25')
     archive.add_argument('--apply', action='store_true')
     archive.add_argument('--reason', default='Hidden for spaCR 1.5.1.6 (maintainer approval)')
-    archive.add_argument('--local-copy', default='/nas_mnt/data/spacr_tutorial_archive/20261026')
+    archive.add_argument('--local-copy', default='/nas_mnt/data/sync/tutorial-archive-20261026')
     archive.add_argument('--ws-local-copy', default='/media/carruthers/mnt1/tutorial-archive-20261026')
     restore = sub.add_parser('restore', help='put archived lessons back in place')
     restore.add_argument('ids', nargs='+')
