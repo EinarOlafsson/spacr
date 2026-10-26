@@ -661,7 +661,7 @@ def test_scrolling_many_wells_releases_offscreen_native_icons(plate_images, qtbo
         assert len(dialog._installed_thumbnails) < 64
         old = dialog.wells.item(0, 0)
         assert old.icon().isNull()
-        dialog._set_thumbnail("A01", (fields[0].identity, (1, 2), (1., 99.9)),
+        dialog._set_thumbnail((dialog.plates.currentData(), "A01"), (fields[0].identity, (1, 2), (1., 99.9)),
                               original(fields[0], (1, 2), edge=160))
         assert old.icon().isNull()
     finally:
@@ -723,7 +723,7 @@ def test_missing_channel_clears_previous_well_and_field_images(plate_images, qtb
     qtbot.waitUntil(lambda: cell.data(browser.Qt.UserRole + 1)[1] == (99,))
     qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
     assert cell.icon().isNull()
-    assert "A01" not in dialog._installed_thumbnails
+    assert (dialog.plates.currentData(), "A01") not in dialog._installed_thumbnails
     assert dialog.view._item is None
     before = dialog._thumbnail_jobs._next_id
     dialog._update_visuals()
@@ -1024,7 +1024,7 @@ def test_plate_cells_keep_identity_and_shared_numeric_sorting(plate_images, qtbo
         assert item.text() == browser.tr("{well}\n{count} fields", well=well, count=count)
         assert item.data(browser.Qt.UserRole) == well
         assert not item.flags() & browser.Qt.ItemIsEditable
-        assert dialog._well_positions[well] == (0, column)
+        assert dialog._well_positions[(dialog.plates.currentData(), well)] == (0, column)
     assert not dialog.wells.isSortingEnabled()
     snapshots = {id(item): (item.text(), item.data(browser.Qt.UserRole), item.flags())
                  for item in cells}
@@ -1406,7 +1406,7 @@ def test_reopening_well_mean_browser_rebuilds_its_cancelled_context(plate_images
     _ready_overview(dialog, browser._overview_index(plate_images), qtbot)
     old_context, old_cancelled = dialog._normalization_context, dialog._cancelled
     assert old_context is not None
-    field = dialog._well_representatives["A01"]
+    field = dialog._well_representatives[(dialog.plates.currentData(), "A01")]
     previous_generation = dialog._display_generation
     _retire_overview(dialog, qtbot)
     dialog.close()
@@ -1454,7 +1454,7 @@ def test_individual_tczyx_planes_follow_native_axis_wheels_without_borrowing_wel
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
                     and not dialog._index_jobs.is_busy(), timeout=10000)
     dialog.fov_axis.setCurrentIndex(dialog.fov_axis.findData("1"))
-    item = dialog.wells.item(*dialog._well_positions["A01"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")])
     dialog.wells.setCurrentItem(item)
     open_well = next(button for button in dialog.findChildren(QPushButton)
                      if button.text() == browser.tr("Open selected well"))
@@ -1503,7 +1503,7 @@ def test_individual_tczyx_planes_follow_native_axis_wheels_without_borrowing_wel
     assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == identity
     assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData()) == axes
     assert dialog.view.transform() == transform
-    item = dialog.wells.item(*dialog._well_positions["B02"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B02")])
     dialog.wells.setCurrentItem(item)
     qtbot.mouseClick(open_well, browser.Qt.LeftButton)
     assert dialog._scope == ("p1", "B02")
@@ -1562,7 +1562,7 @@ def test_empty_source_preview_recovers_after_real_tiffs_are_added(tmp_path, qtbo
     assert dialog._fields == (field,)
     assert dialog.source.text() == str(source)
     assert dialog.plates.currentData() == "plate1"
-    item = dialog.wells.item(*dialog._well_positions["A01"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")])
     qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
     assert all(path.read_bytes() == before for path, before in originals.items())
 

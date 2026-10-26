@@ -140,7 +140,7 @@ def test_changing_one_channel_leaves_the_other_channels_pixels_unchanged(view):
 
 
 def test_reset_returns_the_image_to_the_plate_settings_and_hides_its_badge(view, qtbot):
-    view._well(view.wells.item(*view._well_positions["A01"]))
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")]))
     qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
     view.fields.setCurrentRow(0)
     view._field(view.fields.item(0))
@@ -245,7 +245,7 @@ def test_overrides_survive_saving_and_reopening(view, qtbot, source):
 def test_right_clicking_an_image_or_a_tile_offers_its_settings(view, qtbot, monkeypatch):
     shown = []
     monkeypatch.setattr(QMenu, "popup", lambda menu, *_: shown.append([a.text() for a in menu.actions()]))
-    view._well(view.wells.item(*view._well_positions["B02"]))
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), "B02")]))
     qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
     view.fields.setCurrentRow(0)
     view._field(view.fields.item(0))

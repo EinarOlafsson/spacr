@@ -61,11 +61,11 @@ def view(qtbot, source):
 
 def _icons(view):
     return {well for well in WELLS
-            if not view.wells.item(*view._well_positions[well]).icon().isNull()}
+            if not view.wells.item(*view._well_positions[(view.plates.currentData(), well)]).icon().isNull()}
 
 
 def _item(view, well):
-    return view.wells.item(*view._well_positions[well])
+    return view.wells.item(*view._well_positions[(view.plates.currentData(), well)])
 
 
 def test_plate_keeps_one_image_per_well_while_a_well_and_an_image_are_open(view, qtbot):

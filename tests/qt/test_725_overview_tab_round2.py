@@ -91,7 +91,7 @@ def _open(mask, qtbot, source):
 
 
 def _open_well(view, qtbot, well):
-    view._well(view.wells.item(*view._well_positions[well]))
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), well)]))
     qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=15000)
     return view._well_panels[-1]
 

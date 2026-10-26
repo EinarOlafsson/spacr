@@ -53,7 +53,7 @@ def _overview(qtbot, source, representatives=1):
 
 
 def _item(dialog, well):
-    return dialog.wells.item(*dialog._well_positions[well])
+    return dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), well)])
 
 
 def test_plate_loads_one_image_per_well_before_any_second_representative(source, qtbot, monkeypatch):
@@ -91,7 +91,7 @@ def test_plate_loads_one_image_per_well_before_any_second_representative(source,
     qtbot.waitUntil(lambda: not dialog._thumbnail_jobs.is_busy())
     dialog._update_visuals()
     for well in WELLS:
-        assert _item(dialog, well).data(Qt.UserRole + 1)[0] == (dialog._well_fields[well][0].identity,)
+        assert _item(dialog, well).data(Qt.UserRole + 1)[0] == (dialog._well_fields[(dialog.plates.currentData(), well)][0].identity,)
     qtbot.waitUntil(lambda: {well: _item(dialog, well).data(Qt.UserRole + 1) for well in WELLS} == full,
                     timeout=20000)
     assert {well for kind, well in calls if kind == "all"} == set(WELLS)

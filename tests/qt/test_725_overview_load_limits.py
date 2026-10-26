@@ -105,7 +105,7 @@ def test_two_plates_are_capped_independently_and_unloaded_wells_are_marked(view)
     assert _not_loaded(view) == ["B01"]
     item = view.wells.item(1, 0)
     assert not item.flags() & Qt.ItemIsEnabled and "not loaded" in item.toolTip()
-    assert set(view._well_positions) == {"A01", "A02"}
+    assert set(view._well_positions) == {("plateA", "A01"), ("plateA", "A02")}
     view.plates.setCurrentIndex(view.plates.findData("plateB"))
     assert _not_loaded(view) == ["A03", "B01", "B02"]
 

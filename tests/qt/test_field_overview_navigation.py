@@ -77,7 +77,7 @@ def test_real_axes_keep_well_identity_and_refuse_missing_field_borrowing(overvie
     assert [dialog.fov_axis.itemData(i) for i in range(dialog.fov_axis.count())] == [None, "1", "2", "10"]
     assert [dialog.time_axis.itemData(i) for i in range(dialog.time_axis.count())] == ["1", "2", "10"]
     plate = dialog.plates.currentData()
-    position = dialog._well_positions["B02"]
+    position = dialog._well_positions[(dialog.plates.currentData(), "B02")]
     dialog._well(dialog.wells.item(*position))
     assert dialog._scope == (plate, "B02")
     _choose(dialog.fov_axis, "10")
@@ -97,7 +97,7 @@ def test_real_axes_keep_well_identity_and_refuse_missing_field_borrowing(overvie
 
 def test_comparison_uses_explicit_source_selection_and_axis_wheel_is_not_zoom(overview, qtbot):
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     first, second = dialog.fields.item(0), dialog.fields.item(1)
     first.setSelected(True)
     second.setSelected(True)
@@ -159,7 +159,7 @@ def test_condition_tables_are_plate_qualified_and_never_modify_input(
 
 def test_full_source_export_choices_remain_independent_of_preview_cache(overview):
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     dialog.fields.setCurrentRow(0)
     field = dialog.fields.item(0).data(Qt.UserRole)
     dialog._individual = True
@@ -193,7 +193,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
 
     monkeypatch.setattr(module, "_overview_pixels", read)
     monkeypatch.setattr(dialog, "_show_pixels", show)
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
     qtbot.waitUntil(lambda: any(shape[1] == 2048 for shape, _ in shown)
@@ -263,7 +263,7 @@ def test_embedded_nonzero_axes_survive_header_discovery_and_reference_sampling(t
         assert dialog.z_axis.currentData() == 2
         expected = pixels[1, 1, 2]
         assert dialog._normalization_plan["bounds"][1] == (float(expected.min()), float(expected.max()))
-        dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+        dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
         dialog.fields.setCurrentRow(0)
         dialog._field(dialog.fields.item(0))
         qtbot.waitUntil(lambda: dialog.view._item is not None
@@ -328,7 +328,7 @@ def test_cancelled_pending_selection_does_not_start_another_decoder(overview, mo
     dialog._set_tile_size(96)
     assert math.ceil(96 * module.device_ratio(dialog)) != 256, "a thumbnail read would pass as the preview"
     monkeypatch.setattr(module, "_overview_pixels", read)
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
     try:
@@ -356,14 +356,14 @@ def test_readable_plate_cells_paint_real_native_icons_and_translucent_hover(sour
     dialog.show()
     dialog._scan()
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready, timeout=10000)
-    item = dialog.wells.item(*dialog._well_positions["A01"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")])
     qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
     while min(dialog._plate_cell_extent) < 64:
         dialog._zoom_plate(1)
     assert dialog.wells.rowHeight(0) >= 64
     assert dialog.wells.columnWidth(0) >= 64
     assert item.text() in item.toolTip()
-    assert dialog._well_representatives["A01"].caption in item.toolTip()
+    assert dialog._well_representatives[(dialog.plates.currentData(), "A01")].caption in item.toolTip()
     index = dialog.wells.indexFromItem(item)
     option = QStyleOptionViewItem()
     option.initFrom(dialog.wells)
@@ -447,7 +447,7 @@ def test_initial_whole_plate_fits_and_opening_is_separate_from_selection(source_
     assert dialog.wells.verticalScrollBar().maximum() == 0
     identities = {well: dialog.wells.item(*position).data(Qt.UserRole)
                   for well, position in dialog._well_positions.items()}
-    item = dialog.wells.item(*dialog._well_positions["A01"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")])
     dialog.wells.setCurrentItem(item)
     assert not dialog.fields.isVisible()
     dialog._open_selected_well()
@@ -511,7 +511,7 @@ def test_well_mean_context_uses_only_actual_view_representatives_and_axes(tmp_pa
     assert provenance["selection"]["representatives"] == 1
     assert provenance["selection"]["generation"] == dialog._display_generation
     assert provenance["scope_plate"] == "p2"
-    assert all(f.plate == "p2" and f.field_id == "10" for f in dialog._well_fields["A01"])
+    assert all(f.plate == "p2" and f.field_id == "10" for f in dialog._well_fields[(dialog.plates.currentData(), "A01")])
 
 
 def test_native_plate_wheel_and_enter_preserve_cursor_and_missing_field_identity(source_planes, qtbot):
@@ -551,7 +551,7 @@ def test_native_plate_wheel_and_enter_preserve_cursor_and_missing_field_identity
                              Qt.NoScrollPhase, False)
     QApplication.sendEvent(viewport, horizontal)
     assert dialog._plate_cell_extent == magnified
-    item = dialog.wells.item(*dialog._well_positions["B02"])
+    item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B02")])
     dialog.wells.setCurrentItem(item)
     dialog.wells.setFocus()
     qtbot.keyClick(dialog.wells, Qt.Key_Return)
@@ -628,7 +628,7 @@ def test_native_representative_change_relearns_well_means_without_changing_axes(
     assert provenance["selection"]["field_id"] is None
     assert provenance["selection"]["generation"] == dialog._display_generation
     reference, = provenance["reference_wells"]
-    assert reference["field_identities"] == tuple(field.identity for field in dialog._well_fields["A01"][:2])
+    assert reference["field_identities"] == tuple(field.identity for field in dialog._well_fields[(dialog.plates.currentData(), "A01")][:2])
     assert previous.provenance()["reference_means"] == {1: 226.}
     assert all(path.read_bytes() == content for path, content in originals.items())
 
@@ -655,7 +655,7 @@ def test_invalid_channel_edit_rejects_pending_normalization_then_recovers(source
     dialog._scan()
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
                     and not dialog._index_jobs.is_busy(), timeout=10000)
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     item = dialog.fields.item(0)
     qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
                     pos=dialog.fields.visualItemRect(item).center())
@@ -706,7 +706,7 @@ def test_invalid_channel_edit_rejects_pending_normalization_then_recovers(source
 
 def test_invalid_channel_edit_does_not_install_a_pending_field_image(overview, qtbot, monkeypatch):
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     entered, release = threading.Event(), threading.Event()
     actual_pixels = module._overview_pixels
 
@@ -868,7 +868,7 @@ def test_native_image_wheel_keeps_anchor_and_requests_real_progressive_detail(ov
     from PySide6.QtWidgets import QApplication
 
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     item = dialog.fields.item(0)
     qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
                     pos=dialog.fields.visualItemRect(item).center())
@@ -929,7 +929,7 @@ def test_native_image_wheel_keeps_anchor_and_requests_real_progressive_detail(ov
 def test_finer_preview_preserves_source_camera_and_ignores_deselected_native_target(overview, qtbot):
     from PySide6.QtCore import QPointF
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     dialog.fields.setCurrentRow(0)
     qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
     field = dialog.fields.currentItem().data(Qt.UserRole)

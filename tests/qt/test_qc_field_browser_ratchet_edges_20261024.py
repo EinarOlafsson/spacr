@@ -122,7 +122,7 @@ def overview(qtbot, source_planes):
 def test_native_crop_is_not_requested_for_a_field_without_a_recorded_shape(
         overview, qtbot):
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     dialog.fields.setCurrentRow(0)
     qtbot.waitUntil(lambda: dialog.view._item is not None
                     and not dialog._image_jobs.is_busy())
@@ -138,7 +138,7 @@ def test_native_crop_is_not_requested_for_a_field_without_a_recorded_shape(
 
 def test_a_comparison_that_lost_ownership_is_not_shown(overview, qtbot):
     dialog = overview
-    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
     qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
                     and not dialog._thumbnail_jobs.is_busy()
                     and not dialog._field_thumbnail_jobs.is_busy()

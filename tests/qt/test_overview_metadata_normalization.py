@@ -936,7 +936,7 @@ def test_actual_export_button_forks_well_mean_generation_and_preserves_raw_data(
         assert dialog._normalization_plan["reference_means"] == {1: 7., 2: 14.}
         dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("selection"))
         dialog.wells.clearSelection()
-        dialog.wells.item(*dialog._well_positions["C02"]).setSelected(True)
+        dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "C02")]).setSelected(True)
         dialog.measurements.setChecked(True)
         dialog.pdf_dpi.setCurrentIndex(dialog.pdf_dpi.findData(150))
         old_context, old_cancelled = dialog._normalization_context, dialog._cancelled
@@ -1083,7 +1083,7 @@ def test_export_waits_for_real_channel_relearning_before_asking_for_destination(
         assert dialog._normalization_plan["reference_means"] == {1: 2., 2: 4.}
         dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("selection"))
         dialog.wells.clearSelection()
-        dialog.wells.item(*dialog._well_positions["B02"]).setSelected(True)
+        dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B02")]).setSelected(True)
         dialog.measurements.setChecked(True)
         dialog._controls_scroll.ensureWidgetVisible(export)
         qtbot.mouseClick(export, browser.Qt.LeftButton)
@@ -1195,7 +1195,7 @@ def test_condition_annotations_roundtrip_relearns_reference_and_representatives_
         qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
         dialog.annotation_scope.setCurrentIndex(dialog.annotation_scope.findData("wells"))
         dialog.wells.clearSelection()
-        dialog.wells.item(*dialog._well_positions["B01"]).setSelected(True)
+        dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B01")]).setSelected(True)
         dialog.annotation_text.setText("control")
         click("Apply annotation")
         qtbot.waitUntil(lambda: ready(6.), timeout=10000)
@@ -1213,7 +1213,7 @@ def test_condition_annotations_roundtrip_relearns_reference_and_representatives_
         tabular.write_table(pd.DataFrame([browser._overview_measurement(field, (1,), conditions=saved_conditions)
                                          for field in dialog._fields]), baseline, canonicalise=False)
         dialog.wells.clearSelection()
-        dialog.wells.item(*dialog._well_positions["B01"]).setSelected(True)
+        dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B01")]).setSelected(True)
         dialog.annotation_text.clear()
         click("Apply annotation")
         qtbot.waitUntil(lambda: ready(2.), timeout=10000)
@@ -1284,7 +1284,7 @@ def test_accepting_a_new_source_wizard_disposes_retained_browser_and_loads_only_
         qtbot.waitUntil(first_wizard.next.isEnabled, timeout=10000)
         qtbot.mouseClick(first_wizard.next, browser.Qt.LeftButton)
         previous = owner._field_overview
-        qtbot.waitUntil(lambda: previous._normalization_ready and "A01" in previous._installed_thumbnails,
+        qtbot.waitUntil(lambda: previous._normalization_ready and (previous.plates.currentData(), "A01") in previous._installed_thumbnails,
                         timeout=10000)
         previous_runners = runners(previous)
         qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in previous_runners), timeout=10000)
@@ -1302,7 +1302,7 @@ def test_accepting_a_new_source_wizard_disposes_retained_browser_and_loads_only_
         qtbot.mouseClick(second_wizard.next, browser.Qt.LeftButton)
         current = owner._field_overview
         assert current is not previous
-        qtbot.waitUntil(lambda: current._normalization_ready and "B02" in current._installed_thumbnails,
+        qtbot.waitUntil(lambda: current._normalization_ready and (current.plates.currentData(), "B02") in current._installed_thumbnails,
                         timeout=10000)
         QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
         qtbot.waitUntil(lambda: not isValid(previous), timeout=10000)
@@ -1313,8 +1313,8 @@ def test_accepting_a_new_source_wizard_disposes_retained_browser_and_loads_only_
         field, = current._fields
         assert (field.plate, field.well, field.field_id, field.files) == (
             "p2", "B02", "2", (("1", str(second_path)),))
-        assert field.identity != previous_identity and set(current._well_positions) == {"B02"}
-        item = current.wells.item(*current._well_positions["B02"])
+        assert field.identity != previous_identity and set(current._well_positions) == {("p2", "B02")}
+        item = current.wells.item(*current._well_positions[(current.plates.currentData(), "B02")])
         cached = current._thumbnail_cache[item.data(browser.Qt.UserRole + 1)]
         expected = np.repeat(np.uint8(second_pixels / 10. * 255)[..., None], 3, axis=2)
         np.testing.assert_array_equal(cached, expected)
@@ -1402,13 +1402,13 @@ def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on
         qtbot.waitUntil(lambda: len(dialog._fields) == 3 and dialog._normalization_ready
                         and not dialog._index_jobs.is_busy(), timeout=10000)
         old_context, old_token = dialog._normalization_context, dialog._cancelled
-        qtbot.waitUntil(lambda: {"A01", "B02"} <= dialog._installed_thumbnails
+        qtbot.waitUntil(lambda: {(dialog.plates.currentData(), "A01"), (dialog.plates.currentData(), "B02")} <= dialog._installed_thumbnails
                         and not dialog._thumbnail_jobs.active_jobs()
                         and not dialog._thumbnail_installs, timeout=10000)
         cancelled_results.clear()
         browser._OVERVIEW_PLANE_CACHE.clear()
         qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
-        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions["A01"]))
+        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")]))
         armed.set()
         click("Open selected well")
         qtbot.waitUntil(decoded.is_set, timeout=10000)
@@ -1429,7 +1429,7 @@ def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on
                         and dialog._normalization_context is not old_context
                         and not dialog._index_jobs.is_busy(), timeout=10000)
         assert old_token.is_set() and dialog._cancelled is not old_token
-        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions["B02"]))
+        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "B02")]))
         click("Open selected well")
         qtbot.waitUntil(lambda: dialog._displayed_montage == dialog._visual_context()
                         and dialog.view._item is not None and not dialog._montage_jobs.is_busy(),

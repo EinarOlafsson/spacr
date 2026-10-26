@@ -64,7 +64,7 @@ def view(qtbot, source):
 
 
 def _item(view, well):
-    return view.wells.item(*view._well_positions[well])
+    return view.wells.item(*view._well_positions[(view.plates.currentData(), well)])
 
 
 def _columns(view):

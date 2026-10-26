@@ -73,7 +73,7 @@ def test_column_and_selected_well_annotations_can_be_removed_without_touching_ot
             _choose(dialog.columns, 2)
         else:
             for well in expected:
-                dialog.wells.item(*dialog._well_positions[well]).setSelected(True)
+                dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), well)]).setSelected(True)
 
     select()
     dialog.annotation_text.setText(' Drug A ')
@@ -81,7 +81,7 @@ def test_column_and_selected_well_annotations_can_be_removed_without_touching_ot
     assert dialog._conditions == {(other, 'A01'): 'other plate',
                                   **{(plate, well): 'Drug A' for well in expected}}
     for well in expected:
-        assert 'Drug A' in dialog.wells.item(*dialog._well_positions[well]).toolTip()
+        assert 'Drug A' in dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), well)]).toolTip()
     select()
     dialog.annotation_text.setText('   ')
     _click(dialog, 'Apply annotation')

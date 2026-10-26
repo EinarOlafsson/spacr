@@ -1600,7 +1600,7 @@ def test_nearest_nested_well_and_explicit_channel_named_files_keep_source_identi
 
 def test_late_thumbnail_for_filtered_well_never_replaces_visible_well(tmp_path, qtbot):
     dialog = _browser(tmp_path, qtbot)
-    old_well = "A01"
+    old_well = (dialog.plates.currentData(), "A01")
     key = ("detached old thumbnail",)
     pixels = np.full((4, 4, 3), 255, np.uint8)
     dialog.rows.setCurrentIndex(dialog.rows.findData("2"))
@@ -2244,7 +2244,7 @@ def test_preview_resolution_caps_plate_reads_and_progressive_field_pixels(tmp_pa
     monkeypatch.setattr(browser, "_overview_pixels", pixels)
     dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(128))
     dialog.show()
-    qtbot.waitUntil(lambda: "A01" in dialog._installed_thumbnails and not dialog._thumbnail_jobs.is_busy())
+    qtbot.waitUntil(lambda: (dialog.plates.currentData(), "A01") in dialog._installed_thumbnails and not dialog._thumbnail_jobs.is_busy())
     assert calls and all(edge <= 128 for edge in calls)
     dialog._well(dialog.wells.item(0, 0))
     qtbot.waitUntil(lambda: dialog._displayed_montage is not None)
@@ -2379,7 +2379,7 @@ def test_visible_thumbnail_batches_bound_handoffs_and_keep_per_well_errors(tmp_p
     assert all(not dialog.wells.item(row, column).icon().isNull()
         for row in range(4) for column in range(6) if (row, column) != (0, 0))
     for field in fields:
-        key = dialog.wells.item(*dialog._well_positions[field.well]).data(browser.Qt.UserRole + 1)
+        key = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), field.well)]).data(browser.Qt.UserRole + 1)
         pixels = dialog._thumbnail_cache[key]
         if field.well != "A01":
             np.testing.assert_array_equal(pixels, browser._overview_pixels(field, (0,), (1., 99.9), edge=key[4]))

@@ -730,7 +730,7 @@ def test_unreadable_field_tiles_keep_neighbors_renderable_and_recover_after_relo
 
     def open_well():
         """Use the physical well cell to expose its actual indexed field list."""
-        well = dialog.wells.item(*dialog._well_positions["A01"])
+        well = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), "A01")])
         qtbot.mouseClick(dialog.wells.viewport(), Qt.LeftButton,
                          pos=dialog.wells.visualItemRect(well).center())
         assert dialog._scope == ("p1", "A01")

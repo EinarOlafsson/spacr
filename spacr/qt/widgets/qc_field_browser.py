@@ -30,6 +30,7 @@ import numpy as np
 from PySide6.QtCore import QEvent, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
+    QBoxLayout,
     QCheckBox,
     QStyle,
     QStyleOptionViewItem,
@@ -1563,6 +1564,10 @@ def _overview_key_text(key):
 
 _OVERVIEW_VIEW_STATE_VERSION = 1
 
+_OVERVIEW_PLATES_VIEWS = (("single", "Single"), ("side", "Side by side"), ("stacked", "Stacked"))
+_OVERVIEW_PLATES_VIEW_TOOLTIP = ("Show one plate at a time, or the shown plates at once, side by side or "
+                                 "stacked; each keeps its own name, selection and collapsed rows and columns.")
+
 
 def _overview_view_state_path(source):
     """Where the Overview's view state for ``source`` is saved."""
@@ -1581,8 +1586,12 @@ def _overview_empty_view_state():
     ``visible`` (see :func:`_overview_override_plane`). ``sources`` are the
     paths the Overview was given, so reopening the first one brings back every
     plate, and ``options`` holds ``use_subfolders`` and ``excluded_plates``.
+    ``view`` holds the Plates view, ``{"plates_view": "single" | "side" |
+    "stacked", "shown_plates": [...]}``, the shown plates as plate-key texts
+    and empty for every plate.
     """
-    return {"version": _OVERVIEW_VIEW_STATE_VERSION, "sources": [], "plates": {}, "images": {}, "options": {}}
+    return {"version": _OVERVIEW_VIEW_STATE_VERSION, "sources": [], "plates": {}, "images": {}, "options": {},
+            "view": {}}
 
 
 def _overview_load_view_state(source):
@@ -1604,7 +1613,7 @@ def _overview_load_view_state(source):
         return state
     if not isinstance(loaded, dict) or int(loaded.get("version") or 0) > _OVERVIEW_VIEW_STATE_VERSION:
         return state
-    for name in ("plates", "images", "options"):
+    for name in ("plates", "images", "options", "view"):
         if isinstance(loaded.get(name), dict):
             state[name] = loaded[name]
     if isinstance(loaded.get("sources"), list):
@@ -5450,7 +5459,6 @@ class _FieldOverview(QWidget):
         self._view_state_writing = False
         self._main_view_field = None
         self._displayed_field = None
-        self._readout_viewports = {}
         self._well_viewport = None
         self._readout_pending = None
         self._readout_planes = None
@@ -5563,41 +5571,27 @@ class _FieldOverview(QWidget):
         self._plate_back_button, self._open_well_button = back, open_well
         self._navigation_layout = navigation
         column.addLayout(navigation)
-        from PySide6.QtCore import QSize
-        self.wells = QTableWidget()
-        self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.wells.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.wells.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.wells.horizontalHeader().setMinimumSectionSize(1)
-        self.wells.verticalHeader().setMinimumSectionSize(1)
-        self.wells.setItemDelegate(_OverviewPlateDelegate(self.wells))
-        self.wells.setMouseTracking(True)
-        self.wells.viewport().setMouseTracking(True)
-        self.wells.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.wells.customContextMenuRequested.connect(self._well_menu)
-        for axis, header in (("row", self.wells.verticalHeader()), ("column", self.wells.horizontalHeader())):
-            header.setContextMenuPolicy(Qt.CustomContextMenu)
-            header.customContextMenuRequested.connect(functools.partial(self._header_menu, axis))
-            header.sectionDoubleClicked.connect(functools.partial(self._toggle_line, axis))
+        self._plates_view = "single"
+        self._plates_subset = None
+        self._plate_tables = {}
+        self._plate_blocks = {}
+        self._plate_extents = {}
+        self._readout_viewports = {}
+        self._plates_host = QWidget()
+        self._plates_host.setObjectName("FieldOverviewPlates")
+        self._plates_layout = QBoxLayout(QBoxLayout.TopToBottom, self._plates_host)
+        self._plates_layout.setContentsMargins(0, 0, 0, 0)
+        self._plates_layout.setSpacing(6)
+        self.wells = self._new_plate_table()
         self.fields = self._new_field_list()
         self._well_viewport = self.wells.viewport()
-        self._well_viewport.installEventFilter(self)
-        self.wells.installEventFilter(self)
-        self.wells.horizontalScrollBar().valueChanged.connect(self._request_visuals)
-        self.wells.verticalScrollBar().valueChanged.connect(self._request_visuals)
-        self.wells.setIconSize(QSize(160, 120))
-        follow_device_ratio(self.wells.viewport(), self._request_visuals)
-        self.wells.itemDoubleClicked.connect(self._well)
-        self.wells.itemClicked.connect(self._clicked_well)
-        self.wells.itemSelectionChanged.connect(self._remember_wells)
-        self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
         from PySide6.QtWidgets import QSplitter
         from .ai_toggle_label import AiToggleLabel
         from ..theme import ensure_widget_qss_applied, register_widget_qss
 
         register_widget_qss("FieldOverviewPanel", _overview_panel_qss, replace=True)
         self._plate_panel = _OverviewPanel(tr("Plate"))
-        self._plate_panel.body_layout.addWidget(self.wells)
+        self._plate_panel.body_layout.addWidget(self._plates_host)
         self._levels = QSplitter(Qt.Vertical)
         self._levels.setChildrenCollapsible(False)
         self._levels.addWidget(self._plate_panel)
@@ -5829,6 +5823,24 @@ class _FieldOverview(QWidget):
             button.clicked.connect(handler)
             paging.addWidget(button)
             self._plate_buttons.append(button)
+        from PySide6.QtWidgets import QMenu
+
+        self.plates_view = QComboBox()
+        self.plates_view.setObjectName("FieldOverviewPlatesView")
+        for value, caption in _OVERVIEW_PLATES_VIEWS:
+            self.plates_view.addItem(tr(caption), value)
+        self.plates_view.setToolTip(tr(_OVERVIEW_PLATES_VIEW_TOOLTIP))
+        self.plates_view.setAccessibleName(tr("Plates view"))
+        self.plates_view.currentIndexChanged.connect(self._plates_view_chosen)
+        shown_plates = QPushButton(tr("Shown plates…"))
+        shown_plates.setObjectName("FieldOverviewShownPlates")
+        shown_plates.setToolTip(tr("Choose which loaded plates Side by side and Stacked show."))
+        self._shown_plates_menu = QMenu(shown_plates)
+        self._shown_plates_menu.aboutToShow.connect(self._fill_shown_plates_menu)
+        shown_plates.setMenu(self._shown_plates_menu)
+        self._plates_view_controls = (self.plates_view, shown_plates)
+        for widget in self._plates_view_controls:
+            paging.addWidget(widget)
         column.addLayout(paging)
         sample_row = QHBoxLayout()
         for widget in (self.grouping, QLabel(tr("Samples per group")), self.count,
@@ -6008,6 +6020,9 @@ class _FieldOverview(QWidget):
         if self._readout_pending is None or self._cancelled.is_set():
             return
         owner, position = self._readout_pending
+        if owner in self._plate_blocks:
+            self._pixel_readout.setText(self._plate_hover_text(owner, position))
+            return
         target = self._readout_target(owner, position)
         if target is None:
             self._pixel_readout.clear()
@@ -6044,6 +6059,27 @@ class _FieldOverview(QWidget):
             name = names.get(channel, names.get(str(channel), "")) or tr("Channel {channel}", channel=channel)
             values.append(f"{name}: {_overview_raw_value(plane[y, x])}")
         self._pixel_readout.setText("   ·   ".join((tr("x {x}, y {y}", x=x, y=y), place, *values)))
+
+    def _plate_hover_text(self, table, position):
+        """Name the plate, well and shown image under the cursor on a plate table.
+
+        :param table: the hovered plate table.
+        :param position: the cursor in its viewport.
+        :returns: the readout text, or ``""`` off every well.
+        """
+        plate = getattr(table, "_overview_plate", None)
+        item = table.itemAt(position.toPoint())
+        if plate is None or item is None:
+            return ""
+        index = self.plates.findData(plate)
+        parts = [tr("Plate {plate}", plate=self.plates.itemText(index) if index >= 0 else plate)]
+        well = item.data(Qt.UserRole)
+        if well is not None:
+            parts.append(tr("Well {well}", well=well or tr("Unresolved")))
+            field = self._well_representatives.get((plate, well))
+            if field is not None:
+                parts.append(tr("Image {image}", image=field.field))
+        return "   ·   ".join(parts)
 
     def _load_readout_planes(self, field, key, axes):
         """Read every channel of ``field`` at original resolution for the readout, once.
@@ -6267,13 +6303,6 @@ class _FieldOverview(QWidget):
         if scroll.property("minimumHeight") != rows:
             _set_actual_dim(scroll, "minh", rows)
             _set_actual_dim(scroll, "maxh", rows)
-        gaps = [self.wells.rowHeight(index) - self.wells.visualItemRect(item).height()
-                for index in range(self.wells.rowCount())
-                if (item := self.wells.item(index, 0)) is not None]
-        gap = max(gaps, default=int(self.wells.showGrid()))
-        plate = (22 + gap) * max(1, self.wells.rowCount()) + 2 * self.wells.frameWidth()
-        if self.wells.horizontalHeader().isVisible():
-            plate += self.wells.horizontalHeader().property("size").height()
         available = self.window().property("size").height()
         ancestor = self.parentWidget()
         viewports = []
@@ -6292,12 +6321,22 @@ class _FieldOverview(QWidget):
         if not viewports:
             available = min(available, self.property("size").height())
         budget = max(0, available)
-        plate = min(plate, budget)
-        if self.wells.property("minimumHeight") != plate:
-            _set_actual_dim(self.wells, "minh", plate)
-        maximum = budget if viewports else 16777215
-        if self.wells.property("maximumHeight") != maximum:
-            _set_actual_dim(self.wells, "maxh", maximum)
+        tables = self._plate_table_list()
+        share = budget // len(tables) if self._plates_view == "stacked" else budget
+        for table in tables:
+            gaps = [table.rowHeight(index) - table.visualItemRect(item).height()
+                    for index in range(table.rowCount())
+                    if (item := table.item(index, 0)) is not None]
+            gap = max(gaps, default=int(table.showGrid()))
+            plate = (22 + gap) * max(1, table.rowCount()) + 2 * table.frameWidth()
+            if table.horizontalHeader().isVisible():
+                plate += table.horizontalHeader().property("size").height()
+            plate = min(plate, share)
+            if table.property("minimumHeight") != plate:
+                _set_actual_dim(table, "minh", plate)
+            maximum = share if viewports else 16777215
+            if table.property("maximumHeight") != maximum:
+                _set_actual_dim(table, "maxh", maximum)
         floor = self._allocation_minimum_baseline
         if viewports:
             body_layout = self.layout()
@@ -6641,6 +6680,9 @@ class _FieldOverview(QWidget):
                             "excluded_plates": list(self._overview_options.get("excluded_plates") or ()),
                             "max_wells_per_plate": self._load_limits[0],
                             "max_fields_per_well": self._load_limits[1]}
+        state["view"] = {"plates_view": self._plates_view,
+                         "shown_plates": [_overview_key_text(self._plate_key(plate))
+                                          for plate in self._plates_subset or ()]}
         self._view_state = state
         self._view_state_pending = (self._metadata_source, state)
         if not self._view_state_writing:
@@ -6695,20 +6737,284 @@ class _FieldOverview(QWidget):
                 continue
         if overrides:
             self._set_display_layers(image_overrides=overrides)
+        view = state.get("view") or {}
+        if view.get("plates_view") in {value for value, _caption in _OVERVIEW_PLATES_VIEWS}:
+            plates = {_overview_key_text(self._plate_key(plate)): plate for plate in {field.plate for field in fields}}
+            subset = [plates[text] for text in view.get("shown_plates") or () if text in plates]
+            restored = not self._set_plates_view(view["plates_view"], subset, persist=False) and restored
         if restored and self._plate_cell_extent is not None:
             self._relayout_collapsed()
 
     def _sync_plate_buttons(self):
-        """Offer stepping between and removing plates only while several are loaded."""
+        """Offer stepping between, removing and showing several plates only while several are loaded."""
         several = self.plates.count() > 1
         previous, following, _add, remove = self._plate_buttons
-        for button in (previous, following, remove):
+        for button in (previous, following, remove, *self._plates_view_controls):
             button.setEnabled(several)
 
+    def _new_plate_table(self):
+        """Create one plate's well table in its own block, under a header naming the plate.
+
+        Every table shares the browser's selection, menus, collapse, hover
+        readout and lazy thumbnails; its ``_overview_plate`` names the plate
+        it shows.
+
+        :returns: the table.
+        """
+        from PySide6.QtCore import QSize
+        from PySide6.QtWidgets import QAbstractItemView, QTableWidget
+
+        table = QTableWidget()
+        table._overview_plate = None
+        table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        table.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        table.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        table.horizontalHeader().setMinimumSectionSize(1)
+        table.verticalHeader().setMinimumSectionSize(1)
+        table.setItemDelegate(_OverviewPlateDelegate(table))
+        table.setMouseTracking(True)
+        table.viewport().setMouseTracking(True)
+        table.setContextMenuPolicy(Qt.CustomContextMenu)
+        table.customContextMenuRequested.connect(functools.partial(self._plate_table_menu, table))
+        for axis, header in (("row", table.verticalHeader()), ("column", table.horizontalHeader())):
+            header.setContextMenuPolicy(Qt.CustomContextMenu)
+            header.customContextMenuRequested.connect(functools.partial(self._plate_header_menu, table, axis))
+            header.sectionDoubleClicked.connect(functools.partial(self._plate_toggle_line, table, axis))
+        table.viewport().installEventFilter(self)
+        table.installEventFilter(self)
+        table.horizontalScrollBar().valueChanged.connect(self._request_visuals)
+        table.verticalScrollBar().valueChanged.connect(self._request_visuals)
+        table.setIconSize(QSize(160, 120))
+        follow_device_ratio(table.viewport(), self._request_visuals)
+        table.itemDoubleClicked.connect(self._well)
+        table.itemClicked.connect(self._clicked_well)
+        table.itemSelectionChanged.connect(self._remember_wells)
+        table.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
+        self._track_readout(table.viewport(), table)
+        block = QWidget()
+        block.setObjectName("FieldOverviewPlateBlock")
+        layout = QVBoxLayout(block)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+        header = QLabel()
+        header.setObjectName("FieldOverviewPlateHeader")
+        header.hide()
+        layout.addWidget(header)
+        layout.addWidget(table, 1)
+        self._plate_blocks[table] = (block, header)
+        self._plates_layout.addWidget(block, 1)
+        return table
+
+    def _plate_table_list(self):
+        """The shown plates' tables, in plate order; :attr:`wells` alone before a plate is shown."""
+        tables = tuple(getattr(self, "_plate_tables", {}).values())
+        if tables or getattr(self, "wells", None) is None:
+            return tables
+        return (self.wells,)
+
+    def _shown_plates(self):
+        """The plates the plate level shows: the current one, or every chosen plate at once.
+
+        :returns: session plate names in plate order; Side by side and
+            Stacked show the chosen subset, or every loaded plate.
+        """
+        loaded = [self.plates.itemData(index) for index in range(self.plates.count())]
+        current = self.plates.currentData()
+        if self._plates_view == "single" or not loaded:
+            return (current,) if current is not None else ()
+        chosen = [plate for plate in loaded if self._plates_subset is None or plate in self._plates_subset]
+        return tuple(chosen or loaded)
+
+    def _sync_plate_tables(self):
+        """Give every shown plate a table, in plate order, and hide the rest.
+
+        The current plate's table is :attr:`wells`; in Single mode it is
+        always the same table, as before. A current plate outside the shown
+        ones gives way to the first shown plate.
+        """
+        shown = self._shown_plates()
+        current = self.plates.currentData()
+        if shown and current not in shown:
+            current = shown[0]
+            self.plates.blockSignals(True)
+            self.plates.setCurrentIndex(self.plates.findData(current))
+            self.plates.blockSignals(False)
+        previous = self._plate_tables
+        tables = {plate: previous[plate] for plate in shown if plate in previous}
+        free = [table for table in self._plate_blocks
+                if table not in tables.values() and (shown or table is not self.wells)]
+        for plate in sorted(shown, key=lambda name: name != current):
+            if plate in tables:
+                continue
+            table = self.wells if self.wells in free else (free[0] if free else self._new_plate_table())
+            if table in free:
+                free.remove(table)
+            tables[plate] = table
+        self._plate_tables = {plate: tables[plate] for plate in shown}
+        for table in free:
+            self._clear_plate_table(table)
+            table._overview_plate = None
+            self._plate_extents.pop(table, None)
+            self._plate_blocks[table][0].hide()
+        self._plates_layout.setDirection(QBoxLayout.LeftToRight if self._plates_view == "side"
+                                         else QBoxLayout.TopToBottom)
+        for index, table in enumerate(self._plate_tables.values()):
+            block = self._plate_blocks[table][0]
+            self._plates_layout.removeWidget(block)
+            self._plates_layout.insertWidget(index, block, 1)
+            block.show()
+        if current in self._plate_tables:
+            self.wells = self._plate_tables[current]
+            self._well_viewport = self.wells.viewport()
+        self._label_plate_blocks()
+
+    def _clear_plate_table(self, table):
+        """Empty one plate table without signalling a selection change."""
+        table.blockSignals(True)
+        table.clear()
+        table.setRowCount(0)
+        table.setColumnCount(0)
+        table.blockSignals(False)
+
+    def _label_plate_blocks(self):
+        """Name each shown plate above its table; the current plate's name is bold.
+
+        Single mode shows no plate header, as before.
+        """
+        names = {self.plates.itemData(index): self.plates.itemText(index) for index in range(self.plates.count())}
+        several = self._plates_view != "single"
+        for table, (_block, header) in self._plate_blocks.items():
+            plate = getattr(table, "_overview_plate", None)
+            header.setVisible(several and plate is not None and table in self._plate_tables.values())
+            if plate is None:
+                continue
+            header.setText(tr("Plate {plate}", plate=names.get(plate, plate)))
+            font = header.font()
+            font.setBold(table is self.wells)
+            header.setFont(font)
+
+    def _focus_plate_table(self, table):
+        """Make the plate ``table`` shows the current plate, without rebuilding any table.
+
+        Its menus, collapse and well opening then act on that plate. Wells
+        open from another plate close, as when another plate is chosen.
+
+        :param table: a shown plate table.
+        :returns: whether the current plate changed.
+        """
+        plate = getattr(table, "_overview_plate", None)
+        if table is self.wells or plate is None or self._plate_tables.get(plate) is not table:
+            return False
+        self.wells, self._well_viewport = table, table.viewport()
+        self.plates.blockSignals(True)
+        self.plates.setCurrentIndex(self.plates.findData(plate))
+        self.plates.blockSignals(False)
+        if self._scope[0] != plate:
+            for panel in tuple(self._well_panels):
+                self._close_well_panel(panel, refresh=False)
+            self.fields = self._well_panel.field_list
+            self._scope = (plate, None)
+            self._visible = tuple(getattr(self, "_plate_available", {}).get(plate, ()))
+            self._page = 0
+        self._plate_cell_extent = self._plate_extents.get(table, self._plate_cell_extent)
+        self._label_plate_blocks()
+        return True
+
+    def _plate_table_menu(self, table, position):
+        """Make ``table``'s plate current, then offer :meth:`_well_menu`."""
+        self._focus_plate_table(table)
+        return self._well_menu(position)
+
+    def _plate_header_menu(self, table, axis, position):
+        """Make ``table``'s plate current, then offer :meth:`_header_menu`."""
+        self._focus_plate_table(table)
+        return self._header_menu(axis, position)
+
+    def _plate_toggle_line(self, table, axis, index):
+        """Make ``table``'s plate current, then collapse or show one of its lines."""
+        self._focus_plate_table(table)
+        self._toggle_line(axis, index)
+
+    def _plates_view_chosen(self, *_):
+        """Follow the Plates view choice; see :meth:`_set_plates_view`."""
+        self._set_plates_view(self.plates_view.currentData())
+
+    def _set_plates_view(self, mode=None, plates=None, persist=True):
+        """Show one plate, or several plates at once side by side or stacked.
+
+        :param mode: ``"single"``, ``"side"`` or ``"stacked"``; ``None`` keeps the mode.
+        :param plates: session names of the plates Side by side and Stacked
+            show, ``()`` for every plate, or ``None`` to keep the choice.
+        :param persist: save the choice to ``overview_view.json``.
+        :returns: whether the view changed.
+        """
+        modes = tuple(value for value, _caption in _OVERVIEW_PLATES_VIEWS)
+        mode = self._plates_view if mode not in modes else mode
+        before = (self._plates_view, self._plates_subset)
+        if plates is not None:
+            self._plates_subset = tuple(dict.fromkeys(str(plate) for plate in plates)) or None
+        self._plates_view = mode
+        changed = (self._plates_view, self._plates_subset) != before
+        index = self.plates_view.findData(mode)
+        if index != self.plates_view.currentIndex():
+            self.plates_view.blockSignals(True)
+            self.plates_view.setCurrentIndex(index)
+            self.plates_view.blockSignals(False)
+        if not changed:
+            return False
+        self._plate_fit = True
+        self._plate_cell_extent = None
+        if self._fields:
+            self._filter()
+        else:
+            self._sync_plate_tables()
+        if persist:
+            self._persist_view_state()
+        return True
+
+    def _fill_shown_plates_menu(self):
+        """List every loaded plate as a tick in the Shown plates menu, with All plates first."""
+        menu = self._shown_plates_menu
+        menu.clear()
+        every = menu.addAction(tr("All plates"))
+        every.setCheckable(True)
+        every.setChecked(self._plates_subset is None)
+        every.triggered.connect(self._show_every_plate)
+        menu.addSeparator()
+        for index in range(self.plates.count()):
+            plate = self.plates.itemData(index)
+            action = menu.addAction(self.plates.itemText(index))
+            action.setCheckable(True)
+            action.setChecked(self._plates_subset is None or plate in self._plates_subset)
+            action.toggled.connect(functools.partial(self._toggle_shown_plate, plate))
+        return menu
+
+    def _show_every_plate(self, *_):
+        """Show every loaded plate in Side by side and Stacked."""
+        self._set_plates_view(None, ())
+
+    def _toggle_shown_plate(self, plate, shown):
+        """Add ``plate`` to the shown plates or take it out; at least one plate stays shown."""
+        loaded = [self.plates.itemData(index) for index in range(self.plates.count())]
+        chosen = [name for name in loaded if self._plates_subset is None or name in self._plates_subset]
+        if shown and plate not in chosen:
+            chosen.append(plate)
+        elif not shown and plate in chosen and len(chosen) > 1:
+            chosen.remove(plate)
+        chosen = [name for name in loaded if name in chosen]
+        self._set_plates_view(None, () if len(chosen) == len(loaded) else chosen)
+
     def _step_plate(self, delta, *_):
-        """Show the next (``delta`` 1) or previous (-1) loaded plate, wrapping around."""
+        """Show the next (``delta`` 1) or previous (-1) loaded plate, wrapping around.
+
+        Side by side and Stacked step between the shown plates.
+        """
         count = self.plates.count()
-        if count > 1:
+        shown = self._shown_plates()
+        if self._plates_view != "single" and len(shown) > 1:
+            index = shown.index(self.plates.currentData()) if self.plates.currentData() in shown else 0
+            self.plates.setCurrentIndex(self.plates.findData(shown[(index + int(delta)) % len(shown)]))
+        elif count > 1:
             self.plates.setCurrentIndex((self.plates.currentIndex() + int(delta)) % count)
 
     def _choose_plates(self, *_):
@@ -6801,6 +7107,8 @@ class _FieldOverview(QWidget):
             self._selected_fields.pop(identity, None)
             self._selected_field_options.pop(identity, None)
         self._collapsed.pop(plate, None)
+        if self._plates_subset is not None:
+            self._plates_subset = tuple(name for name in self._plates_subset if name != plate) or None
         folders = {os.path.realpath(field.source) for field in removed if field.source}
         given = _overview_source_paths(self.source.text())
         kept = [path for path in given if os.path.realpath(path) not in folders]
@@ -6950,14 +7258,14 @@ class _FieldOverview(QWidget):
             return
         fields = []
         for panel in self._well_panels:
-            well = panel.field_list._overview_well
-            candidates = getattr(self, "_well_fields", {}).get(well) or ()
-            representative = self._well_representatives.get(well)
+            address = (self._scope[0], panel.field_list._overview_well)
+            candidates = getattr(self, "_well_fields", {}).get(address) or ()
+            representative = self._well_representatives.get(address)
             chosen = representative if representative is not None else (candidates[0] if candidates else None)
             if chosen is not None:
                 fields.append(chosen)
-        shown = {panel.field.well for panel in self._image_views}
-        fresh = [field for field in fields if field.well not in shown]
+        shown = {(panel.field.plate, panel.field.well) for panel in self._image_views}
+        fresh = [field for field in fields if (field.plate, field.well) not in shown]
         if fresh:
             self._open_image_views(fresh)
 
@@ -6990,7 +7298,7 @@ class _FieldOverview(QWidget):
         self.fields = fields
         self._scope = (self.plates.currentData(), fields._overview_well)
         self._page = fields._overview_page
-        self._visible = tuple(self._well_fields.get(fields._overview_well, ()))
+        self._visible = tuple(self._well_fields.get((self._scope[0], fields._overview_well), ()))
         self._individual = False
         self._comparison_signature = None
         self._displayed_montage = None
@@ -7313,7 +7621,8 @@ class _FieldOverview(QWidget):
         if item is not None and item.data(_OVERVIEW_NOT_LOADED_ROLE):
             item = None
         if item is not None and not item.isSelected():
-            self.wells.clearSelection()
+            for table in self._plate_table_list():
+                table.clearSelection()
             item.setSelected(True)
         from ...schema import letters_from_row_index
 
@@ -7323,7 +7632,7 @@ class _FieldOverview(QWidget):
         action.triggered.connect(self._annotate_selected_wells)
         plate = self.plates.currentData()
         on_plate = tuple(field for field in self._fields if field.plate == plate and not field.unresolved)
-        clicked = self._well_representatives.get(item.data(Qt.UserRole)) if item is not None else None
+        clicked = self._well_representatives.get((plate, item.data(Qt.UserRole))) if item is not None else None
         if clicked is not None and not clicked.unresolved:
             row = tuple(sorted({(plate, field.well) for field in on_plate if field.row == clicked.row}))
             column = tuple(sorted({(plate, field.well) for field in on_plate if field.column == clicked.column}))
@@ -8225,24 +8534,24 @@ class _FieldOverview(QWidget):
         self._metadata_jobs.submit(read, loaded)
 
     def _remember_wells(self):
-        """Retain plate-qualified selections and each plate's acquisition context."""
-        plate = self.plates.currentData()
-        for well in self._well_positions:
-            self._selected_wells.discard((plate, well))
-            self._selected_well_axes.pop((plate, well), None)
-            self._selected_well_options.pop((plate, well), None)
-        for item in self.wells.selectedItems():
-            address = plate, item.data(Qt.UserRole)
-            self._selected_wells.add(address)
-            self._selected_well_axes[address] = (self.time_axis.currentData(), self.z_axis.currentData())
-            self._selected_well_options[address] = self._axis_options()
+        """Retain plate-qualified selections, across every shown plate, and each plate's acquisition context."""
+        for address in [address for address in self._well_positions if address[0] in self._plate_tables]:
+            self._selected_wells.discard(address)
+            self._selected_well_axes.pop(address, None)
+            self._selected_well_options.pop(address, None)
+        for plate, table in self._plate_tables.items():
+            for item in table.selectedItems():
+                address = plate, item.data(Qt.UserRole)
+                self._selected_wells.add(address)
+                self._selected_well_axes[address] = (self.time_axis.currentData(), self.z_axis.currentData())
+                self._selected_well_options[address] = self._axis_options()
 
     def _clicked_well(self, item):
         """Open ordinary clicks while retaining drag and modifier selections.
 
         A click on a collapsed row's or column's strip shows it again instead.
         """
-        rows, columns = self._collapsed_lines()
+        rows, columns = self._collapsed_lines(item.tableWidget()._overview_plate)
         if item.row() in rows or item.column() in columns:
             rows.discard(item.row())
             columns.discard(item.column())
@@ -8585,53 +8894,64 @@ class _FieldOverview(QWidget):
         self._field_thumbnail_jobs.submit(read, shown)
 
     def _zoom_plate(self, delta=0):
-        """Fit the complete physical plate or explicitly magnify its cells.
+        """Fit every shown plate in its own view, or explicitly magnify the cells of every plate.
 
         :param delta: signed magnification step, or zero to restore whole-plate fit.
         """
         self._plate_fit = not bool(delta)
-        columns, rows = max(1, self.wells.columnCount()), max(1, self.wells.rowCount())
+        tables = self._plate_table_list()
         if delta and self._plate_cell_extent is not None:
             factor = 1.25 if delta > 0 else .8
-            width, height = (max(2, min(512, round(value * factor)))
-                             for value in self._plate_cell_extent)
+            extent = tuple(max(2, min(512, round(value * factor))) for value in self._plate_cell_extent)
+            self._plate_extents = {table: extent for table in tables}
         else:
-            folded_rows, folded_columns = (
-                sum(1 for index in lines if index < count)
-                for lines, count in zip(self._collapsed_lines(), (rows, columns)))
-            strip = _OVERVIEW_COLLAPSED_STRIP
-            width = max(1, (self.wells.viewport().width() - strip * folded_columns)
-                        // max(1, columns - folded_columns))
-            height = max(1, (self.wells.viewport().height() - strip * folded_rows)
-                         // max(1, rows - folded_rows))
-        self.wells.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
-        self.wells.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
-        self._plate_cell_extent = width, height
+            self._plate_extents = {table: self._fitted_extent(table) for table in tables}
+        policy = Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded
+        for table in tables:
+            table.setHorizontalScrollBarPolicy(policy)
+            table.setVerticalScrollBarPolicy(policy)
+        self._plate_cell_extent = self._plate_extents.get(self.wells, self._plate_extents[tables[0]])
         self._apply_plate_extent()
 
-    def _apply_plate_extent(self):
-        """Restore the same native well size after source-axis or annotation changes."""
-        width, height = self._plate_cell_extent
-        from PySide6.QtCore import QSize
-        rows, columns = self._collapsed_lines()
-        self.wells._overview_collapsed = (frozenset(rows), frozenset(columns))
+    def _fitted_extent(self, table):
+        """The well size that fits ``table``'s whole plate, collapsed lines as strips, in its view."""
+        columns, rows = max(1, table.columnCount()), max(1, table.rowCount())
+        folded_rows, folded_columns = (
+            sum(1 for index in lines if index < count)
+            for lines, count in zip(self._collapsed_lines(table._overview_plate), (rows, columns)))
         strip = _OVERVIEW_COLLAPSED_STRIP
-        self.wells.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
-        for column in range(self.wells.columnCount()):
-            self.wells.setColumnWidth(column, strip if column in columns else width)
-        for row in range(self.wells.rowCount()):
-            self.wells.setRowHeight(row, strip if row in rows else height)
-        self._label_collapsed_lines(rows, columns)
-        self.wells.viewport().update()
+        width = max(1, (table.viewport().width() - strip * folded_columns)
+                    // max(1, columns - folded_columns))
+        height = max(1, (table.viewport().height() - strip * folded_rows)
+                     // max(1, rows - folded_rows))
+        return width, height
+
+    def _apply_plate_extent(self):
+        """Restore the same native well size on every shown plate after source-axis or annotation changes."""
+        from PySide6.QtCore import QSize
+
+        strip = _OVERVIEW_COLLAPSED_STRIP
+        for table in self._plate_table_list():
+            width, height = self._plate_extents.get(table, self._plate_cell_extent)
+            rows, columns = self._collapsed_lines(table._overview_plate)
+            table._overview_collapsed = (frozenset(rows), frozenset(columns))
+            table.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
+            for column in range(table.columnCount()):
+                table.setColumnWidth(column, strip if column in columns else width)
+            for row in range(table.rowCount()):
+                table.setRowHeight(row, strip if row in rows else height)
+            self._label_collapsed_lines(rows, columns, table)
+            table.viewport().update()
         self._request_visuals()
 
-    def _collapsed_lines(self):
-        """The shown plate's collapsed rows and columns.
+    def _collapsed_lines(self, plate=None):
+        """A plate's collapsed rows and columns.
 
+        :param plate: the plate's session name; the shown plate when ``None``.
         :returns: ``(rows, columns)``, two sets of zero-based table indices
             kept per plate, so each plate remembers its own.
         """
-        plate = self.plates.currentData()
+        plate = self.plates.currentData() if plate is None else plate
         if plate is None:
             return set(), set()
         return self._collapsed.setdefault(plate, (set(), set()))
@@ -8645,11 +8965,15 @@ class _FieldOverview(QWidget):
         name = item.data(Qt.UserRole)
         return str(item.text() if name is None else name)
 
-    def _label_collapsed_lines(self, rows, columns):
-        """Blank collapsed headers and give every header its collapse help."""
+    def _label_collapsed_lines(self, rows, columns, table=None):
+        """Blank collapsed headers and give every header its collapse help.
+
+        :param table: the plate table; the shown plate's when ``None``.
+        """
+        table = self.wells if table is None else table
         for axis, count, item_of, lines in (
-                ("row", self.wells.rowCount(), self.wells.verticalHeaderItem, rows),
-                ("column", self.wells.columnCount(), self.wells.horizontalHeaderItem, columns)):
+                ("row", table.rowCount(), table.verticalHeaderItem, rows),
+                ("column", table.columnCount(), table.horizontalHeaderItem, columns)):
             for index in range(count):
                 item = item_of(index)
                 if item is None:
@@ -9442,7 +9766,8 @@ class _FieldOverview(QWidget):
         self._selected_field_options.clear()
         self._fields, self._visible = (), ()
         self._all_fields = ()
-        self.wells.clear()
+        for table in self._plate_table_list():
+            table.clear()
         self.fields.clear()
         self.view.clear_image()
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
@@ -9545,10 +9870,15 @@ class _FieldOverview(QWidget):
     def _filter(self, *_):
         """Filter metadata and show bounded field pages without image reads.
 
+        Every shown plate (:meth:`_shown_plates`) gets its own table; the
+        well maps are keyed by ``(plate, well)``, so the same well on two
+        plates never meets.
+
         :param _: unused plate, row or column selection arguments.
         """
         current_identities = {id(fields): fields.currentItem().data(Qt.UserRole).identity
                               for fields in self._field_lists() if fields.currentItem() is not None}
+        self._sync_plate_tables()
         plate = self.plates.currentData()
         self._comparison_signature = None
         if self._scope[0] != plate:
@@ -9564,17 +9894,17 @@ class _FieldOverview(QWidget):
             self._geometry_valid = False
             self._normalization_ready = False
             self._visible = ()
-            self.wells.clear()
-            self.wells.setRowCount(0)
-            self.wells.setColumnCount(0)
+            for table in self._plate_tables.values():
+                self._clear_plate_table(table)
             self.fields.clear()
             self.view.clear_image()
             self.status.setText(str(error))
             return
         self._geometry_valid = True
         self._geometry_error = None
-        for combo, values, title in ((self.rows, sorted({f.row for f in available if f.row}, key=int), tr("All rows")),
-                                     (self.columns, sorted({f.column for f in available if f.column}), tr("All columns"))):
+        lines = tuple(f for f in self._fields if f.plate in self._plate_tables) or available
+        for combo, values, title in ((self.rows, sorted({f.row for f in lines if f.row}, key=int), tr("All rows")),
+                                     (self.columns, sorted({f.column for f in lines if f.column}), tr("All columns"))):
             old = combo.currentData()
             combo.blockSignals(True)
             combo.clear()
@@ -9585,10 +9915,74 @@ class _FieldOverview(QWidget):
                 combo.setCurrentIndex(combo.findData(old))
             combo.blockSignals(False)
         row, col = self.rows.currentData(), self.columns.currentData()
-        available = tuple(f for f in available if (row is None or f.row == row) and
-                          (col is None or f.column == col))
+        axes = tuple(combo.currentData() for combo in (self.fov_axis, self.time_axis, self.z_axis))
+        self._well_representatives, self._well_fields, self._well_positions = {}, {}, {}
+        self._plate_available = {}
+        self._installed_thumbnails.clear()
+        self._await_plate_paint()
+        for shown, table in self._plate_tables.items():
+            plate_geometry = geometry
+            if shown != plate:
+                try:
+                    plate_geometry = self._checked_plate_geometry(
+                        tuple(f for f in self._fields if f.plate == shown), self._overview_options.get("geometry"))
+                except _OverviewValidationError as error:
+                    self._clear_plate_table(table)
+                    self._plate_blocks[table][1].setToolTip(str(error))
+                    continue
+            filled = self._fill_plate_table(table, shown, row, col, axes, plate_geometry)
+            if filled is None and shown == plate:
+                self.status.setText(tr("Plate coordinates exceed the overview grid limit."))
+                return
+            if filled is not None:
+                self._plate_available[shown] = filled
+        available = self._plate_available.get(plate, ())
+        _fov, time, z = axes
+        for address in self._selected_wells:
+            if address[0] in self._plate_tables:
+                self._selected_well_axes[address] = (time, z)
+        self._visible = tuple(f for f in available if self._scope[1] is None or f.well == self._scope[1])
+        self._page = min(self._page, max(0, (len(self._visible) - 1) // 24))
+        self.fields._overview_page = self._page
+        for fields in self._field_lists():
+            records = (self._visible if fields is self.fields
+                       else tuple(self._well_fields.get((plate, fields._overview_well), ())))
+            page = min(fields._overview_page, max(0, (len(records) - 1) // 24))
+            self._fill_field_list(fields, records[page * 24:(page + 1) * 24],
+                                  current_identities.get(id(fields)))
+        if not self._visible:
+            self.view.clear_image()
+        self._label_plate_blocks()
+        if self._plate_fit or self._plate_cell_extent is None:
+            self._zoom_plate()
+        else:
+            self._apply_plate_extent()
+        if (self._overview_options.get("normalization")
+                and self._normalization_plate != plate):
+            self._prepare_display()
+        self._request_visuals()
+
+    def _fill_plate_table(self, table, plate, row, col, axes, geometry):
+        """Lay out one plate's wells in ``table``, filed under ``(plate, well)``.
+
+        Wells beyond Overview max wells are drawn hatched as not loaded, per plate.
+
+        :param table: the plate's table.
+        :param plate: the plate's session name.
+        :param row: the row filter, or ``None`` for every row.
+        :param col: the column filter, or ``None`` for every column.
+        :param axes: the shown ``(field, time, z)``.
+        :param geometry: the plate's checked ``(rows, columns)``, or ``None``.
+        :returns: the plate's fields at the shown axes, or ``None`` when its
+            coordinates exceed the grid limit.
+        """
         from collections import Counter
         from .sortable_table import table_item
+        from ...schema import letters_from_row_index
+
+        table._overview_plate = plate
+        available = tuple(f for f in self._fields if f.plate == plate and (row is None or f.row == row)
+                          and (col is None or f.column == col))
         known_wells = {field.well for field in available}
         loaded_wells = {field.well for field in self._fields if field.plate == plate}
         skipped = {f.well: (int(f.row), f.column) for f in self._all_fields
@@ -9601,30 +9995,24 @@ class _FieldOverview(QWidget):
         if geometry is not None:
             rows, columns = int(geometry[0]), int(geometry[1])
         if rows > 512 or columns > 512:
-            self.status.setText(tr("Plate coordinates exceed the overview grid limit."))
-            return
-        self._well_representatives = {}
-        fov, time, z = (combo.currentData() for combo in (self.fov_axis, self.time_axis, self.z_axis))
+            self._clear_plate_table(table)
+            return None
+        fov, time, z = axes
         available = tuple(field for field in available
             if (fov is None or getattr(field, "field_id", "") == fov)
             and (not getattr(field, "time_id", "") or field.time_id == time)
             and (not getattr(field, "z_id", "") or field.z_id == z))
         counts = Counter(f.well for f in available)
-        self._well_fields = {}
         for field in available:
-            self._well_fields.setdefault(field.well, []).append(field)
-            self._well_representatives.setdefault(field.well, field)
-        self._well_positions = {}
-        self._installed_thumbnails.clear()
-        self._await_plate_paint()
-        self.wells.blockSignals(True)
-        self.wells.clear()
+            self._well_fields.setdefault((plate, field.well), []).append(field)
+            self._well_representatives.setdefault((plate, field.well), field)
+        table.blockSignals(True)
+        table.clear()
         coverslip = geometry == (1, 1) and not addresses and known_wells == {""}
-        self.wells.setRowCount(1 if coverslip else rows + int("" in known_wells))
-        self.wells.setColumnCount(columns)
-        self.wells.setHorizontalHeaderLabels([str(n) for n in range(1, columns + 1)])
-        from ...schema import letters_from_row_index
-        self.wells.setVerticalHeaderLabels([tr("Unresolved")] if coverslip else
+        table.setRowCount(1 if coverslip else rows + int("" in known_wells))
+        table.setColumnCount(columns)
+        table.setHorizontalHeaderLabels([str(n) for n in range(1, columns + 1)])
+        table.setVerticalHeaderLabels([tr("Unresolved")] if coverslip else
             [letters_from_row_index(n) for n in range(1, rows + 1)]
             + ([tr("Unresolved")] if "" in known_wells else []))
         snapshot = self._annotation_snapshot()
@@ -9641,47 +10029,26 @@ class _FieldOverview(QWidget):
             detail = [item.text(), self._conditions.get((plate, well), "")]
             detail.extend(str(key) + ": " + str(value)
                           for key, value in snapshot.get((plate, well), {}).items())
-            detail.extend(field.caption for field in self._well_fields.get(well, ())[:shown])
+            detail.extend(field.caption for field in self._well_fields.get((plate, well), ())[:shown])
             if not count:
                 detail.append(no_image)
             item.setToolTip("\n".join(part for part in detail if part))
-            self.wells.setItem(r - 1, c - 1, item)
+            table.setItem(r - 1, c - 1, item)
             item.setSelected((plate, well) in self._selected_wells)
-            self._well_positions[well] = (r - 1, c - 1)
-            self.wells.setRowHeight(r - 1, 150)
+            self._well_positions[(plate, well)] = (r - 1, c - 1)
+            table.setRowHeight(r - 1, 150)
         for well, (r, c) in sorted(skipped.items()):
-            if well in known_wells or r > self.wells.rowCount() or c > self.wells.columnCount():
+            if well in known_wells or r > table.rowCount() or c > table.columnCount():
                 continue
             item = table_item(tr("{well}\nNot loaded", language=language, well=well))
             item.setFlags(Qt.NoItemFlags)
             item.setData(_OVERVIEW_NOT_LOADED_ROLE, True)
             item.setToolTip(tr("{well} is not loaded: it is beyond Overview max wells.", well=well))
-            self.wells.setItem(r - 1, c - 1, item)
+            table.setItem(r - 1, c - 1, item)
         for index in range(columns):
-            self.wells.setColumnWidth(index, 180)
-        self.wells.blockSignals(False)
-        for address in self._selected_wells:
-            if address[0] == plate:
-                self._selected_well_axes[address] = (time, z)
-        self._visible = tuple(f for f in available if self._scope[1] is None or f.well == self._scope[1])
-        self._page = min(self._page, max(0, (len(self._visible) - 1) // 24))
-        self.fields._overview_page = self._page
-        for fields in self._field_lists():
-            records = (self._visible if fields is self.fields
-                       else tuple(self._well_fields.get(fields._overview_well, ())))
-            page = min(fields._overview_page, max(0, (len(records) - 1) // 24))
-            self._fill_field_list(fields, records[page * 24:(page + 1) * 24],
-                                  current_identities.get(id(fields)))
-        if not self._visible:
-            self.view.clear_image()
-        if self._plate_fit or self._plate_cell_extent is None:
-            self._zoom_plate()
-        else:
-            self._apply_plate_extent()
-        if (self._overview_options.get("normalization")
-                and self._normalization_plate != plate):
-            self._prepare_display()
-        self._request_visuals()
+            table.setColumnWidth(index, 180)
+        table.blockSignals(False)
+        return available
 
     def _remember_selection(self):
         """Retain explicit field selections across pages, well views and plates."""
@@ -9704,13 +10071,15 @@ class _FieldOverview(QWidget):
         self._selected_field_options.clear()
         for fields in self._field_lists():
             fields.clearSelection()
-        self.wells.clearSelection()
+        for table in self._plate_table_list():
+            table.clearSelection()
 
     def _well(self, item):
         """Zoom into one well while retaining the current plate and filters.
 
         :param item: the selected physical well cell.
         """
+        self._focus_plate_table(item.tableWidget())
         self._open_well_panel(item.data(Qt.UserRole))
         self._scope = (self.plates.currentData(), item.data(Qt.UserRole))
         self._comparison_signature = None
@@ -9882,40 +10251,64 @@ class _FieldOverview(QWidget):
             owner = getattr(self, "_readout_viewports", {}).get(watched)
             if owner is not None and getattr(self, "_pixel_readout", None) is not None:
                 self._readout_event(owner, event)
-        if watched is self._well_viewport:
+        table = self._plate_table_at(watched)
+        if table is not None:
             if event.type() == QEvent.MouseButtonPress:
                 self._drag_start = event.position().toPoint()
                 self._drag_selected = False
                 self._press_modifiers = event.modifiers()
+                self._press_plate(table, event)
             elif event.type() == QEvent.MouseMove and self._drag_start is not None and event.buttons() & Qt.LeftButton:
                 from PySide6.QtWidgets import QApplication
                 self._drag_selected |= (event.position().toPoint() - self._drag_start).manhattanLength() >= QApplication.startDragDistance()
             elif event.type() == QEvent.MouseButtonRelease:
                 self._drag_start = None
-        if (watched is self._well_viewport and event.type() == QEvent.Wheel
+        if (table is not None and event.type() == QEvent.Wheel
                 and event.angleDelta().y()):
             position = event.position().toPoint()
-            old_width, old_height = self._plate_cell_extent or (1, 1)
-            column = (self.wells.horizontalScrollBar().value() + position.x()) / old_width
-            row = (self.wells.verticalScrollBar().value() + position.y()) / old_height
+            old_width, old_height = self._plate_extents.get(table, self._plate_cell_extent) or (1, 1)
+            column = (table.horizontalScrollBar().value() + position.x()) / old_width
+            row = (table.verticalScrollBar().value() + position.y()) / old_height
             self._zoom_plate(1 if event.angleDelta().y() > 0 else -1)
-            self.wells.doItemsLayout()
+            table.doItemsLayout()
             width, height = self._plate_cell_extent
-            self.wells.horizontalScrollBar().setValue(round(column * width - position.x()))
-            self.wells.verticalScrollBar().setValue(round(row * height - position.y()))
+            table.horizontalScrollBar().setValue(round(column * width - position.x()))
+            table.verticalScrollBar().setValue(round(row * height - position.y()))
             event.accept()
             return True
-        if watched in (self.wells, self._well_viewport) and event.type() == QEvent.KeyPress and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+        if ((table is not None or watched in self._plate_table_list()) and event.type() == QEvent.KeyPress
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter)):
+            self._focus_plate_table(table if table is not None else watched)
             self._open_selected_well()
             return True
-        if watched is self._well_viewport and event.type() == QEvent.Resize and self._plate_fit:
+        if table is not None and event.type() == QEvent.Resize and self._plate_fit:
             self._zoom_plate()
-        if watched is self._well_viewport and event.type() == QEvent.Paint:
+        if table is not None and event.type() == QEvent.Paint:
             self._plate_painted = True
-        if ((watched is self._well_viewport or hasattr(watched.parentWidget(), "_overview_well"))
+        if ((table is not None or hasattr(watched.parentWidget(), "_overview_well"))
                 and event.type() in (QEvent.Paint, QEvent.Resize)):
             self._request_visuals()
         return super().eventFilter(watched, event)
+
+    def _plate_table_at(self, watched):
+        """The shown plate table whose viewport is ``watched``, or ``None``."""
+        return next((table for table in self._plate_table_list() if table.viewport() is watched), None)
+
+    def _press_plate(self, table, event):
+        """A plain left press on one plate starts a new selection: the other plates' selections clear.
+
+        Ctrl or Shift extend the selection across plates, and a press on a
+        selected well keeps the selection so it can be dragged.
+        """
+        if (event.button() != Qt.LeftButton or event.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier)
+                or len(self._plate_tables) < 2):
+            return
+        item = table.itemAt(event.position().toPoint())
+        if item is not None and item.isSelected():
+            return
+        for other in self._plate_tables.values():
+            if other is not table:
+                other.clearSelection()
 
     def showEvent(self, event):
         """Resume bounded image requests when the retained dialog is shown."""
@@ -10002,7 +10395,7 @@ class _FieldOverview(QWidget):
             channels, limits = self._choices()
         except (ValueError, TypeError):
             return None
-        return (self.plates.currentData(), self.rows.currentData(), self.columns.currentData(),
+        return (self._shown_plates(), self.rows.currentData(), self.columns.currentData(),
                 self._display_generation, self.fov_axis.currentData(), self.time_axis.currentData(),
                 self.z_axis.currentData(), self.z_mode.currentData(), channels, limits,
                 self.preview_resolution.currentData(), self._enhancement, self.representatives.value())
@@ -10012,32 +10405,37 @@ class _FieldOverview(QWidget):
 
         Up to :data:`_OVERVIEW_THUMBNAIL_WORKERS` bounded batches run at once;
         the first batch is a single well, so the first image paints at once.
+        Each shown plate is scanned only over the wells its own view shows.
         """
         if self._plate_panel.is_collapsed() or self._thumbnail_installs:
             return
         if not self._thumbnail_jobs.active_jobs():
             self._thumbnail_inflight.clear()
             self._thumbnail_first_inflight.clear()
-        viewport = self.wells.viewport()
-        ratio = device_ratio(viewport)
         from PySide6.QtGui import QIcon
-        first_row = max(0, self.wells.rowAt(0))
-        last_row = self.wells.rowAt(viewport.height() - 1)
-        if last_row < 0:
-            last_row = self.wells.rowCount() - 1
-        first_column = max(0, self.wells.columnAt(0))
-        last_column = self.wells.columnAt(viewport.width() - 1)
-        if last_column < 0:
-            last_column = self.wells.columnCount() - 1
-        for well in tuple(self._installed_thumbnails):
-            position = self._well_positions.get(well)
-            item = self.wells.item(*position) if position is not None else None
-            if (item is None or not first_row <= position[0] <= last_row
-                    or not first_column <= position[1] <= last_column):
+
+        spans = {}
+        for plate, table in self._plate_tables.items():
+            viewport = table.viewport()
+            first_row = max(0, table.rowAt(0))
+            last_row = table.rowAt(viewport.height() - 1)
+            if last_row < 0:
+                last_row = table.rowCount() - 1
+            first_column = max(0, table.columnAt(0))
+            last_column = table.columnAt(viewport.width() - 1)
+            if last_column < 0:
+                last_column = table.columnCount() - 1
+            spans[plate] = (table, first_row, last_row, first_column, last_column)
+        for address in tuple(self._installed_thumbnails):
+            span = spans.get(address[0])
+            position = self._well_positions.get(address)
+            item = span[0].item(*position) if span is not None and position is not None else None
+            if (item is None or not span[1] <= position[0] <= span[2]
+                    or not span[3] <= position[1] <= span[4]):
                 if item is not None:
                     item.setIcon(QIcon())
                     item.setData(Qt.UserRole + 1, None)
-                self._installed_thumbnails.discard(well)
+                self._installed_thumbnails.discard(address)
         free = _OVERVIEW_THUMBNAIL_WORKERS - self._thumbnail_jobs.active_jobs()
         if free <= 0:
             return
@@ -10045,41 +10443,46 @@ class _FieldOverview(QWidget):
         inflight = self._thumbnail_inflight
         queued = {entry[1] for entry in self._thumbnail_installs}
         shown = self.representatives.value()
-        edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
         display_key = self._display_options_key(options)
-        folded_rows, folded_columns = self._collapsed_lines()
         requests, later = [], []
-        for row in range(first_row, last_row + 1):
-            for column in range(first_column, last_column + 1):
-                item = self.wells.item(row, column)
-                if item is None or row in folded_rows or column in folded_columns:
-                    continue
-                well = item.data(Qt.UserRole)
-                field = self._well_representatives.get(well)
-                if field is None:
-                    continue
-                representatives = tuple(self._well_fields[well][:shown])
-                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, display_key)
-                first = ((field.identity,),) + key[1:]
-                installed = item.data(Qt.UserRole + 1)
-                if installed == key or key in queued:
-                    continue
-                if key in self._thumbnail_cache:
-                    self._set_thumbnail(well, key, self._thumbnail_cache[key])
-                    continue
-                if installed != first and first in self._thumbnail_cache:
-                    self._set_thumbnail(well, first, self._thumbnail_cache[first])
-                    installed = first
-                if installed == first:
-                    if key not in inflight:
-                        later.append((well, key, field, representatives, edge))
-                    continue
-                if first not in inflight and len(requests) < wanted:
-                    requests.append((well, first, field, (field,), edge))
+        for plate, (table, first_row, last_row, first_column, last_column) in spans.items():
+            ratio = device_ratio(table.viewport())
+            extent = self._plate_extents.get(table, self._plate_cell_extent)
+            edge = min(resolution, max(64, math.ceil(max(extent or (160, 160)) * ratio)))
+            folded_rows, folded_columns = self._collapsed_lines(plate)
+            for row in range(first_row, last_row + 1):
+                for column in range(first_column, last_column + 1):
+                    item = table.item(row, column)
+                    if item is None or row in folded_rows or column in folded_columns:
+                        continue
+                    address = (plate, item.data(Qt.UserRole))
+                    field = self._well_representatives.get(address)
+                    if field is None:
+                        continue
+                    representatives = tuple(self._well_fields[address][:shown])
+                    key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge,
+                           display_key)
+                    first = ((field.identity,),) + key[1:]
+                    installed = item.data(Qt.UserRole + 1)
+                    if installed == key or key in queued:
+                        continue
+                    if key in self._thumbnail_cache:
+                        self._set_thumbnail(address, key, self._thumbnail_cache[key])
+                        continue
+                    if installed != first and first in self._thumbnail_cache:
+                        self._set_thumbnail(address, first, self._thumbnail_cache[first])
+                        installed = first
+                    if installed == first:
+                        if key not in inflight:
+                            later.append((address, key, field, representatives, edge))
+                        continue
+                    if first not in inflight and len(requests) < wanted:
+                        requests.append((address, first, field, (field,), edge))
         if not requests and not self._thumbnail_first_inflight:
             requests = later[:wanted]
         if not requests:
             return
+        ratio = device_ratio(self.wells.viewport())
         context = self._plate_context()
         batch = _OVERVIEW_THUMBNAIL_BATCH
         if not self._installed_thumbnails:
@@ -10156,26 +10559,29 @@ class _FieldOverview(QWidget):
         else:
             self._request_visuals()
 
-    def _set_thumbnail(self, well, key, pixels):
-        """Attach an image to the current well cell only on the GUI thread."""
+    def _set_thumbnail(self, address, key, pixels):
+        """Attach an image to one shown plate's well cell, only on the GUI thread.
+
+        :param address: the well's ``(plate, well)``.
+        """
         from PySide6.QtGui import QIcon
-        position = self._well_positions.get(well)
-        if position is None:
+        position = self._well_positions.get(address)
+        table = self._plate_tables.get(address[0])
+        if position is None or table is None:
             return
-        item = self.wells.item(*position)
-        if not self.wells.viewport().rect().intersects(self.wells.visualItemRect(item)):
+        item = table.item(*position)
+        if item is None or not table.viewport().rect().intersects(table.visualItemRect(item)):
             return
         item.setData(Qt.UserRole + 1, key)
         if pixels is not None:
             image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                            pixels.strides[0], QImage.Format_RGB888).copy()
-            pixmap = scaled_for(QPixmap.fromImage(image), self.wells.viewport(),
-                                self.wells.iconSize())
+            pixmap = scaled_for(QPixmap.fromImage(image), table.viewport(), table.iconSize())
             item.setIcon(QIcon(pixmap))
-            self._installed_thumbnails.add(well)
+            self._installed_thumbnails.add(address)
         else:
             item.setIcon(QIcon())
-            self._installed_thumbnails.discard(well)
+            self._installed_thumbnails.discard(address)
 
     def _refresh_image_if_pending(self, *_):
         """Coalesce rapid selections behind one active image decoder.
@@ -10474,7 +10880,7 @@ class _FieldOverview(QWidget):
             button.setAccessibleName(tr(tooltip))
         fit.setToolTip(tr("Fit the whole plate in view"))
         groups = (("Navigation", (self._plate_back_button,)),
-                  ("Plates", tuple(self._plate_buttons)),
+                  ("Plates", (*self._plate_buttons, *self._plates_view_controls)),
                   ("Wells", (fit, smaller, larger)),
                   ("Fields", (*self._paging_buttons, self._compare_fields_button)))
         bar = FlowHost(self)
@@ -13781,7 +14187,7 @@ class _OverviewCanvasDrags(_QObject):
     def watch(self):
         """Install on every view the browser shows now."""
         browser = self._browser
-        views = [browser.wells.viewport()]
+        views = [table.viewport() for table in browser._plate_table_list()]
         views.extend(field_list.viewport() for field_list in browser._field_lists())
         views.append(browser.view.viewport())
         views.extend(panel.view.viewport() for panel in browser._image_views)
@@ -13804,17 +14210,17 @@ class _OverviewCanvasDrags(_QObject):
         browser = self._browser
         widget = viewport.parentWidget()
         pixel_size = browser._overview_options.get("pixel_size_um")
-        if widget is browser.wells:
+        if widget in browser._plate_table_list():
             item = widget.itemAt(position)
             if item is None or not item.isSelected():
                 return []
-            wells = [cell for cell in widget.selectedItems()]
-            positions = {value: key for key, value in browser._well_positions.items()}
+            plate = widget._overview_plate
+            positions = {value: address for address, value in browser._well_positions.items() if address[0] == plate}
             fields = []
-            for cell in wells:
-                well = positions.get((cell.row(), cell.column()))
-                if well is not None:
-                    fields.extend(browser._canvas_well_fields(browser.plates.currentData(), well))
+            for cell in widget.selectedItems():
+                address = positions.get((cell.row(), cell.column()))
+                if address is not None:
+                    fields.extend(browser._canvas_well_fields(*address))
             return [_overview_canvas_image(field, pixel_size) for field in fields[:_OVERVIEW_GUIDED_MAX_WELL_FIELDS]]
         if widget in browser._field_lists():
             item = widget.itemAt(position)
@@ -14887,6 +15293,8 @@ _OVERVIEW_UI_SOURCES = frozenset({
     "Letter",
     "Rows of the page grid.",
     "Columns of the page grid.",
+    *(caption for _value, caption in _OVERVIEW_PLATES_VIEWS),
+    _OVERVIEW_PLATES_VIEW_TOOLTIP,
 })
 """Captions this module passes to ``tr`` through tuples, dicts and loop variables.
 

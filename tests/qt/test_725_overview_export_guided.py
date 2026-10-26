@@ -282,7 +282,7 @@ def test_selected_fields_and_wells_go_on_the_canvas_by_button_and_by_drag(view, 
     add.click()
     assert [box["source"]["field"] for box in composer.canvas.pages[0]] == ["1", "2", "3"]
     drags = view._canvas_drags
-    view._well(view.wells.item(*view._well_positions["A01"]))
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")]))
     qtbot.waitUntil(lambda: view.fields.count() >= 1, timeout=15000)
     drags.watch()
     item = view.fields.item(0)
@@ -291,7 +291,7 @@ def test_selected_fields_and_wells_go_on_the_canvas_by_button_and_by_drag(view, 
     assert [image["source"]["well"] for image in images] == ["A01"]
     assert drags._images_at(view.view.viewport(), QPoint(1, 1), False) == []
     view.wells.clearSelection()
-    cell = view.wells.item(*view._well_positions["B01"])
+    cell = view.wells.item(*view._well_positions[(view.plates.currentData(), "B01")])
     cell.setSelected(True)
     rect = view.wells.visualItemRect(cell)
     images = drags._images_at(view.wells.viewport(), rect.center(), False)

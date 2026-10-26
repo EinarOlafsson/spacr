@@ -188,7 +188,7 @@ def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, sou
     smaller.click()
     smaller.click()
     assert view._plate_cell_extent[0] < extent[0]
-    item = view.wells.item(*view._well_positions["A01"])
+    item = view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")])
     view.wells.itemDoubleClicked.emit(item)
     qtbot.waitUntil(lambda: view._scope[1] == "A01", timeout=5000)
     view._plate_back_button.click()
@@ -196,7 +196,7 @@ def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, sou
 
 
 def _menu_actions(view, well):
-    rect = view.wells.visualItemRect(view.wells.item(*view._well_positions[well]))
+    rect = view.wells.visualItemRect(view.wells.item(*view._well_positions[(view.plates.currentData(), well)]))
     menu = view._well_menu(rect.center())
     actions = {action.text(): action for action in menu.actions() if action.text()}
     menu.close()

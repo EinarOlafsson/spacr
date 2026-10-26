@@ -179,8 +179,8 @@ def test_decoded_thumbnails_install_within_a_per_turn_budget(qtbot, tmp_path, mo
                     and not view._thumbnail_jobs.active_jobs(), timeout=20000)
     entries = []
     for well in ("A01", "A02"):
-        item = view.wells.item(*view._well_positions[well])
-        entries.append((well, item.data(browser.Qt.UserRole + 1), view._well_representatives[well],
+        item = view.wells.item(*view._well_positions[(view.plates.currentData(), well)])
+        entries.append((well, item.data(browser.Qt.UserRole + 1), view._well_representatives[(view.plates.currentData(), well)],
                         np.zeros((8, 8, 3), dtype=np.uint8), "", view._plate_context(),
                         browser.device_ratio(view.wells.viewport())))
         item.setData(browser.Qt.UserRole + 1, None)
@@ -197,4 +197,4 @@ def test_decoded_thumbnails_install_within_a_per_turn_budget(qtbot, tmp_path, mo
     assert len(view._thumbnail_installs) == 2 and view._install_timer.isActive()
     monkeypatch.setattr(browser, "_OVERVIEW_INSTALL_BUDGET_S", 1.0)
     qtbot.waitUntil(lambda: not view._thumbnail_installs, timeout=5000)
-    assert view._installed_thumbnails == {"A01", "A02"} and scans == []
+    assert view._installed_thumbnails == {(view.plates.currentData(), "A01"), (view.plates.currentData(), "A02")} and scans == []

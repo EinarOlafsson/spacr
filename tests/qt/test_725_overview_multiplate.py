@@ -149,15 +149,15 @@ def test_each_plate_keeps_its_own_wells_and_annotations(view, qtbot, plates):
     assert [view.plates.itemData(index) for index in range(view.plates.count())] == ["plateA", "plateB"]
     assert view._metadata_source == str(plates[0])
     _show(view, "plateA")
-    assert set(view._well_positions) == {"A01", "A02", "B01"}
+    assert set(view._well_positions) == {("plateA", "A01"), ("plateA", "A02"), ("plateA", "B01")}
     view._apply_annotation({("plateA", "A01")}, "cell", "HeLa")
     _show(view, "plateB")
-    assert set(view._well_positions) == {"A01", "A02", "B01", "B02"}
+    assert set(view._well_positions) == {("plateB", "A01"), ("plateB", "A02"), ("plateB", "B01"), ("plateB", "B02")}
     assert view._annotation_snapshot().get(("plateB", "A01"), {}).get("cell") is None
     assert view._annotation_snapshot()[("plateA", "A01")]["cell"] == "HeLa"
     assert all(field.plate == "plateB" for fields in view._well_fields.values() for field in fields)
-    qtbot.waitUntil(lambda: not view.wells.item(*view._well_positions["A01"]).icon().isNull(), timeout=20000)
-    key = view.wells.item(*view._well_positions["A01"]).data(Qt.UserRole + 1)
+    qtbot.waitUntil(lambda: not view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")]).icon().isNull(), timeout=20000)
+    key = view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")]).data(Qt.UserRole + 1)
     assert key[0][0][0] == "plateB"
 
 
@@ -220,7 +220,7 @@ def test_removing_a_plate_drops_its_caches_selection_and_collapse_state(view, qt
     _show(view, "plateB")
     qtbot.waitUntil(lambda: all(not view.wells.item(*position).icon().isNull()
                                 for position in view._well_positions.values()), timeout=20000)
-    view.wells.item(*view._well_positions["A01"]).setSelected(True)
+    view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")]).setSelected(True)
     view._set_line_collapsed("row", 1, True)
     removed = {field.identity for field in view._fields if field.plate == "plateB"}
     assert ("plateB", "A01") in view._selected_wells

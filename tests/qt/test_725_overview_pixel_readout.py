@@ -67,7 +67,7 @@ def view(qtbot, source):
 
 
 def _open_image(view, qtbot, well="A01"):
-    view._well(view.wells.item(*view._well_positions[well]))
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), well)]))
     qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
     view.fields.setCurrentRow(0)
     view._field(view.fields.item(0))
