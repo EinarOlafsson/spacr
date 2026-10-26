@@ -107,6 +107,52 @@ def _retired_707_home_api(docs):
     return retired
 
 
+def _retired_732_remote_api(docs):
+    """Replay the seven exact callback bodies after their source-owned retirement."""
+    import ast
+    import nested_helper_docs
+
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "732_remote_callbacks_api_retirement_2026-10-26.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "89c52e14cd190a77d6cb71576c0905e3799cba87"
+    assert retirement["source_blob"] == "94408eb48fc14cf5904f2b344cb9038013c1d0c2"
+    assert retirement["source_path"] == "spacr/qt/screens/distributed_jobs.py"
+    module = "spacr.qt.screens.distributed_jobs"
+    retired = retirement["retired"]
+    assert set(retired) == {module + "." + name for name in (
+        "DistributedJobsScreen._start_task._work",
+        "DistributedJobsScreen.cancel_selected._done",
+        "DistributedJobsScreen.refresh._done",
+        "DistributedJobsScreen.refresh_log._done",
+        "DistributedJobsScreen.submit._done",
+        "DistributedJobsScreen.submit._submit",
+        "ExecutionProfileDialog._test_connection.operation",
+    )}
+    assert sum(len(body.split("\n\n")) for body in retired.values()) == 8
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "2b0eeca36648143a40bfb6256de7d4c90162ef7b931275475d92d5555c6be047"
+    assert module in docs and docs[module]
+    assert not retired.keys() & docs.keys()
+    assert module not in nested_helper_docs.ENABLED_MODULES
+    tree = ast.parse((ROOT / retirement["source_path"]).read_text(encoding="utf-8"))
+    assert {"DistributedJobsScreen", "ExecutionProfileDialog"} <= {
+        node.name for node in tree.body if isinstance(node, ast.ClassDef)}
+    parents = {child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
+    nested = []
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        parent = parents.get(node)
+        while parent is not None:
+            if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                nested.append(node.name)
+                break
+            parent = parents.get(parent)
+    assert not nested
+    return retired
+
+
 def _current_718_metal_class_api(entries, docs):
     """Bind the three constructor summaries while retaining the original eight-entry fixture."""
     assert len(entries) == 8
@@ -3228,6 +3274,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
+    historical_docs = docs | _retired_732_remote_api(docs)
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
@@ -3466,7 +3513,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             arrivals = _current_718_metal_class_api(arrivals, docs)
         assert len(arrivals) == count
-        assert {key: docs[key] for key in arrivals} == arrivals
+        source_docs = historical_docs if filename == "699_ssh_connection_worker_api_arrival_2026-10-14.json" else docs
+        assert {key: source_docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (
             zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
             | home_ui_arrivals.keys() | volume_arrivals.keys()
@@ -3526,7 +3574,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     uncataloged = sorted(docs.keys() - json.loads(
         (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
-    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                 - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()
                 | _retired_707_home_api(docs).keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Symbols in the source "

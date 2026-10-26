@@ -238,6 +238,8 @@ def test_documented_parameter_names_match_the_source_signatures():
 
 def test_public_docstrings_matches_reviewed_visible_coverage():
     docs = builder.public_docstrings()
+    from tests.test_documentation_i18n import _retired_732_remote_api
+    historical_docs = docs | _retired_732_remote_api(docs)
     dunders = _visible_special_members()
     metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
         / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
@@ -1809,7 +1811,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts"
         / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(ssh_arrivals) == 1
-    assert {key: docs[key] for key in ssh_arrivals} == ssh_arrivals
+    assert {key: historical_docs[key] for key in ssh_arrivals} == ssh_arrivals
     assert not ssh_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ssh_arrivals}
     late_reviewed_arrivals = json.loads((Path(__file__).resolve().parent
@@ -1987,7 +1989,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
-    actual = len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) - len(builder.API_DOC_ALIASES)
+    actual = len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -2035,7 +2037,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

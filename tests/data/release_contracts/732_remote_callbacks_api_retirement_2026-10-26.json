@@ -1,0 +1,14 @@
+{
+  "source_commit": "89c52e14cd190a77d6cb71576c0905e3799cba87",
+  "source_blob": "94408eb48fc14cf5904f2b344cb9038013c1d0c2",
+  "source_path": "spacr/qt/screens/distributed_jobs.py",
+  "retired": {
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen._start_task._work": "Run the operation on the job runner's thread.",
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.cancel_selected._done": "Redraw with the cancelled job still selected.\n\nThe selection is kept so the list does not jump to the top after\na cancel and the user's row stays selected.",
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh._done": "Redraw the job list and report how many are still active.",
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh_log._done": "Show the fetched log, re-reading the job in case it moved on.",
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.submit._done": "Redraw the job list with the new job selected.",
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.submit._submit": "Resolve the module and its settings, then submit. Off-thread.",
+    "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": "Check the remote hostname before querying Slurm on the worker thread."
+  }
+}
