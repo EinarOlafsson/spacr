@@ -1625,6 +1625,7 @@ class GraphCanvas(LinkedView, QWidget):
             overlay(mask)
         self._canvas.draw_idle()
         self._notice.setText(self._notice_text(self._render_data, self._grid))
+        self.rendered.emit(self._render_data)
 
     def brush(self, x0: float, y0: float, x1: float, y1: float, *,
               row: int = 0, col: int = 0,
@@ -1658,7 +1659,9 @@ class GraphCanvas(LinkedView, QWidget):
         picked = rows.loc[keep]
         if not publish:
             return Selection.from_frame(picked, source=self.link_source)
-        return self.publish_selection(picked)
+        selection = self.publish_selection(picked)
+        self.render_now()
+        return selection
 
     def _on_press(self, event) -> None:
         """Begin a rubber-band selection.

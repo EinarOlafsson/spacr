@@ -889,3 +889,56 @@ def test_the_screen_reads_a_csv_and_a_sqlite_table(qtbot, tmp_path, frame):
     assert screen.builder.well.columns()
     assert "cell" in screen._source.text()
     qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=10000)
+
+
+def test_native_brush_updates_its_own_screen_and_clear_retires_the_handoff(qtbot, tmp_path, frame):
+    import hashlib
+    import sqlite3
+    from PySide6.QtCore import QPoint
+    from PySide6.QtTest import QTest
+    from spacr.qt.screens.graph_builder import GraphBuilderScreen
+
+    database = tmp_path / "measurements.db"
+    with sqlite3.connect(database) as connection:
+        frame.to_sql("cell", connection, index=False)
+    before = hashlib.sha256(database.read_bytes()).hexdigest()
+    link = LinkedSelection()
+    screen = GraphBuilderScreen(link=link)
+    qtbot.addWidget(screen)
+    screen.resize(1200, 900)
+    screen.show()
+    try:
+        screen.load_path(str(database), table="cell")
+        qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0, timeout=10000)
+        screen.builder.set_spec(GraphSpec(x="area", y="intensity"))
+        view = screen.builder.canvas
+        view.render_now()
+        view._canvas.draw()
+        axes = view.axes_at()
+        low, high = axes.get_ylim()
+        bottom, top = low + .01 * (high - low), high - .01 * (high - low)
+        start_xy = axes.transData.transform((0.0, bottom))
+        end_xy = axes.transData.transform((30.0, top))
+        start = QPoint(round(start_xy[0]), round(view._canvas.height() - start_xy[1]))
+        end = QPoint(round(end_xy[0]), round(view._canvas.height() - end_xy[1]))
+        expected = frame.loc[(frame["area"] >= 0) & (frame["area"] <= 30)]
+        assert 0 < len(expected) < len(frame)
+        assert view.selected_count() == 0 and not screen._to_annotate.isEnabled()
+        QTest.mousePress(view._canvas, Qt.LeftButton, pos=start)
+        QTest.mouseMove(view._canvas, end)
+        QTest.mouseRelease(view._canvas, Qt.LeftButton, pos=end)
+        qtbot.waitUntil(lambda: view.selected_count() == len(expected), timeout=2000)
+        assert link.selection.source == view.link_source
+        assert set(link.selection.keys) == set(object_keys(expected))
+        assert screen._to_annotate.isEnabled()
+        assert view.render_data.n_shown == len(frame)
+        assert f"{len(expected):,} highlighted" in view.notice()
+        QTest.mouseClick(view._canvas, Qt.LeftButton, pos=start)
+        qtbot.waitUntil(lambda: view.selected_count() == 0, timeout=2000)
+        assert not link.selection.is_active
+        assert not screen._to_annotate.isEnabled()
+        assert view.render_data.n_shown == len(frame)
+        assert hashlib.sha256(database.read_bytes()).hexdigest() == before
+    finally:
+        qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=10000)
+        screen.close()
