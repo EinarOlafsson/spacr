@@ -9907,6 +9907,15 @@ class _SpinCommitInput(QObject):
 #: The module the Activation form asks which ``cam_type`` entries apply.
 _ATTRIBUTION_MODULE = "spacr.attribution"
 
+#: Poll ticks (50 ms each) a freshly built Activation page waits before it
+#: starts the attribution worker. The worker holds the heavy-import lock for
+#: the whole torch import, and a module screen built meanwhile defers its
+#: ambient backdrop while the lock is held: a user (or a test) who moves on
+#: from the Activation page within a second is not left without a backdrop
+#: on the next module for the length of a torch import. A page that is
+#: closed before then never starts the import at all.
+_ATTRIBUTION_START_TICKS = 20
+
 #: The one worker importing :data:`_ATTRIBUTION_MODULE`, once started.
 _ATTRIBUTION_IMPORT: List[threading.Thread] = []
 
@@ -11855,7 +11864,8 @@ class SettingsWidgets:
         and the menu is greyed when it has finished. Until then every entry
         stays enabled, as when the rules cannot be imported at all.
 
-        The worker is started by the first tick of the poll, not here. It
+        The worker is started by a later tick of the poll
+        (:data:`_ATTRIBUTION_START_TICKS`), not here. It
         holds the heavy-import lock for the whole torch import, and started
         while the page was still being built it held it when the screen
         asked for its ambient backdrop: the Activation screen opened with no
@@ -11879,6 +11889,10 @@ class SettingsWidgets:
     def _after_the_attribution_import(self) -> None:
         """Start the worker on the first tick, then grey the menu once it is done."""
         if not _ATTRIBUTION_IMPORT and _ATTRIBUTION_MODULE not in sys.modules:
+            waited = getattr(self, "_attribution_import_ticks", 0) + 1
+            self._attribution_import_ticks = waited
+            if waited < _ATTRIBUTION_START_TICKS:
+                return
             if _import_attribution_off_the_gui_thread() is not None:
                 return
         thread = _ATTRIBUTION_IMPORT[0] if _ATTRIBUTION_IMPORT else None
