@@ -444,3 +444,21 @@ def test_the_shown_field_is_found_from_its_view(view, qtbot):
     assert view._plate_key() == (view._fields[0].source, "p1") and view._fields[0].source
     view._set_display_layers(image_overrides={browser._overview_image_key(panel.field): {"saturation": 0.}})
     assert "image_overrides" in view._display_kwargs(view=True)
+
+
+def test_the_load_limits_are_source_settings_and_live_in_the_tab(mask, qtbot, source):
+    tab = _open_tab(mask, source)
+    view = _next(tab, qtbot)
+    model = tab._settings_model
+    from spacr.qt.screens.settings_model import categories_for_app, get_categories
+
+    assert {"overview_max_wells", "overview_max_fields"} <= set(categories_for_app("overview", get_categories())["Source"])
+    assert model._read_value("overview_max_wells") == "all"
+    model.set_value_for_key("overview_max_wells", "2")
+    assert view._load_limits == (2, None)
+    assert {field.well for field in view._fields} == {"A01", "A02"}
+    model.set_value_for_key("overview_max_fields", "1")
+    assert view._load_limits == (2, 1) and len(view._fields) == 2
+    model.set_value_for_key("overview_max_wells", "all")
+    model.set_value_for_key("overview_max_fields", "all")
+    assert len(view._fields) == 2 * len(WELLS)

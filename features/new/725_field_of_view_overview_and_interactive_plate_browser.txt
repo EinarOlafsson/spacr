@@ -97,6 +97,20 @@ WHAT WAS DONE — round 5, M1 (several plates)
   plate view shows one plate; Previous/Next plate switch between them).
 - Tests: tests/qt/test_725_overview_multiplate.py.
 
+WHAT WAS DONE — round 5, M2 (Max wells per plate, Max fields per well)
+- Two Source settings, overview_max_wells and overview_max_fields, default 'all'.
+  Selection is deterministic, with no random sampling: each plate keeps its first
+  wells in plate order (A01, A02, ... B01), each well its first fields in field-number
+  order, with every time point and Z plane of a kept field.
+- The caps apply to what is loaded (thumbnails, well and image views, measurements,
+  normalization, comparisons, exports). The plate view still shows the whole plate:
+  wells beyond the cap are hatched and labelled "Not loaded", and can't be selected.
+- Changing a cap reapplies it to the already indexed source: no re-read, and the
+  dropped wells' and fields' previews and selections are removed from the caches.
+- Exports (overview_selection.json) and overview_view.json record the caps.
+- Tests: tests/qt/test_725_overview_load_limits.py, plus the live-setting test in
+  test_725_overview_round5.py.
+
 MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
 Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
 _display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.

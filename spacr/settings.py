@@ -8111,6 +8111,8 @@ OVERVIEW_APP_KEY = 'overview'
 OVERVIEW_DEFAULTS = {
     'src': 'path',
     'custom_regex': None,
+    'overview_max_wells': 'all',
+    'overview_max_fields': 'all',
     'overview_channels': '0',
     'overview_color_mode': 'additive',
     'overview_preview_resolution': 1024,
@@ -8150,6 +8152,8 @@ OVERVIEW_DEFAULTS = {
 
 OVERVIEW_TYPES = {
     'overview_channels': (str, int, list, type(None)),
+    'overview_max_wells': (str, int),
+    'overview_max_fields': (str, int),
     'overview_color_mode': str,
     'overview_preview_resolution': int,
     'overview_tile_size': int,
@@ -8188,6 +8192,8 @@ OVERVIEW_TYPES = {
 
 OVERVIEW_TOOLTIPS = {
     'overview_channels': "(str) - Channels shown in the overview, comma-separated. Use the filename channel IDs when each channel is a separate file, and zero-based indices for multichannel images. Up to three channels are shown as red, green and blue; more are shown side by side. Default '0'.",
+    'overview_max_wells': "(str or int) - Most wells loaded from each plate: 'all', or a number. Each loaded plate is capped on its own, always with its first wells in plate order (A01, A02, ... B01, ...). Wells beyond the cap stay on the plate view marked as not loaded and are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Changing it adds or drops only the wells concerned. Default 'all'.",
+    'overview_max_fields': "(str or int) - Most fields loaded from each well: 'all', or a number. The first fields in field-number order are kept, with every time point and Z plane of each. Fields beyond the cap are left out of thumbnails, the well and image views, measurements, normalization and comparisons. Default 'all'.",
     'overview_color_mode': "(str) - How the shown channels are combined into one colour image. 'additive' adds up to three channels in their display colours on black. 'cmy' prints up to three channels as cyan, magenta and yellow inks on white, so overlapping signal reads as red, green or blue and full overlap as black. 'cmyk' adds a fourth channel as black (key) ink. A channel whose colour is set to cyan, magenta, yellow or black keeps that ink; the others take the unused inks in that order. Applies to the plate, well and image views and to exported PDFs. Default 'additive'.",
     'overview_preview_resolution': "(int) - Longest edge, in pixels, of the preview images the plate, well and image views load. Lower values load faster and use less memory; the Original button and zooming in still read original pixels. One of 128, 256, 512, 1024, 2048 or 4096. Default 1024.",
     'overview_tile_size': "(int) - Edge length, in screen pixels, of each field image in the well views. The slider in a well view's header changes the same value. Larger tiles show more detail per field and fewer fields at a time. Default 128.",
@@ -8237,7 +8243,7 @@ OVERVIEW_IMAGE_KEYS = (
 )
 
 OVERVIEW_CATEGORIES = {
-    'Source': ['src', 'custom_regex'],
+    'Source': ['src', 'custom_regex', 'overview_max_wells', 'overview_max_fields'],
     'Image': ['overview_preview_resolution', 'overview_original_on_open'],
     'Channels': ['overview_channels', 'overview_color_mode'],
     'Display': ['overview_tile_size', 'overview_tile_spacing'],

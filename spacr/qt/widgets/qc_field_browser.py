@@ -28,7 +28,7 @@ import functools
 
 import numpy as np
 from PySide6.QtCore import QEvent, QRect, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QImage, QPalette, QPixmap
+from PySide6.QtGui import QBrush, QColor, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
     QStyle,
@@ -1992,6 +1992,49 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
     return tuple(fields), detection
 
 
+def _overview_load_limit(value):
+    """Read a Max wells or Max fields setting: ``None`` for all, else a positive count."""
+    if value is None or isinstance(value, bool):
+        return None
+    text = str(value).strip().lower()
+    if text in ("", "all", "none", "0"):
+        return None
+    try:
+        return max(1, int(float(text)))
+    except ValueError:
+        return None
+
+
+def _overview_limited_fields(fields, max_wells=None, max_fields=None):
+    """The fields loaded under the Max wells per plate and Max fields per well caps.
+
+    Deterministic: each plate keeps its first ``max_wells`` wells in plate
+    order (A01, A02, ..., B01, ...), each well its first ``max_fields``
+    fields in field order, with every time point and Z plane of a kept
+    field. Fields without a well are kept.
+
+    :param fields: the indexed fields.
+    :param max_wells: wells per plate, or ``None`` for all.
+    :param max_fields: fields per well, or ``None`` for all.
+    :returns: the kept fields, in their original order.
+    """
+    if max_wells is None and max_fields is None:
+        return tuple(fields)
+    wells, kept_fields = {}, {}
+    for field in fields:
+        if field.unresolved or not field.well:
+            continue
+        wells.setdefault(field.plate, set()).add(field.well)
+        kept_fields.setdefault((field.plate, field.well), set()).add(field.field_id or field.field)
+    allowed_wells = {plate: set(sorted(names, key=_overview_natural_key)[:max_wells] if max_wells else names)
+                     for plate, names in wells.items()}
+    allowed_fields = {address: set(sorted(names, key=_overview_natural_key)[:max_fields] if max_fields else names)
+                      for address, names in kept_fields.items()}
+    return tuple(field for field in fields if field.unresolved or not field.well or (
+        field.well in allowed_wells[field.plate]
+        and (field.field_id or field.field) in allowed_fields[(field.plate, field.well)]))
+
+
 def _overview_tiff_pixel_size(image):
     """Read a micrometre pixel size from OME or ImageJ TIFF metadata, or None.
 
@@ -3514,7 +3557,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
                      conditions=None, normalization_context=None, annotations=None,
                      advanced_normalization=None, field_options=None, channel_colors=None,
-                     color_mode="additive"):
+                     color_mode="additive", load_limits=None):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -3704,6 +3747,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                       if row["status"] == "error" and field.caption not in known)
     metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
                 "field_options": field_options, "color_mode": str(color_mode or "additive"),
+                "load_limits": {"max_wells_per_plate": (load_limits or (None, None))[0],
+                                "max_fields_per_well": (load_limits or (None, None))[1]},
                 "fields": provenance, "errors": errors, "cancelled": stopped,
                 "requested_field_count": len(fields), "written_field_count": len(provenance),
                 "quality_edge": quality_edge, "dpi": dpi,
@@ -3788,6 +3833,17 @@ class _OverviewPlateDelegate(QStyledItemDelegate):
             strip = QColor(opts.palette.color(QPalette.Highlight))
             strip.setAlpha(110)
             painter.fillRect(option.rect.adjusted(1, 1, -1, -1), strip)
+            return
+        if index.data(_OVERVIEW_NOT_LOADED_ROLE):
+            painter.save()
+            hatch = QColor(opts.palette.color(QPalette.PlaceholderText))
+            hatch.setAlpha(90)
+            painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QBrush(hatch, Qt.BDiagPattern))
+            painter.setPen(opts.palette.color(QPalette.PlaceholderText))
+            text = option.fontMetrics.elidedText(str(index.data(Qt.DisplayRole) or "").replace("\n", " · "),
+                                                 Qt.ElideRight, option.rect.width() - 4)
+            painter.drawText(option.rect, Qt.AlignCenter, text)
+            painter.restore()
             return
         option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
         painter.save()
@@ -4062,6 +4118,7 @@ def _overview_group_count(fields, annotations, definition):
 
 
 _OVERVIEW_GROUP_NAME_ROLE = Qt.UserRole + 2
+_OVERVIEW_NOT_LOADED_ROLE = Qt.UserRole + 4
 
 
 class _OverviewGroupBuilder(QWidget):
@@ -4568,6 +4625,8 @@ class _FieldOverview(QWidget):
         self._native_pending = False
         self._metadata_source = ""
         self._source_paths = []
+        self._all_fields = ()
+        self._load_limits = (None, None)
         self._annotations = {}
         self._metadata_revision = 0
         self._annotation_write_lock = threading.Lock()
@@ -5381,7 +5440,9 @@ class _FieldOverview(QWidget):
         state["images"] = {_overview_key_text(key): value for key, value in self._image_overrides.items()}
         state["sources"] = list(getattr(self, "_source_paths", ()) or [self._metadata_source])
         state["options"] = {"use_subfolders": list(self._overview_options.get("use_subfolders") or ()),
-                            "excluded_plates": list(self._overview_options.get("excluded_plates") or ())}
+                            "excluded_plates": list(self._overview_options.get("excluded_plates") or ()),
+                            "max_wells_per_plate": self._load_limits[0],
+                            "max_fields_per_well": self._load_limits[1]}
         self._view_state = state
         self._view_state_pending = (self._metadata_source, state)
         if not self._view_state_writing:
@@ -5501,7 +5562,7 @@ class _FieldOverview(QWidget):
             return
         added, _detection = result
         added = _overview_matched_fields(added, self.regex.text())
-        taken = {field.plate for field in fields}
+        taken = {field.plate for field in self._all_fields}
         renamed = {}
         for plate in sorted({field.plate for field in added}, key=_overview_natural_key):
             name, number = plate, 2
@@ -5511,7 +5572,7 @@ class _FieldOverview(QWidget):
             renamed[plate] = name
         added = tuple(dataclasses.replace(field, plate=renamed[field.plate]) for field in added)
         self.source.setText("; ".join(_overview_source_paths(self.source.text()) + list(paths)))
-        self._indexed(tuple(fields) + added)
+        self._indexed(tuple(self._all_fields) + added)
         self._persist_view_state()
 
     def _remove_shown_plate(self, *_):
@@ -5529,15 +5590,11 @@ class _FieldOverview(QWidget):
 
         :param plate: the plate's session name.
         """
-        removed = tuple(field for field in self._fields if field.plate == plate)
-        if not removed or len(removed) == len(self._fields):
+        removed = tuple(field for field in self._all_fields if field.plate == plate)
+        if not removed or len(removed) == len(self._all_fields):
             return
         identities = {field.identity for field in removed}
-        for cache in (self._cache, self._thumbnail_cache):
-            for key in list(cache):
-                head = key[0] if isinstance(key, tuple) and key else key
-                if head in identities or (isinstance(head, tuple) and any(part in identities for part in head)):
-                    cache.pop(key, None)
+        self._drop_cached(identities)
         for address in [address for address in self._selected_wells if address[0] == plate]:
             self._selected_wells.discard(address)
             self._selected_well_axes.pop(address, None)
@@ -5556,8 +5613,39 @@ class _FieldOverview(QWidget):
         self._overview_options = options
         if kept != given:
             self.source.setText("; ".join(kept))
-        self._indexed(tuple(field for field in self._fields if field.plate != plate))
+        self._indexed(tuple(field for field in self._all_fields if field.plate != plate))
         self._persist_view_state()
+
+    def _drop_cached(self, identities):
+        """Forget the cached previews of the fields with these identities."""
+        for cache in (self._cache, self._thumbnail_cache):
+            for key in list(cache):
+                head = key[0] if isinstance(key, tuple) and key else key
+                if head in identities or (isinstance(head, tuple) and any(part in identities for part in head)):
+                    cache.pop(key, None)
+
+    def _set_load_limits(self, max_wells=None, max_fields=None):
+        """Load at most ``max_wells`` wells per plate and ``max_fields`` fields per well.
+
+        Only the difference is reloaded: raising a cap adds the wells or
+        fields it lets in, lowering one drops theirs from the caches; the
+        indexed source is not read again.
+
+        :param max_wells: the Max wells per plate setting.
+        :param max_fields: the Max fields per well setting.
+        """
+        limits = (_overview_load_limit(max_wells), _overview_load_limit(max_fields))
+        if limits == self._load_limits:
+            return
+        self._load_limits = limits
+        if not self._all_fields:
+            return
+        kept = {field.identity for field in _overview_limited_fields(self._all_fields, *limits)}
+        self._drop_cached({field.identity for field in self._fields if field.identity not in kept})
+        for identity in [identity for identity in self._selected_fields if identity not in kept]:
+            self._selected_fields.pop(identity, None)
+            self._selected_field_options.pop(identity, None)
+        self._indexed(self._all_fields)
 
     def _plate_key(self, plate=None):
         """The stable key (:func:`_overview_plate_key`) of a plate shown in this session.
@@ -6015,6 +6103,8 @@ class _FieldOverview(QWidget):
         from PySide6.QtWidgets import QMenu
 
         item = self.wells.itemAt(position)
+        if item is not None and item.data(_OVERVIEW_NOT_LOADED_ROLE):
+            item = None
         if item is not None and not item.isSelected():
             self.wells.clearSelection()
             item.setSelected(True)
@@ -7976,6 +8066,7 @@ class _FieldOverview(QWidget):
         self._selected_well_options.clear()
         self._selected_field_options.clear()
         self._fields, self._visible = (), ()
+        self._all_fields = ()
         self.wells.clear()
         self.fields.clear()
         self.view.clear_image()
@@ -8000,6 +8091,8 @@ class _FieldOverview(QWidget):
 
         :param fields: immutable source records returned by the metadata indexer.
         """
+        self._all_fields = tuple(fields)
+        fields = _overview_limited_fields(fields, *self._load_limits)
         self._fields = fields
         self._source_paths = _overview_source_paths(self.source.text())
         self._metadata_source = self._source_paths[0] if self._source_paths else ""
@@ -8121,7 +8214,12 @@ class _FieldOverview(QWidget):
         from collections import Counter
         from .sortable_table import table_item
         known_wells = {field.well for field in available}
+        loaded_wells = {field.well for field in self._fields if field.plate == plate}
+        skipped = {f.well: (int(f.row), f.column) for f in self._all_fields
+                   if f.plate == plate and not f.unresolved and f.well and f.well not in loaded_wells
+                   and (row is None or f.row == row) and (col is None or f.column == col)}
         addresses = {f.well: (int(f.row), f.column) for f in available if not f.unresolved}
+        addresses.update({well: position for well, position in skipped.items() if well not in addresses})
         rows = max((position[0] for position in addresses.values()), default=0)
         columns = max((position[1] for position in addresses.values()), default=1)
         if geometry is not None:
@@ -8175,6 +8273,14 @@ class _FieldOverview(QWidget):
             item.setSelected((plate, well) in self._selected_wells)
             self._well_positions[well] = (r - 1, c - 1)
             self.wells.setRowHeight(r - 1, 150)
+        for well, (r, c) in sorted(skipped.items()):
+            if well in known_wells or r > self.wells.rowCount() or c > self.wells.columnCount():
+                continue
+            item = table_item(tr("{well}\nNot loaded", language=language, well=well))
+            item.setFlags(Qt.NoItemFlags)
+            item.setData(_OVERVIEW_NOT_LOADED_ROLE, True)
+            item.setToolTip(tr("{well} is not loaded: it is beyond Max wells per plate.", well=well))
+            self.wells.setItem(r - 1, c - 1, item)
         for index in range(columns):
             self.wells.setColumnWidth(index, 180)
         self.wells.blockSignals(False)
@@ -8806,6 +8912,7 @@ class _FieldOverview(QWidget):
         cancelled, seed = self._cancelled, self.seed.value()
         measurements = self.measurements.isChecked()
         options = self._display_kwargs()
+        options.update(load_limits=self._load_limits)
         options.update(quality_edge=self.pdf_quality.currentData(), dpi=self.pdf_dpi.currentData(),
                        conditions=dict(self._conditions), annotations=self._annotation_snapshot(),
                        field_options=self._selection_options(selected))
@@ -9320,7 +9427,8 @@ _OVERVIEW_CHOSEN_BY_METADATA = frozenset({
 
 _OVERVIEW_IMAGE_SETTINGS = ("overview_tile_size", "overview_tile_spacing",
                             "overview_original_on_open", "overview_enhance_channels",
-                            "overview_normalize_channels", "overview_color_mode")
+                            "overview_normalize_channels", "overview_color_mode",
+                            "overview_max_wells", "overview_max_fields")
 
 
 def _overview_channel_targets(value):
@@ -9549,6 +9657,7 @@ class _OverviewSettingsBridge:
             pass
         browser._original_on_open = bool(values.get("overview_original_on_open"))
         browser._set_color_mode(values.get("overview_color_mode"))
+        browser._set_load_limits(values.get("overview_max_wells"), values.get("overview_max_fields"))
         browser._set_channel_targets(_overview_channel_targets(values.get("overview_enhance_channels")),
                                      _overview_channel_targets(values.get("overview_normalize_channels")))
         try:
