@@ -930,6 +930,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'overview_objects_unit',
     'overview_percentile_high',
     'overview_percentile_low',
+    'overview_preview_resolution',
     'overwrite',
     'own_dino_config',
     'p_threshold_alpha',
