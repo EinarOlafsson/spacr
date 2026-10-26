@@ -284,6 +284,8 @@ def runs_in(registry: Any, project: Union[str, os.PathLike, None] = None, *,
     :returns: :class:`RunRef` objects, newest first.
     """
     artifacts = registry.by_project(project)
+    if not artifacts and project:
+        artifacts = _rows_of_a_moved_project(registry, project)
     grouped: Dict[str, List[Any]] = {}
     for artifact in artifacts:
         run_id = (getattr(artifact, "run_id", "") or "").strip()
@@ -294,6 +296,50 @@ def runs_in(registry: Any, project: Union[str, os.PathLike, None] = None, *,
             for run_id, items in grouped.items()]
     runs.sort(key=lambda r: (-r.created_ns, r.run_id))
     return runs[:limit] if limit is not None else runs
+
+
+def _rows_of_a_moved_project(registry: Any,
+                             project: Union[str, os.PathLike]) -> List[Any]:
+    """The rows of a project's own registry after the project was moved.
+
+    Each row records the absolute project root and output path it was
+    registered under. A project folder copied to another machine, mounted
+    elsewhere or renamed keeps its ``artifacts.db``, but no row names the
+    new root, so :meth:`spacr.artifacts.Registry.by_project` finds nothing
+    and the comparison lists no runs. A registry file that sits in the
+    project folder holds only that project's outputs, so its rows are read
+    as this project's: the recorded root becomes ``project`` and each path
+    under the recorded root is rebased onto it. A shared registry
+    (:data:`spacr.artifacts.ARTIFACTS_DB_ENV`) is never read this way.
+
+    :param registry: a :class:`spacr.artifacts.Registry`.
+    :param project: the project root the user opened.
+    :returns: the rebased artifacts, newest first; empty when the registry
+        is shared or is not the project's own file.
+    """
+    from dataclasses import replace
+
+    from .artifacts import ARTIFACTS_DB_ENV, registry_path
+
+    if os.environ.get(ARTIFACTS_DB_ENV, "").strip():
+        return []
+    root = os.path.abspath(os.path.expanduser(os.fspath(project)))
+    own = os.path.normcase(os.path.abspath(str(getattr(registry, "path", ""))))
+    if own != os.path.normcase(registry_path(root)):
+        return []
+    rebased = []
+    for artifact in registry.all():
+        recorded = str(getattr(artifact, "project", "") or "")
+        path = str(getattr(artifact, "path", "") or "")
+        if recorded and path:
+            try:
+                inside = os.path.commonpath([recorded, path]) == recorded
+            except ValueError:
+                inside = False
+            if inside:
+                path = os.path.join(root, os.path.relpath(path, recorded))
+        rebased.append(replace(artifact, project=root, path=path))
+    return rebased
 
 
 def _run_from_artifacts(run_id: str, artifacts: Sequence[Any]) -> RunRef:
