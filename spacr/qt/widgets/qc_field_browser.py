@@ -2213,6 +2213,46 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
     return tuple(fields), detection
 
 
+def _overview_folders_dialog(parent, title):
+    """A folder picker for one or several plate folders that opens big enough and resizes by its edges.
+
+    The non-native picker opened at Qt's small default, so its buttons were
+    cut off. It opens at four fifths of the screen, never smaller than
+    its own layout needs, and keeps a margin wider than the resize band, so
+    every edge can be dragged the way every spaCR dialog is resized.
+
+    :param parent: the widget the picker belongs to.
+    :param title: the translated window title.
+    :returns: the configured, not yet shown :class:`QFileDialog`.
+    """
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QAbstractItemView, QApplication, QFileDialog, QListView, QTreeView
+    from .glass import RESIZE_BAND, let_the_user_resize
+
+    dialog = QFileDialog(parent, title)
+    dialog.setFileMode(QFileDialog.Directory)
+    dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+    dialog.setOption(QFileDialog.ShowDirsOnly, True)
+    for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
+        view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+    margin = RESIZE_BAND + 4
+    if dialog.layout() is not None:
+        dialog.layout().setContentsMargins(margin, margin, margin, margin)
+    screen = (parent.screen() if parent is not None else None) or QApplication.primaryScreen()
+    needed = dialog.minimumSizeHint().expandedTo(dialog.sizeHint()).expandedTo(QSize(720, 480))
+    if screen is not None:
+        available = screen.availableGeometry()
+        wanted = QSize(max(needed.width(), int(available.width() * .8)),
+                       max(needed.height(), int(available.height() * .8)))
+        dialog.resize(wanted.boundedTo(available.size()))
+    else:
+        dialog.resize(needed)
+    dialog.setMinimumSize(dialog.minimumSizeHint())
+    dialog.setSizeGripEnabled(True)
+    let_the_user_resize(dialog)
+    return dialog
+
+
 def _overview_load_limit(value):
     """Read a Max wells or Max fields setting: ``None`` for all, else a positive count."""
     if value is None or isinstance(value, bool):
@@ -7025,14 +7065,8 @@ class _FieldOverview(QWidget):
 
         :returns: the chosen paths.
         """
-        from PySide6.QtWidgets import QAbstractItemView, QFileDialog, QListView, QTreeView
-
-        dialog = QFileDialog(self, tr("Add plates…"))
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setOption(QFileDialog.ShowDirsOnly, True)
-        for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
-            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        dialog = _overview_folders_dialog(self, tr("Add plates…"))
+        self._add_plates_dialog = dialog
         paths = dialog.selectedFiles() if dialog.exec() else []
         if paths:
             self._add_sources(paths)
@@ -13311,14 +13345,8 @@ class _OverviewMetadataWizard(QWidget):
 
         :returns: the chosen paths.
         """
-        from PySide6.QtWidgets import QAbstractItemView, QFileDialog, QListView, QTreeView
-
-        dialog = QFileDialog(self, tr("Add folders…"))
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setOption(QFileDialog.ShowDirsOnly, True)
-        for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
-            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        dialog = _overview_folders_dialog(self, tr("Add folders…"))
+        self._add_folders_dialog = dialog
         paths = dialog.selectedFiles() if dialog.exec() else []
         if paths:
             self._add_source_paths(paths)
