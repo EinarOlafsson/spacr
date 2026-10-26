@@ -1109,9 +1109,8 @@ def _check_macos_qt_release(ctx: Context) -> Result:
     """Warn about a macOS Qt that crashes under an accessibility client.
 
     Qt 6.11.0 to 6.12.0 free cached accessibility interfaces while the Cocoa
-    bridge still uses them. A table sort or a live GUI-scale change then
-    crashes spaCR, often later and somewhere unrelated, such as while a
-    widget is being created. New installs are pinned below 6.11 on macOS;
+    bridge still uses them, and sorting a table crashes spaCR. New installs
+    are pinned below 6.11 on macOS;
     this row finds an environment built before that pin.
 
     :param ctx: not read; the installed PySide6 distribution is.
@@ -1129,8 +1128,7 @@ def _check_macos_qt_release(ctx: Context) -> Result:
             "macOS Qt release",
             WARN,
             f"PySide6 {version} crashes on macOS when VoiceOver or another "
-            "accessibility client is attached (table sorts, live GUI-scale "
-            "changes).",
+            "accessibility client is attached (sorting a table).",
             fix='python -m pip install "PySide6>=6.6,<6.11"',
         )
     return Result("macOS Qt release", PASS,
