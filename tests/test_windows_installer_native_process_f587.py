@@ -249,6 +249,13 @@ $Catches=@($Ast.FindAll({{ param($Node)
 if ($Catches.Count -ne 1) {{ throw 'Expected unique actual outer catch' }}
 $CatchText=$Catches[0].Body.Extent.Text
 $CatchBody=[scriptblock]::Create($CatchText.Substring(1,$CatchText.Length-2))
+foreach ($Helper in 'Remove-SpacrTree','ConvertTo-SpacrExtendedPath','Remove-SpacrEnvironment') {{
+    $Definition=@($Ast.FindAll({{ param($Node)
+        $Node -is [Management.Automation.Language.FunctionDefinitionAst] -and $Node.Name -eq $Helper
+    }},$true))
+    if ($Definition.Count -ne 1) {{ throw ('Expected one installer helper ' + $Helper) }}
+    Invoke-Expression $Definition[0].Extent.Text
+}}
 function Get-SpacrInstallerMessage {{ param($Name) return $Name }}
 $InstallerStarted=$true
 $Committed=$false
@@ -287,7 +294,8 @@ try {{
 ''')
     assert result.returncode == 0, result.stdout + result.stderr
     assert str(tmp_path / 'owned-stage').encode() in result.stdout
-    assert b'locked.dll' in result.stdout
+    # The console wraps a long warning at its width, wherever that falls.
+    assert b'locked.dll' in result.stdout.replace(b'\r\n', b'')
     if rollback_fails:
         assert b'gui_failed' in result.stdout
         assert str(tmp_path / 'owned-previous').encode() in result.stdout

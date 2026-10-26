@@ -418,6 +418,25 @@ function Remove-SpacrTree {
     }
     [System.IO.Directory]::Delete($Folder, $false)
 }
+# A virtual environment holds PySide6 files deeper than MAX_PATH, which
+# Remove-Item cannot reach on Windows PowerShell 5.1; the extended form can.
+function ConvertTo-SpacrExtendedPath {
+    param([string]$Path)
+    $Full = [System.IO.Path]::GetFullPath($Path)
+    if ($Full.StartsWith("\\?\")) { return $Full }
+    if ($Full.StartsWith("\\")) { return "\\?\UNC\" + $Full.Substring(2) }
+    return "\\?\" + $Full
+}
+function Remove-SpacrEnvironment {
+    param([string]$Folder)
+    if (Test-Path -LiteralPath $Folder) {
+        try {
+            Remove-SpacrTree (ConvertTo-SpacrExtendedPath $Folder)
+        } catch {
+            throw $_.Exception.Message.Replace("\\?\UNC\", "\\").Replace("\\?\", "")
+        }
+    }
+}
 function Remove-SpacrInstallerWork {
     $Expected = [System.IO.Path]::GetFullPath((Join-Path $env:TEMP ("spacr-install-" + $PID))).TrimEnd("\")
     if ([System.IO.Path]::GetFullPath($WorkDir).TrimEnd("\") -ne $Expected) {
@@ -596,9 +615,7 @@ try {
     $env:UV_CACHE_DIR = $CacheDir
     Invoke-Checked $UvExe python install $PythonVersion --managed-python --no-bin --no-registry
 
-    if (Test-Path $StageVenv) {
-        Remove-Item -Recurse -Force $StageVenv
-    }
+    Remove-SpacrEnvironment $StageVenv
     Write-Host (Get-SpacrInstallerMessage "creating_environment") -ForegroundColor Cyan
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
     Invoke-Checked -Command $CleanupPython -Arguments @(
@@ -732,9 +749,14 @@ try {
             [string]::Join([Environment]::NewLine, @($FinalIdentity)),
             [System.Text.UTF8Encoding]::new($false))
     } catch {
-        Remove-Item -Recurse -Force $VenvDir
-        if (Test-Path $OldVenv) { Move-Item $OldVenv $VenvDir }
-        throw
+        $IdentityError = $_
+        try {
+            Remove-SpacrEnvironment $VenvDir
+            if (Test-Path $OldVenv) { Move-Item $OldVenv $VenvDir }
+        } catch {
+            Write-Warning $_.Exception.Message
+        }
+        throw $IdentityError
     }
     $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
     $MetadataTouched = $true
@@ -762,9 +784,15 @@ try {
         if ((Test-Path (Join-Path $OfflineBundle "test_data")) -and -not (Test-Path $TestData)) {
             Copy-Item -Recurse (Join-Path $OfflineBundle "test_data") $TestData
         }
+        # A bundle copied from read-only media (a mounted ISO or DVD) leaves these
+        # read-only, so the next install must overwrite them by force.
         $MaskCheck = Join-Path $InstallRoot "offline_mask_check.py"
-        Copy-Item (Join-Path $OfflineBundle "offline_mask_check.py") $MaskCheck
-        Copy-Item (Join-Path $OfflineBundle "bundle.json") (Join-Path $InstallRoot "offline-bundle.json")
+        $BundleRecord = Join-Path $InstallRoot "offline-bundle.json"
+        Copy-Item -Force (Join-Path $OfflineBundle "offline_mask_check.py") $MaskCheck
+        Copy-Item -Force (Join-Path $OfflineBundle "bundle.json") $BundleRecord
+        foreach ($Copied in @($MaskCheck, $BundleRecord)) {
+            Set-ItemProperty -LiteralPath $Copied -Name IsReadOnly -Value $false
+        }
         if ($CheckMask) {
             Invoke-Checked -Command $InstalledPython -Arguments @(
                 "-I", "-X", "utf8", $MaskCheck, "--data", (Join-Path $TestData "plate1"))
@@ -782,7 +810,7 @@ raise SystemExit(run())
 
     $Committed = $true
     $MetadataTouched = $false
-    if (Test-Path $OldVenv) { Remove-Item -Recurse -Force $OldVenv }
+    Remove-SpacrEnvironment $OldVenv
     Write-Host ""
     Write-Host (Get-SpacrInstallerMessage "installed") -ForegroundColor Green
     Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
@@ -792,9 +820,7 @@ raise SystemExit(run())
     $RuntimeRestored = $true
     if (-not $Committed -and $OldVenv -and (Test-Path $OldVenv)) {
         try {
-            if (Test-Path -LiteralPath $VenvDir) {
-                Remove-Item -LiteralPath $VenvDir -Recurse -Force -ErrorAction Stop
-            }
+            Remove-SpacrEnvironment $VenvDir
             Move-Item -LiteralPath $OldVenv -Destination $VenvDir
         } catch {
             $RuntimeRestored = $false
@@ -814,9 +840,7 @@ raise SystemExit(run())
         }
     }
     try {
-        if (Test-Path -LiteralPath $StageVenv) {
-            Remove-Item -LiteralPath $StageVenv -Recurse -Force -ErrorAction Stop
-        }
+        Remove-SpacrEnvironment $StageVenv
     } catch {
         $RetainWorkDir = $true
         Write-Warning $_.Exception.Message
