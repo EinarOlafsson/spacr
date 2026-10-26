@@ -993,6 +993,10 @@ if [[ "$pip_check_code" != "0" ]]; then
 fi
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
+# Load every native library once now, so the first launch does not pay the
+# operating system's first-load check of each new binary (spacr.doctor).
+QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
+    "from spacr.doctor import _warm_native_libraries; _warm_native_libraries()" >/dev/null 2>&1 || true
 if [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "nvidia" ]]; then
     "$stage_python" -I -c \
         "import torch; assert torch.cuda.is_available(), 'GPU install selected but CUDA is unavailable'"

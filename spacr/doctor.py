@@ -603,6 +603,55 @@ def _conda_create(name: str) -> str:
     return f"{prefix}conda create -n {name} python=3.12 -y"
 
 
+#: Imported once by the installers after the environment is in place.
+_WARM_MODULES = ("spacr.qt.app", "torch", "cv2", "cellpose.models", "psutil", "qtawesome")
+
+
+def _warm_native_libraries() -> List[str]:
+    """Load spaCR's native libraries once, so the installer pays the first load.
+
+    macOS validates and scans a newly written Mach-O library the first time it
+    is loaded, then caches the result. On an Apple Silicon MacBook the first
+    process after a fresh install spent 56 s importing what the second did in
+    5 s (cv2 9.7 s, torch 4.8 s, pyarrow, llvmlite, SciPy's LAPACK, PySide6),
+    so a user's first launch after every install or update stalled for
+    seconds as Home and each module page opened: 59 release-acceptance
+    violations, against 5 when this ran first. Windows Defender scans a new
+    DLL on first load for the same reason.
+
+    Imports the application, every screen module under ``spacr.qt.screens``
+    (so the list follows the code) and :data:`_WARM_MODULES`, then draws one
+    qtawesome glyph so its font files are registered. A module that fails to
+    import is skipped: warming must never fail an install.
+
+    :returns: the modules that could not be imported, for the installer log.
+    """
+    import importlib
+    import pkgutil
+
+    names = list(_WARM_MODULES)
+    try:
+        screens = importlib.import_module("spacr.qt.screens")
+        names += [f"spacr.qt.screens.{info.name}" for info in pkgutil.iter_modules(screens.__path__)]
+    except Exception:
+        names.append("spacr.qt.screens")
+    failed = []
+    for name in names:
+        try:
+            importlib.import_module(name)
+        except Exception:
+            failed.append(name)
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        app = QApplication.instance() or QApplication(["spacr-warm"])
+        importlib.import_module("qtawesome").icon("fa5s.square").pixmap(16, 16)
+        del app
+    except Exception:
+        failed.append("qtawesome fonts")
+    return failed
+
+
 def _import_spacr() -> Any:
     """Import the ``spacr`` package. Split out so checks can be tested."""
     import spacr

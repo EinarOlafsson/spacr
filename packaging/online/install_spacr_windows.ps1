@@ -665,6 +665,11 @@ try {
         "-c",
         "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
     )
+    # Load every native library once now, so the first launch does not wait
+    # for Defender's first-load scan of each new DLL (spacr.doctor).
+    try {
+        & $StagePython -I -X utf8 -c "from spacr.doctor import _warm_native_libraries; _warm_native_libraries()" *> $null
+    } catch { }
     if ($TorchBackend -ne "cpu" -and $DetectedAccelerator -eq "nvidia") {
         Invoke-Checked -Command $StagePython -Arguments @(
             "-I",
