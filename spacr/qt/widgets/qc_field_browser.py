@@ -9102,7 +9102,10 @@ class _OverviewModulePage(QWidget):
 
         The bridge is detached first, and the browser's own controls go back
         under the browser before their rows are removed, so they are deleted
-        with it and never before it (GitHub #165, #166).
+        with it and never before it (GitHub #165, #166). Each row is found
+        while its field is still in the form and removed by its index: moving
+        a lone control out takes it from the form, which left the row's label
+        behind and made ``removeRow(field)`` warn ``Invalid widget``.
         """
         from shiboken6 import isValid
 
@@ -9114,6 +9117,10 @@ class _OverviewModulePage(QWidget):
             browser._retire()
             self.stack.removeWidget(browser)
         for section, field, widgets in self._rows:
+            try:
+                row = section._form.getWidgetPosition(field)[0] if isValid(field) else -1
+            except RuntimeError:
+                row = -1
             if browser is not None and isValid(browser):
                 for widget in widgets:
                     if isValid(widget):
@@ -9123,10 +9130,11 @@ class _OverviewModulePage(QWidget):
                             pass
                         widget.hide()
                         widget.setParent(browser)
-            try:
-                section._form.removeRow(field)
-            except RuntimeError:
-                pass
+            if row >= 0:
+                try:
+                    section._form.removeRow(row)
+                except RuntimeError:
+                    pass
         self._rows.clear()
         model = self._screen._settings_model
         if self._hidden_keys:
