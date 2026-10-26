@@ -5127,3 +5127,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-26 — Exercise the offered green/magenta display mode with actual green, magenta and cyan composite pixels; the three colour controls and unchanged every-mode census pass (4 checks, 7.78s). No production, assertion or ratchet change.
 
 2026-10-26 — Release-blocking CI followup owned by easy_n79/root: isolate PID-platform mocks from host os, use real QWidget coverage controls, and restore the package Toggle for Show only flagged; preserve existing assertions; all seven owning CPU/offscreen checks pass (9.35s), root integration/publication pending.
+
+2026-10-26 — G3 owns two retained release-fixture failures: scope the Home version import blocker to its assertion so Qt teardown can import normally, and intercept the QObject.findChildren selector actually used by restyle replay while preserving every native-pointer, wrapper-identity and event assertion. Test-only; the one replay function stays disjoint from G5’s font controls. Independent source peer accepted and both owning cases pass (3.38s) under the 8G CPU cap; root publication remains.

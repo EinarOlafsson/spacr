@@ -576,9 +576,9 @@ def test_a_build_with_no_importable_version_names_no_release(monkeypatch):
     "spaCR dev" says less than "News", and a package that cannot even be
     imported has no release to name.
     """
-    _block("spacr", monkeypatch)
-
-    assert HomePage._version() == ""
+    with monkeypatch.context() as blocked_imports:
+        _block("spacr", blocked_imports)
+        assert HomePage._version() == ""
 
 
 def test_closing_home_stops_its_ticker_even_when_the_registry_is_gone(page):
