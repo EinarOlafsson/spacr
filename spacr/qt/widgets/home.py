@@ -2200,26 +2200,38 @@ class NewsPanel(Panel):
         their own tags; escaping after building the HTML is the mistake that
         turns a release note into an injection.
 
+        Markdown links ``[text](url)`` become anchors on their own text in
+        the same pass that links bare URLs; linking bare URLs alone took the
+        closing parenthesis into the address and showed the reader
+        ``[releases page](https://...releases)`` with a broken link, as the
+        1.5.1.5 notes did on Home. Headings of any level are drawn bold, and
+        inline code loses its backticks.
+
         :param body: release-note text in GitHub-flavoured markdown; it is
-            HTML-escaped before bare URLs, ``**bold**``, ``##`` headings and
-            bullet lines are turned into tags.
+            HTML-escaped before links, ``**bold**``, inline code, headings
+            and bullet lines are turned into tags.
         :param link_colour: CSS colour for the generated links.
         """
         text = escape(body or "").strip()
         if not text:
             return ""
+
+        link = (f'<a href="{{0}}" style="color: {link_colour};'
+                f' text-decoration: none;">{{1}}</a>')
         text = re.sub(
-            r"(https?://[^\s<>\"']+?)([.,;:]?)(?=\s|$)",
-            lambda m: (f'<a href="{m.group(1)}" style="color: {link_colour};'
-                       f' text-decoration: none;">{m.group(1)}</a>'
-                       f"{m.group(2)}"),
+            r"\[([^\]\n]+)\]\((https?://[^\s()<>`]+)\)"
+            r"|(https?://[^\s<>()`]+?)([.,;:]?)(?=[\s)]|$)",
+            lambda m: (link.format(m.group(2), m.group(1)) if m.group(1)
+                       else link.format(m.group(3), m.group(3)) + m.group(4)),
             text)
         text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+        text = re.sub(r"`([^`\n]+)`", r"<code>\1</code>", text)
         lines = []
         for line in text.splitlines():
             stripped = line.strip()
-            if stripped.startswith("## "):
-                lines.append(f"<b>{stripped[3:]}</b>")
+            heading = re.match(r"#{1,6} (.+)", stripped)
+            if heading:
+                lines.append(f"<b>{heading.group(1)}</b>")
             elif stripped.startswith(("* ", "- ")):
                 lines.append(f"\u2022 {stripped[2:]}")
             else:

@@ -639,3 +639,20 @@ def test_the_hero_labels_are_reachable_by_the_name_that_clears_them(page):
 
     assert hero is not None
     assert hero.findChildren(QLabel)
+
+
+def test_release_notes_render_markdown_links_headings_and_code():
+    """The 1.5.1.5 notes showed ``### Upgrading`` and a link that ate its ``)``."""
+    from spacr.qt.widgets.home import NewsPanel
+
+    body = ("### Upgrading\n"
+            "Install the `.pkg` from the [releases page](https://github.com/EinarOlafsson/spacr/releases).\n"
+            "See https://example.org/notes, then <script>x</script>.")
+    html = NewsPanel.render_body(body, "#123456")
+    assert "<b>Upgrading</b>" in html and "###" not in html
+    assert ('<a href="https://github.com/EinarOlafsson/spacr/releases" style="color: #123456;'
+            ' text-decoration: none;">releases page</a>.') in html
+    assert "[releases page]" not in html and "releases)" not in html
+    assert "<code>.pkg</code>" in html
+    assert '<a href="https://example.org/notes"' in html and "notes</a>," in html
+    assert "&lt;script&gt;" in html and "<script>" not in html
