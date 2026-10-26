@@ -147,7 +147,14 @@ def published_index(tmp_path, web_root):
         f'data-video4k-root="{ROOT}" data-web-root="{web_root}">', encoding="utf-8")
     root = tmp_path / 'candidate'
     root.mkdir()
-    (root / 'release-manifest.json').write_text(json.dumps({'files': []}), encoding="utf-8")
+    manifest = {'files': [dict(path='media_host/fixture.m4a', bytes=1, sha256=sha(b'x'))]}
+    (root / 'release-manifest.json').write_text(json.dumps(manifest), encoding="utf-8")
+    (root / 'publication-receipt.json').write_text(json.dumps(dict(commit='a' * 40,
+        media_root=ROOT, tag='synthetic-fixture', media_files=1,
+        manifest_sha256=sha((root / 'release-manifest.json').read_bytes()),
+        readback=dict(commit='a' * 40, passed=True, files_expected=1, metadata_matched=1,
+                      downloaded_sha256_matched=1, metadata_failures=[], download_failures=[]),
+        pages=dict(index_sha256=sha((pages / 'index.html').read_bytes())))), encoding='utf-8')
     return root, pages
 
 
@@ -161,3 +168,137 @@ def test_published_tree_requires_the_web_root_on_the_same_pinned_revision(tmp_pa
     root, pages = published_index(other, ROOT[:-1] + 'b')
     with pytest.raises(ValueError):
         published_tree(root, pages)
+
+
+@pytest.fixture
+def archived_publication(tmp_path, monkeypatch):
+    """Real84 catalog structures, synthetic media: no network or browser work."""
+    import archive_lessons
+    import publish_release_candidate as publication
+    from stage_lesson import write
+    source = Path(__file__).resolve().parents[1] / 'release_candidate/web'
+    full = archive_lessons.load_tree(source)
+    root, pages = published_index(tmp_path, ROOT)
+    repo = tmp_path / 'repo'
+    pages = repo / 'docs/source/_extra/tutorials'
+    pages.mkdir(parents=True)
+    # Only the normal publisher's index substitutions matter in this fixture.
+    index = ('<html data-production-root="production" data-audio-root="../media_host" '
+             'data-video4k-root="../media_host" data-web-root="../media_host">'
+             '<b id="available-count">84</b><b id="total-count">84</b>0 of 84 complete Lesson 1 of 84'
+             + ''.join(f'<script src="{name}"></script>' for name in publication.VERSIONED))
+    files = {name: archive_lessons.render(name, data).encode() for name, data in full.items()}
+    files.update({'index.html': index.encode(), 'app_v2.js': b'unchanged player',
+                  'styles.css': b'unchanged styles', 'voice_catalog.js': b'unchanged voices',
+                  'production/06_api/poster.jpg': b'visible poster',
+                  'production/18_motility/poster.jpg': b'archived poster'})
+    records = []
+    for name, content in files.items():
+        path = root / 'web' / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        records.append(dict(path='web/' + name, bytes=len(content), sha256=sha(content)))
+    records.append(dict(path='media_host/fixture.m4a', bytes=1, sha256=sha(b'x')))
+    identities = [row['id'] for row in full['catalog/lessons_en.json']['lessons']]
+    assert len(identities) == 84
+    records.extend(dict(path=f'media_host/{identity}/web/{identity}_silent.mp4', bytes=1, sha256=sha(b'x'))
+                   for identity in identities)
+    write(root / 'release-manifest.json', dict(files=records, routes=84, ready_lessons=84,
+                                             hosted_web_lessons=identities))
+    receipt = publication.read(root / publication.RECEIPT)
+    receipt['manifest_sha256'] = publication.digest(root / 'release-manifest.json')
+    receipt.update(repository='datasets/einarolafsson/spacr-tutorials', branch='synthetic-fixture')
+    receipt['media_files'] = 85
+    receipt['readback'].update(files_expected=85, metadata_matched=85, downloaded_sha256_matched=85)
+    write(root / publication.RECEIPT, receipt)
+    (pages / 'index.html').write_text(index)
+    # The production count/index mutation is real; unrelated index exporting is isolated.
+    (repo / 'spacr/resources').mkdir(parents=True)
+    monkeypatch.setattr(publication, 'REPO', repo)
+    monkeypatch.setattr(publication, 'PAGES', pages)
+    monkeypatch.setattr(publication, 'validate', lambda *args, **kwargs: None)
+    monkeypatch.setattr(publication.build_tutorial_index, 'build', lambda path: {'fixture': True})
+    publication.pages(root, 'archive-fixture')
+    receipt = publication.read(root / publication.RECEIPT)
+    shown = publication.publication_view(root)['catalog/lessons_en.json']
+    visible = [row['id'] for row in shown['lessons']]
+    assert len(visible) == 59
+    checks = dict(passed=True, published=False, placeholder_cases=[],
+                  manifest_sha256=receipt['manifest_sha256'], media_root=ROOT,
+                  index_sha256=publication.digest(pages / 'index.html'),
+                  ready_playback_cases=[dict(lesson=identity, passed=True) for identity in visible])
+    write(root / 'checks/published-media-browser-checks.json', checks)
+    write(repo / 'tools/tutorials/release_candidate/checkpoint.json',
+          dict(manifest_sha256=receipt['manifest_sha256'], release_hold=True))
+    return root, pages, publication, full
+
+
+def test_archived_publication_keeps84_candidate_and_records_only_exact59(archived_publication):
+    from verify_release_candidate import published_tree
+    root, pages, publication, full = archived_publication
+    assert published_tree(root, pages) == ROOT
+    receipt = publication.read(root / publication.RECEIPT)
+    assert {key: receipt['pages'][key] for key in ('ready', 'routes', 'hosted_web_copies')} == {
+        'ready': 59, 'routes': 59, 'hosted_web_copies': 59}
+    assert not (pages / 'production/18_motility/poster.jpg').exists()
+    assert (pages / 'production/06_api/poster.jpg').read_bytes() == b'visible poster'
+    publication.record(root)
+    assert publication.read(root / 'web/catalog/lessons_en.json') == full['catalog/lessons_en.json']
+    assert len(publication.read(root / 'checks/published-media-browser-checks.json')['ready_playback_cases']) == 59
+
+
+@pytest.mark.parametrize('change', ['caption', 'runtime', 'navigation', 'player',
+                                   'receipt_root', 'dropped_visible', 'candidate_drift'])
+def test_archived_publication_rejects_projection_asset_or_revision_drift(archived_publication, change):
+    from verify_release_candidate import published_tree
+    import archive_lessons
+    from stage_lesson import write
+    root, pages, publication, _ = archived_publication
+    if change == 'receipt_root':
+        receipt = publication.read(root / publication.RECEIPT)
+        receipt['media_root'] = ROOT[:-1] + 'b'
+        write(root / publication.RECEIPT, receipt)
+    elif change == 'player':
+        (pages / 'app_v2.js').write_bytes(b'foreign player')
+    elif change in ('caption', 'dropped_visible', 'candidate_drift'):
+        name = 'catalog/captions_da.json' if change == 'caption' else 'catalog/lessons_en.json'
+        data = publication.read((root / 'web' if change == 'candidate_drift' else pages) / name)
+        if change == 'dropped_visible':
+            data['lessons'].pop(0)
+        else:
+            data['lessons'][0]['scenes'][0]['narration'] += ' Unreviewed change.'
+        if change == 'candidate_drift':
+            write(root / 'web' / name, data)
+            data = publication.publication_view(root)[name]
+        write(pages / name, data)
+    else:
+        name = 'lesson_catalog.js' if change == 'runtime' else 'module_navigation.js'
+        data = archive_lessons.load_tree(pages)[name]
+        if change == 'runtime':
+            data['lessons'][0]['title'] = 'Unreviewed route'
+        else:
+            data['routes'].pop(next(iter(data['routes'])))
+        (pages / name).write_text(archive_lessons.render(name, data), encoding='utf-8')
+    with pytest.raises(ValueError):
+        published_tree(root, pages)
+
+
+@pytest.mark.parametrize('change', ['wrong_lesson_same_count', 'duplicate_pass', 'wrong_domain_counts',
+                                   'wrong_report_counts'])
+def test_archived_publication_record_rejects_arbitrary59_case_claim(archived_publication, change):
+    from stage_lesson import write
+    root, _, publication, _ = archived_publication
+    checks = publication.read(root / 'checks/published-media-browser-checks.json')
+    if change == 'wrong_domain_counts':
+        receipt = publication.read(root / publication.RECEIPT)
+        receipt['pages'].update(ready=84, routes=84, hosted_web_copies=84)
+        write(root / publication.RECEIPT, receipt)
+    elif change == 'wrong_report_counts':
+        checks.update(routes=84, ready_lessons=84)
+    elif change == 'wrong_lesson_same_count':
+        checks['ready_playback_cases'][0]['lesson'] = '18_motility'
+    else:
+        checks['ready_playback_cases'][-1] = dict(checks['ready_playback_cases'][0])
+    write(root / 'checks/published-media-browser-checks.json', checks)
+    with pytest.raises(SystemExit, match='incomplete'):
+        publication.record(root)

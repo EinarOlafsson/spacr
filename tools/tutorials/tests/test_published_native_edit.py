@@ -4,6 +4,103 @@ from pathlib import Path
 import pytest
 import published_native_edit as edit
 
+
+@pytest.fixture
+def accepted_staged_source(tmp_path,monkeypatch,source_plan):
+    """Synthetic normal acceptance inputs; no media decode or capture claims."""
+    import native_live_timing,check_completed_matrix
+    from stage_lesson import write
+    import hashlib,json
+    english,original,tracks,plan,_=deepcopy(source_plan)
+    identity=english['id'];source=tmp_path/'accepted';target=tmp_path/'edited';repo=tmp_path/'repo'
+    root=source/'production'/identity;out=target/'production'/identity
+    proofs=[dict(language='en',voice=f'fixture{i}',audio_sha256=str(i),timing_sha256=str(i)) for i in range(50)]
+    original.update(lesson=identity,kind='native_visual_timing',native_live_video=True,
+                    coverage=dict(accepted=True),source_tracks=proofs)
+    write(root/'lesson.en.json',english);write(out/'lesson.en.json',english)
+    write(repo/'tools/tutorials/lessons'/f'{identity}.json',english)
+    write(root/'scenes.json',dict(scenes=[dict(narration=s['narration']) for s in english['scenes']]))
+    write(root/'visual.json',dict(scenes=[]))
+    clock=root/'video/native-live-timings.json';write(clock,original)
+    master=root/'video'/f'{identity}_silent.mp4';master.write_bytes(b'synthetic accepted master, not media')
+    capture=tmp_path/'original-capture'/'captures'/'mask';capture.mkdir(parents=True)
+    for name in ['frames.json','provenance.json','host_gate_summary.json']:
+        write(capture/name,{'synthetic':True})
+    write(capture.parent.parent/'exact-source.json',dict(sha256={'driver.py':'fixture'}))
+    write(source/'build-module-stage-report.json',dict(lesson=identity,sources=[str(capture)]))
+    write(root/'current-video-acceptance.json',dict(lesson=identity,master_sha256=edit.digest(master),
+        timing_sha256=edit.digest(clock),scene_specification_sha256=edit.digest(root/'scenes.json'),
+        canonical_english_sha256=hashlib.sha256(json.dumps(english,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
+        native_fifty_voice_timeline=True,master_full_decode_passed=True,
+        master_frame_count_matches_scene_boundaries=True,master_all_presentation_times_checked=True))
+    from audit_staged_catalogs import CATALOGS
+    for name in CATALOGS:
+        for base in [source,target]:write(base/'catalog'/name,dict(lessons=[english]))
+    monkeypatch.setattr(edit,'REPO',repo)
+    monkeypatch.setattr(native_live_timing,'checked_native_timing',lambda stage,identity:clock)
+    monkeypatch.setattr(native_live_timing,'verified_narration_tracks',lambda *args:(tracks,proofs))
+    monkeypatch.setattr(check_completed_matrix,'reconcile_visual_sources',lambda *args:None)
+    # This source branch must never call the published-baseline loader.
+    monkeypatch.setattr(edit,'_published_inputs',lambda *args:pytest.fail('Staged source is not published'))
+    _,_,bindings,_=edit._staged_inputs(source,identity)
+    plan.update(master_sha256=bindings['master']['sha256'],visual_timing_sha256=bindings['timing']['sha256'])
+    policy=dict(schema=1,lessons=[dict(lesson=identity,master_sha256=bindings['master']['sha256'],
+        visual_timing_sha256=bindings['timing']['sha256'],scenes=[dict(visual='untouched',
+        source_start=10,source_end=20,idle_tail_start=1.5)])])
+    policy_path=tmp_path/'reviewed-source-policy.json';write(policy_path,policy)
+    return source,target,identity,plan,policy_path,capture
+
+
+def test_staged_source_keeps_untouched_animation_and_generates_rebound_fences(accepted_staged_source):
+    from stage_lesson import write,read
+    source,target,identity,plan,policy,capture=accepted_staged_source
+    root,_,bindings,provenance,spec,timing=edit.inputs(target,identity,None,plan,
+        staged_source=source,source_idle_policy=policy)
+    assert spec['kind']=='edited_staged_native_intervals'
+    assert 'baseline_root' not in provenance and provenance['source_stage_root']==str(source)
+    assert any(row['path']==str(capture/'provenance.json') for row in provenance['source_files'])
+    first,untouched=timing['scenes']
+    assert first['kept_frames']==60 and untouched['duration']==10 and not untouched['edited']
+    assert untouched['source_keep_frames']==[[0,300]]
+    master=root/'video'/f'{identity}_silent.mp4';master.parent.mkdir(parents=True);master.write_bytes(b'edited fixture')
+    write(root/'video/native-live-timings.json',timing)
+    original=read(source/bindings['timing']['path'])
+    generated=edit.edited_policy(root,identity,timing,bindings,original=original,policy=read(policy))
+    assert [row['idle_tail_start'] for row in generated['lessons'][0]['scenes']]==[2,1.5]
+    assert generated['lessons'][0]['master_sha256']==edit.digest(master)
+    assert generated['lessons'][0]['visual_timing_sha256']==edit.digest(root/'video/native-live-timings.json')
+
+
+@pytest.mark.parametrize('fault',['finish_master','finish_incomplete','missing_capture','missing_fence',
+                                  'late_fence','audio_changed','catalog_changed','same_stage'])
+def test_staged_edit_rejects_unbound_source_or_unsafe_fences_before_encoding(accepted_staged_source,monkeypatch,fault):
+    from stage_lesson import read,write
+    import native_live_timing
+    source,target,identity,plan,policy,capture=accepted_staged_source
+    root=source/'production'/identity
+    if fault.startswith('finish'):
+        path=root/'current-video-acceptance.json';data=read(path)
+        if fault=='finish_master':data['master_sha256']='0'*64
+        else:data['master_full_decode_passed']=False
+        write(path,data)
+    elif fault=='missing_capture':
+        (capture/'provenance.json').rename(capture/'provenance.held.json')
+    elif fault in ['missing_fence','late_fence']:
+        data=read(policy)
+        if fault=='missing_fence':data['lessons'][0]['scenes']=[]
+        else:data['lessons'][0]['scenes'][0]['idle_tail_start']=2.1
+        write(policy,data)
+    elif fault=='audio_changed':
+        original=native_live_timing.verified_narration_tracks
+        tracks,proofs=deepcopy(original(None,None,None));proofs[0]['audio_sha256']='changed'
+        monkeypatch.setattr(native_live_timing,'verified_narration_tracks',lambda *args:(tracks,proofs))
+    elif fault=='catalog_changed':
+        path=target/'catalog/lessons_en.json';data=read(path);data['unrelated']='change';write(path,data)
+    else:target=source
+    with pytest.raises(ValueError):
+        edit.inputs(target,identity,None,plan,staged_source=source,source_idle_policy=policy)
+    assert not (target/'production'/identity/'published-edit-render').exists()
+
 @pytest.fixture
 def source_plan():
     english={'id':'07_mask','scenes':[{'visual':'organize','narration':'Choose real fields.'},
@@ -46,8 +143,9 @@ def test_fail_closed_without_every_source_frame_idle_or_kept_and_all_voice_fit(s
     with pytest.raises(ValueError):edit.plan_intervals(english,original,tracks,plan,bindings)
 
 @pytest.mark.parametrize('source_start',[6,7])
-def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_source_change(tmp_path,source_start):
-    import subprocess,hashlib
+@pytest.mark.parametrize('terminal_seekable',[False,True])
+def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_source_change(tmp_path,source_start,terminal_seekable):
+    import subprocess,hashlib,json
     source=tmp_path/'source.mkv';output=tmp_path/'edited.mp4'
     width,height=64,48
     # An actual lossless source makes every original frame independently identifiable.
@@ -59,7 +157,7 @@ def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_sourc
     before=hashlib.sha256(source.read_bytes()).hexdigest()
     row={'source_start_frame':source_start,'source_keep_frames':[[0,2],[4,6]],
          'kept_frames':4,'final_frame_hold_frames':2}
-    edit.encode_scene(source,row,output)
+    edit.encode_scene(source,row,output,terminal_seekable=terminal_seekable)
     decoded=subprocess.check_output(['ffmpeg','-nostdin','-v','error','-threads','2',
         '-i',str(output),'-f','rawvideo','-pix_fmt','rgb24','-threads','2','pipe:1'])
     size=width*height*3;frames=[decoded[i:i+size] for i in range(0,len(decoded),size)]
@@ -71,6 +169,13 @@ def test_real_later_scene_encode_kept_sequence_final_clone_no_overwrite_or_sourc
         observed.append(index)
     assert observed==[source_start,source_start+1,source_start+4,source_start+5,source_start+5,source_start+5]
     assert frames[-1]==frames[-2]==frames[-3]
+    if terminal_seekable:
+        probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0',
+            '-show_entries','frame=key_frame,best_effort_timestamp_time','-of','json',str(output)]))
+        assert len(probe['frames'])==len(frames)
+        terminal=probe['frames'][-2]
+        assert terminal['key_frame']==1
+        assert float(terminal['best_effort_timestamp_time'])==pytest.approx((len(frames)-2)/30,abs=1e-6)
     rendered=hashlib.sha256(output.read_bytes()).hexdigest()
     with pytest.raises(subprocess.CalledProcessError):edit.encode_scene(source,row,output)
     assert hashlib.sha256(output.read_bytes()).hexdigest()==rendered

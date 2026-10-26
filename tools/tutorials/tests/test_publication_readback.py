@@ -91,7 +91,8 @@ def reuse_media_case(tmp_path, monkeypatch):
         entry.blob_id = publication.git_blob_id(root / 'media_host' / relative)
         entries.append(entry)
     dump = lambda path, value: (path.parent.mkdir(parents=True, exist_ok=True), path.write_text(json.dumps(value)))
-    manifest = dict(routes=1, ready_lessons=1, media_host_bytes=sum(r['bytes'] for r in records), files=records)
+    manifest = dict(routes=1, ready_lessons=1, hosted_web_lessons=[],
+                    media_host_bytes=sum(r['bytes'] for r in records), files=records)
     for folder in (baseline, root):dump(folder / 'release-manifest.json', manifest)
     checked = dict(commit='a' * 40, passed=True, files_expected=2, metadata_matched=2,
                    downloaded_sha256_matched=2, metadata_failures=[], download_failures=[],
@@ -100,7 +101,7 @@ def reuse_media_case(tmp_path, monkeypatch):
                    commit='a' * 40, base_commit='b' * 40, media_root=publication.HOST + 'a' * 40,
                    manifest_sha256=publication.digest(baseline / 'release-manifest.json'),
                    media_files=2, media_bytes=manifest['media_host_bytes'], readback=checked,
-                   pages=dict(ready=1, routes=1, index_sha256='d' * 64))
+                   pages=dict(ready=1, routes=1, hosted_web_copies=0, index_sha256='d' * 64))
     dump(baseline / publication.RECEIPT, receipt)
     dump(baseline / 'web/catalog/lessons_en.json', dict(lessons=[dict(id='01_test', status='ready')]))
     dump(baseline / 'checks/published-media-browser-checks.json', dict(passed=True, published=False,
@@ -180,3 +181,38 @@ def test_original_resume_still_rejects_advanced_main(reuse_media_case):
     with pytest.raises(SystemExit, match='not exactly one commit'):
         publication.resume_receipt(c.root, c.receipt['branch'], c.receipt['tag'], c.receipt['readback'])
     assert not (c.root / publication.RECEIPT).exists()
+
+
+@pytest.mark.parametrize('projected', [False, True])
+def test_reuse_media_accepts_exact_historical_or_archived_publication_domain(reuse_media_case, projected):
+    c = reuse_media_case
+    lessons = [dict(id='01_test', status='ready'), dict(id='18_motility', status='ready')]
+    c.dump(c.baseline / 'web/catalog/lessons_en.json', dict(lessons=lessons))
+    for root in (c.baseline, c.root):
+        manifest = publication.read(root / 'release-manifest.json')
+        manifest.update(routes=2, ready_lessons=2)
+        c.dump(root / 'release-manifest.json', manifest)
+    receipt = publication.read(c.baseline / publication.RECEIPT)
+    receipt['manifest_sha256'] = publication.digest(c.baseline / 'release-manifest.json')
+    receipt['pages'].update(ready=1 if projected else 2, routes=1 if projected else 2)
+    c.dump(c.baseline / publication.RECEIPT, receipt)
+    checks = publication.read(c.baseline / 'checks/published-media-browser-checks.json')
+    checks['manifest_sha256'] = receipt['manifest_sha256']
+    selected = lessons[:1] if projected else lessons
+    checks['ready_playback_cases'] = [dict(lesson=row['id'], passed=True) for row in selected]
+    c.dump(c.baseline / 'checks/published-media-browser-checks.json', checks)
+    publication.reuse_media_receipt(c.root, c.baseline)
+    assert publication.read(c.root / publication.RECEIPT)['readback'] == receipt['readback']
+
+
+def test_reuse_media_rejects_arbitrary_subset_even_with_consistent_small_counts(reuse_media_case):
+    c = reuse_media_case
+    receipt = publication.read(c.baseline / publication.RECEIPT)
+    receipt['pages'].update(ready=0, routes=0)
+    c.dump(c.baseline / publication.RECEIPT, receipt)
+    checks = publication.read(c.baseline / 'checks/published-media-browser-checks.json')
+    checks['ready_playback_cases'] = []
+    c.dump(c.baseline / 'checks/published-media-browser-checks.json', checks)
+    with pytest.raises(SystemExit, match='incomplete'):
+        publication.reuse_media_receipt(c.root, c.baseline)
+    assert c.queries == []

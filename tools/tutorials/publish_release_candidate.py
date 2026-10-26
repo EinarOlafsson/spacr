@@ -55,6 +55,25 @@ import build_tutorial_index
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring' / 'tools'))
 from publish_tutorials import HF_DATASET, hf_upload_ready  # noqa: E402
 
+
+def publication_view(root):
+    """The exact normal visible projection; the candidate stays complete."""
+    files = archive_lessons.load_tree(Path(root) / 'web')
+    return archive_lessons.archived_view(files, hidden=ARCHIVED_IDS) if ARCHIVED_IDS else files
+
+
+def publication_evidence_matches(checks, pages, catalog, manifest):
+    """Require one entire known domain, never a count-only passing subset."""
+    listed = {row['id'] for row in catalog['lessons']}
+    ready = {row['id'] for row in catalog['lessons'] if row.get('status') != 'coming_soon'}
+    cases = checks.get('ready_playback_cases', [])
+    return (len(cases) == len(ready) and {case.get('lesson') for case in cases} == ready
+            and all(case.get('passed') is True for case in cases)
+            and ('routes' not in checks or checks['routes'] == len(catalog['lessons']))
+            and ('ready_lessons' not in checks or checks['ready_lessons'] == len(ready))
+            and pages.get('ready') == len(ready) and pages.get('routes') == len(catalog['lessons'])
+            and pages.get('hosted_web_copies') == len(set(manifest.get('hosted_web_lessons', [])) & listed))
+
 RECEIPT = 'publication-receipt.json'
 PAGES = REPO / 'docs/source/_extra/tutorials'
 HOST = f'https://huggingface.co/datasets/{HF_DATASET}/resolve/'
@@ -276,8 +295,11 @@ def reuse_media_receipt(root, baseline):
     commit, branch, tag = (saved.get(key) for key in ('commit', 'branch', 'tag'))
     checked, pages = saved.get('readback', {}), saved.get('pages', {})
     published = read(baseline / 'checks/published-media-browser-checks.json')
-    ready = {row['id'] for row in read(baseline / 'web/catalog/lessons_en.json')['lessons']
-             if row.get('status') != 'coming_soon'}
+    full = read(baseline / 'web/catalog/lessons_en.json')
+    shown = archive_lessons.archived_view({'catalog/lessons_en.json': full},
+                                         hidden=ARCHIVED_IDS)['catalog/lessons_en.json']
+    complete_publication = any(publication_evidence_matches(published, pages, catalog, previous)
+                               for catalog in (full, shown))
     cases = published.get('ready_playback_cases', [])
     if (not isinstance(commit, str) or not re.fullmatch(r'[0-9a-f]{40}', commit)
             or not isinstance(saved.get('base_commit'), str)
@@ -294,13 +316,12 @@ def reuse_media_receipt(root, baseline):
                    ('files_expected', 'metadata_matched', 'downloaded_sha256_matched'))
             or checked.get('bytes_read_back') != size
             or checked.get('metadata_failures') != [] or checked.get('download_failures') != []
-            or pages.get('ready') != len(ready) or pages.get('routes') != previous['routes']
+            or not complete_publication
             or published.get('passed') is not True or published.get('published') is not False
             or published.get('manifest_sha256') != saved['manifest_sha256']
             or published.get('media_root') != saved['media_root']
             or not pages.get('index_sha256') or published.get('index_sha256') != pages['index_sha256']
-            or published.get('placeholder_cases') != [] or len(cases) != len(ready)
-            or {case.get('lesson') for case in cases} != ready
+            or published.get('placeholder_cases') != []
             or not all(case.get('passed') is True for case in cases)):
         raise SystemExit('Original verified publication evidence is incomplete or stale')
     api = HfApi()
@@ -421,7 +442,7 @@ def pages(root, key):
         written.append(relative)
 
     if ARCHIVED_IDS:
-        shown = archive_lessons.archived_view(archive_lessons.load_tree(root / 'web'))
+        shown = publication_view(root)
         for name, data in shown.items():
             (PAGES / name).write_text(archive_lessons.render(name, data), encoding='utf-8')
     index = (root / 'web/index.html').read_text(encoding='utf-8')
@@ -473,7 +494,8 @@ def pages(root, key):
                         'candidate_index_sha256': web['index.html']['sha256'],
                         'cache_key': key, 'unchanged_versioned_assets': sorted(unchanged),
                         'versioned_assets': versions,
-                        'hosted_web_copies': len(hosted), 'removed_local_web_copies': superseded,
+                        'hosted_web_copies': sum(Path(row['path']).parts[1] in {l['id'] for l in catalog}
+                                                 for row in hosted), 'removed_local_web_copies': superseded,
                         'withdrawn_pages_archive': {'directory': str(root / 'retired-pages'),
                                                     'files': withdrawn_archive},
                         'ready': ready, 'routes': len(catalog)}
@@ -492,13 +514,21 @@ def record(root):
     manifest_sha = digest(root / 'release-manifest.json')
     target = REPO / 'tools/tutorials/release_candidate'
     checkpoint = read(target / 'checkpoint.json')
-    ready = read(root / 'release-manifest.json')['ready_lessons']
+    manifest = read(root / 'release-manifest.json')
+    full = read(root / 'web/catalog/lessons_en.json')['lessons']
+    if (manifest['routes'] != len(full)
+            or manifest['ready_lessons'] != sum(row.get('status') != 'coming_soon' for row in full)):
+        raise SystemExit('Full candidate counts differ from its unchanged catalog')
+    catalog = publication_view(root)['catalog/lessons_en.json']
+    from build_appended_candidate import require_baseline_receipt
+    require_baseline_receipt(manifest, receipt, manifest_sha)
     if (not receipt.get('tag') or not receipt['readback']['passed'] or 'pages' not in receipt
             or receipt['manifest_sha256'] != manifest_sha or checkpoint['manifest_sha256'] != manifest_sha
             or checks.get('passed') is not True or checks.get('manifest_sha256') != manifest_sha
             or checks.get('media_root') != receipt['media_root']
             or checks.get('index_sha256') != digest(PAGES / 'index.html')
-            or len(checks['ready_playback_cases']) != ready):
+            or checks.get('index_sha256') != receipt['pages'].get('index_sha256')
+            or not publication_evidence_matches(checks, receipt['pages'], catalog, manifest)):
         raise SystemExit('Publication evidence is incomplete or describes a different candidate/tree')
     for name, source in ((RECEIPT, root / RECEIPT),
                          ('published-media-browser-checks.json', root / 'checks/published-media-browser-checks.json')):

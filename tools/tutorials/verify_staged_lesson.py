@@ -143,10 +143,11 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
     following = None if final else spoken['scenes'][index + 1]
     next_sound = None if final else float(following['sentences'][0]['audible_start'])
     next_lead = 0 if final else next_sound - float(following['speech_start'])
-    cut_at = start + last_sound - audio_start + 1 - next_lead
+    expected_gap = 1.0 if final else min(next_sound - last_sound, 1.0)
+    cut_at = start + last_sound - audio_start + expected_gap - next_lead
     fence = scene.get('idle_tail_start')
     planned_cut = (type(fence) in (int, float) and math.isfinite(fence)
-                   and 0 <= fence <= min(audio_end - audio_start, cut_at - start) and cut_at < end)
+                   and 0 <= fence <= audio_end - audio_start <= cut_at - start and cut_at < end)
     if len(trace) < 20 or last_sound > audio_end or next_lead < 0:
         raise AssertionError('Insufficient or malformed sound-boundary trace')
     seeks = [event for event in events if event['type'] == 'seeking']
@@ -223,7 +224,6 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
     gap = (next_wall - last_wall) / 1000
     # Shorten long gaps without padding an already brief source pause. Final
     # EOF has no following sound: retain its existing one-second end policy.
-    expected_gap = 1.0 if final else min(next_sound - last_sound, 1.0)
     if (planned_cut or require_gap) and not expected_gap - .15 <= gap <= expected_gap + .15:
         raise AssertionError({'actual_sound_gap_outside_policy': gap,
                               'expected_sound_gap_seconds': expected_gap,
