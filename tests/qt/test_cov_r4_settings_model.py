@@ -677,6 +677,61 @@ def test_slow_event_pumps_leave_real_widget_work_between_breaths(qtbot, monkeypa
     assert pumps[0] >= 25 and all(right - left >= 25 for left, right in zip(pumps, pumps[1:])), pumps
 
 
+def test_a_fast_panel_inside_an_open_breathes_once_the_open_has_worked(qtbot, monkeypatch):
+    """Inside a window open the settings budget runs from the open's last breath.
+
+    A panel whose own controls take under one budget still lets the event
+    loop run (a close asked for during a prewarm step) when the open had
+    already worked a budget's worth before the panel began.
+    """
+    import time
+    from PySide6.QtCore import QCoreApplication
+    from spacr.qt import screens
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SM.SettingsWidgets("measure", parent=owner)
+    defaults = {f"fast_breath_{index}": str(index) for index in range(10)}
+    model._defaults = defaults
+    clock = [1000]
+    built, pumps = [], []
+    original = model._widget_for
+
+    def widget_for(kind, options, default, key):
+        built.append(key)
+        clock[0] += 1
+        return original(kind, options, default, key)
+
+    def process_events(mode):
+        pumps.append((len(built), clock[0]))
+
+    with monkeypatch.context() as patch:
+        patch.setattr(model, "_widget_for", widget_for)
+        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
+        patch.setattr(QCoreApplication, "processEvents", process_events)
+        patch.setattr(screens, "_a_window_is_opening_a_screen", True)
+        patch.setattr(screens, "_last_breath_at", 0.960)
+        model.build_sections()
+        breathed_at = screens._last_breath_at
+
+    assert list(model._widgets) == list(defaults)
+    assert pumps == [(0, 1000)], pumps
+    assert breathed_at == 1.0
+
+    pumps.clear()
+    model2 = SM.SettingsWidgets("measure", parent=owner)
+    model2._defaults = defaults
+    original = model2._widget_for
+    with monkeypatch.context() as patch:
+        patch.setattr(model2, "_widget_for", widget_for)
+        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
+        patch.setattr(QCoreApplication, "processEvents", process_events)
+        patch.setattr(screens, "_a_window_is_opening_a_screen", False)
+        patch.setattr(screens, "_last_breath_at", 0.0)
+        model2.build_sections()
+    assert pumps == [], pumps
+
+
 def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal(qtbot):
     """Three spellings are tried; a control with none is simply not followed."""
     owner = QWidget()

@@ -10119,8 +10119,21 @@ class SettingsWidgets:
                       if parent in hidden)
         may_wait = self._keys_that_may_wait(cats, hidden, variables,
                                             hidden_keys)
+        # The budget runs from the open's last breath, not from this loop:
+        # inside a window open or a prewarm step the screen has already
+        # worked since then, and a fast panel that started its own clock here
+        # finished in under one budget with no breath at all -- a Measure
+        # prewarm step then ran its whole construction, chaining's job
+        # included, without the event loop seeing a close asked for meanwhile
+        # (hosted CI run 40321337485). Outside an open the clock starts here.
+        from .. import screens as _screens_package
+
         _BREATH = 0.025
-        next_breath = _time.perf_counter() + _BREATH
+        if _screens_package._a_window_is_opening_a_screen:
+            next_breath = min(_time.perf_counter(),
+                              _screens_package._last_breath_at) + _BREATH
+        else:
+            next_breath = _time.perf_counter() + _BREATH
         with _timing.span("build widgets", f"{len(variables)} settings"):
             for key, meta in variables.items():
                 if key in hidden_keys:
@@ -10135,7 +10148,10 @@ class SettingsWidgets:
                 if _time.perf_counter() >= next_breath:
                     QCoreApplication.processEvents(
                         QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-                    next_breath = _time.perf_counter() + _BREATH
+                    breathed_at = _time.perf_counter()
+                    next_breath = breathed_at + _BREATH
+                    if _screens_package._a_window_is_opening_a_screen:
+                        _screens_package._last_breath_at = breathed_at
                 widget = self._widget_for(kind, options, default, key)
                 if widget is not None:
                     attach_api_tooltip(
