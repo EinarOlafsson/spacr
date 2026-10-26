@@ -1959,9 +1959,7 @@ class NewsPanel(Panel):
         self._older.setObjectName("HomeNewsOlderReleases")
         self._older.setChecked(False)
         self._older_blocks = []
-        self._older.toggled.connect(lambda shown: (
-            self._fill_the_rest(),
-            [block.setVisible(shown) for block in self._older_blocks]))
+        self._older.toggled.connect(self._show_older_releases)
         self.body_layout.addWidget(self._older)
 
         self._placeholder = QLabel(
@@ -2060,6 +2058,19 @@ class NewsPanel(Panel):
             timer.timeout.connect(self._fill_the_rest)
         if not timer.isActive() or timer.remainingTime() > delay_ms:
             timer.start(delay_ms)
+
+    def _show_older_releases(self, shown: bool) -> None:
+        """Build any releases still waiting, then show or hide the older ones.
+
+        A bound method rather than a lambda: a lambda closing over ``self`` and
+        connected to a child's signal kept the panel's Python wrapper alive
+        after the panel was closed, so it was never collected.
+
+        :param shown: whether the "Show older releases" switch is on.
+        """
+        self._fill_the_rest()
+        for block in self._older_blocks:
+            block.setVisible(shown)
 
     def _fill_the_rest(self) -> None:
         """Append the releases :meth:`_fill` left for after the first paint."""
