@@ -80,6 +80,27 @@ def _keep_weakly_held_qt_wrappers_to_the_end() -> None:
 
 atexit.register(_keep_weakly_held_qt_wrappers_to_the_end)
 
+
+def _quiet_best_effort_disconnects() -> None:
+    """Keep a refused ``signal.disconnect`` as quiet as it was before PySide6 6.11.
+
+    spaCR disconnects best-effort in about fifteen places -- a screen's
+    closure leaving a process-wide signal, a filter that may already be gone
+    -- each wrapped in ``try/except (RuntimeError, TypeError)`` because older
+    PySide6 raised when the slot was not connected. 6.11 returns ``False``
+    and emits ``RuntimeWarning: libpyside: Failed to disconnect ...``
+    instead, which those handlers cannot catch, so the Data Manager alone
+    printed it on every close (86 times in one test run) and it reached the
+    console of a normal session. Only that exact message is filtered.
+    """
+    import warnings
+
+    warnings.filterwarnings("ignore", message=r"libpyside: Failed to disconnect",
+                            category=RuntimeWarning)
+
+
+_quiet_best_effort_disconnects()
+
 _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 
 #: Launch noise the user cannot act on, matched against Qt's own log lines.
