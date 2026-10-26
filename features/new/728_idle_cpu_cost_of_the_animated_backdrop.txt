@@ -1,0 +1,245 @@
+================================================================================
+THE IDLE CPU COST OF THE ANIMATED BACKDROP: STOP REPAINTING THE SETTINGS ROWS
+================================================================================
+
+Status:    NEW
+Requested: maintainer, 2026-10-25, choosing among the options for the idle
+           cost found on the native Mac run:
+           "Fix the repaint cost (Recommended)" -- "the backdrop animates
+           without repainting the settings rows every frame (cache the rows
+           over a static blur, repaint only what changes), target idle <10%
+           CPU with animation on; plus pause on battery on all OSes"
+Owner:     Home (build, Linux measurement, tests); the Mac lane re-measures
+           natively (Retina 2x) once this is on nightly.
+Related:   641 (performance audit; the 2026-10-25/26 idle rows), 025b9e4ed
+           (backdrop holds still in macOS Low Power Mode and under the system
+           Reduce Motion), N655 Reduce motion, 684 (animation defaults),
+           _QuietBackgrounds and _CardTints in spacr/qt/widgets/ambient.py
+           (earlier per-paint savings that kept the per-frame repaint).
+
+--------------------------------------------------------------------------------
+WHAT THE MAC RUN FOUND (2026-10-25, native)
+--------------------------------------------------------------------------------
+
+macOS, Cocoa, Retina 2x, dark theme, animated backdrop on, idle window.
+Data: ~/.spacr/reports/mac-lane-2026-10-25/paints_idle.json and
+paints_loaded.json (on the Mac; not copied to Home).
+
+- Idle spaCR used about 90 % of a CPU core on Home and 110 % on Mask, because
+  every translucent settings row was repainted on every backdrop frame.
+- Idle machine, about 57 frames per second (fps): Home 154 widget paints per
+  frame (about 8,800 a second), Mask 196 (about 11,100/s), Measure 196 (about
+  11,500/s).
+- By class, per second: QWidget and QLabel about 2,000-2,600 each,
+  QPushButton 400-940, QToolButton about 680; AppTile, _AppTileIcon and
+  ElidingLabel 798 each on Home; Toggle, _Chip and AiToggleLabel about 280.
+- Measure's 4.4 s "interactive" time is the readiness probe waiting through
+  this repaint, not slow construction (the screen is shown at 0.3 s).
+- Existing mitigation on nightly (025b9e4ed): the backdrop holds still in
+  macOS Low Power Mode or under the system Reduce Motion setting (then 6 % on
+  Home and 2 % on Mask).
+
+--------------------------------------------------------------------------------
+WHY EVERY ROW REPAINTS
+--------------------------------------------------------------------------------
+
+The backdrop (AmbientWidget) is the bottom child of each screen and the page
+panels above it are translucent (pane opacity 60 % by default). Qt's raster
+backing store is one flat image: when the backdrop calls update() on its whole
+rectangle, every widget that overlaps that rectangle and is not opaque has to
+be painted again on top, so each backdrop frame re-runs the paint of every
+label, button, switch and tile on screen. Earlier work (_QuietBackgrounds,
+_CardTints) made each of those paints cheaper; none of it stopped them.
+
+--------------------------------------------------------------------------------
+DESIGN DECISIONS (made 2026-10-26 while the maintainer was asleep)
+--------------------------------------------------------------------------------
+
+D1. Held rows: the backdrop repaints only where nothing is drawn over it.
+    Once the window is calm, the backdrop works out which parts of its area
+    have screen content drawn over them (cards, panels, rows, labels, buttons,
+    switches, tiles: every widget that paints something, taken whole) and
+    which parts show the backdrop alone (margins, gaps between cards, the
+    page around them). Each frame it updates only the second region, so Qt
+    repaints nothing that sits on the first. Under the content the backdrop
+    shows the frame that was on screen when the hold began, and paints that
+    same frame whenever a row repaints for its own reasons (hover, typing, a
+    value change), so the pixels under every row stay consistent.
+
+    Why this design and not the others listed:
+    - A cached static BLUR behind the panels (the wording of the option) would
+      change how every translucent row looks: the rows would sit over a
+      blurred picture instead of the sharp backdrop they sit over today, and
+      the screenshot-equivalence check would fail by design. The held frame
+      is the exact picture that was under the rows, so at the moment the hold
+      begins the window is pixel-identical to the per-frame paint (tested).
+      A blur can be added later as a look preference if wanted.
+    - Cached row LAYERS (render each panel once into an image and reuse it)
+      need Qt to tell us when anything inside a panel changes. For widgets
+      Qt does not: QGraphicsEffect on a widget re-renders its source on every
+      paint (probed: 1,211 child paints in 2 s with an effect against 1,231
+      without), and a label's setText() raises no event a filter can see. A
+      stale row is a correctness bug; a held backdrop is at worst a still
+      patch of background.
+    - A low-rate snapshot UNDER the panels (for example 2-4 fps) costs about
+      200-800 row paints a second and makes the backdrop visibly step behind
+      the rows. It was kept as the fallback if the held frame looked wrong.
+    - Exact live animation under translucent rows without repainting them
+      needs the backdrop on a GPU texture layer composited by Qt
+      (QOpenGLWidget/QRhiWidget). That changes how the whole window is
+      flushed on every platform and cannot be verified on the Mac or Windows
+      from Home, so it is out of scope here.
+
+D2. What counts as drawn over. Walked from the backdrop's siblings in paint
+    order, clipped by their parents: a widget is taken whole when it fills
+    its background, claims opaque painting or has a mask; when its style
+    sheet background paints a pixel (probed at up to 64x64 and cached per
+    widget and size); when its class overrides paintEvent in Python; when it
+    is a leaf (no visible widget children) other than a plain QWidget; or
+    when it is a container that is not a plain layout container. Plain
+    containers (QWidget, QFrame, QScrollArea, QAbstractScrollArea,
+    QStackedWidget, QSplitter) are walked into, and only a QFrame's frame
+    ring is taken. Getting this wrong cannot make a pixel wrong: a painted
+    widget left out of the region is simply repainted each frame as before,
+    and a blank area put in it shows a still patch of backdrop.
+
+D3. When the hold is used. Only with a shading thread, square corners, card
+    compositing (_CardTints) off, the backdrop running, and the window calm:
+    1.5 s with no pointer influence on the field, no click ripple or field
+    grab, no popup wave and no pending impulse, and 1.5 s after the field
+    (re)started. Any of those releases the hold at once so the interactive
+    field shows everywhere while it is being used; the hold comes back 1.5 s
+    after the last one. A field whose timer is found stopped (stop(), or a
+    caller stopping the timer directly) drops the hold and paints classically,
+    so the stopped backdrop's still and partial-frame cache are unchanged. The covered region is
+    walked again once a second; if it changed (a scroll, a section folded, a
+    screen switched, a resize) the hold is released and re-armed on the new
+    region.
+
+D4. No pop when the hold ends. Releasing cross-fades the held frame into the
+    live one over 0.25 s under the content (a layer drawn at rising opacity),
+    so the backdrop under the rows never jumps. Starting a hold is seamless
+    by construction (the held frame is the frame just painted).
+
+D5. Pause on battery, every OS. On macOS and Windows (and other platforms)
+    psutil.sensors_battery(), where on battery means power_plugged is False.
+    On Linux the kernel's /sys/class/power_supply is read directly instead,
+    skipping supplies whose scope is "Device": psutil on Linux takes the first
+    supply named like a battery, and on Home's workstation it reported a
+    Bluetooth mouse ("65 %, power_plugged=False"), which would have stopped
+    the backdrop on every desktop with a wireless mouse or keyboard. With a
+    system battery present, any Mains/USB supply online means AC; with none
+    reported, the battery's own status decides (Discharging). Read at most
+    every 5 s, joined to the existing macOS Low Power Mode / Reduce Motion
+    check (_system_asks_for_stillness), so the backdrop's run check and each
+    tick consult both; a held backdrop asks again every 5 s and resumes on AC.
+    No battery, an unknown plug state or any error answers "not on battery".
+    The spaCR Reduce motion preference is untouched. SPACR_BATTERY_PAUSE=0 in
+    the environment keeps the animation on battery; tests/qt/conftest.py sets
+    it for every Qt test, so a developer's laptop on battery does not stop
+    every backdrop a test expects to run, and the battery tests remove it and
+    mock the sensor.
+
+D6. Pacing while held. Measured after D1, the remaining idle cost was the
+    field itself, not the rows: at 60 fps the shading thread took 12-20 % of
+    a core and the GUI thread 12-13 % (Linux, 1600x1000). While the rows are
+    held the field is capped at _HOLD_FPS = 20 frames per second (a third of
+    60 Hz), the way a run already caps it at 30; a stir restores the full
+    rate on the next tick. What still moves is the page around the cards.
+    30 fps was measured too (Home 21.5 %, Mask 13.8 %, Measure 17.7 %) and
+    misses the 10 % target; 20 fps was the highest rate that met it on Mask
+    and Measure.
+
+D7. The measuring tool is tools/measure_idle_repaint.py: the real MainWindow
+    with settings in a throwaway folder and the tours marked seen, Home, Mask
+    and Measure, paints per second by class, backdrop frames, and process
+    CPU (user + system over wall). Offscreen, because under Xvfb without a
+    window manager the window is never exposed and the backdrop never ticks.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
+
+A1. Idle, animation on, default dark theme: Home, Mask and Measure each run
+    under 10 % of a CPU core on Linux offscreen with tools/measure_idle_
+    repaint.py, and widget paints per backdrop frame drop from ~160 to a
+    small number (layout containers that the live region crosses).
+A2. The backdrop keeps animating in the uncovered parts at its normal rate.
+A3. A paint-count regression test: once idle, at most a small number of
+    non-backdrop widget paints per backdrop frame.
+A4. A visual-equivalence test: at the moment the hold begins, a translucent
+    row and its card are pixel-identical (within a tight tolerance) to the
+    per-frame paint of the same frame; and a row repainting for its own
+    reasons shows the held frame under it, not a newer one.
+A5. Battery: the backdrop stops on battery and resumes on AC, tested with a
+    mocked sensor; the Reduce motion preference stays as the user set it.
+A6. The ambient, backdrop, theme and accessibility cohorts and the Home, Mask
+    and Measure layout tests pass, with no test, budget or ratchet weakened.
+A7. Screenshots light and dark, before and after, checked by eye.
+A8. The Mac lane re-measures natively (Retina 2x) and records the numbers
+    here; target under 10 % of a core on Home, Mask and Measure.
+
+--------------------------------------------------------------------------------
+MEASUREMENTS
+--------------------------------------------------------------------------------
+
+2026-10-26, Home workstation (Linux, 32 logical CPUs, PySide6 6.10.0),
+QT_QPA_PLATFORM=offscreen, 1600x1000 window, default dark theme, default
+animated backdrop (data_art_impulse_lens, frame rate following a 60 Hz
+display), tools/measure_idle_repaint.py: CPU over 10 s, then paints counted
+over another 10 s, per screen. The machine was shared with other sessions
+(load average 16-66 on 32 CPUs), which raises every CPU figure a little;
+paints per frame do not depend on load. Raw JSON and screenshots:
+/mnt/wd4tb/scratch/item-728/ (final/, before_*.png, after_*.png).
+
+Abbreviations: fps = backdrop frames painted per second; paints/frame =
+paint events delivered to widgets other than the backdrop, per backdrop
+frame; CPU = process user + system time as % of one core (GUI = the Qt GUI
+thread, other = every other thread, mostly the shading thread).
+
+Screen   Build                      fps   paints/s  paints/frame  CPU %  (GUI / other)
+-------  -------------------------  ----  --------  ------------  -----  -------------
+Home     control: backdrop off      0        0         -            0.0  (0.0 / 0.0)
+Home     before (nightly 7a777989e) 40.6  6,367      157.0         85.5  (54.9 / 27.8)
+Home     after, held, 30 fps cap    29.9    957       32.0         21.5  (8.4 / 11.9)
+Home     after, held, 20 fps cap    20.0    640       32.0         14.2  (5.5 / 7.9)
+Mask     control: backdrop off      0       25         -            0.4  (0.4 / 0.0)
+Mask     before                     41.4  6,700      161.9         78.9  (46.3 / 6.8)
+Mask     after, held, 30 fps cap    31.3    410       13.1         13.8  (6.8 / 5.9)
+Mask     after, held, 20 fps cap    21.5    283       13.1          7.4  (3.2 / 3.4)
+Measure  control: backdrop off      0       25         -            0.5  (0.4 / 0.0)
+Measure  before                     37.0  5,968      161.4         81.0  (50.3 / 27.8)
+Measure  after, held, 30 fps cap    31.3    440       14.1         17.7  (8.3 / 8.4)
+Measure  after, held, 20 fps cap    21.5    303       14.1         10.3  (4.6 / 4.9)
+
+(The control rows' 25 paints/s are the System panel's meters, which repaint
+with or without the backdrop.)
+
+What the paints per frame are now: the plain layout containers the live
+region crosses (QWidget, QScrollArea, QStackedWidget, the splitter and the
+page itself), which paint nothing. No label, button, switch, tile or field
+over the field is repainted while it is held.
+
+A per-thread run (threads.py in the scratch folder, 40 s warm-up) of the same
+build read Home 9.5 % (GUI 3.5, shading 1.2, eight numba worker threads about
+0.5 each) and Mask 9.2 %; the 10 s rows above vary by about 4 points between
+runs on this shared machine. So on Linux Mask is under the 10 % target,
+Measure is at it, and Home is at or a little above it. A8 (native Mac,
+Retina 2x, where the field is shaded at four times the pixels) decides
+whether the cap goes lower or the shading itself is next.
+
+Status of the acceptance criteria on 2026-10-26: A2-A7 met on Linux; A1 met on
+Mask, at the line on Measure, and 10-14 % on Home; A8 open (Mac lane).
+
+Tests 2026-10-26 (CUDA_VISIBLE_DEVICES='', -n 4, tools/run_capped.sh,
+offscreen): tests/qt/test_728_the_backdrop_holds_the_rows_and_rests_on_battery.py
+7 passed (paint count with its control, pixel equivalence under a row that
+repaints itself (a mutation painting the live frame under the rows fails it),
+release on stir and on an engine change, pacing, battery on Linux sysfs with
+a Bluetooth-mouse decoy, macOS/Windows psutil, rest-and-resume on a widget).
+Cohort of 196 files (ambient, backdrop, theme, accessibility, field, paint,
+Home, app-screen and layout tests): 4,539 passed, 3 skipped, 1 failed; the
+failure (test_accessibility_item_views StorageCacheTable 'Cache') fails the
+same way on the untouched nightly 7a777989e. Code-rule meta tests (no #
+comments, every callable documented, valid RST, ledgers, instruction index):
+passed after regenerating features/00_INDEX.txt.

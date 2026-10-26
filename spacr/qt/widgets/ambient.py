@@ -226,7 +226,8 @@ from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QPicture, QPixmap, QPolygonF, QRadialGradient,
                            QRegion, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
-                               QAbstractSlider, QAbstractSpinBox, QApplication,
+                               QAbstractScrollArea, QAbstractSlider,
+                               QAbstractSpinBox, QApplication,
                                QComboBox, QFrame, QGraphicsView, QLabel,
                                QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
                                QSizePolicy, QSplitterHandle, QStyle,
@@ -5396,6 +5397,106 @@ def _macos_asks_for_stillness() -> bool:
         still = False
     _MACOS_STILLNESS[0], _MACOS_STILLNESS[1] = now, still
     return still
+
+
+_BATTERY_TTL_S = 5.0
+_BATTERY = [float("-inf"), False]
+_BATTERY_PAUSE_ENV = "SPACR_BATTERY_PAUSE"
+_POWER_SUPPLY = Path("/sys/class/power_supply")
+_MAINS_TYPES = frozenset(("Mains", "USB", "USB_C", "USB_PD", "USB_PD_DRP",
+                          "USB_DCP", "USB_CDP", "USB_ACA", "Wireless"))
+
+
+def _sysfs_text(path: Path) -> str:
+    """One sysfs attribute, stripped; empty when it cannot be read."""
+    try:
+        return path.read_text(encoding="ascii", errors="replace").strip()
+    except OSError:
+        return ""
+
+
+def _linux_on_battery(root: Optional[Path] = None) -> bool:
+    """Whether a Linux machine runs on its own battery, from sysfs.
+
+    ``psutil.sensors_battery()`` is not used here because on Linux it takes
+    the first power supply named like a battery, and a Bluetooth mouse or
+    keyboard is one: on Home's workstation it answered "65 %, unplugged" for
+    a mouse and would have stopped the backdrop on a desktop. Supplies whose
+    ``scope`` is ``Device`` (peripherals) are skipped. With a system battery
+    present, any mains or USB supply online means the charger is in; with
+    no such supply reported, the battery's own status decides (Discharging).
+
+    :param root: the power-supply class folder; ``None`` reads
+        :data:`_POWER_SUPPLY`.
+    """
+    folder = _POWER_SUPPLY if root is None else root
+    statuses, online = [], []
+    try:
+        entries = sorted(folder.iterdir())
+    except OSError:
+        return False
+    for entry in entries:
+        if _sysfs_text(entry / "scope").lower() == "device":
+            continue
+        kind = _sysfs_text(entry / "type")
+        if kind == "Battery":
+            statuses.append(_sysfs_text(entry / "status"))
+        elif kind in _MAINS_TYPES:
+            online.append(_sysfs_text(entry / "online") == "1")
+    if not statuses or any(online):
+        return False
+    if online:
+        return True
+    return all(status == "Discharging" for status in statuses)
+
+
+def _on_battery() -> bool:
+    """Whether this machine is running on its battery, on any platform.
+
+    A laptop away from its charger pays for the animated backdrop in battery
+    life, so the backdrop holds still while the charger is out (item 728).
+    On Linux the kernel's power-supply class is read
+    (:func:`_linux_on_battery`); on macOS, Windows and the rest
+    ``psutil.sensors_battery()``, whose ``power_plugged`` is the charger.
+    Cached for :data:`_BATTERY_TTL_S` because the backdrop asks on every
+    tick. A machine without a battery, a reading whose plug state is
+    unknown, and any failure answer ``False``; so does
+    ``SPACR_BATTERY_PAUSE=0`` in the environment, which keeps the animation
+    on battery.
+
+    :returns: True when a system battery is present and the charger is out.
+    """
+    if os.environ.get(_BATTERY_PAUSE_ENV, "").strip() == "0":
+        return False
+    now = time.monotonic()
+    if now - _BATTERY[0] < _BATTERY_TTL_S:
+        return _BATTERY[1]
+    unplugged = False
+    try:
+        if sys.platform.startswith("linux"):
+            unplugged = _linux_on_battery()
+        else:
+            import psutil
+
+            reading = psutil.sensors_battery()
+            unplugged = bool(reading is not None
+                             and reading.power_plugged is False)
+    except Exception:
+        LOG.debug("could not read the battery state", exc_info=True)
+        unplugged = False
+    _BATTERY[0], _BATTERY[1] = now, unplugged
+    return unplugged
+
+
+def _system_asks_for_stillness() -> bool:
+    """Whether the machine asks the backdrop to hold still.
+
+    macOS Low Power Mode or the system Reduce Motion setting
+    (:func:`_macos_asks_for_stillness`), or running on battery on any
+    platform (:func:`_on_battery`). The spaCR Reduce motion preference is a
+    separate question and is not read here.
+    """
+    return _macos_asks_for_stillness() or _on_battery()
 
 
 def _start_kernel_warmup_before_first_paint() -> bool:
@@ -10847,6 +10948,327 @@ class _QuietBackgrounds(QObject):
                 self._quieted[id(widget)] = widget
 
 
+_HOLD_SETTLE_S = 1.5
+_HOLD_RECHECK_S = 1.0
+_HOLD_FADE_S = 0.25
+_HOLD_FPS = 20
+_HOLD_CONTAINERS = frozenset(("QWidget", "QFrame", "QScrollArea",
+                              "QAbstractScrollArea", "QStackedWidget",
+                              "QSplitter"))
+_HOLD_RING_SHAPES = (QFrame.Shape.NoFrame, QFrame.Shape.Box,
+                     QFrame.Shape.Panel, QFrame.Shape.StyledPanel,
+                     QFrame.Shape.WinPanel)
+_HOLD_PROBES_MAX = 4096
+_HOLD_TILE = 16
+_HELD_CLASSES: Dict[type, Tuple[str, bool]] = {}
+
+
+def _held_class(cls) -> Tuple[str, bool]:
+    """The Qt class ``cls`` is built on, and whether Python paints it.
+
+    :returns: ``(name of the first PySide6 class in its MRO, whether a
+        Python class in its MRO defines paintEvent)``, cached per class.
+    """
+    known = _HELD_CLASSES.get(cls)
+    if known is None:
+        qt = next((klass for klass in cls.__mro__
+                   if klass.__module__.startswith("PySide6")), QWidget)
+        painted = any("paintEvent" in vars(klass) for klass in cls.__mro__
+                      if not klass.__module__.startswith(
+                          ("PySide6", "shiboken6", "Shiboken", "builtins")))
+        known = (qt.__name__, painted)
+        _HELD_CLASSES[cls] = known
+    return known
+
+
+class _HeldRows(QObject):
+    """Holds the field still under whatever is drawn over it (item 728).
+
+    Qt's raster backing store is one flat image, so a backdrop that updates
+    its whole area makes Qt paint again every widget over it that is not
+    opaque: about 160 labels, buttons, switches and tiles per field frame on
+    Home, Mask Generation and Measure, which kept an idle window at 90-110 %
+    of a CPU core (native Mac, 2026-10-25) whatever each paint cost.
+
+    So once the field is calm the window is walked (:meth:`_covered`) for
+    the part of the field that has something drawn over it -- every widget
+    that paints, taken whole -- and the field updates only the rest
+    (:attr:`live`): margins, the gaps between cards, the page around them.
+    Under the covered part the field shows the frame that was on screen when
+    the hold began (:attr:`frame`), and paints that same frame there when a
+    row repaints for its own reasons, so the pixels under every row stay one
+    picture. At the moment the hold begins the window is pixel-identical to
+    the per-frame paint, because the held frame is the frame just painted.
+
+    Correctness does not depend on the walk. A painting widget left out of
+    the covered part is repainted every frame, as before; a blank area put
+    in it shows a still patch of the field. The walk only decides how much
+    is saved and how much keeps moving.
+
+    The hold is released, and the whole field painted again, when the field
+    is stirred (:meth:`stir`: the pointer moving it, a click ripple, a grab,
+    a popup wave, the field starting), when the engine, size, background or
+    run state changes, when the field's timer is found stopped,
+    and when a walk every :data:`_HOLD_RECHECK_S` finds the covered part
+    moved; it comes back :data:`_HOLD_SETTLE_S` after the last stir. A
+    release with a held frame on screen cross-fades it into the live one
+    over :data:`_HOLD_FADE_S` (:attr:`fade`), so the field under the rows
+    never jumps.
+
+    Used only with a shading thread, square corners and card compositing
+    (:class:`_CardTints`) off.
+    """
+
+    enabled = True
+
+    def __init__(self, backdrop: QWidget):
+        """Start released, for ``backdrop``."""
+        super().__init__(backdrop)
+        self.region = QRegion()
+        self.live = QRegion()
+        self.frame: Optional[QImage] = None
+        self.arming = False
+        self.fade = None
+        self._stirred = time.monotonic()
+        self._walked = float("-inf")
+        self._probes: dict = {}
+        self._layer: Optional[QImage] = None
+
+    def stir(self) -> None:
+        """The field is being moved by the user: show it everywhere."""
+        self._stirred = time.monotonic()
+        self.release()
+
+    def release(self, fade: bool = True) -> None:
+        """Paint the whole field again from the next frame.
+
+        :param fade: cross-fade a held frame into the live one; ``False``
+            drops it at once, for a change that repaints everything anyway.
+        """
+        held = self.frame
+        if held is None and not self.arming and (fade or self.fade is None):
+            return
+        backdrop = self.parent()
+        self.fade = ((time.monotonic(), held, self.region)
+                     if fade and held is not None and backdrop.isVisible()
+                     else None)
+        self.frame = None
+        self.arming = False
+        self.region = QRegion()
+        self.live = QRegion()
+        if not fade:
+            self._probes.clear()
+        backdrop.update()
+
+    def _usable(self, producer) -> bool:
+        """Whether this backdrop paints in a way a hold can follow."""
+        backdrop = self.parent()
+        return bool(self.enabled and producer is not None
+                    and backdrop._corner_radius == 0
+                    and backdrop._card_tints is None
+                    and backdrop._last_frame is not None
+                    and backdrop.parentWidget() is not None)
+
+    def tick(self, producer) -> Optional[QRegion]:
+        """Advance on a field tick and say what to repaint.
+
+        :param producer: the backdrop's shading thread, or ``None``.
+        :returns: the region to repaint, or ``None`` for the whole field.
+        """
+        if not self._usable(producer):
+            self.release(fade=False)
+            return None
+        now = time.monotonic()
+        if self.fade is not None and now - self.fade[0] >= _HOLD_FADE_S:
+            self.fade = None
+        if now - self._stirred < _HOLD_SETTLE_S:
+            return None
+        if self.frame is None and not self.arming:
+            if self.fade is None and now - self._walked >= _HOLD_RECHECK_S:
+                self._arm(now)
+            return None
+        if self.arming:
+            return None
+        if now - self._walked >= _HOLD_RECHECK_S:
+            self._walked = now
+            if self._covered() != self.region:
+                self.release()
+                return None
+        return self.live
+
+    def _arm(self, now: float) -> None:
+        """Walk the window; hold the next whole frame under what it found."""
+        self._walked = now
+        region = self._covered()
+        if region.isEmpty():
+            return
+        self.region = region
+        self.live = QRegion(self.parent().rect()).subtracted(region)
+        self.arming = True
+
+    def capture(self, frame: Optional[QImage]) -> None:
+        """Hold ``frame``, the frame a whole paint is putting up, if arming."""
+        if self.arming and frame is not None:
+            self.frame = frame
+            self.arming = False
+
+    def takes_a_frame(self, region: QRegion) -> bool:
+        """Whether a paint of ``region`` is a held field's frame tick."""
+        return bool(self.frame is not None and not self.live.isEmpty()
+                    and self.live.subtracted(region).isEmpty())
+
+    def _covered(self) -> QRegion:
+        """The part of the field something is drawn over, in its coordinates."""
+        backdrop = self.parent()
+        host = backdrop.parentWidget()
+        box = [QRegion()]
+        if host is not None:
+            if len(self._probes) > _HOLD_PROBES_MAX:
+                self._probes.clear()
+            self._walk(host, backdrop, -backdrop.pos(), backdrop.rect(), box)
+        return box[0]
+
+    def _walk(self, parent, backdrop, offset: QPoint, clip: QRect, box) -> None:
+        """Add what ``parent``'s children draw over the field to ``box[0]``."""
+        for child in parent.children():
+            if (not child.isWidgetType() or child is backdrop
+                    or child.isWindow() or child.isHidden()):
+                continue
+            rect = child.geometry().translated(offset)
+            visible = clip.intersected(rect)
+            if visible.isEmpty():
+                continue
+            own = self._own_paint(child)
+            if own is None:
+                box[0] = box[0].united(visible)
+                continue
+            if not own.isEmpty():
+                box[0] = box[0].united(
+                    own.translated(rect.topLeft()).intersected(visible))
+            self._walk(child, backdrop, rect.topLeft(), visible, box)
+
+    def _own_paint(self, widget) -> Optional[QRegion]:
+        """Where ``widget`` itself, without its children, paints.
+
+        :returns: ``None`` when it is held whole and not walked into (it
+            paints over its area, is a leaf that paints, or is a scrolling
+            view that draws its own contents); otherwise the region, in its
+            own coordinates, that its background, frame and paint event
+            cover -- empty for a plain layout container.
+        """
+        if (widget.autoFillBackground()
+                or widget.testAttribute(Qt.WA_OpaquePaintEvent)
+                or widget.testAttribute(Qt.WA_NativeWindow)
+                or not widget.mask().isEmpty()
+                or getattr(widget, "_spacr_covers_its_area", False)):
+            return None
+        name, painted = _held_class(type(widget))
+        plain = name in _HOLD_CONTAINERS and not painted
+        children = any(child.isWidgetType() and not child.isWindow()
+                       and not child.isHidden() for child in widget.children())
+        if not children:
+            return (QRegion() if plain and name == "QWidget"
+                    and not self._paints_a_background(widget) else None)
+        if isinstance(widget, QAbstractScrollArea) and name not in _HOLD_CONTAINERS:
+            return None
+        if not plain:
+            return self._painted_tiles(widget)
+        if self._paints_a_background(widget):
+            return None
+        if isinstance(widget, QFrame) and widget.frameWidth() > 0:
+            if widget.frameShape() not in _HOLD_RING_SHAPES:
+                return None
+            width = widget.frameWidth()
+            return QRegion(widget.rect()).subtracted(QRegion(
+                widget.rect().adjusted(width, width, -width, -width)))
+        return QRegion()
+
+    def _painted_tiles(self, widget) -> QRegion:
+        """The :data:`_HOLD_TILE` tiles ``widget`` paints any pixel in,
+        rendered once without its children and cached per widget and size.
+        """
+        width, height = widget.width(), widget.height()
+        key = ("tiles", id(widget))
+        known = self._probes.get(key)
+        if (known is not None and known[0] == (width, height)
+                and known[1]() is widget):
+            return known[2]
+        region = QRegion()
+        if width > 0 and height > 0:
+            image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+            image.fill(0)
+            widget.render(image, QPoint(), QRegion(0, 0, width, height),
+                          QWidget.RenderFlag.DrawWindowBackground)
+            np = _numpy()
+            alpha = np.frombuffer(image.constBits(), np.uint8).reshape(
+                height, image.bytesPerLine() // 4, 4)[:, :width, 3]
+            tile = _HOLD_TILE
+            rows, cols = -(-height // tile), -(-width // tile)
+            padded = np.zeros((rows * tile, cols * tile), np.uint8)
+            padded[:height, :width] = alpha
+            hit = padded.reshape(rows, tile, cols, tile).max(axis=(1, 3)) > 0
+            for row in range(rows):
+                line = hit[row]
+                col = 0
+                while col < cols:
+                    if not line[col]:
+                        col += 1
+                        continue
+                    first = col
+                    while col < cols and line[col]:
+                        col += 1
+                    region = region.united(QRect(first * tile, row * tile,
+                                                 (col - first) * tile, tile))
+            region = region.intersected(widget.rect())
+        self._probes[key] = ((width, height), weakref.ref(widget), region)
+        return region
+
+    def _paints_a_background(self, widget) -> bool:
+        """Whether ``widget``'s style sheet background paints any pixel."""
+        if (not widget.testAttribute(Qt.WA_StyledBackground)
+                or widget.testAttribute(Qt.WA_NoSystemBackground)):
+            return False
+        size = (min(widget.width(), _CARD_PROBE),
+                min(widget.height(), _CARD_PROBE))
+        if size[0] <= 0 or size[1] <= 0:
+            return False
+        key = ("background", id(widget))
+        known = self._probes.get(key)
+        if known is not None and known[0] == size and known[1]() is widget:
+            return known[2]
+        probe = _card_probe(widget, *size)
+        blank = QImage(probe.size(), probe.format())
+        blank.fill(0)
+        paints = probe != blank
+        self._probes[key] = (size, weakref.ref(widget), paints)
+        return paints
+
+    def layer(self, backdrop, frame: QImage, region: QRegion) -> QImage:
+        """The page and ``frame`` painted inside ``region``, for a fade.
+
+        One image the backdrop's size, kept between the frames of a fade.
+        """
+        ratio = backdrop.devicePixelRatioF()
+        width, height = backdrop.width(), backdrop.height()
+        pixels = (max(1, math.ceil(width * ratio)),
+                  max(1, math.ceil(height * ratio)))
+        layer = self._layer
+        if (layer is None or (layer.width(), layer.height()) != pixels
+                or layer.devicePixelRatioF() != ratio):
+            layer = QImage(pixels[0], pixels[1],
+                           QImage.Format_ARGB32_Premultiplied)
+            layer.setDevicePixelRatio(ratio)
+            self._layer = layer
+        painter = QPainter(layer)
+        try:
+            painter.setClipRegion(region)
+            backdrop._paint_base(painter, QRect(0, 0, width, height))
+            backdrop._engine.blit(painter, frame, width, height)
+        finally:
+            painter.end()
+        return layer
+
+
 class AmbientWidget(QWidget):
     """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
 
@@ -10950,6 +11372,7 @@ class AmbientWidget(QWidget):
         #: The widgets over the field whose backgrounds paint nothing, which
         #: are kept from being asked for them (:class:`_QuietBackgrounds`).
         self._quiet_backgrounds = _QuietBackgrounds(self)
+        self._held_rows = _HeldRows(self)
         #: Paints that showed the previous frame again because the shading
         #: thread had not finished a new one. This counter *is* the
         #: "degrade rather than stutter" promise: it is what rises when the
@@ -11228,6 +11651,9 @@ class AmbientWidget(QWidget):
         """
         self._partial_frame = None
         self._still = None
+        held = self.__dict__.get("_held_rows")
+        if held is not None:
+            held.release(fade=False)
         producer = self._producer_box[0]
         if producer is None:
             return
@@ -11252,6 +11678,7 @@ class AmbientWidget(QWidget):
         per frame.
         """
         self._partial_frame = None
+        self._held_rows.release(fade=False)
         running = self._producer_box[0] is not None
         _retire_producer(self._producer_box)
         with self._engine_lock:
@@ -11662,9 +12089,15 @@ class AmbientWidget(QWidget):
         widget there that draws itself in Python takes the interpreter lock
         from the run to do it. While a pipeline holds
         :func:`spacr.qt.gil_priority.active`, the backdrop moves at no more
-        than :data:`_RUN_FPS`.
+        than :data:`_RUN_FPS`. While the rows over the field are held
+        (:class:`_HeldRows`) it moves at no more than :data:`_HOLD_FPS`: what
+        is left moving is the page around the cards, and an idle window
+        should cost little.
         """
-        return min(self._fps, _RUN_FPS) if self._run_paced else self._fps
+        rate = min(self._fps, _RUN_FPS) if self._run_paced else self._fps
+        if self.__dict__.get("_hold_paced"):
+            rate = min(rate, _HOLD_FPS)
+        return rate
 
     def _apply_rate(self) -> None:
         """Set the timer and the shading thread to :meth:`_rate`."""
@@ -11754,6 +12187,7 @@ class AmbientWidget(QWidget):
         if not self._timer.isActive():
             self._clock.restart()
             self._timer.start()
+            self._held_rows.stir()
         self._start_producer()
         self._sync_interaction_filter()
 
@@ -11808,8 +12242,12 @@ class AmbientWidget(QWidget):
         self._drop_card_plan()
 
     def _drop_card_plan(self) -> None:
-        """Give the cards their own paint back, when they are composited."""
+        """Give the cards their own paint back, when they are composited,
+        and paint the whole field again (:class:`_HeldRows`)."""
         self._partial_frame = None
+        held = self.__dict__.get("_held_rows")
+        if held is not None:
+            held.release(fade=False)
         tints = self._card_tints
         if tints is not None:
             tints.invalidate()
@@ -11903,7 +12341,7 @@ class AmbientWidget(QWidget):
             return False
         from ..preferences import get_reduce_motion
 
-        if get_reduce_motion() or _macos_asks_for_stillness():
+        if get_reduce_motion() or _system_asks_for_stillness():
             return False
         window = self.window()
         if window is not None and window.isMinimized():
@@ -11916,10 +12354,11 @@ class AmbientWidget(QWidget):
         The frame cap follows the run first, so a CPU-heavy job starting
         slows a running backdrop at once rather than at its next tick.
 
-        A backdrop the system holds still (:func:`_macos_asks_for_stillness`)
+        A backdrop the system holds still (:func:`_system_asks_for_stillness`)
         asks again every :data:`_MACOS_STILLNESS_RECHECK_MS`, one pending
         check at a time, so it resumes when Low Power Mode or Reduce Motion
-        is turned off without anything else having to wake it.
+        is turned off, or the charger is plugged back in, without anything
+        else having to wake it.
         """
         from shiboken6 import isValid
 
@@ -11929,7 +12368,7 @@ class AmbientWidget(QWidget):
         else:
             self.stop()
             pending = getattr(self, "_stillness_recheck", None)
-            if (self._animating and self.isVisible() and _macos_asks_for_stillness()
+            if (self._animating and self.isVisible() and _system_asks_for_stillness()
                     and (pending is None or not isValid(pending) or not pending.isActive())):
                 self._stillness_recheck = _after(_MACOS_STILLNESS_RECHECK_MS, self,
                                                  self._sync_run_state)
@@ -11972,6 +12411,7 @@ class AmbientWidget(QWidget):
         """Publish the latest bounded handle without waiting for shading."""
         if self._art_input is None:
             return
+        self._held_rows.stir()
         self._art_input._offer(0.0, self._art_input._snapshot[2], (),
                                grab=self._field_grab,
                                popup_origin=self._art_input._popup_snapshot[1])
@@ -12206,6 +12646,7 @@ class AmbientWidget(QWidget):
                         (local.y() + 0.5) / max(1, self.height()))
                        if self.rect().contains(local) else None)
             if pointer is not None and art._snapshot[2] != pointer:
+                self._held_rows.stir()
                 if self._clock.isValid() and self._timer.isActive():
                     step = min(MAX_DT, max(0.0, self._clock.restart() / 1000.0))
                     art._elapsed += step
@@ -12232,6 +12673,7 @@ class AmbientWidget(QWidget):
             local = self.mapFromGlobal(event.globalPosition().toPoint())
             self._click_candidate = None
             if self.rect().contains(local):
+                self._held_rows.stir()
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
                 hit = self.window().childAt(
@@ -12295,6 +12737,7 @@ class AmbientWidget(QWidget):
             self._offer_field_grab()
         elif etype == QEvent.Resize and obj is self.parent():
             self._partial_frame = None
+            self._held_rows.release(fade=False)
             if grab is not None:
                 self._field_grab = None
                 self._offer_field_grab()
@@ -12387,10 +12830,14 @@ class AmbientWidget(QWidget):
         themes offer elapsed time through a separate queue consumed by the
         GUI or shading worker, including when shading overruns its interval.
         """
-        if _macos_asks_for_stillness():
+        if _system_asks_for_stillness():
             self._sync_run_state()
             return
         self._follow_the_run()
+        held = self._held_rows
+        if (self._pending_art_impulses or self._popup_was_open
+                or self._field_grab is not None):
+            held.stir()
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
         advance_spaceout_drift(step)
@@ -12427,15 +12874,25 @@ class AmbientWidget(QWidget):
         if tints is not None:
             tints.tick(producer)
         self._quiet_backgrounds.tick()
+        area = held.tick(producer)
+        paced = held.frame is not None
+        if paced != self.__dict__.get("_hold_paced", False):
+            self._hold_paced = paced
+            self._apply_rate()
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
                 started = time.perf_counter()
-                self.repaint()
+                if area is None:
+                    self.repaint()
+                elif not area.isEmpty():
+                    self.repaint(area)
                 self._frame_cost_ms = (time.perf_counter() - started) * 1000.0
             producer._wake.set()
-        else:
+        elif area is None:
             self.update()
+        elif not area.isEmpty():
+            self.update(area)
 
     def advance_frame(self, dt: float) -> None:
         """Step the animation by ``dt`` seconds and schedule a repaint.
@@ -12544,6 +13001,54 @@ class AmbientWidget(QWidget):
             still = (key, frame)
             self._still = still
         engine.blit(painter, still[1], width, height)
+        return True
+
+    def _paint_held(self, painter, event, width, height) -> bool:
+        """Paint a held field (:class:`_HeldRows`); False when none is held.
+
+        The asked-for area outside the held region gets the newest frame;
+        inside it, the held frame, and while a release fades, the newest
+        frame over it at rising opacity.
+
+        :param painter: the widget painter, nothing drawn yet.
+        :param event: the paint event; only its region is painted.
+        :param width: the widget width.
+        :param height: the widget height.
+        """
+        held = self._held_rows
+        frame = self._last_frame
+        opacity = None
+        if not self._timer.isActive():
+            held.release(fade=False)
+            return False
+        if held.frame is not None:
+            under, region = held.frame, held.region
+        elif held.fade is not None:
+            started, under, region = held.fade
+            opacity = min(1.0, max(0.0, (time.monotonic() - started)
+                                   / _HOLD_FADE_S))
+        else:
+            return False
+        if frame is None or under is None or region.isEmpty():
+            return False
+        rect = QRect(0, 0, width, height)
+        asked = QRegion(event.region())
+        live = asked.subtracted(region)
+        covered = asked.intersected(region)
+        if not live.isEmpty():
+            painter.setClipRegion(live)
+            self._paint_base(painter, rect)
+            self._engine.blit(painter, frame, width, height)
+        if not covered.isEmpty():
+            painter.setClipRegion(covered)
+            self._paint_base(painter, rect)
+            self._engine.blit(painter, under, width, height)
+            if opacity is not None and under is not frame:
+                layer = held.layer(self, frame, covered)
+                painter.setOpacity(opacity)
+                painter.drawImage(QPoint(0, 0), layer)
+                painter.setOpacity(1.0)
+        painter.setClipping(False)
         return True
 
     def _paint_partial_frame(self, painter, event, width, height) -> bool:
@@ -12714,12 +13219,13 @@ class AmbientWidget(QWidget):
             width, height = rect.width(), rect.height()
             producer = self._producer_box[0]
             tints = self._card_tints
-            if (event.rect().contains(rect)
-                    or (tints is not None and tints.active)):
+            held = self._held_rows
+            whole = (event.rect().contains(rect)
+                     or held.takes_a_frame(event.region()))
+            if whole or (tints is not None and tints.active):
                 self._partial_frame = None
             if producer is not None:
                 producer.size = self._art_render_size(width, height)
-                whole = event.rect().contains(rect)
                 fresh = producer.latest() if whole else None
                 if fresh is not None and fresh is not self._last_frame:
                     self._last_frame = fresh
@@ -12741,6 +13247,10 @@ class AmbientWidget(QWidget):
                                       QRect(shown[0].origin, rect.size()))
                     return
 
+            if producer is not None and whole:
+                held.capture(self._last_frame)
+            if self._paint_held(painter, event, width, height):
+                return
             if self._paint_partial_frame(painter, event, width, height):
                 return
             self._paint_base(painter, rect)

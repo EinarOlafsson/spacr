@@ -84,6 +84,20 @@ def qt_theme_applied(qapp):
 
 
 @pytest.fixture(autouse=True)
+def _the_machine_is_on_mains_power(monkeypatch):
+    """Keep the backdrop animating on a laptop running the tests on battery.
+
+    Item 728 holds the animated backdrop still while the machine runs on its
+    battery, and a developer's laptop away from its charger would otherwise
+    stop every backdrop a test expects to run. ``SPACR_BATTERY_PAUSE=0`` is
+    the documented switch for that; the battery tests remove it and mock the
+    sensor.
+    """
+    monkeypatch.setenv("SPACR_BATTERY_PAUSE", "0")
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _the_ambient_compilers_are_not_left_stopped():
     """Start every test with the backdrop's compiler stop cleared.
 
