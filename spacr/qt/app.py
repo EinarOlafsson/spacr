@@ -544,6 +544,13 @@ _DATA_LIBRARIES_STARTED = False
 #: between imports instead of starting another one.
 _BACKGROUND_WARMS_STOPPING = threading.Event()
 
+_DATA_LIBRARY_TURN = threading.Lock()
+_A_FIRST_OPEN_WAITS = threading.Event()
+_DATA_LIBRARY_YIELD_S = 2.0
+_DATA_LIBRARY_TURN_RETRY_MS = 25
+_DATA_LIBRARY_TURN_WAIT_S = 10.0
+_DATA_LIBRARY_TURN_POLL_S = 0.05
+
 #: Seconds after the first module screen is on show before the run
 #: environment (every installed distribution's metadata, pip and conda
 #: lists) is read. Read alongside the data libraries it competed with the
@@ -596,6 +603,53 @@ def _start_unless_held(window, start):
                lambda: _start_unless_held(window, start))
         return None
     return start()
+
+
+@contextlib.contextmanager
+def _the_data_library_turn():
+    """Hold :data:`_DATA_LIBRARY_TURN` for one step of the data-library warm.
+
+    A 0xC0000005 ON A WINDOWS COLD LAUNCH (1 in 11, release candidate
+    c21d42a90) came while this thread imported ``skimage.morphology`` and the
+    GUI thread built Annotate, whose first build imports scikit-image, PIL's
+    Qt bridge and their extension modules. The interpreter's module locks
+    keep two threads out of the same module, not out of the same package's
+    native initialisation, and a traced Linux sweep showed Annotate's first
+    build loading ``skimage._shared.geometry`` and cryptography's native
+    modules while this thread loaded pandas'. The warm now takes its steps
+    only between first opens; the open in flight finishes first.
+
+    :data:`_DATA_LIBRARY_TURN` is held by this thread for each step and by the
+    GUI thread while it builds a module screen for the first time or takes a
+    screen-prewarm step. A first open that finds it taken sets
+    :data:`_A_FIRST_OPEN_WAITS` and waits with the event loop breathing
+    (``MainWindow._wait_for_the_data_library_turn``); a prewarm step is left
+    to the prewarm's next slice. While a first open waits this thread lets it
+    go first, for up to :data:`_DATA_LIBRARY_YIELD_S`, instead of taking the
+    turn back the moment it let it go; without that a click during the warm
+    opened only after the last step (2.3 s late in a traced sweep).
+
+    :returns: a context yielding ``True`` once the turn is held, or ``False``
+        when the application quit while it waited.
+    """
+    import time
+
+    deadline = time.monotonic() + _DATA_LIBRARY_YIELD_S
+    while _A_FIRST_OPEN_WAITS.is_set():
+        if time.monotonic() >= deadline:
+            _A_FIRST_OPEN_WAITS.clear()
+            break
+        if _BACKGROUND_WARMS_STOPPING.wait(_DATA_LIBRARY_TURN_POLL_S):
+            yield False
+            return
+    while not _DATA_LIBRARY_TURN.acquire(timeout=_DATA_LIBRARY_TURN_POLL_S):
+        if _BACKGROUND_WARMS_STOPPING.is_set():
+            yield False
+            return
+    try:
+        yield True
+    finally:
+        _DATA_LIBRARY_TURN.release()
 
 
 def _preload_the_pipeline_entry(app_key: str):
@@ -756,33 +810,38 @@ def _import_the_data_libraries_off_the_gui_thread():
         from .gil_priority import responsive_gui
 
         with responsive_gui():
-            try:
-                from spacr._segmentation_backends import _warm_backend_lookups
-
-                with _timing.span("background warm", "backend lookups"):
-                    _warm_backend_lookups()
-            except Exception:
-                LOG.debug("could not look up the backend interpreters early",
-                          exc_info=True)
-            for name in _DATA_LIBRARIES:
-                if _BACKGROUND_WARMS_STOPPING.is_set():
+            with _the_data_library_turn() as turn:
+                if not turn:
                     return
                 try:
-                    with _timing.span("background import", name):
-                        _importlib.import_module(name)
-                except Exception:
-                    LOG.debug("could not import %s early", name,
-                              exc_info=True)
-            if _BACKGROUND_WARMS_STOPPING.is_set():
-                return
-            try:
-                from .widgets.organism_diagram import _warm_the_artwork
+                    from spacr._segmentation_backends import _warm_backend_lookups
 
-                with _timing.span("background warm", "organism artwork"):
-                    _warm_the_artwork()
-            except Exception:
-                LOG.debug("could not prepare the organism artwork early",
-                          exc_info=True)
+                    with _timing.span("background warm", "backend lookups"):
+                        _warm_backend_lookups()
+                except Exception:
+                    LOG.debug("could not look up the backend interpreters early",
+                              exc_info=True)
+            for name in _DATA_LIBRARIES:
+                with _the_data_library_turn() as turn:
+                    if not turn or _BACKGROUND_WARMS_STOPPING.is_set():
+                        return
+                    try:
+                        with _timing.span("background import", name):
+                            _importlib.import_module(name)
+                    except Exception:
+                        LOG.debug("could not import %s early", name,
+                                  exc_info=True)
+            with _the_data_library_turn() as turn:
+                if not turn or _BACKGROUND_WARMS_STOPPING.is_set():
+                    return
+                try:
+                    from .widgets.organism_diagram import _warm_the_artwork
+
+                    with _timing.span("background warm", "organism artwork"):
+                        _warm_the_artwork()
+                except Exception:
+                    LOG.debug("could not prepare the organism artwork early",
+                              exc_info=True)
             _freeze_what_survived()
 
     _stop_background_warms_on_quit()
@@ -7441,6 +7500,11 @@ class MainWindow(QMainWindow):
         first open). Inside :func:`spacr.qt.preferences._one_store` the GUI
         thread shares one store for the whole open, which the user cannot
         change in the meantime because the breaths hold back user input.
+
+        A FIRST OPEN WAITS FOR THE DATA-LIBRARY WARM'S STEP IN FLIGHT
+        (:meth:`_wait_for_the_data_library_turn`), with the event loop
+        breathing, so the screen is built when this returns, as callers that
+        configure it straight after expect.
         """
         if getattr(self, "_opening_a_screen", False):
             from PySide6.QtCore import QTimer
@@ -7469,14 +7533,55 @@ class MainWindow(QMainWindow):
         import time as _time
 
         self._opening_a_screen = True
-        _screens_package._start_breathing_while_a_window_opens(
-            _time.perf_counter())
+        holds_the_turn = False
         try:
+            holds_the_turn = (key not in self._screens
+                              and self._wait_for_the_data_library_turn())
+            _screens_package._start_breathing_while_a_window_opens(
+                _time.perf_counter())
             with ui_language_resolved_once(), _one_store():
                 self._open_a_module_screen(key, interaction_started)
         finally:
             self._opening_a_screen = False
             _screens_package._stop_breathing_while_a_window_opens()
+            if holds_the_turn:
+                _DATA_LIBRARY_TURN.release()
+
+    def _wait_for_the_data_library_turn(self) -> bool:
+        """Take :data:`_DATA_LIBRARY_TURN` for a first open, breathing meanwhile.
+
+        Waits for the data-library warm's step in flight, at most
+        :data:`_DATA_LIBRARY_TURN_WAIT_S`, running pending timers and paints
+        but no user input every :data:`_DATA_LIBRARY_TURN_RETRY_MS`, so the
+        backdrop keeps drawing. :data:`_A_FIRST_OPEN_WAITS` asks the warm to
+        let this open go before its next step. Called with
+        ``_opening_a_screen`` set, so a navigation that arrives in a breath is
+        posted for after this open.
+
+        :returns: True when the turn is held and must be released; False when
+            the wait ran out and the open goes ahead without it.
+        """
+        import time
+
+        from PySide6.QtCore import QEventLoop
+
+        if _DATA_LIBRARY_TURN.acquire(blocking=False):
+            _A_FIRST_OPEN_WAITS.clear()
+            return True
+        _A_FIRST_OPEN_WAITS.set()
+        deadline = time.monotonic() + _DATA_LIBRARY_TURN_WAIT_S
+        flags = QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
+        try:
+            while time.monotonic() < deadline:
+                if _DATA_LIBRARY_TURN.acquire(
+                        timeout=_DATA_LIBRARY_TURN_RETRY_MS / 1000):
+                    return True
+                QApplication.processEvents(flags)
+            LOG.info("the data-library warm kept its turn for %.0f s; "
+                     "opening beside it", _DATA_LIBRARY_TURN_WAIT_S)
+            return False
+        finally:
+            _A_FIRST_OPEN_WAITS.clear()
 
     def _open_a_module_screen(self, key: str, interaction_started) -> None:
         """Build ``key``'s screen if it is new, then put it on show.
@@ -7662,6 +7767,8 @@ class MainWindow(QMainWindow):
         steps = prewarm._steps
         if steps is None:
             return
+        if not _DATA_LIBRARY_TURN.acquire(blocking=False):
+            return
         self._opening_a_screen = True
         _screens_package._start_breathing_while_a_window_opens(
             _time.perf_counter())
@@ -7677,6 +7784,7 @@ class MainWindow(QMainWindow):
         finally:
             self._opening_a_screen = False
             _screens_package._stop_breathing_while_a_window_opens()
+            _DATA_LIBRARY_TURN.release()
 
     def _finish_a_prewarmed_screen(self, key: str) -> None:
         """Run what is left of ``key``'s ahead-of-time build, if one is under way."""
