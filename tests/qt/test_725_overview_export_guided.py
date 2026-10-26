@@ -228,11 +228,17 @@ def test_guided_hands_its_layout_to_custom_mid_way_and_from_the_preview(view):
 
 
 def test_canvas_images_render_through_the_display_pipeline(view, monkeypatch):
+    import threading
+
     seen = []
     original = browser._overview_pixels
+    caller = threading.get_ident()
 
     def spy(field, channels, limits, **options):
-        seen.append((field.plate, field.well, channels, options.get("edge"), "image_overrides" in options))
+        # the snapshot runs synchronously on this thread; the browser's background
+        # thumbnail runners call the same function from their own threads
+        if threading.get_ident() == caller:
+            seen.append((field.plate, field.well, channels, options.get("edge"), "image_overrides" in options))
         return original(field, channels, limits, **options)
 
     field = next(field for field in view._fields if (field.plate, field.well, field.field) == ("p2", "A02", "3"))
