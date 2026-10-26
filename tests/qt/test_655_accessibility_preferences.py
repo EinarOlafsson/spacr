@@ -616,3 +616,46 @@ def test_a_kept_dialog_notices_a_cancelled_accessibility_edit(store, qtbot):
     preferences._note_what_the_dialog_shows(dialog)
     _check(dialog, "AccessibilityReduceMotion").setChecked(True)
     assert not preferences._still_shows_the_store(dialog, saved_by_it=True)
+
+
+def test_macos_low_power_or_reduce_motion_holds_the_field_and_releases_it(store, qtbot, monkeypatch):
+    """The system's own stillness request stops the backdrop, not the preference."""
+    from spacr.qt.widgets import ambient
+    from spacr.qt.widgets.ambient import AmbientWidget
+
+    asked = {"still": False}
+    monkeypatch.setattr(ambient, "_macos_asks_for_stillness", lambda: asked["still"])
+    monkeypatch.setattr(ambient, "_MACOS_STILLNESS_RECHECK_MS", 50)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 240)
+    backdrop = AmbientWidget(host, theme="data_art_impulse_lens", seed=1)
+    backdrop.follow_parent()
+    host.show()
+    qtbot.waitExposed(host)
+    backdrop._sync_run_state()
+    assert backdrop.is_running()
+
+    asked["still"] = True
+    backdrop._on_tick()
+    assert not backdrop.is_running() and not backdrop._should_run()
+    assert preferences.get_reduce_motion() is False, "the spaCR preference is left alone"
+    pending = backdrop._stillness_recheck
+    assert pending is not None and pending.isActive()
+    backdrop._sync_run_state()
+    assert backdrop._stillness_recheck is pending, "one pending check at a time"
+
+    asked["still"] = False
+    qtbot.waitUntil(backdrop.is_running, timeout=2000)
+    backdrop.stop()
+
+
+def test_macos_stillness_is_false_elsewhere_and_cached(monkeypatch):
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient.sys, "platform", "linux")
+    monkeypatch.setattr(ambient, "_MACOS_STILLNESS", [float("-inf"), True])
+    assert ambient._macos_asks_for_stillness() is False
+    monkeypatch.setattr(ambient.sys, "platform", "darwin")
+    monkeypatch.setattr(ambient, "_MACOS_STILLNESS", [ambient.time.monotonic(), True])
+    assert ambient._macos_asks_for_stillness() is True, "a fresh answer is reused, not re-read"

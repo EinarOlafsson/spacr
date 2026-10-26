@@ -5307,6 +5307,64 @@ def _complete_ambient_startup() -> None:
 
 _WARM_BEFORE_PAINT_S = 3.0
 
+_MACOS_STILLNESS_TTL_S = 2.0
+_MACOS_STILLNESS = [float("-inf"), False]
+_MACOS_STILLNESS_RECHECK_MS = 5000
+
+
+def _macos_asks_for_stillness() -> bool:
+    """Whether macOS asks apps to hold animation: Low Power Mode or Reduce Motion.
+
+    The animated backdrop costs a whole CPU core while the window is idle --
+    measured 90-110 % on an Apple Silicon MacBook on Home and Mask, every
+    translucent setting row repainting each frame -- and spaCR's own Reduce
+    motion is off by default. A MacBook in Low Power Mode, or one whose user
+    turned on System Settings > Accessibility > Display > Reduce motion, has
+    already said it wants less of that; this follows the system the way
+    native Mac apps do, without touching the spaCR preference.
+
+    Read through the Objective-C runtime with ``ctypes``
+    (``NSProcessInfo.isLowPowerModeEnabled`` and
+    ``NSWorkspace.accessibilityDisplayShouldReduceMotion``), so it needs no
+    PyObjC, and cached for :data:`_MACOS_STILLNESS_TTL_S` because the
+    backdrop asks on every tick. Any failure, and every other platform,
+    answers ``False``.
+
+    :returns: True when either system setting is on.
+    """
+    if sys.platform != "darwin":
+        return False
+    now = time.monotonic()
+    if now - _MACOS_STILLNESS[0] < _MACOS_STILLNESS_TTL_S:
+        return _MACOS_STILLNESS[1]
+    still = False
+    try:
+        import ctypes
+
+        objc = ctypes.cdll.LoadLibrary("/usr/lib/libobjc.A.dylib")
+        objc.objc_getClass.restype = ctypes.c_void_p
+        objc.objc_getClass.argtypes = [ctypes.c_char_p]
+        objc.sel_registerName.restype = ctypes.c_void_p
+        objc.sel_registerName.argtypes = [ctypes.c_char_p]
+        address = ctypes.cast(objc.objc_msgSend, ctypes.c_void_p).value
+        send_id = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(address)
+        send_bool = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(address)
+        for owner, shared, flag in (
+                (b"NSProcessInfo", b"processInfo", b"isLowPowerModeEnabled"),
+                (b"NSWorkspace", b"sharedWorkspace", b"accessibilityDisplayShouldReduceMotion")):
+            cls = objc.objc_getClass(owner)
+            if not cls:
+                continue
+            instance = send_id(cls, objc.sel_registerName(shared))
+            if instance and send_bool(instance, objc.sel_registerName(flag)):
+                still = True
+                break
+    except Exception:
+        LOG.debug("could not read the macOS motion settings", exc_info=True)
+        still = False
+    _MACOS_STILLNESS[0], _MACOS_STILLNESS[1] = now, still
+    return still
+
 
 def _start_kernel_warmup_before_first_paint() -> bool:
     """Begin importing numba and building the backdrop kernels now.
@@ -11813,7 +11871,7 @@ class AmbientWidget(QWidget):
             return False
         from ..preferences import get_reduce_motion
 
-        if get_reduce_motion():
+        if get_reduce_motion() or _macos_asks_for_stillness():
             return False
         window = self.window()
         if window is not None and window.isMinimized():
@@ -11825,12 +11883,24 @@ class AmbientWidget(QWidget):
 
         The frame cap follows the run first, so a CPU-heavy job starting
         slows a running backdrop at once rather than at its next tick.
+
+        A backdrop the system holds still (:func:`_macos_asks_for_stillness`)
+        asks again every :data:`_MACOS_STILLNESS_RECHECK_MS`, one pending
+        check at a time, so it resumes when Low Power Mode or Reduce Motion
+        is turned off without anything else having to wake it.
         """
+        from shiboken6 import isValid
+
         self._follow_the_run()
         if self._should_run():
             self.start()
         else:
             self.stop()
+            pending = getattr(self, "_stillness_recheck", None)
+            if (self._animating and self.isVisible() and _macos_asks_for_stillness()
+                    and (pending is None or not isValid(pending) or not pending.isActive())):
+                self._stillness_recheck = _after(_MACOS_STILLNESS_RECHECK_MS, self,
+                                                 self._sync_run_state)
         self._sync_interaction_filter()
 
     def _art_render_size(self, width: int, height: int) -> Tuple[int, int]:
@@ -12285,6 +12355,9 @@ class AmbientWidget(QWidget):
         themes offer elapsed time through a separate queue consumed by the
         GUI or shading worker, including when shading overruns its interval.
         """
+        if _macos_asks_for_stillness():
+            self._sync_run_state()
+            return
         self._follow_the_run()
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
