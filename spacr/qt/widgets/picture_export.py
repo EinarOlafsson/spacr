@@ -962,7 +962,8 @@ _CANVAS_IMPORT_DEFAULTS = {"shown": True, "normalize": True, "low": 1.0, "high":
 _CANVAS_IMPORT_STEPS = (
     ("background", "Background subtraction", "Subtract a rolling-ball background from this channel."),
     ("denoise", "Denoise", "Smooth this channel with a small Gaussian before it is shown."),
-    ("clahe", "CLAHE", "Contrast-limited adaptive histogram equalization of this channel."),
+    ("clahe", "CLAHE (local histogram equalisation)",
+     "Contrast-limited adaptive histogram equalization of this channel."),
     ("sharpen", "Sharpen", "Sharpen this channel with an unsharp mask."),
 )
 _CANVAS_PICK_KEYS = "Ctrl+Shift"
