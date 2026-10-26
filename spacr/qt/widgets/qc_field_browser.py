@@ -6781,6 +6781,8 @@ class _FieldOverview(QWidget):
             header.setContextMenuPolicy(Qt.CustomContextMenu)
             header.customContextMenuRequested.connect(functools.partial(self._plate_header_menu, table, axis))
             header.sectionDoubleClicked.connect(functools.partial(self._plate_toggle_line, table, axis))
+            header.viewport()._overview_header = (table, axis)
+            header.viewport().installEventFilter(self)
         table.viewport().installEventFilter(self)
         table.installEventFilter(self)
         table.horizontalScrollBar().valueChanged.connect(self._request_visuals)
@@ -9003,30 +9005,56 @@ class _FieldOverview(QWidget):
             self._apply_plate_extent()
 
     def _set_line_collapsed(self, axis, index, collapsed, *_):
-        """Collapse plate row or column ``index`` to a thin strip, or show it again.
+        """Collapse plate rows or columns to thin strips, or show them again.
 
         Only the table geometry changes: selection, annotations, comparison
         groups and measurements are untouched.
 
         :param axis: ``"row"`` or ``"column"``.
-        :param index: the zero-based table index.
-        :param collapsed: True collapses, False shows it again.
+        :param index: one zero-based table index, or several.
+        :param collapsed: True collapses, False shows them again.
         """
         rows, columns = self._collapsed_lines()
         lines = rows if axis == "row" else columns
-        if collapsed:
-            lines.add(int(index))
-        else:
-            lines.discard(int(index))
+        for line in ((index,) if isinstance(index, int) else tuple(index)):
+            if collapsed:
+                lines.add(int(line))
+            else:
+                lines.discard(int(line))
         self._relayout_collapsed()
         self._persist_view_state()
 
+    def _selected_lines(self, axis):
+        """The rows or columns of the shown plate that hold a selected well."""
+        return {index.row() if axis == "row" else index.column() for index in self.wells.selectedIndexes()}
+
+    def _line_targets(self, axis, index, selected=None):
+        """The lines one row or column action applies to.
+
+        A line that belongs to a selection of several rows or columns takes
+        the whole selection with it; otherwise only the line itself.
+
+        :param axis: ``"row"`` or ``"column"``.
+        :param index: the clicked line.
+        :param selected: the selected lines, read from the table when ``None``.
+        :returns: the zero-based indices, sorted.
+        """
+        selected = self._selected_lines(axis) if selected is None else set(selected)
+        return sorted(selected) if index in selected and len(selected) > 1 else [index]
+
     def _toggle_line(self, axis, index):
-        """Collapse an open plate row or column, or show a collapsed one."""
+        """Collapse an open plate row or column, or show a collapsed one, with the rest of its selection.
+
+        A double click on a header first selects that line alone, so the
+        selection read at the press before it decides which lines follow.
+        """
         if index < 0:
             return
+        snapshot = getattr(self, "_header_press_lines", None)
+        self._header_press_lines = None
+        selected = snapshot[1] if snapshot is not None and snapshot[0] == axis else None
         lines = self._collapsed_lines()[0 if axis == "row" else 1]
-        self._set_line_collapsed(axis, index, index not in lines)
+        self._set_line_collapsed(axis, self._line_targets(axis, index, selected), index not in lines)
 
     def _show_all_lines(self, *_):
         """Show every collapsed row and column of the shown plate again."""
@@ -9038,15 +9066,22 @@ class _FieldOverview(QWidget):
 
     def _line_actions(self, menu, axis, index):
         """Add the collapse or show action for one row or column to ``menu``."""
-        name = self._line_name(axis, index)
+        targets = self._line_targets(axis, index)
+        name = ", ".join(self._line_name(axis, line) for line in targets)
         folded = index in self._collapsed_lines()[0 if axis == "row" else 1]
-        if axis == "row":
+        several = len(targets) > 1
+        if axis == "row" and several:
+            caption = tr("Show rows {rows}", rows=name) if folded else tr("Collapse rows {rows}", rows=name)
+        elif axis == "row":
             caption = tr("Show row {row}", row=name) if folded else tr("Collapse row {row}", row=name)
+        elif several:
+            caption = (tr("Show columns {columns}", columns=name) if folded
+                       else tr("Collapse columns {columns}", columns=name))
         else:
             caption = (tr("Show column {column}", column=name) if folded
                        else tr("Collapse column {column}", column=name))
         menu.addAction(caption).triggered.connect(
-            functools.partial(self._set_line_collapsed, axis, index, not folded))
+            functools.partial(self._set_line_collapsed, axis, tuple(targets), not folded))
 
     def _show_all_action(self, menu):
         """Add "Show all rows and columns", enabled while anything is collapsed."""
@@ -10252,6 +10287,11 @@ class _FieldOverview(QWidget):
             owner = getattr(self, "_readout_viewports", {}).get(watched)
             if owner is not None and getattr(self, "_pixel_readout", None) is not None:
                 self._readout_event(owner, event)
+        header = getattr(watched, "_overview_header", None)
+        if header is not None and event.type() == QEvent.MouseButtonPress:
+            header_table, axis = header
+            self._header_press_lines = (axis, {index.row() if axis == "row" else index.column()
+                                               for index in header_table.selectedIndexes()})
         table = self._plate_table_at(watched)
         if table is not None:
             if event.type() == QEvent.MouseButtonPress:
