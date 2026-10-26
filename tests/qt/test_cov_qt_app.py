@@ -2741,11 +2741,21 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
         finally:
             nesting[0] -= 1
 
+    # The thread ends by listing Make Masks' filter properties. That walk
+    # triggers scikit-image's own lazy submodule loads through
+    # ``importlib.import_module`` (``skimage.measure._regionprops`` and one
+    # more), which are not entries of the prewarm list; it is stood in for
+    # here and only checked to run.
+    from spacr.qt import mask_engine
+    catalogue_calls: list = []
     app_mod._HEAVY_WARM_GATE.set()
     with monkeypatch.context() as m:
         m.setattr(importlib, "import_module", _record)
+        m.setattr(mask_engine, "_filter_catalogue",
+                  lambda: catalogue_calls.append(True))
         thread.target()
     assert requested == list(PREWARMED_MODULES)
+    assert catalogue_calls == [True]
     for name in PREWARMED_MODULES:
         assert name in sys.modules, f"{name} was not pre-warmed"
 
