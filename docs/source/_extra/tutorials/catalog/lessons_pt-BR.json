@@ -6286,12 +6286,12 @@
           "narration": "Escolha a ferramenta de importação de acordo com o que você tem: Import Images ou Format Converter para imagens sozinhas, External Masks para imagens com máscaras. Esta tela recebe imagens, máscaras e uma tabela de medições ao mesmo tempo.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
-          "speech_text": "Escolha a ferramenta de importação de acordo com o que você tem: Import Images ou Format Converter para imagens sozinhas, External Masks para imagens com máscaras. Esta tela recebe imagens, máscaras e uma tabela de medições ao mesmo tempo.",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Escolha a ferramenta de importação de acordo com o que você tem: Import Images ou Format Converter para imagens sozinhas, External Masks para imagens com máscaras. Esta tela recebe imagens, máscaras e uma tabela de medições ao mesmo tempo."
         },
         {
           "visual": "org_organize_popup",
@@ -6303,10 +6303,10 @@
           "visual": "03_choose_images",
           "narration": "Escolha a pasta de imagens. O exemplo usa dois campos de microscopia com um canal de intensidade e os rótulos de células correspondentes. Registre a placa, o poço e o campo originais de cada arquivo.",
           "hold_after": 0.7,
-          "speech_text": "Escolha a pasta de imagens. O exemplo usa dois campos de microscopia com um canal de intensidade e os rótulos de células correspondentes. Registre a placa, o poço e o campo originais de cada arquivo.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Escolha a pasta de imagens. O exemplo usa dois campos de microscopia com um canal de intensidade e os rótulos de células correspondentes. Registre a placa, o poço e o campo originais de cada arquivo."
         },
         {
           "visual": "04_choose_masks",
@@ -6402,33 +6402,56 @@
             3450,
             195
           ],
-          "speech_text": "Abra o projeto e inspecione as medições importadas. A tabela de colunas foreign registra a origem delas. Use Measure quando quiser que o espáquer calcule novas características a partir das imagens.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Abra o projeto e inspecione as medições importadas. A tabela de colunas foreign registra a origem delas. Use Measure quando quiser que o espáquer calcule novas características a partir das imagens."
         },
         {
           "visual": "14_import_scope",
           "narration": "Mantenha o mapa de conversão com o projeto e confira as atribuições de placa, poço e campo. Nomes de arquivo genéricos podem receber novas coordenadas, então resolva as identidades originais antes de uma análise no nível da placa.",
           "hold_after": 0.7,
-          "speech_text": "Mantenha o mapa de conversão com o projeto e confira as atribuições de placa, poço e campo. Nomes de arquivo genéricos podem receber novas coordenadas, então resolva as identidades originais antes de uma análise no nível da placa.",
           "related_lessons": [
             "74_import_images"
-          ]
+          ],
+          "speech_text": "Mantenha o mapa de conversão com o projeto e confira as atribuições de placa, poço e campo. Nomes de arquivo genéricos podem receber novas coordenadas, então resolva as identidades originais antes de uma análise no nível da placa."
         },
         {
           "visual": "14_import_scope",
           "narration": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído.",
           "hold_after": 0.7,
-          "speech_text": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído.",
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
