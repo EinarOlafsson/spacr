@@ -161,3 +161,37 @@ def test_thumbnails_follow_the_scope(view, qtbot):
     qtbot.waitUntil(lambda: bool(_limits(view, "plateA", "A01")), timeout=15000)
     qtbot.waitUntil(lambda: view.wells.item(*view._well_positions["A01"]).data(Qt.UserRole + 1) not in (None, before)
                     and not view.wells.item(*view._well_positions["A01"]).icon().isNull(), timeout=20000)
+
+
+def test_a_scoped_channel_with_its_own_percentiles_is_stretched_at_them(view, qtbot):
+    _scope(view, qtbot, "plate")
+    qtbot.waitUntil(lambda: bool(_limits(view, "plateA", "A01")), timeout=15000)
+    assert _limits(view, "plateA", "A01")[1][1] == pytest.approx(4 * (32 * 40 - 1), rel=1e-3)
+    view._channel_overrides[1] = {"percentile_low": 0., "percentile_high": 50.}
+    view._channel_display_changed()
+    qtbot.waitUntil(lambda: not view._metadata_jobs.is_busy(), timeout=15000)
+    ramp = np.arange(32 * 40, dtype=np.float64)
+    expected = float(np.percentile(np.concatenate([ramp, ramp * 4]), 50.))
+    qtbot.waitUntil(lambda: _limits(view, "plateA", "A01")[1][1] == pytest.approx(expected, rel=1e-3),
+                    timeout=15000)
+    assert _limits(view, "plateA", "A01")[1] == _limits(view, "plateA", "A02")[1]
+    assert _limits(view, "plateA", "A01")[2][1] == pytest.approx(4 * (32 * 40 - 1) + 7, rel=1e-3)
+
+
+def test_the_canvas_snapshot_draws_the_shown_display_without_the_enhancement(view, qtbot):
+    _scope(view, qtbot, "1=plate, 2=image")
+    qtbot.waitUntil(lambda: bool(_limits(view, "plateA", "A01")), timeout=15000)
+    view._channel_overrides[2] = {"percentile_low": 10., "percentile_high": 60.}
+    view._channel_display_changed()
+    view._set_channel_targets(None, (2,))
+    qtbot.waitUntil(lambda: not view._metadata_jobs.is_busy(), timeout=15000)
+    snapshot = view._canvas_snapshot()
+    shown = view._display_kwargs(view=True)
+    for key in ("channel_limits", "percentile_channels", "channel_percentiles"):
+        assert snapshot._display[key] == shown[key]
+    assert "enhancement" not in snapshot._display and "channel_enhancement" not in snapshot._display
+    field = _field(view, "plateA", "A02")
+    drawn = snapshot(browser._overview_canvas_image(field), None)
+    shown.pop("enhancement", None)
+    expected = browser._overview_pixels(field, snapshot._channels, snapshot._limits, edge=None, **shown)
+    assert (drawn == expected[..., :3]).all()
