@@ -659,6 +659,17 @@ def _retire_table_cells(table: QTableWidget, *, headers: bool = False) -> None:
     them, and the row and column counts are left alone as ``clear()`` left
     them. Without it the table ends with no rows.
 
+    Sorting is switched off for the wipe and back on afterwards with the
+    model's signals held: switching it on sorts at once, and a sort of rows
+    that hold nothing any more still announces ``layoutChanged``. With an
+    accessibility client attached (VoiceOver, or any app given
+    accessibility rights on macOS) that announcement reached Qt's
+    accessibility cache while it held interfaces for what the wipe had just
+    taken out, and it deleted one for an object already gone: a native
+    segfault under ``QAccessibleCache::deleteInterface`` when Agreement
+    opened a second database. There is nothing left to reorder, so nothing
+    is lost by not announcing it.
+
     :param table: the table to empty.
     :param headers: behave like ``clear()`` rather than ``setRowCount(0)``.
     """
@@ -686,7 +697,13 @@ def _retire_table_cells(table: QTableWidget, *, headers: bool = False) -> None:
         else:
             table.setRowCount(0)
     finally:
-        table.setSortingEnabled(sorting)
+        if sorting:
+            model = table.model()
+            held = model.blockSignals(True)
+            try:
+                table.setSortingEnabled(True)
+            finally:
+                model.blockSignals(held)
 
 
 def _spare_table_item(table: QTableWidget, value="", make=None):

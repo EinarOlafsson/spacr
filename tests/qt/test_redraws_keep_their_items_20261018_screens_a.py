@@ -235,3 +235,49 @@ def test_control_chart_redraws(qtbot, qt_theme_applied, accessible):
     screen._show_hit_refusal("nothing")
     assert screen.hit_table.rowCount() == 0
     assert all(shiboken6.isValid(i) for i in seen)
+
+
+@pytest.mark.parametrize("headers", [False, True], ids=["rows", "clear_like"])
+def test_retiring_a_sorted_table_announces_no_layout_to_accessibility(
+        qtbot, accessible, headers):
+    """No ``layoutChanged`` while a sorted table's cells are being retired.
+
+    A native macOS run crashed in ``QAccessibleCache::deleteInterface`` under
+    ``QAbstractItemModel::layoutChanged`` under ``setSortingEnabled``, from
+    ``_retire_table_cells`` as Agreement's ``set_database`` cleared its
+    results. Switching sorting back on sorted rows that held nothing any
+    more, and the announcement reached an accessibility cache that still
+    had interfaces for what had just been taken out. With accessibility
+    active, the cells' interfaces are made first, as a screen reader would.
+    """
+    from PySide6.QtWidgets import QTableWidget
+
+    from spacr.qt.widgets.sortable_table import _retire_table_cells, table_item
+
+    table = QTableWidget(4, 3)
+    qtbot.addWidget(table)
+    table.setHorizontalHeaderLabels(["a", "b", "c"])
+    for row in range(4):
+        for column in range(3):
+            table.setItem(row, column, table_item(f"{3 - row}{column}"))
+    table.setSortingEnabled(True)
+    table.sortByColumn(0, Qt.AscendingOrder)
+    table.show()
+    qtbot.waitExposed(table)
+    _walk(table)
+    announced = []
+    table.model().layoutChanged.connect(lambda *a: announced.append("layout"))
+    table.model().layoutAboutToBeChanged.connect(
+        lambda *a: announced.append("about"))
+    _retire_table_cells(table, headers=headers)
+    QApplication.processEvents()
+    _walk(table)
+    assert announced == [], "a sort of retired cells was announced"
+    assert table.isSortingEnabled(), "sorting was not put back"
+    assert not _cells(table)
+    table.setRowCount(2)
+    for row in range(2):
+        for column in range(3):
+            table.setItem(row, column, table_item(f"{row}{column}"))
+    table.sortByColumn(0, Qt.DescendingOrder)
+    assert table.item(0, 0).text() == "10", "sorting no longer works"
