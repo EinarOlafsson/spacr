@@ -1,0 +1,45 @@
+================================================================================
+EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
+================================================================================
+
+Status:    requested; not implemented
+Requested: maintainer, 2026-10-26
+Owner:     unassigned
+Related:   startup options, Preferences, Home, dock, spaCR AI
+
+REQUIRED BEHAVIOUR
+
+1. Add an Easy mode boolean directly below spaCR AI in the Start spaCR
+   window and in the appropriate Preferences section. Default: off.
+   Keep the startup and Preferences choices consistent.
+
+2. When enabled, replace Home with a simple central field where the user
+   can type a file or folder path, or drop a file or folder. Accept drops
+   anywhere in the Easy mode window, not only over the field.
+
+3. Hide the dock and module icons by default in Easy mode. Let the user
+   turn the dock back on while keeping Easy mode enabled.
+
+4. Inspect the supplied file or folder and suggest appropriate spaCR
+   modules and next steps based on its contents. Suggestions must open
+   the relevant module with the supplied input available to that module.
+   Handle invalid paths, unsupported contents and ambiguous inputs with
+   clear, useful feedback.
+
+5. Animate the area around the central field. Suggestions should appear
+   with polished animations at varied, randomly chosen positions around
+   the screen, while remaining readable, clickable and within the window.
+   Keep the input field usable and avoid overlapping active controls.
+
+ACCEPTANCE
+
+With Easy mode off, retain the ordinary Home experience. With it on,
+verify startup and Preferences consistency, whole-window file/folder
+drop and typed paths, content-dependent suggestions and module handoff,
+dock visibility controls, and readable animations in both themes and
+at supported window sizes. Easy mode must remain usable when spaCR AI
+is disabled or unavailable; document which suggestions use local file
+inspection and which, if any, require an enabled AI provider.
+
+This item records a new request; it does not add an implementation or
+an additional prerequisite for releasing 1.5.1.6.
