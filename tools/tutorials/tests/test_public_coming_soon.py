@@ -12,6 +12,8 @@ from audit_staged_catalogs import CATALOGS
 from coming_soon import COPY, EMBEDDINGS, HELD, OPS, PLACEHOLDERS, release_catalog
 from check_completed_matrix import digest
 from integrate_public_coming_soon import check_preserved
+from archived import ARCHIVED_IDS
+from archive_lessons import archived_view, render
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import docs_media_budget  # noqa: E402
@@ -30,13 +32,25 @@ def test_public_catalog_has_playable_lessons_and_translated_unavailable_screens(
     held = [lesson for lesson in catalog['lessons'] if lesson.get('status') == 'coming_soon']
     ready = [lesson for lesson in catalog['lessons'] if lesson.get('status') != 'coming_soon']
     assert [lesson['id'] for lesson in held] == REMAINING == []
-    assert len(ready) == 84 and all(lesson['scenes'] for lesson in ready)
+    assert len(ready) == 84 - len(ARCHIVED_IDS) and all(lesson['scenes'] for lesson in ready)
+    assert not set(ARCHIVED_IDS) & {lesson['id'] for lesson in catalog['lessons']}
     for lesson in held:
         assert (lesson['availability_title'], lesson['description']) == COPY[language]
         assert lesson['scenes'] == []
         assert not {'poster', 'silent', 'example_files'} & lesson.keys()
-    # Publication copies the verified candidate; the public tree may not drift from it.
-    assert (PUBLIC / 'catalog' / filename).read_bytes() == (CHECKPOINT / 'web/catalog' / filename).read_bytes()
+    # Publication copies the verified candidate; the public tree may not drift
+    # from it except by the archived lessons, taken out exactly as archived.
+    assert (PUBLIC / 'catalog' / filename).read_bytes() == _public_copy('catalog/' + filename)
+
+
+def _public_copy(name):
+    """The checkpoint's bytes for ``name`` with the archived lessons taken out."""
+    recorded = CHECKPOINT / 'web' / name
+    if not ARCHIVED_IDS:
+        return recorded.read_bytes()
+    text = recorded.read_text(encoding='utf-8')
+    data = json.loads(text[text.index('(') + 1:text.rindex(')')] if name.endswith('.js') else text)
+    return render(name, archived_view({name: data})[name]).encode('utf-8')
 
 
 @pytest.mark.parametrize('field,value', [
@@ -77,5 +91,7 @@ def test_public_player_pins_the_verified_media_revision_and_exposes_coming_soon(
                              'module_navigation.js', 'voice_catalog.js'}
     for name, version in versions.items():
         assert index.count(name + '?v=' + version) == 1
-    for name in ('lesson_catalog.js', 'module_navigation.js', 'app_v2.js', 'styles.css'):
+    for name in ('app_v2.js', 'styles.css'):
         assert (PUBLIC / name).read_bytes() == (CHECKPOINT / 'web' / name).read_bytes()
+    for name in ('lesson_catalog.js', 'module_navigation.js'):
+        assert (PUBLIC / name).read_bytes() == _public_copy(name)

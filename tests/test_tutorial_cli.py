@@ -25,6 +25,18 @@ from spacr.qt.tutorial import __main__ as cli
 
 REPO = Path(__file__).resolve().parents[1]
 LIBRARY = "https://einarolafsson.github.io/spacr/tutorials/"
+TUTORIALS = REPO / "docs" / "source" / "_extra" / "tutorials"
+sys.path.insert(0, str(REPO / "tools"))
+sys.path.insert(0, str(REPO / "tools" / "tutorials"))
+from archived import ARCHIVED_IDS  # noqa: E402
+from build_tutorial_index import display_order, read_catalog  # noqa: E402
+
+#: The library's display order: the player numbers each visible lesson by
+#: its position here, so archived lessons leave no gaps.
+DISPLAY = display_order(read_catalog(TUTORIALS / "lesson_catalog.js"),
+                        TUTORIALS / "module_navigation.js")
+MASK_NUMBER = DISPLAY.index("07_mask") + 1
+MEASURE_NUMBER = DISPLAY.index("08_measure") + 1
 
 
 @pytest.fixture(autouse=True)
@@ -78,13 +90,13 @@ def test_the_lessons_are_the_published_catalog_in_number_order():
                                    catalog.rindex(")")])["lessons"]
     rows = tutorials.lessons()
 
-    assert [row["lesson"] for row in rows] == [
-        lesson["id"] for lesson in sorted(published,
-                                          key=lambda item: item["number"])]
-    assert [row["number"] for row in rows] == sorted(
-        row["number"] for row in rows)
+    assert [row["lesson"] for row in rows] == DISPLAY
+    assert sorted(row["lesson"] for row in rows) == sorted(
+        lesson["id"] for lesson in published)
+    assert [row["number"] for row in rows] == list(range(1, len(rows) + 1))
+    assert not set(ARCHIVED_IDS) & {row["lesson"] for row in rows}
     mask = next(row for row in rows if row["lesson"] == "07_mask")
-    assert mask == {"number": 7, "lesson": "07_mask", "slug": "mask",
+    assert mask == {"number": MASK_NUMBER, "lesson": "07_mask", "slug": "mask",
                     "title": "Mask: segment images and inspect the results",
                     "app_key": "mask"}
 
@@ -131,12 +143,12 @@ def test_a_table_without_a_catalog_lists_nothing(monkeypatch, payload):
 
 
 @pytest.mark.parametrize("name, lesson", [
-    ("7", "07_mask"),
-    ("07", "07_mask"),
+    (str(MASK_NUMBER), "07_mask"),
+    (str(MASK_NUMBER).zfill(2), "07_mask"),
     ("07_mask", "07_mask"),
     ("mask", "07_mask"),
     ("Make-Masks", "14_make_masks"),
-    ("plaque assay", "24_plaque"),
+    ("align stitch", "32_align_stitch"),
     ("classify", "10_classify_cv"),
     ("classify_merged", "41_classify"),
 ])
@@ -145,6 +157,13 @@ def test_a_lesson_is_found_by_number_id_screen_or_slug(name, lesson):
 
     assert found["lesson"] == lesson
     assert suggestions == []
+
+
+@pytest.mark.parametrize("lesson", ARCHIVED_IDS)
+def test_an_archived_lesson_is_not_found_by_id(lesson):
+    found, _suggestions = tutorials.find_lesson(lesson)
+
+    assert found is None
 
 
 def test_an_unknown_name_gets_close_and_containing_names():
@@ -178,7 +197,7 @@ def test_no_argument_lists_every_lesson_and_opens_the_library(opened, capsys):
     assert opened == [LIBRARY]
 
 
-@pytest.mark.parametrize("name", ["8", "measure", "08_measure"])
+@pytest.mark.parametrize("name", [str(MEASURE_NUMBER), "measure", "08_measure"])
 def test_a_lesson_by_number_slug_or_screen_opens_that_lesson(
         opened, capsys, name):
     assert cli.main([name]) == 0
@@ -191,8 +210,8 @@ def test_a_lesson_by_number_slug_or_screen_opens_that_lesson(
 
 
 def test_a_lesson_by_slug_opens_it(opened):
-    assert cli.main(["plaque-assay"]) == 0
-    assert opened == [f"{LIBRARY}#lesson=24_plaque"]
+    assert cli.main(["align-stitch"]) == 0
+    assert opened == [f"{LIBRARY}#lesson=32_align_stitch"]
 
 
 def test_an_unknown_name_is_answered_with_suggestions(opened, capsys):
@@ -230,7 +249,8 @@ def test_list_with_a_lesson_prints_that_lesson_only(opened, capsys):
 
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 2
-    assert lines[1].split()[0] == "7" and lines[1].rstrip().endswith("mask")
+    assert (lines[1].split()[0] == str(MASK_NUMBER)
+            and lines[1].rstrip().endswith("mask"))
     assert opened == []
 
 

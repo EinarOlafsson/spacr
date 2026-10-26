@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,9 +30,32 @@ FEATURE_DICTIONARY_TITLES = {
 }
 
 
+sys.path.insert(0, str(ROOT / "tools" / "tutorials"))
+from archived import ARCHIVED_IDS  # noqa: E402
+from archive_lessons import full_file  # noqa: E402
+
+
 def _catalog(prefix: str, locale: str) -> dict:
-    path = CATALOG_DIR / f"{prefix}_{locale}.json"
-    return json.loads(path.read_text(encoding="utf-8"))
+    """The published catalog, archived lessons included.
+
+    The library shows the visible lessons only; the archived ones keep their
+    entries under ``tools/tutorials/archive/`` and return to their places on
+    restore. These contracts are about the whole published inventory, so
+    the archived entries are put back first; the deployed files themselves
+    are checked by :func:`test_deployed_catalogs_hide_exactly_the_archived_lessons`.
+    """
+    return full_file(f"catalog/{prefix}_{locale}.json")
+
+
+def test_deployed_catalogs_hide_exactly_the_archived_lessons():
+    for prefix, locales in (("lessons", FULL_LOCALES), ("captions", CAPTION_LOCALES)):
+        for locale in locales:
+            path = CATALOG_DIR / f"{prefix}_{locale}.json"
+            deployed = [lesson["id"] for lesson in
+                        json.loads(path.read_text(encoding="utf-8"))["lessons"]]
+            published = [lesson["id"] for lesson in _catalog(prefix, locale)["lessons"]]
+            assert deployed == [i for i in published if i not in ARCHIVED_IDS], path.name
+            assert len(published) == 84
 
 
 def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():

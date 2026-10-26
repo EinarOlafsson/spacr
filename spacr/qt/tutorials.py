@@ -32,6 +32,10 @@ _INDEX: Optional[Dict[str, dict]] = None
 #: Every lesson in lesson-number order, or None until first read.
 _LESSONS: Optional[List[dict]] = None
 
+#: ``{app_key: {"lesson": id, "title": title}}`` for modules whose lesson is
+#: archived and will return, or None before the first read.
+_COMING_SOON: Optional[Dict[str, dict]] = None
+
 
 def _resource(files, name: str):
     """``name`` in ``spacr/resources``, as ``importlib.resources`` gives it.
@@ -68,6 +72,49 @@ def _index() -> Dict[str, dict]:
         except Exception:                                        # noqa: BLE001
             _INDEX = {}
     return _INDEX
+
+
+def _coming_soon() -> Dict[str, dict]:
+    """The bundled table of archived module lessons, read once."""
+    global _COMING_SOON
+    if _COMING_SOON is None:
+        try:
+            import json
+            from importlib.resources import files
+
+            raw = _resource(files, "tutorial_index.json")
+            data = json.loads(raw.read_text(encoding="utf-8"))
+            rows = data.get("coming_soon") or {}
+            _COMING_SOON = {str(k): v for k, v in rows.items()
+                            if isinstance(v, dict)}
+        except Exception:                                        # noqa: BLE001
+            _COMING_SOON = {}
+    return _COMING_SOON
+
+
+def _tutorial_word_html(app_key: str) -> str:
+    """The **Tutorial** word for a module strip, as rich text.
+
+    A link when the module has a lesson in the library. When its lesson is
+    archived, the word without a link and a **Coming soon** badge beside it,
+    so the reader learns the lesson exists but cannot be opened yet. ``""``
+    for a module with neither.
+
+    :param app_key: the module key.
+    """
+    from html import escape
+
+    from .i18n import tr
+
+    url = tutorial_url(app_key)
+    if url:
+        return (f'<a href="{escape(url, quote=True)}">'
+                f'{escape(tr("Tutorial"))}</a>')
+    if str(app_key or "") in _coming_soon():
+        return (f'<span style="color:#8a94a6;">{escape(tr("Tutorial"))}</span>'
+                f'&nbsp;<span style="background-color:#1f6f8b;color:#ffffff;">'
+                f'&nbsp;{escape(tr("Coming soon"))}&nbsp;</span>')
+    return ""
 
 
 def lesson_for(app_key: str) -> str:

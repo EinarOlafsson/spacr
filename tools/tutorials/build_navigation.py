@@ -177,9 +177,11 @@ def build(catalog: dict) -> dict:
     alpha_modules = sorted(expected & (set(_alpha_names('apps'))
                                        - _SPECIES_WITH_PUBLISHED_LESSONS))
     expected -= set(alpha_modules)
+    from archived import archived_app_keys
+    archived_keys = set(archived_app_keys())
     uncovered = [{'app_key': k, 'title': names.get(k, k), 'host_app_key': parents.get(k),
                   'status': 'deferred_unvalidated_workflow' if k == 'ops' else 'needs_tutorial'}
-                 for k in sorted(expected - set(by_key))]
+                 for k in sorted(expected - set(by_key) - archived_keys)]
     return {'schema': 1, 'source_commit': subprocess.check_output(
                 ['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
             'labels': {language: labels + [ORIENTATION_LABELS[language]]

@@ -14,6 +14,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools" / "tutorials"))
+from archived import ARCHIVED_IDS, archived_app_keys  # noqa: E402
+from archive_lessons import full_file  # noqa: E402
 
 
 # Catalog identities retained for capabilities whose internal fold key has
@@ -92,7 +95,10 @@ def test_release_audit_parsers_pin_the_current_inventory():
     )
     # Wave 3 (candidate nmw7tksc) withdrew 83_plasmodium and 84_candida.
     # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
-    assert len(catalog["lessons"]) == 84
+    # The 1.5.1.6 archive hid the archived lessons; they keep their entries
+    # in tools/tutorials/archive/ and return to these places on restore.
+    assert len(catalog["lessons"]) == 84 - len(ARCHIVED_IDS)
+    assert not set(ARCHIVED_IDS) & {lesson["id"] for lesson in catalog["lessons"]}
     assert catalog["lesson_aliases"] == {
         "02_conda_install": "02_install_spacr",
         "03_pip_install": "02_install_spacr",
@@ -133,8 +139,11 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     # The accepted Home revision removes its hidden Spaceout ending.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1170
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1231
+    # Scene totals count the whole published inventory, archived lessons
+    # included, so archiving or restoring a lesson leaves them unchanged.
+    published = full_file("lesson_catalog.js", tutorial_root)
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1170
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1231
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -282,7 +291,12 @@ def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_l
     assert len(missing) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     assert not missing & set(lesson_keys)
-    assert set(lesson_keys) | missing == registry | set(folded_hosts)
+    # A module whose lesson is archived is an explicit gap too: the app
+    # shows "Coming soon" on its Tutorial word until the lesson returns.
+    archived_keys = (set(archived_app_keys()) if catalog_loader is _tutorial_catalog
+                     else set())
+    assert not archived_keys & set(lesson_keys)
+    assert set(lesson_keys) | missing | archived_keys == registry | set(folded_hosts)
 
     home_tiles = _home_tile_modules()
     failures = []
@@ -534,8 +548,10 @@ def test_pypi_preserves_the_final_i_and_reviewed_language_forms():
                     "48_hit_list", "71_investigate_hit",
                     "74_import_images", "87_alpha_features"}
     assert visual_references == {
-        **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},
-        **{identity: identity + "/video/original-visual-timings.json" for identity in original_ids},
+        **{identity: identity + "/video/native-live-timings.json"
+           for identity in native_ids - set(ARCHIVED_IDS)},
+        **{identity: identity + "/video/original-visual-timings.json"
+           for identity in original_ids - set(ARCHIVED_IDS)},
     }
     assert published == english, (
         "the public lesson_catalog.js does not match lessons_en.json")

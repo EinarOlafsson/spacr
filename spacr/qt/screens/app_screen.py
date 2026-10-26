@@ -7529,7 +7529,7 @@ class AppScreen(QWidget):
         if not key or strip is None or not summary:
             return False
         try:
-            from ..tutorials import tutorial_url
+            from ..tutorials import _tutorial_word_html
             from .settings_model import api_docs_url
         except Exception:                                        # noqa: BLE001
             return False
@@ -7541,10 +7541,9 @@ class AppScreen(QWidget):
         if api:
             words.append(f'<a href="{_escape(api, quote=True)}">'
                          f'{_escape(_tr("API"))}</a>')
-        lesson = tutorial_url(key)
+        lesson = _tutorial_word_html(key)
         if lesson:
-            words.append(f'<a href="{_escape(lesson, quote=True)}">'
-                         f'{_escape(_tr("Tutorial"))}</a>')
+            words.append(lesson)
         lines = HINT_STRIP_LINES - (1 if words else 0)
         fitted = _fit_to_lines(summary, strip, max(1, lines))
         strip.setText(

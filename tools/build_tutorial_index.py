@@ -29,6 +29,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "docs" / "source" / "_extra" / "tutorials" / "lesson_catalog.js"
+NAVIGATION = CATALOG.with_name("module_navigation.js")
 TARGET = ROOT / "spacr" / "resources" / "tutorial_index.json"
 
 
@@ -43,7 +44,37 @@ def read_catalog(path: Path = CATALOG) -> dict:
     return json.loads(text[text.index("(") + 1:text.rindex(")")])
 
 
-def build(path: Path = CATALOG) -> dict:
+def display_order(catalog: dict, navigation_path: Path) -> list:
+    """Lesson ids in the order the player numbers them.
+
+    The player lists the navigation's lessons first, intro then each
+    section's groups, and any catalog lesson the navigation does not place
+    after them; a lesson's displayed number is its position in that list.
+    Mirrored here so ``spacr-tutorial 7`` opens the lesson the library
+    shows as 7, which stays contiguous when lessons are archived.
+    """
+    ids = [lesson.get("id") or "" for lesson in catalog.get("lessons") or []]
+    order = []
+    if navigation_path.is_file():
+        navigation = read_catalog(navigation_path)
+        order = list((navigation.get("intro") or {}).get("lessons") or [])
+        for section in navigation.get("sections") or []:
+            for group in section.get("groups") or []:
+                order.extend(group.get("lessons") or [])
+    known = set(ids)
+    return [i for i in dict.fromkeys(order + ids) if i in known]
+
+
+def archived_modules() -> dict:
+    """``{app_key: {"lesson", "title"}}`` for modules whose lesson is archived."""
+    sys.path.insert(0, str(ROOT / "tools" / "tutorials"))
+    from archived import load_index
+    return {entry["app_key"]: {"lesson": identity, "title": entry.get("title") or ""}
+            for identity, entry in load_index()["lessons"].items()
+            if entry.get("app_key")}
+
+
+def build(path: Path = CATALOG, navigation_path: Path | None = None) -> dict:
     """The bundled table: ``lessons`` by module, and the whole ``catalog``.
 
     ``lessons`` is ``{app_key: {"lesson": id, "title": title}}``, first lesson
@@ -58,12 +89,15 @@ def build(path: Path = CATALOG) -> dict:
     exactly the lessons the library and the in-app links offer.
     """
     catalog = read_catalog(path)
+    navigation_path = navigation_path or path.with_name("module_navigation.js")
+    numbers = {identity: position for position, identity
+               in enumerate(display_order(catalog, navigation_path), 1)}
     index: dict = {}
     rows: list = []
     for lesson in catalog.get("lessons") or []:
         key = lesson.get("app_key") or ""
         title = (lesson.get("title") or "").strip()
-        rows.append({"number": int(lesson.get("number") or 0),
+        rows.append({"number": numbers.get(lesson.get("id") or "", 0),
                      "lesson": lesson.get("id") or "",
                      "slug": lesson.get("slug") or "",
                      "title": title,
@@ -71,7 +105,11 @@ def build(path: Path = CATALOG) -> dict:
         if not key or key in index:
             continue
         index[key] = {"lesson": lesson.get("id") or "", "title": title}
-    return {"schema": 2, "lessons": index, "catalog": rows}
+    rows.sort(key=lambda row: row["number"])
+    coming_soon = {key: value for key, value in archived_modules().items()
+                   if key not in index}
+    return {"schema": 2, "lessons": index, "catalog": rows,
+            "coming_soon": coming_soon}
 
 
 def main(argv=None) -> int:

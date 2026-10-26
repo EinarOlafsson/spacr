@@ -8,6 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from build_navigation import CATEGORY_REVIEW, LABELS, build, category_labels
+from archived import ARCHIVED_IDS
 
 
 def test_actual_hierarchy_routes_have_reviewed_labels_without_changing_lessons():
@@ -25,7 +26,8 @@ def test_actual_hierarchy_routes_have_reviewed_labels_without_changing_lessons()
                   for group in main['groups']]
         assert actual == reviewed[language]
     assert catalog == original
-    assert len(navigation['preserved_lesson_ids']) == 84
+    assert len(navigation['preserved_lesson_ids']) == 84 - len(ARCHIVED_IDS)
+    assert not set(ARCHIVED_IDS) & set(navigation['preserved_lesson_ids'])
 
 
 @pytest.mark.parametrize('failure', ['new_category', 'reordered_source', 'stale_hash',

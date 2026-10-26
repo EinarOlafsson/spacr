@@ -16,11 +16,16 @@ def test_api_tutorial_links_stay_in_their_documentation_channel(channel):
     generated = workflow.outputs(data)
     from spacr.settings import _alpha_species_names
     hidden = _alpha_species_names('apps')
+    archived = set(workflow._archived_lessons())
     for key, module in data['modules'].items():
         if not module.get('lesson') or key in hidden:
             continue
         api = module['api_module']
         text = generated[Path(f'docs/source/_generated/module_workflows/{api}.rst')]
+        if module['lesson'] in archived:
+            # An archived lesson is hidden from the library, so no page links it.
+            assert '#lesson=' + module['lesson'] + '>' not in text
+            continue
         target = next(link for link in re.findall(r'Module tutorial <([^>]+)>', text)
                       if link.endswith('#lesson=' + module['lesson']))
         base = 'https://einarolafsson.github.io/spacr/' + channel

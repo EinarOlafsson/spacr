@@ -514,9 +514,13 @@ def test_every_registry_module_has_a_lesson_or_a_registered_gap():
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     from spacr.settings import _alpha_names
 
-    # Alpha-gated apps (item 634) ship without lessons by rule.
+    # Alpha-gated apps (item 634) ship without lessons by rule. A module
+    # whose lesson is archived has no link either; it shows Coming soon.
+    from spacr.qt.tutorials import _coming_soon
+    coming_soon = set(_coming_soon())
+    assert not any(has_tutorial(key) for key in coming_soon)
     missing = {key for key, *_ in APPS if not has_tutorial(key)} - _alpha_names("apps")
-    assert missing == registered
+    assert missing - coming_soon == registered
 
 
 def test_a_module_with_no_lesson_simply_loses_the_word(qtbot):

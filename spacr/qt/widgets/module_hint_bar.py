@@ -218,17 +218,16 @@ class ModuleHintBar(QLabel):
         word at all.
         """
         from ..i18n import tr
-        from ..tutorials import tutorial_url
+        from ..tutorials import _tutorial_word_html
 
         parts = []
         api = self._api_url(key)
         if api:
             parts.append(f'<a href="{escape(api, quote=True)}">'
                          f'{escape(tr("API"))}</a>')
-        lesson = tutorial_url(key)
+        lesson = _tutorial_word_html(key)
         if lesson:
-            parts.append(f'<a href="{escape(lesson, quote=True)}">'
-                         f'{escape(tr("Tutorial"))}</a>')
+            parts.append(lesson)
         return "&nbsp;&nbsp;".join(parts)
 
     @staticmethod

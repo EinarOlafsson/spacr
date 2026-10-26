@@ -278,8 +278,9 @@ def test_original_byte_or_sidecar_changes_are_detected(database, change):
 
 
 def test_retained_eight_sentence_mapping_matches_real_catalog_without_expansion():
-    catalog_path = Path(__file__).resolve().parents[3] / 'docs/source/_extra/tutorials/catalog/lessons_en.json'
-    catalog = json.loads(catalog_path.resolve().read_text(encoding="utf-8"))
+    # 34 Database may be archived; its retained entry is the published one.
+    from archive_lessons import full_file
+    catalog = full_file('catalog/lessons_en.json')
     original = deepcopy(catalog)
     result = recorder.retained_scene_mapping(catalog)
     assert result['english_sha256'] == recorder.ENGLISH_SHA256

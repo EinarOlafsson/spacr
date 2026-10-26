@@ -19,6 +19,9 @@ Two separate, re-runnable steps. Neither touches ``main`` on either host.
     uploaded COMMIT (only a commit id cannot be moved). Pushing ``nightly``
     publishes its preview; pushing ``main`` publishes the main site through
     ``.github/workflows/docs.yml``. Each channel retains its own media revision.
+    Archived lessons (``tools/tutorials/archived.py``) stay hidden: their
+    catalog entries, navigation places and posters are left out of Pages
+    exactly as ``archive_lessons.py`` removes them; the candidate keeps them.
 
 Usage (tutorial toolchain python, ``cd tools/tutorials``)::
 
@@ -43,6 +46,8 @@ from build_release_candidate import copy_checked
 from append_staged_lessons import parse_javascript
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
+import archive_lessons
+from archived import ARCHIVED_IDS
 
 sys.path.insert(0, str(REPO / 'tools'))
 import build_tutorial_index
@@ -405,6 +410,8 @@ def pages(root, key):
     for relative, record in sorted(web.items()):
         if relative == 'index.html':
             continue
+        if relative.startswith('production/') and relative.split('/')[1] in ARCHIVED_IDS:
+            continue
         source, target = root / 'web' / relative, PAGES / relative
         if digest(source) != record['sha256']:
             raise SystemExit(f'Candidate file changed: {relative}')
@@ -413,8 +420,12 @@ def pages(root, key):
             raise SystemExit(f'Copy differs: {relative}')
         written.append(relative)
 
+    if ARCHIVED_IDS:
+        shown = archive_lessons.archived_view(archive_lessons.load_tree(root / 'web'))
+        for name, data in shown.items():
+            (PAGES / name).write_text(archive_lessons.render(name, data), encoding='utf-8')
     index = (root / 'web/index.html').read_text(encoding='utf-8')
-    catalog = read(root / 'web/catalog/lessons_en.json')['lessons']
+    catalog = read(PAGES / 'catalog/lessons_en.json')['lessons']
     ready = sum(lesson.get('status') != 'coming_soon' for lesson in catalog)
 
     def replace(pattern, value, text):

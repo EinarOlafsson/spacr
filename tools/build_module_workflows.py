@@ -223,9 +223,16 @@ def module_rst(data, key):
             parts.append("\n")
     api_path = module["api_module"].replace(".", "/")
     parts.append(f":doc:`API reference </api/{api_path}/index>`.\n\n")
-    if module["lesson"]:
+    if module["lesson"] and module["lesson"] not in _archived_lessons():
         parts.append(f"`Module tutorial <tutorials/#lesson={module['lesson']}>`__.\n\n")
     return "".join(parts)
+
+
+def _archived_lessons():
+    """Lessons hidden from the library; their pages link no tutorial."""
+    sys.path.insert(0, str(ROOT / "tools" / "tutorials"))
+    from archived import archived_ids
+    return set(archived_ids())
 
 
 DETAILED_LESSON = "79_module_inputs_outputs"
