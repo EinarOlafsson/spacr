@@ -7888,8 +7888,6 @@ class AppScreen(QWidget):
             detail_layout.setSpacing(4)
             back = QPushButton("← All figures")
             back.setFlat(True)
-            back.setToolTip("Back to the grid of every figure this run "
-                            "produced.")
             back.clicked.connect(self._show_figure_grid)
             row = QHBoxLayout()
             row.addWidget(back)

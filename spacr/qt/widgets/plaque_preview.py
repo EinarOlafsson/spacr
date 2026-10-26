@@ -3344,7 +3344,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         top.addStretch(1)
         self._prev_btn = QToolButton(self)
         self._prev_btn.setText("◀")
-        self._prev_btn.setToolTip(tr("Previous image"))
         self._prev_btn.clicked.connect(lambda: self._step(-1))
         self._picker = QComboBox(self)
         self._picker.setObjectName("PlaquePreviewPicker")
@@ -3353,7 +3352,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._picker.currentIndexChanged.connect(self._on_picked)
         self._next_btn = QToolButton(self)
         self._next_btn.setText("▶")
-        self._next_btn.setToolTip(tr("Next image"))
         self._next_btn.clicked.connect(lambda: self._step(1))
         self._position = QLabel("")
         for widget in (self._prev_btn, self._picker, self._next_btn,

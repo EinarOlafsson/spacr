@@ -82,6 +82,37 @@ HOLD_MS = 3600 * 1000
 #: other widgets can use it to retain Qt's own tooltip handling.
 OPT_OUT_PROPERTY = "spacrNoTooltipPolicy"
 
+_NAVIGATION_BUTTONS = frozenset({
+    "next", "previous", "prev", "back", "continue", "finish", "done",
+    "close", "cancel", "ok",
+    "previous plate", "next plate",
+    "previous page", "next page",
+    "previous image", "next image",
+    "previous field", "next field", "previous fields", "next fields",
+    "previous flagged field", "next flagged field",
+    "previous 3d slice", "next 3d slice", "previous slice", "next slice",
+    "next well", "back to plate", "all figures",
+})
+"""Labels of pure navigation buttons, in the form :func:`_navigation_label` returns.
+
+The maintainer's rule of 2026-10-26: "tooltips are not needed for button
+like next and previous or any navigation buttons". A button whose label
+already says everything -- Next, Previous, Back, Continue, Finish, Done,
+Close, Cancel, OK, the previous/next plate, page, image, field and 3D slice
+steppers, wizard step navigation and pager arrows -- carries no tooltip of
+its own and does not borrow one from its parents. A Cancel or Close that
+also stops running work explains that consequence in its own tooltip, which
+is kept; buttons that do work (Run, Export, Measure, Apply, Add plates,
+Remove plate) keep theirs.
+"""
+
+_NAVIGATION_ARROWS = "←→‹›◀▶«»⟨⟩"
+"""Horizontal arrows and chevrons that decorate a navigation label.
+
+A label made only of them is a pager arrow. Vertical arrows are absent on
+purpose: in spaCR they move a layer or a file, which is work.
+"""
+
 _filter: Optional["_TooltipFilter"] = None
 _enabled: Optional[bool] = None
 _delay_ms: Optional[int] = None
@@ -253,6 +284,47 @@ class HoverDelay(QObject):
             callback()
 
 
+def _navigation_label(text) -> Optional[str]:
+    """The navigation form of a button label, or ``None`` when it is not one.
+
+    Mnemonic ``&``, ellipses and the arrows in :data:`_NAVIGATION_ARROWS`
+    are stripped and case is folded. A label made only of those arrows is a
+    pager arrow and answers ``""``.
+
+    :param text: the button's visible label.
+    :returns: the folded label when it is in :data:`_NAVIGATION_BUTTONS`,
+        ``""`` for an arrow-only label, otherwise ``None``.
+    """
+    raw = str(text or "").replace("&", "").replace("…", "").strip()
+    if not raw:
+        return None
+    bare = " ".join(raw.translate(
+        {ord(arrow): " " for arrow in _NAVIGATION_ARROWS}).casefold().split())
+    if not bare:
+        return ""
+    return bare if bare in _NAVIGATION_BUTTONS else None
+
+
+def _is_navigation_button(widget) -> bool:
+    """Whether ``widget`` is a pure navigation button (rule of 2026-10-26).
+
+    Such a button answers :func:`tooltip_text_for` with its own tooltip only,
+    never a parent's, and the filter consumes its ``ToolTip`` event so Qt
+    cannot lend it one either.
+
+    :param widget: any object; only a ``QAbstractButton`` whose label passes
+        :func:`_navigation_label` counts.
+    """
+    from PySide6.QtWidgets import QAbstractButton
+
+    if not isinstance(widget, QAbstractButton):
+        return False
+    try:
+        return _navigation_label(widget.text()) is not None
+    except (RuntimeError, AttributeError, TypeError):
+        return False
+
+
 def tooltip_text_for(widget) -> str:
     """The tooltip a hover on ``widget`` would raise, parents included.
 
@@ -269,6 +341,11 @@ def tooltip_text_for(widget) -> str:
     :returns: the first non-empty tooltip from the widget outwards, or
         ``""`` if neither it nor any parent up to its window has one.
     """
+    if _is_navigation_button(widget):
+        try:
+            return str(widget.toolTip() or "")
+        except (RuntimeError, AttributeError, TypeError):
+            return ""
     seen = 0
     while widget is not None and seen < 64:
         seen += 1
@@ -454,6 +531,9 @@ class _TooltipFilter(QObject):
         except Exception:                                    # noqa: BLE001
             self._pos = QCursor.pos()
         text = tooltip_text_for(widget)
+        if not text and _is_navigation_button(widget):
+            self.hide_now()
+            return True
         self._hide_timer.stop()
         if widget is self._widget and self._showing and text == self._text:
             return True

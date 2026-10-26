@@ -952,7 +952,6 @@ class ConditionAnnotationDialog(QDialog):
         self.apply_button.clicked.connect(self.accept)
         actions.addWidget(self.apply_button)
         cancel = QPushButton(tr("Cancel"), self)
-        cancel.setToolTip(tr("Discard this draft and keep previously applied annotations unchanged."))
         cancel.clicked.connect(self.reject)
         actions.addWidget(cancel)
         outer.addLayout(actions)

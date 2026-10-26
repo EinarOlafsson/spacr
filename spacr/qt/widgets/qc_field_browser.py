@@ -826,7 +826,6 @@ class QCFieldBrowser(QDialog):
         navigation = QHBoxLayout()
         self._previous = QPushButton(tr("← Previous flagged field"), self)
         self._previous.setObjectName("GhostButton")
-        self._previous.setToolTip(tr("Previous flagged field (Left arrow)"))
         self._previous.clicked.connect(self.previous_field)
         navigation.addWidget(self._previous)
         self._field_title = QLabel(self)
@@ -837,7 +836,6 @@ class QCFieldBrowser(QDialog):
         navigation.addWidget(self._field_title, 1)
         self._next = QPushButton(tr("Next flagged field →"), self)
         self._next.setObjectName("GhostButton")
-        self._next.setToolTip(tr("Next flagged field (Right arrow)"))
         self._next.clicked.connect(self.next_field)
         navigation.addWidget(self._next)
         root.addLayout(navigation)
@@ -6028,8 +6026,8 @@ class _FieldOverview(QWidget):
             self._plate_zoom_buttons.append(button)
         self._plate_buttons = []
         for text, tooltip, handler in (
-                (tr("Previous plate"), tr("Show the previous loaded plate."), functools.partial(self._step_plate, -1)),
-                (tr("Next plate"), tr("Show the next loaded plate."), functools.partial(self._step_plate, 1)),
+                (tr("Previous plate"), "", functools.partial(self._step_plate, -1)),
+                (tr("Next plate"), "", functools.partial(self._step_plate, 1)),
                 (tr("Add plates…"), tr("Add plate folders, or folders of plates, to this Overview."),
                  self._choose_plates),
                 (tr("Remove plate"), tr("Remove the shown plate from this Overview; its files are not touched."),
@@ -12625,7 +12623,6 @@ class _OverviewModulePage(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         navigation = QHBoxLayout()
         self.back_button = QPushButton(tr("Back"))
-        self.back_button.setToolTip(tr("Return from an image to its well, and from a well to the plate."))
         self.back_button.clicked.connect(self._back)
         self.back_button.hide()
         navigation.addWidget(self.back_button)
@@ -15375,7 +15372,6 @@ class _OverviewGuidedExport(QDialog):
         self.custom_button.setToolTip(tr("Continue in the Custom export canvas with the wells placed so far."))
         self.custom_button.clicked.connect(self.open_custom)
         self.back_button = QPushButton(tr("Back"))
-        self.back_button.setToolTip(tr("Go back one step or one well."))
         self.back_button.clicked.connect(self.back)
         self.next_button = QPushButton(tr("Next"))
         self.next_button.setObjectName("OverviewGuidedNext")
@@ -15516,8 +15512,6 @@ class _OverviewGuidedExport(QDialog):
         paging = QHBoxLayout()
         self.page_label = QLabel("")
         earlier, later = QPushButton(tr("Previous page")), QPushButton(tr("Next page"))
-        earlier.setToolTip(tr("Place this well on the previous page."))
-        later.setToolTip(tr("Place this well on the next page."))
         earlier.clicked.connect(functools.partial(self._turn_page, -1))
         later.clicked.connect(functools.partial(self._turn_page, 1))
         for widget in (earlier, self.page_label, later):
@@ -15788,7 +15782,6 @@ class _OverviewGuidedExport(QDialog):
         self.export_button.setVisible(step == 3)
         self.next_button.setText(tr("Next well") if step == 2 and self._index + 1 < len(self._wells)
                                  else tr("Preview") if step == 2 else tr("Next"))
-        self.next_button.setToolTip(tr("Go on to the next step or well."))
 
     def next(self):
         """Go on: from the wells to the fields, from well to well, then to the preview."""

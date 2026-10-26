@@ -2648,12 +2648,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._on_set_header_clicked)
 
         self._cycle_prev_btn = FlatButton("◀", self)
-        self._cycle_prev_btn.setToolTip(
-            "Show the previous object's channel. Cycles cell, nucleus, both.")
         self._cycle_prev_btn.clicked.connect(lambda: self._cycle_view(-1))
         self._cycle_next_btn = FlatButton("▶", self)
-        self._cycle_next_btn.setToolTip(
-            "Show the next object's channel. Cycles cell, nucleus, both.")
         self._cycle_next_btn.clicked.connect(lambda: self._cycle_view(1))
         self._cycle_label = QLabel("", self)
         self._cycle_label.setProperty("i18nSkipText", True)

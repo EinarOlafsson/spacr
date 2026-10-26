@@ -14906,7 +14906,6 @@ class MakeMasksScreen(QWidget):
         self._btn_prev.setObjectName("MakeMasksPreviousButton")
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
-        self._btn_prev.setToolTip(tr("Open the previous image in the queue."))
         self._btn_prev.clicked.connect(self._on_prev)
         nav_row.addWidget(self._btn_prev)
 
@@ -14915,7 +14914,6 @@ class MakeMasksScreen(QWidget):
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
-        self._btn_next.setToolTip(tr("Open the next image in the queue."))
         self._btn_next.clicked.connect(self._on_next)
         nav_row.addWidget(self._btn_next)
         for button in (self._btn_save, self._btn_prev, self._btn_next):
