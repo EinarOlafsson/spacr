@@ -6171,7 +6171,7 @@ class MainWindow(QMainWindow):
         prewarm = getattr(self, "_screen_prewarm", None)
         if prewarm is not None:
             prewarm.stop()
-        iconset.retire_prefetch_pool()
+        iconset._retire_prefetch_pool()
         from ..crashreport import _note_native_context
         _note_native_context(action="close stops running jobs")
         from .bridge import registry

@@ -1391,4 +1391,4 @@ def _no_icon_worker_outlives_its_test():
     yield
     from spacr.qt import iconset
 
-    iconset.retire_prefetch_pool()
+    iconset._retire_prefetch_pool()

@@ -675,10 +675,10 @@ def _prefetch_one_finished(_future=None) -> None:
         _PREFETCH_OUTSTANDING[0] = max(0, _PREFETCH_OUTSTANDING[0] - 1)
         idle = _PREFETCH_OUTSTANDING[0] == 0
     if idle:
-        retire_prefetch_pool(cancel=False)
+        _retire_prefetch_pool(cancel=False)
 
 
-def retire_prefetch_pool(cancel: bool = True) -> None:
+def _retire_prefetch_pool(cancel: bool = True) -> None:
     """Release the icon workers without waiting for them.
 
     :param cancel: also cancel icons not yet started; their waiters fall back
