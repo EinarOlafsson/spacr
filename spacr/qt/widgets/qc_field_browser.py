@@ -5576,6 +5576,7 @@ class _FieldOverview(QWidget):
         self._plate_tables = {}
         self._plate_blocks = {}
         self._plate_extents = {}
+        self._plate_available = {}
         self._readout_viewports = {}
         self._plates_host = QWidget()
         self._plates_host.setObjectName("FieldOverviewPlates")
@@ -6914,7 +6915,7 @@ class _FieldOverview(QWidget):
                 self._close_well_panel(panel, refresh=False)
             self.fields = self._well_panel.field_list
             self._scope = (plate, None)
-            self._visible = tuple(getattr(self, "_plate_available", {}).get(plate, ()))
+            self._visible = tuple(self._plate_available.get(plate, ()))
             self._page = 0
         self._plate_cell_extent = self._plate_extents.get(table, self._plate_cell_extent)
         self._label_plate_blocks()
