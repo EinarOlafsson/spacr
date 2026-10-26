@@ -19,7 +19,10 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import socket
 from typing import Optional
+
 from ..logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.crash_recovery")
@@ -32,8 +35,26 @@ LOG = logging.getLogger("spacr.qt.crash_recovery")
 #: would be its own defect. Two in a row is a pattern.
 CRASHES_BEFORE_DROPPING_THE_BACKDROP = 2
 
-_MARKER = "running.marker"
-_COUNTER = "unclean-exits"
+
+def _host_tag() -> str:
+    """This machine's name, made safe to use in a file name.
+
+    The markers, the counter and the instance lock live in the user's spaCR
+    folder, and on a cluster that folder is one home directory shared by
+    every node. Naming each file after the host keeps a node from reading
+    another node's sessions as its own.
+    """
+    try:
+        name = socket.gethostname()
+    except OSError:
+        name = ""
+    return re.sub(r"[^A-Za-z0-9._-]", "_", name or "") or "localhost"
+
+
+_HOST_TAG = _host_tag()
+
+_MARKER = f"running-{_HOST_TAG}.marker"
+_COUNTER = f"unclean-exits-{_HOST_TAG}"
 
 
 def _folder() -> str:
@@ -148,7 +169,7 @@ def take_the_backdrop_out_of_this_launch() -> None:
     os.environ["SPACR_NO_BACKDROP"] = "1"
 
 
-_INSTANCE_LOCK_NAME = "instance.lock"
+_INSTANCE_LOCK_NAME = f"instance-{_HOST_TAG}.lock"
 
 _HELD_LOCKS: dict = {}
 
@@ -239,6 +260,27 @@ def _release_all_locks() -> None:
     _PROJECT_CHOICES.clear()
 
 
+def _held_on_another_host(holder) -> bool:
+    """Whether a lock's recorded holder is a process on a different machine.
+
+    Qt never treats such a lock as stale, because it cannot ask another
+    machine whether the process is alive. A window on another node of a
+    shared home cannot share this node's display either, so it is never a
+    reason to say that another window is already running here.
+
+    :param holder: the ``pid``, ``host`` and ``app`` read from the lock.
+    :returns: ``True`` only when a host is recorded and is not this one.
+    """
+    host = str((holder or {}).get("host") or "").strip()
+    if not host:
+        return False
+    try:
+        here = socket.gethostname()
+    except OSError:
+        return False
+    return host.casefold() != str(here).casefold()
+
+
 def _claim_the_instance() -> dict:
     """Take the per-instance lock, and report another spaCR already running.
 
@@ -256,6 +298,10 @@ def _claim_the_instance() -> dict:
             os.path.join(_locks_folder(), _INSTANCE_LOCK_NAME))
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not take the instance lock", exc_info=True)
+        return {}
+    if not ok and _held_on_another_host(holder):
+        LOG.info("ignoring an instance lock written on %s",
+                 (holder or {}).get("host"))
         return {}
     if not ok:
         _OTHER_INSTANCE.update(holder or {"pid": 0})

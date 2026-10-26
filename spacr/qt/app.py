@@ -9255,19 +9255,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from ..logging_util import _apply_portable_mode
     _apply_portable_mode()
 
-    from .crash_recovery import (note_that_a_launch_began,
-                                 should_start_without_the_backdrop,
-                                 take_the_backdrop_out_of_this_launch)
-
-    _unclean = note_that_a_launch_began()
-    if should_start_without_the_backdrop(_unclean):
-        take_the_backdrop_out_of_this_launch()
-        LOG.warning(
-            "spaCR did not shut down cleanly %d times running, so this "
-            "start has no animated background. It comes back by itself "
-            "after one clean run; `safespacr` starts with everything off.",
-            _unclean)
-
     from .setup_screen import take_the_setup_flags
 
     argv, told_to_skip_setup = take_the_setup_flags(argv)
@@ -9305,6 +9292,19 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication([_app_name] if sys.platform == "darwin" else sys.argv[:1])
+    from .crash_recovery import (note_that_a_launch_began,
+                                 should_start_without_the_backdrop,
+                                 take_the_backdrop_out_of_this_launch)
+
+    _unclean = note_that_a_launch_began()
+    if should_start_without_the_backdrop(_unclean):
+        take_the_backdrop_out_of_this_launch()
+        LOG.warning(
+            "spaCR did not shut down cleanly %d times running, so this "
+            "start has no animated background. It comes back by itself "
+            "after one clean run; `safespacr` starts with everything off.",
+            _unclean)
+
     try:
         from PySide6.QtCore import qVersion
         from PySide6.QtGui import QAccessible
