@@ -44,6 +44,13 @@ def _keep_weakly_held_qt_wrappers_to_the_end() -> None:
     Registered with :mod:`atexit` when :mod:`spacr.qt` is first imported,
     before any of its modules registers an exit hook, so this runs after
     all of them.
+
+    ``Py_IncRef`` is called through a prototype of this function's own, not
+    through ``ctypes.pythonapi.Py_IncRef``: that object is shared by the
+    whole process, and on macOS rubicon-objc (which wgpu imports for the 3-D
+    viewer) sets its ``argtypes`` to ``POINTER(PyObject)``. The shared call
+    then refused the ``py_object`` with ``ctypes.ArgumentError`` and no
+    wrapper was kept, on every Mac session that had touched the 3-D viewer.
     """
     try:
         import ctypes
@@ -67,7 +74,8 @@ def _keep_weakly_held_qt_wrappers_to_the_end() -> None:
         if held and weakref.getweakrefcount(candidate):
             kept.append(candidate)
     if kept:
-        ctypes.pythonapi.Py_IncRef(ctypes.py_object(kept))
+        incref = ctypes.PYFUNCTYPE(None, ctypes.py_object)(("Py_IncRef", ctypes.pythonapi))
+        incref(kept)
 
 
 atexit.register(_keep_weakly_held_qt_wrappers_to_the_end)

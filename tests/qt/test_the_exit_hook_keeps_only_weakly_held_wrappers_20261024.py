@@ -30,8 +30,8 @@ class _Plain:
 def pinned(monkeypatch):
     """Record what the hook passes to ``Py_IncRef`` instead of pinning it."""
     calls = []
-    monkeypatch.setattr(ctypes.pythonapi, "Py_IncRef",
-                        lambda reference: calls.append(reference.value))
+    monkeypatch.setattr(ctypes, "PYFUNCTYPE",
+                        lambda *types: lambda spec: calls.append)
     return calls
 
 
@@ -84,3 +84,29 @@ def test_nothing_is_pinned_when_qt_cannot_be_imported(monkeypatch, pinned):
 
     assert pinned == []
     assert walked == []
+
+
+def test_the_hook_pins_even_after_rubicon_retypes_the_shared_incref(tmp_path):
+    """On macOS wgpu imports rubicon-objc, which sets
+    ``ctypes.pythonapi.Py_IncRef.argtypes`` to ``POINTER(PyObject)``; the
+    shared call then raised ``ctypes.ArgumentError`` and pinned nothing."""
+    import subprocess
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    code = (
+        "import ctypes, sys, weakref\n"
+        "ctypes.pythonapi.Py_IncRef.argtypes = [ctypes.POINTER(ctypes.py_object)]\n"
+        "from PySide6.QtCore import QCoreApplication, QObject\n"
+        "app = QCoreApplication([])\n"
+        "import spacr.qt\n"
+        "held = QObject(); ref = weakref.ref(held)\n"
+        "before = sys.getrefcount(held)\n"
+        "spacr.qt._keep_weakly_held_qt_wrappers_to_the_end()\n"
+        "print('pinned', sys.getrefcount(held) - before)\n")
+    done = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True,
+                          text=True, timeout=120, env={**__import__("os").environ,
+                                                       "QT_QPA_PLATFORM": "offscreen",
+                                                       "PYTHONPATH": str(root)})
+    assert "ArgumentError" not in done.stderr, done.stderr
+    assert "pinned 1" in done.stdout, (done.stdout, done.stderr)
