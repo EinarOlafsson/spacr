@@ -1336,6 +1336,7 @@ API_ENTRIES = (
     ('spacr.doctor.check_gpu', 'Check that CUDA is usable, not only reported as available.'),
     ('spacr.doctor.check_gpu._result', 'Append shared task evidence without changing the GPU diagnosis.'),
     ('spacr.doctor.check_installer_backend', 'Report the accelerator choice recorded by the desktop installer.'),
+    ('spacr.doctor.check_macos_qt_release', 'Warn about a macOS Qt that crashes under an accessibility client.'),
     ('spacr.doctor.check_optional_extras', 'Check that no optional extra is partly installed.'),
     ('spacr.doctor.check_python', 'Check that the running Python version is one spaCR supports.'),
     ('spacr.doctor.check_qt_extra', 'Check that the GUI dependencies import in this interpreter.'),
