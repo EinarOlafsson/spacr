@@ -12411,6 +12411,27 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     return fields, info
 
 
+def _overview_wizard_scan(source, pattern, convention, cancelled, source_scope="folder", well_layout=None,
+                          use_subfolders=(), excluded=()):
+    """Probe the wizard's source and return a refused source as a message, not an exception.
+
+    A source that is not yet a folder (while a path is typed, or after it was
+    moved) or a pattern without a wellID group is a settings answer for the
+    wizard's status line. Raised on the worker, it was filed as an error
+    report (GitHub #167).
+
+    :returns: ``(fields, info, refusal)``; ``refusal`` is ``""`` unless the
+        source or pattern was refused, when ``fields`` is empty and ``info``
+        is ``None``.
+    """
+    try:
+        fields, info = _overview_wizard_probe(source, pattern, convention, cancelled, source_scope, well_layout,
+                                              use_subfolders, excluded)
+    except _OverviewValidationError as error:
+        return (), None, str(error)
+    return fields, info, ""
+
+
 class _OverviewMetadataWizard(QWidget):
     """Choose a real source's metadata, axes, geometry and display transform."""
 
@@ -12972,7 +12993,7 @@ class _OverviewMetadataWizard(QWidget):
         self.status.setText(tr("Reading filename metadata and image headers…"))
         well_layout = self._well_layout if self._layout_explicit else None
         use_subfolders, excluded = tuple(self._use_subfolders), tuple(self._excluded_plates)
-        self._runner.submit(lambda: (generation, _overview_wizard_probe(
+        self._runner.submit(lambda: (generation, _overview_wizard_scan(
             source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope,
             well_layout, use_subfolders, excluded)), self._scanned)
 
@@ -12981,11 +13002,15 @@ class _OverviewMetadataWizard(QWidget):
         from .sortable_table import table_item
         from PySide6.QtGui import QColor
         from ..theme import active_palette
-        generation, (fields, info) = payload
+        generation, (fields, info, refusal) = payload
         if generation != self._generation or self._cancelled.is_set():
             return
         self._fields, self._info = fields, info
         self._show_plates(info)
+        if refusal:
+            self.status.setText(refusal)
+            self.next.setEnabled(False)
+            return
         if not fields or not info or not info["channels"]:
             self._info = None
             self.status.setText(tr("No readable image fields or available channels were found."))
