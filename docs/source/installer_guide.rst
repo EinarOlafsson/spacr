@@ -899,6 +899,39 @@ cluster, then submit it:
 For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG``
 line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image.
 
+The desktop interface on a cluster node
+---------------------------------------
+
+The GUI needs a display. On a cluster, use one of these:
+
+* **X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y``
+  for trusted forwarding), start an interactive job with X11 forwarding (for
+  example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works
+  but is slow over long distances.
+* **Open OnDemand desktop or VNC.** Start a remote desktop session from your
+  cluster's Open OnDemand page, or a VNC server on the node, open a terminal
+  inside it and run ``spacr``. This is much faster than forwarding.
+
+Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that
+cluster nodes often lack. Without root, install them into your conda or
+mamba environment:
+
+.. code-block:: bash
+
+   mamba install -c conda-forge xcb-util-cursor xcb-util-wm xcb-util-image \
+       xcb-util-keysyms xcb-util-renderutil xcb-util libxkbcommon
+
+or create the environment from ``environment-linux.yaml``, which already
+lists them. ``spacr`` finds them in the active environment by itself, and
+names any that are still missing instead of crashing; ``spacr-doctor`` shows
+the same check as its ``X11 libraries`` row. With root, ``sudo apt install
+libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor``
+(RHEL/Rocky) installs them system-wide.
+
+A shared home directory is fine: spaCR keeps its single-window lock and its
+crash counter per host, so a session on one node never blocks or counts
+against another.
+
 Troubleshooting
 ---------------
 
