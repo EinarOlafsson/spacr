@@ -33,6 +33,7 @@ from stage_lesson import read, write
 from stage_web_renditions import web_dimensions
 from validate_candidate import validate
 from verify_staged_lesson import Handler
+from publish_release_candidate import publication_view
 
 PINNED_ROOT = r'https://huggingface\.co/datasets/[^/]+/[^/]+/resolve/[0-9a-f]{40}'
 REDIRECT_HOSTS = ('.hf.co', '.huggingface.co')
@@ -71,14 +72,32 @@ def check_sentence_cues(page):
 
 
 def published_tree(root, pages):
-    """Return the pinned media root after proving the tree is the candidate's web bytes."""
+    """Prove exact normal Pages projection and the candidate's immutable root."""
+    from publish_release_candidate import ARCHIVED_IDS
     index = (pages / 'index.html').read_text(encoding='utf-8')
     roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
     if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
         raise ValueError(f'The published index must pin one immutable media root, found {roots}')
-    for record in read(root / 'release-manifest.json')['files']:
+    manifest = read(root / 'release-manifest.json')
+    receipt = read(root / 'publication-receipt.json')
+    from build_appended_candidate import require_baseline_receipt
+    require_baseline_receipt(manifest, receipt, digest(root / 'release-manifest.json'))
+    if (receipt['media_root'] != next(iter(roots))
+            or receipt.get('pages', {}).get('index_sha256') != digest(pages / 'index.html')):
+        raise ValueError('Pages roots or index differ from the candidate publication receipt')
+    projected = publication_view(root)
+    import archive_lessons
+    for record in manifest['files']:
         if record['path'].startswith('web/') and record['path'] != 'web/index.html':
-            if digest(pages / record['path'][len('web/'):]) != record['sha256']:
+            relative = record['path'][len('web/'):]
+            if relative in projected and ARCHIVED_IDS:
+                if digest(root / record['path']) != record['sha256']:
+                    raise ValueError('Candidate projection source changed: ' + relative)
+                if (pages / relative).read_text(encoding='utf-8') != archive_lessons.render(relative, projected[relative]):
+                    raise ValueError('Pages archive projection differs from the candidate: ' + relative)
+            elif relative.startswith('production/') and relative.split('/')[1] in ARCHIVED_IDS:
+                continue  # Exactly the archived assets omitted by normal pages().
+            elif digest(pages / relative) != record['sha256']:
                 raise ValueError(f"Pages tree differs from the candidate: {record['path']}")
     return next(iter(roots))
 
@@ -87,14 +106,15 @@ def verify(root, *, placeholders_only=False, published=None):
     root = Path(root).resolve()
     validate(root, include_hosted_media=published is None)
     records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
-    hosted_web = {lesson['id']: lesson['web'] for lesson in parse_javascript(
-        (root / 'web/lesson_catalog.js').read_text(encoding="utf-8"))['lessons'] if 'web' in lesson}
     if published is None:
         served, entry, media_root = root, '/web/', None
     else:
         published = Path(published).resolve()
         media_root = published_tree(root, published)
         served, entry = published.parent, '/' + published.name + '/'
+    checked_web = root / 'web' if published is None else published
+    hosted_web = {lesson['id']: lesson['web'] for lesson in parse_javascript(
+        (checked_web / 'lesson_catalog.js').read_text(encoding="utf-8"))['lessons'] if 'web' in lesson}
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
             functools.partial(Handler, directory=str(served)))
     server.daemon_threads = True
@@ -103,7 +123,7 @@ def verify(root, *, placeholders_only=False, published=None):
     output = root / 'checks'
     output.mkdir(exist_ok=True)
     errors, foreign, screens, playback, hosted = [], [], [], [], []
-    english = read(root / 'web/catalog/lessons_en.json')
+    english = read(checked_web / 'catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
     placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
     # Once every route is ready there is no Coming soon screen to check; the
@@ -310,6 +330,7 @@ def verify(root, *, placeholders_only=False, published=None):
         result = {'scope': 'Candidate browser checks, not native-language listening or deployment',
                   'manifest_sha256': digest(root / 'release-manifest.json'),
                   'placeholder_cases': screens, 'ready_playback_cases': playback,
+                  'routes': len(english['lessons']), 'ready_lessons': len(ready),
                   'passed': True, 'published': False}
         if published:
             result.update(scope='Pages tree playback against the pinned hosted media, before the Pages deploy',
