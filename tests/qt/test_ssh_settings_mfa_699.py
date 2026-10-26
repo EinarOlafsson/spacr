@@ -172,7 +172,7 @@ def test_keychain_box_is_off_by_default_and_follows_interactive_login(qtbot, mon
     dialog._backend.setCurrentIndex(dialog._backend.findData('slurm'))
     assert not dialog._ssh_keychain.isChecked()
     assert not dialog._ssh_keychain.isEnabled()
-    dialog._ssh_interactive.setChecked(True)
+    dialog._auth_mode.setCurrentIndex(dialog._auth_mode.findData('interactive'))
     assert dialog._ssh_keychain.isEnabled()
     dialog._name.setText('gl')
     dialog._host.setText('greatlakes')
@@ -234,7 +234,8 @@ def test_denied_login_shows_the_failing_step_and_retry_signs_in_again(qtbot, mon
 def test_help_text_names_great_lakes_okta_and_read_only_discovery(qtbot):
     dialog = ui.ExecutionProfileDialog()
     qtbot.addWidget(dialog)
-    assert 'Great Lakes' in dialog._ssh_interactive.toolTip() and 'Okta' in dialog._ssh_interactive.toolTip()
+    help_text = dialog._auth_mode.toolTip() + dialog._auth_label.toolTip()
+    assert 'Great Lakes' in help_text and 'Okta' in help_text
     assert 'never runs ssh -G' in dialog._find_ssh_button.toolTip()
 
 
