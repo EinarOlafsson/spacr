@@ -1105,7 +1105,7 @@ _MACOS_ACCESSIBILITY_CRASH_QT = ((6, 11, 0), (6, 12, 0))
 
 
 @_register("macOS Qt release")
-def check_macos_qt_release(ctx: Context) -> Result:
+def _check_macos_qt_release(ctx: Context) -> Result:
     """Warn about a macOS Qt that crashes under an accessibility client.
 
     Qt 6.11.0 to 6.12.0 free cached accessibility interfaces while the Cocoa

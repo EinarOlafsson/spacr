@@ -2077,7 +2077,7 @@ def test_macos_qt_release_flags_the_accessibility_crash_range(
     monkeypatch.setattr(doctor.sys, "platform", platform)
     monkeypatch.setattr(doctor, "_distribution_version",
                         lambda name: version if name == "PySide6" else None)
-    row = doctor.check_macos_qt_release(ctx)
+    row = doctor._check_macos_qt_release(ctx)
     assert row.status == status
     if status == doctor.WARN:
         assert "<6.11" in row.fix and version in row.message
