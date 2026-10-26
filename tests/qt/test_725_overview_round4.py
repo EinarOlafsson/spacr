@@ -161,37 +161,37 @@ def test_settings_open_wide_with_the_tab_and_stay_open_after_next(mask, qtbot, s
     assert body.sizes()[0] >= min(browser._OVERVIEW_SETTINGS_WIDTH, sum(body.sizes()) // 2)
 
 
-def test_navigation_is_a_categorised_button_bar_above_the_plate(mask, qtbot, source):
-    from PySide6.QtWidgets import QLabel
-
+def test_navigation_is_in_the_plate_right_click_menu_not_a_button_bar(mask, qtbot, source):
     tab, view = _browse(mask, qtbot, source)
     captions = {str(field.property("settingKey")) for _section, field, _widgets in tab._overview_page._rows}
     assert "overview_plate_navigation" not in captions and "overview_fields" not in captions
-    bar = view._navigation_bar
-    holder = bar.parentWidget()
-    assert holder.layout().indexOf(bar) == 0 and holder.layout().indexOf(view._levels) == 1
+    assert view._navigation_bar is None
+    holder = view._levels.parentWidget()
+    assert holder.layout().indexOf(view._levels) == 0 and holder.layout().count() == 1
     assert view._levels.indexOf(view._plate_panel) == 0
-    groups = [label.text() for label in bar.findChildren(QLabel)
-              if label.objectName() == "FieldOverviewNavigationGroup"]
-    assert groups == ["Navigation", "Plates", "Wells", "Fields"]
-    texts = [button.text() for button in bar.findChildren(QPushButton)]
-    assert "−" in texts and "+" in texts
-    assert "Open selected well" not in texts and "Open selected images" not in texts
-    assert view._open_well_button.isHidden() and view._open_images_button.isHidden()
-    fit, larger, smaller = view._plate_zoom_buttons
-    assert (smaller.text(), larger.text()) == ("−", "+")
-    assert texts.index("−") < texts.index("+")
-    fit.click()
+    shown = [button.text() for button in view.findChildren(QPushButton) if button.isVisible()]
+    for text in ("Back to plate", "Fit plate", "−", "+", "Larger wells", "Smaller wells", "Previous plate",
+                 "Next plate", "Add plates…", "Remove plate", "Shown plates…", "Previous fields", "Next fields",
+                 "Compare selected fields", "Open selected well", "Open selected images"):
+        assert text not in shown, text
+    assert not view.plates_view.isVisible()
+    actions = _menu_actions(view, "A01")
+    texts = list(actions)
+    assert texts.index("Navigation") < texts.index("Wells") < texts.index("Plates")
+    fit, larger, smaller = actions["Fit plate"], actions["Zoom in"], actions["Zoom out"]
+    fit.trigger()
     extent = view._plate_cell_extent
-    larger.click()
+    larger.trigger()
     assert view._plate_cell_extent[0] > extent[0]
-    smaller.click()
-    smaller.click()
+    smaller.trigger()
+    smaller.trigger()
     assert view._plate_cell_extent[0] < extent[0]
     item = view.wells.item(*view._well_positions[(view.plates.currentData(), "A01")])
     view.wells.itemDoubleClicked.emit(item)
     qtbot.waitUntil(lambda: view._scope[1] == "A01", timeout=5000)
-    view._plate_back_button.click()
+    actions = _menu_actions(view, "A01")
+    assert {"Previous fields", "Next fields", "Compare selected fields"} <= set(actions)
+    actions["Back to plate"].trigger()
     assert view._scope[1] is None
 
 
@@ -211,10 +211,12 @@ def test_annotation_lives_in_the_plate_menu_and_its_category_is_gone(mask, qtbot
     keys = {str(field.property("settingKey")) for _section, field, _widgets in tab._overview_page._rows}
     assert not {"overview_metadata", "overview_value", "overview_annotation_actions"} & keys
     actions = _menu_actions(view, "A01")
-    assert list(actions) == ["Annotate selected wells…", "Annotate row A…", "Annotate column 1…",
-                             "Annotate the whole plate…", "Collapse row A", "Collapse column 1",
-                             "Show all rows and columns", "Import annotation scheme…",
-                             "Save annotations…", "Load annotations…"]
+    texts = list(actions)
+    assert texts[:texts.index("Navigation")] == [
+        "Annotate selected wells…", "Annotate row A…", "Annotate column 1…",
+        "Annotate the whole plate…", "Collapse row A", "Collapse column 1",
+        "Show all rows and columns", "Import annotation scheme…",
+        "Save annotations…", "Load annotations…"]
     actions["Annotate row A…"].trigger()
     dialog = view._annotation_dialog
     assert set(dialog.wells) == {("p1", "A01"), ("p1", "A02")}

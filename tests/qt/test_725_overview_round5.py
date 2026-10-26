@@ -124,7 +124,9 @@ def test_header_double_click_and_menus_collapse_and_show_lines(view):
     header = view.wells.verticalHeader()
     menu = view._header_menu("row", QPoint(2, header.sectionViewportPosition(1) + 2))
     texts = [action.text() for action in menu.actions()]
-    assert texts == ["Collapse row B", "Show all rows and columns"]
+    navigation = texts.index("Navigation")
+    assert [text for text in texts[:navigation] if text] == ["Collapse row B", "Show all rows and columns"]
+    assert {"Back to plate", "Fit plate", "Zoom in", "Zoom out", "Plates view"} <= set(texts[navigation:])
     assert not menu.actions()[1].isEnabled()
     menu.actions()[0].trigger()
     assert view._collapsed_lines()[0] == {1}
