@@ -118,8 +118,13 @@ def record_preview(app, window, screen, root, captures, capture, settle, write_j
             settle(.1)
             worker = panel._worker
         if worker is None:
-            raise ValueError('The actual preview Run button started no worker (run enabled=%s, visible=%s)'
-                             % (panel._run_btn.isEnabled(), panel._run_btn.isVisible()))
+            from PySide6.QtWidgets import QApplication
+            modal = QApplication.activeModalWidget()
+            raise ValueError('The actual preview Run button started no worker (run enabled=%s, visible=%s, modal=%s, '
+                             'status=%r, busy=%s)' % (panel._run_btn.isEnabled(), panel._run_btn.isVisible(),
+                                                      type(modal).__name__ if modal else None,
+                                                      getattr(getattr(panel, '_status', None), 'text', lambda: None)(),
+                                                      getattr(panel, '_plane_busy', None)))
         worker.finished_result.connect(lambda points, error: completed.append(dict(
             rows=0 if points is None else len(points), error=error)))
         deadline = time.monotonic() + timeout

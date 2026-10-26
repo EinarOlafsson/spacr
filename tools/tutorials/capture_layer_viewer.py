@@ -270,8 +270,16 @@ def record_layers(app, window, stage, captures, capture, settle, write_json, tim
                 bad=any(not math.isclose(after.step[i],before.step[i]/1.2**3,abs_tol=1e-10) or
                         not math.isclose(after.origin[i]+after.step[i]*anchor[i],world[i],abs_tol=1e-10) for i in (0,1))
             if bad:
-                raise ValueError('Actual wheel zoom did not preserve cursor world position (step %r -> %r, origin %r -> %r)'
-                                 % (before.step,after.step,before.origin,after.origin))
+                from PySide6.QtGui import QCursor
+                from PySide6.QtWidgets import QApplication
+                under=QApplication.widgetAt(QCursor.pos())
+                raise ValueError('Actual wheel zoom did not preserve cursor world position (step %r -> %r, origin %r -> %r; '
+                                 'pointer over %s %r, canvas visible=%s underMouse=%s, modal=%r)'
+                                 % (before.step,after.step,before.origin,after.origin,
+                                    type(under).__name__ if under is not None else None,
+                                    under.objectName() if under is not None else None,
+                                    screen.canvas.isVisible(),screen.canvas.underMouse(),
+                                    type(QApplication.activeModalWidget()).__name__))
         check('22_native_wheel_zoom_keeps_world_anchor',act=zoom_wheel)
         def pan():
             start=screen.canvas.rect().center();end=start+QPoint(90,45);before=screen.canvas.canvas
