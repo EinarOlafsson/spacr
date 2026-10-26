@@ -874,7 +874,18 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
 
     monkeypatch.setattr(pm, "fit_model", observe_fit)
     try:
-        score, count = write_screen(tmp_path, response="binary")
+        # 48 scored cells per well, not the suite's 12 (2026-10-26). The 0.01
+        # hit-tail limit below was set on 2026-08-17, when the long layout's
+        # ~4 rows per well each entered the likelihood at full weight. Since
+        # a9904694f (2026-10-22) each physical well counts once (inverse
+        # multiplicity weights), so a 12-cell well carried a quarter of the
+        # evidence the limit was set against. Measured on the identical 12-cell
+        # inputs: hit tail 0.0071 mean over 16 seeds (0.0050-0.0095), with a
+        # Monte Carlo error near 0.002 per fit, and hosted CI drew 0.01075. Four
+        # times the cells restores that evidence honestly: 8 seeds give a hit
+        # tail of 0.0006 mean (at most 0.00125) and every null above 0.56.
+        # The limits themselves are unchanged.
+        score, count = write_screen(tmp_path, response="binary", n_cells=48)
         settings = settings_for(score, count, regression_type="horseshoe")
         out = perform_regression(settings)
 
@@ -905,6 +916,11 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
         assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
         # p_value here is a posterior tail mass, so it must still be a probability.
         assert out["results"]["p_value"].between(0.0, 1.0).all()
+        # The QC report needs fitted values; the horseshoe adapter supplies the
+        # posterior mean count per row, so both levels write one.
+        qc_dirs = sorted(path for path in tmp_path.rglob("regression_qc")
+                         if path.is_dir() and any(path.iterdir()))
+        assert {path.parent.name for path in qc_dirs} >= {"grna", "gene"}, qc_dirs
         # 2026-10-25, THE MAINTAINER'S RULE (item 718): a rare divergent
         # transition is accepted up to 0.1 % of the post-warmup draws. Tuning
         # (target_accept 0.995, 4,000/4,000, dense or diagonal mass, the

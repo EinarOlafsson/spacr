@@ -4334,6 +4334,34 @@ class _HorseshoeResults:
         tail = 2.0 * np.minimum(prob_positive, 1.0 - prob_positive)
         self.pvalues = pd.Series(np.clip(tail, 0.0, 1.0), index=index)
         self.converged = bool(getattr(fit, 'converged', True))
+        self.fittedvalues = None
+        self.resid_pearson = None
+        self.scale = 1.0
+        data = getattr(fit, 'data', None)
+        draws = getattr(fit, 'draws', None)
+        intercepts = getattr(fit, 'intercept_draws', None)
+        diagnostics = getattr(fit, 'diagnostics', None) or {}
+        if (data is not None and draws is not None and intercepts is not None
+                and 'column_means' in diagnostics
+                and 'column_scales' in diagnostics):
+            design = np.asarray(data.log10expression, dtype=float)
+            centred = ((design - np.asarray(diagnostics['column_means'], dtype=float))
+                       / np.asarray(diagnostics['column_scales'], dtype=float))
+            beta = np.nan_to_num(np.asarray(draws, dtype=float), nan=0.0)
+            intercept = np.asarray(intercepts, dtype=float).ravel()
+            log_exposure = np.log(np.asarray(data.Ntotal, dtype=float))
+            total = np.zeros(design.shape[0], dtype=float)
+            for start in range(0, beta.shape[0], 512):
+                stop = min(start + 512, beta.shape[0])
+                eta = (intercept[start:stop, None] + beta[start:stop] @ centred.T
+                       + log_exposure[None, :])
+                with np.errstate(over='ignore'):
+                    total += np.exp(eta).sum(axis=0)
+            mu = total / max(beta.shape[0], 1)
+            self.fittedvalues = mu
+            with np.errstate(divide='ignore', invalid='ignore'):
+                self.resid_pearson = ((np.asarray(data.Npositive, dtype=float) - mu)
+                                      / np.sqrt(mu))
         if not self.converged:
             print("Warning: the horseshoe fit did not meet its own "
                   "convergence criterion; treat the coefficients as "

@@ -1238,6 +1238,7 @@ _SCALE_RESOLVERS: Dict[str, Callable[[Any, np.ndarray, int, int],
     "BetaModel": _scale_beta,
     "MixedLM": _scale_mixedlm,
     "ClassifierMixin": _scale_classifier,
+    "_HorseshoeResults": _scale_glm,
 }
 
 
@@ -1426,6 +1427,7 @@ _FAMILY_BY_KIND = {
     "Lasso": ("Gaussian (penalised least squares)", "Identity"),
     "Ridge": ("Gaussian (penalised least squares)", "Identity"),
     "ElasticNet": ("Gaussian (penalised least squares)", "Identity"),
+    "_HorseshoeResults": ("Poisson", "Log"),
 }
 
 

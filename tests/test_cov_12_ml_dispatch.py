@@ -228,6 +228,47 @@ def test_a_converged_horseshoe_result_retains_its_posterior_without_warning(caps
     assert capsys.readouterr().out == ""
 
 
+def test_a_horseshoe_result_carries_posterior_mean_counts_for_qc():
+    """The QC report reads fitted values; the adapter gives the posterior mean.
+
+    ``fittedvalues`` is E[Ntotal * exp(intercept + standardised X @ beta)]
+    over the draws, on the count scale the response is on, and
+    ``resid_pearson`` divides by sqrt(mu) because the likelihood is Poisson.
+    Without these the regression QC report refused the horseshoe fit.
+    """
+    from spacr import regression_qc as rq
+    from spacr.power_model import ModelData, PowerFit, gather_model_estimate
+
+    design = np.array([[1.0, 0.0], [1.0, 0.5], [1.0, 1.0], [1.0, 0.25]])
+    counts = np.array([2.0, 4.0, 9.0, 3.0])
+    exposure = np.array([10.0, 12.0, 20.0, 8.0])
+    data = ModelData(wells=np.arange(4), genes=np.array(["Intercept", "g1"], dtype=object),
+                     Npositive=counts, Ntotal=exposure, log10expression=design,
+                     unidentified_genes=("Intercept",))
+    means = design.mean(axis=0)
+    scales = np.where(design.std(axis=0) > 0, design.std(axis=0), 1.0)
+    draws = np.array([[np.nan, 0.3], [np.nan, 0.5], [np.nan, 0.4]])
+    intercepts = np.array([-1.2, -1.0, -1.1])
+    fit = PowerFit(backend="numpyro", requested_backend="numpyro", method="nuts",
+                   draws=draws, intercept_draws=intercepts, genes=data.genes,
+                   converged=True, data=data,
+                   diagnostics={"column_means": means, "column_scales": scales})
+    results = ml._HorseshoeResults(fit, gather_model_estimate(fit))
+
+    standardised = (design[:, 1] - means[1]) / scales[1]
+    expected = np.mean([exposure * np.exp(b0 + b * standardised)
+                        for b0, b in zip(intercepts, draws[:, 1])], axis=0)
+    np.testing.assert_allclose(results.fittedvalues, expected)
+    np.testing.assert_allclose(results.resid_pearson,
+                               (counts - expected) / np.sqrt(expected))
+
+    X = pd.DataFrame(design, columns=["Intercept", "g1"])
+    ctx = rq.build_context(results, X, counts, regression_type="horseshoe")
+    np.testing.assert_allclose(ctx.fitted, expected)
+    assert (ctx.family, ctx.link) == ("Poisson", "Log")
+    assert ctx.standardisation_available
+
+
 def test_the_rra_summary_is_the_per_gene_table():
     """``summary()`` hands back the gene table so the run can save it.
 
