@@ -37,6 +37,7 @@ ALPHA_SPECIES_KEY = "prefs/show_alpha_species"
 ALPHA_LESSONS = {
     "86_alpha_organism_modules": "species",
     "87_alpha_features": "features",
+    "76_ops": "features",           # maintainer 2026-10-26: OPS is an alpha feature, its switch shows only with Show alpha features
 }
 
 

@@ -34,6 +34,11 @@ PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog
 #: Every registered widget must appear here: a new alpha widget fails
 #: ``test_every_alpha_widget_has_its_visible_text_listed`` until it is added.
 WIDGET_LABELS = {
+    # Registered by the alpha-gated Mask and Embeddings pages: the objects stay guarded by name; the switch and the
+    # section caption are ordinary words in the OPS lesson (76, allow-listed) and in measurement narration.
+    "MaskOpsSwitch": (),
+    "MaskObjectFiltrationAlpha": (),
+    "EmbeddingsCurrentWellMilButton": ("Learn from these embeddings…",),
     "MakeMasksMitoNetSettings": ("MitoNet v1 mini",),
     # "Third-party" also describes ordinary imported measurement tables;
     # the widget name and the registered MitoNet model still identify this heading.
@@ -582,7 +587,8 @@ def test_the_alpha_lessons_allow_list_is_narrow():
     assert ALPHA_LESSONS.get("86_alpha_organism_modules") == "species"
     assert ALPHA_LESSONS.get("87_alpha_features") == "features"
     assert set(ALPHA_LESSONS.values()) <= {"species", "features"}
-    assert len(ALPHA_LESSONS) <= 2
+    assert ALPHA_LESSONS.get("76_ops") == "features"
+    assert len(ALPHA_LESSONS) <= 3
 
 
 def test_only_the_allow_listed_species_lesson_may_show_alpha_species():

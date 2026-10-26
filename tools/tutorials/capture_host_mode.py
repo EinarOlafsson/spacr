@@ -75,7 +75,7 @@ CAPTURE_PROFILE = {
     # index hide those otherwise): its job sets SPACR_TUTORIAL_SHOW_ALPHA=1 (only SPACR_TUTORIAL_* names reach the app).
     # Show alpha features / species stay off.
     'show_alpha': os.environ.get('SPACR_TUTORIAL_SHOW_ALPHA') == '1',
-    'show_alpha_features': False,
+    'show_alpha_features': os.environ.get('SPACR_TUTORIAL_SHOW_ALPHA_FEATURES') == '1',   # only the alpha-features lessons (76 OPS, 87)
     'show_alpha_species': False,
 }
 
