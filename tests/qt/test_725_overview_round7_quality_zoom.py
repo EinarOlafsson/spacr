@@ -225,3 +225,54 @@ def test_a_saved_original_switch_becomes_the_top_quality():
         "overview_preview_resolution": 0}
     problems = _check_retired_keys({"overview_original_on_open": True})
     assert len(problems) == 1 and "overview_preview_resolution" in problems[0].message
+
+
+@pytest.mark.parametrize("theme", ("light", "dark"))
+def test_image_metadata_keeps_contrast_and_viewport_anchor_through_zoom_and_pan(view, qtbot, theme):
+    from PySide6.QtGui import QPalette
+    from PySide6.QtTest import QTest
+    from spacr.qt import preferences
+    from spacr.qt.theme import contrast_ratio
+
+    app = QApplication.instance()
+    old_theme = preferences.get_theme()
+    try:
+        preferences.set_theme(theme)
+        preferences.apply_preferences_to_app(app)
+        panels = _stacked(view, qtbot)
+        qtbot.waitUntil(lambda: not view._image_stack_jobs.is_busy(), timeout=15000)
+        panel = panels[0]
+        assert panel.view._metadata_overlay is panel.metadata_label
+        assert view.view._metadata_overlay is view._image_metadata
+        source_pixels = panel.view._item.pixmap().toImage().copy()
+        toggle = panel.metadata_toggle
+        assert toggle.property("spacrContrastBacking") is True
+        for selected in (False, True):
+            toggle.setChecked(selected)
+            foreground = toggle.palette().color(QPalette.WindowText).name()
+            background = toggle.palette().color(QPalette.Window).name()
+            assert contrast_ratio(foreground, background) >= 4.5
+            assert background in toggle.styleSheet()
+            assert panel.metadata_label.isVisible() == selected
+        assert panel.metadata_label.pos() == QPoint(8, 8)
+        for _ in range(3):
+            _wheel(panel.view)
+        assert panel.view._user_zoomed
+        assert panel.metadata_label.pos() == QPoint(8, 8)
+        viewport = panel.view.viewport()
+        center = viewport.rect().center()
+        before = (panel.view.horizontalScrollBar().value(), panel.view.verticalScrollBar().value())
+        QTest.mousePress(viewport, Qt.LeftButton, pos=center)
+        QTest.mouseMove(viewport, center + QPoint(40, 25), delay=30)
+        QTest.mouseRelease(viewport, Qt.LeftButton, pos=center + QPoint(40, 25))
+        after = (panel.view.horizontalScrollBar().value(), panel.view.verticalScrollBar().value())
+        assert after != before
+        assert panel.metadata_label.pos() == QPoint(8, 8)
+        assert panel.metadata_label.parentWidget() is viewport
+        assert panel.metadata_label.isVisible()
+        assert panel.view._item.pixmap().toImage() == source_pixels
+        toggle.setChecked(False)
+        assert not panel.metadata_label.isVisible()
+    finally:
+        preferences.set_theme(old_theme)
+        preferences.apply_preferences_to_app(app)

@@ -82,11 +82,14 @@ def test_only_the_helper_names_get_color_at_all():
 
 
 def test_the_helper_itself_turns_the_native_dialog_off():
-    segments = [segment for _line, segment
-                in _get_color_calls(PACKAGE_ROOT.parent / HELPER)]
-    assert segments, "the helper stopped calling getColor"
-    for segment in segments:
-        assert "DontUseNativeDialog" in segment
+    path = PACKAGE_ROOT.parent / HELPER
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    options = [ast.get_source_segment(source, node) for node in ast.walk(tree)
+               if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+               and node.func.attr == "setOption"]
+    assert options, "the owned colour dialog must explicitly disable the platform picker"
+    assert any("DontUseNativeDialog" in option and "True" in option for option in options)
 
 
 # ---------------------------------------------------------------------------
@@ -94,19 +97,21 @@ def test_the_helper_itself_turns_the_native_dialog_off():
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def recorded(monkeypatch):
+def recorded(monkeypatch, qapp):
     """Capture the arguments ``pick_colour`` hands to Qt."""
     from PySide6.QtGui import QColor
     from PySide6.QtWidgets import QColorDialog
 
     seen = {}
 
-    def _fake(initial, parent=None, title="", options=None):
-        seen.update(initial=initial, parent=parent, title=title,
-                    options=options)
-        return QColor("#123456")
+    def _fake(dialog):
+        seen.update(initial=QColor(dialog.currentColor()), parent=dialog.parentWidget(),
+                    title=dialog.windowTitle(), options=dialog.options())
+        dialog.setCurrentColor(QColor("#123456"))
+        dialog.accept()
+        return QColorDialog.DialogCode.Accepted
 
-    monkeypatch.setattr(QColorDialog, "getColor", staticmethod(_fake))
+    monkeypatch.setattr(QColorDialog, "exec", _fake)
     return seen
 
 
@@ -131,14 +136,13 @@ def test_an_unusable_initial_colour_does_not_open_on_transparent_black(
         assert recorded["initial"].name() == "#ffffff", junk
 
 
-def test_a_cancel_comes_back_invalid(monkeypatch):
+def test_a_cancel_comes_back_invalid(monkeypatch, qapp):
     """Every call site tests ``isValid()``; a cancel must keep failing it."""
     from PySide6.QtGui import QColor
     from PySide6.QtWidgets import QColorDialog
     from spacr.qt.widgets.colour_picker import pick_colour
 
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor()))
+    monkeypatch.setattr(QColorDialog, "exec", lambda dialog: QColorDialog.DialogCode.Rejected)
     assert not pick_colour(None, "#ff0000").isValid()
 
 
@@ -169,3 +173,30 @@ def test_the_dna_rain_swatch_uses_the_helper(qtbot, monkeypatch):
                         lambda *a, **k: QColor("#00ff00"))
     bar.pick_color()
     assert bar.color().name() == "#00ff00"
+
+
+def test_the_owned_picker_centers_after_detachment_and_preserves_parent(qtbot, monkeypatch):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QColorDialog, QWidget
+    from spacr.qt.widgets.colour_picker import pick_colour
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parent.resize(1100, 800)
+    parent.move(180, 120)
+    parent.show()
+    qtbot.waitExposed(parent)
+    observed = []
+
+    def inspect_and_cancel(dialog):
+        observed.append(dialog)
+        assert dialog.parentWidget() is parent
+        assert dialog.windowType() == Qt.Window
+        assert dialog.frameGeometry().center() == parent.frameGeometry().center()
+        assert dialog.testOption(QColorDialog.DontUseNativeDialog)
+        return QColorDialog.Rejected
+
+    monkeypatch.setattr(QColorDialog, "exec", inspect_and_cancel)
+    assert not pick_colour(parent, "#55aa77").isValid()
+    assert len(observed) == 1
+    assert parent.isVisible()

@@ -58,6 +58,22 @@ def pick_colour(parent: Optional[QWidget] = None,
         start = QColor(str(initial))
     if not start.isValid():
         start = QColor("#ffffff")
-    return QColorDialog.getColor(
-        start, parent, title or "",
-        QColorDialog.ColorDialogOption.DontUseNativeDialog)
+    from ..dialogs import detach_from_window_manager
+
+    dialog = QColorDialog(start, parent)
+    dialog.setOption(QColorDialog.ColorDialogOption.DontUseNativeDialog, True)
+    if title:
+        dialog.setWindowTitle(title)
+    detach_from_window_manager(dialog)
+    dialog.ensurePolished()
+    dialog.adjustSize()
+    if parent is not None:
+        opening = dialog.frameGeometry()
+        opening.moveCenter(parent.window().frameGeometry().center())
+        dialog.move(opening.topLeft())
+    try:
+        if dialog.exec() == QColorDialog.DialogCode.Accepted:
+            return QColor(dialog.selectedColor())
+        return QColor()
+    finally:
+        dialog.deleteLater()

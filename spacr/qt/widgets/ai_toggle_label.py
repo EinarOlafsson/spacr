@@ -315,6 +315,9 @@ class AiToggleLabel(QLabel):
         on_color = button_accent_text(palette)
         color = on_color if self._on else palette["fg"]
         size = font_px("body")
+        backed = bool(self.property("spacrContrastBacking"))
+        background = palette["surface"] if backed else "transparent"
+        outline = f"  border: 1px solid {on_color if self._on else palette['border']};" if backed else ""
         sheet = (
             f"QLabel {{"
             f"  color: {color};"
@@ -322,7 +325,8 @@ class AiToggleLabel(QLabel):
             f"  font-weight: 600;"
             f"  padding: {max(2, round(size * 4 / 13))}px"
             f" {max(4, round(size * 10 / 13))}px;"
-            f"  background: transparent;"
+            f"  background: {background};"
+            f"{outline}"
             f"}}"
         )
         if self._restyling or sheet == self.styleSheet():

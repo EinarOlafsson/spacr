@@ -4499,8 +4499,23 @@ class _OverviewImageView(ZoomableImageView):
 
         :param parent: the owning browser widget.
         """
+        self._metadata_overlay = None
         super().__init__(parent)
         self.wheel_mode = "zoom"
+
+    def scrollContentsBy(self, dx, dy):
+        """Keep the owned metadata overlay fixed while the image scrolls.
+
+        :param dx: horizontal scroll displacement in viewport pixels.
+        :param dy: vertical scroll displacement in viewport pixels.
+        """
+        super().scrollContentsBy(dx, dy)
+        overlay = getattr(self, "_metadata_overlay", None)
+        if overlay is not None:
+            from shiboken6 import isValid
+
+            if isValid(overlay):
+                overlay.move(8, 8)
 
     def wheelEvent(self, event):
         """Zoom normally or step the chosen acquisition axis, never both.
@@ -5941,9 +5956,12 @@ class _FieldOverview(QWidget):
         self._image_panel = _OverviewPanel(tr("Image"), shrink_width=True)
         self._image_panel.body_layout.addWidget(self.view)
         self.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
+        self.metadata_toggle.setProperty("spacrContrastBacking", True)
+        self.metadata_toggle._refresh_style()
         self.metadata_toggle.toggled.connect(self._image_metadata_toggled)
         self._image_panel.header_layout.addWidget(self.metadata_toggle)
         self._image_metadata = QLabel(self.view.viewport())
+        self.view._metadata_overlay = self._image_metadata
         self._image_metadata.setObjectName("FieldOverviewImageMetadata")
         self._image_metadata.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self._image_metadata.setWordWrap(True)
@@ -8370,12 +8388,15 @@ class _FieldOverview(QWidget):
         for bar in (panel.view.horizontalScrollBar(), panel.view.verticalScrollBar()):
             bar.valueChanged.connect(lambda _value, owner=panel.view: self._sync_image_views(owner))
         panel.metadata_label = QLabel(panel.view.viewport())
+        panel.view._metadata_overlay = panel.metadata_label
         panel.metadata_label.setObjectName("FieldOverviewImageMetadata")
         panel.metadata_label.setWordWrap(True)
         names = "\n".join(Path(path).name for _channel, path in field.files)
         panel.metadata_label.setText(field.caption + ("\n" + names if names else ""))
         panel.metadata_label.hide()
         panel.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
+        panel.metadata_toggle.setProperty("spacrContrastBacking", True)
+        panel.metadata_toggle._refresh_style()
         panel.metadata_toggle.toggled.connect(lambda on, owner=panel: self._image_view_metadata(owner, on))
         panel.close_button = QToolButton()
         apply_close_mark(panel.close_button, tooltip=tr("Close this image"))
