@@ -94,9 +94,16 @@ ROOT = Path(__file__).resolve().parents[2]
 # Compact +6/-0 reproduces the prior fingerprint by exact subtraction.
 # N672 Gate Editor keys (2026-10-12) add four reviewed rows: the three
 # plane-or-spin-axis keys and their screen scope.
-COMPACT_CAPTION_COUNT = 247
+# 2026-10-25: 75 reviewed exact rows arrive. 65 are the install_consent
+# privacy, anonymised-report, cache-cleanup and uninstall captions, moved
+# from the generated layer; their runtime reviews are archived and the
+# installer-shared ones re-bound in spacr-translations be8f423. The other
+# ten are OK, the two 3D slice keys, six True 3D shortcut labels and Models.
+# 247 + 75 - 38 = 284: 38 captions left the surface after the 247 pin
+# without moving it; their `_ROWS` rows stay.
+COMPACT_CAPTION_COUNT = 284
 COMPACT_CAPTION_SHA256 = (
-    "ba3685a44aaa62b6814016764a2369697c3fd106aa2b051699ab676d7ffe29cb"
+    "6a4483b951535122d0c9870010fa2ab758191a4e69128738577aefdba913bdb4"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are

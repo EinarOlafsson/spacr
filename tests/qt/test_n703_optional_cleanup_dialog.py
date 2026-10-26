@@ -179,21 +179,24 @@ def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(q
     dialog = consent._InstallerCleanupDialog(actual)
     qtbot.addWidget(dialog)
     catalog = importlib.import_module("spacr.qt.i18n_catalogs." + language)
-    expected_reason = catalog.UI["Kept: spaCR cannot confirm these files are no longer in use."]
+    exact = i18n.CATALOGS[language]
+    expected_reason = exact["Kept: spaCR cannot confirm these files are no longer in use."]
     tree = dialog.findChild(QTreeWidget, "InstallerCleanupFolders")
     assert tree.topLevelItem(0).text(3) == expected_reason
     assert "News" not in catalog.UI and "Models" not in catalog.UI
-    assert tree.topLevelItem(1).text(0) == catalog.UI["Background image cache"]
-    assert tree.topLevelItem(6).text(0) == catalog.UI["Hugging Face cache"]
-    assert tree.topLevelItem(7).text(0) == catalog.UI["Torch cache"]
+    assert not {"Kept: spaCR cannot confirm these files are no longer in use.", "Background image cache",
+                "Hugging Face cache", "Torch cache", "Optional cache cleanup", "Keep all files"} & set(catalog.UI)
+    assert tree.topLevelItem(1).text(0) == exact["Background image cache"]
+    assert tree.topLevelItem(6).text(0) == exact["Hugging Face cache"]
+    assert tree.topLevelItem(7).text(0) == exact["Torch cache"]
     assert i18n.tr("News") == i18n.CATALOGS[language]["News"]
     assert i18n.tr("Models") == i18n.TERM_CATALOGS[language]["Models"]
     assert tree.topLevelItem(0).text(0) == i18n.CATALOGS[language]["News"]
     assert any(tree.topLevelItem(index).text(0) == i18n.TERM_CATALOGS[language]["Models"]
                for index in range(tree.topLevelItemCount()))
-    assert dialog.windowTitle() == catalog.UI["Optional cache cleanup"]
+    assert dialog.windowTitle() == exact["Optional cache cleanup"]
     keep = dialog.findChild(QPushButton, "InstallerCleanupKeep")
-    assert keep.text() == catalog.UI["Keep all files"] and keep.isDefault()
+    assert keep.text() == exact["Keep all files"] and keep.isDefault()
     assert dialog.choices()["keys"] == []
     assert not tree.topLevelItem(0).flags() & Qt.ItemIsEnabled
     assert (folder / "releases.json").read_text(encoding="utf-8") == "{}"
