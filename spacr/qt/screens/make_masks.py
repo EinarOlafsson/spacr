@@ -494,6 +494,9 @@ MAKE_MASKS_BOTTOM_BAR_FOLD_KEY = "make_masks/BottomBar"
 #: the console and System fold by theirs.
 MAKE_MASKS_SHORTCUTS_FOLD_KEY = "make_masks/Shortcut list"
 
+#: Where the width of the mask layers' outlines is remembered.
+OUTLINE_THICKNESS_KEY = "make_masks/outline_thickness"
+
 #: The brush radius a new Make Masks screen starts with, in screen pixels.
 DEFAULT_BRUSH_RADIUS = 1
 
@@ -1852,6 +1855,16 @@ class _MaskCanvas(QLabel):
     #: The outlines of the loaded mask layers at image resolution, as a
     #: QImage, or None when no layer is loaded.
     layer_overlay = None
+    #: What the layer outlines are drawn from, for widths other than 1:
+    #: ``(version, layers, curated, base index, removed base ids)``, or None.
+    #: The version changes whenever :attr:`layer_overlay` is redrawn.
+    layer_source = None
+    #: Width of the layer outlines, in image pixels. At 1 the outlines are
+    #: :attr:`layer_overlay` drawn as it always was; any other width is
+    #: drawn at screen resolution by :func:`engine._layer_outline_view`, so a
+    #: width below 1 is a thinner line rather than a blurred pixel.
+    outline_thickness = engine._OUTLINE_THICKNESS_DEFAULT
+    _outline_view = None
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -2816,7 +2829,17 @@ class _MaskCanvas(QLabel):
             painter.end()
 
     def _paint_layers(self) -> None:
-        """Draw the mask layers' outlines over the part of the field shown."""
+        """Draw the mask layers' outlines over the part of the field shown.
+
+        The width is :attr:`outline_thickness`, in image pixels, so it grows
+        with the zoom the way the image does and a 0.5 px outline stays half
+        an image pixel inside each object at any zoom. At 1, and wherever an
+        image pixel is smaller than a screen pixel (where every outline is
+        already thinner than one screen pixel), the image-resolution
+        :attr:`layer_overlay` is drawn, made fainter for widths below 1.
+        Otherwise the outlines are drawn at screen resolution, antialiased,
+        and kept while the view, the size, the width and the layers stay.
+        """
         overlay = self.layer_overlay
         pixmap = self.pixmap()
         if overlay is None or self.mask is None or pixmap is None or pixmap.isNull():
@@ -2827,12 +2850,51 @@ class _MaskCanvas(QLabel):
         ox = (self.width() - shown.width()) // 2
         oy = (self.height() - shown.height()) // 2
         x0, y0, x1, y1 = self._viewport_bounds()
+        target = QRectF(ox, oy, shown.width(), shown.height())
+        thickness = engine._outline_thickness(self.outline_thickness)
+        ratio = device_ratio(self)
+        size = (max(1, int(round(shown.width() * ratio))),
+                max(1, int(round(shown.height() * ratio))))
+        picture = None
+        if (thickness != engine._OUTLINE_THICKNESS_DEFAULT
+                and self.layer_source is not None
+                and size[0] >= x1 - x0 and size[1] >= y1 - y0):
+            picture = self._outline_picture((x0, y0, x1, y1), size, thickness)
+            if picture is None:
+                return
         painter = QPainter(self)
         try:
-            painter.drawImage(QRectF(ox, oy, shown.width(), shown.height()), overlay,
+            if picture is not None:
+                painter.drawImage(target, picture)
+                return
+            painter.setOpacity(min(1.0, thickness))
+            painter.drawImage(target, overlay,
                               QRectF(x0, y0, max(1, x1 - x0), max(1, y1 - y0)))
         finally:
             painter.end()
+
+    def _outline_picture(self, bounds, size, thickness: float):
+        """The layer outlines at screen resolution, from the kept copy if it fits.
+
+        :param bounds: ``(x0, y0, x1, y1)`` of the field shown.
+        :param size: ``(width, height)`` in device pixels.
+        :param thickness: the outline width, in image pixels.
+        :returns: a QImage of ``size``, or None when nothing is drawn.
+        """
+        version, layers, curated, base, removed = self.layer_source
+        key = (version, tuple(bounds), tuple(size), thickness)
+        kept = self._outline_view
+        if kept is not None and kept[0] == key:
+            return kept[1]
+        rgba = engine._layer_outline_view(layers, curated, base, bounds, size,
+                                          thickness, removed=removed)
+        picture = None
+        if rgba is not None:
+            h, w = rgba.shape[:2]
+            picture = QImage(rgba.data, w, h, 4 * w,
+                             QImage.Format_RGBA8888_Premultiplied).copy()
+        self._outline_view = (key, picture)
+        return picture
 
     def _paint_label_ids(self) -> None:
         """Show the stored identity of every visible object in label modes."""
@@ -13490,6 +13552,12 @@ class MakeMasksScreen(QWidget):
             target or stored.get("target")
             or engine._default_curated_folder(str(settings_root))))
         self._layer_pending_target = None
+        if "outline_thickness" in stored:
+            box = getattr(self, "_outline_thickness", None)
+            if box is not None:
+                box.setValue(engine._outline_thickness(stored["outline_thickness"]))
+            else:
+                self._on_outline_thickness_changed(stored["outline_thickness"])
         self._save_layer_settings()
         self._rebuild_layer_panel()
         button = self._mode_buttons.get(MODE_PICK)
@@ -13508,6 +13576,8 @@ class MakeMasksScreen(QWidget):
         self._layer_added = {}
         self._layer_previous = {}
         self._canvas.layer_overlay = None
+        self._canvas.layer_source = None
+        self._canvas._outline_view = None
         section = getattr(self, "_layer_section", None)
         if section is not None:
             section.hide()
@@ -13527,6 +13597,8 @@ class MakeMasksScreen(QWidget):
                         "visible": layer["visible"]} for layer in self._layers],
             "base": self._layers[self._layer_base]["path"],
             "target": self._layer_target,
+            "outline_thickness": engine._outline_thickness(
+                self._canvas.outline_thickness),
         })
 
     def _edits_unsaved(self) -> bool:
@@ -13628,6 +13700,7 @@ class MakeMasksScreen(QWidget):
         mask = self._canvas.mask
         if not self._layers_active() or mask is None or mask.ndim != 2:
             self._canvas.layer_overlay = None
+            self._canvas.layer_source = None
             self._canvas.update()
             return
         entries = []
@@ -13635,8 +13708,17 @@ class MakeMasksScreen(QWidget):
             labels = (self._layer_masks[index]
                       if index < len(self._layer_masks) else None)
             entries.append((labels, layer["colour"], layer["visible"]))
+        base = (self._layer_masks[self._layer_base]
+                if self._layer_base is not None
+                and self._layer_base < len(self._layer_masks)
+                and self._layers[self._layer_base]["visible"] else None)
+        removed = engine._layer_removed_ids(base, mask) if base is not None else []
         rgba = engine._layer_overlay(entries, mask, self._layer_base,
-                                     edges=self._layer_edges)
+                                     edges=self._layer_edges, removed=removed)
+        self._layer_version = getattr(self, "_layer_version", 0) + 1
+        self._canvas.layer_source = (self._layer_version, entries, mask,
+                                     self._layer_base, removed)
+        self._canvas._outline_view = None
         if rgba is None:
             self._canvas.layer_overlay = None
         else:
@@ -13755,6 +13837,9 @@ class MakeMasksScreen(QWidget):
             "Name of the new mask folder, inside the images folder, or a full path."))
         self._layer_name_edit.editingFinished.connect(self._on_layer_folder_named)
         form.addRow(tr("Folder name"), self._layer_name_edit)
+        self._layer_outline_thickness = self._outline_thickness_box(section)
+        self._layer_outline_thickness.setObjectName("MakeMasksLayerOutlineThickness")
+        form.addRow(tr("Outline thickness"), self._layer_outline_thickness)
         body.addLayout(form)
         self._layer_confirm = QFrame(section)
         self._layer_confirm.setObjectName("MakeMasksLayerConfirm")
@@ -13790,6 +13875,61 @@ class MakeMasksScreen(QWidget):
         self._layer_section = section
         section.hide()
         return section
+
+    def _outline_thickness_box(self, parent) -> QDoubleSpinBox:
+        """A spin box for the width of the mask layers' outlines.
+
+        The Display category and the Mask layers category each hold one;
+        both show the same width and change it together.
+
+        :param parent: the category it sits in.
+        :returns: the spin box, set to the remembered width.
+        """
+        from ..i18n import tr
+        from ..prefs import _s
+
+        low, high, step = engine._OUTLINE_THICKNESS_RANGE
+        box = QDoubleSpinBox(parent)
+        box.setDecimals(2)
+        box.setRange(low, high)
+        box.setSingleStep(step)
+        box.setValue(engine._outline_thickness(_s().value(
+            OUTLINE_THICKNESS_KEY, engine._OUTLINE_THICKNESS_DEFAULT)))
+        box.setToolTip(tr(
+            "Width of the mask layers' outlines, in image pixels: 1 is the "
+            "1 px inner boundary, 0.5 half of it, and 0.25 a hairline. The "
+            "outline lies inside each object and grows with the zoom like the "
+            "image; below 1 it is drawn thinner than a pixel, smoothed, so "
+            "the edge under it stays visible. Display only; saved masks "
+            "are unchanged."))
+        box.valueChanged.connect(self._on_outline_thickness_changed)
+        self._canvas.outline_thickness = box.value()
+        return box
+
+    def _on_outline_thickness_changed(self, value: float) -> None:
+        """Draw the layer outlines at a new width and remember it.
+
+        The width is kept in the preferences and, while layers are loaded,
+        in ``curate_layers.json`` with the layers' colours.
+
+        :param value: the width, in image pixels.
+        """
+        from ..prefs import _s
+
+        value = engine._outline_thickness(value)
+        for box in (getattr(self, "_outline_thickness", None),
+                    getattr(self, "_layer_outline_thickness", None)):
+            if box is not None and box.value() != value:
+                blocked = box.blockSignals(True)
+                box.setValue(value)
+                box.blockSignals(blocked)
+        _s().setValue(OUTLINE_THICKNESS_KEY, value)
+        if self._canvas.outline_thickness == value:
+            return
+        self._canvas.outline_thickness = value
+        self._canvas._outline_view = None
+        self._save_layer_settings()
+        self._canvas.update()
 
     def _rebuild_layer_panel(self) -> None:
         """Show the loaded layers, the base and the save folder."""
@@ -16780,6 +16920,9 @@ class MakeMasksScreen(QWidget):
         ))
         self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
         norm_form.addRow("Zoom per notch", self._zoom_speed)
+        self._outline_thickness = self._outline_thickness_box(norm_card)
+        self._outline_thickness.setObjectName("MakeMasksOutlineThickness")
+        norm_form.addRow(tr("Outline thickness"), self._outline_thickness)
         norm_card.body_layout.addLayout(norm_form)
 
         self._invert_display = Toggle("Invert image")

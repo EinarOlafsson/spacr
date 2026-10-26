@@ -253,3 +253,87 @@ def test_no_layers_is_the_ordinary_editor_and_saves_the_same_bytes(
     assert not (folder / "curate_layers.json").exists()
     assert not list((folder / "masks").glob("*.decisions.json"))
     assert read_status(folder)["f_0"].state == "done"
+
+
+def _canvas_array(canvas):
+    from PySide6.QtGui import QImage
+
+    image = canvas.grab().toImage().convertToFormat(QImage.Format_RGB32)
+    width, height = image.width(), image.height()
+    data = np.frombuffer(image.constBits(), dtype=np.uint8,
+                         count=image.bytesPerLine() * height)
+    return data.reshape(height, image.bytesPerLine())[:, :4 * width].reshape(
+        height, width, 4)[..., :3].astype(int)
+
+
+def _outline_ink(screen, thickness):
+    screen._on_outline_thickness_changed(thickness)
+    drawn = _canvas_array(screen._canvas)
+    overlay, screen._canvas.layer_overlay = screen._canvas.layer_overlay, None
+    try:
+        bare = _canvas_array(screen._canvas)
+    finally:
+        screen._canvas.layer_overlay = overlay
+    return np.abs(drawn - bare).sum()
+
+
+def test_thinner_outlines_draw_less_on_the_canvas(screen, folder, qtbot):
+    _open(screen, folder)
+    screen.resize(1200, 900)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._canvas.refresh()
+    ink = {t: _outline_ink(screen, t) for t in (0.25, 0.5, 1.0, 2.0)}
+    assert 0 < ink[0.25] < ink[0.5] < ink[1.0] < ink[2.0]
+    assert screen._layer_outline_thickness.value() == 2.0, "the two boxes disagree"
+
+
+def test_the_default_width_draws_the_overlay_as_before(screen, folder, qtbot):
+    _open(screen, folder)
+    assert screen._outline_thickness.value() == engine._OUTLINE_THICKNESS_DEFAULT
+    assert screen._canvas.outline_thickness == 1.0
+    screen.resize(1200, 900)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._canvas.refresh()
+    default = _canvas_array(screen._canvas)
+    screen._canvas.layer_source = None
+    assert np.array_equal(default, _canvas_array(screen._canvas)), (
+        "width 1 no longer draws the image-resolution overlay")
+
+
+def test_the_width_is_kept_in_the_preferences_and_the_layer_file(screen, folder):
+    from spacr.qt.prefs import _s
+
+    _open(screen, folder)
+    screen._layer_outline_thickness.setValue(0.5)
+    assert screen._outline_thickness.value() == 0.5
+    assert float(_s().value(mm.OUTLINE_THICKNESS_KEY)) == 0.5
+    stored = json.loads((folder / "curate_layers.json").read_text())
+    assert stored["outline_thickness"] == 0.5
+    stored["outline_thickness"] = 0.25
+    (folder / "curate_layers.json").write_text(json.dumps(stored))
+    _s().setValue(mm.OUTLINE_THICKNESS_KEY, 3.0)
+    again = MakeMasksScreen()
+    try:
+        assert again._outline_thickness.value() == 3.0
+        _open(again, folder)
+        assert again._outline_thickness.value() == 0.25
+        assert again._canvas.outline_thickness == 0.25
+    finally:
+        again.deleteLater()
+        _s().remove(mm.OUTLINE_THICKNESS_KEY)
+
+
+def test_without_layers_the_width_changes_nothing_drawn(screen, folder, qtbot):
+    assert screen.open_queue(build_queue(folder, order="name"))
+    _settle(qtbot, screen)
+    screen.resize(1200, 900)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._canvas.refresh()
+    before = _canvas_array(screen._canvas)
+    screen._outline_thickness.setValue(0.25)
+    assert np.array_equal(before, _canvas_array(screen._canvas))
+    assert not (folder / "curate_layers.json").exists()
+    screen._outline_thickness.setValue(1.0)

@@ -230,3 +230,59 @@ def test_the_stored_save_folder_is_reused(three_layers, handed):
         json.dumps({"target": str(kept)}), encoding="utf-8")
     cli_make_masks.main(["--folder", str(three_layers), "--layers", "masks"])
     assert handed[0][1]["save_to"] == str(kept)
+
+
+def _outline_cover(labels, curated, thickness, size=(192, 192), colour="#ff0000"):
+    view = engine._layer_outline_view([(labels, colour, True)], curated, 0,
+                                      (0, 0) + labels.shape[::-1], size, thickness)
+    return view[..., 3].astype(float).sum() / 255.0
+
+
+def test_an_outline_of_width_one_at_one_pixel_a_pixel_is_the_inner_boundary():
+    base = _labels((1, (2, 8, 2, 8)), (2, (12, 18, 12, 18)))
+    curated = base.copy()
+    curated[curated == 1] = 0
+    layers = [(base, "#ff0000", True)]
+    raster = engine._layer_overlay(layers, curated, 0)
+    view = engine._layer_outline_view(layers, curated, 0, (0, 0, 24, 24),
+                                      (24, 24), 1.0)
+    assert np.array_equal(view, raster), "width 1 differs from the drawn boundary"
+
+
+def test_thinner_outlines_cover_less_and_stay_inside_the_object():
+    base = _labels((1, (4, 16, 4, 16)))
+    covers = {t: _outline_cover(base, base, t) for t in (0.25, 0.5, 1.0, 2.0, 4.0)}
+    assert covers[0.25] < covers[0.5] < covers[1.0] < covers[2.0] < covers[4.0]
+    assert covers[0.5] == pytest.approx(covers[1.0] / 2, rel=0.05)
+    assert covers[0.25] > 0, "a quarter-pixel outline vanished"
+    view = engine._layer_outline_view([(base, "#ff0000", True)], base, 0,
+                                      (0, 0, 24, 24), (192, 192), 0.5)
+    inside = np.kron(base > 0, np.ones((8, 8), bool))
+    assert not view[~inside, 3].any(), "an outline leaked out of its object"
+
+
+def test_wide_outlines_keep_removed_base_objects_dashed_and_layer_order():
+    base = _labels((1, (2, 8, 2, 8)), (2, (12, 18, 12, 18)))
+    curated = base.copy()
+    curated[curated == 1] = 0
+    view = engine._layer_outline_view([(base, "#ff0000", True)], curated, 0,
+                                      (0, 0, 24, 24), (96, 96), 0.5)
+    kept = view[48:72, 48:72, 3] > 0
+    gone = view[8:32, 8:32, 3] > 0
+    assert 0 < gone.sum() < kept.sum()
+    top = _labels((1, (2, 8, 2, 8)))
+    view = engine._layer_outline_view(
+        [(top, "#00ff00", True), (top, "#0000ff", True)], top, 0,
+        (0, 0, 24, 24), (24, 24), 2.0)
+    assert tuple(view[2, 2]) == (0, 255, 0, 255), "earlier layers are not on top"
+    assert engine._layer_outline_view([(top, "#00ff00", False)], top, 0,
+                                      (0, 0, 24, 24), (24, 24), 0.5) is None
+
+
+def test_outline_widths_snap_to_the_offered_grid():
+    assert engine._outline_thickness(0.3) == 0.25
+    assert engine._outline_thickness(0.1) == 0.25
+    assert engine._outline_thickness(9) == 4.0
+    assert engine._outline_thickness("0.5") == 0.5
+    assert engine._outline_thickness(None) == engine._OUTLINE_THICKNESS_DEFAULT
+    assert engine._outline_thickness(float("nan")) == 1.0

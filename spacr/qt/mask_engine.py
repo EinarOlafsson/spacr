@@ -7615,8 +7615,167 @@ def _layer_removed_ids(base: Optional[np.ndarray], curated: np.ndarray,
     return sorted(removed)
 
 
+_OUTLINE_THICKNESS_DEFAULT = 1.0
+"""Outline width of mask layers, in image pixels, that draws them as before."""
+
+_OUTLINE_THICKNESS_RANGE: Tuple[float, float, float] = (0.25, 4.0, 0.25)
+"""Smallest and largest outline width offered, and the step between them."""
+
+
+def _outline_thickness(value) -> float:
+    """``value`` as an outline width on the offered grid.
+
+    :param value: anything a setting file or a spin box may hold.
+    :returns: the nearest offered width; the default for a value that is
+        not a finite number.
+    """
+    low, high, step = _OUTLINE_THICKNESS_RANGE
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return _OUTLINE_THICKNESS_DEFAULT
+    if not np.isfinite(number):
+        return _OUTLINE_THICKNESS_DEFAULT
+    return float(min(high, max(low, round(number / step) * step)))
+
+
+def _inner_edge_steps(crop: np.ndarray, pad: int, reach: int):
+    """How far each pixel of a padded crop is from its object's edge.
+
+    A pixel is ``k`` steps from its edge on the left when it and the ``k``
+    pixels to its left hold its label and the next one does not; the same
+    for the other three sides. ``k == 0`` is a pixel of the 1 px inner
+    boundary that :func:`_layer_overlay` draws.
+
+    :param crop: labels around the part of the field shown, ``pad`` pixels
+        wider on every side.
+    :param pad: the margin, at least ``reach + 1``.
+    :param reach: how many steps to look; a pixel farther than that from
+        every edge gets 32767.
+    :returns: ``(left, right, up, down)``, int arrays of the unpadded shape.
+    """
+    h = crop.shape[0] - 2 * pad
+    w = crop.shape[1] - 2 * pad
+    centre = crop[pad:pad + h, pad:pad + w]
+    steps = []
+    for dy, dx in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+        found = np.full(centre.shape, 32767, dtype=np.int16)
+        run = np.ones(centre.shape, dtype=bool)
+        for k in range(reach):
+            same = crop[pad + dy * k:pad + dy * k + h, pad + dx * k:pad + dx * k + w]
+            run &= same == centre
+            beyond = crop[pad + dy * (k + 1):pad + dy * (k + 1) + h,
+                          pad + dx * (k + 1):pad + dx * (k + 1) + w]
+            hit = run & (beyond != centre) & (found == 32767)
+            found[hit] = k
+        steps.append(found)
+    return tuple(steps)
+
+
+def _layer_outline_view(layers, curated: np.ndarray, base_index: Optional[int],
+                        bounds, size, thickness: float,
+                        removed=None) -> Optional[np.ndarray]:
+    """The layers' outlines over the part of the field shown, at screen size.
+
+    The outline of an object is the band ``thickness`` image pixels wide
+    just inside its edge, so a width of 1 covers exactly the inner boundary
+    :func:`_layer_overlay` draws and a width of 0.5 half of it. Every screen
+    pixel is covered by the share of it that falls in the band, so a band
+    narrower than a pixel is drawn faint rather than not at all. Colours,
+    order and the dashes of removed base objects are those of
+    :func:`_layer_overlay`.
+
+    The work is done over the screen and the labels shown, not over every
+    object, so a field of 100,000 objects costs what a field of ten does.
+
+    :param layers: ``[(labels or None, "#rrggbb", visible), ...]``.
+    :param curated: the curated overlay.
+    :param base_index: which of ``layers`` is the base, or None.
+    :param bounds: ``(x0, y0, x1, y1)`` of the field shown, in image pixels.
+    :param size: ``(width, height)`` of the picture, in screen pixels.
+    :param thickness: the band's width, in image pixels.
+    :param removed: the base ids not in ``curated``, already found; found
+        here when omitted.
+    :returns: an ``(height, width, 4)`` uint8 premultiplied RGBA array, or
+        None when nothing is drawn.
+    """
+    x0, y0, x1, y1 = (int(v) for v in bounds)
+    width, height = (int(v) for v in size)
+    if width <= 0 or height <= 0 or x1 <= x0 or y1 <= y0:
+        return None
+    band = float(thickness)
+    reach = max(1, int(np.ceil(band)))
+    pad = reach + 1
+    per_x = (x1 - x0) / width
+    per_y = (y1 - y0) / height
+    fx = x0 + (np.arange(width) + 0.5) * per_x
+    fy = y0 + (np.arange(height) + 0.5) * per_y
+    cols = np.clip(np.floor(fx).astype(np.int64), x0, x1 - 1)
+    rows = np.clip(np.floor(fy).astype(np.int64), y0, y1 - 1)
+    frac_x = (fx - cols).astype(np.float32)[None, :]
+    frac_y = (fy - rows).astype(np.float32)[:, None]
+    col_at = cols - x0
+    row_at = rows - y0
+    field_h, field_w = curated.shape[:2]
+    ys = np.clip(np.arange(y0 - pad, y1 + pad), 0, field_h - 1)
+    xs = np.clip(np.arange(x0 - pad, x1 + pad), 0, field_w - 1)
+    half_x = np.float32(0.5 * per_x)
+    half_y = np.float32(0.5 * per_y)
+    band32 = np.float32(band)
+
+    def share(distance, half, per):
+        inside = np.minimum(distance + half, band32)
+        inside -= np.maximum(distance - half, np.float32(0.0))
+        inside *= np.float32(1.0 / per)
+        return np.clip(inside, np.float32(0.0), np.float32(1.0), out=inside)
+
+    colour_sum = None
+    alpha = None
+    for index in reversed(range(len(layers))):
+        labels, colour, visible = layers[index]
+        if labels is None or not visible:
+            continue
+        crop = np.asarray(labels)[np.ix_(ys, xs)]
+        left, right, up, down = _inner_edge_steps(crop, pad, reach)
+        centre = crop[pad:pad + (y1 - y0), pad:pad + (x1 - x0)]
+        keep = centre > 0
+        if index == base_index:
+            gone_ids = (_layer_removed_ids(labels, curated) if removed is None
+                        else list(removed))
+            if gone_ids:
+                gone = np.isin(centre, gone_ids)
+                grid_r, grid_c = np.ogrid[y0:y1, x0:x1]
+                dash = ((grid_r + grid_c) // 3) % 2 == 0
+                keep &= ~gone | dash
+        def pick(steps):
+            return np.take(np.take(steps, row_at, axis=0), col_at, axis=1)
+
+        across = np.minimum(pick(left) + frac_x, pick(right) + (1.0 - frac_x))
+        along = np.minimum(pick(up) + frac_y, pick(down) + (1.0 - frac_y))
+        cover = np.maximum(share(across, half_x, per_x), share(along, half_y, per_y))
+        cover *= pick(keep)
+        rgb = np.array([int(colour[i:i + 2], 16) for i in (1, 3, 5)],
+                       dtype=np.float32)
+        if colour_sum is None:
+            colour_sum = cover[..., None] * rgb
+            alpha = cover
+            continue
+        colour_sum *= (1.0 - cover)[..., None]
+        colour_sum += cover[..., None] * rgb
+        alpha = cover + alpha * (1.0 - cover)
+    if colour_sum is None:
+        return None
+    out = np.empty((height, width, 4), dtype=np.uint8)
+    colour_sum += np.float32(0.5)
+    out[..., :3] = colour_sum
+    alpha *= np.float32(255.0)
+    alpha += np.float32(0.5)
+    out[..., 3] = alpha
+    return out
+
+
 def _layer_overlay(layers, curated: np.ndarray, base_index: Optional[int],
-                   edges=None) -> Optional[np.ndarray]:
+                   edges=None, removed=None) -> Optional[np.ndarray]:
     """The outlines of every visible layer, as one RGBA picture.
 
     Each layer is drawn as its objects' inner boundaries in its own colour,
@@ -7630,6 +7789,8 @@ def _layer_overlay(layers, curated: np.ndarray, base_index: Optional[int],
     :param edges: each layer's boundary pixels, already computed, so an
         edit redraws without tracing every layer again; traced here when
         omitted.
+    :param removed: the base ids not in ``curated``, already found; found
+        here when omitted.
     :returns: an ``(h, w, 4)`` uint8 array, or None when nothing is drawn.
     """
     from skimage.segmentation import find_boundaries
@@ -7646,9 +7807,10 @@ def _layer_overlay(layers, curated: np.ndarray, base_index: Optional[int],
                 else find_boundaries(labels, mode="inner") & (labels > 0))
         red, green, blue = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
         if index == base_index:
-            removed = _layer_removed_ids(labels, curated)
-            if removed:
-                gone = np.isin(labels, removed)
+            gone_ids = (_layer_removed_ids(labels, curated) if removed is None
+                        else list(removed))
+            if gone_ids:
+                gone = np.isin(labels, gone_ids)
                 rows, cols = np.indices(labels.shape)
                 dash = ((rows + cols) // 3) % 2 == 0
                 rgba[edge & ~gone] = (red, green, blue, 255)
