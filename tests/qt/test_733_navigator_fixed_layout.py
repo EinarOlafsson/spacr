@@ -48,6 +48,7 @@ def test_typing_never_discovers_until_enter(navigator, qtbot, monkeypatch):
 
 def test_name_only_cards_describe_in_stationary_lower_panel(navigator, qtbot):
     before = (navigator.path_edit.geometry(), navigator.field.details.geometry())
+    assert abs(navigator.path_edit.geometry().center().y() - navigator.field.rect().center().y()) <= 1
     cards = choices(navigator)
     assert (navigator.path_edit.geometry(), navigator.field.details.geometry()) == before
     assert navigator.field.details.y() >= navigator.field.height() // 2
@@ -103,6 +104,7 @@ def test_fixed_panels_do_not_overlap_choice_row(navigator, qtbot, width, height)
     qtbot.wait(20)
     choices(navigator)
     field = navigator.field
+    assert abs(field.panel.geometry().center().y() - field.rect().center().y()) <= 1
     assert not field.panel.geometry().intersects(field._row_rect)
     assert not field.details.geometry().intersects(field._row_rect)
     assert field.rect().contains(field.details.geometry())

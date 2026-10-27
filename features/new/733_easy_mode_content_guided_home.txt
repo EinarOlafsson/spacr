@@ -7,6 +7,8 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+LATEST POSITION CORRECTION — 2026-10-27: restore the Navigator search bar to the vertical middle of the screen. It must stay centered when suggestions or the network appear; the prior move to the top was not requested. Keep the rounded description box fixed below and retain readable, non-overlapping cards.
+
 POST-SIGN-OFF FOLLOW-UP — 2026-10-27: after the maintainer tests the next Navigator implementation and explicitly signs off, send the other local tutorial session a handoff requesting a new Navigator tutorial and add Navigator coverage to the user documentation and API reference. Do not send the tutorial handoff or begin that follow-up before sign-off. The current corrective implementation is to be published for testing first; this explicit follow-up remains pending maintainer sign-off.
 
 LATEST LAUNCH FOLLOW-UP — 2026-10-27: installing spaCR provides both spacr-navigator and spacr-nav commands. Either command enables Navigator and launches spaCR directly in Navigator mode, while preserving the ordinary spacr launcher and its existing options. Validate installed entry-point registration and startup preference/argument handoff with focused checks.
@@ -352,3 +354,5 @@ Implementation and reasonable validation qualify completion under the maintainer
 
 2026-10-27 — Corrective implementation restores name-only matching-background cards, fixed search/lower descriptions, Enter-only suggestions, fading one-row overflow, gradual departing content and visible collapsed native panels. Segmentation/object detection offer both mask tools; spacr-navigator and spacr-nav enable Navigator through existing startup.
 2026-10-27 — Card growth no longer projects particles onto an edge ring; clearing the reused held-frame fade layer removes the reproduced post-idle duplicate/gray flash. Focused behavior, actual-frame and startup checks plus normal affected outputs accompany the corrective nightly publication for testing. The explicitly requested tutorial-session handoff and Docs/API coverage remain pending maintainer sign-off.
+
+2026-10-27 — Restored the search to the vertical center without state-dependent movement; choices use the free space above it and descriptions remain fixed below. Six focused centering, layout, native-panel and transition controls pass; tutorial/Docs/API follow-up still awaits explicit sign-off.

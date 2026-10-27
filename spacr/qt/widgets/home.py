@@ -5562,7 +5562,7 @@ class _EasyHomeField(QWidget):
 
         width, height = self.width(), self.height()
         panel_width = min(720, max(180, width - 48))
-        panel_y = max(16, min(96, height // 6))
+        panel_y = max(16, (height - 64) // 2)
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
         self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
         self.rim.raise_()
@@ -5570,11 +5570,11 @@ class _EasyHomeField(QWidget):
         details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
-        top = panel_y + 64 + 24
-        available = max(64, height - details_height - 16 - top - 28)
+        available = max(64, panel_y - 40)
         side = min(224, available, max(96, width - 64))
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
                                   for card in self.cards if isinstance(card, _EasyRegexCard)])
+        top = max(16, panel_y - card_height - 24)
         self._row_rect = QRect(16, top, max(1, width - 32), card_height)
         gap = 20
         total = len(self.cards) * side + max(0, len(self.cards) - 1) * gap
@@ -6166,8 +6166,8 @@ class _EasyWorkflowPage(QWidget):
         bottom = QRect(origin, field.details.size())
         search_origin = self.mapFromGlobal(field.panel.mapToGlobal(field.panel.rect().topLeft()))
         search = QRect(search_origin, field.panel.size()).adjusted(-4, -4, 4, 4)
-        top = max(header_bottom + 16, search.bottom() + 25)
-        limit = bottom.top() - 16
+        top = header_bottom + 16
+        limit = search.top() - 16
         self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1
         if self.view._direction > 0:
             x, width = self._anchor.right() + 1, self.width() - self._anchor.right() - 17
