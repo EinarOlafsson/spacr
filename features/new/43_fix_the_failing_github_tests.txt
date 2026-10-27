@@ -1,5 +1,18 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT TEXT ENCODING AND NAVIGATOR COMMAND REFERENCE — 2026-10-27
+widgets_g1 owns Fast 0 job 122460216585: give the Linux inotify limit
+read an explicit encoding and reconcile Navigator launcher aliases with
+the normal README source and existing intentional hidden-command policy.
+Preserve launch values, strict command coverage and normal generated output;
+G5 peers before the two owning selectors, and root alone publishes.
+
+CURRENT SHARED STARTUP VISIBLE-COVERAGE FIXTURE — 2026-10-27
+Coverage 7 job 122460216493 reads the same 21-record startup fixture
+already repaired by 4f191. widgets_g1 will qualify only its distinct
+visible-coverage selector, retaining the canonical record and all strict
+assertions; no duplicate fixture edit, source change or generated refresh.
+
 CURRENT STARTUP FRAME-STATS BOUNDARY FIXTURE — 2026-10-27
 widgets_g1 owns Main Coverage 2 job 122460216350: align only the stale
 LoadingScreen.frame_stats expected record with its approved no-paint and
@@ -5326,3 +5339,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — Added docstrings to the exact remaining 23 callables from the package guard, including the existing gate-editor work closure; the five previously qualified merge-helper docs remain intact. G5 verified semantics and executable-AST/signature/decorator equality across seven modules. The package zero-docstring guard and unchanged nested-budget guard pass together; parent owns normal visibility/consumer closure and root alone publishes.
 
 2026-10-27 — Aligned only the stale LoadingScreen.frame_stats fixture with the approved N727 callback/presentation and zero-paint documentation. The other 20 records and strict 21-record dictionary/boundary assertions remain exact. G5 confirmed canonical-source equality; the sole owning selector passes (40.17 s), with no source, API-history, pin or generated changes. Root owns publication.
+
+2026-10-27 — Added explicit UTF-8 to the proc-limit read without changing parsing/fallback; public spacr-nav/spacr-navigator aliases now appear in all ten normal README sources/outputs, while exactly two hidden spaceout aliases retain the existing absence policy. G5 peer accepted; the normal README generator completed and all three encoding/command/hidden-entry guards pass (9.44 s). The separately reported strict visible-doc extractor also passes against the already-corrected shared frame_stats fixture (35.57 s), with no further fixture edit. Root owns batch publication.
