@@ -353,3 +353,34 @@ def test_plain_api_build_does_not_reuse_unproven_history(plain_build, fault):
     assert set(build.decode_calls[0]["blocks"]) == {
         build.context(NEW_BLOCK), build.context(SHARED_BLOCK)}
     assert build.texts("pt") == {key: f"{PT_NEW}\n\n{PT_GENERATED_SHARED}"}
+
+
+@pytest.mark.parametrize("scoped", [False, True])
+def test_english_refresh_preserves_unrelated_records_only_when_scoped(plain_build, scoped):
+    build = plain_build
+    builder = build.builder
+    key, _ = _seed_one_changed_symbol(build)
+    manifest = build.english_manifest()
+    sentinel = builder._english_manifest({"spacr.unrelated": "Unrelated current source."})
+    manifest["symbols"].update(sentinel["symbols"])
+    manifest["retained_metadata"] = {"origin": "existing catalog"}
+    builder._write_json(build.api_dir / "en.json", manifest)
+    historical = builder._english_manifest({"spacr.historical": "Unrelated historical source."})
+    record = historical["symbols"]["spacr.historical"]
+    digest = record["source_sha256"]
+    history_path = builder.ROOT / "docs/i18n/api_source_history.json"
+    builder._write_json(history_path, {"schema": 1, "sources": {digest: record}})
+
+    builder._write_english_api_manifest(build.docs, preserve_other_symbols=scoped)
+
+    current = build.english_manifest()
+    assert current["symbols"][key] == builder._english_manifest(build.docs)["symbols"][key]
+    archive = builder._archived_english_api_records()
+    assert archive[builder._source_hash(OLD_SOURCE)]["text"] == OLD_SOURCE
+    if scoped:
+        assert current["symbols"]["spacr.unrelated"] == sentinel["symbols"]["spacr.unrelated"]
+        assert current["retained_metadata"] == manifest["retained_metadata"]
+        assert archive[digest] == record
+    else:
+        assert current == builder._english_manifest(build.docs)
+        assert digest not in archive
