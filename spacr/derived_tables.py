@@ -26,7 +26,7 @@ from .merge_tables import (
     OBJECT_COLUMN,
     MergeError,
     MergePolicy,
-    _align_keys, _keys_in, _duplicate_observation_message,
+    _align_keys, _keys_in, _duplicate_observation_message, _merge_key_structure,
     _duplicate_merge_enabled, _merge_duplicate_sources,
     _read,
     aggregation_for,
@@ -176,16 +176,26 @@ def _require_keys(frame, keys, table, *, unique=False):
     :param table: Table name for actionable errors.
     :param unique: Require complete, unique base observation identities.
     """
+    reason = ""
     if not keys or len(set(keys)) != len(keys):
-        raise MergeError(f"{table}: choose a nonempty list of distinct join columns.")
-    missing = set(keys) - set(frame)
-    if missing:
-        raise MergeError(f"{table}: missing keys {', '.join(sorted(missing))}. "
-                         "Use Customize merging to map the actual columns.")
-    if unique and frame[keys].isna().any(axis=None):
-        raise MergeError(f"{table}: base observation keys contain missing values.")
-    if unique and frame.duplicated(keys).any():
-        raise MergeError(_duplicate_observation_message(frame, keys, table))
+        reason = "invalid_keys"
+        message = f"{table}: choose a nonempty list of distinct join columns."
+    elif set(keys) - set(frame):
+        reason = "missing_keys"
+        message = (f"{table}: missing keys {', '.join(sorted(set(keys) - set(frame)))}. "
+                   "Use Customize merging to map the actual columns.")
+    elif unique and frame[keys].isna().any(axis=None):
+        reason = "null_keys"
+        message = f"{table}: base observation keys contain missing values."
+    elif unique and frame.duplicated(keys).any():
+        reason = "duplicate_keys"
+        message = _duplicate_observation_message(frame, keys, table)
+    if reason:
+        error = MergeError(message)
+        error._spacr_merge_structure = _merge_key_structure(frame, keys, table, reason)
+        raise error
+
+
 
 
 def _align_explicit_keys(left, right, keys):
@@ -268,6 +278,9 @@ def execute(path, definition):
     validate_source(path, definition)
     if definition.get('mode') == 'metadata':
         return _execute_prepared(path, definition)
+    if definition.get("mode") == "default" and not is_one_row_per_cell(definition["base"]):
+        raise MergeError("Default output is one row per cell or cytoplasm. "
+                         "Use Customize merging for another observation level.")
     base_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][definition['base']]])
     _require_keys(base_columns, definition['base_keys'], definition['base'])
     for join in definition['joins']:
@@ -315,9 +328,6 @@ def _execute_prepared(path, definition):
                         "joins": [], "image_provenance": bool(provenance),
                         "original_filenames": metadata}
     _require_keys(base, definition["base_keys"], base_name, unique=True)
-    if mode == "default" and not is_one_row_per_cell(base_name):
-        raise MergeError("Default output is one row per cell or cytoplasm. "
-                         "Use Customize merging for another observation level.")
     if mode == "default" and not set(IDENTITY).issubset(base.columns):
         raise MergeError("Default merging requires plateID, rowID, columnID and fieldID. "
                          "Use Customize merging for external data without image provenance.")

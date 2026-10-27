@@ -43,6 +43,8 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .errors import ConfigurationError
+
 from .object_roles import (
     ANCHOR_COLUMN,
     ORGANELLE_ROLES,
@@ -111,7 +113,7 @@ OBJECT_TABLES: Tuple[str, ...] = (
 DEFAULT_PRIMARY = "cell"
 
 
-class MergeError(ValueError):
+class MergeError(ConfigurationError, ValueError):
     """Raised when tables cannot be merged; the message gives the reason."""
 
 
@@ -127,6 +129,8 @@ class _DuplicateObservations(MergeError):
         self.message = '; '.join(_duplicate_observation_message(frames[table], columns, table)
                                  for table, columns in keys.items())
         super().__init__(self.message)
+        self._spacr_merge_structure = [_merge_key_structure(frames[table], columns, table, "duplicate_keys")
+                                       for table, columns in keys.items()]
 
 
 @dataclass(frozen=True)
@@ -286,6 +290,32 @@ def _keys_in(frame: pd.DataFrame, *, include_file_name: bool = False) -> List[st
             if c in frame.columns and (include_file_name or c != "file_name")]
 
 
+def _merge_key_structure(frame, keys, table, reason):
+    """Describe key cardinality using canonical names and anonymous counts."""
+    canonical = (*IDENTITY, "timeID", "time_id", "file_name", OBJECT_COLUMN)
+    complete = bool(keys) and len(set(keys)) == len(keys) and set(keys).issubset(frame)
+    return {
+        "reason": reason,
+        "table": table if table in ANCHOR_COLUMN else "custom",
+        "present": [key for key in canonical if key in frame],
+        "selected": [key for key in canonical if key in keys],
+        "custom_key_count": sum(key not in canonical for key in keys),
+        "missing_canonical": [key for key in canonical if key in keys and key not in frame],
+        "missing_custom_count": sum(key not in canonical and key not in frame for key in keys),
+        "rows": len(frame),
+        "unique_keys": len(frame[keys].drop_duplicates()) if complete else None,
+        "duplicate_rows": int(frame.duplicated(keys, keep=False).sum()) if complete else None,
+        "null_rows": int(frame[keys].isna().any(axis=1).sum()) if complete else None,
+    }
+
+
+def _duplicate_observation_error(frame, keys, table):
+    """Keep local identity advice separate from anonymous cardinality facts."""
+    error = MergeError(_duplicate_observation_message(frame, keys, table))
+    error._spacr_merge_structure = _merge_key_structure(frame, keys, table, "duplicate_keys")
+    return error
+
+
 def _duplicate_observation_message(frame, keys, table):
     repeated = frame.loc[frame.duplicated(keys, keep=False)]
     prefix = f"{table}: {len(repeated)} rows have duplicate observation keys {list(keys)}. "
@@ -374,7 +404,7 @@ def _merge_duplicate_sources(db_path, tables, overrides=None, standard=False, ob
         combined = list(dict.fromkeys([*chosen, *actual]))
         if (actual and frame.duplicated(chosen).any()
                 and len(frame[combined].drop_duplicates()) > len(frame[chosen].drop_duplicates())):
-            raise MergeError(_duplicate_observation_message(frame, chosen, table))
+            raise _duplicate_observation_error(frame, chosen, table)
     if standard:
         base = next(iter(frames))
         image_keys = _keys_in(frames[base], include_file_name=True)
@@ -728,7 +758,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
             f"{policy.primary} has no {OBJECT_COLUMN}, so nothing can be "
             f"merged onto it")
     if base.duplicated(keys + [OBJECT_COLUMN]).any():
-        raise MergeError(_duplicate_observation_message(base, keys + [OBJECT_COLUMN], policy.primary))
+        raise _duplicate_observation_error(base, keys + [OBJECT_COLUMN], policy.primary)
 
     merged = base.rename(
         columns={c: f"{policy.primary}_{c}" for c in base.columns

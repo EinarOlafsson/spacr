@@ -92,3 +92,23 @@ def test_warning_and_dynamic_preview_templates_are_canonical_ui_sources():
     assert any(text.startswith("spaCR defaults active — one row per {base}.") for text in sources)
     assert any(text.startswith("Custom rules active — one row per {base}.") for text in sources)
     assert any(text.startswith("{table}: {input_rows:,} input rows") for text in sources)
+
+
+def test_invalid_key_preview_stays_editable_without_worker_failure(qtbot, db, monkeypatch):
+    from spacr import crashreport
+
+    with sqlite3.connect(db) as connection:
+        connection.execute("UPDATE cell SET object_label=NULL WHERE object_label=1")
+    seen = []
+    monkeypatch.setattr(crashreport, "_new_error_occurrence", lambda error: seen.append(error) or "")
+    dialog = MergeTablesDialog(db, selected=["cell", "pathogen"], threaded=False)
+    qtbot.addWidget(dialog)
+    dialog.validate_preview()
+    assert not dialog.create.isEnabled()
+    assert dialog.result_frame is None
+    assert dialog.customize.isEnabled()
+    assert "base observation keys contain missing values" in dialog.preview_text.toPlainText()
+    assert seen == []
+    with sqlite3.connect(db) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 3
+    dialog.reject()

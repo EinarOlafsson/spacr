@@ -179,12 +179,16 @@ def test_the_type_is_on_the_measure_panel_and_not_in_a_leftover_bucket(qapp):
     layout = categories_for_app("measure", S.categories)
     assert "organelle_type" in layout["Mask & Channel Mapping"]
 
-    sections = SettingsWidgets(
-        "measure", current={"number_of_organelles": 1}).build_sections()
+    model = SettingsWidgets(
+        "measure", current={"number_of_organelles": 1, "organelle_mask_dim": 0})
+    sections = model.build_sections()
+    assert model.collect()["organelle_mask_dim"] == 0
+    assert "organelle_channel" not in model._widgets
     titles = [title for title, _rows in sections]
     assert "Additional Settings" not in titles and "Other" not in titles
     mapping = dict(sections)["Mask & Channel Mapping"]
-    assert any("Type" in label for label, _widget in mapping)
+    assert any("Type" in label and widget is model._widgets["organelle_type"]
+               for label, widget in mapping)
 
 
 # ---------------------------------------------------------------------------

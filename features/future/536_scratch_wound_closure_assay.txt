@@ -1,15 +1,15 @@
 SCRATCH / WOUND-CLOSURE ASSAY
 
-Status: DONE (alpha) 2026-09-26 (evidence fbee300da) — Measure finds the scratch wound in
+Status: IN PROGRESS (alpha) 2026-10-27 — software delivered; original scientific closure accuracy remains unmet. Measure finds the scratch wound in
 every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.
 Hidden with Alpha features. DONE WHEN not met (below): scored on BBBC019,
 whose hand masks follow the maintainer's convention (scattered cells in the
-wound are open), 76 % of later frames are within 5 points after four
+wound are open), 37/51 later frames are within 5 points after four
 accuracy passes (2026-09-30 to 10-01). A hand-set cut (wound_threshold)
 covers series the automatic cut misreads.
-Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+Owner: retained obsolete_repo_cleanup lane; root publishes Nightly. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -448,3 +448,7 @@ publication proof bind the current generated outputs. Scope remains software
 calibration metadata/localization, not biological or whole-feature acceptance.
 
 2026-10-24 — Maintainer will label debris vs genuine closure himself in spaCR; ready: /mnt/firecuda2/Claude/toxoplasma_projects/spacr_curation/f536_wound_closure_2026-10-24 (28 BBBC019 cases: all 14 failures of the frozen 51-frame baseline + 14 subset-matched successes, blind 2x2 t0/later panels with detected mask, wound crops over time; key/ holds outcomes). Annotate column wound_call (1 genuine_closure..5 cannot_judge); README there. No training or detector change yet.
+
+2026-10-27 — CPU diagnostic requirement: advance the original five-point hand-mask outcome without human/native gates, fabricated labels, GPU/training or Main changes; root publishes Nightly.
+2026-10-27 — Frozen cached masks retain 37/51 passes (14 failures: ten overclosed, four underclosed); thirteen failures have an initial-area contribution above five points. One unchanged worst-series trace reproduces both final masks exactly: SN15 L4 t20 misses 36,385 open pixels at texture classification; front-only changes none, selection loses 364 more and growth recovers 5,671.
+2026-10-27 — No implementation defect demonstrated or threshold changed; scientific outcome remains OPEN. Recommended next algorithm work: independently validate texture/front discrimination of wound floor despite scattered cells and stable initial-front estimation on held-out hand masks. No unchanged whole-benchmark rerun.

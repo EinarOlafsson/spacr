@@ -2215,6 +2215,39 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _merge_structure_message(exception):
+    """Rebuild merge diagnostics from fixed names and bounded integer counts."""
+    raw = getattr(exception, "_spacr_merge_structure", None)
+    if not isinstance(raw, (dict, list)):
+        return ""
+    records = raw if isinstance(raw, list) else [raw]
+    canonical = ("plateID", "rowID", "columnID", "fieldID", "timeID",
+                 "time_id", "file_name", "object_label")
+    results = []
+    for raw in records[:8]:
+        if not isinstance(raw, dict):
+            continue
+        result = {}
+        reason = raw.get("reason")
+        if reason not in ("invalid_keys", "missing_keys", "null_keys", "duplicate_keys"):
+            continue
+        result["reason"] = reason
+        table = raw.get("table")
+        result["table"] = table if table in ("cell", "cytoplasm", "nucleus", "pathogen", "organelle") else "custom"
+        for key in ("present", "selected", "missing_canonical"):
+            values = raw.get(key)
+            result[key] = [name for name in canonical if isinstance(values, (list, tuple)) and name in values]
+        for key in ("custom_key_count", "missing_custom_count", "rows", "unique_keys", "duplicate_rows", "null_rows"):
+            value = raw.get(key)
+            result[key] = value if type(value) is int and 0 <= value <= 2 ** 63 - 1 else None
+        results.append(result)
+    if not results:
+        return ""
+    result = results[0] if isinstance(getattr(exception, "_spacr_merge_structure"), dict) else {
+        "tables": results, "omitted_tables": max(0, len(records) - 8)}
+    return "Merge validation: " + json.dumps(result, sort_keys=True, separators=(",", ":"))
+
+
 def public_summary(exception: Optional[BaseException] = None, *,
                    traceback_text: str = "", module: str = "",
                    user_note: str = "", dry_run: bool = False,
@@ -2279,6 +2312,11 @@ def public_summary(exception: Optional[BaseException] = None, *,
         if not code_context:
             for frame in frames:
                 frame.pop("code", None)
+    merge_message = _merge_structure_message(exception)
+    if merge_message:
+        override = merge_message
+        error_text = merge_message
+        log_text = ""
     return _validated_summary({
         "install_id": install_id(),
         "spacr_version": _spacr_version(),
@@ -2297,7 +2335,7 @@ def public_summary(exception: Optional[BaseException] = None, *,
         "screen": screen,
         "error_text": error_text,
         "chain": _exception_chain(exception, traceback_text)
-        if diagnostics else [],
+        if diagnostics and not merge_message else [],
         "settings": public_settings(settings) if settings else {},
         "inputs": public_input_facts(settings) if settings else {},
         "environment": public_environment() if diagnostics else {},
@@ -3540,6 +3578,11 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
     if exception is not None:
         raw = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
     kind = classify_failure(exception, raw)
+    merge_message = _merge_structure_message(exception)
+    if merge_message:
+        raw = "MergeError: " + merge_message
+        summary = None
+        context = {}
 
     def eligible():
         """Keep each pending entry within its original and current permission."""

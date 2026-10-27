@@ -4433,10 +4433,17 @@ class MainWindow(QMainWindow):
             return
         state = self.windowState()
         shown = self.isVisible()
+        geometry = self.geometry()
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, on)
+        if not state & (Qt.WindowMaximized | Qt.WindowFullScreen
+                        | Qt.WindowMinimized):
+            self.setGeometry(geometry)
         if shown:
             self.setWindowState(state)
             self.show()
+            if not state & Qt.WindowMinimized:
+                self.raise_()
+                self.activateWindow()
 
     @staticmethod
     def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):

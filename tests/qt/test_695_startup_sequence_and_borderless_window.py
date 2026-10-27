@@ -435,6 +435,31 @@ def test_a_framed_window_leaves_dragging_and_resizing_to_its_frame(
 
 # --- the framed / borderless switch ----------------------------------------
 
+def test_the_menu_switch_keeps_a_normal_window_visible_and_placed(window, qtbot):
+    from PySide6.QtCore import QPoint
+
+    action = window.findChild(QAction, "BorderlessWindowAction")
+    action.setChecked(True)
+    window.resize(1300, 800)
+    window.move(70, 90)
+    window.showNormal()
+    qtbot.waitExposed(window)
+    geometry = window.geometry()
+    for borderless in (False, True):
+        menu = _menu(window, "Window")
+        menu.popup(window.mapToGlobal(QPoint(200, 70)))
+        qtbot.waitUntil(menu.isVisible)
+        qtbot.mouseClick(menu, Qt.MouseButton.LeftButton,
+                         pos=menu.actionGeometry(action).center())
+        qtbot.waitUntil(lambda: window.isVisible()
+                       and QApplication.activeWindow() is window)
+        assert not menu.isVisible()
+        assert bool(window.windowFlags() & Qt.FramelessWindowHint) is borderless
+        assert window.geometry() == geometry
+        assert window.normalGeometry() == geometry
+        assert not window.isMaximized() and not window.isFullScreen()
+
+
 def test_the_switch_gives_a_framed_window_and_is_remembered(window, qtbot):
     from spacr.qt import preferences
 
