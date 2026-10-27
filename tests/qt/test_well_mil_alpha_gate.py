@@ -196,7 +196,8 @@ def test_a_database_without_embeddings_says_so(screen, tmp_path):
     assert "no stored crop embeddings" in screen._status.text()
 
 
-def test_alpha_embedding_controls_wrap_inside_the_actual_desktop_width(screen, alpha, qtbot):
+def test_alpha_embedding_controls_wrap_inside_the_actual_desktop_width(
+        screen, alpha, qtbot, qt_theme_applied):
     from PySide6.QtCore import QPoint, QSize
     from spacr.qt.gui_scale import _resize_actual
     from spacr.qt.preferences import _apply_alpha_widgets
