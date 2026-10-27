@@ -9781,7 +9781,8 @@ class _FieldOverview(QWidget):
                 if not viewport.rect().intersects(fields.visualItemRect(item)):
                     continue
                 key = (item.data(Qt.UserRole).identity, channels, limits,
-                       self._display_options_key(options), ratio, edge)
+                       self._display_options_key(options), ratio, edge,
+                       fields.iconSize().width(), fields.iconSize().height())
                 if item.data(Qt.UserRole + 1) == key:
                     loaded += 1
                 else:
