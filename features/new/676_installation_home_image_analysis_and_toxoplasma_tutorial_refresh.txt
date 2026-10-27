@@ -493,3 +493,7 @@ Lesson10 editedmaster288.5s retains3referencecards/50tracks with11reviewedpausef
 2026-10-27 — Maintainer requests Classify CV/Classify ML be just Classify. Public canonical titles already use Classify; clarify combined lesson versus separate task titles before changing structure.
 Lesson10 matrix72/72 passes; own publication shells held before upload while current candidate verification finishes. Preserve all accepted media, archives and unrelated work.
 Apply naming-only scope: Classify is the module, image crops/measured features are workflows; existing public titles already comply. Resume publication; any combined-video restructuring awaits explicit clarification, with no deletion or archive change.
+
+2026-10-27 — Classify image-crop tutorial completes at aab08482a2:50voices/550gaps0.816–1.045s,7057hostedfiles fullyreadback,59routes/64pinchecks pass(1existingNodeSkip); website deployment separate.
+Classify overview p31 main aborts on plain-versus-production-HTML tooltip comparison; eight affected dry-run cases pass against actual capture-app production source. Land only this capture-driver fix between parts, then retry the genuine navigation with unchanged tooltip visibility/text guards.
+ML data-load passes29.31fps; heatmap first/retry fail17.49/9.77fps. Reviewed first-take18–20s shows complete real heatmap at28.5fps without any bad bucket; strict reviewed-cut admission, final render and publication remain required, with raw failures preserved.
