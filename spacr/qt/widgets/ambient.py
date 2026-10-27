@@ -14113,6 +14113,10 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
     """Send ``widget``'s ripple to every running field backdrop of its window."""
     try:
         window = widget.window()
+    except RuntimeError:
+        _note_container_ripple()
+        return
+    try:
         if (window.property("spacrEasySearchRippleOnly")
                 and widget.objectName() != "EasyModePath"):
             return
