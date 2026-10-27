@@ -270,6 +270,20 @@ class _AxisCutoffDialog(QDialog):
                 parse_cutoff(self._high.text()))
 
 
+def _read_merge_with_duplicate_notice(path, tables, policy, reader):
+    from ...derived_tables import default_definition
+    from ...merge_tables import _DuplicateObservations, aggregation_overrides
+    from ..widgets.merge_tables_dialog import _rule_rows
+
+    try:
+        return reader()
+    except _DuplicateObservations as exc:
+        definition = default_definition(path, tables, policy=policy)
+        overrides = {table: aggregation_overrides(policy, table) for table in tables}
+        exc._aggregation_rules = _rule_rows(path, definition, overrides)
+        return exc
+
+
 class GateEditorScreen(DerivedTableSource, QWidget):
     """A table, two axis pickers, the gating surface, and save/load.
 
@@ -897,6 +911,32 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         :param payload: the worker's ``(table_name, frame)`` pair.
         """
         chosen, frame = payload
+        from ...merge_tables import _duplicate_merge_enabled, _DuplicateObservations
+        if isinstance(frame, _DuplicateObservations):
+            from ..widgets.merge_tables_dialog import _confirm_duplicate_observations
+            rules = getattr(frame, '_aggregation_rules', ())
+            details = str(frame) + "\n\n" + "\n".join(
+                f"{table}.{column}: {method}" for table, column, method, _methods, _fixed in rules)
+            if not _confirm_duplicate_observations(self, details):
+                return
+            tables, paths = list(self._tables), list(self._paths)
+            policy = self._merge_policy()
+            path = self._path
+            fraction, cap = self._settings.sample_fraction, self._settings.max_points or None
+            labels = self.database_labels() if len(paths) > 1 else []
+
+            def work():
+                token = _duplicate_merge_enabled.set(True)
+                try:
+                    merged = (self._read_across_databases(paths, labels, tables, cap, policy)
+                              if len(paths) > 1 else
+                              self._read_working_set(path, tables, fraction, cap, policy))
+                    return chosen, merged
+                finally:
+                    _duplicate_merge_enabled.reset(token)
+
+            self._jobs.submit(work, self._on_frame_loaded)
+            return
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
         head = (f"{len(self._paths)} databases" if len(self._paths) > 1
@@ -1959,12 +1999,14 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             labels = self.database_labels()
             self._jobs.submit(
                 lambda p=paths, labels_=labels, t=tables, c=cap, m=policy:
-                    (t[0], self._read_across_databases(p, labels_, t, c, m)),
+                    (t[0], _read_merge_with_duplicate_notice(p[0], t, m,
+                        lambda: self._read_across_databases(p, labels_, t, c, m))),
                 self._on_frame_loaded)
             return
         self._jobs.submit(
             lambda p=self._path, t=tables, f=fraction, c=cap, m=policy:
-                (t[0], self._read_working_set(p, t, f, c, m)),
+                (t[0], _read_merge_with_duplicate_notice(p, t, m,
+                    lambda: self._read_working_set(p, t, f, c, m))),
             self._on_frame_loaded)
 
     @staticmethod

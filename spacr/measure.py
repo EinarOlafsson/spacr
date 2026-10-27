@@ -8976,6 +8976,10 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         cell_pathogen_ids=region_pathogen_ids,
                         source_folder=source_folder, crop_mode=crop_mode,
                         timelapse=settings['timelapse'], object_id=_id)
+                    crop_output = settings.get('_measurement_crop_output_dir')
+                    if crop_output:
+                        fldr = os.path.join(crop_output, os.path.relpath(
+                            fldr, os.path.join(source_folder, 'data')))
 
                     if dialate_png:
                         region_area = np.count_nonzero(region)
@@ -9644,6 +9648,8 @@ def _add_original_filename_columns(db_path, src, *, report=print):
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' AND name != 'conversion_map'")]
         for table in tables:
+            if re.search(r'_\d+$', table):
+                continue
             quoted = _quote_identifier(table)
             columns = [row[1] for row in conn.execute(f'PRAGMA table_info({quoted})')]
             keys = _identity_columns(columns)
@@ -9685,6 +9691,221 @@ def _add_original_filename_columns(db_path, src, *, report=print):
             report(f"Original filenames from {map_path.name}: {table} "
                    f"({done[table]} of {len(enriched)} field(s) matched).")
     return done
+
+
+def _measurement_archive_tables(connection, settings):
+    """Select one coherent previous population without moving source provenance."""
+    from .resume import MEASURE_OWNED_TABLES
+
+    objects = {row[0]: row[1] for row in connection.execute(
+        "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view')")}
+    protected = {
+        'conversion_map', 'align_coordinates', 'object_counts', 'pivoted_counts',
+        'settings_history', 'spacr_watch_fields', 'fov', 'image_annotations', 'image_annotations_history',
+        'image_annotations_meta', 'image_comparison_groups',
+    }
+    if '_spacr_condition_annotations' in objects:
+        protected.update(row[0] for row in connection.execute(
+            'SELECT table_name FROM _spacr_condition_annotations')
+                         if row[0] not in MEASURE_OWNED_TABLES)
+    candidates = sorted(name for name in objects
+                        if objects[name] == 'table'
+                        and not name.startswith(('sqlite_', '_spacr_', 'foreign_'))
+                        and not re.search(r'_\d+$', name)
+                        and name not in protected)
+    occupied = False
+    for name in set(candidates) & MEASURE_OWNED_TABLES:
+        if connection.execute(f'SELECT 1 FROM {_measure_archive_quote(name)} LIMIT 1').fetchone():
+            occupied = True
+            break
+    if not occupied:
+        return {}
+    all_names = {row[0].casefold() for row in connection.execute(
+        'SELECT name FROM sqlite_master')}
+    number = 1
+    while any(f'{name}_{number}'.casefold() in all_names for name in candidates):
+        number += 1
+    return {name: f'{name}_{number}' for name in candidates}
+
+
+def _measure_archive_quote(name):
+    return '"' + str(name).replace('"', '""') + '"'
+
+
+def _measurement_run_archive_plan(settings):
+    """Read-only preview of the tables a new measurement population will archive."""
+    from .database_concurrency import connect
+    from .resume import resume_enabled
+    from .utils import normalize_src_path
+    from .validate import _resolve_measure_src
+
+    if (resume_enabled(settings) or settings.get('dry_run')
+            or not (settings.get('save_measurements', True) or settings.get('save_png'))):
+        return []
+    sources = normalize_src_path(settings.get('src') or [])
+    if isinstance(sources, str):
+        sources = [sources]
+    plans, seen = [], set()
+    for source in sources:
+        merged, _ = _resolve_measure_src(os.fspath(source))
+        path = os.path.realpath(os.path.join(os.path.dirname(merged),
+                                           'measurements', 'measurements.db'))
+        if path in seen or not os.path.isfile(path):
+            continue
+        seen.add(path)
+        connection = connect(path, readonly=True)
+        try:
+            with connection:
+                tables = _measurement_archive_tables(connection, settings)
+        finally:
+            connection.close()
+        if tables:
+            plans.append({'db_path': path, 'tables': tables})
+    return plans
+
+
+def _archive_measurement_run(settings):
+    """Atomically rename the previous population before the first new field write."""
+    from .cancellation import checkpoint
+    from .database_concurrency import connect, transaction
+
+    plans = _measurement_run_archive_plan(settings)
+    if plans and str(settings.get('measurement_backend') or 'sqlite').lower() != 'sqlite':
+        from .qt.i18n import tr
+        raise ConfigurationError(tr(
+            'A fresh run with a non-SQLite backend needs a separate project folder to avoid mixing previous results.'))
+    for plan in plans:
+        checkpoint()
+        connection = connect(plan['db_path'])
+        try:
+            with transaction(connection, mode='IMMEDIATE'):
+                tables = _measurement_archive_tables(connection, settings)
+                for old, new in tables.items():
+                    connection.execute(f'ALTER TABLE {_measure_archive_quote(old)} '
+                                       f'RENAME TO {_measure_archive_quote(new)}')
+                if connection.execute(
+                        "SELECT 1 FROM sqlite_master WHERE type='table' "
+                        "AND name='_spacr_condition_annotations'").fetchone():
+                    for old, new in tables.items():
+                        receipt = connection.execute(
+                            'SELECT payload_json FROM _spacr_condition_annotations '
+                            'WHERE table_name=?', (old,)).fetchone()
+                        if receipt is None:
+                            continue
+                        payload = json.loads(receipt[0])
+                        editable = payload.get('editable_definition') if isinstance(payload, dict) else None
+                        source = editable.get('source') if isinstance(editable, dict) else None
+                        if not isinstance(source, dict) or not isinstance(source.get('table'), str):
+                            raise ValueError('Cannot preserve the annotation receipt for table: ' + old)
+                        encoded = receipt[0]
+                        if source['table'] == old:
+                            source['table'] = new
+                            encoded = json.dumps(payload)
+                        connection.execute(
+                            'UPDATE _spacr_condition_annotations '
+                            'SET table_name=?, payload_json=? WHERE table_name=?',
+                            (new, encoded, old))
+                for _old, new in tables.items():
+                    schema_objects = connection.execute(
+                        "SELECT name, type, sql FROM sqlite_master "
+                        "WHERE type IN ('index', 'trigger') "
+                        'AND tbl_name=? AND sql IS NOT NULL', (new,)).fetchall()
+                    for name, kind, sql in schema_objects:
+                        base = name + '__' + new
+                        renamed, counter = base, 1
+                        while connection.execute(
+                                'SELECT 1 FROM sqlite_master WHERE lower(name)=lower(?)',
+                                (renamed,)).fetchone():
+                            counter += 1
+                            renamed = base + '_' + str(counter)
+                        match = re.match(r'(?is)CREATE\s+(?:UNIQUE\s+)?'
+                                         r'(?:INDEX|TRIGGER)\s+'
+                                         r'(?:IF\s+NOT\s+EXISTS\s+)?'
+                                         r'(?P<name>"(?:[^"]|"")*"|`[^`]*`|\[[^\]]*\]|\S+)', sql)
+                        if match is None:
+                            raise ValueError('Cannot preserve the database schema object: ' + name)
+                        sql = sql[:match.start('name')] + _measure_archive_quote(renamed) + sql[match.end('name'):]
+                        connection.execute(f'DROP {kind.upper()} {_measure_archive_quote(name)}')
+                        connection.execute(sql)
+                checkpoint()
+                plan['tables'] = tables
+        finally:
+            connection.close()
+        print('[measure] Preserved previous tables: ' + ', '.join(
+            f'{old} -> {new}' for old, new in plan['tables'].items()))
+    return plans
+
+
+@contextlib.contextmanager
+def _measurement_run_locks(sources):
+    """Keep two Measure pipelines from interleaving populations in one project."""
+    from .qt.i18n import tr
+    from .validate import _resolve_measure_src
+
+    handles = []
+    try:
+        roots = sorted({os.path.realpath(os.path.dirname(_resolve_measure_src(
+            os.fspath(source))[0])) for source in sources})
+        for root in roots:
+            handle = open(os.path.join(root, '.spacr-measure-run.lock'), 'a+b')
+            try:
+                if os.name == 'nt':
+                    import msvcrt
+                    handle.seek(0, os.SEEK_END)
+                    if handle.tell() == 0:
+                        handle.write(b'0')
+                        handle.flush()
+                    handle.seek(0)
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                handle.close()
+                raise ConfigurationError(tr(
+                    'Another Measure run is already writing this project. Wait for it to finish before starting a new run.')) from exc
+            handles.append(handle)
+        yield
+    finally:
+        for handle in reversed(handles):
+            try:
+                if os.name == 'nt':
+                    import msvcrt
+                    handle.seek(0)
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                handle.close()
+
+
+def _prepare_measurement_crop_output(settings, archive_plan):
+    import uuid
+
+    from .resume import read_recorded_settings, resume_enabled
+
+    key = '_measurement_crop_output_dir'
+    settings.pop(key, None)
+    project = os.path.realpath(os.path.dirname(settings['src']))
+    data = os.path.realpath(os.path.join(project, 'data'))
+    database = os.path.join(project, 'measurements', 'measurements.db')
+    recorded = read_recorded_settings(database)
+    if resume_enabled(settings):
+        previous = recorded.get(key)
+        if previous:
+            output = os.path.realpath(os.fspath(previous))
+            if os.path.commonpath((data, output)) != data or output == data:
+                raise ConfigurationError(
+                    "Recorded measurement crop output is outside this project's data directory.")
+            settings[key] = output
+        return
+    if recorded.get(key) or any(os.path.realpath(plan['db_path']) == database
+                                for plan in archive_plan):
+        output = os.path.join(data, 'measure_run_' + uuid.uuid4().hex)
+        while os.path.lexists(output):
+            output = os.path.join(data, 'measure_run_' + uuid.uuid4().hex)
+        settings[key] = output
 
 
 def measure_crop(settings):
@@ -9818,7 +10039,7 @@ def measure_crop(settings):
             _validate_measurement_coordinate_source(merged_folder)
         base_settings = dict(settings)
         
-        with run_context('measure', settings) as run:
+        with _measurement_run_locks(source_folders), run_context('measure', settings) as run:
             for source_folder in source_folders:
                 cancellation_checkpoint()
                 print(console_safe(f'Processing folder: {source_folder}'))
@@ -9850,8 +10071,11 @@ def measure_crop(settings):
                 ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
                 files = [name for name in files if name not in rejected_quality]
                 _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
-                _validate_measurement_calibration_history(
-                    settings, os.path.join(_measurements_dir, 'measurements.db'))
+                _fresh_archive = _measurement_run_archive_plan(settings)
+                _prepare_measurement_crop_output(settings, _fresh_archive)
+                if not _fresh_archive:
+                    _validate_measurement_calibration_history(
+                        settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
                 enable_wal_where_safe(
                     os.path.join(_measurements_dir, 'measurements.db'))
@@ -9865,8 +10089,9 @@ def measure_crop(settings):
                     validate_measurement_psf_history, SIGNATURE_KEY)
                 psf_plan = prepare_measurement_psf(settings)
                 settings[SIGNATURE_KEY] = measurement_psf_signature(psf_plan)
-                validate_measurement_psf_history(
-                    settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
+                if not _fresh_archive:
+                    validate_measurement_psf_history(
+                        settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
                 from .psf_pipeline import _prepare_measure_unmixing
@@ -9940,6 +10165,8 @@ def measure_crop(settings):
                     settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
                     print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
+                if files:
+                    _archive_measurement_run(settings)
                 resume_plan = plan_measure_resume(settings)
 
                 _save_settings_to_db(settings)

@@ -31,9 +31,11 @@ gives a different table.
 """
 from __future__ import annotations
 
+import contextlib
 import logging
 import re
 import sqlite3
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
@@ -111,6 +113,20 @@ DEFAULT_PRIMARY = "cell"
 
 class MergeError(ValueError):
     """Raised when tables cannot be merged; the message gives the reason."""
+
+
+_duplicate_merge_enabled = ContextVar('spacr_duplicate_merge_enabled', default=False)
+_merge_source_frames = ContextVar('spacr_merge_source_frames', default=None)
+
+
+class _DuplicateObservations(MergeError):
+    def __init__(self, frames, keys):
+        self.counts = {table: int(frame.loc[frame[columns].notna().all(axis=1)]
+                                 .duplicated(columns, keep=False).sum())
+                       for table, columns in keys.items() for frame in (frames[table],)}
+        self.message = '; '.join(_duplicate_observation_message(frames[table], columns, table)
+                                 for table, columns in keys.items())
+        super().__init__(self.message)
 
 
 @dataclass(frozen=True)
@@ -254,6 +270,9 @@ def _read(db_path: str, table: str) -> pd.DataFrame:
     Column names are kept as stored, because merge definitions name the
     columns the database schema reports.
     """
+    cached = _merge_source_frames.get()
+    if cached is not None and cached[0] == str(Path(db_path).resolve()) and table in cached[1]:
+        return cached[1][table].copy()
     from .tabular import _read_query
 
     with _connect(db_path) as db:
@@ -265,6 +284,122 @@ def _keys_in(frame: pd.DataFrame, *, include_file_name: bool = False) -> List[st
     """Return canonical identity columns present, in identity order."""
     return [c for c in (*IDENTITY, "timeID", "time_id", "file_name")
             if c in frame.columns and (include_file_name or c != "file_name")]
+
+
+def _duplicate_observation_message(frame, keys, table):
+    repeated = frame.loc[frame.duplicated(keys, keep=False)]
+    prefix = f"{table}: {len(repeated)} rows have duplicate observation keys {list(keys)}. "
+    candidates = [column for column in (*_keys_in(frame, include_file_name=True), OBJECT_COLUMN)
+                  if column in frame and column not in keys]
+    selected = []
+    groups = len(repeated[list(keys)].drop_duplicates())
+    for column in candidates:
+        count = len(repeated[[*keys, *selected, column]].drop_duplicates())
+        if count > groups:
+            selected.append(column)
+            groups = count
+    if selected:
+        remaining = int(frame.duplicated([*keys, *selected], keep=False).sum())
+        advice = f"Add these existing identity columns to the chosen keys: {', '.join(selected)}. "
+        if not remaining:
+            return prefix + advice + "They distinguish the observations; the source rows were not changed."
+        return (prefix + advice + f"Even with those columns, {remaining} rows repeat complete "
+                "observation identities. Inspect the repeated records and measurement-run history; "
+                "they cannot be separated by these keys. The source rows were not changed.")
+    if OBJECT_COLUMN in frame and (set(IDENTITY).issubset(frame) or 'file_name' in frame):
+        return (prefix + "These rows already repeat the full available image/object identity. "
+                "Inspect the repeated records and measurement-run history; adding identity "
+                "columns cannot separate them. The source rows were not changed.")
+    return (prefix + "Choose explicit keys that distinguish these observations in Customize merging, "
+            "or inspect the repeated source records. No source rows were changed.")
+
+
+def _full_observation_keys(frame, table):
+    if OBJECT_COLUMN in frame and (set(IDENTITY).issubset(frame) or 'file_name' in frame):
+        return _keys_in(frame, include_file_name=True) + [OBJECT_COLUMN]
+    if table == PNG_TABLE and 'png_path' in frame:
+        return _keys_in(frame, include_file_name=True) + ['png_path']
+    return []
+
+
+def _collapse_duplicate_observations(frame, keys, table, overrides):
+    complete = frame[keys].notna().all(axis=1)
+    repeated = complete & frame.duplicated(keys, keep=False)
+    duplicates = frame.loc[repeated]
+    grouped = duplicates.groupby(keys, sort=False, dropna=False)
+    methods = {}
+    for column in frame:
+        if column in keys:
+            continue
+        chosen = overrides.get(table + '.' + column, overrides.get(column))
+        identifier = bool(re.search(r'(^|_)(ids?|labels?|prc|prcf|prcfo)$|ID$', str(column)))
+        if identifier:
+            if chosen is not None and chosen not in ('first', 'last'):
+                raise MergeError(f'{table}.{column}: duplicate merging must preserve identifiers; '
+                                 'choose first or last, never an arithmetic aggregation.')
+            if (grouped[column].nunique(dropna=False) > 1).any():
+                raise MergeError(f'{table}.{column}: duplicate identities disagree about an identifier '
+                                 'or parent link; correct that relationship before merging.')
+            methods[column] = 'first'
+        else:
+            methods[column] = aggregation_for(column,
+                numeric=pd.api.types.is_numeric_dtype(frame[column]),
+                overrides={column: chosen} if chosen is not None else None)
+    if methods:
+        collapsed = grouped.agg(methods)
+        summed = [column for column, method in methods.items() if method == SUM]
+        if summed:
+            collapsed[summed] = grouped[summed].sum(min_count=1)
+        for column, method in methods.items():
+            if method in ('any', 'all'):
+                collapsed[column] = collapsed[column].astype('boolean').mask(grouped[column].count().eq(0))
+        collapsed = collapsed.reset_index()
+    else:
+        collapsed = duplicates[keys].drop_duplicates().copy()
+    collapsed.index = pd.Index([duplicates.index[indices[0]] for indices in grouped.indices.values()])
+    return pd.concat([frame.loc[~repeated], collapsed]).sort_index(kind='stable')[frame.columns].reset_index(drop=True)
+
+
+@contextlib.contextmanager
+def _merge_duplicate_sources(db_path, tables, overrides=None, standard=False, observation_keys=None):
+    path = str(Path(db_path).resolve())
+    cached = _merge_source_frames.get()
+    if cached is not None and cached[0] == path and set(tables).issubset(cached[1]):
+        yield cached[1]
+        return
+    frames = {table: _read(db_path, table) for table in dict.fromkeys(tables)}
+    for table, chosen in (observation_keys or {}).items():
+        frame = frames[table]
+        actual = _full_observation_keys(frame, table)
+        combined = list(dict.fromkeys([*chosen, *actual]))
+        if (actual and frame.duplicated(chosen).any()
+                and len(frame[combined].drop_duplicates()) > len(frame[chosen].drop_duplicates())):
+            raise MergeError(_duplicate_observation_message(frame, chosen, table))
+    if standard:
+        base = next(iter(frames))
+        image_keys = _keys_in(frames[base], include_file_name=True)
+        for table, frame in frames.items():
+            anchor = anchor_column(table) if table in ANCHOR_COLUMN else PARENT_LINK
+            if table == base or (anchor not in frame and table != PNG_TABLE):
+                continue
+            missing = set(image_keys) - set(frame)
+            if missing:
+                raise MergeError(f"{table}: missing keys {', '.join(sorted(missing))}. "
+                                 'Use Customize merging to map the actual columns.')
+    repeated = {}
+    for table, frame in frames.items():
+        keys = _full_observation_keys(frame, table)
+        if keys and frame.loc[frame[keys].notna().all(axis=1)].duplicated(keys).any():
+            repeated[table] = keys
+    if repeated and not _duplicate_merge_enabled.get():
+        raise _DuplicateObservations(frames, repeated)
+    for table, keys in repeated.items():
+        frames[table] = _collapse_duplicate_observations(frames[table], keys, table, overrides or {})
+    token = _merge_source_frames.set((path, frames))
+    try:
+        yield frames
+    finally:
+        _merge_source_frames.reset(token)
 
 
 def object_keys(values: pd.Series) -> pd.Series:
@@ -581,6 +716,10 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
               if t in available]
     if PNG_TABLE in tables and PNG_TABLE not in wanted and PNG_TABLE in available:
         wanted.append(PNG_TABLE)
+    cached = _merge_source_frames.get()
+    if cached is None or cached[0] != str(Path(db_path).resolve()) or not set(wanted).issubset(cached[1]):
+        with _merge_duplicate_sources(db_path, wanted, policy.overrides, standard=True):
+            return merge_tables(db_path, tables, policy=policy)
 
     base = _read(db_path, policy.primary)
     keys = _keys_in(base, include_file_name=True)
@@ -588,6 +727,8 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         raise MergeError(
             f"{policy.primary} has no {OBJECT_COLUMN}, so nothing can be "
             f"merged onto it")
+    if base.duplicated(keys + [OBJECT_COLUMN]).any():
+        raise MergeError(_duplicate_observation_message(base, keys + [OBJECT_COLUMN], policy.primary))
 
     merged = base.rename(
         columns={c: f"{policy.primary}_{c}" for c in base.columns

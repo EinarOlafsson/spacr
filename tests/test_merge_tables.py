@@ -37,7 +37,7 @@ def _pathogens():
         "plateID": ["p1"] * 5, "rowID": ["A"] * 5,
         "columnID": ["1"] * 5, "fieldID": ["f1"] * 5,
         "cell_id": [1, 1, 1, 1, 2],
-        "object_label": [1, 2, 3, 4, 1],
+        "object_label": [1, 2, 3, 4, 5],
         "area": [10.0, 20.0, 30.0, 40.0, 7.0],
         "min_intensity": [10.0, 20.0, 30.0, 40.0, 1.0],
         "max_intensity": [10.0, 20.0, 30.0, 40.0, 2.0],

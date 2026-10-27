@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMessageBox,
     QPushButton,
     QStyledItemDelegate,
     QTableWidget,
@@ -37,6 +38,7 @@ from ...derived_tables import (
     default_definition,
     execute,
     schemas,
+    _identifiers,
 )
 from ...merge_tables import MergeError, aggregation_for
 from ..i18n import tr
@@ -123,9 +125,11 @@ def _rule_rows(path, definition, overrides):
         where ``fixed`` marks a default one-to-one join that keeps its values.
     """
     rows = []
-    for join in definition["joins"]:
+    sources = [{"table": definition["base"], "right_keys": definition["base_keys"],
+                "identifiers": [], "relationship": "base"}] + definition["joins"]
+    for join in sources:
         frame = column_sample(path, join["table"])
-        identifiers = set(join.get("identifiers", []))
+        identifiers = set(join.get("identifiers", [])) | set(_identifiers(frame.columns))
         fixed = definition["mode"] == "default" and join["relationship"] == "one-to-one"
         for column in frame:
             if column in join["right_keys"]:
@@ -153,10 +157,32 @@ def _validated_preview(path, definition):
     :returns: ``(definition, (frame, report), preview)`` where ``preview`` is
         the first twelve output rows as text.
     """
-    frame, report = execute(path, definition)
+    from ...merge_tables import _DuplicateObservations
+
+    try:
+        frame, report = execute(path, definition)
+    except _DuplicateObservations as exc:
+        return {"duplicate_observations": str(exc), "definition": definition}
     sample = frame.head(12)
     sample.attrs = {}
     return definition, (frame, report), sample.to_string(index=False)
+
+
+def _confirm_duplicate_observations(parent, details):
+    box = QMessageBox(parent)
+    box.setWindowTitle(tr("Duplicate objects detected"))
+    box.setIcon(QMessageBox.Warning)
+    box.setText(tr(
+        "Some rows repeat the same plate, row, column, field and object identity. "
+        "Merge them using the aggregation methods shown here, or abort? "
+        "Time is included only when present. Source tables will remain unchanged."))
+    box.setDetailedText(str(details))
+    merge = box.addButton(tr("Merge duplicates"), QMessageBox.AcceptRole)
+    abort = box.addButton(QMessageBox.Abort)
+    box.setDefaultButton(abort)
+    box.setEscapeButton(abort)
+    box.exec()
+    return box.clickedButton() is merge
 
 
 def _columns(text):
@@ -380,6 +406,7 @@ class MergeTablesDialog(QDialog):
             self._custom = copy.deepcopy(initial_definition)
             self._overrides = {j["table"]: j.get("overrides", {}).copy()
                                for j in initial_definition["joins"]}
+            self._overrides[initial_definition["base"]] = initial_definition.get("base_overrides", {}).copy()
             self.name.setText(initial_definition["name"] + tr(" with original filenames"))
             self._fill_rules()
             self._show_state()
@@ -408,6 +435,7 @@ class MergeTablesDialog(QDialog):
         result = copy.deepcopy(self._custom) if self._custom else default_definition(
             self.path, self._selected(), base=self.base.currentText())
         result["name"] = self.name.text().strip()
+        result["base_overrides"] = self._overrides.get(result["base"], {}).copy()
         for join in result["joins"]:
             join["overrides"] = self._overrides.get(join["table"], {}).copy()
         if result["mode"] == "default":
@@ -576,6 +604,14 @@ class MergeTablesDialog(QDialog):
         :param payload: Definition, the worker's frame/diagnostics result and
             its formatted first rows.
         """
+        if isinstance(payload, dict) and "duplicate_observations" in payload:
+            details = payload["duplicate_observations"]
+            self.preview_text.setPlainText(details)
+            if _confirm_duplicate_observations(self, details):
+                definition = copy.deepcopy(payload["definition"])
+                definition["merge_duplicates"] = True
+                self._jobs.submit(lambda: _validated_preview(self.path, definition), self._validated)
+            return
         self.definition, (self.result_frame, report), preview = payload
         self.definition = self.result_frame.attrs.get("merge_definition", self.definition)
         if self.definition.get("original_filenames"):

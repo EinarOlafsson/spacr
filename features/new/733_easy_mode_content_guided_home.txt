@@ -7,6 +7,111 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+LATEST TASK-PHRASE ROUTING FOLLOW-UP — 2026-10-27: support the following 100 realistic task phrases, questions and statements as deterministic standard module-card suggestions on Enter, never automatic module opening. Match case-insensitively with punctuation normalization and bounded phrase matching inside questions. Preserve existing partial module-name search, canonical deduplication, native/folded routes and maturity/species gates. Typing alone does not launch or inspect. Explicit file/folder paths retain evidence-based discovery and must not acquire generic task suggestions. Change the field placeholder exactly to “Drop a file/folder, type a path or task”. Phrase groups reuse existing module titles and descriptions; no AI request or processing starts.
+
+001. image analysis -> mask, measure, qc_dashboard
+002. high content image analysis -> mask, measure, qc_dashboard
+003. analyze microscopy images -> mask, measure, qc_dashboard
+004. help me analyze cell images -> mask, measure, qc_dashboard
+005. I have imaging data -> mask, measure, qc_dashboard
+006. object detection -> mask, make_masks
+007. segmentation -> mask, make_masks
+008. detect objects in images -> mask, make_masks
+009. find cells in my images -> mask, make_masks
+010. segment my cells -> mask, make_masks
+011. mask curation -> make_masks
+012. edit segmentation masks -> make_masks
+013. correct cell boundaries -> make_masks
+014. fix my masks -> make_masks
+015. manually outline cells -> make_masks
+016. measure cell features -> measure
+017. extract image measurements -> measure
+018. morphological profiling -> measure
+019. quantify cell shape -> measure
+020. measure fluorescence intensity -> measure
+021. read a database -> db_browser
+022. open my database -> db_browser
+023. inspect database tables -> db_browser
+024. browse measurement records -> db_browser
+025. view a sqlite database -> db_browser
+026. make a figure -> graph_builder
+027. make a graph -> graph_builder
+028. plot my measurements -> graph_builder
+029. create a scatter plot -> graph_builder
+030. draw a bar chart -> graph_builder
+031. gate my cells -> gate_editor
+032. filter cells by measurements -> gate_editor
+033. select a cell population -> gate_editor
+034. set measurement gates -> gate_editor
+035. exclude outlier cells -> gate_editor
+036. classify cell images -> classify_merged
+037. predict image classes -> classify_merged
+038. train an image classifier -> classify_merged
+039. sort cells into classes -> classify_merged
+040. classify my cropped cells -> classify_merged
+041. annotate cell images -> annotate
+042. label cells for training -> annotate
+043. assign image labels -> annotate
+044. review image annotations -> annotate
+045. manually label my cells -> annotate
+046. explore image embeddings -> umap
+047. make an image umap -> umap
+048. visualize cell clusters -> umap
+049. compare cell embeddings -> umap
+050. reduce image feature dimensions -> umap
+051. run a regression -> regression
+052. associate genes with phenotypes -> regression
+053. model phenotype associations -> regression
+054. analyze perturbation effects -> regression
+055. find phenotype associations -> regression
+056. fit a dose response -> dose_response
+057. compare drug concentrations -> dose_response
+058. calculate concentration effects -> dose_response
+059. plot a dose response curve -> dose_response
+060. analyze drug response -> dose_response
+061. compare analysis runs -> run_compare
+062. compare two experiments -> run_compare
+063. compare measurement runs -> run_compare
+064. review differences between runs -> run_compare
+065. compare my results -> run_compare
+066. check image quality -> qc_dashboard
+067. review experiment quality -> qc_dashboard
+068. inspect segmentation quality -> qc_dashboard
+069. quality control my results -> qc_dashboard
+070. find problematic fields -> qc_dashboard
+071. import image data -> foreign, convert
+072. convert microscopy images -> foreign, convert
+073. load external imaging data -> foreign, convert
+074. bring images into spacr -> foreign, convert
+075. convert image file formats -> foreign, convert
+076. analyze a time series -> timelapse
+077. track cells over time -> timelapse
+078. work with timelapse images -> timelapse
+079. follow objects between frames -> timelapse
+080. analyze time lapse microscopy -> timelapse
+081. analyze a z stack -> 3d
+082. work with 3d images -> 3d
+083. segment a volume -> 3d
+084. measure three dimensional cells -> 3d
+085. analyze volumetric microscopy -> 3d
+086. plan an experiment -> experiment_design, power
+087. design my plate layout -> experiment_design, power
+088. calculate statistical power -> experiment_design, power
+089. choose experiment sample size -> experiment_design, power
+090. help with experimental planning -> experiment_design, power
+091. map sequencing barcodes -> map_barcodes
+092. analyze fastq barcodes -> map_barcodes
+093. count genetic barcodes -> map_barcodes
+094. map my sequencing reads -> map_barcodes
+095. process barcode sequencing -> map_barcodes
+096. analyze spatial imaging -> spatial_masks, spatial_map
+097. segment spatial tissue images -> spatial_masks, spatial_map
+098. map spatial measurements -> spatial_masks, spatial_map
+099. work with xenium images -> spatial_masks, spatial_map
+100. analyze visium imaging -> spatial_masks, spatial_map
+
+LATEST SPACEOUT LAUNCH FOLLOW-UP — 2026-10-27: add spaceout-nav and spaceout-navigator as installed commands that launch the existing process-local Spaceout mode with Navigator enabled, matching spacr-nav/spacr-navigator preference and argument behavior. Preserve the ordinary launchers and the prior maintainer sign-off.
+
 LATEST HELP/BADGE CORRECTION — 2026-10-27: remove Help submenu entries that duplicate native modules or their registered submodules, while retaining genuine help/documentation actions and access through the original module routes. Double the Navigator card/network alpha badge size, keeping its teal Open Sans Light style and top-right placement.
 
 LATEST ORGANISM ENTRY CORRECTION — 2026-10-27: typing Toxoplasma gondii (or any other organism name/question recognized by Navigator) and pressing Enter must display the organism card, never open the native organism module directly. Preserve case-insensitive aliases and existing species/alpha visibility gates.
@@ -373,3 +478,7 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — All cards reveal in 500 ms at 200 ms start intervals; faster incremental networks retain explored branches, remove node-travel effects and fade/restore search. Home resets state; disabling Navigator retains the native module. Both dock visibility preferences and duplicate Help entries are removed, alpha badges doubled, and focused regressions pass. Tutorial/Docs/API coverage remains pending explicit sign-off.
 
 2026-10-27 — Maintainer tested Navigator and approved: "works much better now so send message to tutorial session". Sign-off prerequisite is satisfied. Shared HANDOFF.md now requests the new Navigator tutorial plus user Docs/API coverage against e125b048e8; direct session messaging is unavailable and receipt remains unconfirmed.
+
+2026-10-27 — Added the maintainer-requested spaceout-nav and spaceout-navigator launch aliases to the existing Spaceout entry-point and Navigator startup contract; focused registration, preference and launch checks precede root publication. Prior tutorial/Docs/API sign-off remains valid.
+
+2026-10-27 — Delivered 100 documented task-to-card mappings plus supplied typo/short-form aliases, task placeholder and spaceout-nav/spaceout-navigator launch commands. Case, path isolation, native/folded routes, visibility gates and Enter-only card behavior pass focused checks. Navigator implementation approval is retained; the separate tutorial/Docs/API handoff remains unacknowledged.
