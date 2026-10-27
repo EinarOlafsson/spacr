@@ -5363,7 +5363,7 @@ class _NavigatorAiReply(QObject):
 class _NavigatorAiButton(QPushButton):
     """A quiet provider-colored toggle with bounded typing and waiting motion."""
 
-    _COLORS = {'spacr_hosted': '#40C9C6', 'claude': '#DE7356',
+    _COLORS = {'spacr_hosted': '#006464', 'claude': '#DE7356',
                'codex': '#A8E6CF', 'gemini': '#4285F4'}
 
     def __init__(self, parent=None):
@@ -5504,15 +5504,15 @@ class _EasySuggestionCard(QPushButton):
 
         super().__init__(parent)
         self._key, title, description, self._path = action
-        self._spaceout_timer = None
+        self._spaceout_movie = None
         if self._key == '__easy_command__:Spaceout':
-            from PySide6.QtCore import QElapsedTimer
+            from PySide6.QtGui import QMovie
 
-            self._spaceout_clock = QElapsedTimer()
-            self._spaceout_clock.start()
-            self._spaceout_timer = QTimer(self)
-            self._spaceout_timer.setInterval(40)
-            self._spaceout_timer.timeout.connect(self._spin_spaceout)
+            from ..iconset import _spaceout_gif_path
+
+            self._spaceout_movie = QMovie(str(_spaceout_gif_path()), parent=self)
+            self._spaceout_movie.setCacheMode(QMovie.CacheNone)
+            self._spaceout_movie.frameChanged.connect(self._spaceout_frame)
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
@@ -5623,53 +5623,38 @@ class _EasySuggestionCard(QPushButton):
         picture = self._module_icon.pixmap(pixels, pixels)
         picture.setDevicePixelRatio(device_ratio(self.icon))
         self.icon.setPixmap(picture)
-        if self._spaceout_timer is not None:
+        if self._spaceout_movie is not None:
             self._spaceout_picture = picture
+            self._spaceout_movie.setScaledSize(QSize(pixels, pixels))
             self._sync_run_state()
 
     def _sync_run_state(self):
-        """Rotate only the visible Spaceout mark while motion is allowed."""
+        """Play the provided animation only while visible and motion is allowed."""
         from ..preferences import get_reduce_motion
 
-        if self._spaceout_timer is None:
+        if self._spaceout_movie is None:
             return
         if self.isVisible() and not get_reduce_motion():
-            self._spaceout_timer.start()
+            self._spaceout_movie.start()
         else:
-            self._spaceout_timer.stop()
+            self._spaceout_movie.stop()
             self.icon.setPixmap(self._spaceout_picture)
 
-    def _spin_spaceout(self):
-        """Rotate a cached raster inside its unchanged native icon geometry."""
-        from ..preferences import get_reduce_motion
-
-        if not self.isVisible() or get_reduce_motion():
-            self._sync_run_state()
-            return
-        source = self._spaceout_picture
-        picture = QPixmap(source.size())
-        picture.setDevicePixelRatio(source.devicePixelRatio())
-        picture.fill(Qt.transparent)
-        painter = QPainter(picture)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform)
-        side = source.width() / source.devicePixelRatio()
-        painter.translate(side / 2, side / 2)
-        painter.rotate((self._spaceout_clock.elapsed() * 0.045) % 360)
-        from PySide6.QtCore import QPointF
-
-        painter.drawPixmap(QPointF(-side / 2, -side / 2), source)
-        painter.end()
+    def _spaceout_frame(self, _frame):
+        """Show one native decoded frame at the icon's current display density."""
+        picture = self._spaceout_movie.currentPixmap()
+        picture.setDevicePixelRatio(device_ratio(self.icon))
         self.icon.setPixmap(picture)
 
     def showEvent(self, event):
-        """Resume the existing Spaceout timer when its card reappears."""
+        """Resume the animation when the Spaceout card reappears."""
         super().showEvent(event)
         self._sync_run_state()
 
     def hideEvent(self, event):
-        """Stop all Spaceout icon work while its card is hidden."""
-        if self._spaceout_timer is not None:
-            self._spaceout_timer.stop()
+        """Stop decoding the animation while its card is hidden."""
+        if self._spaceout_movie is not None:
+            self._spaceout_movie.stop()
         super().hideEvent(event)
 
     def _activate(self):

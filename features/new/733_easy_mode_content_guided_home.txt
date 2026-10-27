@@ -7,6 +7,14 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+SPACEOUT PROVIDED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes procedural mark):
+bundle the user's unchanged /home/carruthers/Downloads/spaceout.gif and use its
+actual black-background, white animated rosette for Spaceout. Play the GIF with
+a visible-only, uncached native QMovie at icon resolution; stop when hidden or
+Reduce motion is enabled, retain a representative still for static icons, and
+preserve the animation through workflow reparenting. Package only this new GIF
+alongside the already-used spinner; no unused variants or recoloring.
+
 SPACEOUT ICON FOLLOW-UP — 2026-10-27: replace the infinity-shaped Spaceout
 mark with a white spiral viewed from above. Continuously rotate only that
 Navigator card's cached native vector icon while it is visible; respect Reduce
@@ -19,7 +27,7 @@ content and lower text geometries and field theme unchanged; panels overlay
 the canvas rather than reflow it. Add an accessible upward resize affordance
 to the fixed-bottom text box without moving the search. Workstation session 2
 owns the correction, focused rendering/geometry checks and nightly publication.
-AI fill must be solid matte provider colour; replace the spinning texture with
+AI fill must be solid matte provider colour (spaCR AI: RGB 0,100,100); replace the spinning texture with
 a subtle rotating glow while retaining the white perimeter and typing pulse.
 Delivered in this follow-up: explicit hidden-card presentation state preserves
 departure fades; native side controls overlay a stationary canvas and publish

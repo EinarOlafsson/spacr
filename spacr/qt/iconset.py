@@ -257,54 +257,37 @@ def _theme_palette(theme: Optional[str]) -> dict:
 
 
 
-class _SpaceoutIconEngine(QIconEngine):
-    """Paint a font-independent spiral viewed from above."""
+def _spaceout_gif_path():
+    """Locate the user's bundled animation without altering its pixels."""
+    return Path(__file__).resolve().parents[1] / 'resources' / 'icons' / 'spaceout.gif'
 
-    def __init__(self, color):
-        """Retain only the selected theme ink and rendered pixmaps."""
+
+class _SpaceoutIconEngine(QIconEngine):
+    """Keep a still from the provided animation for native static icon callers."""
+
+    def __init__(self):
+        """Decode only the representative first frame and keep scaled pixmaps."""
+        from PySide6.QtGui import QPixmap
+
         super().__init__()
-        self._color = color
+        self._source = QPixmap(str(_spaceout_gif_path()))
         self._pixmaps = {}
 
     def clone(self):
         """Keep copied QIcons independent of the original engine lifetime."""
-        return _SpaceoutIconEngine(self._color)
+        return _SpaceoutIconEngine()
 
     def paint(self, painter, rect, mode, state):
-        """Scale the same top-down spiral to the requested rectangle."""
-        import math
-
+        """Preserve the supplied black background and white artwork in every theme."""
         from PySide6.QtCore import Qt
-        from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
 
-        path = QPainterPath()
-        for step in range(401):
-            fraction = step / 400
-            angle = fraction * math.tau * 2.65
-            radius = 2 + 38 * fraction
-            x, y = 50 + radius * math.cos(angle), 50 + radius * math.sin(angle)
-            if step:
-                path.lineTo(x, y)
-            else:
-                path.moveTo(x, y)
-        side = min(rect.width(), rect.height())
-        painter.save()
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.translate(rect.x() + (rect.width() - side) / 2,
-                              rect.y() + (rect.height() - side) / 2)
-            painter.scale(side / 100, side / 100)
-            ink = QColor(self._color)
-            if mode == QIcon.Disabled:
-                ink.setAlpha(140)
-            painter.setPen(QPen(ink, 5.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            painter.setBrush(Qt.NoBrush)
-            painter.drawPath(path)
-        finally:
-            painter.restore()
+        picture = self._source.scaled(rect.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        x = rect.x() + (rect.width() - picture.width()) // 2
+        y = rect.y() + (rect.height() - picture.height()) // 2
+        painter.drawPixmap(x, y, picture)
 
     def pixmap(self, size, mode, state):
-        """Keep native rasterizations at each requested size, mode and state."""
+        """Keep static rasterizations at each requested size, mode and state."""
         from PySide6.QtCore import QRect, Qt
         from PySide6.QtGui import QPainter, QPixmap
 
@@ -335,9 +318,7 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
         e.g. ``"open"`` or ``"run"``.
     """
     if name == 'spaceout':
-        foreground = _theme_palette(theme)['fg']
-        ink = color or ('#ffffff' if relative_luminance(foreground) > .5 else foreground)
-        return QIcon(_SpaceoutIconEngine(ink))
+        return QIcon(_SpaceoutIconEngine())
     qta = _try_qta()
     if qta is None:
         return _fallback_icon(name, theme, color=color, size=size)
