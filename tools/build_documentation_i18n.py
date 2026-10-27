@@ -6350,15 +6350,25 @@ def _archived_english_api_records() -> dict[str, object]:
     return records
 
 
-def _write_english_api_manifest(docs: Mapping[str, str]) -> None:
+def _write_english_api_manifest(
+    docs: Mapping[str, str], *, preserve_other_symbols: bool = False,
+) -> None:
     """Advance English without losing the sources of unfinished locales.
 
     HEAD ceases to be a useful fallback as soon as a source-only refresh is
     committed. Retain only old English records still referenced by a locale
     and absent from the new manifest. Archive before publishing the manifest;
-    never infer an old source from the current paragraph positions.
+    never infer an old source from the current paragraph positions. Scoped
+    updates preserve unrelated manifest records and all existing history.
     """
     manifest = _english_manifest(docs)
+    old_path = API_DIR / "en.json"
+    if preserve_other_symbols:
+        previous = json.loads(old_path.read_text(encoding="utf-8"))
+        if previous.get("schema") != 2 or previous.get("language") != "en":
+            raise ValueError("invalid existing English API catalog")
+        previous["symbols"].update(manifest["symbols"])
+        manifest = previous
     current_hashes = {record["source_sha256"] for record in manifest["symbols"].values()}
     needed = set()
     for language in MODEL_SPECS:
@@ -6368,17 +6378,19 @@ def _write_english_api_manifest(docs: Mapping[str, str]) -> None:
             needed.update(record.get("source_sha256") for record in payload["symbols"].values())
     needed.difference_update(current_hashes)
     archived = _archived_english_api_records()
-    old_path = API_DIR / "en.json"
     if old_path.exists():
         old_records = json.loads(old_path.read_text(encoding="utf-8"))["symbols"]
-        for record in old_records.values():
+        for key, record in old_records.items():
+            if preserve_other_symbols and key not in docs:
+                continue
             digest = record.get("source_sha256")
             if digest in needed and digest == _source_hash(record["text"]):
                 archived[digest] = {
                     field: record[field]
                     for field in ("source_sha256", "source_blocks_sha256", "text")
                 }
-    retained = {digest: archived[digest] for digest in sorted(needed & archived.keys())}
+    retained_hashes = archived.keys() if preserve_other_symbols else needed & archived.keys()
+    retained = {digest: archived[digest] for digest in sorted(retained_hashes)}
     history_path = Path(ROOT) / "docs/i18n/api_source_history.json"
     if retained or history_path.exists():
         _write_json(history_path, {"schema": 1, "sources": retained})

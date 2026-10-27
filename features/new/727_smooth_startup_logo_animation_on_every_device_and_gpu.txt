@@ -231,3 +231,5 @@ Still owed, in this order:
 
 2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
 2026-10-27 — OPEN software work remains: the recorded deferred list still owes startup-benchmark frame_stats integration/documentation/locales and the drafted pacing/budget regressions. Published motion/pacing and silhouette/README fixes remain accepted; native timing tables and human visual review are no longer delivery gates.
+
+2026-10-27 — Required startup-metrics locale closure must update only the named English API owner and its source history, preserving unrelated records through an opt-in normal writer mode; default full builds retain their current pruning behavior. Integration owner implements this tool path with a focused regression and independent peer before N727 generation.
