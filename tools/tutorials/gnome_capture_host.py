@@ -237,8 +237,8 @@ def bus_has(name: str, env: dict) -> bool:
     return result.returncode == 0 and 'true' in result.stdout
 
 
-def xwayland_display(shell_pid: int):
-    """The ``:N`` our gnome-shell gave its Xwayland (a descendant; bwrap may sit between)."""
+def xwayland_connection(shell_pid: int):
+    """Display and optional authentication path from this compositor's descendant Xwayland."""
     parents, argvs = {}, {}
     for entry in Path('/proc').iterdir():
         if not entry.name.isdigit():
@@ -259,8 +259,19 @@ def xwayland_display(shell_pid: int):
             continue
         for arg in argv[1:]:
             if arg.startswith(b':') and arg[1:].isdigit():
-                return arg.decode()
+                connection = {'DISPLAY': arg.decode()}
+                if b'-auth' in argv:
+                    position = argv.index(b'-auth') + 1
+                    if position < len(argv) and argv[position]:
+                        connection['XAUTHORITY'] = os.fsdecode(argv[position])
+                return connection
     return None
+
+
+def xwayland_display(shell_pid: int):
+    """The display assigned by this compositor's descendant Xwayland."""
+    connection = xwayland_connection(shell_pid)
+    return connection['DISPLAY'] if connection else None
 
 
 
@@ -420,11 +431,11 @@ def inner(args) -> int:
                            __EGL_VENDOR_LIBRARY_FILENAMES='/usr/share/glvnd/egl_vendor.d/50_mesa.json',
                            MUTTER_DEBUG_DUMMY_MODE_SPECS=f'{args.size}@{args.refresh}',
                            QT_OPENGL='software', QT_QUICK_BACKEND='software', CUDA_VISIBLE_DEVICES='',
-                           GDK_BACKEND='x11', GIO_USE_VFS='local')
+                           GDK_BACKEND='x11', GIO_USE_VFS='local', TMPDIR=str(dirs['run']))
                 isolation = ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/',
                              '--bind', str(capture_stage or stage), str(capture_stage or stage),
                              '--dev', '/dev', '--proc', '/proc', '--']
-                shell_argv = [*isolation, '/usr/bin/gnome-shell', '--nested', '--wayland', '--no-x11',
+                shell_argv = [*isolation, '/usr/bin/gnome-shell', '--nested', '--wayland',
                               '--wayland-display', 'wayland-capture', '--sm-disable']
             else:
                 shell_argv += ['--x11', '--replace', '--sm-disable']
@@ -452,6 +463,19 @@ def inner(args) -> int:
         if software_nested:
             wait_for(lambda: resize_nested_viewport(display, shell.pid, args.size, env),
                      15, 'owned nested compositor viewport', shell)
+            connection = wait_for(lambda: xwayland_connection(shell.pid),
+                                  60, 'nested compositor descendant Xwayland', shell)
+            if 'XAUTHORITY' not in connection:
+                raise RuntimeError('The owned nested Xwayland did not provide authentication')
+            authority = Path(connection['XAUTHORITY'])
+            if (authority.is_symlink() or not authority.is_file()
+                    or not authority.resolve().is_relative_to(dirs['run'].resolve())
+                    or authority.stat().st_uid != os.getuid() or authority.stat().st_mode & 0o077):
+                raise RuntimeError('The owned nested Xwayland authentication is not private to this host')
+            display = connection['DISPLAY']
+            env['XAUTHORITY'] = str(authority)
+            wait_for(lambda: Path(f'/tmp/.X11-unix/X{display[1:]}').exists(),
+                     30, 'owned nested Xwayland socket', shell)
         # What gsd-xsettings does in a full session: X clients (Qt on xcb
         # reads Xcursor.* from RESOURCE_MANAGER, not XCURSOR_THEME) get the
         # same pointer theme and size as the shell.
@@ -471,8 +495,8 @@ def inner(args) -> int:
                         'MESA_LOADER_DRIVER_OVERRIDE', '__EGL_VENDOR_LIBRARY_FILENAMES',
                         'QT_OPENGL', 'QT_QUICK_BACKEND', 'CUDA_VISIBLE_DEVICES', 'DBUS_SYSTEM_BUS_ADDRESS')})
             host.update(SPACR_CAPTURE_HOST_BACKEND='software-nested-wayland',
-                        WAYLAND_DISPLAY='wayland-capture', XDG_SESSION_TYPE='wayland', GDK_BACKEND='wayland',
-                        QT_QPA_PLATFORM='wayland')
+                        WAYLAND_DISPLAY='wayland-capture', XDG_SESSION_TYPE='wayland', GDK_BACKEND='x11',
+                        QT_QPA_PLATFORM='xcb', XAUTHORITY=env['XAUTHORITY'])
         elif software_x11:
             host.update(LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2',
                         SPACR_CAPTURE_HOST_BACKEND='software-x11')

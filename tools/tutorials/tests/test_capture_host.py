@@ -219,12 +219,13 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
             assert '--dev' in argv and '--dev-bind' not in argv
             position = argv.index('--bind')
             assert argv[position + 1:position + 3] == [str(tmp_path.parent), str(tmp_path.parent)]
-            assert '--nested' in argv and '--wayland' in argv and '--no-x11' in argv
+            assert '--nested' in argv and '--wayland' in argv and '--no-x11' not in argv
             assert '--headless' not in argv and '--replace' not in argv
             values = kwargs['env']
             assert values['MUTTER_DEBUG_DUMMY_MODE_SPECS'] == '2560x1440@60'
             assert values['DISPLAY'] == ':98' and values['CUDA_VISIBLE_DEVICES'] == ''
             assert values['GALLIUM_DRIVER'] == 'llvmpipe'
+            assert values['TMPDIR'] == str(tmp_path / 'run')
             assert values['__EGL_VENDOR_LIBRARY_FILENAMES'] == '/usr/share/glvnd/egl_vendor.d/50_mesa.json'
             assert values['DBUS_SYSTEM_BUS_ADDRESS'] == 'unix:path=' + str(tmp_path / 'run/logind-proxy')
             raise RuntimeError('stop before starting a compositor')
@@ -248,3 +249,31 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
     assert calls == expected_calls
     assert len(proxy) == 23
     assert proxy[2] == str(tmp_path / 'run/logind-proxy')
+
+
+def test_nested_xwayland_connection_ignores_other_displays_and_preserves_owned_auth(tmp_path, monkeypatch):
+    import gnome_capture_host as host
+
+    proc = tmp_path / 'proc'
+    proc.mkdir()
+    owned_auth = tmp_path / 'private-runtime/Xauthority'
+    entries = [
+        (901, 1, [b'/usr/bin/Xwayland', b':0', b'-auth', b'/personal/Xauthority']),
+        (500, 1, [b'/usr/bin/bwrap']),
+        (501, 500, [b'/usr/bin/gnome-shell', b'--nested']),
+        (502, 501, [b'/usr/bin/Xwayland', b':123', b'-auth', bytes(owned_auth)]),
+    ]
+    for pid, parent, argv in entries:
+        entry = proc / str(pid)
+        entry.mkdir()
+        (entry / 'stat').write_text(f'{pid} (native process) S {parent} 0 0\n')
+        (entry / 'cmdline').write_bytes(b'\0'.join(argv) + b'\0')
+    real_path = Path
+    monkeypatch.setattr(host, 'Path', lambda value: proc if value == '/proc' else real_path(value))
+    assert host.xwayland_connection(500) == {'DISPLAY': ':123', 'XAUTHORITY': str(owned_auth)}
+    assert host.xwayland_display(500) == ':123'
+    (proc / '502/cmdline').write_bytes(b'/usr/bin/Xwayland\0:123\0')
+    assert host.xwayland_connection(500) == {'DISPLAY': ':123'}
+    assert host.xwayland_display(500) == ':123'
+    (proc / '502/cmdline').write_bytes(b'/usr/bin/not-an-X-server\0')
+    assert host.xwayland_connection(500) is None
