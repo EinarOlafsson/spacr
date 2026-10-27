@@ -3922,8 +3922,8 @@
     },
     {
       "lesson": "13_regression",
-      "master_sha256": "e34c18e8fda65ff41035d0c3af9790173a01d35005cad03acf1591654025f24d",
-      "visual_timing_sha256": "556a15f879acc29a0b41158c2e3489ce59e3de79c1c7a872328f94f2c2ac5ab9",
+      "master_sha256": "dea87903dc18d1c086cfdaf448181d4d7cb940fcb1150e26cd2d9d359fc00889",
+      "visual_timing_sha256": "25e0bee411c71c4b98e236a53d53ee262bc1a628dc794e98ef98b6aff137f7fb",
       "scenes": [
         {
           "visual": "01_module",
@@ -4012,7 +4012,7 @@
         {
           "visual": "26_detail_coefficients",
           "source_start": 321.46666666666664,
-          "source_end": 346.06666666666666,
+          "source_end": 346.3666666666667,
           "idle_tail_start": 3.933333333333333
         }
       ]

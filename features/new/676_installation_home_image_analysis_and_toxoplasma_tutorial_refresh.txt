@@ -471,3 +471,4 @@ Edited13 master, full decode/PTS, poster/web and four final-view inspections pas
 
 2026-10-27 — Lesson13 strict matrix retains54PASS but rejects Japanese jf_nezumi final EOF gap0.684s; original outputs remain preserved, no retry or threshold waiver.
 Edited-final generator now sizes the reviewed last-result hold from all50 actual audible endpoints plus1s;6 affected checks pass on exact integrated bytes. Fresh normal render and browser/publication validation remain required.
+Fresh13 final-hold render passes normal master/full decode/PTS/poster/web acceptance; new15-scene policy replaces only13. Strict all50 playback and publication remain pending.
