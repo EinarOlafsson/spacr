@@ -418,3 +418,4 @@ Codex continues12/26/37 reviewed pause edits; diagnostic-only held-pacing classi
 2026-10-27 — Codex requires lesson16 to reject CPU fallback before reference/recording and prove actual CUDA model/input placement on one device for both genuine GUI runs, retaining pixel<=1 and database checks.
 Private guard retains27 affected passes plus15 affected validator passes after device-index refinement; actual CUDA/native acceptance remains pending.
 Lesson12 reviewed pause cuts retain all50 narration tracks and original demonstrated actions; edited master, full decode/PTS, poster and web copy pass. Strict all-voice browser gaps and normal publication remain required.
+Lesson12 generated final idle policy added (no prior entry), preserving all other policies; publication uses the completed81 candidate baseline.
