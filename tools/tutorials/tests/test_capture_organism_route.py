@@ -126,3 +126,70 @@ def test_missing_public_assay_route_fails_without_offcamera_navigation(route, mo
         capture_ui.open_module(route.capture, route.window, 'analyze_plaques', lambda *_: None, prefer='tile')
     assert route.clicks == ['toxoplasma']
     assert route.requested == []
+
+
+@pytest.mark.parametrize('state', ['collapsed', 'expanded', 'hidden_edge', 'disabled_row', 'missing_row'])
+def test_navigator_native_dock_route_uses_real_collapse_control(route, monkeypatch, state):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QHBoxLayout
+    import spacr.qt
+    spacr.qt.register_self_registering_modules()
+    from spacr.qt.app import Sidebar, app_stage
+    from spacr.qt.widgets.dock import DockEdge
+    assert app_stage('graph_builder') == 'beta'
+    assert preferences.get_show_alpha() is False
+    monkeypatch.setattr(preferences, 'get_show_beta', lambda: True)
+
+    home = route.window._startup
+    home._tabs.hide()
+    del home._tabs
+    slot = QWidget(home)
+    column = QVBoxLayout(slot)
+    sidebar = Sidebar()
+    column.addWidget(sidebar)
+    edge = DockEdge(sidebar)
+    container = QWidget(home)
+    layout = QHBoxLayout(container)
+    layout.addWidget(slot)
+    layout.addWidget(edge)
+    home.layout().addWidget(container)
+    route.window._sidebar = sidebar
+    route.window._dock_edge = edge
+    edge.collapsedChanged.connect(lambda collapsed: slot.setVisible(not collapsed))
+    sidebar.nav_selected.connect(route.window._on_nav_selected)
+    target = next(row for row in sidebar._rows if row.key == 'graph_builder')
+    edge.set_collapsed(state != 'expanded')
+    slot.setVisible(not edge.is_collapsed())
+    edge.show()
+    route.app.processEvents()
+    if state == 'hidden_edge': edge.hide()
+    if state == 'disabled_row': target.setEnabled(False)
+    if state == 'missing_row':
+        sidebar._rows.remove(target)
+        target.hide()
+    header = sidebar._headers[sidebar._section_of['graph_builder']]
+    clicks = []
+    def native_click(widget):
+        assert widget.isVisible() and widget.isEnabled()
+        clicks.append(widget)
+        QTest.mouseClick(widget, Qt.LeftButton)
+        route.app.processEvents()
+    def scroll(capture, area, widget):
+        assert area is sidebar._scroll
+        area.ensureWidgetVisible(widget)
+        route.app.processEvents()
+    monkeypatch.setattr(capture_ui, 'scroll_to', scroll)
+    monkeypatch.setattr(capture_ui, '_h', lambda: SimpleNamespace(
+        click=native_click, pause=lambda *_: route.app.processEvents()))
+    if state in ('hidden_edge', 'disabled_row', 'missing_row'):
+        with pytest.raises(RuntimeError, match='native dock'):
+            capture_ui.open_module(route.capture, route.window, 'graph_builder', lambda *_: None, prefer='tile')
+        assert route.requested == []
+    else:
+        capture_ui.open_module(route.capture, route.window, 'graph_builder', lambda *_: None, prefer='tile')
+        assert clicks == ([edge, header, target] if state == 'collapsed' else [header, target])
+        assert header.property('open') is True
+        assert not edge.is_collapsed()
+        assert route.requested == ['graph_builder']
+        assert route.window._stack.currentWidget() is route.window._screens['graph_builder']

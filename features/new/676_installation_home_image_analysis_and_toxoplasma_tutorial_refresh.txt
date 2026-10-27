@@ -520,3 +520,8 @@ Use the existing recording/localization/publication workflow and unchanged alpha
 
 2026-10-27 — Graph Builder58 fresh50 audio passes codec/current-source QA; onset checking finds one cached Japanese jf_tebukuro scene13 paragraph with a quiet leading Latin replicate.
 Use the existing exact lesson/voice/text pronunciation override to say leading replicate as レプリケート; retain visible Japanese text and all49 other tracks. Reassemble only this voice from cache and verify the affected onset before capture.
+
+2026-10-27 — Graph Builder58 p43 stops before opening the app module: fresh-profile Navigator has no legacy Home tabs, and its native dock starts collapsed.
+Codex owns the capture-driver correction: expand the real visible dock handle and click its available module row, preserving native input, alpha visibility and legacy Home tiles; no app or preference override.
+Preserve the failed stage and all50 tracks; validate the affected production dock route before a fresh normal capture and retry.
+Real production DockEdge/Sidebar checks pass for collapsed and expanded docks, native category opening, disabled and missing rows; legacy Home routes remain accepted. Normal startup maturity registration retains Graph Builder beta with alpha off; native recording acceptance remains pending.
