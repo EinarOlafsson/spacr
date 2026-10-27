@@ -513,3 +513,7 @@ Native scrollbar inspection shows all four labeled cells. Reviewed grid excerpts
 
 2026-10-27 — Activation Maps published at202168f808:50voices,600gaps0.796–1.045s,72playback checks,7151hostedfiles fullyreadback,59Pages routes and64pin tests pass(1existingNode skip). Livewebsite deployment remains separate.
 Codex next owns Graph Builder58 on the refreshed nightly capture base: verify the2341-cell merge, exact brushed object identities, coherent selected count/highlight, enabled Annotate handoff and complete clear. Replace only the stale conditional handoff sentence; retain unaffected narration and translations, then record, gate, edit pauses and publish this lesson end to end.
+
+2026-10-27 — Shared AI/HANDOFF Navigator request received against approved e125b048e8 and current nightly descendants; implementation sign-off is already satisfied.
+Tutorial owner Codex (676) accepts the new Navigator tutorial and accompanying user Docs/API coverage under 733, queued after active Graph Builder58.
+Use the existing recording/localization/publication workflow and unchanged alpha/capture rules; no Navigator capture or source implementation starts in this scope-receipt commit.
