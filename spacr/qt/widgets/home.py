@@ -4854,13 +4854,25 @@ class _EasyWorkflowView(_WorkflowView):
         for candidate, node in self.nodes.items():
             node.setVisible(candidate != key)
         self.describe_node(key, center=True)
+        self._center_selected()
         self.explain_node(key)
+
+    def _center_selected(self):
+        """Leave enough scene margin to center even boundary modules without clamping."""
+        if self._selected_key is None:
+            return
+        scale = max(.04, abs(self.transform().m11()))
+        horizontal = self.viewport().width() / (2 * scale) + 20
+        vertical = self.viewport().height() / (2 * scale) + 20
+        self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-horizontal, -vertical,
+                                                                  horizontal, vertical))
+        self.centerOn(self.nodes[self._selected_key])
 
     def resizeEvent(self, event):
         """Retain selected-card alignment rather than fitting every tool to tiny text."""
         super().resizeEvent(event)
         if self._selected_key is not None:
-            self.centerOn(self.nodes[self._selected_key])
+            self._center_selected()
         self.viewport_changed.emit()
 
     def scrollContentsBy(self, dx, dy):

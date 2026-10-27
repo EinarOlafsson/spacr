@@ -697,8 +697,9 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         assert workflow is not None and chosen == []
         assert not page.path_edit.isVisible() and not page._suggestions_scroll.isVisible()
         assert workflow.central._key == 'mask' and workflow.central._path == str(tmp_path)
-        center = workflow.view.viewport().mapTo(workflow, workflow.view.viewport().rect().center())
-        qtbot.waitUntil(lambda: (workflow.central.geometry().center() - center).manhattanLength() <= 2)
+        qtbot.waitUntil(lambda: (workflow.central.geometry().center()
+                                - workflow.view.viewport().mapTo(workflow, workflow.view.viewport().rect().center()))
+                       .manhattanLength() <= 2)
         folds = folded_children()
         parents = {child: host for host, children in folds.items() for child in children}
         registered = {row[0] for row in APPS if app_is_visible(row[0])
