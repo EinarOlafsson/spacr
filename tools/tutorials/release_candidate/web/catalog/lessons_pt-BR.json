@@ -7593,11 +7593,11 @@
           "visual": "14_import_scope",
           "narration": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído.",
           "hold_after": 0.7,
+          "speech_text": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído.",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ],
-          "speech_text": "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído."
+          ]
         }
       ],
       "narration_voices": {
