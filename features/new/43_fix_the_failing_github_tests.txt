@@ -1,19 +1,5 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
-CURRENT COMPLETED MERGE MODULE DOCSTRINGS — 2026-10-27
-widgets_g1 owns Main Coverage 6 job 122460216719: document the five
-reported duplicate-observation helpers and initializer from their actual
-semantics, preserving every body, signature and numerical guard. G5 peers
-the docs-only diff before the sole failed selector; parent owns normal
-eligibility and root alone publishes, with no generator or broad test rerun.
-
-CURRENT PINNED DOCUMENTATION MEDIA RATE LIMIT — 2026-10-27
-widgets_g1 owns Main min-Python job 122460216354: bounded retries for
-HTTP 429 and transient 500/502/503/504 from the unchanged pinned public
-media downloader, respecting bounded Retry-After/backoff and strict digest
-failures. Never log signed URLs or retry authorization/permanent errors;
-G5 source peer and mocked CPU controls before root Main/Nightly publication.
-
 CURRENT METADATA CAPTION FAKE SOURCE TREE — 2026-10-27
 widgets_g1 owns Coverage 6 job 122347867652 and Minimum 0 job
 122347866761: include required empty convert.py in the shared metadata
@@ -5303,15 +5289,8 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — G3 owns four remaining organelle-count contract failures: bind integer entry and progressive slot capacity to approved item 326 while preserving actual saved counts, effective configured planes and off-form values. Qualify only the four reported selectors with G5 peer; root owns Nightly/Main publication.
 2026-10-27 — Count fixtures now exercise integer entry, explicit supported-range refusal and progressive numeric-plane activation while preserving seeded counts and all configured type/diameter values. The off-form slot-retention test is unchanged and passes with the existing seeded-count fix. All four reported selectors pass (2.43 s), G5 peer accepted; root owns Nightly/Main publication.
 
-2026-10-27 — Pinned documentation media now retries only HTTP 429/500/502/503/504, at most four calls within a 120-second retry-admission/wait budget. Numeric/date Retry-After minima are honored or refused when over budget; existing pin/digest checks remain strict, and final errors omit signed URLs and raw exception chains. Nine mocked/retained controls pass (1.56 s), with no network download or assembly. G5 peer accepted; root holds Main/Nightly publication while current CI is harvested.
-
-2026-10-27 — The dock-width fixture now follows the approved always-present dock: retired hidden mode leaves the edge accessible, and real edge clicks collapse and restore the slot without losing width. Visible/collapsed state, persisted width and refresh-width assertions remain strict. G5 peer accepted; the sole Qt 6.11.3 selector passes (1 case, 4.74 s). No product source changed; root owns batch publication.
-
-2026-10-27 — Documented all five reported duplicate-observation helpers/initializer from their actual parameter, return/yield and refusal semantics. Executable bodies, signatures and numerical behavior are unchanged; G5 independently verified the docs-only diff. The sole completed-module documentation selector passes; parent owns normal eligibility and root holds publication with the qualified CI repair batch.
-2026-10-27 — G3 owns four NaN/child-selection fixture failures: verify pathogen observation identities against the protected duplicate guard, preserve the default refusal and all NaN/drop/keep/zero assertions, and qualify only the affected four tests after G5 peer. Root owns publication.
-2026-10-27 — The NaN/child-selection fixture now assigns distinct image-wide labels to its two pathogens while retaining their parent links, measurements and NaN. All four scientific assertion bodies are unchanged and pass (4 cases, 1.34 s); the protected duplicate-observation refusal is unchanged, G5 peer accepted. Root owns publication.
-2026-10-27 — G2 repairs the obsolete global-theme fixture in Main 5c5 Coverage 6 job 122460216719 using production per-window styling, preserving folder/geometry checks and verifying applied window sheets. Native artifact binds the Qt 6.11.3 cached-style walk but identifies neither object nor cause; no GC/product change. G5 accepted the fixture protocol; all four matching Qt 6.11.3 cases pass (3.94s), including applied-sheet proofs and original folder/geometry assertions; root publishes.
-2026-10-27 — G3 owns two walkthrough-menu CI failures: bind current visible Navigator modules and real menu-action routing, preserve module-specific assertions, and qualify only the reported two selectors after G5 peer. Root owns integration and publication.
-2026-10-27 — Walkthrough component checks now use a real standalone Help menu, preserving every visible-module entry and actual Measure action routing while respecting Navigator’s separately tested duplicate-module pruning. Both reported selectors pass (2.90 s); G5 peer accepted; root owns Main/Nightly publication.
-2026-10-27 — Requirement review distinguishes genuine walkthrough help from duplicate native launch routes: retain clearly labelled translated walkthrough actions and restore full MainWindow coverage. The standalone-fixture workaround is superseded; qualify the two walkthrough and three existing native-route controls after G5 peer.
-2026-10-27 — Genuine module walkthroughs now survive native-route pruning with distinct existing translated labels; real MainWindow module/handler coverage is restored. Two walkthrough and three native-route controls pass (5.32 s), G5 peer accepted; root owns publication.
+2026-10-27 — Pinned documentation media retries only 429/500/502/503/504 within four calls and a 120-second retry-admission/wait budget, honoring Retry-After or failing closed. Pin/digest checks and safe errors remain strict; nine mocked/retained checks pass without network downloads.
+2026-10-27 — Documented five duplicate-observation helpers without changing executable code; the owning documentation check passes and normal visible API remains unchanged. Distinct image-wide pathogen labels repair the degenerate NaN fixture; all four original scientific assertions pass and the duplicate guard is preserved.
+2026-10-27 — Dock width coverage now exercises actual always-present collapse/restore clicks (one check passes). Folder/plate fixtures use production per-window styling with applied-sheet proofs and unchanged geometry assertions (four Qt 6.11.3 cases pass); no global-style crash cause is claimed.
+2026-10-27 — Genuine Help walkthroughs retain distinct existing translated labels while duplicate native launch routes remain pruned. Real MainWindow walkthrough and native-route coverage passes all five affected checks; the earlier component-only workaround is superseded.
+2026-10-27 — Dock painting reuses the existing theme-aware paint palette; strict zero-preference-read and actual dark/light/dark pixel checks pass (two cases). A distinct hosted deferred-widget wrapper crash remains unidentified: one bounded Qt 6.11.3 diagnostic passed without reproduction, so no lifecycle fix or repeat is claimed. Qualified repairs have G5 peers; root owns publication.

@@ -59,7 +59,7 @@ from PySide6.QtWidgets import (
 from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..i18n import tr
-from ..theme import active_palette
+from ..theme import _painting_palette, active_palette
 from .eliding import ElidingPushButton
 from .. import _after
 
@@ -821,7 +821,7 @@ class DockEdge(QWidget):
 
         :param _event: the paint event; the whole strip is drawn.
         """
-        palette = active_palette() or {}
+        palette = _painting_palette() or {}
         hovered = self.underMouse() or self._pressed_x is not None
         line = QColor(palette.get("accent" if hovered else "border_soft",
                                   "#4c8dff" if hovered else "#3a3f4b"))
