@@ -123,7 +123,7 @@ session.modules = {
 """
 
 
-def private_dirs(stage: Path) -> dict:
+def private_dirs(stage: Path, shell_major: int = 42) -> dict:
     dirs = {name: stage / name for name in ('home', 'config', 'cache', 'data', 'state', 'run', 'logs')}
     for path in dirs.values():
         path.mkdir(parents=True, exist_ok=True)
@@ -139,8 +139,15 @@ def private_dirs(stage: Path) -> dict:
             ''.join(f'{monitor}.enabled = false\n' for monitor in monitors))
     extension = dirs['data'] / 'gnome-shell' / 'extensions' / CHROME_EXTENSION_UUID
     extension.mkdir(parents=True, exist_ok=True)
-    (extension / 'metadata.json').write_text(json.dumps(CHROME_EXTENSION_METADATA, indent=2) + '\n')
-    (extension / 'extension.js').write_text(CHROME_EXTENSION_JS)
+    metadata = {**CHROME_EXTENSION_METADATA, 'shell-version': [str(shell_major)]}
+    script = CHROME_EXTENSION_JS
+    if shell_major >= 45:
+        script = script.replace('const GLib = imports.gi.GLib;', "import GLib from 'gi://GLib';")
+        script = script.replace('const Main = imports.ui.main;',
+                                "import * as Main from 'resource:///org/gnome/shell/ui/main.js';")
+        script += '\nexport default class { enable() { enable(); } disable() { disable(); } }\n'
+    (extension / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    (extension / 'extension.js').write_text(script)
     return dirs
 
 
@@ -268,7 +275,7 @@ def drm_nodes(vendor: str) -> list[str]:
 
 def inner(args) -> int:
     stage = args.stage
-    dirs = private_dirs(stage)
+    dirs = private_dirs(stage, getattr(args, 'shell_major', 42))
     env = daemon_env(stage, dirs)
     env['DBUS_SESSION_BUS_ADDRESS'] = os.environ['DBUS_SESSION_BUS_ADDRESS']
     # X clients pick their pointer sprites themselves (a full GNOME session's
@@ -419,6 +426,7 @@ def main() -> int:
                              'strut, so a maximised window fills the monitor; hot corners are off)')
     parser.add_argument('--shell-env', action='append', default=[], metavar='KEY=VALUE',
                         help='Extra environment for gnome-shell and its Xwayland')
+    parser.add_argument('--shell-major', type=int, default=42, help=argparse.SUPPRESS)
     parser.add_argument('--inner', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--outer-env', default='{}', help=argparse.SUPPRESS)
     parser.add_argument('command', nargs=argparse.REMAINDER)
@@ -432,7 +440,9 @@ def main() -> int:
         args.outer_env = json.loads(args.outer_env)
         return inner(args)
     args.stage.mkdir(parents=True, exist_ok=False)
-    dirs = private_dirs(args.stage)
+    shell_version = subprocess.check_output(['/usr/bin/gnome-shell', '--version'], text=True)
+    args.shell_major = int(shell_version.split()[2].split('.')[0])
+    dirs = private_dirs(args.stage, args.shell_major)
     env = daemon_env(args.stage, dirs)
     # The command itself keeps the caller's interpreter, conda env and GPU
     # access; only display/bus variables are redirected (in ``inner``).
@@ -446,7 +456,8 @@ def main() -> int:
     try:
         rc = subprocess.run([
             '/usr/bin/dbus-run-session', '--', sys.executable, str(Path(__file__).resolve()),
-            '--inner', '--stage', str(args.stage), '--size', args.size, '--refresh', str(args.refresh),
+            '--inner', '--shell-major', str(args.shell_major),
+            '--stage', str(args.stage), '--size', args.size, '--refresh', str(args.refresh),
             '--cursor-theme', args.cursor_theme, '--cursor-size', str(args.cursor_size),
             '--settle', str(args.settle), '--outer-env', json.dumps(outer),
             '--compositor-gpu', args.compositor_gpu,

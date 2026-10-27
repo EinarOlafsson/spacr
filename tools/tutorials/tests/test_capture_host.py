@@ -176,3 +176,22 @@ def test_a_glide_to_the_menu_bar_stays_under_the_gate_bound():
     # the old 1.5 s cap it peaked at ~73 px per 30 fps frame (2.9 %).
     host, steps = steps_of((40, 15), start=(1587.0, 835.0))
     assert 2 * max(steps) <= 0.03 * host.width
+
+
+@pytest.mark.parametrize('major', [42, 46])
+def test_private_chrome_extension_matches_the_installed_shell_module_format(tmp_path, major):
+    import json
+    import gnome_capture_host as host
+
+    dirs = host.private_dirs(tmp_path, major)
+    extension = dirs['data'] / 'gnome-shell/extensions' / host.CHROME_EXTENSION_UUID
+    assert json.loads((extension / 'metadata.json').read_text())['shell-version'] == [str(major)]
+    script = (extension / 'extension.js').read_text()
+    if major >= 45:
+        expected = host.CHROME_EXTENSION_JS.replace('const GLib = imports.gi.GLib;',
+                                                    "import GLib from 'gi://GLib';")
+        expected = expected.replace('const Main = imports.ui.main;',
+                                    "import * as Main from 'resource:///org/gnome/shell/ui/main.js';")
+        assert script == expected + '\nexport default class { enable() { enable(); } disable() { disable(); } }\n'
+    else:
+        assert script == host.CHROME_EXTENSION_JS
