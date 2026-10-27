@@ -53060,7 +53060,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7886,
+    "line": 7893,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"
