@@ -1544,3 +1544,100 @@ def test_a_deferred_close_is_not_named_once_a_screen_is_shown_again_170(configur
     cr._NATIVE_CAPTURE_HANDLE.close()
     joined(cr._consume_native_crash(path))
     assert 'Last step' not in relay.calls_to('/report')[0]['body']['user_note']
+
+
+@pytest.mark.parametrize("provider", ["", "none"])
+def test_merge_validation_reports_structure_without_names_or_values(configured, provider):
+    import pandas as pd
+    from spacr.derived_tables import _require_keys
+    from spacr.merge_tables import MergeError
+
+    relay, outcomes, ready = configured
+    cr._update_state(affirmed_policy=dict(cr._read_state()["affirmed_policy"], provider=provider))
+    private = "private_person_column"
+    frame = pd.DataFrame({"plateID": ["private_plate"] * 2,
+                          "file_name": ["private_image.tif"] * 2,
+                          private: ["private_value"] * 2})
+    with pytest.raises(MergeError) as caught:
+        _require_keys(frame, ["plateID", "file_name", private], "private_table", unique=True)
+    exc = caught.value
+    summary = cr.public_summary(exc, diagnostics=True, error_text=str(exc), log_text=str(exc))
+    assert summary["kind"] == cr.KIND_USER_ERROR
+    assert summary["exception_type"] == "MergeError"
+    assert '"duplicate_rows":2' in summary["message"]
+    assert '"unique_keys":1' in summary["message"]
+    assert '"custom_key_count":1' in summary["message"]
+    assert '"present":["plateID","file_name"]' in summary["message"]
+    assert "private_" not in json.dumps(summary)
+    assert summary.get("chain", []) == []
+    assert not summary.get("log_tail")
+    joined(cr._dispatch_error(str(exc), exception=exc, traceback_text=str(exc)))
+    assert ready.wait(5)
+    assert len(relay.calls_to("/report")) == 1
+    assert "private_" not in json.dumps(relay.calls)
+    assert relay.calls_to("/report")[0]["body"]["kind"] == cr.KIND_USER_ERROR
+
+    if provider == "none":
+        assert relay.calls_to("/diagnose") == []
+
+
+@pytest.mark.parametrize("mode", ["off", "send_faults"])
+def test_merge_validation_keeps_reporting_policy(configured, mode):
+    from spacr.merge_tables import MergeError
+
+    relay, outcomes, ready = configured
+    cr.set_error_report_mode(mode)
+    worker = cr._dispatch_error("bad merge", exception=MergeError("bad merge"))
+    if worker is not None:
+        joined(worker)
+    assert relay.calls_to("/report") == []
+    assert relay.calls_to("/diagnose") == []
+
+
+def test_merge_structure_stays_private_in_real_combined_error_batch(configured, monkeypatch):
+    import pandas as pd
+    from spacr.derived_tables import _require_keys
+    from spacr.merge_tables import MergeError
+
+    relay, outcomes, ready = configured
+    cr._update_state(affirmed_policy=dict(cr._read_state()["affirmed_policy"], provider="none"))
+    now = [0.]
+    control = cr._ErrorBatcher(clock=lambda: now[0],
+                             schedule=lambda delay, callback: threading.Timer(delay, callback))
+    monkeypatch.setattr(cr, "_ERROR_BATCHER", control)
+    workers = []
+    actual = cr._dispatch_error_now
+
+    def observe(*args, **kwargs):
+        worker = actual(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+
+    monkeypatch.setattr(cr, "_dispatch_error_now", observe)
+    try:
+        joined(cr._dispatch_error("RuntimeError: initial failure"))
+        now[0] = 1.
+        for count in (2, 3):
+            frame = pd.DataFrame({"private_person_column": ["private_image_value"] * count})
+            with pytest.raises(MergeError) as caught:
+                _require_keys(frame, ["private_person_column"], "private_table", unique=True)
+            assert cr._dispatch_error(str(caught.value), exception=caught.value,
+                                      summary={"message": "private_override"},
+                                      context={"screen": "private_screen"}) is None
+        now[0] = 61.
+        control._tick()
+        for worker in workers:
+            joined(worker)
+        assert len(relay.calls_to("/report")) == 2
+        batch = relay.calls_to("/report")[-1]["body"]
+        assert batch["kind"] == cr.KIND_USER_ERROR
+        assert "duplicate_keys" in json.dumps(batch)
+        assert "private_" not in json.dumps(relay.calls)
+        assert relay.calls_to("/diagnose") == []
+    finally:
+        if control.timer is not None:
+            control.timer.cancel()
+        for worker in workers:
+            worker.join(5)
+            assert not worker.is_alive()

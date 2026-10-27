@@ -41,6 +41,8 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .errors import ConfigurationError
+
 from .object_roles import (
     ANCHOR_COLUMN,
     ORGANELLE_ROLES,
@@ -109,7 +111,7 @@ OBJECT_TABLES: Tuple[str, ...] = (
 DEFAULT_PRIMARY = "cell"
 
 
-class MergeError(ValueError):
+class MergeError(ConfigurationError, ValueError):
     """Raised when tables cannot be merged; the message gives the reason."""
 
 

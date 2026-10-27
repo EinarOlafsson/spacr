@@ -175,18 +175,45 @@ def _require_keys(frame, keys, table, *, unique=False):
     :param table: Table name for actionable errors.
     :param unique: Require complete, unique base observation identities.
     """
+    reason = ""
     if not keys or len(set(keys)) != len(keys):
-        raise MergeError(f"{table}: choose a nonempty list of distinct join columns.")
-    missing = set(keys) - set(frame)
-    if missing:
-        raise MergeError(f"{table}: missing keys {', '.join(sorted(missing))}. "
-                         "Use Customize merging to map the actual columns.")
-    if unique and frame[keys].isna().any(axis=None):
-        raise MergeError(f"{table}: base observation keys contain missing values.")
-    if unique and frame.duplicated(keys).any():
+        reason = "invalid_keys"
+        message = f"{table}: choose a nonempty list of distinct join columns."
+    elif set(keys) - set(frame):
+        reason = "missing_keys"
+        message = (f"{table}: missing keys {', '.join(sorted(set(keys) - set(frame)))}. "
+                   "Use Customize merging to map the actual columns.")
+    elif unique and frame[keys].isna().any(axis=None):
+        reason = "null_keys"
+        message = f"{table}: base observation keys contain missing values."
+    elif unique and frame.duplicated(keys).any():
+        reason = "duplicate_keys"
         n = int(frame.duplicated(keys, keep=False).sum())
-        raise MergeError(f"{table}: {n} rows have duplicate observation keys {keys}; "
-                         "include the image/time columns in the composite key.")
+        message = (f"{table}: {n} rows have duplicate observation keys {keys}; "
+                   "include the image/time columns in the composite key.")
+    if reason:
+        error = MergeError(message)
+        error._spacr_merge_structure = _merge_key_structure(frame, keys, table, reason)
+        raise error
+
+
+def _merge_key_structure(frame, keys, table, reason):
+    """Describe key cardinality using canonical names and anonymous counts."""
+    canonical = (*IDENTITY, "timeID", "time_id", "file_name", OBJECT_COLUMN)
+    complete = bool(keys) and len(set(keys)) == len(keys) and set(keys).issubset(frame)
+    return {
+        "reason": reason,
+        "table": table if table in ANCHOR_COLUMN else "custom",
+        "present": [key for key in canonical if key in frame],
+        "selected": [key for key in canonical if key in keys],
+        "custom_key_count": sum(key not in canonical for key in keys),
+        "missing_canonical": [key for key in canonical if key in keys and key not in frame],
+        "missing_custom_count": sum(key not in canonical and key not in frame for key in keys),
+        "rows": len(frame),
+        "unique_keys": len(frame[keys].drop_duplicates()) if complete else None,
+        "duplicate_rows": int(frame.duplicated(keys, keep=False).sum()) if complete else None,
+        "null_rows": int(frame[keys].isna().any(axis=1).sum()) if complete else None,
+    }
 
 
 def _align_explicit_keys(left, right, keys):

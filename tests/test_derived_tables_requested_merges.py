@@ -257,3 +257,37 @@ def test_existing_count_measurements_are_not_overwritten_by_row_counts(tmp_path)
     result, _ = execute(path, default_definition(path, ["cell", "pathogen"]))
     assert result.pathogen_count.iloc[:2].tolist() == [30, 30]
     assert result.pathogen_source_count.iloc[:2].tolist() == [2, 1]
+
+
+@pytest.mark.parametrize("reason", ["duplicate_keys", "null_keys", "missing_keys", "invalid_keys"])
+def test_key_failures_keep_only_anonymous_structure(reason):
+    from spacr.derived_tables import _require_keys
+    from spacr.errors import ConfigurationError
+
+    frame = pd.DataFrame({"plateID": ["secret_plate", "secret_plate"],
+                          "file_name": ["secret_image.tif", "secret_image.tif"],
+                          "private_person_column": [1, 1]})
+    keys = ["plateID", "file_name", "private_person_column"]
+    if reason == "null_keys":
+        frame.loc[0, "private_person_column"] = None
+    elif reason == "missing_keys":
+        keys += ["timeID", "private_missing_column"]
+    elif reason == "invalid_keys":
+        keys += ["plateID"]
+    with pytest.raises(MergeError) as caught:
+        _require_keys(frame, keys, "private_person_table", unique=True)
+    assert isinstance(caught.value, (ConfigurationError, ValueError))
+    facts = caught.value._spacr_merge_structure
+    assert facts["reason"] == reason
+    assert facts["table"] == "custom"
+    assert facts["present"] == ["plateID", "file_name"]
+    assert facts["rows"] == 2
+    if reason == "duplicate_keys":
+        assert (facts["unique_keys"], facts["duplicate_rows"], facts["null_rows"]) == (1, 2, 0)
+    if reason == "missing_keys":
+        assert facts["missing_canonical"] == ["timeID"]
+        assert facts["missing_custom_count"] == 1
+    import json
+    assert "secret" not in json.dumps(facts)
+    assert "private_person" not in json.dumps(facts)
+    assert "private_missing" not in json.dumps(facts)
