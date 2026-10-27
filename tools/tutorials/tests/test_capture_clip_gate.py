@@ -167,3 +167,51 @@ def test_lost_frames_are_matched_to_app_paint_stalls():
     changed[10] = False                    # 0.333 s: not
     lost, inside = capture_clip_gate.lost_in_stalls(changed, 30.0, windows)
     assert lost == [4, 5, 10] and inside == [4, 5]
+
+
+def paced_hold_samples():
+    return [(i/10, [dict(id=1,visible=True,counter_reset=False,
+        observed_frames_painted=i*2,configured_fps=60,
+        effective_rate=60 if 0.7 <= i/10 < 7 else 20,
+        _hold_paced=not (0.7 <= i/10 < 7))]) for i in range(121)]
+
+
+def test_paced_hold_covered_bins_change_only_diagnostic_freeze_reference():
+    samples=paced_hold_samples()
+    caps=capture_clip_gate.sampled_hold_pacing_per_second(samples,12,27.9,cadence=.1)
+    assert caps==[None]*7+[20]*5  # transition seconds never count as uniform.
+    distinct=[29]*7+[20]*5
+    painted=[36.5,70.4,79.6,81.4,61.9,50.7,50.5,19,21,16.4,19.7,21.1]
+    assert capture_clip_gate.label_seconds(distinct,painted,27.9)[0]==[7,8,9,10,11]
+    freeze,loss,slow=capture_clip_gate.label_seconds(distinct,painted,27.9,held_pacing=caps)
+    assert freeze==[] and loss==[] and slow==[7,8,9,10,11]
+    assert all(distinct[i] < 27.9 for i in slow)  # still fails the unchanged rate bar.
+
+
+def test_paced_hold_preserves_real_gui_gap_and_below_paced_rate_freeze():
+    samples=paced_hold_samples();gaps=[(8.3,8.8)]
+    caps=capture_clip_gate.sampled_hold_pacing_per_second(samples,12,27.9,cadence=.1,gaps=gaps)
+    painted=[60]*7+[20,20,8,20,20]
+    freeze,loss,slow=capture_clip_gate.label_seconds([29]*7+[20]*5,painted,27.9,
+        held_pacing=caps,sampler_gaps=gaps)
+    assert freeze==[8,9] and loss==[] and slow==[7,10,11]
+
+
+@pytest.mark.parametrize('fault',['snapshots','missing_identity','reset','missing_rate','bad_rate','no_cadence'])
+def test_paced_hold_requires_observed_covered_stable_valid_state(fault):
+    samples=paced_hold_samples();cadence=.1
+    if fault=='snapshots':samples=[samples[0],samples[-1]]
+    elif fault=='missing_identity':samples[85][1][0]['visible']=False
+    elif fault=='reset':samples[85][1][0]['counter_reset']=True
+    elif fault=='missing_rate':samples[85][1][0].pop('effective_rate')
+    elif fault=='bad_rate':samples[85][1][0]['effective_rate']=float('nan')
+    else:cadence=None
+    caps=capture_clip_gate.sampled_hold_pacing_per_second(samples,12,27.9,cadence=cadence)
+    assert caps[8] is None
+    if fault in {'snapshots','missing_identity','no_cadence'}:assert caps==[None]*12
+
+
+def test_paced_hold_does_not_relabel_actual_capture_loss():
+    caps=capture_clip_gate.sampled_hold_pacing_per_second(paced_hold_samples(),12,27.9,cadence=.1)
+    freeze,loss,slow=capture_clip_gate.label_seconds([20]*12,[60]*12,27.9,held_pacing=caps)
+    assert freeze==slow==[] and loss==list(range(12))

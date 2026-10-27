@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -199,8 +200,54 @@ def stable_field_painted_per_second(samples, seconds, *, gaps=()):
 FREEZE_DROP = 0.8
 
 
+def sampled_hold_pacing_per_second(samples, seconds, min_fps, *, cadence=None, gaps=()):
+    """Diagnostic caps only for fully bracketed, uniformly sampled held fields.
+
+    Before/after snapshots cannot establish pacing within a second. Neither
+    can mixed rates, missing/hidden identities, resets or delayed sampling.
+    These caps never alter the capture's required distinct-picture rate.
+    """
+    if (not samples or len(samples) < 2 or type(cadence) not in (int, float)
+            or not math.isfinite(cadence) or not 0 < cadence <= 0.2):
+        return [None] * seconds
+    times = [row[0] for row in samples]
+    if (any(type(t) not in (int, float) or not math.isfinite(t) for t in times)
+            or any(b <= a for a, b in zip(times, times[1:]))):
+        return [None] * seconds
+    visible = [{row['id']: row for row in rows if row.get('visible') is True}
+               for _time, rows in samples]
+    common = set(visible[0]).intersection(*(set(rows) for rows in visible[1:]))
+    if not common:
+        return [None] * seconds
+    result = []
+    for second in range(seconds):
+        left = [i for i, t in enumerate(times) if t <= second]
+        right = [i for i, t in enumerate(times) if t >= second + 1]
+        if (not left or not right or any(a < second + 1 and b > second for a, b in gaps)):
+            result.append(None)
+            continue
+        lo, hi = left[-1], right[0]
+        if any(times[i + 1] - times[i] >= max(0.35, 3.5 * cadence) for i in range(lo, hi)):
+            result.append(None)
+            continue
+        caps = []
+        for identity in common:
+            rows = [visible[i][identity] for i in range(lo, hi + 1)]
+            states = [(r.get('configured_fps'), r.get('effective_rate'), r.get('_hold_paced')) for r in rows]
+            configured, effective, held = states[0]
+            if (any(r.get('counter_reset') for r in rows) or any(state != states[0] for state in states)
+                    or held is not True or any(type(v) not in (int, float) or not math.isfinite(v)
+                                               for v in (configured, effective))
+                    or not 0 < effective < min_fps <= configured):
+                caps = []
+                break
+            caps.append(effective)
+        result.append(min(caps) if caps else None)
+    return result
+
+
 def label_seconds(distinct, painted, min_fps, *, sampler_gaps=(), sample_offset=0.0,
-                  include_unknown=False):
+                  include_unknown=False, held_pacing=None):
     """Low-picture-rate seconds: app freeze, capture loss, app slow, or unknown.
 
     App freeze: in that second the app itself painted fewer frames than the
@@ -224,7 +271,10 @@ def label_seconds(distinct, painted, min_fps, *, sampler_gaps=(), sample_offset=
               and painted[second] is not None and painted[second] < min_fps):
             # The app itself painted too few frames: a stall (a drop below its
             # usual pace) or a steadily slow screen.
-            (freeze if painted[second] < FREEZE_DROP * typical else slow).append(second)
+            reference = typical
+            if held_pacing is not None and second < len(held_pacing) and held_pacing[second] is not None:
+                reference = min(reference, held_pacing[second])
+            (freeze if painted[second] < FREEZE_DROP * reference else slow).append(second)
         elif painted is not None and second < len(painted) and painted[second] is not None:
             loss.append(second)
         else:
@@ -319,9 +369,13 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
     stalls = sorted(set(app_stall_windows(facts.get('app_paint_samples')) + sampler_gaps))
     stall_offset = best_stall_offset(changed, fps, stalls) if stalls else 0.0
     lost, lost_in_app_stall = lost_in_stalls(changed, fps, stalls, offset=stall_offset)
+    held_pacing = (sampled_hold_pacing_per_second(
+        facts.get('app_field_widget_samples'), whole, limits['min_fps'],
+        cadence=facts.get('app_gui_sampler_interval_s'), gaps=sampler_gaps)
+        if counter_semantics == 'observed_per_widget_deltas' else [None] * whole)
     freeze, loss, slow, unknown = label_seconds(
         per_second, diagnostic_painted, limits['min_fps'], sampler_gaps=sampler_gaps,
-        sample_offset=stall_offset, include_unknown=True)
+        sample_offset=stall_offset, include_unknown=True, held_pacing=held_pacing)
     reasons = []
     if distinct_fps < limits['min_fps']:
         where = []
@@ -373,6 +427,7 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
         'app_paint_counter_scope': facts.get('app_paint_counter_scope', 'legacy_visible_widget_sum'),
         'app_diagnostic_painted_per_second': diagnostic_painted,
         'app_diagnostic_paint_scope': diagnostic_scope,
+        'app_diagnostic_sampled_hold_pacing_per_second': held_pacing,
         'app_gui_sampler_gaps_s': [[round(a, 3), round(b, 3)] for a, b in sampler_gaps],
         'app_gui_sampler_gap_evidence': sampler_evidence,
         'app_freeze_seconds': freeze, 'app_slow_seconds': slow, 'capture_loss_seconds': loss,

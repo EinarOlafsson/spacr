@@ -413,4 +413,4 @@ Lesson81 edited master, complete decode/PTS, poster and web copy pass; generated
 NormalHF504 recovery resumed the landed revision; fixed its existing completion-marker handoff, preserving correct retained-narration commits and all passed work.
 Native0158c25910 diagnostic fails0/2:61 continuous Home samples prove configured60/effective20/holdtrue; Preferences120 samples return to20 during false-freeze buckets. No GUI sampler gaps or GPU CPU-fallback event; exact stacks and evidence in AI/HANDOFF.
 Integrated exact tested pacing19/graph17/Trellis8-check driver sources;58/63 native acceptance still pending. No gate target, actual-freeze rule, environment or default changed.
-Codex continues12/26/37 reviewed pause edits while investigating diagnostic classification and host CUDA304; new full native takes stay held,01 PyPI and website deployment remain external waits.
+Codex continues12/26/37 reviewed pause edits; diagnostic-only held-pacing classification retains11 passing tests and both raw failures. Lesson16 actual-CUDA guard preparation continues; full native takes,01 PyPI and website deployment remain pending.
