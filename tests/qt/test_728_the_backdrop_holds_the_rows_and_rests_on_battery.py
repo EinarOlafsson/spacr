@@ -523,3 +523,42 @@ def test_changed_and_cleared_card_growth_releases_the_held_frame(screen, qtbot, 
         assert backdrop._rate() == 20
     finally:
         field.close()
+
+
+class _DecorativeDimmer(QWidget):
+    """Paint a real translucent layer over the field without a shading worker."""
+
+    def paintEvent(self, event):
+        from PySide6.QtGui import QColor, QPainter
+
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 90))
+        painter.end()
+
+
+def test_a_decorative_overlay_leaves_the_field_live_but_holds_its_child(qtbot):
+    """Only the explicit overlay's own paint is omitted from the held region."""
+    host = QWidget()
+    host.resize(640, 416)
+    qtbot.addWidget(host)
+    backdrop = QWidget(host)
+    backdrop.setGeometry(host.rect())
+    overlay = _DecorativeDimmer(host)
+    overlay.setGeometry(host.rect())
+    card = QFrame(overlay)
+    card.setGeometry(128, 96, 192, 128)
+    card.setAutoFillBackground(True)
+    host.show()
+    qtbot.waitExposed(host)
+    held = ambient._HeldRows(backdrop)
+    whole_field = QRegion(backdrop.rect())
+    assert held._covered() == whole_field
+    overlay.setProperty("spacrAmbientTransparentOverlay", True)
+    covered = held._covered()
+    assert covered == QRegion(card.geometry())
+    live = whole_field.subtracted(covered)
+    assert not live.isEmpty()
+    assert not live.contains(card.geometry().center())
+    assert live.contains(ambient.QPoint(16, 16))
+    overlay.setProperty("spacrAmbientTransparentOverlay", False)
+    assert held._covered() == whole_field

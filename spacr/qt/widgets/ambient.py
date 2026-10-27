@@ -11236,6 +11236,8 @@ class _HeldRows(QObject):
             own coordinates, that its background, frame and paint event
             cover -- empty for a plain layout container.
         """
+        if QObject.property(widget, "spacrAmbientTransparentOverlay") is True:
+            return QRegion()
         if (QWidget.autoFillBackground(widget)
                 or QWidget.testAttribute(widget, Qt.WA_OpaquePaintEvent)
                 or QWidget.testAttribute(widget, Qt.WA_NativeWindow)
