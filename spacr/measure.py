@@ -9729,6 +9729,11 @@ def _measurement_archive_tables(connection, settings):
 
 
 def _measure_archive_quote(name):
+    """Quote a SQLite identifier, escaping embedded double quotes.
+
+    :param name: identifier converted to text before quoting.
+    :returns: the identifier enclosed in double quotes.
+    """
     return '"' + str(name).replace('"', '""') + '"'
 
 
@@ -9881,6 +9886,15 @@ def _measurement_run_locks(sources):
 
 
 def _prepare_measurement_crop_output(settings, archive_plan):
+    """Bind resumed or new crop-output paths in the run settings.
+
+    :param settings: mutable run settings containing the merged source directory.
+    :param archive_plan: database archive plans used to recognize an existing population.
+    :raises ConfigurationError: if a recorded resume output leaves the project's data directory.
+
+    Clear a stale output override first. Reuse a valid recorded path on resume;
+    otherwise choose a nonexisting run directory when earlier output must be preserved.
+    """
     import uuid
 
     from .resume import read_recorded_settings, resume_enabled

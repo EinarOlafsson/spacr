@@ -1,5 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT PACKAGE AND NESTED DOCSTRING GUARDS — 2026-10-27
+widgets_g1 owns Main Coverage 1 job 122460216498: repair only the exact
+missing-callable list from the unchanged package docstring guard and the
+gate-editor work closure reported by the nested guard. Preserve bodies,
+signatures, nesting, defaults and ratchets; G5 reviews doc semantics before
+the two owning selectors, then parent scopes normal eligibility for root publication.
+
 CURRENT COMPLETED MERGE MODULE DOCSTRINGS — 2026-10-27
 widgets_g1 owns Main Coverage 6 job 122460216719: document the five
 reported duplicate-observation helpers and initializer from their actual
@@ -5308,3 +5315,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — The dock-width fixture now follows the approved always-present dock: retired hidden mode leaves the edge accessible, and real edge clicks collapse and restore the slot without losing width. Visible/collapsed state, persisted width and refresh-width assertions remain strict. G5 peer accepted; the sole Qt 6.11.3 selector passes (1 case, 4.74 s). No product source changed; root owns batch publication.
 
 2026-10-27 — Documented all five reported duplicate-observation helpers/initializer from their actual parameter, return/yield and refusal semantics. Executable bodies, signatures and numerical behavior are unchanged; G5 independently verified the docs-only diff. The sole completed-module documentation selector passes; parent owns normal eligibility and root holds publication with the qualified CI repair batch.
+
+2026-10-27 — Added docstrings to the exact remaining 23 callables from the package guard, including the existing gate-editor work closure; the five previously qualified merge-helper docs remain intact. G5 verified semantics and executable-AST/signature/decorator equality across seven modules. The package zero-docstring guard and unchanged nested-budget guard pass together; parent owns normal visibility/consumer closure and root alone publishes.

@@ -122,6 +122,7 @@ _merge_source_frames = ContextVar('spacr_merge_source_frames', default=None)
 
 
 class _DuplicateObservations(MergeError):
+    """Validation refusal carrying duplicate counts, local advice and anonymous key facts."""
     def __init__(self, frames, keys):
         """Record duplicate counts, local advice and anonymous key diagnostics.
 
