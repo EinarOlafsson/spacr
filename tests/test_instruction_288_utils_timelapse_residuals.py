@@ -68,19 +68,22 @@ def test_null_measurement_stamp_is_legacy_and_refuses_3d_append(tmp_path):
 
 
 def test_choose_model_none_device_keeps_the_resolved_accelerator(monkeypatch):
-    monkeypatch.setattr(utils.cp_models, "CellposeModel", _RecordingCellposeModel)
-    monkeypatch.setattr(
-        "spacr.accelerator.cellpose_kwargs",
-        lambda: {"gpu": True, "device": "mps"},
-    )
+    original_models = utils.cp_models
+    with monkeypatch.context() as patch:
+        patch.setattr(utils, "cp_models", SimpleNamespace(CellposeModel=_RecordingCellposeModel))
+        patch.setattr(
+            "spacr.accelerator.cellpose_kwargs",
+            lambda: {"gpu": True, "device": "mps"},
+        )
 
-    model = utils._choose_model("cpsam", device=None)
+        model = utils._choose_model("cpsam", device=None)
 
-    assert model.kwargs == {
-        "pretrained_model": "cpsam",
-        "gpu": True,
-        "device": "mps",
-    }
+        assert model.kwargs == {
+            "pretrained_model": "cpsam",
+            "gpu": True,
+            "device": "mps",
+        }
+    assert utils.cp_models is original_models
 
 
 def test_reduction_rejects_gpu_for_isomap_before_backend_imports():
