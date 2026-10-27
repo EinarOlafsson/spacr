@@ -364,3 +364,9 @@ Visiblecatalog59:44alreadyoffer50voices,15offer27. The handed-over15recording/pu
 Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abdfdbe,16GPU saliency maxdifference<=1,22literalerrorifstillfailing.
 74edited media uploaded/verified and pushedc89e5ae26d;59hostedroutes and64publicationtests pass, website deploymentpending.36reviewed6cuts/17idlefences rendered with original50tracks;finalmedia/browser/publicationpending.
 Sevenpriorpublishednewrecordings also requirepausecuts;13/70/19waitforHomeperformancefixes. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
+
+2026-10-26 — Tutorials 74 and 36 media are uploaded/readback-verified and pushed through nightly 562d5d73f5; website deployment pending.
+36 retains all 50 tracks and passes 72 matrix/reconciliation cases, 800 actual sentence gaps of 0.800–0.843s, 59 Pages routes and 64 pin checks (1 Node skip).
+58 merges 2341 rows but its brush publishes 656 keys with 0 visible selection and disabled Annotate; final gate accepts 3/23 clips at 12.23–28.88fps. Home owns app fixes; exact evidence/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
+p26/c09 finished normally (lesson rc=2, part rc=0); its queued retry is preserved. 13/70/19 remain held for Home performance fixes; no repeated failing-base retake.
+Continue the 23 missing English voices each for 06/48 and seven prior new-record pause edits, preserving accepted footage/audio. 01 waits for PyPI 1.5.1.6; item676 remains open.

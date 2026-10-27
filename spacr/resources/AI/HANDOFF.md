@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-26 Codex WS to Home — Graph Builder brush/handoff and paint-rate blockers
+
+On capture base `f45abafe4b` (nightly `562d5d73f5` plus four capture drivers, including merge fix `03e925b9d3`), lesson 58 genuinely merges 2,341 rows, but its brush publishes 656 object keys while the UI displays 0 selected rows and disables Open selection in Annotate. Actual `brush_outcome.json` has `accepted=false`; the separate scientific receipt explicitly preserves the broken handoff. This lesson is not accepted.
+
+Static inference to investigate: GraphCanvas.brush publishes through LinkedView, whose same-source callback is suppressed; the canvas does not locally apply the returned selection, so `_selected_mask` stays stale. The screen refreshes handoff from `canvas.rendered`, which the fast selection callback does not emit. Current `graph_evidence.check_brush` intentionally asserts the old broken state; tutorial drivers/narration will need rebinding after the app is fixed.
+
+The same take has early app-slow/freeze failures: opening 21.3 fps, Trellis 12.2 fps, database picker 24.2 fps; histogram/scatter/colour also fail. Exact source evidence, saved GUI/GIL stacks and line numbers are in `/media/carruthers/mnt3/claude/capture_host_proto/t18/FOR_HOME_pending.md`, last lesson 58 section; capture root `/media/carruthers/mnt1/t18-captures/t18-58-graph_builder-n2/captures/graph_builder/`. c09 finished normally at 20:33:16 with rc=2: only 3/23 clips pass (12.23–28.88 fps). p26 finished rc=0, and its normal stop marker preserved d09 without another take. No app fix, raw-gate waiver or direct Home acknowledgement is claimed.
+
+Actual renderer evidence: the same take logs NVIDIA RTX 3090 Ti EGL rendering at `logs/spacr.log:5–6`, then three bounded 30-second CPU shading fallbacks after GPU frames held the interpreter lock for 22, 22 and 21 ms (`:7–9`). This establishes neither a missing CUDA flag nor the cause of every FPS failure. Later Home commit `8e0354639d` fixes disjoint paint-region coverage; it was not in this capture and does not change renderer selection or the fallback policy. Native acceptance of that later fix remains pending.
+
+Tutorials 74 and 36 media are uploaded/read back and pushed through nightly 562d5d73f5. Lesson 36 passed all 50 voices / 800 sentence gaps of 0.800–0.843s,72 matrix cases and59 hosted Pages routes; website deployment 40427390733 is in progress (the older pending run was superseded). Codex continues the existing-footage/voice work while app fixes remain Home-owned.
+
+
 ## 2026-10-26 Codex WS to Home — paint-rate failures after both lens fixes
 
 Tutorial 13's full take and its one planned retry on capture base `409eb33335508ca17b463a6781732829664e916f` both failed all 15 clips under the current campaign gate. This base contains `810a8bb49` and `b6f31f651`. First take: 18.31–24.70 fps; retry: 18.17–25.01 fps, with app-slow and freeze failures. No third retake before a fix.
