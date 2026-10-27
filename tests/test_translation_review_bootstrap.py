@@ -15,6 +15,38 @@ bootstrap = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(bootstrap)
 
 
+_PADDED_ARCHIVE_WORKER = r"""
+import importlib.util,json,subprocess,sys
+from pathlib import Path
+spec=importlib.util.spec_from_file_location("padded_archive_bootstrap",sys.argv[1])
+bootstrap=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bootstrap)
+real_popen=subprocess.Popen
+producer='''import json,subprocess,sys
+raw=subprocess.check_output(json.loads(sys.argv[1]))
+sys.stdout.buffer.write(raw)
+sys.stdout.buffer.write(bytes(2*1024*1024))
+sys.stdout.buffer.flush()
+sys.stderr.write("padded archive producer completed")
+sys.stderr.flush()
+raise SystemExit(int(sys.argv[2]))
+'''
+def archive_popen(command,*args,**kwargs):
+    if command[0]=="git" and "archive" in command:
+        command=[sys.executable,"-c",producer,json.dumps(command),sys.argv[4]]
+    return real_popen(command,*args,**kwargs)
+bootstrap.subprocess.Popen=archive_popen
+status=int(sys.argv[4])
+try:
+    bootstrap.ensure_review_inputs(Path(sys.argv[2]),cache=Path(sys.argv[3]))
+except bootstrap.ReviewInputsError as error:
+    assert status==7 and str(error)=="padded archive producer completed",str(error)
+else:
+    assert status==0,"a failed archive producer was accepted"
+print("PADDED_ARCHIVE_FINISHED",status)
+"""
+
+
 def git(folder, *args):
     return subprocess.check_output(["git", "-C", str(folder), *args], stderr=subprocess.PIPE)
 
@@ -452,3 +484,25 @@ def test_a_missing_git_is_named_with_what_to_do(monkeypatch, tmp_path, call):
     message = str(raised.value)
     assert "git was not found on PATH" in message
     assert "https://git-scm.com/downloads" in message
+
+
+def test_archive_logical_eof_drains_the_real_producer_and_preserves_exit_errors(
+        pinned_reviews, tmp_path):
+    """Legal padding beyond a pipe's capacity cannot strand stderr EOF."""
+    import sys
+
+    root, cache, _, payloads, pin = pinned_reviews
+    for status in (0, 7):
+        destination = root if status == 0 else tmp_path / 'failed-producer'
+        if status:
+            (destination / 'docs').mkdir(parents=True)
+            (destination / bootstrap.PIN_NAME).write_text(json.dumps(pin))
+        result = subprocess.run(
+            [sys.executable, '-c', _PADDED_ARCHIVE_WORKER,
+             str(ROOT / 'tools/bootstrap_translation_reviews.py'),
+             str(destination), str(cache), str(status)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert result.stdout.strip() == f'PADDED_ARCHIVE_FINISHED {status}'.encode()
+        for relative, raw in payloads.items():
+            assert (destination / relative).read_bytes() == raw
