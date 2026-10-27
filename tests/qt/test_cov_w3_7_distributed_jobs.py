@@ -381,7 +381,7 @@ def test_a_declined_cancellation_leaves_the_job_running(screen, tmp_path,
     assert screen._table.item(0, 1).text() == "queued"
 
 
-def test_the_log_needs_a_job_and_lands_in_the_detail_pane(screen, tmp_path):
+def test_the_log_needs_a_job_and_lands_in_the_console(screen, tmp_path):
     screen.refresh_log()
     assert "Select a job first" in screen._status.text()
 
@@ -389,8 +389,8 @@ def test_the_log_needs_a_job_and_lands_in_the_detail_pane(screen, tmp_path):
     screen.manager.runner = Runner(CommandResult(0, "line one\nline two\n"))
     screen.refresh_log()
     assert "Log refreshed" in screen._status.text()
-    assert "remote log tail" in screen._detail.toPlainText()
-    assert "line two" in screen._detail.toPlainText()
+    assert "remote log tail" in screen._console.as_text()
+    assert "line two" in screen._console.as_text()
 
 
 def test_a_configured_command_is_not_pasted_into_a_bug_report(screen,
@@ -416,8 +416,8 @@ def test_with_nothing_selected_the_first_row_is_shown(screen, tmp_path):
 
 def test_an_empty_table_disables_every_job_action(screen):
     screen._render_jobs([])
-    assert "No distributed jobs have been submitted" in \
-        screen._detail.toPlainText()
+    assert "No distributed jobs have been submitted" in screen._empty.text()
+    assert not screen._empty.isHidden()
     assert not screen._cancel.isEnabled()
     assert not screen._logs.isEnabled()
     assert not screen._open_local.isEnabled()

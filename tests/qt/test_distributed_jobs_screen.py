@@ -190,7 +190,7 @@ def test_current_settings_submit_and_status_refresh(
 
     screen.refresh()
     assert screen._table.item(0, 1).text() == "success"
-    assert "cloud-12" in screen._detail.toPlainText()
+    assert "cloud-12" in screen._console.as_text()
 
 
 def test_file_mode_resolves_settings_and_cancel_is_confirmed(

@@ -166,7 +166,7 @@ SCREENS = [
      [("_prune_splitter", True)]),
     ("db_browser", _db_browser, ["Tables", "Table preview"],
      [("_body_splitter", False)]),
-    ("distributed_jobs", _distributed_jobs, ["Jobs", "Job details and log"],
+    ("distributed_jobs", _distributed_jobs, ["Jobs", "Console", "System"],
      [("_body_splitter", True)]),
     ("dose_response", _dose_response,
      ["Dose-response curves", "Fit results", "Report"],

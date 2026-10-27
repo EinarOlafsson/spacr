@@ -17,6 +17,10 @@ placeholder inside one argument, so shell operators have no special meaning.
 from __future__ import annotations
 
 import contextlib
+import base64
+import codecs
+import fnmatch
+import functools
 import hashlib
 import json
 import os
@@ -26,7 +30,7 @@ import shlex
 import subprocess
 import threading
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence
@@ -48,7 +52,77 @@ __all__ = [
     "state_directory",
 ]
 
-BACKENDS = ("ssh", "slurm", "command")
+BACKENDS = ("ssh", "slurm", "pbs", "lsf", "command")
+_AUTH_MODES = ("openssh", "interactive", "gssapi", "custom")
+_SCHEDULERS = ("slurm", "pbs", "lsf")
+_RESOURCE_KEYS = ("partition", "account", "qos", "gpus", "gpu_type", "cpus",
+                  "mem", "time", "nodes", "mail_type", "mail_user", "extra")
+_RESOURCE_PATTERNS = {
+    "partition": r"[A-Za-z0-9_.,-]+", "account": r"[A-Za-z0-9_.-]+",
+    "qos": r"[A-Za-z0-9_.-]+", "gpus": r"[0-9]{1,3}", "gpu_type": r"[A-Za-z0-9_.-]+",
+    "cpus": r"[0-9]{1,4}", "mem": r"[0-9]+(\.[0-9]+)?([KMGT]B?|[kmgt]b?)?",
+    "time": r"([0-9]+-)?[0-9]{1,4}(:[0-9]{1,2}){0,2}", "nodes": r"[0-9]{1,4}",
+    "mail_type": r"[A-Za-z_,]+", "mail_user": r"[^\s'\"\\;&|<>`$]+",
+}
+_LOGIN_PATTERN_RE = re.compile(r"^[A-Za-z0-9*?._\[\]-]+$")
+_DEFAULT_LOGIN_PATTERNS = ("*login*",)
+_LOGIN_REFUSED_EXIT = 97
+_SCRIPT_VALUE_KEYS = ("settings_path", "job_dir", "module", "job_name", "log_dir",
+                      "log_path", "workdir", "job_id", "gpus", "cpus", "mem", "time",
+                      "partition", "account", "qos")
+_SCRIPT_CODE_KEYS = ("env_setup", "scheduler_directives", "run_command",
+                     "runner_check", "runner")
+_JOB_SCRIPT_PLACEHOLDERS = _SCRIPT_VALUE_KEYS + _SCRIPT_CODE_KEYS
+_PLACEHOLDER_RE = re.compile(r"(?<![$\w{])\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\})")
+_SCRIPT_BODY = (
+    "{env_setup}\n\n"
+    "cd {workdir}\n"
+    "echo \"spaCR job {job_name} on $(hostname)\"\n"
+    "export PYTHONUNBUFFERED=1\n"
+    "{runner_check}\n"
+    "exec {run_command}\n"
+)
+_SCRIPT_PRESETS = {
+    "slurm": "#!/bin/bash -l\n{scheduler_directives}\n\n" + _SCRIPT_BODY.replace(
+        "on $(hostname)", "on $(hostname), ${SLURM_CPUS_PER_TASK:-1} CPUs, GPUs ${CUDA_VISIBLE_DEVICES:-none}"),
+    "pbs": "#!/bin/bash -l\n{scheduler_directives}\n\nexec >> {log_path} 2>&1\n" + _SCRIPT_BODY,
+    "lsf": "#!/bin/bash -l\n{scheduler_directives}\n\nexec >> {log_path} 2>&1\n" + _SCRIPT_BODY,
+    "ssh": "#!/bin/bash -l\n" + _SCRIPT_BODY,
+}
+_ENV_PRESETS = {
+    "module_mamba": "module load mamba\nmamba activate spacr",
+    "conda": "eval \"$(conda shell.bash hook)\"\nconda activate spacr",
+    "venv": "source \"$HOME/spacr-venv/bin/activate\"",
+    "pip_install": "pip install spacr",
+    "pip_upgrade": "pip install --upgrade spacr",
+}
+_PROFILE_PRESETS = {
+    "slurm_module_mamba": {
+        "backend": "slurm", "env_setup": _ENV_PRESETS["module_mamba"],
+        "resources": {"partition": "gpu", "gpus": "1", "cpus": "20", "mem": "90G",
+                      "time": "48:00:00", "mail_type": "END,FAIL"},
+        "login_hosts": "*login*",
+    },
+    "slurm_conda": {
+        "backend": "slurm", "env_setup": _ENV_PRESETS["conda"],
+        "resources": {"cpus": "8", "mem": "32G", "time": "12:00:00"},
+        "login_hosts": "*login*",
+    },
+    "pbs_conda": {
+        "backend": "pbs", "env_setup": _ENV_PRESETS["conda"],
+        "resources": {"cpus": "8", "mem": "32G", "time": "12:00:00"},
+        "login_hosts": "*login*",
+    },
+    "lsf_conda": {
+        "backend": "lsf", "env_setup": _ENV_PRESETS["conda"],
+        "resources": {"cpus": "8", "mem": "32G", "time": "12:00:00"},
+        "login_hosts": "*login*",
+    },
+    "workstation_venv": {
+        "backend": "ssh", "env_setup": _ENV_PRESETS["venv"], "resources": {},
+        "login_hosts": "",
+    },
+}
 ACTIVE_STATES = frozenset({"submitting", "queued", "pending", "running"})
 TERMINAL_STATES = frozenset({"success", "failed", "cancelled"})
 _ALL_STATES = ACTIVE_STATES | TERMINAL_STATES | {"unknown"}
@@ -231,6 +305,26 @@ class ExecutionProfile:
         keyboard-interactive prompts instead of the external OpenSSH command.
     :param ssh_keychain: remember the login password, never one-time codes or
         push answers, in the operating-system keychain; off by default.
+    :param auth_mode: how spaCR signs in: ``openssh`` (SSH config, keys,
+        agent and ControlMaster reuse), ``interactive`` (password and
+        second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket)
+        or ``custom`` (the user's own SSH command). Blank follows
+        ``ssh_interactive``.
+    :param ssh_command: custom SSH command for ``custom`` sign-in; ``{host}``
+        is the target and ``{command}`` the remote command, appended when
+        absent. It may not carry a password.
+    :param resources: scheduler resources: partition, account, qos, gpus,
+        gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra
+        scheduler lines.
+    :param env_setup: shell lines that prepare the remote environment before
+        spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``.
+    :param job_script: editable job-script template with placeholders such as
+        ``{settings_path}`` and ``{run_command}``; blank uses the backend's
+        default script.
+    :param login_hosts: comma-separated host-name patterns of login nodes on
+        which spaCR must never run compute.
+    :param direct_run: explicit opt-in to run directly over SSH on a host with
+        no scheduler, skipping the login-node refusal.
     """
 
     name: str
@@ -250,6 +344,13 @@ class ExecutionProfile:
     ssh_options: Dict[str, str] = field(default_factory=dict)
     ssh_interactive: bool = False
     ssh_keychain: bool = False
+    auth_mode: str = ""
+    ssh_command: str = ""
+    resources: Dict[str, str] = field(default_factory=dict)
+    env_setup: str = ""
+    job_script: str = ""
+    login_hosts: str = ""
+    direct_run: bool = False
 
     def validate(self) -> "ExecutionProfile":
         """Validate the profile and return ``self`` for fluent callers."""
@@ -286,7 +387,8 @@ class ExecutionProfile:
             raise RemoteExecutionError(tr("SSH interactive authentication must be a boolean."))
         if not isinstance(self.ssh_keychain, bool):
             raise RemoteExecutionError(tr("SSH keychain storage must be a boolean."))
-        if self.backend in {"ssh", "slurm"}:
+        _validate_connection_fields(self)
+        if self.backend in {"ssh", *_SCHEDULERS}:
             if self.host:
                 host = _safe_text(self.host, "SSH host")
                 if host.startswith("-") or not _HOST_RE.fullmatch(host):
@@ -314,6 +416,7 @@ class ExecutionProfile:
                     self.scheduler_options, "Slurm options",
                     require_program=False, posix=True,
                 )
+            _validate_script_fields(self)
 
         if self.backend == "command":
             for label, command in (
@@ -384,6 +487,9 @@ class RemoteJob:
         after a successful refresh or cancellation.
     :param profile: submission-time profile snapshot, retained so the job
         remains operable after profile edits or deletion.
+    :param job_script: the rendered job script exactly as it was sent.
+    :param allocation_id: the scheduler allocation the job runs inside, or
+        blank for a batch job.
     """
 
     job_id: str
@@ -403,6 +509,8 @@ class RemoteJob:
     exit_code: Optional[int] = None
     error: str = ""
     profile: Dict[str, Any] = field(default_factory=dict)
+    job_script: str = ""
+    allocation_id: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         """Return a JSON-safe representation."""
@@ -799,6 +907,643 @@ def _render_template(
     return rendered
 
 
+def _auth_mode(profile) -> str:
+    """Return the sign-in method a profile uses.
+
+    :param profile: the execution profile.
+    :returns: one of :data:`_AUTH_MODES`. A blank ``auth_mode`` follows the
+        older ``ssh_interactive`` switch, so profiles saved before sign-in
+        methods existed keep working unchanged.
+    """
+    if profile.auth_mode:
+        return profile.auth_mode
+    return "interactive" if profile.ssh_interactive else "openssh"
+
+
+def _login_patterns(text) -> List[str]:
+    """Split and validate a profile's login-node host patterns.
+
+    :param text: comma- or space-separated shell-style host patterns.
+    :returns: the patterns.
+    :raises RemoteExecutionError: if a pattern holds characters that a shell
+        ``case`` statement would treat as code.
+    """
+    patterns = [item for item in re.split(r"[\s,]+", str(text or "")) if item]
+    for pattern in patterns:
+        if not _LOGIN_PATTERN_RE.fullmatch(pattern):
+            raise RemoteExecutionError(tr("Login host pattern {pattern} may contain only letters, numbers, '.', '-', '_' and the wildcards * ? [ ].").format(pattern=pattern))
+    return patterns
+
+
+def _validate_resources(resources) -> None:
+    """Check scheduler resources before they reach a job script.
+
+    :param resources: the profile's resource mapping.
+    :raises RemoteExecutionError: naming the first unknown key or malformed
+        value. Values are written into scheduler directives, so anything a
+        scheduler or shell could read as more than one value is refused.
+    """
+    if not isinstance(resources, dict):
+        raise RemoteExecutionError(tr("Resources must be a mapping of names to values."))
+    for key, value in resources.items():
+        if key not in _RESOURCE_KEYS or not isinstance(value, str) or "\x00" in value:
+            raise RemoteExecutionError(tr("Resources may contain only {keys}.").format(keys=", ".join(_RESOURCE_KEYS)))
+        if key == "extra":
+            if len(value) > 16384:
+                raise RemoteExecutionError(tr("Extra scheduler lines are too long."))
+            continue
+        if value.strip() and not re.fullmatch(_RESOURCE_PATTERNS[key], value.strip()):
+            raise RemoteExecutionError(tr("Resource {key} has an invalid value: {value}").format(key=key, value=value))
+
+
+def _validate_connection_fields(profile) -> None:
+    """Validate the sign-in method, custom SSH command and safety switches.
+
+    :param profile: the execution profile.
+    :raises RemoteExecutionError: on an unknown method, a custom command that
+        cannot be parsed or that carries a password, or a malformed field.
+    """
+    if profile.auth_mode not in ("", *_AUTH_MODES):
+        raise RemoteExecutionError(tr("Unknown sign-in method {mode}; choose openssh, interactive, gssapi or custom.").format(mode=profile.auth_mode))
+    if not isinstance(profile.direct_run, bool):
+        raise RemoteExecutionError(tr("Run directly over ssh must be a boolean."))
+    if _auth_mode(profile) == "custom":
+        command = _safe_text(profile.ssh_command, tr("Custom SSH command"))
+        argv = _split_template(command, tr("Custom SSH command"), posix=os.name != "nt")
+        if (os.path.basename(argv[0]).casefold().startswith("sshpass")
+                or any(re.match(r"(?i)(?:--?password(?:=|$)|password=)", token)
+                       for token in argv)):
+            raise RemoteExecutionError(tr("A custom SSH command may not contain a password. Use sign-in in spaCR, which can keep the password in the system keychain."))
+    _login_patterns(profile.login_hosts)
+    _validate_resources(profile.resources)
+    for label, text in ((tr("Environment setup"), profile.env_setup), (tr("Job script"), profile.job_script)):
+        if not isinstance(text, str) or "\x00" in text or len(text) > 65536:
+            raise RemoteExecutionError(tr("{label} must be text shorter than 64 KB.").format(label=label))
+
+
+def _validate_script_fields(profile) -> None:
+    """Refuse a job-script template that names a placeholder spaCR lacks.
+
+    :param profile: the execution profile.
+    :raises RemoteExecutionError: naming the unknown placeholder, so a typo
+        such as ``{setings_path}`` fails when the profile is saved rather than
+        on the cluster.
+    """
+    for name in _PLACEHOLDER_RE.findall(profile.job_script or ""):
+        if name not in _JOB_SCRIPT_PLACEHOLDERS:
+            raise RemoteExecutionError(tr("Job script uses an unknown placeholder: {name}. Known placeholders: {known}.").format(
+                name="{" + name + "}", known=", ".join("{" + key + "}" for key in _JOB_SCRIPT_PLACEHOLDERS)))
+
+
+def _placeholder_value(context, label, match) -> str:
+    """Return the replacement for one job-script placeholder.
+
+    :param context: placeholder values.
+    :param label: the template's name, used in the error.
+    :param match: the regular-expression match of ``{name}``.
+    :returns: the value.
+    :raises RemoteExecutionError: if the name is unknown.
+    """
+    name = match.group(1)
+    if name not in context:
+        raise RemoteExecutionError(tr("Job script uses an unknown placeholder: {name}. Known placeholders: {known}.").format(
+            name="{" + name + "}", known=", ".join("{" + key + "}" for key in context)))
+    return context[name]
+
+
+def _fill_script(template: str, context: Mapping[str, str], label: str) -> str:
+    """Substitute placeholders in one pass, leaving shell ``${VAR}`` alone.
+
+    :param template: the job-script template.
+    :param context: placeholder values.
+    :param label: the template's name, used in errors.
+    :returns: the rendered text. Substituted values are never rescanned.
+    """
+    return _PLACEHOLDER_RE.sub(functools.partial(_placeholder_value, context, label), template)
+
+
+def _minutes(value: str) -> int:
+    """Convert a Slurm-style time limit to whole minutes.
+
+    :param value: ``MM``, ``MM:SS``, ``HH:MM:SS`` or ``D-HH[:MM[:SS]]``.
+    :returns: minutes, rounding seconds up; 0 when blank.
+    """
+    text = str(value or "").strip()
+    if not text:
+        return 0
+    days = 0
+    if "-" in text:
+        head, text = text.split("-", 1)
+        days = int(head)
+        parts = [int(part) for part in text.split(":")] + [0, 0]
+        hours, minutes, seconds = parts[0], parts[1], parts[2]
+    else:
+        parts = [int(part) for part in text.split(":")]
+        if len(parts) == 1:
+            hours, minutes, seconds = 0, parts[0], 0
+        elif len(parts) == 2:
+            hours, minutes, seconds = 0, parts[0], parts[1]
+        else:
+            hours, minutes, seconds = parts[0], parts[1], parts[2]
+    return days * 1440 + hours * 60 + minutes + (1 if seconds else 0)
+
+
+def _mem_mb(value: str) -> int:
+    """Convert a memory request such as ``90G`` to megabytes.
+
+    :param value: a number with an optional K, M, G or T unit; no unit is MB,
+        as in Slurm.
+    :returns: megabytes; 0 when blank or unreadable.
+    """
+    match = re.fullmatch(r"([0-9.]+)\s*([KMGTkmgt])?[Bb]?", str(value or "").strip())
+    if not match:
+        return 0
+    scale = {"k": 1 / 1024, "m": 1, "g": 1024, "t": 1024 * 1024}[(match.group(2) or "m").lower()]
+    return int(float(match.group(1)) * scale)
+
+
+def _scheduler_output_path(backend: str, path: str) -> str:
+    """Quote one output path using the scheduler's directive token grammar.
+
+    PBS copies quoted contents literally, unlike Slurm's backslash-aware
+    scanner. LSF accepts double-quoted option arguments. Plain paths retain
+    their original representation.
+    """
+    if not any(character.isspace() or character in "\"'\\#" for character in path):
+        return path
+    if backend == "pbs":
+        return shlex.quote(path)
+    return '"' + path.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+def _scheduler_directives(profile, job_name: str, log_path: str) -> str:
+    """Render the profile's resources as scheduler directive lines.
+
+    :param profile: the execution profile; its backend picks ``#SBATCH``,
+        ``#PBS`` or ``#BSUB``.
+    :param job_name: the scheduler job name.
+    :param log_path: where the scheduler writes the job's output.
+    :returns: the directive block, or an empty string for a backend without
+        a scheduler.
+    """
+    resources = {key: str(value).strip() for key, value in profile.resources.items()
+                 if key != "extra" and str(value).strip()}
+    gpus = resources.get("gpus", "0") or "0"
+    output_path = _scheduler_output_path(profile.backend, log_path)
+    lines = []
+    if profile.backend == "slurm":
+        prefix = "#SBATCH "
+        lines += [f"--job-name={job_name}", f"--output={output_path}"]
+        for key, flag in (("partition", "--partition"), ("account", "--account"), ("qos", "--qos"),
+                          ("nodes", "--nodes"), ("cpus", "--cpus-per-task"), ("mem", "--mem"),
+                          ("time", "--time"), ("mail_type", "--mail-type"), ("mail_user", "--mail-user")):
+            if key in resources:
+                lines.append(f"{flag}={resources[key]}")
+        if int(gpus):
+            gpu_type = resources.get("gpu_type")
+            lines.append("--gpus=" + (f"{gpu_type}:" if gpu_type else "") + gpus)
+    elif profile.backend == "pbs":
+        prefix = "#PBS "
+        lines += [f"-N {job_name[:15]}", f"-o {output_path}", "-j oe"]
+        if "partition" in resources:
+            lines.append(f"-q {resources['partition']}")
+        if "account" in resources:
+            lines.append(f"-A {resources['account']}")
+        select = f"select={resources.get('nodes', '1')}:ncpus={resources.get('cpus', '1')}"
+        if int(gpus):
+            select += f":ngpus={gpus}"
+        if "mem" in resources:
+            select += f":mem={_mem_mb(resources['mem'])}mb"
+        lines.append(f"-l {select}")
+        if "time" in resources:
+            total = _minutes(resources["time"])
+            lines.append(f"-l walltime={total // 60}:{total % 60:02d}:00")
+        mail = resources.get("mail_type", "").upper()
+        letters = "".join(letter for word, letter in (("BEGIN", "b"), ("END", "e"), ("FAIL", "a")) if word in mail or "ALL" in mail)
+        if letters:
+            lines.append(f"-m {letters}")
+        if "mail_user" in resources:
+            lines.append(f"-M {resources['mail_user']}")
+    elif profile.backend == "lsf":
+        prefix = "#BSUB "
+        lines += [f"-J {job_name}", f"-o {output_path}"]
+        if "partition" in resources:
+            lines.append(f"-q {resources['partition']}")
+        if "account" in resources:
+            lines.append(f"-P {resources['account']}")
+        if "cpus" in resources:
+            lines += [f"-n {resources['cpus']}", '-R "span[hosts=1]"']
+        if int(gpus):
+            gpu_type = resources.get("gpu_type")
+            lines.append(f'-gpu "num={gpus}' + (f":gmodel={gpu_type}" if gpu_type else "") + '"')
+        if "mem" in resources:
+            lines.append(f"-M {_mem_mb(resources['mem'])}MB")
+        if "time" in resources:
+            total = _minutes(resources["time"])
+            lines.append(f"-W {total // 60}:{total % 60:02d}")
+        mail = resources.get("mail_type", "").upper()
+        if "BEGIN" in mail or "ALL" in mail:
+            lines.append("-B")
+        if "END" in mail or "FAIL" in mail or "ALL" in mail:
+            lines.append("-N")
+        if "mail_user" in resources:
+            lines.append(f"-u {resources['mail_user']}")
+    else:
+        return ""
+    block = [prefix + line for line in lines]
+    for extra in str(profile.resources.get("extra", "")).splitlines():
+        extra = extra.strip()
+        if extra:
+            block.append(extra if extra.startswith("#") else prefix + extra)
+    return "\n".join(block)
+
+
+def _runner_argv(profile) -> List[str]:
+    """Split the profile's spaCR runner into words.
+
+    :param profile: the execution profile.
+    :returns: the runner's argument vector, such as ``["spacr-run"]``.
+    """
+    return _split_template(profile.runner, "spaCR runner", posix=True)
+
+
+def _script_context(profile, job, job_dir: str, settings_path: str, log_path: str) -> Dict[str, str]:
+    """Build every value a job-script template may name.
+
+    Value placeholders are shell-quoted when they need it; code placeholders
+    (environment setup, directives, the run line and the runner check) are
+    inserted as written, because they ARE shell code.
+
+    :param profile: the execution profile.
+    :param job: the job being submitted.
+    :param job_dir: the remote job directory.
+    :param settings_path: the uploaded settings file.
+    :param log_path: the job's log file.
+    :returns: placeholder name to text.
+    """
+    runner = _runner_argv(profile)
+    job_name = f"spacr-{job.module}-{job.job_id[:8]}"
+    resources = profile.resources
+    values = {
+        "settings_path": settings_path, "job_dir": job_dir, "module": job.module,
+        "job_name": job_name, "log_dir": posixpath.dirname(log_path), "log_path": log_path,
+        "workdir": profile.workdir, "job_id": job.job_id,
+        **{key: str(resources.get(key, "")).strip() for key in ("gpus", "cpus", "mem", "time", "partition", "account", "qos")},
+    }
+    context = {key: shlex.quote(value) if value else "" for key, value in values.items()}
+    message = (f"spaCR: {runner[0]} was not found on PATH (exit 127). Add environment setup lines "
+               "that provide it to the job script, for example: module load mamba; mamba activate spacr, "
+               "or conda activate spacr, or pip install spacr.")
+    context.update({
+        "runner": shlex.join(runner),
+        "run_command": shlex.join([*runner, job.module, "--settings", settings_path]),
+        "env_setup": str(profile.env_setup or "").strip(),
+        "scheduler_directives": _scheduler_directives(profile, job_name, log_path),
+        "runner_check": f"command -v {shlex.quote(runner[0])} >/dev/null 2>&1 || "
+                        f"{{ echo {shlex.quote(message)} >&2; exit 127; }}",
+    })
+    return context
+
+
+def _login_guard(profile) -> str:
+    """Shell lines that refuse to start outside a scheduler job on a login node.
+
+    The check runs ON the remote host: a host name matching a login pattern,
+    or any installed batch scheduler, with no scheduler job id in the
+    environment, means the command would run on a shared login node.
+
+    :param profile: the execution profile; its ``login_hosts`` add patterns.
+    :returns: the guard, ending in a newline.
+    """
+    patterns = "|".join(dict.fromkeys([*_DEFAULT_LOGIN_PATTERNS, *_login_patterns(profile.login_hosts)]))
+    return (
+        "spacr_host=$(hostname 2>/dev/null || uname -n)\n"
+        'if [ -z "${SLURM_JOB_ID:-}${PBS_JOBID:-}${LSB_JOBID:-}" ]; then\n'
+        f'  case "$spacr_host" in {patterns}) echo "spaCR refused to start on $spacr_host: it is a cluster '
+        'login node. Submit through the scheduler or start an allocation." >&2; '
+        f"exit {_LOGIN_REFUSED_EXIT};; esac\n"
+        "  for spacr_scheduler in sbatch qsub bsub; do\n"
+        '    if command -v "$spacr_scheduler" >/dev/null 2>&1; then echo "spaCR refused to start on '
+        '$spacr_host: $spacr_scheduler is installed, so this is a cluster node outside a job. Submit through '
+        'the scheduler or start an allocation." >&2; '
+        f"exit {_LOGIN_REFUSED_EXIT}; fi\n"
+        "  done\n"
+        "fi\n"
+    )
+
+
+def _with_login_guard(script: str, profile) -> str:
+    """Insert the login-node guard after the shebang and directive lines.
+
+    :param script: the rendered job script.
+    :param profile: the execution profile; ``direct_run`` leaves the script
+        unguarded, as the user explicitly chose.
+    :returns: the guarded script.
+    """
+    if profile.direct_run:
+        return script
+    lines = script.splitlines()
+    index = 0
+    while index < len(lines) and (not lines[index].strip() or lines[index].lstrip().startswith("#")):
+        index += 1
+    return "\n".join([*lines[:index], _login_guard(profile).rstrip("\n"), *lines[index:]]) + "\n"
+
+
+def _job_script_text(profile, job, job_dir: str, settings_path: str, log_path: str) -> str:
+    """Render the job script the remote host will run.
+
+    :param profile: the execution profile; a blank ``job_script`` uses the
+        backend's default from :data:`_SCRIPT_PRESETS`.
+    :param job: the job.
+    :param job_dir: the remote job directory.
+    :param settings_path: the uploaded settings file.
+    :param log_path: the job's log file.
+    :returns: the script, guarded against login nodes unless the profile
+        opted into running directly.
+    """
+    template = profile.job_script or _SCRIPT_PRESETS.get(profile.backend, _SCRIPT_PRESETS["ssh"])
+    text = _fill_script(template, _script_context(profile, job, job_dir, settings_path, log_path), tr("Job script"))
+    return _with_login_guard(text, profile)
+
+
+def _preview_job_script(profile, module: str) -> str:
+    """Render the script a submission would send, for review before sending.
+
+    :param profile: the execution profile.
+    :param module: the spaCR module that would run.
+    :returns: the script, with ``preview`` standing in for the job id.
+    """
+    job = RemoteJob("preview", module, profile.name, profile.backend)
+    job_dir, settings_path, log_path = _remote_paths(profile, job)
+    return _job_script_text(profile, job, job_dir, settings_path, log_path)
+
+
+def _interpreter(script: str) -> List[str]:
+    """Return the interpreter the script's ``#!`` line names.
+
+    Running the interpreter on the file, rather than the file itself, works on
+    file systems mounted without execute permission.
+
+    :param script: the job script.
+    :returns: the interpreter's argument vector; ``["/bin/sh"]`` without one.
+    """
+    first = script.split("\n", 1)[0]
+    if first.startswith("#!"):
+        words = first[2:].split()
+        if words:
+            return words
+    return ["/bin/sh"]
+
+
+def _login_refusal(host: str) -> str:
+    """Explain why spaCR will not run compute on a login node.
+
+    :param host: the host name.
+    :returns: the message.
+    """
+    return tr("spaCR will not run compute on {host}: it is a cluster login node, and running jobs there can get an account banned. Submit through the scheduler (a Slurm, PBS or LSF profile) or start an allocation and run inside it. If {host} is a private workstation with no scheduler, tick Run directly over ssh in the profile.").format(host=host)
+
+
+def _refuse_login_node(profile) -> None:
+    """Refuse a direct ssh run whose target matches a login-node pattern.
+
+    :param profile: the execution profile.
+    :raises RemoteExecutionError: before anything is sent, when an ``ssh``
+        profile without the ``direct_run`` opt-in names a login host.
+    """
+    if profile.backend != "ssh" or profile.direct_run:
+        return
+    patterns = [*_DEFAULT_LOGIN_PATTERNS, *_login_patterns(profile.login_hosts)]
+    for name in (profile.host.rsplit("@", 1)[-1], profile.ssh_options.get("hostname", "")):
+        if name and any(fnmatch.fnmatchcase(name.casefold(), pattern.casefold()) for pattern in patterns):
+            raise RemoteExecutionError(_login_refusal(name))
+
+
+def _exit_hint(code, profile) -> str:
+    """Explain an exit status the user can fix, or return an empty string.
+
+    :param code: the job's exit status.
+    :param profile: the execution profile.
+    :returns: the explanation.
+    """
+    if code == 127:
+        return tr("Exit code 127 means a command was not found: the job's environment did not provide {runner}. Add environment setup lines to the job script, for example module load mamba and mamba activate spacr, conda activate spacr, or pip install spacr.").format(runner=profile.runner)
+    if code == _LOGIN_REFUSED_EXIT:
+        return tr("spaCR refused to start because the job was on a cluster login node, outside a scheduler job. Submit through the scheduler or start an allocation and run inside it.")
+    return ""
+
+
+_CLUSTER_PROBE = (
+    "echo '##host'; hostname 2>/dev/null\n"
+    "echo '##user'; id -un 2>/dev/null\n"
+    "echo '##cpus'; nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null\n"
+    "echo '##mem_mb'; free -m 2>/dev/null | awk '/^Mem:/{print $2}'\n"
+    "echo '##gpu'; nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null\n"
+    "echo '##sinfo'; command -v sinfo >/dev/null 2>&1 && sinfo -h -o '%P|%a|%l|%D|%c|%m|%G' 2>/dev/null\n"
+    "echo '##assoc'; command -v sacctmgr >/dev/null 2>&1 && "
+    "sacctmgr -n -P show assoc user=\"$(id -un)\" format=Account,Partition,QOS 2>/dev/null\n"
+    "echo '##pbs'; command -v pbsnodes >/dev/null 2>&1 && qstat -Q 2>/dev/null\n"
+    "echo '##lsf'; command -v bqueues >/dev/null 2>&1 && bqueues -w 2>/dev/null\n"
+    "echo '##end'\n"
+)
+
+
+def _parse_gres(text: str) -> tuple:
+    """Read the GPU count and models from a Slurm GRES string.
+
+    :param text: such as ``gpu:v100:2(S:0-1),gpu:a100:4`` or ``(null)``.
+    :returns: ``(largest GPU count per node, sorted GPU models)``.
+    """
+    count, models = 0, set()
+    for piece in str(text or "").split(","):
+        piece = re.sub(r"\(.*?\)", "", piece).strip()
+        parts = piece.split(":")
+        if not parts or parts[0] != "gpu":
+            continue
+        number = parts[-1] if parts[-1].isdigit() else "1"
+        if len(parts) == 3 or (len(parts) == 2 and not parts[1].isdigit()):
+            models.add(parts[1])
+        count = max(count, int(number))
+    return count, sorted(models)
+
+
+def _parse_cluster_probe(text: str) -> Dict[str, Any]:
+    """Parse the read-only cluster probe into what the System panel shows.
+
+    :param text: the probe's output, in ``##section`` blocks.
+    :returns: host, user, CPUs, memory and GPUs of the host reached; the
+        Slurm partitions with nodes, CPUs, memory, GPUs and time limit per
+        partition; the user's accounts with partitions and QoS; PBS or LSF
+        queues; and which scheduler was found.
+    """
+    sections: Dict[str, List[str]] = {}
+    current = ""
+    for line in str(text or "").splitlines():
+        if line.startswith("##"):
+            current = line[2:].strip()
+            sections.setdefault(current, [])
+        elif current and line.strip():
+            sections[current].append(line.strip())
+    partitions = []
+    for row in sections.get("sinfo", []):
+        fields = row.split("|")
+        if len(fields) < 7:
+            continue
+        name, available, limit, nodes, cpus, memory, gres = fields[:7]
+        gpus, models = _parse_gres(gres)
+        partitions.append({
+            "partition": name.rstrip("*"), "default": name.endswith("*"), "available": available,
+            "time_limit": limit, "nodes": int(nodes) if nodes.isdigit() else 0,
+            "cpus": int(cpus.rstrip("+")) if cpus.rstrip("+").isdigit() else 0,
+            "mem_mb": int(memory.rstrip("+")) if memory.rstrip("+").isdigit() else 0,
+            "gpus": gpus, "gpu_types": models,
+        })
+    accounts = []
+    for row in sections.get("assoc", []):
+        fields = (row.split("|") + ["", "", ""])[:3]
+        if fields[0]:
+            accounts.append({"account": fields[0], "partition": fields[1],
+                             "qos": [item for item in fields[2].split(",") if item]})
+    queues = {}
+    for key, header in (("pbs", "Queue"), ("lsf", "QUEUE_NAME")):
+        rows = [row.split()[0] for row in sections.get(key, [])
+                if row.split() and not row.startswith(header) and not set(row) <= set("- ")]
+        queues[key] = rows
+    host = (sections.get("host") or [""])[0]
+    gpus = [row for row in sections.get("gpu", [])]
+    scheduler = "slurm" if partitions else "pbs" if queues["pbs"] else "lsf" if queues["lsf"] else ""
+    first = (sections.get("cpus") or [""])[0]
+    memory = (sections.get("mem_mb") or [""])[0]
+    return {"host": host, "user": (sections.get("user") or [""])[0],
+            "cpus": int(first) if first.isdigit() else 0,
+            "mem_mb": int(memory) if memory.isdigit() else 0, "gpus": gpus,
+            "partitions": partitions, "accounts": accounts,
+            "pbs_queues": queues["pbs"], "lsf_queues": queues["lsf"], "scheduler": scheduler}
+
+
+def _probe_cluster(profile, runner: CommandRunner = _run_command) -> Dict[str, Any]:
+    """Ask the cluster what the user can reach, using read-only queries only.
+
+    :param profile: the execution profile.
+    :param runner: how the command is run.
+    :returns: the parsed probe; see :func:`_parse_cluster_probe`.
+    :raises RemoteExecutionError: if the probe cannot run.
+    """
+    result = runner(_remote_script(profile, _CLUSTER_PROBE), timeout=120.0)
+    _require_ok(result, "Cluster resource query")
+    return _parse_cluster_probe(result.stdout)
+
+
+def _resource_problems(resources: Mapping[str, str], cluster: Mapping[str, Any]) -> List[str]:
+    """Compare requested resources with what the cluster reported.
+
+    :param resources: the profile's resources.
+    :param cluster: a parsed probe from :func:`_parse_cluster_probe`.
+    :returns: one message per request the cluster cannot meet; empty when
+        everything fits or nothing is known.
+    """
+    problems = []
+    partitions = list(cluster.get("partitions") or [])
+    names = [row["partition"] for row in partitions]
+    wanted = [item for item in str(resources.get("partition", "")).split(",") if item]
+    unknown = [name for name in wanted if names and name not in names]
+    if unknown:
+        problems.append(tr("Partition {partition} is not on this cluster; it has {names}.").format(
+            partition=", ".join(unknown), names=", ".join(dict.fromkeys(names))))
+    rows = ([row for row in partitions if row["partition"] in wanted] if wanted
+            else [row for row in partitions if row.get("default")])
+    label = ", ".join(wanted) or ", ".join(dict.fromkeys(row["partition"] for row in rows))
+    if rows:
+        checks = (
+            ("cpus", int(resources.get("cpus") or 0), max(row["cpus"] for row in rows),
+             tr("{count} CPUs per task were requested, but nodes in {partition} have at most {limit}.")),
+            ("gpus", int(resources.get("gpus") or 0), max(row["gpus"] for row in rows),
+             tr("{count} GPUs were requested, but nodes in {partition} have at most {limit}.")),
+            ("mem", _mem_mb(resources.get("mem", "")), max(row["mem_mb"] for row in rows),
+             tr("{count} MB of memory was requested, but nodes in {partition} have at most {limit} MB.")),
+        )
+        for _key, count, limit, message in checks:
+            if count and limit and count > limit:
+                problems.append(message.format(count=count, partition=label, limit=limit))
+        limits = [row["time_limit"] for row in rows if re.fullmatch(r"([0-9]+-)?[0-9:]+", row["time_limit"])]
+        requested = _minutes(resources.get("time", ""))
+        if requested and limits and len(limits) == len(rows) and requested > max(_minutes(limit) for limit in limits):
+            problems.append(tr("A wall time of {time} was requested, but {partition} allows at most {limit}.").format(
+                time=resources.get("time"), partition=label, limit=max(limits, key=_minutes)))
+        models = sorted({model for row in rows for model in row["gpu_types"]})
+        if resources.get("gpu_type") and models and resources["gpu_type"] not in models:
+            problems.append(tr("GPU type {gpu_type} is not in {partition}; it has {models}.").format(
+                gpu_type=resources["gpu_type"], partition=label, models=", ".join(models)))
+    accounts = cluster.get("accounts") or []
+    if resources.get("account") and accounts and resources["account"] not in {row["account"] for row in accounts}:
+        problems.append(tr("Account {account} is not one of your accounts: {accounts}.").format(
+            account=resources["account"], accounts=", ".join(dict.fromkeys(row["account"] for row in accounts))))
+    qos = {item for row in accounts for item in row["qos"]}
+    if resources.get("qos") and qos and resources["qos"] not in qos:
+        problems.append(tr("QoS {qos} is not available to you: {choices}.").format(
+            qos=resources["qos"], choices=", ".join(sorted(qos))))
+    return problems
+
+
+def _cluster_cache_path() -> Path:
+    """Return the file that remembers each profile's last cluster probe."""
+    return state_directory() / "clusters.json"
+
+
+def _save_cluster_cache(name: str, cluster: Mapping[str, Any]) -> None:
+    """Remember one profile's cluster probe for later sessions.
+
+    :param name: the profile name.
+    :param cluster: the parsed probe.
+    """
+    path = _cluster_cache_path()
+    with _LOCK, _file_lock(path.with_suffix(".json.lock")):
+        data = _read_json(path, {})
+        data[str(name).casefold()] = {**cluster, "read_utc": _utc_now()}
+        _write_json_atomic(path, data)
+
+
+def _load_cluster_cache(name: str) -> Dict[str, Any]:
+    """Return one profile's remembered cluster probe, or an empty mapping.
+
+    :param name: the profile name.
+    :returns: the probe; a cache that cannot be read counts as empty, since
+        it only offers suggestions.
+    """
+    try:
+        return dict(_read_json(_cluster_cache_path(), {}).get(str(name).casefold(), {}))
+    except (RemoteExecutionError, AttributeError):
+        return {}
+
+
+def _signin_command(profile) -> str:
+    """Return the terminal command that opens a reusable OpenSSH connection.
+
+    Signing in once in a terminal, with password and second factor, leaves an
+    OpenSSH ControlMaster that spaCR's own commands then reuse without
+    another prompt.
+
+    :param profile: the execution profile.
+    :returns: the command line.
+    """
+    options = dict(profile.ssh_options)
+    options.setdefault("controlmaster", "auto")
+    options.setdefault("controlpersist", "4h")
+    sample = replace(profile, ssh_options=options)
+    return shlex.join(["ssh", *_ssh_overrides(sample), "-fN", profile.host])
+
+
+def _allocation_shell_command(profile, allocation: str) -> str:
+    """Return the terminal command for an interactive shell inside an allocation.
+
+    :param profile: the execution profile.
+    :param allocation: the Slurm job id of the allocation.
+    :returns: the command line; the shell runs on the compute node.
+    """
+    return shlex.join(["ssh", "-t", *_ssh_overrides(profile), profile.host,
+                       f"srun --jobid={allocation} --overlap --pty bash -l"])
+
+
 def _ssh_config_directives(paths):
     """Read bounded static SSH directives; never execute Match or local commands."""
     import glob
@@ -976,7 +1721,34 @@ def _ssh_overrides(profile):
             if key in {"identityfile", "controlpath"} and any(character.isspace() or character == '"' for character in value):
                 value = '"' + value.replace('"', '\\"') + '"'
             arguments.extend(["-o", name + "=" + value])
+    master = profile.ssh_options.get("controlmaster", "").casefold()
+    if master and master != "no" and not profile.ssh_options.get("controlpath"):
+        arguments.extend(["-o", "ControlPath=" + _default_control_path()])
+    if _auth_mode(profile) == "gssapi":
+        arguments.extend(["-o", "GSSAPIAuthentication=yes", "-o", "GSSAPIDelegateCredentials=yes"])
     return arguments
+
+
+def _default_control_path() -> str:
+    """Return a private ControlPath for a profile that asks for ControlMaster.
+
+    OpenSSH ignores ControlMaster without a ControlPath, so a profile that
+    sets only ``ControlMaster auto`` would sign in again on every command.
+    The socket lives in spaCR's state directory, or in the temporary
+    directory when that path is too long for a Unix socket.
+
+    :returns: the path, with OpenSSH's ``%C`` connection hash.
+    """
+    import tempfile
+
+    folder = state_directory() / "ssh"
+    if len(str(folder)) > 60:
+        folder = Path(tempfile.gettempdir()) / f"spacr-ssh-{os.getuid() if hasattr(os, 'getuid') else 'user'}"
+    try:
+        folder.mkdir(parents=True, exist_ok=True, mode=0o700)
+    except OSError:
+        pass
+    return str(folder / "cm-%C")
 
 
 _KEYCHAIN_SERVICE = "spaCR SSH"
@@ -1287,10 +2059,7 @@ def _remote_argv(profile: ExecutionProfile, argv: Sequence[str]) -> List[str]:
     """
     if not profile.host:
         return list(argv)
-    command = shlex.join([str(item) for item in argv])
-    if profile.ssh_interactive:
-        return _interactive_ssh(profile, command)
-    return ["ssh", *_ssh_overrides(profile), profile.host, command]
+    return _ssh_wrap(profile, shlex.join([str(item) for item in argv]))
 
 
 def _remote_script(profile: ExecutionProfile, script: str) -> List[str]:
@@ -1303,9 +2072,26 @@ def _remote_script(profile: ExecutionProfile, script: str) -> List[str]:
     """
     if not profile.host:
         return ["sh", "-c", script]
-    command = "sh -c " + shlex.quote(script)
-    if profile.ssh_interactive:
+    return _ssh_wrap(profile, "sh -c " + shlex.quote(script))
+
+
+def _ssh_wrap(profile: ExecutionProfile, command: str) -> List[str]:
+    """Wrap one remote command line for the profile's sign-in method.
+
+    :param profile: the execution profile.
+    :param command: the remote command line, already shell-quoted.
+    :returns: the local argument vector: OpenSSH (with GSSAPI options for
+        Kerberos), the in-spaCR session for interactive sign-in, or the
+        user's custom SSH command with ``{host}`` and ``{command}`` filled.
+    """
+    mode = _auth_mode(profile)
+    if mode == "interactive":
         return _interactive_ssh(profile, command)
+    if mode == "custom":
+        argv = _split_template(profile.ssh_command, tr("Custom SSH command"), posix=os.name != "nt")
+        placed = any("{command}" in token for token in argv)
+        rendered = [token.replace("{host}", profile.host).replace("{command}", command) for token in argv]
+        return rendered if placed else [*rendered, command]
     return ["ssh", *_ssh_overrides(profile), profile.host, command]
 
 
@@ -1544,23 +2330,16 @@ class _SSHBackend(_Backend):
         job_dir, settings_path, log_path = _upload_settings(
             profile, job, payload, self.runner
         )
-        exit_path = posixpath.join(job_dir, "exit-code")
-        exit_tmp = posixpath.join(job_dir, ".exit-code.tmp")
-        command = shlex.join([
-            profile.runner, job.module, "--settings", settings_path,
-        ])
-        script = (
-            f"cd {shlex.quote(profile.workdir)} && "
-            f"( {command}; code=$?; "
-            f"printf '%s\\n' \"$code\" > {shlex.quote(exit_tmp)}; "
-            f"mv -f -- {shlex.quote(exit_tmp)} {shlex.quote(exit_path)} "
-            f") > {shlex.quote(log_path)} 2>&1 < /dev/null & "
-            "printf '%s\\n' \"$!\""
-        )
+        script = _job_script_text(profile, job, job_dir, settings_path, log_path)
         output = _require_ok(
-            self.runner(_remote_script(profile, script), timeout=60.0),
+            self.runner(
+                _remote_script(profile, _detached_launch(
+                    profile, job_dir, log_path, script,
+                    guard="" if profile.direct_run else _login_guard(profile))),
+                input_text=script, timeout=60.0),
             "SSH submission",
         )
+        job.job_script = script
         job.external_id = _safe_external_id(output.splitlines()[-1])
         if not job.external_id.isdecimal():
             raise RemoteExecutionError(
@@ -1628,6 +2407,126 @@ class _SSHBackend(_Backend):
         return result.stdout
 
 
+def _detached_launch(profile, job_dir: str, log_path: str, script: str, *,
+                     guard: str = "", wrapper: Sequence[str] = (), session: bool = False) -> str:
+    """Return the shell that stores a job script and starts it detached.
+
+    The script arrives on stdin, is written to ``job.sh`` and run by the
+    interpreter its ``#!`` line names, in the background with output to the
+    log, so the connection can drop without killing it. The exit status is
+    written to a temporary file and renamed into place, so a reader never
+    sees half a code.
+
+    :param profile: the execution profile.
+    :param job_dir: the remote job directory.
+    :param log_path: the job's log file.
+    :param script: the job script, used to choose its interpreter.
+    :param guard: shell lines run first, before anything starts; the
+        login-node guard exits there.
+    :param wrapper: words put before the interpreter, such as an ``srun``
+        line that runs the script inside an allocation.
+    :param session: isolate an allocation launcher and its children in a
+        recorded process group so cancellation also stops a waiting step.
+    :returns: the launch script; it prints the background process id.
+    """
+    job_sh = posixpath.join(job_dir, "job.sh")
+    exit_path = posixpath.join(job_dir, "exit-code")
+    exit_tmp = posixpath.join(job_dir, ".exit-code.tmp")
+    command = shlex.join([*wrapper, *_interpreter(script), job_sh])
+    body = (f"{command}; code=$?; printf '%s\\n' \"$code\" > {shlex.quote(exit_tmp)}; "
+            f"mv -f -- {shlex.quote(exit_tmp)} {shlex.quote(exit_path)}")
+    marker = shlex.quote(posixpath.join(job_dir, "launcher-group"))
+    if session:
+        body = f"printf '%s\\n' \"$$\" > {marker} || exit 1\n" + body
+    launch = shlex.join(["setsid", "sh", "-c", body]) if session else f"( {body} )"
+    preparation = ("command -v setsid >/dev/null 2>&1 || "
+                   "{ echo 'Allocation launch requires setsid.' >&2; exit 1; }\n") if session else ""
+    recorded = (
+        "for spacr_attempt in 1 2 3 4 5 6 7 8 9 10; do\n"
+        f"  test -s {marker} && break\n"
+        "  kill -0 \"$spacr_launcher\" 2>/dev/null || exit 1\n"
+        "  sleep 0.1\n"
+        "done\n"
+        f"test -s {marker} || {{ kill -s TERM \"$spacr_launcher\"; exit 1; }}\n"
+        f"spacr_launcher=$(cat {marker})\n"
+    ) if session else ""
+    return (
+        "umask 077\n"
+        f"cat > {shlex.quote(job_sh)} || exit 1\n"
+        f"{guard}"
+        f"cd {shlex.quote(profile.workdir)} || exit 1\n"
+        f"{preparation}{launch} > {shlex.quote(log_path)} 2>&1 < /dev/null &\n"
+        "spacr_launcher=$!\n"
+        f"{recorded}"
+        "printf '%s\\n' \"$spacr_launcher\"\n"
+    )
+
+
+def _allocation_cancel_script(job) -> str:
+    """Stop an owned allocation launcher group and confirm its named step is gone."""
+    identifier = str(job.external_id)
+    if not identifier.isdecimal():
+        raise RemoteExecutionError(tr("The allocation launcher has no valid process identity."))
+    marker = shlex.quote(posixpath.join(job.remote_job_dir, "launcher-group"))
+    job_sh = shlex.quote(posixpath.join(job.remote_job_dir, "job.sh"))
+    name = shlex.quote(f"spacr-{job.module}-{job.job_id[:8]}")
+    status = (
+        "spacr_processes=$(ps -ww -eo pgid=,stat=,args=) || exit 1\n"
+        f"spacr_group=$(printf '%s\\n' \"$spacr_processes\" | awk -v group={identifier} -v path={job_sh} "
+        "'$1 == group && $2 !~ /^Z/ { live=1; if (index($0,path)) owned=1 } "
+        "END { print live+0, owned+0 }')\n"
+    )
+    return (
+        f"spacr_marker={marker}\n"
+        "spacr_owned=0\n"
+        "if test -f \"$spacr_marker\"; then\n"
+        f"  test \"$(cat \"$spacr_marker\")\" = {shlex.quote(identifier)} || exit 1\n"
+        f"  {status}"
+        "  case \"$spacr_group\" in '1 0') echo 'Launcher ownership changed; cancellation refused.' >&2; exit 1;; esac\n"
+        f"  if [ \"$spacr_group\" = '1 1' ]; then env kill -s TERM -- -{identifier} || exit 1; fi\n"
+        "  for spacr_attempt in 1 2 3 4 5 6 7 8 9 10; do\n"
+        f"    {status}"
+        "    case \"$spacr_group\" in '0 0') break;; '1 0') exit 1;; esac\n"
+        f"    if [ \"$spacr_attempt\" = 5 ]; then env kill -s KILL -- -{identifier} || exit 1; fi\n"
+        "    sleep 0.1\n"
+        "  done\n"
+        f"  {status}"
+        "  test \"$spacr_group\" = '0 0' || exit 1\n"
+        "  spacr_owned=1\n"
+        "fi\n"
+        f"spacr_steps=$(squeue -h -s -j {shlex.quote(job.allocation_id)} -o '%i %j') || exit 1\n"
+        f"spacr_matching=$(printf '%s\\n' \"$spacr_steps\" | awk -v name={name} '$2 == name {{print $1}}')\n"
+        "if [ \"$spacr_owned\" = 0 ] && [ -z \"$spacr_matching\" ]; then "
+        "echo 'No owned launcher or scheduler step could be cancelled.' >&2; exit 1; fi\n"
+        "for spacr_step in $spacr_matching; do scancel \"$spacr_step\" || exit 1; done\n"
+        f"spacr_steps=$(squeue -h -s -j {shlex.quote(job.allocation_id)} -o '%i %j') || exit 1\n"
+        f"if printf '%s\\n' \"$spacr_steps\" | awk -v name={name} '$2 == name {{found=1}} END {{exit !found}}'; "
+        "then echo 'The scheduler step is still present; cancellation is not confirmed.' >&2; exit 1; fi\n"
+    )
+
+
+def _tail_log(runner: CommandRunner, profile, job, lines: int, label: str, missing: str) -> str:
+    """Fetch the last lines of a job's log file.
+
+    :param runner: how the command is run.
+    :param profile: the execution profile.
+    :param job: the job.
+    :param lines: how many lines, clamped to 1 through 10000.
+    :param label: the operation name used in errors.
+    :param missing: what to return while the scheduler has not created the
+        log yet.
+    :returns: the tail.
+    """
+    result = runner(
+        _remote_argv(profile, ["tail", "-n", str(max(1, min(int(lines), 10000))), "--", job.log_reference]),
+        timeout=30.0,
+    )
+    if result.returncode and "No such file" in result.stderr:
+        return missing
+    _require_ok(result, label)
+    return result.stdout
+
+
 class _SlurmBackend(_Backend):
     """Submits through ``sbatch`` and asks Slurm what happened.
 
@@ -1635,6 +2534,9 @@ class _SlurmBackend(_Backend):
     state, so nothing here has to be remembered between calls. Its ids
     are opaque strings rather than integers, because a Slurm id can carry
     an array suffix and parsing it to an int loses the task.
+
+    A job with an ``allocation_id`` runs inside an allocation the user
+    started, as an ``srun`` step, rather than as a batch job of its own.
     """
 
     def submit(
@@ -1651,12 +2553,14 @@ class _SlurmBackend(_Backend):
         job_dir, settings_path, log_path = _upload_settings(
             profile, job, payload, self.runner
         )
-        script = (
-            "#!/bin/sh\n"
-            "set -eu\n"
-            f"cd {shlex.quote(profile.workdir)}\n"
-            f"exec {shlex.join([profile.runner, job.module, '--settings', settings_path])}\n"
-        )
+        script = _job_script_text(profile, job, job_dir, settings_path, log_path)
+        job.job_script = script
+        job.remote_job_dir = job_dir
+        job.remote_settings_path = settings_path
+        job.log_reference = log_path
+        if job.allocation_id:
+            self._submit_in_allocation(profile, job, script)
+            return
         argv = ["sbatch", "--parsable", "--job-name",
                 f"spacr-{job.module}-{job.job_id[:8]}",
                 "--output", log_path]
@@ -1676,10 +2580,34 @@ class _SlurmBackend(_Backend):
         job.external_id = _safe_external_id(
             output.splitlines()[-1], allow_slurm_cluster_suffix=True
         )
-        job.remote_job_dir = job_dir
-        job.remote_settings_path = settings_path
-        job.log_reference = log_path
         job.status = "queued"
+
+    def _submit_in_allocation(self, profile: ExecutionProfile, job: RemoteJob, script: str) -> None:
+        """Start the job as an ``srun`` step inside a running allocation.
+
+        :param profile: the execution profile.
+        :param job: the job, with ``allocation_id`` set; updated in place.
+        :param script: the rendered job script.
+        """
+        resources = profile.resources
+        wrapper = ["srun", f"--jobid={job.allocation_id}", "--overlap", "--ntasks=1",
+                   f"--job-name=spacr-{job.module}-{job.job_id[:8]}"]
+        if str(resources.get("cpus", "")).strip():
+            wrapper.append(f"--cpus-per-task={resources['cpus'].strip()}")
+        if str(resources.get("gpus", "")).strip() not in ("", "0"):
+            wrapper.append(f"--gpus={resources['gpus'].strip()}")
+        output = _require_ok(
+            self.runner(_remote_script(profile, _detached_launch(
+                profile, job.remote_job_dir, job.log_reference, script, wrapper=wrapper, session=True)),
+                input_text=script, timeout=60.0),
+            "Allocation launch",
+        )
+        job.external_id = _safe_external_id(output.splitlines()[-1])
+        if not job.external_id.isdecimal():
+            raise RemoteExecutionError(
+                f"Allocation launch returned a non-numeric process ID: {job.external_id!r}."
+            )
+        job.status = "running"
 
     def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
         """Update the job's status from the scheduler on Slurm.
@@ -1687,6 +2615,23 @@ class _SlurmBackend(_Backend):
         :param profile: the execution profile.
         :param job: the job to act on; updated in place.
         """
+        if job.allocation_id:
+            exit_path = shlex.quote(posixpath.join(job.remote_job_dir, "exit-code"))
+            script = (
+                f"if test -f {exit_path}; then printf 'EXIT:'; cat {exit_path}; "
+                f"elif squeue -h -j {shlex.quote(job.allocation_id)} -o %T 2>/dev/null | grep -q RUNNING; "
+                "then printf 'RUNNING\\n'; else printf 'UNKNOWN\\n'; fi"
+            )
+            output = _require_ok(self.runner(_remote_script(profile, script), timeout=30.0),
+                                 "Allocation status check")
+            job.status, job.exit_code = _normalise_state(output)
+            if job.status == "unknown":
+                holder = replace(job, allocation_id="", external_id=job.allocation_id)
+                self.refresh(profile, holder)
+                if holder.status in TERMINAL_STATES:
+                    job.status = "cancelled" if holder.status == "cancelled" else "failed"
+                    job.exit_code = holder.exit_code if holder.exit_code else None
+            return
         result = self.runner(
             _remote_argv(
                 profile,
@@ -1719,9 +2664,17 @@ class _SlurmBackend(_Backend):
     def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
         """Cancel the job with ``scancel`` on Slurm.
 
+        A job inside an allocation cancels only its own step, by name, and
+        leaves the allocation for the next run.
+
         :param profile: the execution profile.
         :param job: the job to act on; updated in place.
         """
+        if job.allocation_id:
+            script = _allocation_cancel_script(job)
+            _require_ok(self.runner(_remote_script(profile, script), timeout=30.0), "Slurm cancellation")
+            job.status = "cancelled"
+            return
         _require_ok(
             self.runner(
                 _remote_argv(profile, ["scancel", job.external_id]),
@@ -1741,18 +2694,166 @@ class _SlurmBackend(_Backend):
         :param lines: how many lines to fetch.
         :returns: the tail, or the cached one when it cannot be reached.
         """
-        result = self.runner(
-            _remote_argv(
-                profile,
-                ["tail", "-n", str(max(1, min(int(lines), 10000))),
-                 "--", job.log_reference],
-            ),
-            timeout=30.0,
-        )
-        if result.returncode and "No such file" in result.stderr:
-            return "The Slurm log has not been created yet."
-        _require_ok(result, "Slurm log retrieval")
-        return result.stdout
+        return _tail_log(self.runner, profile, job, lines, "Slurm log retrieval",
+                         "The Slurm log has not been created yet.")
+
+
+def _parse_pbs_status(text: str) -> tuple:
+    """Read a job's state and exit status from ``qstat -f`` output.
+
+    :param text: the output.
+    :returns: ``(state, exit code or None)`` in spaCR's state model.
+    """
+    state = re.search(r"job_state\s*=\s*(\w)", text)
+    code = re.search(r"[Ee]xit_status\s*=\s*(-?\d+)", text)
+    exit_code = int(code.group(1)) if code else None
+    letter = state.group(1).upper() if state else ""
+    if letter in ("Q", "H", "W", "T", "S", "B"):
+        return "pending", None
+    if letter in ("R", "E"):
+        return "running", None
+    if letter in ("C", "F", "X"):
+        if exit_code is None:
+            return "unknown", None
+        return ("success" if exit_code == 0 else "failed"), exit_code
+    return "unknown", None
+
+
+class _PBSBackend(_Backend):
+    """Submits through ``qsub`` (PBS Pro, OpenPBS or Torque)."""
+
+    def submit(self, profile: ExecutionProfile, job: RemoteJob, payload: str) -> None:
+        """Submit the job script to ``qsub`` on stdin and record its id.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :param payload: the settings to upload.
+        """
+        job_dir, settings_path, log_path = _upload_settings(profile, job, payload, self.runner)
+        script = _job_script_text(profile, job, job_dir, settings_path, log_path)
+        argv = ["qsub"]
+        if profile.scheduler_options:
+            argv.extend(_split_template(profile.scheduler_options, "PBS options",
+                                        require_program=False, posix=True))
+        output = _require_ok(self.runner(_remote_argv(profile, argv), input_text=script, timeout=60.0),
+                             "PBS submission")
+        job.external_id = _safe_external_id(output.splitlines()[-1])
+        job.job_script = script
+        job.remote_job_dir = job_dir
+        job.remote_settings_path = settings_path
+        job.log_reference = log_path
+        job.status = "queued"
+
+    def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update the job's state from ``qstat -f``, including finished jobs.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        """
+        identifier = shlex.quote(job.external_id)
+        script = f"qstat -x -f {identifier} 2>/dev/null || qstat -f {identifier}"
+        output = _require_ok(self.runner(_remote_script(profile, script), timeout=30.0), "PBS status check")
+        job.status, job.exit_code = _parse_pbs_status(output)
+
+    def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Cancel the job with ``qdel``.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        """
+        _require_ok(self.runner(_remote_argv(profile, ["qdel", job.external_id]), timeout=30.0),
+                    "PBS cancellation")
+        job.status = "cancelled"
+
+    def logs(self, profile: ExecutionProfile, job: RemoteJob, lines: int) -> str:
+        """Fetch the tail of the job's log.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to fetch.
+        :returns: the tail.
+        """
+        return _tail_log(self.runner, profile, job, lines, "PBS log retrieval",
+                         "The PBS log has not been created yet.")
+
+
+def _parse_lsf_status(text: str) -> tuple:
+    """Read a job's state and exit code from ``bjobs -o "stat exit_code"``.
+
+    :param text: the output.
+    :returns: ``(state, exit code or None)`` in spaCR's state model.
+    """
+    words = str(text or "").split()
+    state = words[0].upper() if words else ""
+    code = int(words[1]) if len(words) > 1 and words[1].lstrip("-").isdigit() else None
+    if state == "DONE":
+        return "success", 0
+    if state == "EXIT":
+        return "failed", code
+    if state == "RUN":
+        return "running", None
+    if state in ("PEND", "PSUSP", "USUSP", "SSUSP", "WAIT", "PROV"):
+        return "pending", None
+    return "unknown", None
+
+
+class _LSFBackend(_Backend):
+    """Submits through ``bsub`` (IBM Spectrum LSF)."""
+
+    def submit(self, profile: ExecutionProfile, job: RemoteJob, payload: str) -> None:
+        """Submit the job script to ``bsub`` on stdin and record its id.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        :param payload: the settings to upload.
+        """
+        job_dir, settings_path, log_path = _upload_settings(profile, job, payload, self.runner)
+        script = _job_script_text(profile, job, job_dir, settings_path, log_path)
+        argv = ["bsub"]
+        if profile.scheduler_options:
+            argv.extend(_split_template(profile.scheduler_options, "LSF options",
+                                        require_program=False, posix=True))
+        output = _require_ok(self.runner(_remote_argv(profile, argv), input_text=script, timeout=60.0),
+                             "LSF submission")
+        match = re.search(r"Job <([^>]+)>", output)
+        job.external_id = _safe_external_id(match.group(1) if match else output)
+        job.job_script = script
+        job.remote_job_dir = job_dir
+        job.remote_settings_path = settings_path
+        job.log_reference = log_path
+        job.status = "queued"
+
+    def refresh(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Update the job's state from ``bjobs``.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        """
+        output = _require_ok(self.runner(_remote_argv(
+            profile, ["bjobs", "-noheader", "-o", "stat exit_code", job.external_id]), timeout=30.0),
+            "LSF status check")
+        job.status, job.exit_code = _parse_lsf_status(output)
+
+    def cancel(self, profile: ExecutionProfile, job: RemoteJob) -> None:
+        """Cancel the job with ``bkill``.
+
+        :param profile: the execution profile.
+        :param job: the job, updated in place.
+        """
+        _require_ok(self.runner(_remote_argv(profile, ["bkill", job.external_id]), timeout=30.0),
+                    "LSF cancellation")
+        job.status = "cancelled"
+
+    def logs(self, profile: ExecutionProfile, job: RemoteJob, lines: int) -> str:
+        """Fetch the tail of the job's log.
+
+        :param profile: the execution profile.
+        :param job: the job.
+        :param lines: how many lines to fetch.
+        :returns: the tail.
+        """
+        return _tail_log(self.runner, profile, job, lines, "LSF log retrieval",
+                         "The LSF log has not been created yet.")
 
 
 class _CommandBackend(_Backend):
@@ -1899,6 +3000,10 @@ def _backend(profile: ExecutionProfile, runner: CommandRunner) -> _Backend:
         return _SSHBackend(runner)
     if profile.backend == "slurm":
         return _SlurmBackend(runner)
+    if profile.backend == "pbs":
+        return _PBSBackend(runner)
+    if profile.backend == "lsf":
+        return _LSFBackend(runner)
     if profile.backend == "command":
         return _CommandBackend(runner)
     raise RemoteExecutionError(f"Unsupported backend: {profile.backend}")
@@ -1949,52 +3054,7 @@ class RemoteJobManager:
         :param settings: resolved module settings to serialize for the job.
         :param profile_name: name of the execution profile to use.
         """
-        from .cli import resolve_module
-
-        module_record = resolve_module(module)
-        if module_record is None:
-            raise RemoteExecutionError(
-                f"{module!r} is not a headless spaCR module. Run "
-                "`spacr-run --list` to see valid modules."
-            )
-        profile = self.profiles.get(profile_name).validate()
-        job_id = uuid.uuid4().hex
-        job_dir = self.jobs.path.parent / "jobs" / job_id
-        mapped = map_settings_paths(
-            dict(settings), profile.local_root, profile.remote_root
-        )
-        settings_path = job_dir / "settings.json"
-        payload = json.dumps(mapped, indent=2, sort_keys=True, default=str) + "\n"
-        try:
-            job_dir.mkdir(parents=True, exist_ok=False)
-            settings_path.write_text(payload, encoding="utf-8")
-        except OSError as exc:
-            raise RemoteExecutionError(
-                f"Could not prepare local job record {job_dir}: "
-                f"{type(exc).__name__}: {exc}"
-            ) from exc
-        digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-        job = RemoteJob(
-            job_id=job_id,
-            module=module_record.key,
-            profile_name=profile.name,
-            backend=profile.backend,
-            settings_path=str(settings_path),
-            settings_sha256=digest,
-            profile=profile.to_dict(),
-        )
-        self.jobs.save(job)
-        try:
-            _backend(profile, self.runner).submit(profile, job, payload)
-            self.jobs.save(job)
-        except Exception as exc:
-            job.status = "failed"
-            job.error = f"{type(exc).__name__}: {exc}"
-            self.jobs.save(job)
-            if isinstance(exc, RemoteExecutionError):
-                raise
-            raise RemoteExecutionError(job.error) from exc
-        return job
+        return _submit_job(self, module, settings, profile_name)
 
     def refresh(self, job_id: str, *, include_logs: bool = True) -> RemoteJob:
         """Poll one non-terminal job and optionally retain its latest log tail.
@@ -2013,7 +3073,7 @@ class RemoteJobManager:
                     job.log_tail = backend.logs(profile, job, 200)
                 except RemoteExecutionError as exc:
                     job.log_tail = f"Log not available yet: {exc}"
-            job.error = ""
+            job.error = _exit_hint(job.exit_code, profile) if job.status == "failed" else ""
         except Exception as exc:
             job.error = f"{type(exc).__name__}: {exc}"
         self.jobs.save(job)
@@ -2058,3 +3118,196 @@ class RemoteJobManager:
         job.log_tail = text
         self.jobs.save(job)
         return text
+
+
+def _submit_job(manager: RemoteJobManager, module: str, settings: Mapping[str, Any],
+                profile_name: str, allocation: str = "") -> RemoteJob:
+    """Submit resolved settings through a named profile, optionally into an allocation.
+
+    :param manager: the job manager.
+    :param module: headless spaCR module name accepted by ``spacr-run``.
+    :param settings: resolved module settings to serialize for the job.
+    :param profile_name: name of the execution profile to use.
+    :param allocation: local id (or unambiguous prefix) of a running Slurm
+        allocation started by :func:`_start_allocation`; blank submits a
+        batch job.
+    :returns: the recorded job.
+    :raises RemoteExecutionError: for an unknown module, a direct run aimed
+        at a login node, an allocation that is not running, or any failure
+        of the submission itself.
+    """
+    from .cli import resolve_module
+
+    module_record = resolve_module(module)
+    if module_record is None:
+        raise RemoteExecutionError(
+            f"{module!r} is not a headless spaCR module. Run "
+            "`spacr-run --list` to see valid modules."
+        )
+    profile = manager.profiles.get(profile_name).validate()
+    _refuse_login_node(profile)
+    allocation_id = ""
+    if allocation:
+        holder = manager.jobs.get(allocation)
+        if holder.module != "allocation" or holder.profile_name.casefold() != profile.name.casefold():
+            raise RemoteExecutionError(tr("Job {job} is not an allocation of profile {profile}.").format(
+                job=holder.job_id[:12], profile=profile.name))
+        saved = ExecutionProfile.from_dict(holder.profile)
+        connection_fields = ("backend", "host", "ssh_options", "ssh_command")
+        if (_auth_mode(saved) != _auth_mode(profile)
+                or any(getattr(saved, key) != getattr(profile, key) for key in connection_fields)):
+            raise RemoteExecutionError(tr("Allocation {job} belongs to the original connection for profile {profile}. Restore that connection or start a new allocation before submitting.").format(
+                job=holder.job_id[:12], profile=profile.name))
+        if holder.status != "running":
+            raise RemoteExecutionError(tr("Allocation {job} is {status}; wait until it is running, then submit.").format(
+                job=holder.job_id[:12], status=holder.status))
+        allocation_id = holder.external_id
+    job_id = uuid.uuid4().hex
+    job_dir = manager.jobs.path.parent / "jobs" / job_id
+    mapped = map_settings_paths(
+        dict(settings), profile.local_root, profile.remote_root
+    )
+    settings_path = job_dir / "settings.json"
+    payload = json.dumps(mapped, indent=2, sort_keys=True, default=str) + "\n"
+    try:
+        job_dir.mkdir(parents=True, exist_ok=False)
+        settings_path.write_text(payload, encoding="utf-8")
+    except OSError as exc:
+        raise RemoteExecutionError(
+            f"Could not prepare local job record {job_dir}: "
+            f"{type(exc).__name__}: {exc}"
+        ) from exc
+    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    job = RemoteJob(
+        job_id=job_id,
+        module=module_record.key,
+        profile_name=profile.name,
+        backend=profile.backend,
+        settings_path=str(settings_path),
+        settings_sha256=digest,
+        profile=profile.to_dict(),
+        allocation_id=allocation_id,
+    )
+    manager.jobs.save(job)
+    try:
+        _backend(profile, manager.runner).submit(profile, job, payload)
+        if job.job_script:
+            (job_dir / "job.sh").write_text(job.job_script, encoding="utf-8")
+        manager.jobs.save(job)
+    except Exception as exc:
+        job.status = "failed"
+        job.error = f"{type(exc).__name__}: {exc}"
+        manager.jobs.save(job)
+        if isinstance(exc, RemoteExecutionError):
+            raise
+        raise RemoteExecutionError(job.error) from exc
+    return job
+
+
+def _start_allocation(manager: RemoteJobManager, profile_name: str) -> RemoteJob:
+    """Ask Slurm for an allocation with the profile's resources.
+
+    The allocation is a batch job that holds its nodes and runs nothing, so
+    requesting it never blocks spaCR while the queue is busy, it is listed
+    and cancelled like any job, and spaCR jobs then run inside it as
+    ``srun`` steps on the compute node -- never on the login node.
+
+    :param manager: the job manager.
+    :param profile_name: the Slurm profile to allocate with.
+    :returns: the allocation's job record (module ``allocation``).
+    :raises RemoteExecutionError: for a profile that is not Slurm, or if the
+        request fails.
+    """
+    profile = manager.profiles.get(profile_name).validate()
+    if profile.backend != "slurm":
+        raise RemoteExecutionError(tr("Allocations need a Slurm profile. On PBS use qsub -I, and on LSF bsub -Is, in a terminal."))
+    job = RemoteJob(uuid.uuid4().hex, "allocation", profile.name, "slurm", profile=profile.to_dict())
+    manager.jobs.save(job)
+    job_dir, _settings_path, log_path = _remote_paths(profile, job)
+    name = f"spacr-allocation-{job.job_id[:8]}"
+    holder = ("#!/bin/bash\n" + _scheduler_directives(profile, name, log_path) + "\n"
+              "echo \"spaCR allocation $SLURM_JOB_ID ready on $(hostname)\"\n"
+              "exec sleep infinity\n")
+    argv = ["sbatch", "--parsable", "--job-name", name, "--output", log_path]
+    if profile.scheduler_options:
+        argv.extend(_split_template(profile.scheduler_options, "Slurm options", require_program=False, posix=True))
+    try:
+        _require_ok(manager.runner(_remote_script(profile, f"umask 077; mkdir -p -- {shlex.quote(job_dir)}"),
+                                   timeout=60.0), "Allocation folder")
+        output = _require_ok(manager.runner(_remote_argv(profile, argv), input_text=holder, timeout=60.0),
+                             "Slurm allocation")
+        job.external_id = _safe_external_id(output.splitlines()[-1], allow_slurm_cluster_suffix=True)
+        job.remote_job_dir = job_dir
+        job.log_reference = log_path
+        job.job_script = holder
+        job.status = "queued"
+        manager.jobs.save(job)
+    except Exception as exc:
+        job.status = "failed"
+        job.error = f"{type(exc).__name__}: {exc}"
+        manager.jobs.save(job)
+        if isinstance(exc, RemoteExecutionError):
+            raise
+        raise RemoteExecutionError(job.error) from exc
+    return job
+
+
+def _log_chunk(manager: RemoteJobManager, job_id: str, offset: int, limit: int = 262144) -> tuple:
+    """Fetch the part of a job's log written since ``offset``.
+
+    Polled at the profile's interval over the same connection -- an OpenSSH
+    ControlMaster or the in-spaCR session -- so following a log costs no new
+    sign-in. The remote side reports the new offset itself, so bytes are
+    never repeated or skipped even if the log grows during the read; a log
+    that shrank (rotated or rewritten) is read again from the start.
+
+    :param manager: the job manager.
+    :param job_id: the local job id or an unambiguous prefix.
+    :param offset: bytes already shown.
+    :param limit: requested bytes per read, bounded to 4–262144 so one
+        complete UTF-8 character always fits. Incomplete trailing characters
+        stay unread until a later poll; a terminal short read finalizes an
+        invalid trailing sequence with a replacement character.
+    :returns: ``(new text, new offset)``.
+    """
+    if isinstance(offset, bool) or not isinstance(offset, int) or not 0 <= offset <= 2 ** 63 - 1:
+        raise RemoteExecutionError(tr("A log offset must be a nonnegative integer."))
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
+        raise RemoteExecutionError(tr("A log read limit must be a positive integer."))
+    limit = max(4, min(limit, 262144))
+    job = manager.jobs.get(job_id)
+    profile = ExecutionProfile.from_dict(job.profile)
+    if job.backend == "command" or not job.log_reference.startswith("/"):
+        if job.backend != "command" or not profile.log_command:
+            return "", offset
+        text = _backend(profile, manager.runner).logs(profile, job, 10000)
+        start = offset if offset <= len(text) else 0
+        return text[start:], len(text)
+    path = shlex.quote(job.log_reference)
+    script = (
+        f"f={path}\n"
+        f"test -f \"$f\" || {{ echo {int(offset)}; exit 0; }}\n"
+        "size=$(wc -c < \"$f\" | tr -d ' ')\n"
+        f"start={int(offset)}\n"
+        "if [ \"$size\" -lt \"$start\" ]; then start=0; fi\n"
+        "n=$((size - start))\n"
+        f"if [ \"$n\" -gt {int(limit)} ]; then n={int(limit)}; fi\n"
+        "echo \"$start\"\n"
+        "if [ \"$n\" -gt 0 ]; then tail -c +$((start + 1)) -- \"$f\" | head -c \"$n\" | base64; fi\n"
+    )
+    result = manager.runner(_remote_script(profile, script), timeout=60.0)
+    _require_ok(result, "Log retrieval")
+    first, _, rest = result.stdout.partition("\n")
+    try:
+        start = int(first.strip())
+        if start < 0 or start not in (0, offset):
+            raise ValueError("Unexpected log offset")
+        payload = base64.b64decode("".join(rest.split()), validate=True)
+        if len(payload) > limit:
+            raise ValueError("Oversized log response")
+    except (ValueError, UnicodeError) as exc:
+        raise RemoteExecutionError(tr("The remote log response was invalid.")) from exc
+    decoder = codecs.getincrementaldecoder("utf-8")("replace")
+    text = decoder.decode(payload, final=job.status in TERMINAL_STATES and len(payload) < limit)
+    pending, _state = decoder.getstate()
+    return text, start + len(payload) - len(pending)

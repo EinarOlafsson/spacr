@@ -137,7 +137,6 @@ ENABLED_MODULES: frozenset[str] = frozenset({
     "spacr.qt.screens.convert",
     "spacr.qt.screens.data_manager",
     "spacr.qt.screens.db_browser",
-    "spacr.qt.screens.distributed_jobs",
     "spacr.qt.screens.embeddings",
     "spacr.qt.screens.foreign",
     "spacr.qt.screens.graph_builder",

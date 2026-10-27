@@ -519,4 +519,5 @@ def test_the_parser_names_every_shipped_subcommand():
                and "submit" in getattr(action, "choices", {})]
     assert actions, "no subcommand action on the parser"
     assert set(actions[0].choices) == {
-        "profile", "submit", "list", "status", "cancel", "logs", "watch"}
+        "profile", "submit", "list", "status", "cancel", "logs", "watch",
+        "allocate", "resources", "script"}

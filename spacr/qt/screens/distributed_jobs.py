@@ -5,15 +5,17 @@ thread only updates controls and renders already-returned records.
 """
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import os
 import threading
+from dataclasses import replace
 from pathlib import Path
 from typing import Callable, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, QUrl, Signal
-from PySide6.QtGui import QColor, QDesktopServices
+from PySide6.QtGui import QColor, QDesktopServices, QFontDatabase
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -31,7 +33,9 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QSpinBox,
+    QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -39,18 +43,34 @@ from PySide6.QtWidgets import (
 )
 
 from ...remote_execution import (
+    _ENV_PRESETS,
+    _JOB_SCRIPT_PLACEHOLDERS,
+    _PROFILE_PRESETS,
+    _SCRIPT_PRESETS,
     _SSH_SESSIONS,
     ACTIVE_STATES,
+    TERMINAL_STATES,
     ExecutionProfile,
     RemoteExecutionError,
     RemoteJob,
     RemoteJobManager,
+    _allocation_shell_command,
+    _auth_mode,
     _discover_ssh_settings,
     _keychain_account,
     _keychain_available,
     _keychain_password,
+    _load_cluster_cache,
+    _log_chunk,
+    _preview_job_script,
+    _probe_cluster,
     _remote_argv,
+    _resource_problems,
     _run_command,
+    _save_cluster_cache,
+    _signin_command,
+    _start_allocation,
+    _submit_job,
 )
 from ..bridge import make_thread
 from ..i18n import tr
@@ -69,12 +89,34 @@ APP_KEY = "distributed_jobs"
 APP_NAME = "Distributed Jobs"
 APP_SECTION = "Data"
 APP_INTRO = (
-    "Submit a normal spaCR settings file to another workstation, Slurm, or "
-    "a cloud/HPC command; monitor logs and cancel it without blocking spaCR."
+    "Submit a normal spaCR settings file to another workstation, a Slurm, "
+    "PBS or LSF cluster, or a cloud/HPC command; follow its log in the "
+    "console and cancel it without blocking spaCR."
 )
 
 _COLUMNS = (
     "Job", "Status", "Module", "Profile", "Remote ID", "Submitted", "Updated",
+)
+_EXAMPLES = {
+    "scheduler": "--constraint=v100",
+    "login_hosts": "gl-login*, *login*",
+    "env_setup": "module load mamba\nmamba activate spacr",
+    "mail_user": "name@example.org",
+    "ssh_command": "ssh -J bastion.example.org {host} {command}",
+    "mem": "90G",
+    "time": "48:00:00",
+}
+_MAIL_TYPES = ("", "END,FAIL", "ALL", "BEGIN,END,FAIL", "NONE")
+_ENV_CHOICES = (
+    ("module load mamba; mamba activate spacr", "module_mamba"),
+    ("conda activate spacr", "conda"),
+    ("source $HOME/spacr-venv/bin/activate", "venv"),
+    ("pip install spacr", "pip_install"),
+    ("pip install --upgrade spacr", "pip_upgrade"),
+)
+_SYSTEM_COLUMNS = (
+    "Partition / queue", "Nodes", "CPUs per node", "Memory per node",
+    "GPUs per node", "GPU types", "Time limit", "State",
 )
 
 
@@ -173,6 +215,47 @@ def _ensure_ssh_broker():
     return broker
 
 
+
+
+class _ScriptPreviewDialog(QDialog):
+    """Show the rendered job script before it is sent to the remote host.
+
+    :param parent: parent widget.
+    :param script: the script exactly as it will be sent.
+    :param confirm: True asks the user to submit or cancel; False only shows
+        the script with a Close button.
+    """
+
+    def __init__(self, parent=None, script: str = "", confirm: bool = True):
+        """Build the read-only script view and its buttons."""
+        super().__init__(parent)
+        self.setWindowTitle(tr("Job script preview"))
+        from ..preferences import scaled_px
+        self.resize(scaled_px(760), scaled_px(560))
+        layout = QVBoxLayout(self)
+        note = QLabel(tr("This is the script the remote host will run. spaCR adds the login-node check after the scheduler lines; everything else comes from the job script and the profile."), self)
+        note.setWordWrap(True)
+        note.setObjectName("Muted")
+        layout.addWidget(note)
+        self.text = QPlainTextEdit(self)
+        self.text.setObjectName("JobScriptPreview")
+        self.text.setReadOnly(True)
+        self.text.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.text.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        self.text.setPlainText(script)
+        layout.addWidget(self.text, 1)
+        buttons = QDialogButtonBox(self)
+        if confirm:
+            submit = buttons.addButton(tr("Submit job"), QDialogButtonBox.AcceptRole)
+            submit.setObjectName("PrimaryButton")
+            buttons.addButton(QDialogButtonBox.Cancel)
+        else:
+            buttons.addButton(QDialogButtonBox.Close)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+
 class ExecutionProfileDialog(QDialog):
     """Create or edit one distributed execution profile.
 
@@ -198,6 +281,9 @@ class ExecutionProfileDialog(QDialog):
         self.setMinimumWidth(scaled_px(650))
         self._original_name = profile.name if profile else ""
         self._ssh_options = {}
+        self._carried = {"resources": dict(profile.resources) if profile else {},
+                         "env_setup": profile.env_setup if profile else "",
+                         "job_script": profile.job_script if profile else ""}
         self._loaded_keychain = (profile.host, dict(profile.ssh_options)) if profile is not None and profile.ssh_keychain else None
         self._connection_worker = None
         _ensure_ssh_broker()
@@ -222,6 +308,18 @@ class ExecutionProfileDialog(QDialog):
         outer.addWidget(intro)
 
         form = QFormLayout()
+        self._preset = QComboBox(self)
+        self._preset.setObjectName("ProfilePreset")
+        self._preset.addItem(tr("Start from a preset…"), "")
+        self._preset.addItem(tr("Slurm with module load mamba and mamba activate spacr (Great Lakes style)"), "slurm_module_mamba")
+        self._preset.addItem(tr("Slurm with conda activate spacr"), "slurm_conda")
+        self._preset.addItem(tr("PBS / Torque with conda activate spacr"), "pbs_conda")
+        self._preset.addItem(tr("LSF with conda activate spacr"), "lsf_conda")
+        self._preset.addItem(tr("Workstation over ssh with a Python venv (no scheduler)"), "workstation_venv")
+        self._preset.setToolTip(tr("Fills the backend, the environment setup, suggested resources and the login-node patterns. Review every value for your own cluster and account."))
+        self._preset.activated.connect(self._apply_preset)
+        form.addRow(tr("Preset"), self._preset)
+
         self._name = QLineEdit(self)
         self._name.setObjectName("ProfileName")
         self._name.setToolTip(
@@ -235,10 +333,13 @@ class ExecutionProfileDialog(QDialog):
         self._backend.setObjectName("ProfileBackend")
         self._backend.addItem(tr("SSH workstation"), "ssh")
         self._backend.addItem(tr("Slurm cluster"), "slurm")
+        self._backend.addItem(tr("PBS / Torque cluster"), "pbs")
+        self._backend.addItem(tr("LSF cluster"), "lsf")
         self._backend.addItem(tr("Cloud / custom command"), "command")
         self._backend.setToolTip(
             "SSH runs a durable background process; Slurm uses sbatch/squeue/"
-            "sacct; custom executes argument templates without shell=True."
+            "sacct, PBS qsub/qstat and LSF bsub/bjobs; custom executes argument "
+            "templates without shell=True."
         )
         self._backend.currentIndexChanged.connect(self._sync_backend)
         self._add_profile_row(form, "Backend", self._backend, "backend")
@@ -247,8 +348,8 @@ class ExecutionProfileDialog(QDialog):
         self._host.setObjectName("ProfileHost")
         self._host.setPlaceholderText("user@workstation or cluster-login")
         self._host.setToolTip(
-            "OpenSSH target. Leave blank only for Slurm commands installed "
-            "on this computer. Configure key authentication outside spaCR."
+            "OpenSSH target or Host alias from your SSH config. Leave blank only "
+            "for scheduler commands installed on this computer."
         )
         self._add_profile_row(form, "SSH host", self._host, "host")
 
@@ -280,17 +381,27 @@ class ExecutionProfileDialog(QDialog):
             widget.setObjectName(key)
             widget.setToolTip(tr("Non-secret SSH settings. Review imported paths and routing before connecting."))
             self._add_profile_row(form, label, widget, key)
-        self._ssh_interactive = QCheckBox(tr("Authenticate in spaCR (keyboard-interactive / MFA)"), self)
-        self._ssh_interactive.setObjectName("SSHInteractiveAuthentication")
-        self._ssh_interactive.setToolTip(tr("Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP."))
-        form.addRow(self._ssh_interactive)
+        self._auth_mode = QComboBox(self)
+        self._auth_mode.setObjectName("SSHSignInMethod")
+        self._auth_mode.addItem(tr("OpenSSH: SSH config, keys, agent and ControlMaster"), "openssh")
+        self._auth_mode.addItem(tr("Sign in in spaCR: password, Duo, Okta and other prompts"), "interactive")
+        self._auth_mode.addItem(tr("Kerberos (GSSAPI) ticket from kinit"), "gssapi")
+        self._auth_mode.addItem(tr("Custom SSH command"), "custom")
+        self._auth_mode.setToolTip(tr("How spaCR signs in. OpenSSH uses your SSH config, keys, agent and an open ControlMaster connection. Sign in in spaCR shows the server's prompts verbatim, so a password plus Duo or Okta works; Great Lakes, for example, asks for a Kerberos password and Okta verification. Kerberos uses a ticket from kinit. Custom runs your own SSH command. spaCR stores no password or one-time code in the profile."))
+        self._auth_mode.currentIndexChanged.connect(self._sync_backend)
+        self._auth_label = QLabel(tr("Sign-in method"), self)
+        form.addRow(self._auth_label, self._auth_mode)
+        self._ssh_command = QLineEdit(self)
+        self._ssh_command.setObjectName("SSHCustomCommand")
+        self._ssh_command.setPlaceholderText(_EXAMPLES["ssh_command"])
+        self._ssh_command.setToolTip(tr("Your own SSH command for the Custom sign-in method. {host} is replaced by the SSH host and {command} by the remote command, which is added at the end when {command} is missing. Passwords are refused here."))
+        form.addRow(tr("Custom SSH command"), self._ssh_command)
         self._ssh_keychain = QCheckBox(tr("Remember my password in the system keychain"), self)
         self._ssh_keychain.setObjectName("SSHKeychainPassword")
         self._ssh_keychain.setChecked(False)
         self._ssh_keychain.setToolTip(
             tr("Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.")
             if _keychain_available() else tr("Install the keyring package to store the password in the system keychain."))
-        self._ssh_interactive.toggled.connect(self._sync_backend)
         form.addRow(self._ssh_keychain)
         connection = QHBoxLayout()
         self._test_ssh = QPushButton(tr("Test connection"), self)
@@ -300,8 +411,13 @@ class ExecutionProfileDialog(QDialog):
         self._retry_ssh.setObjectName("SSHRetryConnection")
         self._retry_ssh.clicked.connect(self._test_connection)
         self._retry_ssh.setVisible(False)
+        self._copy_signin = QPushButton(tr("Copy terminal sign-in command"), self)
+        self._copy_signin.setObjectName("SSHCopySignIn")
+        self._copy_signin.setToolTip(tr("Copies an ssh command that signs in once in a terminal, with your password and second factor, and leaves an OpenSSH ControlMaster open for four hours; spaCR's commands then reuse it without asking again."))
+        self._copy_signin.clicked.connect(self._copy_signin_command)
         connection.addWidget(self._test_ssh)
         connection.addWidget(self._retry_ssh)
+        connection.addWidget(self._copy_signin)
         form.addRow(connection)
 
         self._workdir = QLineEdit(self)
@@ -340,7 +456,9 @@ class ExecutionProfileDialog(QDialog):
         self._runner.setObjectName("ProfileRunner")
         self._runner.setText("spacr-run")
         self._runner.setToolTip(
-            "Installed headless spaCR executable on the remote target."
+            "Headless spaCR command on the remote target. The job script "
+            "decides how it is called; the default script runs it with "
+            "--settings after the environment setup lines."
         )
         self._add_profile_row(
             form, "spaCR runner", self._runner, "runner"
@@ -348,14 +466,26 @@ class ExecutionProfileDialog(QDialog):
 
         self._slurm = QLineEdit(self)
         self._slurm.setObjectName("ProfileSlurmOptions")
-        self._slurm.setPlaceholderText("--partition=gpu --gres=gpu:1 --time=12:00:00")
+        self._slurm.setPlaceholderText(_EXAMPLES["scheduler"])
         self._slurm.setToolTip(
-            "Additional sbatch arguments. They are parsed as arguments, not "
-            "executed as a shell command."
+            "Additional sbatch, qsub or bsub arguments. They are parsed as "
+            "arguments, not executed as a shell command. GPUs, CPUs, memory "
+            "and time belong in Resources."
         )
         self._add_profile_row(
             form, "Slurm options", self._slurm, "scheduler_options"
         )
+
+        self._login_hosts = QLineEdit(self)
+        self._login_hosts.setObjectName("ProfileLoginHosts")
+        self._login_hosts.setPlaceholderText(_EXAMPLES["login_hosts"])
+        self._login_hosts.setToolTip(tr("Host-name patterns of this cluster's login nodes, separated by commas. spaCR refuses to run compute on a matching host, and on any host with a batch scheduler, unless the command runs inside a scheduler job. *login* is always included."))
+        form.addRow(tr("Login hosts"), self._login_hosts)
+        self._direct_run = QCheckBox(tr("Run directly over ssh (no scheduler)"), self)
+        self._direct_run.setObjectName("ProfileDirectRun")
+        self._direct_run.setToolTip(tr("Only for a private workstation or a cluster with no scheduler. It turns off the login-node refusal; running compute on a shared login node can get an account banned."))
+        self._direct_run.toggled.connect(self._warn_direct_run)
+        form.addRow(self._direct_run)
 
         self._submit_command = QLineEdit(self)
         self._submit_command.setObjectName("ProfileSubmitCommand")
@@ -498,22 +628,53 @@ class ExecutionProfileDialog(QDialog):
         filter_.watch(label)
 
     def _sync_backend(self, *_args) -> None:
-        """Show only controls meaningful to the selected backend."""
+        """Show only controls meaningful to the selected backend and sign-in method."""
         backend = self._backend.currentData()
-        ssh_or_slurm = backend in {"ssh", "slurm"}
+        remote = backend in {"ssh", "slurm", "pbs", "lsf"}
+        mode = self._auth_mode.currentData()
         for widget in (
             self._host, self._workdir, self._local_root, self._remote_root,
             self._runner, self._ssh_hostname, self._choose_ssh_button, self._ssh_user, self._ssh_port, self._ssh_key, self._ssh_jump,
-            self._ssh_aliases, self._find_ssh_button, self._ssh_interactive, self._test_ssh,
+            self._ssh_aliases, self._find_ssh_button, self._auth_mode, self._test_ssh, self._login_hosts,
         ):
-            widget.setEnabled(ssh_or_slurm)
-        self._ssh_keychain.setEnabled(ssh_or_slurm and self._ssh_interactive.isChecked() and _keychain_available())
-        self._slurm.setEnabled(backend == "slurm")
+            widget.setEnabled(remote)
+        self._ssh_keychain.setEnabled(remote and mode == "interactive" and _keychain_available())
+        self._ssh_command.setEnabled(remote and mode == "custom")
+        self._copy_signin.setEnabled(remote and mode in {"openssh", "gssapi"})
+        self._direct_run.setEnabled(backend == "ssh")
+        self._slurm.setEnabled(backend in {"slurm", "pbs", "lsf"})
         for widget in (
             self._submit_command, self._status_command, self._cancel_command,
             self._log_command, self._job_pattern,
         ):
             widget.setEnabled(backend == "command")
+
+    def _warn_direct_run(self, checked: bool) -> None:
+        """Warn, in the dialog, the moment a direct run is switched on.
+
+        :param checked: the new state of the box.
+        """
+        warning = tr("Warning: Run directly over ssh turns off the login-node refusal. Use it only for a private workstation or a cluster with no scheduler; compute on a shared login node can get an account banned.")
+        if checked:
+            self._error.setText(warning)
+        elif self._error.text() == warning:
+            self._error.clear()
+
+    def _apply_preset(self, index: int) -> None:
+        """Fill the backend, login patterns, environment and resources from a preset.
+
+        :param index: the chosen preset row; the first row does nothing.
+        """
+        key = self._preset.itemData(index)
+        preset = _PROFILE_PRESETS.get(key or "")
+        if not preset:
+            return
+        self._backend.setCurrentIndex(max(0, self._backend.findData(preset["backend"])))
+        self._login_hosts.setText(preset["login_hosts"])
+        self._carried["env_setup"] = preset["env_setup"]
+        self._carried["resources"] = dict(preset["resources"])
+        self._carried["job_script"] = ""
+        self._error.setText(tr("Preset applied: review the account, partition and resources for your cluster in the Resources panel after saving."))
 
     def _load(self, profile: ExecutionProfile) -> None:
         """Populate controls from an existing profile."""
@@ -527,13 +688,18 @@ class ExecutionProfileDialog(QDialog):
         self._ssh_port.setValue(int(profile.ssh_options.get("port", "0")))
         self._ssh_key.setText(profile.ssh_options.get("identityfile", ""))
         self._ssh_jump.setText(profile.ssh_options.get("proxyjump", ""))
-        self._ssh_interactive.setChecked(profile.ssh_interactive)
+        self._auth_mode.setCurrentIndex(max(0, self._auth_mode.findData(_auth_mode(profile))))
+        self._ssh_command.setText(profile.ssh_command)
         self._ssh_keychain.setChecked(profile.ssh_keychain)
         self._workdir.setText(profile.workdir)
         self._local_root.setText(profile.local_root)
         self._remote_root.setText(profile.remote_root)
         self._runner.setText(profile.runner)
         self._slurm.setText(profile.scheduler_options)
+        self._login_hosts.setText(profile.login_hosts)
+        self._direct_run.blockSignals(True)
+        self._direct_run.setChecked(profile.direct_run)
+        self._direct_run.blockSignals(False)
         self._submit_command.setText(profile.submit_command)
         self._status_command.setText(profile.status_command)
         self._cancel_command.setText(profile.cancel_command)
@@ -543,6 +709,7 @@ class ExecutionProfileDialog(QDialog):
 
     def profile(self) -> ExecutionProfile:
         """Return the currently entered, validated profile."""
+        mode = str(self._auth_mode.currentData() or "openssh")
         return ExecutionProfile(
             name=self._name.text(),
             backend=str(self._backend.currentData()),
@@ -559,8 +726,15 @@ class ExecutionProfileDialog(QDialog):
             job_id_pattern=self._job_pattern.text(),
             poll_seconds=self._poll.value(),
             ssh_options=self._connection_options(),
-            ssh_interactive=self._ssh_interactive.isChecked(),
-            ssh_keychain=self._ssh_interactive.isChecked() and self._ssh_keychain.isChecked(),
+            ssh_interactive=mode == "interactive",
+            ssh_keychain=mode == "interactive" and self._ssh_keychain.isChecked(),
+            auth_mode=mode,
+            ssh_command=self._ssh_command.text().strip() if mode == "custom" else "",
+            resources=dict(self._carried["resources"]),
+            env_setup=self._carried["env_setup"],
+            job_script=self._carried["job_script"],
+            login_hosts=self._login_hosts.text().strip(),
+            direct_run=self._direct_run.isChecked() and self._backend.currentData() == "ssh",
         ).validate()
 
     def _find_ssh(self, folder=None):
@@ -604,7 +778,7 @@ class ExecutionProfileDialog(QDialog):
         self._ssh_port.setValue(port)
         self._ssh_key.setText(row.get("identityfile", ""))
         self._ssh_jump.setText(row.get("proxyjump", ""))
-        self._ssh_interactive.setChecked(True)
+        self._auth_mode.setCurrentIndex(self._auth_mode.findData("interactive"))
 
     def _connection_options(self):
         """Collect paths and routing fields, never authentication responses."""
@@ -619,43 +793,72 @@ class ExecutionProfileDialog(QDialog):
             options.pop("proxycommand", None)
         return options
 
+    def _connection_profile(self) -> ExecutionProfile:
+        """Build a throwaway profile holding only the connection fields.
+
+        :returns: the validated profile.
+        :raises RemoteExecutionError: if a connection field is invalid.
+        """
+        mode = str(self._auth_mode.currentData() or "openssh")
+        backend = self._backend.currentData()
+        return ExecutionProfile(
+            name="connection-test", backend=backend if backend in {"slurm", "pbs", "lsf"} else "ssh",
+            host=self._host.text(), workdir="/tmp", ssh_options=self._connection_options(),
+            ssh_interactive=mode == "interactive", auth_mode=mode,
+            ssh_command=self._ssh_command.text().strip() if mode == "custom" else "",
+            ssh_keychain=mode == "interactive" and self._ssh_keychain.isChecked()).validate()
+
+    def _copy_signin_command(self) -> None:
+        """Copy the terminal command that opens a reusable OpenSSH connection."""
+        try:
+            command = _signin_command(self._connection_profile())
+        except RemoteExecutionError as exc:
+            self._error.setText(str(exc))
+            return
+        QApplication.clipboard().setText(command)
+        self._error.setText(tr("Copied. Run it in a terminal and complete the sign-in; spaCR then reuses the connection: {command}").format(command=command))
+
     def _test_connection(self):
-        """Run hostname, then Slurm discovery, on a background SSH channel."""
+        """Run hostname, then a scheduler query, on a background SSH channel."""
         if self._connection_worker is not None:
             return
         try:
-            profile = ExecutionProfile(name="connection-test", backend="slurm" if self._backend.currentData() == "slurm" else "ssh", host=self._host.text(), workdir="/tmp",
-                                       ssh_options=self._connection_options(), ssh_interactive=self._ssh_interactive.isChecked(),
-                                       ssh_keychain=self._ssh_interactive.isChecked() and self._ssh_keychain.isChecked()).validate()
+            profile = self._connection_profile()
         except RemoteExecutionError as exc:
             self._error.setText(str(exc))
             return
         self._connection_error = ""
-        slurm = self._backend.currentData() == "slurm"
+        stages = [("hostname", ["hostname"])]
+        query = {"slurm": ("sinfo", ["sinfo", "--noheader"]), "pbs": ("qstat", ["qstat", "-Q"]),
+                 "lsf": ("bqueues", ["bqueues"])}.get(self._backend.currentData())
+        if query:
+            stages.append(query)
         self._test_ssh.setEnabled(False)
         self._retry_ssh.setVisible(False)
         self._error.setText(tr("Testing SSH connection…"))
-
-        def operation(_settings):
-            """Check the remote hostname before querying Slurm on the worker thread."""
-            stages = [("hostname", ["hostname"])]
-            if slurm:
-                stages.append(("sinfo", ["sinfo", "--noheader"]))
-            for stage, argv in stages:
-                try:
-                    result = _run_command(_remote_argv(profile, argv), timeout=60)
-                    if result.returncode:
-                        raise RemoteExecutionError(tr("Remote command returned a non-zero exit status."))
-                except RemoteExecutionError as exc:
-                    self._connection_error = tr("{stage} failed: {error}").format(stage=stage, error=exc)
-                    break
-
-        thread, worker = make_thread(operation, {}, app_key="ssh_connection_test", journal=False, capture_figures=False)
+        thread, worker = make_thread(functools.partial(self._run_connection_stages, profile, stages), {},
+                                     app_key="ssh_connection_test", journal=False, capture_figures=False)
         self._connection_worker = (thread, worker)
         _ensure_ssh_broker()._workers.append((self, thread, worker))
         worker.finished.connect(self._connection_finished)
         thread.finished.connect(self._connection_retired)
         thread.start()
+
+    def _run_connection_stages(self, profile, stages, _settings) -> None:
+        """Run each connection stage in turn on the worker thread, stopping at the first failure.
+
+        :param profile: the connection profile.
+        :param stages: ``(name, argv)`` pairs.
+        :param _settings: the worker's settings mapping, unused.
+        """
+        for stage, argv in stages:
+            try:
+                result = _run_command(_remote_argv(profile, argv), timeout=60)
+                if result.returncode:
+                    raise RemoteExecutionError(tr("Remote command returned a non-zero exit status."))
+            except RemoteExecutionError as exc:
+                self._connection_error = tr("{stage} failed: {error}").format(stage=stage, error=exc)
+                break
 
     def _connection_finished(self, ok):
         """Report the precise failed stage without retaining secret responses."""
@@ -691,6 +894,35 @@ class ExecutionProfileDialog(QDialog):
         threading.Thread(target=_keychain_password, args=("delete", account), daemon=True).start()
 
 
+def _short_time(stamp: str) -> str:
+    """Show an ISO timestamp as local ``YYYY-MM-DD HH:MM``.
+
+    :param stamp: the stored UTC timestamp.
+    :returns: the short local form, or the text unchanged when it is not a
+        timestamp.
+    """
+    from datetime import datetime
+
+    try:
+        return datetime.fromisoformat(str(stamp)).astimezone().strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return str(stamp or "")
+
+
+def _mono(widget: QPlainTextEdit, height: int) -> QPlainTextEdit:
+    """Give a code editor the fixed-width font, no wrapping and a starting height.
+
+    :param widget: the editor.
+    :param height: its minimum height in unscaled pixels.
+    :returns: the editor.
+    """
+    from ..preferences import scaled_px
+    widget.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+    widget.setLineWrapMode(QPlainTextEdit.NoWrap)
+    widget.setMinimumHeight(scaled_px(height))
+    return widget
+
+
 class DistributedJobsScreen(QWidget):
     """Submit and monitor distributed spaCR jobs without blocking Qt.
 
@@ -702,6 +934,8 @@ class DistributedJobsScreen(QWidget):
     :param auto_poll: whether the screen starts its own refresh timer. False
         leaves the job list to be refreshed by hand, so a test is not racing
         a timer it did not start.
+    :param preview: show the rendered job script for confirmation before a
+        submission is sent; by default only when ``threaded``.
     """
 
     def __init__(
@@ -711,6 +945,7 @@ class DistributedJobsScreen(QWidget):
         manager: Optional[RemoteJobManager] = None,
         threaded: bool = True,
         auto_poll: bool = True,
+        preview: Optional[bool] = None,
     ):
         """Build the screen and arm its drop zone and poll timer.
 
@@ -723,11 +958,13 @@ class DistributedJobsScreen(QWidget):
         :param threaded: run submissions and polls on a worker thread.
         :param auto_poll: start the refresh timer. Off in tests, which drive
             ``refresh`` themselves.
+        :param preview: confirm the rendered script before submitting.
         """
         super().__init__(parent)
         self.manager = manager or RemoteJobManager()
         self._threaded = bool(threaded)
         self._auto_poll = bool(auto_poll)
+        self._preview = self._threaded if preview is None else bool(preview)
         self._jobs: List[RemoteJob] = []
         self._workers: List[tuple] = []
         self._busy = False
@@ -736,6 +973,10 @@ class DistributedJobsScreen(QWidget):
         self._pending_callback: Optional[Callable] = None
         self._settings_snapshot: Optional[dict] = None
         self._snapshot_module = ""
+        self._follow: dict = {}
+        self._last_status: dict = {}
+        self._shown_job = ""
+        self._cluster: dict = {}
         self.setAcceptDrops(True)
         self._build_ui()
         self._reload_profiles()
@@ -748,6 +989,7 @@ class DistributedJobsScreen(QWidget):
                 f"{type(exc).__name__}: {exc}",
                 error=True,
             )
+        self._last_status = {job.job_id: job.status for job in initial_jobs}
         self._render_jobs(initial_jobs)
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.refresh)
@@ -758,7 +1000,7 @@ class DistributedJobsScreen(QWidget):
         retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
-        """Construct profile, submission, table, and detail controls."""
+        """Construct the submission, resources and script column beside jobs, console and System."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(
             SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"]
@@ -773,6 +1015,55 @@ class DistributedJobsScreen(QWidget):
         outer.addWidget(intro)
         outer.addWidget(Divider())
 
+        columns = QSplitter(Qt.Horizontal, self)
+        columns.setChildrenCollapsible(False)
+        self._columns = columns
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, SPACING["sm"], 0)
+        left_layout.setSpacing(SPACING["md"])
+        left_layout.addWidget(self._build_submission_card())
+        left_layout.addWidget(self._build_resources_card())
+        left_layout.addWidget(self._build_script_card())
+        left_layout.addStretch(1)
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setWidget(left)
+        columns.addWidget(scroll)
+
+        splitter = CollapsibleSplitter(Qt.Vertical, self,
+                                       persist_key="distributed_jobs::body")
+        splitter.add_section(self._build_jobs_card(), "Jobs",
+                             persist_key="distributed_jobs/Jobs", stretch=2)
+        from ..widgets import ConsolePanel
+        console_card = Card()
+        self._console_card = console_card
+        self._console = ConsolePanel(active_app_label=APP_NAME,
+                                     persist_key=APP_KEY, follow_log=False)
+        self._console.setMinimumHeight(180)
+        console_card.body_layout.addWidget(self._console, 1)
+        splitter.add_section(console_card, "Console",
+                             persist_key="distributed_jobs/Console", stretch=3)
+        self._read_cluster_button = QPushButton("Read cluster", self)
+        self._read_cluster_button.setObjectName("DistributedReadCluster")
+        self._read_cluster_button.setToolTip(tr("Asks the cluster, with read-only scheduler queries (sinfo, sacctmgr, qstat or bqueues, nproc, free and nvidia-smi), which partitions, nodes, GPUs, cores, memory, accounts and QoS this profile can use."))
+        self._read_cluster_button.clicked.connect(self._read_cluster)
+        splitter.add_section(self._build_system_card(), "System",
+                             persist_key="distributed_jobs/System", stretch=1)
+        columns.addWidget(splitter)
+        columns.setStretchFactor(0, 2)
+        columns.setStretchFactor(1, 3)
+        outer.addWidget(columns, 1)
+        self._body_splitter = splitter
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+
+    def _build_submission_card(self) -> Card:
+        """Build the profile, module, settings and allocation controls."""
         submit_card = Card(title="Submission")
         profile_row = QHBoxLayout()
         self._profile = QComboBox(self)
@@ -781,6 +1072,7 @@ class DistributedJobsScreen(QWidget):
         self._profile.setToolTip(
             "Saved target from spacr.remote_execution.ProfileStore."
         )
+        self._profile.currentIndexChanged.connect(self._load_profile_editors)
         self._new_profile = QPushButton("New profile…", self)
         self._new_profile.clicked.connect(self._create_profile)
         self._edit_profile = QPushButton("Edit profile…", self)
@@ -790,10 +1082,13 @@ class DistributedJobsScreen(QWidget):
         self._delete_profile.clicked.connect(self._delete_selected_profile)
         profile_row.addWidget(QLabel("Execution target", self))
         profile_row.addWidget(self._profile, 1)
-        profile_row.addWidget(self._new_profile)
-        profile_row.addWidget(self._edit_profile)
-        profile_row.addWidget(self._delete_profile)
         submit_card.body_layout.addLayout(profile_row)
+        profile_buttons = QHBoxLayout()
+        profile_buttons.addWidget(self._new_profile)
+        profile_buttons.addWidget(self._edit_profile)
+        profile_buttons.addWidget(self._delete_profile)
+        profile_buttons.addStretch(1)
+        submit_card.body_layout.addLayout(profile_buttons)
 
         job_row = QHBoxLayout()
         self._module = QComboBox(self)
@@ -814,7 +1109,33 @@ class DistributedJobsScreen(QWidget):
         self._settings_path.textEdited.connect(self._clear_settings_snapshot)
         browse = QPushButton("Browse…", self)
         browse.clicked.connect(self._browse_settings)
+        job_row.addWidget(QLabel("Module", self))
+        job_row.addWidget(self._module)
+        job_row.addWidget(self._settings_path, 1)
+        job_row.addWidget(browse)
+        submit_card.body_layout.addLayout(job_row)
+
         from ..i18n import set_translatable_text
+        submit_row = QHBoxLayout()
+        self._run_inside = QComboBox(self)
+        self._run_inside.setObjectName("DistributedRunInside")
+        self._run_inside.setProperty("i18nSkipItems", True)
+        self._run_inside.setToolTip(tr("New batch job submits through the scheduler. Choosing a running allocation runs the job inside it, as an srun step on its compute node."))
+        self._alloc_button = QPushButton("Start allocation", self)
+        self._alloc_button.setObjectName("DistributedStartAllocation")
+        self._alloc_button.setToolTip(tr("Requests a Slurm allocation with the Resources below. It waits in the queue like any job; when it is running, choose it under Run inside and submit, so spaCR runs on the compute node and never on the login node."))
+        self._alloc_button.clicked.connect(self._request_allocation)
+        self._copy_shell = QPushButton("Copy shell command", self)
+        self._copy_shell.setObjectName("DistributedCopyShell")
+        self._copy_shell.setToolTip(tr("Copies an ssh command that opens an interactive shell inside the chosen allocation, on its compute node, for work in a terminal."))
+        self._copy_shell.clicked.connect(self._copy_allocation_shell)
+        submit_row.addWidget(QLabel("Run inside", self))
+        submit_row.addWidget(self._run_inside, 1)
+        submit_row.addWidget(self._alloc_button)
+        submit_row.addWidget(self._copy_shell)
+        submit_card.body_layout.addLayout(submit_row)
+
+        action_row = QHBoxLayout()
         self._save_snapshot = QPushButton(self)
         set_translatable_text(self._save_snapshot, "Save settings CSV…")
         self._save_snapshot.setObjectName("DistributedSaveSnapshot")
@@ -826,13 +1147,10 @@ class DistributedJobsScreen(QWidget):
         self._submit = QPushButton("Submit", self)
         self._submit.setObjectName("PrimaryButton")
         self._submit.clicked.connect(self.submit)
-        job_row.addWidget(QLabel("Module", self))
-        job_row.addWidget(self._module)
-        job_row.addWidget(self._settings_path, 1)
-        job_row.addWidget(browse)
-        job_row.addWidget(self._save_snapshot)
-        job_row.addWidget(self._submit)
-        submit_card.body_layout.addLayout(job_row)
+        action_row.addWidget(self._save_snapshot)
+        action_row.addStretch(1)
+        action_row.addWidget(self._submit)
+        submit_card.body_layout.addLayout(action_row)
         self._allocated_gpus = QCheckBox(
             tr("Mask generation: segment batches on every GPU allocated to the job"),
             self)
@@ -840,13 +1158,168 @@ class DistributedJobsScreen(QWidget):
         self._allocated_gpus.setToolTip(tr(
             "Submits mask_parallel on with a blank mask_gpu_indices, so the "
             "job uses exactly the GPUs its scheduler allocates, one model per "
-            "GPU. Request them in the execution profile, for example "
-            "--gres=gpu:2. A job given one GPU runs on that one."))
+            "GPU. Request them under Resources, for example 2 GPUs. A job "
+            "given one GPU runs on that one."))
         submit_card.body_layout.addWidget(self._allocated_gpus)
         self._module.currentIndexChanged.connect(self._sync_allocated_gpus)
         self._sync_allocated_gpus()
-        outer.addWidget(submit_card)
+        return submit_card
 
+    def _build_resources_card(self) -> Card:
+        """Build the per-profile scheduler resources form."""
+        card = Card(title="Resources")
+        self._resources_card = card
+        form = QFormLayout()
+        self._res_partition = QComboBox(self)
+        self._res_account = QComboBox(self)
+        self._res_qos = QComboBox(self)
+        self._res_gpu_type = QComboBox(self)
+        self._res_mail_type = QComboBox(self)
+        for combo, name in ((self._res_partition, "ResourcePartition"), (self._res_account, "ResourceAccount"),
+                            (self._res_qos, "ResourceQos"), (self._res_gpu_type, "ResourceGpuType"),
+                            (self._res_mail_type, "ResourceMailType")):
+            combo.setEditable(True)
+            combo.setObjectName(name)
+            combo.setProperty("i18nSkipItems", True)
+        for value in _MAIL_TYPES:
+            self._res_mail_type.addItem(value)
+        self._res_gpus = QSpinBox(self)
+        self._res_gpus.setRange(0, 64)
+        self._res_gpus.setObjectName("ResourceGpus")
+        self._res_cpus = QSpinBox(self)
+        self._res_cpus.setRange(0, 4096)
+        self._res_cpus.setSpecialValueText(tr("Scheduler default"))
+        self._res_cpus.setObjectName("ResourceCpus")
+        self._res_nodes = QSpinBox(self)
+        self._res_nodes.setRange(0, 4096)
+        self._res_nodes.setSpecialValueText(tr("Scheduler default"))
+        self._res_nodes.setObjectName("ResourceNodes")
+        self._res_mem = QLineEdit(self)
+        self._res_mem.setPlaceholderText(_EXAMPLES["mem"])
+        self._res_mem.setObjectName("ResourceMemory")
+        self._res_time = QLineEdit(self)
+        self._res_time.setPlaceholderText(_EXAMPLES["time"])
+        self._res_time.setObjectName("ResourceTime")
+        self._res_mail_user = QLineEdit(self)
+        self._res_mail_user.setPlaceholderText(_EXAMPLES["mail_user"])
+        self._res_mail_user.setObjectName("ResourceMailUser")
+        self._res_extra = _mono(QPlainTextEdit(self), 56)
+        from ..preferences import scaled_px
+        self._res_extra.setMaximumHeight(scaled_px(96))
+        self._res_extra.setObjectName("ResourceExtra")
+        self._res_extra.setPlaceholderText(_EXAMPLES["scheduler"])
+        rows = (
+            (QLabel("Partition / queue", self), self._res_partition, tr("Slurm partition, PBS or LSF queue. Read cluster lists the ones you can use.")),
+            (QLabel("Account", self), self._res_account, tr("The allocation account jobs are charged to. Read cluster lists your accounts.")),
+            (QLabel("QoS", self), self._res_qos, tr("Slurm quality of service, if your cluster uses one.")),
+            (QLabel("Number of GPUs", self), self._res_gpus, tr("GPUs per job. 0 asks for none.")),
+            (QLabel("GPU type", self), self._res_gpu_type, tr("Optional GPU model, for example v100 or a100, as the scheduler names it.")),
+            (QLabel("CPUs per task", self), self._res_cpus, tr("CPU cores for the spaCR process.")),
+            (QLabel("Memory", self), self._res_mem, tr("Memory per node, for example 90G or 4000M.")),
+            (QLabel("Wall time", self), self._res_time, tr("Longest run time, as HH:MM:SS or D-HH:MM:SS. The job is stopped when it runs out.")),
+            (QLabel("Nodes", self), self._res_nodes, tr("Nodes for the job; spaCR runs on one.")),
+            (QLabel("Mail type", self), self._res_mail_type, tr("When the scheduler emails you, for example END,FAIL.")),
+            (QLabel("Mail address", self), self._res_mail_user, tr("Where the scheduler sends job emails.")),
+            (QLabel("Extra scheduler lines", self), self._res_extra, tr("One option per line, added after the resource lines, for example --constraint=v100. A line starting with # is written as is.")),
+        )
+        for label, widget, tip in rows:
+            label.setToolTip(tip)
+            widget.setToolTip(tip)
+            form.addRow(label, widget)
+        card.body_layout.addLayout(form)
+        buttons = QHBoxLayout()
+        self._save_resources_button = QPushButton("Save resources", self)
+        self._save_resources_button.setObjectName("PrimaryButton")
+        self._save_resources_button.setToolTip(tr("Saves these resources in the selected profile; every later job of that profile asks for them."))
+        self._save_resources_button.clicked.connect(self._save_resources)
+        self._check_resources_button = QPushButton("Check against cluster", self)
+        self._check_resources_button.setToolTip(tr("Compares these resources with the partitions, node sizes, time limits and accounts that Read cluster found, and lists what does not fit."))
+        self._check_resources_button.clicked.connect(self._check_resources)
+        buttons.addWidget(self._save_resources_button)
+        buttons.addWidget(self._check_resources_button)
+        buttons.addStretch(1)
+        card.body_layout.addLayout(buttons)
+        return card
+
+    def _build_script_card(self) -> Card:
+        """Build the environment-setup and job-script editors."""
+        card = Card(title="Job script")
+        self._script_card = card
+        note = QLabel(tr("The script the remote host runs. Placeholders such as {settings_path} and {run_command} are filled at submission; nothing is appended to your commands."), self)
+        note.setWordWrap(True)
+        note.setObjectName("Muted")
+        card.body_layout.addWidget(note)
+        env_row = QHBoxLayout()
+        self._env_preset = QComboBox(self)
+        self._env_preset.setObjectName("EnvironmentPreset")
+        self._env_preset.setProperty("i18nSkipItems", True)
+        for text, key in _ENV_CHOICES:
+            self._env_preset.addItem(text, key)
+        self._env_preset.setToolTip(tr("Common lines that make spacr-run available on the remote host. Add appends them to the environment setup."))
+        add_env = QPushButton("Add", self)
+        add_env.setObjectName("EnvironmentAdd")
+        add_env.setToolTip(tr("Appends the chosen lines to the environment setup."))
+        add_env.clicked.connect(self._add_env_lines)
+        env_row.addWidget(QLabel("Environment setup", self))
+        env_row.addWidget(self._env_preset, 1)
+        env_row.addWidget(add_env)
+        card.body_layout.addLayout(env_row)
+        self._env_edit = _mono(QPlainTextEdit(self), 64)
+        from ..preferences import scaled_px
+        self._env_edit.setMaximumHeight(scaled_px(120))
+        self._env_edit.setObjectName("EnvironmentSetup")
+        self._env_edit.setPlaceholderText(_EXAMPLES["env_setup"])
+        self._env_edit.setToolTip(tr("Shell lines run before spaCR starts; the job script places them at {env_setup}. Without them spacr-run may not be found, which ends the job with exit code 127."))
+        card.body_layout.addWidget(self._env_edit)
+        script_row = QHBoxLayout()
+        self._script_preset = QComboBox(self)
+        self._script_preset.setObjectName("JobScriptPreset")
+        self._script_preset.addItem(tr("Slurm sbatch script"), "slurm")
+        self._script_preset.addItem(tr("PBS / Torque qsub script"), "pbs")
+        self._script_preset.addItem(tr("LSF bsub script"), "lsf")
+        self._script_preset.addItem(tr("Plain ssh script (no scheduler)"), "ssh")
+        self._script_preset.setToolTip(tr("Starting points for the job script. Use preset replaces the editor's text."))
+        use_preset = QPushButton("Use preset", self)
+        use_preset.setObjectName("JobScriptUsePreset")
+        use_preset.setToolTip(tr("Replaces the job script with the chosen preset."))
+        use_preset.clicked.connect(self._use_script_preset)
+        self._placeholder = QComboBox(self)
+        self._placeholder.setObjectName("JobScriptPlaceholder")
+        self._placeholder.setProperty("i18nSkipItems", True)
+        for name in _JOB_SCRIPT_PLACEHOLDERS:
+            self._placeholder.addItem("{" + name + "}", name)
+        self._placeholder.setToolTip(tr("Values spaCR fills in at submission. Paths and resources are quoted for the shell; {env_setup}, {scheduler_directives}, {run_command}, {runner_check} and {runner} are inserted as shell code."))
+        insert = QPushButton("Insert", self)
+        insert.setObjectName("JobScriptInsert")
+        insert.setToolTip(tr("Inserts the chosen placeholder at the cursor."))
+        insert.clicked.connect(self._insert_placeholder)
+        script_row.addWidget(self._script_preset, 1)
+        script_row.addWidget(use_preset)
+        script_row.addWidget(self._placeholder)
+        script_row.addWidget(insert)
+        card.body_layout.addLayout(script_row)
+        self._script_edit = _mono(QPlainTextEdit(self), 220)
+        self._script_edit.setObjectName("JobScriptEditor")
+        card.body_layout.addWidget(self._script_edit)
+        buttons = QHBoxLayout()
+        self._preview_script_button = QPushButton("Preview", self)
+        self._preview_script_button.setObjectName("JobScriptPreviewButton")
+        self._preview_script_button.setToolTip(tr("Shows the script exactly as the next submission would send it, with every placeholder filled, and prints it to the console."))
+        self._preview_script_button.clicked.connect(self._preview_script)
+        self._save_script_button = QPushButton("Save script", self)
+        self._save_script_button.setObjectName("PrimaryButton")
+        self._save_script_button.setToolTip(tr("Saves the environment setup and job script in the selected profile."))
+        self._save_script_button.clicked.connect(self._save_script)
+        buttons.addWidget(self._preview_script_button)
+        buttons.addWidget(self._save_script_button)
+        buttons.addStretch(1)
+        card.body_layout.addLayout(buttons)
+        return card
+
+    def _build_jobs_card(self) -> Card:
+        """Build the jobs list inside a rounded, translucent glass card."""
+        card = Card()
+        self._jobs_card = card
         actions = QHBoxLayout()
         self._refresh = QPushButton("Refresh", self)
         self._refresh.setObjectName("PrimaryButton")
@@ -865,11 +1338,9 @@ class DistributedJobsScreen(QWidget):
         actions.addWidget(self._logs)
         actions.addWidget(self._open_local)
         actions.addStretch(1)
-        outer.addLayout(actions)
-
-        splitter = CollapsibleSplitter(Qt.Vertical, self,
-                                       persist_key="distributed_jobs::body")
+        card.body_layout.addLayout(actions)
         self._table = QTableWidget(0, len(_COLUMNS))
+        self._table.setObjectName("DistributedJobsTable")
         install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_COLUMNS))
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -879,25 +1350,41 @@ class DistributedJobsScreen(QWidget):
         self._table.setAlternatingRowColors(True)
         header = self._table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        header.setStretchLastSection(True)
         self._table.itemSelectionChanged.connect(self._show_selection)
-        splitter.add_section(self._table, "Jobs",
-                             persist_key="distributed_jobs/Jobs", stretch=2)
+        card.body_layout.addWidget(self._table, 1)
+        self._empty = QLabel(tr("No distributed jobs have been submitted."), self)
+        self._empty.setObjectName("Muted")
+        self._empty.setAlignment(Qt.AlignCenter)
+        card.body_layout.addWidget(self._empty)
+        return card
 
-        self._detail = QPlainTextEdit()
-        self._detail.setReadOnly(True)
-        self._detail.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self._detail.setAccessibleName("Distributed job details and log")
-        splitter.add_section(self._detail, "Job details and log",
-                             persist_key="distributed_jobs/Job details and log",
-                             stretch=1)
-        outer.addWidget(splitter, 1)
-        self._body_splitter = splitter
-
-        self._status = QLabel("", self)
-        self._status.setObjectName("Muted")
-        self._status.setWordWrap(True)
-        outer.addWidget(self._status)
+    def _build_system_card(self) -> Card:
+        """Build the System panel: what this profile can reach on the cluster."""
+        card = Card()
+        self._system_card = card
+        row = QHBoxLayout()
+        row.addWidget(self._read_cluster_button)
+        row.addStretch(1)
+        card.body_layout.addLayout(row)
+        self._system_summary = QLabel(tr("Not read yet. Read cluster asks the scheduler, read-only, what this profile can reach."), self)
+        self._system_summary.setObjectName("Muted")
+        self._system_summary.setWordWrap(True)
+        card.body_layout.addWidget(self._system_summary)
+        self._system_table = QTableWidget(0, len(_SYSTEM_COLUMNS))
+        self._system_table.setObjectName("DistributedSystemTable")
+        self._system_table.setHorizontalHeaderLabels(list(_SYSTEM_COLUMNS))
+        self._system_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._system_table.verticalHeader().setVisible(False)
+        self._system_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        install_sorting(self._system_table)
+        card.body_layout.addWidget(self._system_table, 1)
+        self._system_accounts = QLabel("", self)
+        self._system_accounts.setObjectName("Muted")
+        self._system_accounts.setWordWrap(True)
+        self._system_accounts.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        card.body_layout.addWidget(self._system_accounts)
+        return card
 
     def configure_submission(self, module: str, settings: dict) -> None:
         """Preload an immutable settings snapshot handed off by an AppScreen.
@@ -961,7 +1448,6 @@ class DistributedJobsScreen(QWidget):
                        path=written[0], module=module,
                        name=os.path.basename(written[0])))
 
-
     def _reload_profiles(self, selected: str = "") -> None:
         """Reload the profile combo from persistent storage."""
         current = selected or str(self._profile.currentData() or "")
@@ -974,16 +1460,183 @@ class DistributedJobsScreen(QWidget):
                 f"{type(exc).__name__}: {exc}",
                 error=True,
             )
+        self._profile.blockSignals(True)
         self._profile.clear()
         for profile in profiles:
             self._profile.addItem(profile.name, profile.name)
         index = self._profile.findData(current)
         self._profile.setCurrentIndex(index if index >= 0 else 0)
+        self._profile.blockSignals(False)
         available = bool(profiles)
         self._edit_profile.setEnabled(available)
         self._delete_profile.setEnabled(available)
         self._submit.setEnabled(available and not self._busy)
         self._update_poll_interval(profiles)
+        if str(self._profile.currentData() or "") != getattr(self, "_editor_profile", None):
+            self._load_profile_editors()
+
+    def _current_profile(self) -> Optional[ExecutionProfile]:
+        """Return the selected saved profile, or None when there is none."""
+        name = str(self._profile.currentData() or "")
+        if not name:
+            return None
+        try:
+            return self.manager.profiles.get(name)
+        except RemoteExecutionError:
+            return None
+
+    def _load_profile_editors(self, *_args) -> None:
+        """Show the selected profile's resources, script and remembered cluster."""
+        profile = self._current_profile()
+        self._editor_profile = profile.name if profile else ""
+        scheduled = profile is not None and profile.backend in {"slurm", "pbs", "lsf"}
+        scripted = profile is not None and profile.backend != "command"
+        self._resources_card.setEnabled(scheduled)
+        self._script_card.setEnabled(scripted)
+        self._alloc_button.setEnabled(profile is not None and profile.backend == "slurm")
+        self._read_cluster_button.setEnabled(scripted)
+        resources = dict(profile.resources) if profile else {}
+        for combo, key in ((self._res_partition, "partition"), (self._res_account, "account"),
+                           (self._res_qos, "qos"), (self._res_gpu_type, "gpu_type"),
+                           (self._res_mail_type, "mail_type")):
+            combo.setEditText(resources.get(key, ""))
+        for spin, key in ((self._res_gpus, "gpus"), (self._res_cpus, "cpus"), (self._res_nodes, "nodes")):
+            value = resources.get(key, "")
+            spin.setValue(int(value) if str(value).isdigit() else 0)
+        self._res_mem.setText(resources.get("mem", ""))
+        self._res_time.setText(resources.get("time", ""))
+        self._res_mail_user.setText(resources.get("mail_user", ""))
+        self._res_extra.setPlainText(resources.get("extra", ""))
+        self._env_edit.setPlainText(profile.env_setup if profile else "")
+        if profile is not None:
+            self._script_preset.setCurrentIndex(max(0, self._script_preset.findData(
+                profile.backend if profile.backend in _SCRIPT_PRESETS else "ssh")))
+        self._script_edit.setPlainText(
+            (profile.job_script or _SCRIPT_PRESETS.get(profile.backend, _SCRIPT_PRESETS["ssh"])) if scripted else "")
+        self._cluster = _load_cluster_cache(profile.name) if profile else {}
+        self._render_cluster(self._cluster)
+        self._reload_allocations()
+
+    def _resources_from_form(self) -> dict:
+        """Collect the Resources form into a profile resources mapping."""
+        values = {
+            "partition": self._res_partition.currentText(), "account": self._res_account.currentText(),
+            "qos": self._res_qos.currentText(), "gpu_type": self._res_gpu_type.currentText(),
+            "mail_type": self._res_mail_type.currentText(), "mem": self._res_mem.text(),
+            "time": self._res_time.text(), "mail_user": self._res_mail_user.text(),
+            "gpus": str(self._res_gpus.value()) if self._res_gpus.value() else "",
+            "cpus": str(self._res_cpus.value()) if self._res_cpus.value() else "",
+            "nodes": str(self._res_nodes.value()) if self._res_nodes.value() else "",
+            "extra": self._res_extra.toPlainText().strip(),
+        }
+        return {key: value.strip() for key, value in values.items() if value.strip()}
+
+    def _profile_from_editors(self) -> Optional[ExecutionProfile]:
+        """Return the selected profile with the editors' resources and script applied.
+
+        :returns: the validated profile, or None when no profile is selected.
+        :raises RemoteExecutionError: if an edited value is invalid.
+        """
+        profile = self._current_profile()
+        if profile is None or profile.backend == "command":
+            return profile
+        script = self._script_edit.toPlainText()
+        if script.strip() == _SCRIPT_PRESETS.get(profile.backend, _SCRIPT_PRESETS["ssh"]).strip():
+            script = ""
+        resources = self._resources_from_form() if profile.backend in {"slurm", "pbs", "lsf"} else dict(profile.resources)
+        return replace(profile, resources=resources, env_setup=self._env_edit.toPlainText().strip(),
+                       job_script=script).validate()
+
+    def _store_editors(self, part: str) -> Optional[ExecutionProfile]:
+        """Save the editors into the selected profile when they changed.
+
+        :param part: ``resources``, ``script`` or ``both``; names what the
+            console notice says was saved.
+        :returns: the saved profile, or None when there was an error.
+        """
+        try:
+            edited = self._profile_from_editors()
+            if edited is None:
+                self._warn(tr("Create an execution profile first."))
+                return None
+            if edited != self._current_profile():
+                self.manager.profiles.save(edited)
+                if part == "resources":
+                    self._console.append_notice("Saved the resources in profile {profile}.\n", profile=edited.name)
+                elif part == "script":
+                    self._console.append_notice("Saved the job script in profile {profile}.\n", profile=edited.name)
+                else:
+                    self._console.append_notice("Saved the resources and job script in profile {profile}.\n",
+                                                profile=edited.name)
+        except RemoteExecutionError as exc:
+            self._warn(str(exc))
+            return None
+        return edited
+
+    def _save_resources(self) -> None:
+        """Save the Resources form in the selected profile and check it against the cluster."""
+        profile = self._store_editors("resources")
+        if profile is not None:
+            self._set_status(tr("Resources saved in {profile}.").format(profile=profile.name))
+            self._check_resources()
+
+    def _check_resources(self) -> List[str]:
+        """List the requested resources the remembered cluster cannot meet.
+
+        :returns: the problems; each is also printed to the console as a
+            warning.
+        """
+        if not self._cluster:
+            self._set_status(tr("Read cluster first, so spaCR knows this cluster's limits."))
+            return []
+        problems = _resource_problems(self._resources_from_form(), self._cluster)
+        for problem in problems:
+            self._console.append_warning(problem)
+        if problems:
+            self._set_status(tr("{count} resource requests do not fit this cluster; see the console.").format(count=len(problems)), error=True)
+        else:
+            self._set_status(tr("The resources fit what the cluster reported."))
+        return problems
+
+    def _save_script(self) -> None:
+        """Save the environment setup and job script in the selected profile."""
+        profile = self._store_editors("script")
+        if profile is not None:
+            self._set_status(tr("Job script saved in {profile}.").format(profile=profile.name))
+
+    def _preview_script(self) -> str:
+        """Render the next submission's script, print it and show it.
+
+        :returns: the rendered script, or an empty string on an error.
+        """
+        try:
+            profile = self._profile_from_editors()
+            if profile is None or profile.backend == "command":
+                self._warn(tr("Choose an SSH, Slurm, PBS or LSF profile to preview its job script."))
+                return ""
+            text = _preview_job_script(profile, str(self._module.currentData() or ""))
+        except RemoteExecutionError as exc:
+            self._warn(str(exc))
+            return ""
+        self._console.append_stdout(tr("Job script preview for {profile}:").format(profile=profile.name) + "\n" + text.rstrip("\n") + "\n")
+        if self._preview:
+            _ScriptPreviewDialog(self, text, confirm=False).exec()
+        return text
+
+    def _add_env_lines(self) -> None:
+        """Append the chosen environment preset's lines to the setup editor."""
+        lines = _ENV_PRESETS.get(str(self._env_preset.currentData() or ""), "")
+        current = self._env_edit.toPlainText().rstrip()
+        self._env_edit.setPlainText((current + "\n" if current else "") + lines)
+
+    def _use_script_preset(self) -> None:
+        """Replace the job script with the chosen preset."""
+        self._script_edit.setPlainText(_SCRIPT_PRESETS[str(self._script_preset.currentData() or "ssh")])
+
+    def _insert_placeholder(self) -> None:
+        """Insert the chosen placeholder at the script editor's cursor."""
+        self._script_edit.insertPlainText("{" + str(self._placeholder.currentData()) + "}")
+        self._script_edit.setFocus()
 
     def _update_poll_interval(
         self, profiles: Optional[List[ExecutionProfile]] = None
@@ -1038,6 +1691,7 @@ class DistributedJobsScreen(QWidget):
                     error=True,
                 )
                 return
+            self._editor_profile = None
             self._reload_profiles(profile.name)
 
     def _delete_selected_profile(self) -> None:
@@ -1084,36 +1738,39 @@ class DistributedJobsScreen(QWidget):
         self._pending_callback = callback
         self._set_busy(True)
         self._set_status(label)
-
-        def _work(_settings):
-            """Run the operation on the job runner's thread."""
-            try:
-                self._pending_result = operation()
-            except Exception as exc:
-                LOG.exception("Distributed job operation failed")
-                self._pending_error = f"{type(exc).__name__}: {exc}"
-
         if not self._threaded:
-            _work({})
+            self._run_operation(operation, {})
             self._finish_task(not bool(self._pending_error))
             return
         thread, worker = make_thread(
-            _work, {}, app_key="distributed_jobs_io", journal=False
+            functools.partial(self._run_operation, operation), {},
+            app_key="distributed_jobs_io", journal=False
         )
         self._workers.append((thread, worker))
         worker.finished.connect(self._finish_task)
         thread.finished.connect(self._retire_workers)
         thread.start()
 
+    def _run_operation(self, operation: Callable, _settings) -> None:
+        """Run the operation on the job runner's thread and keep its result or error.
+
+        :param operation: the blocking call.
+        :param _settings: the worker's settings mapping, unused.
+        """
+        try:
+            self._pending_result = operation()
+        except Exception as exc:
+            LOG.exception("Distributed job operation failed")
+            self._pending_error = f"{type(exc).__name__}: {exc}"
+
     def _finish_task(self, ok: bool) -> None:
         """Apply one worker result on the GUI thread."""
         self._busy = False
         self._set_busy(False)
         if not ok or self._pending_error:
-            self._set_status(
-                self._pending_error or tr("Distributed operation failed."),
-                error=True,
-            )
+            message = self._pending_error or tr("Distributed operation failed.")
+            self._set_status(message, error=True)
+            self._console._display_error(message)
             return
         callback = self._pending_callback
         if callback is not None:
@@ -1134,7 +1791,8 @@ class DistributedJobsScreen(QWidget):
 
     def _set_busy(self, busy: bool) -> None:
         """Update semantic action states while a network call is active."""
-        for button in (self._submit, self._refresh, self._cancel, self._logs):
+        for button in (self._submit, self._refresh, self._cancel, self._logs,
+                       self._read_cluster_button, self._alloc_button):
             button.setEnabled(not busy)
         for button in (self._submit, self._refresh):
             button.setProperty("buttonActionBusy", bool(busy))
@@ -1157,6 +1815,18 @@ class DistributedJobsScreen(QWidget):
         ):
             self._set_status(tr("Choose an existing settings CSV/JSON."), error=True)
             return
+        profile = self._store_editors("both")
+        if profile is None:
+            return
+        if profile.backend != "command" and self._preview:
+            try:
+                text = _preview_job_script(profile, module_name)
+            except RemoteExecutionError as exc:
+                self._warn(str(exc))
+                return
+            if _ScriptPreviewDialog(self, text).exec() != QDialog.Accepted:
+                self._set_status(tr("Submission cancelled; nothing was sent."))
+                return
         from copy import deepcopy
 
         settings_snapshot = (
@@ -1165,61 +1835,188 @@ class DistributedJobsScreen(QWidget):
         )
         use_allocated_gpus = (module_name == "mask"
                               and self._allocated_gpus.isChecked())
+        allocation = str(self._run_inside.currentData() or "")
+        self._start_task(tr("Submitting distributed job…"), functools.partial(
+            self._submit_operation, module_name, profile_name, settings_path,
+            settings_snapshot, use_allocated_gpus, allocation), self._submitted)
 
-        def _submit():
-            """Resolve the module and its settings, then submit. Off-thread."""
-            from ...cli import resolve_module, resolve_settings
-            module = resolve_module(module_name)
-            if module is None:
-                raise RemoteExecutionError(
-                    f"Unknown spaCR module: {module_name}"
-                )
-            settings = (
-                settings_snapshot
-                if settings_snapshot is not None
-                else resolve_settings(module, settings_path, [])
+    def _submit_operation(self, module_name, profile_name, settings_path, settings_snapshot,
+                          use_allocated_gpus, allocation):
+        """Resolve the module and its settings, then submit. Off-thread.
+
+        :param module_name: the spaCR module key.
+        :param profile_name: the execution profile.
+        :param settings_path: the settings file, used when there is no snapshot.
+        :param settings_snapshot: settings handed over by a module screen, or None.
+        :param use_allocated_gpus: run mask batches on every allocated GPU.
+        :param allocation: local id of the allocation to run inside, or blank.
+        :returns: the submitted job.
+        """
+        from ...cli import resolve_module, resolve_settings
+        module = resolve_module(module_name)
+        if module is None:
+            raise RemoteExecutionError(
+                f"Unknown spaCR module: {module_name}"
             )
-            if "model_metadata" in settings:
-                from ...model_zoo import _model_input_kinds, _validate_model_metadata
+        settings = (
+            settings_snapshot
+            if settings_snapshot is not None
+            else resolve_settings(module, settings_path, [])
+        )
+        if "model_metadata" in settings:
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
 
-                _validate_model_metadata(
-                    settings, model_kinds=_model_input_kinds(module, settings))
-            if use_allocated_gpus:
-                settings = dict(settings, mask_parallel=True,
-                                mask_gpu_indices="")
-            return self.manager.submit(module.key, settings, profile_name)
+            _validate_model_metadata(
+                settings, model_kinds=_model_input_kinds(module, settings))
+        if use_allocated_gpus:
+            settings = dict(settings, mask_parallel=True,
+                            mask_gpu_indices="")
+        if allocation:
+            return _submit_job(self.manager, module.key, settings, profile_name, allocation)
+        return self.manager.submit(module.key, settings, profile_name)
 
-        def _done(job: RemoteJob):
-            """Redraw the job list with the new job selected."""
-            self._render_jobs(self.manager.jobs.list(), select=job.job_id)
-            self._set_status(
-                tr("Submitted {module} as {job}.").format(
-                    module=job.module, job=job.job_id
-                )
+    def _submitted(self, job: RemoteJob) -> None:
+        """Redraw the job list with the new job selected and start following its log.
+
+        :param job: the submitted job.
+        """
+        self._last_status[job.job_id] = job.status
+        if job.log_reference.startswith("/") or job.backend == "command":
+            self._follow[job.job_id] = 0
+        self._shown_job = job.job_id
+        self._render_jobs(self.manager.jobs.list(), select=job.job_id)
+        self._console.append_notice("Submitted {module} as {job} through {profile}; scheduler id {external}.\n",
+                                    module=job.module, job=job.job_id[:12], profile=job.profile_name,
+                                    external=job.external_id or "-")
+        if job.job_script:
+            self._console.append_stdout(job.job_script.rstrip("\n") + "\n")
+        self._set_status(
+            tr("Submitted {module} as {job}.").format(
+                module=job.module, job=job.job_id
             )
+        )
 
-        self._start_task(tr("Submitting distributed job…"), _submit, _done)
+    def _request_allocation(self) -> None:
+        """Request a Slurm allocation with the selected profile's resources."""
+        profile = self._store_editors("resources")
+        if profile is None:
+            return
+        self._start_task(tr("Requesting an allocation…"),
+                         functools.partial(_start_allocation, self.manager, profile.name),
+                         self._allocation_requested)
+
+    def _allocation_requested(self, job: RemoteJob) -> None:
+        """Report a requested allocation and list it.
+
+        :param job: the allocation's job record.
+        """
+        self._last_status[job.job_id] = job.status
+        self._follow[job.job_id] = 0
+        self._render_jobs(self.manager.jobs.list(), select=job.job_id)
+        self._console.append_notice("Requested allocation {job} (Slurm {external}); it can run jobs once it is running.\n",
+                                    job=job.job_id[:12], external=job.external_id)
+        self._set_status(tr("Allocation requested; it waits in the queue like any job."))
+
+    def _reload_allocations(self) -> None:
+        """List the selected profile's running allocations under Run inside."""
+        current = str(self._run_inside.currentData() or "")
+        name = str(self._profile.currentData() or "").casefold()
+        self._run_inside.clear()
+        self._run_inside.addItem(tr("New batch job"), "")
+        for job in self._jobs:
+            if job.module == "allocation" and job.status == "running" and job.profile_name.casefold() == name:
+                self._run_inside.addItem(tr("Allocation {job} (Slurm {external})").format(
+                    job=job.job_id[:12], external=job.external_id), job.job_id)
+        self._run_inside.setCurrentIndex(max(0, self._run_inside.findData(current)))
+        self._copy_shell.setEnabled(self._run_inside.count() > 1)
+
+    def _copy_allocation_shell(self) -> None:
+        """Copy the command that opens a shell inside the chosen allocation."""
+        job_id = str(self._run_inside.currentData() or "")
+        holder = next((job for job in self._jobs if job.job_id == job_id), None)
+        if holder is None:
+            self._warn(tr("Choose a running allocation under Run inside first."))
+            return
+        command = _allocation_shell_command(ExecutionProfile.from_dict(holder.profile), holder.external_id)
+        QApplication.clipboard().setText(command)
+        self._console.append_stdout(command + "\n")
+        self._set_status(tr("Copied the shell command; paste it in a terminal."))
 
     def refresh(self) -> None:
-        """Poll all non-terminal jobs in a worker thread."""
-        def _done(jobs):
-            """Redraw the job list and report how many are still active."""
-            self._render_jobs(jobs)
-            active = sum(
-                job.status in ACTIVE_STATES or job.status == "unknown"
-                for job in jobs
-            )
-            self._set_status(
-                tr("Loaded {count} jobs; {active} active.").format(
-                    count=len(jobs), active=active
-                )
-            )
-
+        """Poll all non-terminal jobs, and follow their logs, in a worker thread."""
         self._start_task(
             tr("Polling remote jobs…"),
-            lambda: self.manager.refresh_all(include_logs=False),
-            _done,
+            functools.partial(self._poll, dict(self._follow)),
+            self._polled,
         )
+
+    def _poll(self, follow: dict):
+        """Poll every active job, then fetch the new part of each followed log. Off-thread.
+
+        :param follow: job id to bytes of log already shown.
+        :returns: ``(jobs, {job id: (text, offset, error)})``.
+        """
+        jobs = self.manager.refresh_all(include_logs=False)
+        chunks = {}
+        for job_id, offset in follow.items():
+            try:
+                text, new_offset = _log_chunk(self.manager, job_id, offset)
+                chunks[job_id] = (text, new_offset, "")
+            except Exception as exc:
+                chunks[job_id] = ("", offset, f"{type(exc).__name__}: {exc}")
+        return jobs, chunks
+
+    def _polled(self, result) -> None:
+        """Print new log text and status changes, then redraw the jobs.
+
+        :param result: what :meth:`_poll` returned.
+        """
+        jobs, chunks = result
+        by_id = {job.job_id: job for job in jobs}
+        for job_id, (text, offset, error) in chunks.items():
+            job = by_id.get(job_id)
+            previous_offset = self._follow.get(job_id)
+            if text:
+                self._console.append_stdout(f"[{job_id[:12]} {job.module if job else ''}]\n{text.rstrip(chr(10))}\n")
+            self._follow[job_id] = offset
+            if error:
+                self._console.append_warning(tr("Could not read the log of {job}: {error}").format(job=job_id[:12], error=error))
+            elif (job is not None and job.status in TERMINAL_STATES
+                  and not text and offset == previous_offset):
+                self._follow.pop(job_id, None)
+        for job in jobs:
+            self._report_transition(job)
+        self._render_jobs(jobs)
+        active = sum(
+            job.status in ACTIVE_STATES or job.status == "unknown"
+            for job in jobs
+        )
+        self._set_status(
+            tr("Loaded {count} jobs; {active} active.").format(
+                count=len(jobs), active=active
+            )
+        )
+
+    def _report_transition(self, job: RemoteJob) -> None:
+        """Print a job's status change to the console; a failure goes through spaCR AI.
+
+        :param job: the freshly polled job.
+        """
+        before = self._last_status.get(job.job_id)
+        self._last_status[job.job_id] = job.status
+        if before is None or before == job.status:
+            return
+        if job.status == "failed":
+            lines = [tr("Remote job {job} ({module}, profile {profile}) failed with exit code {code}.").format(
+                job=job.job_id[:12], module=job.module, profile=job.profile_name,
+                code="?" if job.exit_code is None else job.exit_code)]
+            if job.error:
+                lines.append(job.error)
+            lines.append(self._job_detail(job))
+            self._console.append_error("\n".join(lines))
+        else:
+            self._console.append_notice("Job {job} ({module}) is now {status}.\n", job=job.job_id[:12],
+                                        module=job.module, status=job.status)
 
     def _selected_job(self) -> Optional[RemoteJob]:
         """Return the job attached to the selected table row."""
@@ -1250,45 +2047,126 @@ class DistributedJobsScreen(QWidget):
         )
         if answer != QMessageBox.Yes:
             return
-
-        def _done(updated):
-            """Redraw with the cancelled job still selected.
-
-            The selection is kept so the list does not jump to the top after
-            a cancel and the user's row stays selected.
-            """
-            self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
-            self._set_status(
-                tr("Cancellation requested for {job}.").format(
-                    job=updated.job_id
-                )
-            )
-
         self._start_task(
             tr("Cancelling remote job…"),
-            lambda: self.manager.cancel(job.job_id),
-            _done,
+            functools.partial(self.manager.cancel, job.job_id),
+            self._cancelled,
+        )
+
+    def _cancelled(self, updated: RemoteJob) -> None:
+        """Redraw with the cancelled job still selected.
+
+        The selection is kept so the list does not jump to the top after
+        a cancel and the user's row stays selected.
+
+        :param updated: the cancelled job.
+        """
+        self._report_transition(updated)
+        self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
+        self._set_status(
+            tr("Cancellation requested for {job}.").format(
+                job=updated.job_id
+            )
         )
 
     def refresh_log(self) -> None:
-        """Fetch the selected job's remote log tail."""
+        """Fetch the selected job's remote log tail into the console."""
         job = self._selected_job()
         if job is None:
             self._set_status(tr("Select a job first."), error=True)
             return
-
-        def _done(text):
-            """Show the fetched log, re-reading the job in case it moved on."""
-            updated = self.manager.jobs.get(job.job_id)
-            self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
-            self._detail.setPlainText(self._job_detail(updated))
-            self._set_status(tr("Log refreshed."))
-
         self._start_task(
             tr("Retrieving remote log…"),
-            lambda: self.manager.logs(job.job_id, 500),
-            _done,
+            functools.partial(self.manager.logs, job.job_id, 500),
+            functools.partial(self._log_fetched, job.job_id),
         )
+
+    def _log_fetched(self, job_id: str, text: str) -> None:
+        """Print the fetched log tail under the job's header.
+
+        :param job_id: the job.
+        :param text: the tail.
+        """
+        updated = self.manager.jobs.get(job_id)
+        self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
+        self._console.append_stdout(
+            f"--- remote log tail {updated.job_id[:12]} ({updated.module}) ---\n{text.rstrip(chr(10))}\n")
+        self._set_status(tr("Log refreshed."))
+
+    def _read_cluster(self) -> None:
+        """Ask the cluster, read-only, what the selected profile can reach."""
+        profile = self._current_profile()
+        if profile is None or profile.backend == "command":
+            self._warn(tr("Choose an SSH, Slurm, PBS or LSF profile to read its cluster."))
+            return
+        self._start_task(tr("Reading cluster resources…"),
+                         functools.partial(_probe_cluster, profile, self.manager.runner),
+                         functools.partial(self._cluster_read, profile.name))
+
+    def _cluster_read(self, name: str, cluster: dict) -> None:
+        """Show, remember and check a fresh cluster probe.
+
+        :param name: the profile name.
+        :param cluster: the parsed probe.
+        """
+        try:
+            _save_cluster_cache(name, cluster)
+        except RemoteExecutionError as exc:
+            self._console.append_warning(str(exc))
+        if str(self._profile.currentData() or "").casefold() != name.casefold():
+            self._set_status(tr("Cluster resources read for {profile}.").format(profile=name))
+            return
+        self._cluster = cluster
+        self._render_cluster(cluster)
+        self._console.append_stdout(self._system_summary.text() + "\n" + self._system_accounts.text() + "\n")
+        problems = _resource_problems(self._resources_from_form(), cluster)
+        for problem in problems:
+            self._console.append_warning(problem)
+        self._set_status(tr("Cluster resources read for {profile}.").format(profile=name))
+
+    def _render_cluster(self, cluster: dict) -> None:
+        """Draw the System panel and offer the cluster's values as suggestions.
+
+        :param cluster: a parsed probe, or an empty mapping.
+        """
+        _retire_table_cells(self._system_table)
+        self._system_table.setRowCount(0)
+        if not cluster:
+            self._system_summary.setText(tr("Not read yet. Read cluster asks the scheduler, read-only, what this profile can reach."))
+            self._system_accounts.setText("")
+            return
+        scheduler = cluster.get("scheduler") or tr("no scheduler")
+        gpus = ", ".join(cluster.get("gpus") or []) or tr("none visible")
+        self._system_summary.setText(tr("{host} as {user}; scheduler: {scheduler}. This host: {cpus} CPUs, {memory} GB memory, GPUs: {gpus}.").format(
+            host=cluster.get("host") or "?", user=cluster.get("user") or "?", scheduler=scheduler,
+            cpus=cluster.get("cpus") or "?", memory=round((cluster.get("mem_mb") or 0) / 1024) or "?", gpus=gpus))
+        rows = [(row["partition"] + (" *" if row["default"] else ""), row["nodes"], row["cpus"],
+                 f"{round(row['mem_mb'] / 1024)} GB" if row["mem_mb"] else "", row["gpus"] or "",
+                 ", ".join(row["gpu_types"]), row["time_limit"], row["available"])
+                for row in cluster.get("partitions") or []]
+        rows += [(queue, "", "", "", "", "", "", "PBS") for queue in cluster.get("pbs_queues") or []]
+        rows += [(queue, "", "", "", "", "", "", "LSF") for queue in cluster.get("lsf_queues") or []]
+        self._system_table.setSortingEnabled(False)
+        for values in rows:
+            row = self._system_table.rowCount()
+            self._system_table.insertRow(row)
+            for column, value in enumerate(values):
+                self._system_table.setItem(row, column, _item(value))
+        self._system_table.setSortingEnabled(True)
+        accounts = cluster.get("accounts") or []
+        self._system_accounts.setText(tr("Your accounts: {accounts}").format(accounts="; ".join(
+            f"{row['account']}" + (f" ({row['partition']})" if row["partition"] else "")
+            + (f" QoS {', '.join(row['qos'])}" if row["qos"] else "") for row in accounts)) if accounts else "")
+        for combo, values in (
+                (self._res_partition, [row["partition"] for row in cluster.get("partitions") or []]
+                 + list(cluster.get("pbs_queues") or []) + list(cluster.get("lsf_queues") or [])),
+                (self._res_account, [row["account"] for row in accounts]),
+                (self._res_qos, [qos for row in accounts for qos in row["qos"]]),
+                (self._res_gpu_type, [model for row in cluster.get("partitions") or [] for model in row["gpu_types"]])):
+            text = combo.currentText()
+            combo.clear()
+            combo.addItems([""] + list(dict.fromkeys(values)))
+            combo.setEditText(text)
 
     def _render_jobs(
         self,
@@ -1314,12 +2192,13 @@ class DistributedJobsScreen(QWidget):
             "unknown": palette["fg_dim"],
         }
         selected_row = -1
+        self._table.blockSignals(True)
         for job in self._jobs:
             row = self._table.rowCount()
             self._table.insertRow(row)
             values = (
                 job.job_id[:12], job.status, job.module, job.profile_name,
-                job.external_id or "—", job.created_utc, job.updated_utc,
+                job.external_id or "—", _short_time(job.created_utc), _short_time(job.updated_utc),
             )
             for column, value in enumerate(values):
                 cell = _spare_table_item(self._table, "" if value is None else str(value), make=_item)
@@ -1337,20 +2216,41 @@ class DistributedJobsScreen(QWidget):
             self._table.selectRow(selected_row)
         elif self._jobs:
             self._table.selectRow(0)
-        else:
-            self._detail.setPlainText(
-                tr("No distributed jobs have been submitted.")
-            )
+        self._table.blockSignals(False)
+        self._empty.setVisible(not self._jobs)
+        self._reload_allocations()
         self._show_selection()
+
+    @staticmethod
+    def _job_summary(job: RemoteJob) -> str:
+        """Format the few facts of a job that matter when it is selected.
+
+        :param job: the job.
+        :returns: one block: id, module, state, scheduler id, profile,
+            remote folder and log, plus the last error.
+        """
+        lines = [f"job {job.job_id}  {job.module}  {job.status}"
+                 + (f"  exit {job.exit_code}" if job.exit_code is not None else ""),
+                 f"profile {job.profile_name} ({job.backend})  scheduler id {job.external_id or '-'}"
+                 + (f"  inside allocation {job.allocation_id}" if job.allocation_id else "")]
+        if job.remote_job_dir:
+            lines.append(f"remote folder {job.remote_job_dir}")
+        if job.log_reference:
+            lines.append(f"log {job.log_reference}")
+        if job.error:
+            lines.append(job.error)
+        return "\n".join(lines)
 
     @staticmethod
     def _job_detail(job: RemoteJob) -> str:
         """Format a complete, copyable job record plus retained log."""
         record = job.to_dict()
         log = record.pop("log_tail", "")
+        record.pop("job_script", None)
         profile = dict(record.get("profile") or {})
         for key in (
             "submit_command", "status_command", "cancel_command", "log_command",
+            "ssh_command",
         ):
             if profile.get(key):
                 profile[key] = "<configured command>"
@@ -1361,14 +2261,19 @@ class DistributedJobsScreen(QWidget):
         return text
 
     def _show_selection(self) -> None:
-        """Render selected details and update action availability."""
+        """Print a newly selected job's record to the console and update the actions."""
         job = self._selected_job()
         if job is None:
             self._cancel.setEnabled(False)
             self._logs.setEnabled(False)
             self._open_local.setEnabled(False)
             return
-        self._detail.setPlainText(self._job_detail(job))
+        if job.job_id != self._shown_job:
+            self._shown_job = job.job_id
+            self._console.append_stdout(self._job_summary(job) + "\n")
+        if (job.status in ACTIVE_STATES and job.job_id not in self._follow
+                and job.log_reference.startswith("/")):
+            self._follow[job.job_id] = 0
         self._cancel.setEnabled(
             not self._busy
             and (job.status in ACTIVE_STATES or job.status == "unknown")
@@ -1382,7 +2287,7 @@ class DistributedJobsScreen(QWidget):
         if job is None:
             return
         QDesktopServices.openUrl(
-            QUrl.fromLocalFile(str(Path(job.settings_path).parent))
+            QUrl.fromLocalFile(str(Path(job.settings_path or self.manager.jobs.path).parent))
         )
 
     def _set_status(self, text: str, error: bool = False) -> None:
@@ -1392,6 +2297,14 @@ class DistributedJobsScreen(QWidget):
         self._status.setStyleSheet(
             f"color: {palette['error' if error else 'fg_dim']};"
         )
+
+    def _warn(self, text: str) -> None:
+        """Show a problem the user can fix on the status line and as a console warning.
+
+        :param text: the message.
+        """
+        self._set_status(text, error=True)
+        self._console.append_warning(text)
 
     def showEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Poll only while this screen is visible.
@@ -1414,10 +2327,10 @@ class DistributedJobsScreen(QWidget):
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Stop polling and drain live workers before the screen goes away.
 
-        ``requestInterruption`` alone has no effect — ``_work`` never polls
-        it — and would leave the screen's REST calls running with no owner. An
-        ownerless job stays in the process-wide run registry, which is what
-        ``MainWindow.closeEvent`` consults when it decides whether the
+        ``requestInterruption`` alone has no effect — ``_run_operation`` never
+        polls it — and would leave the screen's REST calls running with no
+        owner. An ownerless job stays in the process-wide run registry, which
+        is what ``MainWindow.closeEvent`` consults when it decides whether the
         application may quit.
 
         :param event: the close event; it is passed on unchanged to the

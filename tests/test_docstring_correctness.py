@@ -2470,7 +2470,7 @@ def _validated_prior_708_callables(callables):
 
 
 def _validated_prior_699_callables(callables):
-    """Validate both SSH options before reproducing the historical signature."""
+    """Bind current remote constructors before replaying the older SSH boundary."""
     profile = next(item for item in callables
                    if item.symbol == "spacr.remote_execution.ExecutionProfile")
     tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
@@ -2495,22 +2495,97 @@ def _validated_prior_699_callables(callables):
         "ssh_interactive": ("bool", "False"),
         "ssh_keychain": ("bool", "False"),
     }
-    assert fields == expected_fields
+    remote_additions = {
+        **{name: ("str", "''") for name in (
+            "auth_mode", "ssh_command", "env_setup", "job_script", "login_hosts")},
+        "resources": ("Dict[str, str]", "field(default_factory=dict)"),
+        "direct_run": ("bool", "False"),
+    }
+    assert len(expected_fields) == 17 and len(remote_additions) == 7
+    assert not expected_fields.keys() & remote_additions.keys()
+    assert fields == expected_fields | remote_additions
+    assert [ast.unparse(node) for node in declaration.decorator_list] == ["dataclass(frozen=True)"]
     assert profile.category == "dataclass_constructor"
     assert profile.exposure == "autoapi"
-    assert profile.parameters == expected_fields.keys()
+    assert profile.parameters == expected_fields.keys() | remote_additions.keys()
     assert profile.required_parameters == {"name", "backend"}
     assert profile.accepted_documented_parameters == profile.parameters
     assert _documented_parameter_names(profile.docstring) == profile.parameters
     assert profile.variant_count == 1
     assert profile.docless_variant_count == profile.constructor_prose_variant_count == 0
     assert not profile.accepts_arbitrary_keywords
-    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"}
+    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"} | remote_additions.keys()
     assert not additions & profile.required_parameters
     prior = replace(profile, parameters=profile.parameters - additions,
                     accepted_documented_parameters=(
                         profile.accepted_documented_parameters - additions))
-    return [prior if item.symbol == profile.symbol else item for item in callables]
+    assert prior.parameters == expected_fields.keys() - {
+        "ssh_options", "ssh_interactive", "ssh_keychain"}
+    job = next(item for item in callables if item.symbol == "spacr.remote_execution.RemoteJob")
+    job_declaration = next(node for node in tree.body
+                           if isinstance(node, ast.ClassDef) and node.name == "RemoteJob")
+    job_fields = {
+        node.target.id: (ast.unparse(node.annotation),
+                         ast.unparse(node.value) if node.value is not None else None)
+        for node in job_declaration.body
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
+    }
+    expected_job_fields = {
+        **{name: ("str", None) for name in ("job_id", "module", "profile_name", "backend")},
+        **{name: ("str", "''") for name in (
+            "external_id", "settings_path", "settings_sha256", "remote_settings_path",
+            "remote_job_dir", "log_reference", "log_tail", "error")},
+        "status": ("str", "'submitting'"),
+        "created_utc": ("str", "field(default_factory=_utc_now)"),
+        "updated_utc": ("str", "field(default_factory=_utc_now)"),
+        "exit_code": ("Optional[int]", "None"),
+        "profile": ("Dict[str, Any]", "field(default_factory=dict)"),
+    }
+    job_additions = {name: ("str", "''") for name in ("job_script", "allocation_id")}
+    assert len(expected_job_fields) == 17 and len(job_additions) == 2
+    assert job_fields == expected_job_fields | job_additions
+    assert [ast.unparse(node) for node in job_declaration.decorator_list] == ["dataclass"]
+    assert job.category == "dataclass_constructor" and job.exposure == "autoapi"
+    assert job.parameters == job.accepted_documented_parameters == job_fields.keys()
+    assert job.required_parameters == {"job_id", "module", "profile_name", "backend"}
+    assert _documented_parameter_names(job.docstring) == job.parameters
+    assert job.variant_count == 1
+    assert job.docless_variant_count == job.constructor_prose_variant_count == 0
+    assert not job.accepts_arbitrary_keywords
+    assert not job_additions.keys() & job.required_parameters
+    prior_job = replace(job, parameters=job.parameters - job_additions.keys(),
+                        accepted_documented_parameters=(
+                            job.accepted_documented_parameters - job_additions.keys()))
+    assert prior_job.parameters == expected_job_fields.keys()
+    screen = next(item for item in callables
+                  if item.symbol == "spacr.qt.screens.distributed_jobs.DistributedJobsScreen")
+    screen_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+                            / "spacr/qt/screens/distributed_jobs.py").read_text(encoding="utf-8"))
+    screen_declaration = next(node for node in screen_tree.body
+                              if isinstance(node, ast.ClassDef) and node.name == "DistributedJobsScreen")
+    constructor = next(node for node in screen_declaration.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+    assert [argument.arg for argument in constructor.args.args] == ["self", "parent"]
+    assert all(argument.annotation is None for argument in constructor.args.args)
+    assert [ast.unparse(value) for value in constructor.args.defaults] == ["None"]
+    assert not constructor.args.posonlyargs and not constructor.args.vararg and not constructor.args.kwarg
+    assert [(argument.arg, ast.unparse(argument.annotation)) for argument in constructor.args.kwonlyargs] == [
+        ("manager", "Optional[RemoteJobManager]"), ("threaded", "bool"),
+        ("auto_poll", "bool"), ("preview", "Optional[bool]")]
+    assert [ast.unparse(value) for value in constructor.args.kw_defaults] == ["None", "True", "True", "None"]
+    assert constructor.returns is None and not constructor.decorator_list
+    assert screen.category == "constructor" and screen.exposure == "autoapi"
+    assert screen.parameters == screen.accepted_documented_parameters == {
+        "parent", "manager", "threaded", "auto_poll", "preview"}
+    assert not screen.required_parameters and not screen.accepts_arbitrary_keywords
+    assert _documented_parameter_names(screen.docstring) == screen.parameters
+    assert screen.variant_count == screen.constructor_prose_variant_count == 1
+    assert screen.docless_variant_count == 0
+    prior_screen = replace(screen, parameters=screen.parameters - {"preview"},
+                           accepted_documented_parameters=(
+                               screen.accepted_documented_parameters - {"preview"}))
+    replacements = {profile.symbol: prior, job.symbol: prior_job, screen.symbol: prior_screen}
+    return [replacements.get(item.symbol, item) for item in callables]
 
 
 def _validated_prior_example_background_callables(callables):
@@ -4587,6 +4662,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
+    from tests.test_documentation_i18n import _retired_732_remote_api
+    historical_docs = docs | _retired_732_remote_api(docs)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -5145,7 +5222,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(ssh_additions) == 1
-    assert {key: docs[key] for key in ssh_additions} == ssh_additions
+    assert {key: historical_docs[key] for key in ssh_additions} == ssh_additions
     assert not ssh_additions.keys() & (zoo_additions.keys() | late_additions.keys())
     zoo_additions = {**zoo_additions, **late_additions, **ssh_additions}
     help_changes = json.loads((pathlib.Path(__file__).resolve().parent
@@ -5198,7 +5275,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **approval_preferences}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
-    assert len((docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
