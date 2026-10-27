@@ -233,6 +233,8 @@ class HostRuntime:
         self._paint_baselines = weakref.WeakKeyDictionary()
         self._observed_field_frames = 0
         self._next_field_identity = 0
+        self._producer_identities = weakref.WeakKeyDictionary()
+        self._next_producer_identity = 0
 
     def to_handoff(self, rect):
         """A rectangle on the host monitor, in the 3840x2160 hand-off frame."""
@@ -249,6 +251,22 @@ class HostRuntime:
         from spacr.qt.widgets.ambient import AmbientWidget
         widgets = [w for w in self.window.findChildren(AmbientWidget)
                    if not w.property('spacrPopupBackdrop')]
+        ambient = sys.modules['spacr.qt.widgets.ambient']
+        compiler_threads = getattr(ambient, '_COMPILER_THREADS', None)
+        kernel_state = {
+            'startup_warmup_allowed': (ambient._AMBIENT_STARTUP_READY.is_set()
+                                       if hasattr(ambient, '_AMBIENT_STARTUP_READY') else None),
+            'packed_ready': (ambient._PACKED_SCATTER is not None if hasattr(ambient, '_PACKED_SCATTER') else None),
+            'subpixel_ready': (ambient._SUBPIXEL_SCATTER is not None if hasattr(ambient, '_SUBPIXEL_SCATTER') else None),
+            'colored_ready': (ambient._COLORED_SCATTER is not None if hasattr(ambient, '_COLORED_SCATTER') else None),
+            'packed_started': getattr(ambient, '_PACKED_SCATTER_STARTED', None),
+            'packed_failed': getattr(ambient, '_PACKED_SCATTER_FAILED', None),
+            'colored_failed': getattr(ambient, '_COLORED_SCATTER_FAILED', None),
+            'compiler_threads': (None if compiler_threads is None else
+                                 [{'name': worker.name, 'alive': worker.is_alive()}
+                                  for worker in tuple(compiler_threads)]),
+        }
+        kernel_state['sampled_monotonic_s'] = time.monotonic()
         present = set(widgets)
         for widget, (identity, count, shown, observed) in list(self._paint_baselines.items()):
             if widget not in present:
@@ -256,6 +274,7 @@ class HostRuntime:
         visible = []
         identities = []
         for widget in widgets:
+            sample_begin = time.monotonic()
             count, shown = int(widget.frames_painted), widget.isVisible()
             previous = self._paint_baselines.get(widget)
             if previous is None:
@@ -268,13 +287,30 @@ class HostRuntime:
                     observed += delta
                     self._observed_field_frames += delta
             self._paint_baselines[widget] = (identity, count, shown, observed)
-            identities.append({'configured_fps': widget.fps(), 'effective_rate': widget._rate(),
+            producer = widget._producer_box[0]
+            producer_identity = None
+            if producer is not None:
+                producer_identity = self._producer_identities.get(producer)
+                if producer_identity is None:
+                    self._next_producer_identity += 1
+                    producer_identity = self._next_producer_identity
+                    self._producer_identities[producer] = producer_identity
+            frame = widget._last_frame
+            identities.append({'sample_begin_monotonic_s': sample_begin,
+                               'producer_present': producer is not None,
+                               'producer_identity': producer_identity,
+                               'frames_shaded': widget.frames_shaded(),
+                               'repeated_frames': widget.repeated_frames,
+                               'last_frame_cache_key': None if frame is None else str(frame.cacheKey()),
+                               'kernel_state': kernel_state,
+                               'configured_fps': widget.fps(), 'effective_rate': widget._rate(),
                                'hold_paced': bool(getattr(widget, '_hold_paced', False)),
                                'run_paced': bool(widget._run_paced),
                                'paused': not widget.is_running(),
                                'id': identity, 'frames_painted': count,
                                'visible': shown, 'observed_frames_painted': observed,
                                'counter_reset': previous is not None and count < previous[1]})
+            identities[-1]['sample_end_monotonic_s'] = time.monotonic()
             if shown:
                 visible.append(widget)
         return {'t': time.monotonic(), 'frames_painted': self._observed_field_frames,
@@ -444,9 +480,13 @@ class HostRuntime:
         bypasses = self.adapter.bypasses[scene['first_bypass']:]
         captures, name = scene['captures'], scene['name']
         (captures / f'{name}.pointer.json').write_text(json.dumps(
-            [{**e, 't': round(e['t'] - begin, 4)} for e in trace], indent=0) + '\n')
+            [{**e, 'monotonic_s': e['t'], 't': round(e['t'] - begin, 4)} for e in trace], indent=0) + '\n')
         fb = scene['field_before']
         scene['host_facts'] = {
+            'capture_clock': {'scene_begin_monotonic_s': begin,
+                              'input_trace_mark_monotonic_s': scene['mark'].get('t'),
+                              'input_trace_mark_index': scene['mark']['index'],
+                              'native_pts_alignment': 'unmeasured'},
             'adapter_bypasses': [{**b, 't': round(b['t'] - begin, 3)} for b in bypasses],
             'actions': scene['performed'], 'loadavg_before': scene['load_before'],
             'loadavg_after': os.getloadavg(),

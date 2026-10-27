@@ -2,6 +2,7 @@
 from pathlib import Path
 import sys
 from types import SimpleNamespace
+import time
 
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
@@ -43,7 +44,17 @@ def test_capture_pacing_preserves_held_rows_and_reports_actual_caps(qtbot, monke
         assert region.contains(card.geometry().center())
         assert not backdrop._held_rows.live.isEmpty()
         runtime = host.HostRuntime(window, SimpleNamespace(pump=None), stage=tmp_path, fps=30)
+        sampled_after = time.monotonic()
         normal = runtime.field_sample()
+        state = normal['widgets'][0]
+        assert sampled_after <= state['sample_begin_monotonic_s'] <= state['sample_end_monotonic_s'] <= time.monotonic()
+        assert state['producer_present'] and state['producer_identity'] == 1
+        assert state['frames_shaded'] > 0 and state['repeated_frames'] >= 0
+        assert state['last_frame_cache_key'] == str(backdrop._last_frame.cacheKey())
+        assert state['frames_painted'] == backdrop.frames_painted
+        assert isinstance(state['kernel_state']['packed_ready'], bool)
+        assert isinstance(state['kernel_state']['subpixel_ready'], bool)
+        assert isinstance(state['kernel_state']['compiler_threads'], list)
         assert normal['fps_cap'] == [60]
         assert normal['widgets'][0]['configured_fps'] == 60
         assert normal['widgets'][0]['effective_rate'] == 20
@@ -62,8 +73,13 @@ def test_capture_pacing_preserves_held_rows_and_reports_actual_caps(qtbot, monke
             assert sample['widgets'][0]['run_paced'] is False
             assert sample['widgets'][0]['paused'] is False
             assert sample['frames_painted'] == normal['frames_painted']
+            assert sample['widgets'][0]['producer_identity'] == state['producer_identity']
+            assert sample['widgets'][0]['last_frame_cache_key'] == state['last_frame_cache_key']
             backdrop.stop()
-            assert runtime.field_sample()['widgets'][0]['paused'] is True
+            stopped = runtime.field_sample()['widgets'][0]
+            assert stopped['paused'] is True
+            assert stopped['producer_present'] is False and stopped['producer_identity'] is None
+            assert stopped['frames_shaded'] == 0
         assert ambient._HOLD_FPS == 20 and backdrop._rate() == 20
         with host._capture_pacing(60):
             with host._capture_pacing(30):
@@ -72,3 +88,37 @@ def test_capture_pacing_preserves_held_rows_and_reports_actual_caps(qtbot, monke
     finally:
         backdrop.stop()
         window.close()
+    with monkeypatch.context() as clock_patch:
+        _assert_saved_input_clock_keeps_absolute_and_relative_epochs(clock_patch, tmp_path)
+
+
+def _assert_saved_input_clock_keeps_absolute_and_relative_epochs(monkeypatch, tmp_path):
+    import json
+
+    event = {'t': 12.25, 'kind': 'move'}
+    runtime = host.HostRuntime(SimpleNamespace(findChildren=lambda _kind: []),
+                               SimpleNamespace(pump=None), stage=tmp_path, fps=30)
+    runtime.adapter = SimpleNamespace(bypasses=[], call=lambda name, *args:
+                                      [event] if name == 'trace_since' else {})
+    sampler = SimpleNamespace(stop=lambda: None, setParent=lambda _parent: None,
+                              deleteLater=lambda: None,
+                              timeout=SimpleNamespace(disconnect=lambda: None))
+    runtime.current = {
+        'begin': 12.0, 'seconds': 0, 'sampler': sampler, 'mark': {'t': 11.0, 'index': 7},
+        'first_bypass': 0, 'captures': tmp_path, 'name': 'clock', 'performed': [],
+        'load_before': (0, 0, 0), 'field_before': {'t': 12.0, 'frames_painted': 0, 'fps_cap': []},
+        'samples': [], 'widget_samples': [], 'gui_sampler_gaps': [],
+        'appearance': {}, 'hidden_backdrops': [], 'buttons': [], 'dialogs': [],
+        'native': tmp_path / 'clock.native.mp4',
+    }
+    monkeypatch.setattr(host, 'time', SimpleNamespace(monotonic=lambda: 12.5))
+    runtime.end_scene(at_least=0)
+    facts = json.loads((tmp_path / 'clock.host.json').read_text())
+    assert facts['capture_clock'] == {
+        'scene_begin_monotonic_s': 12.0, 'input_trace_mark_monotonic_s': 11.0,
+        'input_trace_mark_index': 7, 'native_pts_alignment': 'unmeasured',
+    }
+    saved = json.loads((tmp_path / 'clock.pointer.json').read_text())
+    assert saved == [{'t': .25, 'kind': 'move', 'monotonic_s': 12.25}]
+    assert event == {'t': 12.25, 'kind': 'move'}
+    assert facts['app_paint_samples'] == [[.5, 0]]
