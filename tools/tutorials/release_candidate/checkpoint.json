@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-5ytziuwo",
-  "manifest_sha256": "ed24fe5f18a2a3b6333d37dfaf44d057a60cc61b26694fa3f6860ad4b9be3aa8",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-dfi1rg04",
+  "manifest_sha256": "a9ba799a1c4fc8af7155664154f2c7b9200fd1c88ad1de236dff771f112056f2",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -14,73 +14,73 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "fb9c837c06db468a539daf35287ccc58635238f57fab2585c24b7cd524b3d41c",
-      "bytes": 717444
+      "sha256": "79ec4ed5e969cdd95c67904e323dc76fa618c00faa47027a92442a5ec907af0d",
+      "bytes": 717950
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "f0af1e3a8ee4a2d58555b90207007bc83e4c0083590223b33aef2d4dce7c7753",
-      "bytes": 764598
+      "sha256": "b1e3b5480529f8ff1a3dc521a9c155c25e37ba36d5cd4955c96fc6e200fc867f",
+      "bytes": 765104
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "a2266ab7f3ad405d37a8feee1b42feae5694ea0bd964a7ab9db41dc87181e094",
-      "bytes": 722246
+      "sha256": "6228501ffe024bb68ebc19d6c6105c12702921b1260fa554018ac1bb809ebca2",
+      "bytes": 722752
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "eca7d60c239ae1cbca52ecde538437ddbd634dc6419c503d0f4c2b452c52d863",
-      "bytes": 759236
+      "sha256": "860c314971626649f6b33e6ab6c53b37e2360865cd9a75ada2af227dbedfe9e4",
+      "bytes": 759742
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "b59a45c4c86ea0af62090fa3cd4927568e2d50307804a7a8abed5caa10f5bef9",
-      "bytes": 713232
+      "sha256": "a04e55ed297d0e5f247527a76fac5e9bcb7c19e23b36265b6948fb0fc888d119",
+      "bytes": 713738
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "4b65bdc49e7a08e6b2aa84b4c95d962c678d0a12f38c706a3c22470423f80288",
-      "bytes": 722156
+      "sha256": "e54acfb29d7efdc4ca7a3ad6d4c9ea0d9b3ad0fcdb081a80d2cc67fdde81d4ea",
+      "bytes": 722662
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "52209636b35cb6a9d094a79e38b1e79b286d194d011d92f98fc3a06eef077dcc",
-      "bytes": 694332
+      "sha256": "c72b47543aeba03fd99b357279728f87d0c85332c5faede6b06ae35831de4b98",
+      "bytes": 694838
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "951b2ed174e94f3f3d0b885e1f8961a6f6d75d1359dbf16ac3026da70ff27296",
-      "bytes": 1127162
+      "sha256": "0bfc4b751866ca56c4de3ee29bee2fae639b6d8e07cf63cbc0d933480977bc86",
+      "bytes": 1127668
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "82a28f60929f24f7b6b057ca38efd64c824e8ba76790c0dfdf159696c41add7e",
-      "bytes": 1171061
+      "sha256": "b6c2821a285e2243f8707bb049c40f17963c7cc170195a0321cd924ecab29d41",
+      "bytes": 1171567
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "95d8b5b434e9122cda4804cb88ca538eff3171771af1c2ea30e736c0ee474742",
-      "bytes": 1859267
+      "sha256": "ac7445cf746c78ea83e6a4d4a506ef50088a9c1d87e5e785141cb676c311dcfa",
+      "bytes": 1859773
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "4ae2894c19b303299d4d96bfe5d386bd39ab16f4f7c8e366fd2e18ff1daa080a",
-      "bytes": 1115463
+      "sha256": "1b8504424589977174859dba5b1a57673cabba8d30fa2e6907af98edfa0863b3",
+      "bytes": 1115969
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "78ddbeb26f43d9ca7f82d161cb752c87da0154cbb44d64aa14e1f666f83ce1bc",
-      "bytes": 1245600
+      "sha256": "39d56f8680201c9368125d3f89708dce3fe9a64ad047ee3b07d1635955c8fb22",
+      "bytes": 1246106
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "dcd42496c101649726ea750c5f6858467b790c571efae39a1f7edb754e61619a",
-      "bytes": 1109628
+      "sha256": "53e41a646f0704f529ceb3d7e090ce7c29df45176e26466382118e09c55c87a9",
+      "bytes": 1110134
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "b042cf39aaa1c19ccd6f9612d5bc5bba51f5b4b365f52f1f8069e98f84debf1d",
-      "bytes": 970296
+      "sha256": "bc32d0afbae2179e3bb39ae2f6299d2c91e55e4551e7ab43a373feadf7e28158",
+      "bytes": 970802
     },
     {
       "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "ed826335c396adeeb00a06bc3de00e12afe70a9f6df1a287c716796cf6b00ea8",
-      "bytes": 15666
+      "sha256": "21b3d8bf637ccd533fdb412464d6e7b0c11b520d0039bd8bdeba3d41f9d55970",
+      "bytes": 15682
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "ef9e2550c2fe7e1bc402bf961fd4a338eddf1348f02206814fcecbf32c938351",
-      "bytes": 614823
+      "sha256": "c384731727f69b5f21f08eb6b5dad65c33bb03a5550827406ea703ceab5d85a0",
+      "bytes": 617465
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "006e475f51cbe878d1e7089ac4d47a3f11d84362c00f6d1aed0a271b3ffc114c",
+      "sha256": "053d4305337c6bcf3d0ae31913650e8c6294bbdc2ac18d36b6f8e2b0be8c3dfd",
       "bytes": 17171
     },
     {
@@ -449,8 +449,8 @@
     },
     {
       "path": "web/production/36_import/poster.jpg",
-      "sha256": "a8a194ee13814ef4d37dd01de02d25f2210670cb4f9d43a7befa9b86eeb9ebf2",
-      "bytes": 177827
+      "sha256": "45134ceb6c6db3f3e2e34bc7ca6b93321e5c73adf7ce193549a1d04cd32207c8",
+      "bytes": 436120
     },
     {
       "path": "web/production/37_batch/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "ed24fe5f18a2a3b6333d37dfaf44d057a60cc61b26694fa3f6860ad4b9be3aa8",
-      "bytes": 1452330
+      "sha256": "a9ba799a1c4fc8af7155664154f2c7b9200fd1c88ad1de236dff771f112056f2",
+      "bytes": 1460753
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "89b3895bab5df1106544723be3286ed8cdd44d6bfe50d9a9ecc0a75b70d49b4d",
-      "bytes": 126622
+      "sha256": "9f6eff9416dfe649be82f4a251f86ae09e7f65aef4766182d0c382fb1ac5233f",
+      "bytes": 126650
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-74-import-images-20261026",
-    "tag": "n676-ws-74-import-images-20261026-verified",
-    "commit": "9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9fdc584dc1d4e1fec2a69ed4b58f4c4542910c27"
+    "branch": "n676-ws-36-import-20261026",
+    "tag": "n676-ws-36-import-20261026-verified",
+    "commit": "478afee107d974e814420926b55cb63d3dd9c3dd",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/478afee107d974e814420926b55cb63d3dd9c3dd"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

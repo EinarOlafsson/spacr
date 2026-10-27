@@ -13,6 +13,7 @@ sort at the end runs on a table that a real run produced.
 """
 from __future__ import annotations
 
+import ast
 import inspect
 
 import numpy as np
@@ -326,8 +327,30 @@ class TestTheSaliencyGenerator:
             not in source
         assert "elif settings['cam_type'] == 'saliency_channel':" not in source
         assert "else:\n        cam_generator = SaliencyMapGenerator(model)" in source
-        assert "else:\n            activation_maps, predicted_classes = " \
-               "cam_generator.compute_saliency_and_predictions(inputs)" in source
+        tree = ast.parse(source)
+        expected_context = ast.parse(
+            "_deterministic_attribution(settings.get('seed') or 0)", mode='eval').body
+        contexts = [node for node in ast.walk(tree) if isinstance(node, ast.With)
+                    and any(ast.dump(item.context_expr) == ast.dump(expected_context)
+                            for item in node.items)]
+        assert len(contexts) == 1
+        dispatch, = contexts[0].body
+        assert isinstance(dispatch, ast.If)
+        assert ast.dump(dispatch.test) == ast.dump(ast.Name(id='use_attribution', ctx=ast.Load()))
+        gradcam, = dispatch.orelse
+        assert isinstance(gradcam, ast.If)
+        expected_gradcam = ast.parse(
+            "settings['cam_type'] in ['gradcam', 'gradcam_pp']", mode='eval').body
+        assert ast.dump(gradcam.test) == ast.dump(expected_gradcam)
+        expected_calls = [
+            (dispatch.body, 'compute_maps_and_predictions'),
+            (gradcam.body, 'compute_gradcam_and_predictions'),
+            (gradcam.orelse, 'compute_saliency_and_predictions'),
+        ]
+        for body, method in expected_calls:
+            expected = ast.parse(
+                f"activation_maps, predicted_classes = cam_generator.{method}(inputs)").body
+            assert [ast.dump(node) for node in body] == [ast.dump(node) for node in expected]
         assert "else:\n                rgb_activation_map = np.zeros(" in source, (
             "the third tail no longer assembles a per-channel RGB map, so a "
             "saliency_channel run drops into the greyscale path above it")

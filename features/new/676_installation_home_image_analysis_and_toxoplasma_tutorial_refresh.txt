@@ -1,6 +1,4 @@
-================================================================================
 INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
-================================================================================
 
 Status:    in progress
 Requested: 2026-10-08
@@ -365,6 +363,7 @@ Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abd
 Hold74/36publication: native scene waits can exceed1second despite shortenedAAC; bind reviewed idle-tail cuts and verify actual sound gaps, retaining recordings/audio.
 Loaded-policy and every-boundary gap verification passes38focusedtests; sevenpublishednewrecordings also requirepausecuts. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
 74reviewed existing-footage cuts pass71playbackcases/all50voices:500actualsentencegaps0.800–0.837s;publicationpending,36next. Originalaudioandcapturesevidence retained.
+74edited media uploaded/verified and pushedc89e5ae26d;59hostedroutes and64publicationtests pass, website deploymentpending.36reviewed6cuts/17idlefences rendered with original50tracks;finalmedia/browser/publicationpending.
 Sevenpriorpublishednewrecordings also requirepausecuts;13/70/19waitforHomeperformancefixes. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
 CURRENT GRAPH BUILDER TUTORIAL ACCEPTANCE — 2026-10-26
 widgets_g5 owns the isolated follow-up to lesson58's real brush publishing 656 object keys while the visible selection count stays zero and the Annotate handoff remains disabled. Bind selection-bus keys, active table identities and receiver lifecycle before a minimal demonstrated product correction and focused CPU controls. Preserve the original driver assertions, source database and release candidate. Complete root-authorized real-app lesson58 acceptance, then64 only after58 passes; GPU acceptance, recording, rendering and publication remain outside this follow-up. Root reviews any source integration and publishes.

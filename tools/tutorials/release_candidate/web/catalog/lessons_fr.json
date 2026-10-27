@@ -7436,12 +7436,12 @@
           "narration": "Choisissez l’outil d’import selon votre point de départ : Import Images ou Format Converter pour des images seules, External Masks pour des images avec masques. Cet écran prend à la fois des images, des masques et une table de mesures.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
-          "speech_text": "Choisissez l’outil d’import selon votre point de départ : Import Images ou Format Converter pour des images seules, External Masks pour des images avec masques. Cet écran prend à la fois des images, des masques et une table de mesures.",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Choisissez l’outil d’import selon votre point de départ : Import Images ou Format Converter pour des images seules, External Masks pour des images avec masques. Cet écran prend à la fois des images, des masques et une table de mesures."
         },
         {
           "visual": "org_organize_popup",
@@ -7453,10 +7453,10 @@
           "visual": "03_choose_images",
           "narration": "Choisissez le dossier d’images. L’exemple utilise deux champs de microscopie avec un canal d’intensité et les étiquettes de cellules correspondantes. Notez la plaque, le puits et le champ d’origine de chaque fichier.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez le dossier d’images. L’exemple utilise deux champs de microscopie avec un canal d’intensité et les étiquettes de cellules correspondantes. Notez la plaque, le puits et le champ d’origine de chaque fichier.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Choisissez le dossier d’images. L’exemple utilise deux champs de microscopie avec un canal d’intensité et les étiquettes de cellules correspondantes. Notez la plaque, le puits et le champ d’origine de chaque fichier."
         },
         {
           "visual": "04_choose_masks",
@@ -7552,34 +7552,57 @@
             3450,
             195
           ],
-          "speech_text": "Ouvrez le projet et inspectez les mesures importées. La table des colonnes foreign enregistre leur origine. Utilisez Measure lorsque vous voulez que spakeur calcule de nouvelles caractéristiques à partir des images.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Ouvrez le projet et inspectez les mesures importées. La table des colonnes foreign enregistre leur origine. Utilisez Measure lorsque vous voulez que spakeur calcule de nouvelles caractéristiques à partir des images."
         },
         {
           "visual": "14_import_scope",
           "narration": "Conservez la table de conversion avec le projet et vérifiez ses attributions de plaque, de puits et de champ. Des noms de fichiers génériques peuvent recevoir de nouvelles coordonnées ; retrouvez donc leur identité d’origine avant toute analyse à l’échelle de la plaque.",
           "hold_after": 0.7,
-          "speech_text": "Conservez la table de conversion avec le projet et vérifiez ses attributions de plaque, de puits et de champ. Des noms de fichiers génériques peuvent recevoir de nouvelles coordonnées ; retrouvez donc leur identité d’origine avant toute analyse à l’échelle de la plaque.",
           "related_lessons": [
             "74_import_images"
-          ]
+          ],
+          "speech_text": "Conservez la table de conversion avec le projet et vérifiez ses attributions de plaque, de puits et de champ. Des noms de fichiers génériques peuvent recevoir de nouvelles coordonnées ; retrouvez donc leur identité d’origine avant toute analyse à l’échelle de la plaque."
         },
         {
           "visual": "14_import_scope",
           "narration": "Poursuivez dans Database Browser pour inspecter les tables, ou dans Annotate pour examiner les vignettes d’objets. Conservez la correspondance vérifiée avec le projet terminé.",
           "hold_after": 0.7,
-          "speech_text": "Poursuivez dans Database Browser pour inspecter les tables, ou dans Annotate pour examiner les vignettes d’objets. Conservez la correspondance vérifiée avec le projet terminé.",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Poursuivez dans Database Browser pour inspecter les tables, ou dans Annotate pour examiner les vignettes d’objets. Conservez la correspondance vérifiée avec le projet terminé."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
