@@ -365,8 +365,8 @@ def test_has_translation_answers_for_both_catalogs():
     source = _a_catalogued_source()
     assert has_translation(source, "en") is True
     assert has_translation(source, "sv") is True
-    assert has_translation("Easy mode", "en") is True
-    assert has_translation("Easy mode", "sv") is True
+    assert has_translation("Navigator", "en") is True
+    assert has_translation("Navigator", "sv") is True
     assert has_translation("zzz nothing zzz", "en") is False
     assert has_translation("zzz nothing zzz", "sv") is False
 
