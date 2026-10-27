@@ -52,7 +52,15 @@ def test_activation_grid_pan_requires_measured_fullscreen_geometry(fault):
         with pytest.raises(ValueError): _inspection_pan(dimensions, window, screen)
     else:
         pan = _inspection_pan(dimensions, window, screen)
-        assert pan['start'] == [640, 720] and pan['end'] == [1760, 720]
+        assert pan['start'] == [1280, 1360] and pan['end'] == [683, 1360]
+        assert pan['grabpoint'] == [1280, 1436]
+        assert pan['kind'] == 'horizontal_scrollbar'
+        assert pan['thumb_width'] == pytest.approx(2560 ** 2 / 4800)
+        assert pan['expected_image_displacement'] == 1120
+        large = _inspection_pan(dimensions, dict(rect=[0, 0, 3840, 2160], fullscreen=True), [0, 0, 3840, 2160])
+        assert large['start'] == [1920, 2080] and large['end'] == [1536, 2080]
+        assert large['grabpoint'] == [1920, 2156]
+        assert large['expected_image_displacement'] == 480
         assert pan['duration'] == 6 and pan['image_viewport_verified'] is False
 
 
@@ -78,14 +86,19 @@ def test_activation_grid_window_queries_actual_owner_and_state(monkeypatch, faul
         assert actual['image_viewport_verified'] is False
 
 
-def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch):
+@pytest.mark.parametrize('fault', [None, 'pan'])
+def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch, fault):
     from types import SimpleNamespace
     from PySide6.QtCore import QRect
     from PySide6.QtWidgets import QApplication
     import capture_saved_plots as driver
     import capture_ui
     calls = []
-    adapter = SimpleNamespace(call=lambda *a, **kw: calls.append((a, kw)), note=lambda *a, **kw: None)
+    def call(*args, **kwargs):
+        calls.append((args, kwargs))
+        if fault == 'pan' and args == ('move_to', 683, 1360):
+            raise RuntimeError('native move failed')
+    adapter = SimpleNamespace(call=call, note=lambda *a, **kw: None)
     helper = SimpleNamespace(host_of=lambda capture: SimpleNamespace(adapter=adapter))
     monkeypatch.setattr(capture_ui, '_h', lambda: helper)
     monkeypatch.setattr(QApplication, 'screens', lambda: [SimpleNamespace(geometry=lambda: QRect(0, 0, 2560, 1440))])
@@ -95,14 +108,28 @@ def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch):
                     dict(window_id='0x123', rect=[0, 0, 2560, 1440], fullscreen=True)])
     monkeypatch.setattr(driver, '_find_inspection_window', lambda *a, **kw: next(windows))
     monkeypatch.setattr(driver, '_inspection_window', lambda *a, **kw: next(windows))
-    proof = driver._inspect_activation_grid(Path('/private'), SimpleNamespace(host=object()), SimpleNamespace(pid=123),
-                    dict(path='/private/batch_0_grid.png', dimensions=[4800, 600]), lambda _: None)
-    assert calls == [(('click_at', 1150, 66), {}), (('press', '#keysym:0xffc8'), {}), (('press', '1'), {}),
-                     (('drag', 640, 720, 1760, 720), dict(duration=6.0))]
+    def inspect():
+        return driver._inspect_activation_grid(Path('/private'), SimpleNamespace(host=object()), SimpleNamespace(pid=123),
+                    dict(path='/private/batch_0_grid.png', dimensions=[4800, 600]),
+                    lambda seconds: calls.append((('settle', seconds), {})))
+    if fault:
+        with pytest.raises(RuntimeError, match='native move failed'): inspect()
+        assert calls[-1] == (('button_up', 'left'), {})
+    else:
+        proof = inspect()
+        assert proof['native_frame_review_required'] is True
+        assert proof['png_modified'] is False and proof['repeated_motion'] is False
+    expected = [(('click_at', 1150, 66), {}), (('settle', .4), {}),
+                (('press', '#keysym:0xffc8'), {}), (('settle', 1.0), {}),
+                (('press', '1'), {}), (('settle', .6), {}),
+                (('move_to', 1280, 1436), {}), (('settle', .6), {}),
+                (('button_down', 'left'), {}), (('move_to', 1280, 1360), dict(duration=.35)),
+                (('move_to', 683, 1360), dict(duration=6.0)), (('button_up', 'left'), {})]
+    if not fault: expected.append((('settle', .6), {}))
+    assert calls == expected
     from human_input import _keysym
     assert _keysym('#keysym:0xffc8') == 0xffc8
-    assert proof['native_frame_review_required'] is True
-    assert proof['png_modified'] is False and proof['repeated_motion'] is False
+
 
 
 @pytest.mark.parametrize('fault', [None, 'runtime', 'root_display'])

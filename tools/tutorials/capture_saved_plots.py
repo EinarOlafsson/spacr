@@ -140,11 +140,14 @@ def _inspection_pan(dimensions, window, screen):
             or window['rect'] != screen or not 2400 <= width < dimensions[0]
             or height < 900):
         raise ValueError('The actual fullscreen window must accommodate four cells and the full grid height')
-    start = [x + round(width * .25), y + height // 2]
-    end = [start[0] + (dimensions[0] - width) // 2, start[1]]
-    if not x + 20 <= start[0] < end[0] < x + width - 20:
+    thumb_width = width * width / dimensions[0]
+    grabpoint = [x + width // 2, y + height - 4]
+    start = [grabpoint[0], y + height - 80]
+    end = [x + round(thumb_width / 2), start[1]]
+    if not x + 20 <= end[0] < start[0] < x + width - 20:
         raise ValueError('The single actual-size grid pan cannot stay within the measured window')
-    return dict(start=start, end=end, duration=6.0,
+    return dict(grabpoint=grabpoint, start=start, end=end, duration=6.0, kind='horizontal_scrollbar',
+                thumb_width=thumb_width, expected_image_displacement=(dimensions[0] - width) / 2,
                 actual_size_key='1', image_viewport_verified=False,
                 image_area_review='Actual native frames must confirm all four cells and labels')
 
@@ -176,7 +179,14 @@ def _inspect_activation_grid(stage, capture, viewer, record, settle):
     geometry = screens[0].geometry()
     screen = [geometry.x(), geometry.y(), geometry.width(), geometry.height()]
     pan = _inspection_pan(record['dimensions'], measured, screen)
-    adapter.call('drag', *pan['start'], *pan['end'], duration=pan['duration'])
+    adapter.call('move_to', *pan['grabpoint'])
+    settle(.6)
+    try:
+        adapter.call('button_down', 'left')
+        adapter.call('move_to', *pan['start'], duration=.35)
+        adapter.call('move_to', *pan['end'], duration=pan['duration'])
+    finally:
+        adapter.call('button_up', 'left')
     adapter.note('saved-grid-inspection', **pan)
     settle(.6)
     after = _inspection_window(stage, viewer.pid, record, fullscreen=True, window_id=before['window_id'])
