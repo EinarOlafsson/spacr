@@ -561,7 +561,10 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
         before = screen.size()
         for widget in (screen._console_wrap, screen._actions_section):
             assert widget.isVisible()
-            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight())), (
+                widget.objectName(), widget.geometry(), widget.minimumSizeHint(), widget.minimumHeight(),
+                screen._runtime_splitter.geometry(), screen._runtime_splitter.sizes(),
+                screen._body_splitter.geometry(), screen._body_splitter.minimumSizeHint())
         section.set_expanded(True)
         qtbot.mouseClick(screen._figures_card.title_label, Qt.LeftButton)
         qtbot.waitUntil(lambda: not screen._runtime_splitter.is_collapsed("Figures"))
@@ -573,7 +576,10 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
         for widget in (screen._console_wrap, screen._actions_section):
             assert widget.isVisible()
             assert screen.rect().contains(widget.mapTo(screen, QPoint(0, 0)))
-            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight())), (
+                widget.objectName(), widget.geometry(), widget.minimumSizeHint(), widget.minimumHeight(),
+                screen._runtime_splitter.geometry(), screen._runtime_splitter.sizes(),
+                screen._body_splitter.geometry(), screen._body_splitter.minimumSizeHint())
     finally:
         page._retire_browser()
         screen.close()
