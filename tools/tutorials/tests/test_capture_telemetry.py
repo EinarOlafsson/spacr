@@ -14,6 +14,10 @@ import capture_host_mode as host  # noqa: E402
 class Field:
     def __init__(self, frames, *, visible=True, popup=False):
         self.frames_painted, self.visible, self.popup = frames, visible, popup
+        self._run_paced = self._hold_paced = False
+        self._producer_box = [None]
+        self._last_frame = None
+        self.repeated_frames = 0
 
     def isVisible(self):
         return self.visible
@@ -23,6 +27,15 @@ class Field:
 
     def fps(self):
         return 30
+
+    def _rate(self):
+        return 30
+
+    def frames_shaded(self):
+        return 0
+
+    def is_running(self):
+        return self.visible
 
 
 @pytest.fixture

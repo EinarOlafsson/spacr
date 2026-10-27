@@ -337,7 +337,11 @@ def gnome_child(stage, root, capture_args, fps='auto'):
     (stage/'exact-source.json').write_text(json.dumps({
         'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
         'sha256': sources, 'fresh': True, 'private_profile': True,
-        'surface': ('actual spaCR launched by spacr.qt.run in a private headless GNOME Shell '
+        'surface': ('actual spaCR launched by spacr.qt.run through owned Xwayland in a private '
+                    'software-rendered nested Wayland GNOME Shell; GNOME ScreenCast with the real cursor; '
+                    'pointer and keyboard through mutter RemoteDesktop'
+                    if os.environ.get('SPACR_CAPTURE_HOST_BACKEND') == 'software-nested-wayland' else
+                    'actual spaCR launched by spacr.qt.run in a private headless GNOME Shell '
                     '(mutter compositor, Xwayland); GNOME ScreenCast with the real cursor; '
                     'pointer and keyboard through mutter RemoteDesktop'),
         'monitor': os.environ.get('SPACR_CAPTURE_HOST_SIZE'),

@@ -7,8 +7,8 @@ mouse. A bare Xvfb has no compositor, so spaCR's rounded, translucent windows
 
 This host starts, in a session bus of its own (``dbus-run-session``):
 
-* ``pipewire`` + ``pipewire-media-session`` (video linking only: no ALSA,
-  Bluetooth, V4L2, portal or flatpak modules, so no audio device is touched);
+* ``pipewire`` + ``pipewire-media-session`` or WirePlumber 0.4, with ALSA,
+  Bluetooth and camera monitors disabled so no audio/camera device is opened;
 * ``gnome-shell --headless --wayland --virtual-monitor WxH@R`` -- the real
   GNOME compositor drawing to a virtual monitor, with its own Xwayland;
 
@@ -28,8 +28,10 @@ On exit every process carrying this host's marker variable is terminated.
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -123,7 +125,7 @@ session.modules = {
 """
 
 
-def private_dirs(stage: Path) -> dict:
+def private_dirs(stage: Path, shell_major: int = 42) -> dict:
     dirs = {name: stage / name for name in ('home', 'config', 'cache', 'data', 'state', 'run', 'logs')}
     for path in dirs.values():
         path.mkdir(parents=True, exist_ok=True)
@@ -131,10 +133,23 @@ def private_dirs(stage: Path) -> dict:
     conf = dirs['config'] / 'pipewire' / 'media-session.d'
     conf.mkdir(parents=True, exist_ok=True)
     (conf / 'media-session.conf').write_text(MEDIA_SESSION_CONF)
+    for name, monitors in (('main.lua.d', ('alsa_monitor', 'v4l2_monitor', 'libcamera_monitor')),
+                           ('bluetooth.lua.d', ('bluez_monitor', 'bluez_midi_monitor'))):
+        wireplumber = dirs['config'] / 'wireplumber' / name
+        wireplumber.mkdir(parents=True, exist_ok=True)
+        (wireplumber / '89-video-only.lua').write_text(
+            ''.join(f'{monitor}.enabled = false\n' for monitor in monitors))
     extension = dirs['data'] / 'gnome-shell' / 'extensions' / CHROME_EXTENSION_UUID
     extension.mkdir(parents=True, exist_ok=True)
-    (extension / 'metadata.json').write_text(json.dumps(CHROME_EXTENSION_METADATA, indent=2) + '\n')
-    (extension / 'extension.js').write_text(CHROME_EXTENSION_JS)
+    metadata = {**CHROME_EXTENSION_METADATA, 'shell-version': [str(shell_major)]}
+    script = CHROME_EXTENSION_JS
+    if shell_major >= 45:
+        script = script.replace('const GLib = imports.gi.GLib;', "import GLib from 'gi://GLib';")
+        script = script.replace('const Main = imports.ui.main;',
+                                "import * as Main from 'resource:///org/gnome/shell/ui/main.js';")
+        script += '\nexport default class { enable() { enable(); } disable() { disable(); } }\n'
+    (extension / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    (extension / 'extension.js').write_text(script)
     return dirs
 
 
@@ -222,8 +237,8 @@ def bus_has(name: str, env: dict) -> bool:
     return result.returncode == 0 and 'true' in result.stdout
 
 
-def xwayland_display(shell_pid: int):
-    """The ``:N`` our gnome-shell gave its Xwayland (a descendant; bwrap may sit between)."""
+def xwayland_connection(shell_pid: int):
+    """Display and optional authentication path from this compositor's descendant Xwayland."""
     parents, argvs = {}, {}
     for entry in Path('/proc').iterdir():
         if not entry.name.isdigit():
@@ -244,8 +259,90 @@ def xwayland_display(shell_pid: int):
             continue
         for arg in argv[1:]:
             if arg.startswith(b':') and arg[1:].isdigit():
-                return arg.decode()
+                connection = {'DISPLAY': arg.decode()}
+                if b'-auth' in argv:
+                    position = argv.index(b'-auth') + 1
+                    if position < len(argv) and argv[position]:
+                        connection['XAUTHORITY'] = os.fsdecode(argv[position])
+                return connection
     return None
+
+
+def xwayland_display(shell_pid: int):
+    """The display assigned by this compositor's descendant Xwayland."""
+    connection = xwayland_connection(shell_pid)
+    return connection['DISPLAY'] if connection else None
+
+
+
+def logind_proxy_argv(socket: Path) -> list[str]:
+    """Expose only the read-only session metadata needed by the private compositor."""
+    name = 'org.freedesktop.login1'
+    rules = ['--filter', '--log', '--see=' + name]
+    for method in ('GetSession', 'GetSessionByPID', 'GetUser', 'GetUserByPID', 'GetSeat',
+                   'ListSessions', 'ListUsers', 'ListSeats'):
+        rules.append('--call=' + name + '=org.freedesktop.login1.Manager.' + method + '@/org/freedesktop/login1')
+    for method in ('org.freedesktop.DBus.Properties.Get', 'org.freedesktop.DBus.Properties.GetAll',
+                   'org.freedesktop.DBus.Introspectable.Introspect'):
+        for path in ('/org/freedesktop/login1', '/org/freedesktop/login1/*'):
+            rules.append('--call=' + name + '=' + method + '@' + path)
+    for method in ('PrepareForSleep', 'SessionRemoved'):
+        rules.append('--broadcast=' + name + '=org.freedesktop.login1.Manager.' + method + '@/org/freedesktop/login1')
+    rules.append('--broadcast=' + name + '=org.freedesktop.DBus.Properties.PropertiesChanged@/org/freedesktop/login1/*')
+    return ['/usr/bin/xdg-dbus-proxy', 'unix:path=/run/dbus/system_bus_socket', str(socket), *rules]
+
+
+def resize_nested_viewport(display: str, shell_pid: int, size: str, env: dict):
+    """Resize only the nested compositor window owned by this launched process tree."""
+    owned, pending = {shell_pid}, [shell_pid]
+    while pending:
+        pid = pending.pop()
+        try:
+            children = map(int, Path(f'/proc/{pid}/task/{pid}/children').read_text().split())
+            for child in children:
+                if child not in owned:
+                    owned.add(child)
+                    pending.append(child)
+        except FileNotFoundError:
+            continue
+    tree = subprocess.check_output(['/usr/bin/xwininfo', '-display', display, '-root', '-tree'], env=env, text=True)
+    windows = []
+    for identifier in dict.fromkeys(re.findall(r'^\s*(0x[0-9a-fA-F]+)\b', tree, re.MULTILINE)):
+        properties = subprocess.check_output(['/usr/bin/xprop', '-display', display, '-id', identifier, '_NET_WM_PID'], env=env, text=True)
+        match = re.search(r'=\s*(\d+)', properties)
+        if not match or int(match[1]) not in owned:
+            continue
+        argv = Path(f'/proc/{match[1]}/cmdline').read_bytes().split(b'\0')
+        if b'/usr/bin/gnome-shell' not in argv or b'--nested' not in argv:
+            continue
+        geometry = subprocess.check_output(['/usr/bin/xwininfo', '-display', display, '-id', identifier], env=env, text=True)
+        width = int(re.search(r'Width:\s*(\d+)', geometry)[1])
+        height = int(re.search(r'Height:\s*(\d+)', geometry)[1])
+        windows.append((width * height, identifier))
+    if not windows:
+        return False
+    windows.sort(reverse=True)
+    if len(windows) > 1 and windows[0][0] == windows[1][0]:
+        raise RuntimeError('The owned nested compositor window is ambiguous')
+    identifier = windows[0][1]
+    width, height = map(int, size.split('x'))
+    x11 = ctypes.CDLL('libX11.so.6')
+    x11.XOpenDisplay.argtypes, x11.XOpenDisplay.restype = [ctypes.c_char_p], ctypes.c_void_p
+    x11.XResizeWindow.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_uint, ctypes.c_uint]
+    x11.XSync.argtypes = [ctypes.c_void_p, ctypes.c_int]
+    x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
+    connection = x11.XOpenDisplay(display.encode())
+    if not connection:
+        raise RuntimeError('The owned nested compositor display is unavailable')
+    try:
+        x11.XResizeWindow(connection, int(identifier, 16), width, height)
+        x11.XSync(connection, 0)
+    finally:
+        x11.XCloseDisplay(connection)
+    geometry = subprocess.check_output(['/usr/bin/xwininfo', '-display', display, '-id', identifier], env=env, text=True)
+    actual_width = int(re.search(r'Width:\s*(\d+)', geometry)[1])
+    actual_height = int(re.search(r'Height:\s*(\d+)', geometry)[1])
+    return (actual_width, actual_height) == (width, height)
 
 
 def drm_nodes(vendor: str) -> list[str]:
@@ -262,7 +359,12 @@ def drm_nodes(vendor: str) -> list[str]:
 
 def inner(args) -> int:
     stage = args.stage
-    dirs = private_dirs(stage)
+    dirs = private_dirs(stage, getattr(args, 'shell_major', 42))
+    capture_stage = getattr(args, 'capture_stage', None)
+    if capture_stage is not None:
+        capture_stage = Path(capture_stage).resolve()
+        if capture_stage != stage.parent or not capture_stage.is_dir():
+            raise RuntimeError('The writable capture stage must be the existing direct parent of the private host stage')
     env = daemon_env(stage, dirs)
     env['DBUS_SESSION_BUS_ADDRESS'] = os.environ['DBUS_SESSION_BUS_ADDRESS']
     # X clients pick their pointer sprites themselves (a full GNOME session's
@@ -290,9 +392,70 @@ def inner(args) -> int:
         wait_for(lambda: bus_has('org.freedesktop.systemd1', env), 10, 'systemd stub on the private bus')
         start('pipewire', ['/usr/bin/pipewire'])
         wait_for(lambda: (dirs['run'] / 'pipewire-0').exists(), 10, 'pipewire socket')
-        start('media-session', ['/usr/bin/pipewire-media-session'])
+        session_manager = ('/usr/bin/pipewire-media-session'
+                           if Path('/usr/bin/pipewire-media-session').is_file() else '/usr/bin/wireplumber')
+        if session_manager.endswith('/wireplumber'):
+            version = subprocess.run([session_manager, '--version'], env=env,
+                                     text=True, capture_output=True, check=True).stdout
+            if 'Linked with libwireplumber 0.4.' not in version:
+                raise RuntimeError('The video-only capture profile requires WirePlumber 0.4')
+        start('media-session', [session_manager])
+        software_x11 = getattr(args, 'software_x11', False)
+        software_nested = getattr(args, 'software_nested', False)
+        software = software_x11 or software_nested
+        isolation = []
+        shell_extra = dict(kv.split('=', 1) for kv in args.shell_env)
         shell_argv = ['/usr/bin/gnome-shell']
-        if args.compositor_gpu != 'all':
+        if software:
+            if args.x11_display < 2:
+                raise RuntimeError('The software host requires a dedicated non-personal X11 display')
+            display = f':{args.x11_display}'
+            if (Path(f'/tmp/.X11-unix/X{args.x11_display}').exists()
+                    or Path(f'/tmp/.X{args.x11_display}-lock').exists()):
+                raise RuntimeError(f'The dedicated X11 display {display} is already in use')
+            env.update(DISPLAY=display, XDG_SESSION_TYPE='x11',
+                       LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2')
+            server = start('xvfb', ['/usr/bin/Xvfb', display, '-screen', '0',
+                                    f'{args.size}x24', '-ac', '-nolisten', 'tcp'])
+            wait_for(lambda: Path(f'/tmp/.X11-unix/X{args.x11_display}').exists(),
+                     10, 'private Xvfb socket', server)
+            if (server.poll() is not None
+                    or Path(f'/tmp/.X{args.x11_display}-lock').read_text().strip() != str(server.pid)):
+                raise RuntimeError(f'The dedicated X11 display {display} is not owned by this host')
+            if software_nested:
+                socket = dirs['run'] / 'logind-proxy'
+                start('logind-proxy', logind_proxy_argv(socket))
+                wait_for(socket.exists, 10, 'private read-only logind proxy')
+                env.update(DBUS_SYSTEM_BUS_ADDRESS='unix:path=' + str(socket), XDG_SESSION_TYPE='wayland',
+                           MESA_LOADER_DRIVER_OVERRIDE='llvmpipe',
+                           __EGL_VENDOR_LIBRARY_FILENAMES='/usr/share/glvnd/egl_vendor.d/50_mesa.json',
+                           MUTTER_DEBUG_DUMMY_MODE_SPECS=f'{args.size}@{args.refresh}',
+                           QT_OPENGL='software', QT_QUICK_BACKEND='software', CUDA_VISIBLE_DEVICES='',
+                           GDK_BACKEND='x11', GIO_USE_VFS='local', TMPDIR=str(dirs['run']))
+                x11 = dirs['run'] / 'x11'
+                x11.mkdir(mode=0o1777)
+                x11.chmod(0o1777)
+                bus_address = env['DBUS_SESSION_BUS_ADDRESS']
+                bus_binds = []
+                if bus_address.startswith('unix:path='):
+                    bus_socket = Path(bus_address.removeprefix('unix:path=').split(',', 1)[0])
+                    if not bus_socket.is_socket() or bus_socket.stat().st_uid != os.getuid():
+                        raise RuntimeError('The private session bus socket is not owned by this host user')
+                    bus_binds = ['--ro-bind', str(bus_socket), str(bus_socket)]
+                elif not bus_address.startswith('unix:abstract='):
+                    raise RuntimeError('The private session bus must use a local Unix socket')
+                isolation = ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/',
+                             '--bind', str(capture_stage or stage), str(capture_stage or stage),
+                             '--tmpfs', '/tmp', '--bind', str(x11), '/tmp/.X11-unix',
+                             '--ro-bind', f'/tmp/.X11-unix/X{args.x11_display}',
+                             f'/tmp/.X11-unix/X{args.x11_display}', *bus_binds,
+                             '--dev', '/dev', '--proc', '/proc', '--']
+                shell_argv = [*isolation, '/usr/bin/gnome-shell', '--nested', '--wayland',
+                              '--wayland-display', 'wayland-capture', '--sm-disable']
+            else:
+                shell_argv += ['--x11', '--replace', '--sm-disable']
+            shell_extra.update(LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2')
+        elif args.compositor_gpu != 'all':
             # Hide the other GPU's DRM nodes from gnome-shell (and so from
             # its Xwayland) in a private mount namespace; nothing else changes.
             keep = drm_nodes({'amd': '0x1002', 'nvidia': '0x10de'}[args.compositor_gpu])
@@ -303,28 +466,59 @@ def inner(args) -> int:
                 binds += ['--dev-bind', f'/dev/dri/{node}', f'/dev/dri/{node}']
             shell_argv = ['/usr/bin/bwrap', '--dev-bind', '/', '/', '--tmpfs', '/dev/dri', *binds,
                           '--', '/usr/bin/gnome-shell']
-        shell = start('gnome-shell', [
-            *shell_argv, '--headless', '--wayland', '--wayland-display', 'wayland-capture',
-            '--virtual-monitor', f'{args.size}@{args.refresh}', '--sm-disable'],
-            dict(kv.split('=', 1) for kv in args.shell_env))
+        if not software:
+            shell_argv += ['--headless', '--wayland', '--wayland-display', 'wayland-capture',
+                           '--virtual-monitor', f'{args.size}@{args.refresh}', '--sm-disable']
+        shell = start('gnome-shell', shell_argv, shell_extra)
         wait_for(lambda: bus_has('org.gnome.Mutter.ScreenCast', env), 60, 'mutter ScreenCast on the private bus', shell)
         wait_for(lambda: bus_has('org.gnome.Mutter.RemoteDesktop', env), 30, 'mutter RemoteDesktop', shell)
-        display = wait_for(lambda: xwayland_display(shell.pid), 60, 'Xwayland display', shell)
+        if not software:
+            display = wait_for(lambda: xwayland_display(shell.pid), 60, 'Xwayland display', shell)
         wait_for(lambda: Path(f'/tmp/.X11-unix/X{display[1:]}').exists(), 30, 'Xwayland socket', shell)
+        if software_nested:
+            wait_for(lambda: resize_nested_viewport(display, shell.pid, args.size, env),
+                     15, 'owned nested compositor viewport', shell)
+            connection = wait_for(lambda: xwayland_connection(shell.pid),
+                                  60, 'nested compositor descendant Xwayland', shell)
+            if 'XAUTHORITY' not in connection:
+                raise RuntimeError('The owned nested Xwayland did not provide authentication')
+            authority = Path(connection['XAUTHORITY'])
+            if (authority.is_symlink() or not authority.is_file()
+                    or not authority.resolve().is_relative_to(dirs['run'].resolve())
+                    or authority.stat().st_uid != os.getuid() or authority.stat().st_mode & 0o077):
+                raise RuntimeError('The owned nested Xwayland authentication is not private to this host')
+            display = connection['DISPLAY']
+            env['XAUTHORITY'] = str(authority)
+            wait_for(lambda: (x11 / f'X{display[1:]}').is_socket(),
+                     30, 'owned nested Xwayland socket', shell)
         # What gsd-xsettings does in a full session: X clients (Qt on xcb
         # reads Xcursor.* from RESOURCE_MANAGER, not XCURSOR_THEME) get the
         # same pointer theme and size as the shell.
-        subprocess.run(['/usr/bin/xrdb', '-merge'], env={**env, 'DISPLAY': display},
+        subprocess.run([*(isolation if software_nested else []), '/usr/bin/xrdb', '-merge'],
+                       env={**env, 'DISPLAY': display},
                        input=f'Xcursor.theme: {args.cursor_theme}\nXcursor.size: {args.cursor_size}\n'
                              'Xft.dpi: 96\n', text=True, check=True)
         time.sleep(args.settle)
-        host = {'DISPLAY': display, 'WAYLAND_DISPLAY': 'wayland-capture',
+        host = {'DISPLAY': display,
                 'DBUS_SESSION_BUS_ADDRESS': env['DBUS_SESSION_BUS_ADDRESS'],
-                'XDG_RUNTIME_DIR': str(dirs['run']), 'XDG_SESSION_TYPE': 'wayland',
+                'XDG_RUNTIME_DIR': str(dirs['run']), 'XDG_SESSION_TYPE': 'x11' if software_x11 else 'wayland',
                 'SPACR_CAPTURE_HOST_SIZE': args.size, 'SPACR_CAPTURE_HOST_REFRESH': str(args.refresh),
                 'XCURSOR_THEME': args.cursor_theme, 'XCURSOR_SIZE': str(args.cursor_size),
                 'SPACR_CAPTURE_HOST_TOP_BAR': 'shown' if args.show_top_bar else 'hidden',
                 MARKER: str(stage)}
+        if software_nested:
+            host.update({key: env[key] for key in ('LIBGL_ALWAYS_SOFTWARE', 'GALLIUM_DRIVER', 'LP_NUM_THREADS',
+                        'MESA_LOADER_DRIVER_OVERRIDE', '__EGL_VENDOR_LIBRARY_FILENAMES',
+                        'QT_OPENGL', 'QT_QUICK_BACKEND', 'CUDA_VISIBLE_DEVICES', 'DBUS_SYSTEM_BUS_ADDRESS')})
+            host.update(SPACR_CAPTURE_HOST_BACKEND='software-nested-wayland',
+                        WAYLAND_DISPLAY='wayland-capture', XDG_SESSION_TYPE='wayland', GDK_BACKEND='x11',
+                        QT_QPA_PLATFORM='xcb', XAUTHORITY=env['XAUTHORITY'])
+        elif software_x11:
+            host.update(LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2',
+                        SPACR_CAPTURE_HOST_BACKEND='software-x11')
+        else:
+            host['SPACR_CAPTURE_HOST_BACKEND'] = 'wayland'
+            host['WAYLAND_DISPLAY'] = 'wayland-capture'
         (stage / 'host.json').write_text(json.dumps({**host, 'gnome_shell_pid': shell.pid}, indent=2) + '\n')
         command_env = dict(os.environ)
         for key in ('DBUS_SESSION_BUS_ADDRESS', 'DISPLAY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR',
@@ -334,7 +528,7 @@ def inner(args) -> int:
             command_env.pop(key, None)
         command_env.update(host)
         command_env.update(args.outer_env)
-        rc = subprocess.run(args.command, env=command_env).returncode
+        rc = subprocess.run([*isolation, *args.command], env=command_env).returncode
     finally:
         for name, proc in reversed(procs):
             if proc.poll() is None:
@@ -363,6 +557,14 @@ def main() -> int:
                         help='DRM devices gnome-shell and its Xwayland may see (default: the NVIDIA '
                              'card only; with the AMD card alone mutter cannot create its '
                              'high-priority context (EACCES) and stalls).')
+    parser.add_argument('--capture-stage', type=Path,
+                        help='Writable direct parent of the host stage for a nested software recorder')
+    parser.add_argument('--software-nested', action='store_true',
+                        help='Use an owned Xvfb with nested software Wayland GNOME and no physical GPU devices')
+    parser.add_argument('--software-x11', action='store_true',
+                        help='Use a dedicated Xvfb and software-rendered GNOME, retaining native ScreenCast and pointer APIs')
+    parser.add_argument('--x11-display', type=int, default=96,
+                        help='Unused dedicated X11 display number for --software-x11; personal displays 0 and 1 are refused')
     parser.add_argument('--xwayland-glamor', action='store_true',
                         help='Let Xwayland render with GLAMOR on the GPU. Off by default: Xwayland '
                              '22.1.1 + NVIDIA dies with "wl_drm: invalid format" as soon as an ARGB '
@@ -375,20 +577,29 @@ def main() -> int:
                              'strut, so a maximised window fills the monitor; hot corners are off)')
     parser.add_argument('--shell-env', action='append', default=[], metavar='KEY=VALUE',
                         help='Extra environment for gnome-shell and its Xwayland')
+    parser.add_argument('--shell-major', type=int, default=42, help=argparse.SUPPRESS)
     parser.add_argument('--inner', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--outer-env', default='{}', help=argparse.SUPPRESS)
     parser.add_argument('command', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if args.command[:1] == ['--']:
         args.command = args.command[1:]
+    if args.software_x11 and args.software_nested:
+        parser.error('Choose only one software host backend')
     if not args.command:
         parser.error('give a command to run inside the host')
     args.stage = args.stage.resolve()
+    if args.capture_stage is not None:
+        args.capture_stage = args.capture_stage.resolve()
+        if not args.software_nested or args.capture_stage != args.stage.parent or not args.capture_stage.is_dir():
+            parser.error('--capture-stage requires the existing direct parent of a --software-nested host stage')
     if args.inner:
         args.outer_env = json.loads(args.outer_env)
         return inner(args)
     args.stage.mkdir(parents=True, exist_ok=False)
-    dirs = private_dirs(args.stage)
+    shell_version = subprocess.check_output(['/usr/bin/gnome-shell', '--version'], text=True)
+    args.shell_major = int(shell_version.split()[2].split('.')[0])
+    dirs = private_dirs(args.stage, args.shell_major)
     env = daemon_env(args.stage, dirs)
     # The command itself keeps the caller's interpreter, conda env and GPU
     # access; only display/bus variables are redirected (in ``inner``).
@@ -402,10 +613,15 @@ def main() -> int:
     try:
         rc = subprocess.run([
             '/usr/bin/dbus-run-session', '--', sys.executable, str(Path(__file__).resolve()),
-            '--inner', '--stage', str(args.stage), '--size', args.size, '--refresh', str(args.refresh),
+            '--inner', '--shell-major', str(args.shell_major),
+            '--stage', str(args.stage), '--size', args.size, '--refresh', str(args.refresh),
             '--cursor-theme', args.cursor_theme, '--cursor-size', str(args.cursor_size),
             '--settle', str(args.settle), '--outer-env', json.dumps(outer),
             '--compositor-gpu', args.compositor_gpu,
+            *(['--software-x11'] if args.software_x11 else []),
+            *(['--software-nested'] if args.software_nested else []),
+            *(['--capture-stage', str(args.capture_stage)] if args.capture_stage is not None else []),
+            *(['--x11-display', str(args.x11_display)] if args.software_x11 or args.software_nested else []),
             *(['--show-top-bar'] if args.show_top_bar else []),
             *([] if args.xwayland_glamor else ['--shell-env=XWAYLAND_NO_GLAMOR=1']),
             *[f'--shell-env={kv}' for kv in args.shell_env], '--', *args.command,
