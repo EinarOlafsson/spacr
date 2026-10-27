@@ -5462,7 +5462,10 @@ def get_easy_mode() -> bool:
 
 
 def set_easy_mode(on: bool) -> None:
-    """Persist Easy mode independently of AI and ordinary dock preferences."""
+    """Persist Easy mode independently of AI and ordinary dock preferences.
+
+    :param on: true to enable Easy mode, false to keep the ordinary Home.
+    """
     _settings().setValue(_KEY_EASY_MODE, bool(on))
 
 
@@ -5472,7 +5475,10 @@ def get_easy_mode_dock() -> bool:
 
 
 def set_easy_mode_dock(on: bool) -> None:
-    """Persist the dock choice for Easy mode without changing its normal setting."""
+    """Persist the dock choice for Easy mode without changing its normal setting.
+
+    :param on: true to show the dock while Easy mode is enabled, false to hide it.
+    """
     _settings().setValue(_KEY_EASY_MODE_DOCK, bool(on))
 
 
