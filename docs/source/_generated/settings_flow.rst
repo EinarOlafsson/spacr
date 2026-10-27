@@ -28095,13 +28095,21 @@ use_bfloat16
 ------------
 
 | :py:func:`~spacr.accelerator.cellpose_kwargs` **-- reads it**
+| ``_cellpose_segmenter``
+|     ``_model_precision_kwargs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``CellposeModel(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.screens.make_masks.load_cellpose_model` **-- reads it**
 | :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model` **-- reads it**
 | ``_make_segmenter`` **-- reads it**
 |     ``CellposeModel(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
+| ``_plaque_cellpose_model``
+|     ``_model_precision_kwargs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``CellposeModel(...)  [UNRESOLVED]``
 
-Read by ``cellpose_kwargs``, ``load_cellpose_model``, ``preview_cellpose_model``, ``_make_segmenter``.
+Read by ``cellpose_kwargs``, ``_model_precision_kwargs``, ``load_cellpose_model``, ``preview_cellpose_model``, ``_make_segmenter``.
 
 .. _setting-flow-use_bounding_box:
 
