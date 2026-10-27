@@ -1,6 +1,6 @@
 A STARTUP LOGO ANIMATION THAT IS AS SMOOTH AS POSSIBLE ON EVERY DEVICE AND GPU
 
-Status:    IN PROGRESS — software qualified; API/locales and Nightly publication remain.
+Status:    COMPLETE — software implementation and validation delivered with this Nightly change.
 Requested: maintainer, 2026-10-25: "also add as a ne item to make sure the
            start up logo animation is as smooth as possible on all devises
            and on all hardware"
@@ -233,3 +233,5 @@ Still owed, in this order:
 2026-10-27 — Required startup-metrics locale closure must update only the named English API owner and its source history, preserving unrelated records through an opt-in normal writer mode; default full builds retain their current pruning behavior. Integration owner implements this tool path with a focused regression and independent peer before N727 generation.
 2026-10-27 — G2 resumes the remaining software scope on published Nightly 2ca: export completed startup frame_stats into the normal benchmark, accurately document paint-callback cadence versus presentation, and qualify pacing/adaptation/budget controls with G5 peer. Retain delivered mosaic/README assets and prior results; no new native campaign or manual review gate, and no changes to the frozen Main candidate.
 2026-10-27 — Completed-cover frame_stats now survives widget deletion in normal startup-benchmark JSON; absent covers are null, and skipped/completed state is explicit. All 14 focused controls pass (9.90 s), including a real 900×700 offscreen software replay within the unchanged 8 ms paint, 100 ms gap, p99 <2.5 refresh intervals and <5% estimated-drop budgets. Paint-callback evidence is not compositor/hardware validation; G5 peer accepted, normal API/locales and root Nightly publication remain.
+
+2026-10-27 — COMPLETE under the current software acceptance: 14 focused pacing/export controls and two scoped English-history regressions pass; nine reviewed returns blocks and unchanged summaries pass normal admissions and independent output checks. Review pin 63620f12 and API memory 9c56cc21 are published and immutable-readback verified, preserving unrelated records/history/media; root delivers this change on Nightly. Measurements describe paint callbacks, not verified compositor presentation or a cross-device timing guarantee; no new native campaign or frozen-Main change is claimed.

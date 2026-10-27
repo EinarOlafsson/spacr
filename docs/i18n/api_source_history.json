@@ -35,6 +35,14 @@
       "source_sha256": "91aa9327ad66e9d70ba841db392dfca063d1e8d7665d4a46f8113aefe0055220",
       "text": "Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.\n\nThe dock does not slide, so there is nothing to open: it is a\npermanent column when the preference is ``locked``. The action moves\nkeyboard focus to its first row, so a keyboard user does not have to\ntab through the page to reach it.\n\nA no-op when the dock is hidden, so the shortcut does not override\nthe preference. The action is also disabled in that mode; this check\nis a second guard."
     },
+    "cc69808fed0ece9ad875c409a5e503482e9490562567ad7e51c36816094311bb": {
+      "source_blocks_sha256": [
+        "c762d6e2ec3c5618c2419b4dd931e7c5d31edec45e668eee71b926ab174a01b6",
+        "4961353d2c74a0a052bcc98ac559eb5b3993c093bca2cb7481a9b13975a9e75f"
+      ],
+      "source_sha256": "cc69808fed0ece9ad875c409a5e503482e9490562567ad7e51c36816094311bb",
+      "text": "What drawing the blow-away cost, for measuring it.\n\n:returns: ``frames``, the mean and the slowest frame's paint time in\n    milliseconds, and the most tiles drawn in one frame."
+    },
     "e1725a4733a53223934a46acff9941a053040a4809a3f9d94c5885ecb6aa0874": {
       "source_blocks_sha256": [
         "80d1a1b9eb8e29fa17678199e627908b3d777bf3157b26f887a41700649f88a2",
