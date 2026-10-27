@@ -49,13 +49,15 @@ def glassed_app(monkeypatch):
 
     monkeypatch.setattr(setup_card.SetupCard, "_tick", lambda self: None)
     monkeypatch.setattr(QFileDialog, "exec", _modal_exec)
-    previous = app.styleSheet()
-    app.setStyleSheet(theme.stylesheet(theme="dark"))
+    previous = theme.window_stylesheet(app)
+    if previous is None:
+        previous = app.styleSheet()
+    theme.apply_stylesheet_per_window(app, theme.stylesheet(theme="dark"))
     installed_here = glass.install_glass_everywhere(app)
     yield app
     if installed_here:
         glass.uninstall_glass_everywhere(app)
-    app.setStyleSheet(previous)
+    theme.apply_stylesheet_per_window(app, previous)
 
 
 def _plate(folder, wells=("A01", "A02")):
@@ -132,7 +134,9 @@ def _measure(dialog):
             and dialog.rect().contains(corner))
     return {"size": (dialog.width(), dialog.height()), "least": (least.width(), least.height()),
             "screen": (screen.width(), screen.height()), "buttons": buttons,
-            "resizable": getattr(dialog, "_spacr_resizer", None) is not None or dialog.isSizeGripEnabled()}
+            "resizable": getattr(dialog, "_spacr_resizer", None) is not None or dialog.isSizeGripEnabled(),
+            "window_sheet": bool(theme.window_stylesheet()) and dialog.styleSheet().startswith(
+                theme.window_stylesheet())}
 
 
 def _assert_sensible(record):
@@ -144,6 +148,7 @@ def _assert_sensible(record):
     assert height <= max(least_height, min(640, int(screen_height * .6))), record
     assert record["buttons"].get("Choose") and record["buttons"].get("Cancel"), record["buttons"]
     assert record["resizable"]
+    assert record["window_sheet"]
 
 
 def _click(qtbot, button):
@@ -160,6 +165,8 @@ def test_add_folders_on_the_metadata_step_adds_the_chosen_folders(glassed_app, q
     wizard._startup_timer.stop()
     qtbot.addWidget(wizard)
     wizard.show()
+    assert not glassed_app.styleSheet()
+    qtbot.waitUntil(lambda: wizard.styleSheet().startswith(theme.window_stylesheet(glassed_app)))
     chooser = _Chooser(qtbot, more, names)
     chooser.arm()
     _click(qtbot, wizard.findChild(QPushButton, "OverviewWizardAddFolders"))
@@ -196,6 +203,8 @@ def test_add_plates_on_the_overview_adds_the_chosen_plates(glassed_app, qtbot, t
     qtbot.addWidget(view, before_close_func=lambda widget: _retire(widget, qtbot))
     view.resize(1500, 1000)
     view.show()
+    assert not glassed_app.styleSheet()
+    qtbot.waitUntil(lambda: view.styleSheet().startswith(theme.window_stylesheet(glassed_app)))
     view._scan()
     qtbot.waitUntil(lambda: bool(view._fields) and not view._index_jobs.is_busy(), timeout=15000)
     before = {field.plate for field in view._all_fields}
