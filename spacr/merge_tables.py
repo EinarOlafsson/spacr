@@ -416,7 +416,8 @@ def _collapse_duplicate_observations(frame, keys, table, overrides):
     else:
         collapsed = duplicates[keys].drop_duplicates().copy()
     collapsed.index = pd.Index([duplicates.index[indices[0]] for indices in grouped.indices.values()])
-    return pd.concat([frame.loc[~repeated], collapsed]).sort_index(kind='stable')[frame.columns].reset_index(drop=True)
+    combined = pd.concat([frame.loc[~repeated], collapsed]) if (~repeated).any() else collapsed
+    return combined.sort_index(kind='stable')[frame.columns].reset_index(drop=True)
 
 
 @contextlib.contextmanager

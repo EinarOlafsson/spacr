@@ -126,6 +126,9 @@ def test_all_missing_duplicate_features_stay_missing_and_zero_remains_zero(tmp_p
     with sqlite3.connect(path) as db:
         frame.to_sql('cell', db, index=False)
     definition = default_definition(path, ['cell'])
+    before = _bytes(path)
+    with pytest.raises(_DuplicateObservations):
+        execute(path, definition)
     definition['merge_duplicates'] = True
     definition['base_overrides'] = {'flag_any': 'any', 'flag_all': 'all'}
     result, _ = execute(path, definition)
@@ -134,6 +137,7 @@ def test_all_missing_duplicate_features_stay_missing_and_zero_remains_zero(tmp_p
     for column in ('cell_flag_any', 'cell_flag_all'):
         assert str(result[column].dtype) == 'boolean'
         assert pd.isna(result[column].iloc[0]) and result[column].iloc[1] == False
+    assert _bytes(path) == before and not _duplicate_merge_enabled.get()
 
 
 def test_truthy_text_is_not_explicit_duplicate_permission(tmp_path):
