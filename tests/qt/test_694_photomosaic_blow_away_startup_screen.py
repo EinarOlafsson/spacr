@@ -17,6 +17,7 @@ import json
 import math
 import os
 import sys
+import types
 
 import numpy as np
 import pytest
@@ -24,8 +25,8 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPointF, Qt  # noqa: E402
-from PySide6.QtGui import QColor, QImage, QKeyEvent, QMouseEvent  # noqa: E402
+from PySide6.QtCore import QEvent, QPointF, QRect, QSize, Qt  # noqa: E402
+from PySide6.QtGui import QColor, QImage, QImageReader, QKeyEvent, QMouseEvent  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from spacr.qt.widgets import loading_screen as ls  # noqa: E402
@@ -738,3 +739,75 @@ def test_an_idle_cover_in_the_set_does_not_count(cover):
         assert not ls.blow_away_running()
     finally:
         ls._PLAYING.discard(cover)
+
+
+@pytest.mark.parametrize("tile,ratio", [(3, 1.0), (5, 1.5), (7, 2.0)])
+@pytest.mark.parametrize("platform", ["linux", "darwin"])
+def test_only_logo_tiles_survive_decoding_and_cutting(cover, monkeypatch,
+                                                      tile, ratio, platform):
+    mosaic = cover._mosaic
+    reader = QImageReader(mosaic.image_path)
+    reader.setScaledSize(QSize(tile * mosaic.grid, tile * mosaic.grid))
+    original = ls._black_to_alpha(reader.read())
+    source = np.frombuffer(original.bits(), dtype=np.uint32).reshape(
+        original.height(), original.bytesPerLine() // 4)[:, :original.width()]
+    eligible = np.repeat(np.repeat(mosaic.occupied, tile, axis=0), tile, axis=1)
+    assert np.any(source[~eligible]), "The original contains background texture"
+    picture = cover._mosaic_picture(tile, ratio)
+    image = picture.toImage().convertToFormat(QImage.Format_ARGB32_Premultiplied)
+    pixels = np.frombuffer(image.bits(), dtype=np.uint32).reshape(
+        image.height(), image.bytesPerLine() // 4)[:, :image.width()]
+    assert not np.any(pixels[~eligible])
+    np.testing.assert_array_equal(pixels[eligible], source[eligible])
+    assert picture is cover._mosaic_picture(tile, ratio)
+    monkeypatch.setattr(ls, "sys", types.SimpleNamespace(platform=platform))
+    cover._cut_tiles(picture, 0.0, 0.0, 400.0, tile)
+    rest = cover._rest
+    resting = np.frombuffer(rest.bits(), dtype=np.uint32).reshape(
+        rest.height(), rest.bytesPerLine() // 4)[:, :rest.width()]
+    np.testing.assert_array_equal(resting, pixels)
+    cells = mosaic.occupied
+    if platform == "darwin":
+        cells = cells.reshape(40, 2, 40, 2).any(axis=(1, 3))
+    np.testing.assert_array_equal(cover._model.flyers, np.flatnonzero(cells))
+    for flat, piece in zip(cover._model.flyers, cover._tiles):
+        row, col = divmod(int(flat), cover._model.grid)
+        pitch = cover._rest_tile
+        assert piece.toImage() == rest.copy(QRect(col * pitch, row * pitch,
+                                                  pitch, pitch))
+
+
+@pytest.mark.parametrize("plain", [None, False, True],
+                         ids=["static", "blow-away", "reduced-motion"])
+def test_logo_outline_and_empty_background_survive_replay(qtbot, host,
+                                                          tmp_path, plain):
+    path = tmp_path / "mosaic.png"
+    image = QImage(16, 16, QImage.Format_RGB32)
+    image.fill(QColor(80, 120, 160))
+    assert image.save(str(path))
+    occupied = np.array([[0, 1, 1, 0], [1, 0, 0, 1],
+                         [1, 0, 0, 1], [0, 1, 1, 0]], dtype=bool)
+    for replay in range(2):
+        screen = ls.LoadingScreen(parent=host)
+        qtbot.addWidget(screen)
+        clock = _Clock()
+        screen._clock = clock
+        assert screen.show_mosaic(ls.MosaicMap(str(path), 4, 4, occupied))
+        screen.grab()
+        if plain is not None:
+            assert screen.blow_away(force=True, plain=plain)
+            clock.now += ls._MOSAIC_MIN_HOLD_S
+            screen._begin()
+            assert screen._state == "playing"
+            assert screen._plain is plain
+        shot = screen.grab().toImage()
+        x, y, side, _tile, _ratio = screen._mosaic_layout()
+        ground = shot.pixelColor(0, 0)
+        for row, col in np.ndindex(occupied.shape):
+            pixel = shot.pixelColor(int(x + (col + 0.5) * side / 4),
+                                    int(y + (row + 0.5) * side / 4))
+            assert (pixel != ground) is bool(occupied[row, col]), (replay, row, col)
+        if plain is not None:
+            screen._finish()
+        else:
+            screen.close()
