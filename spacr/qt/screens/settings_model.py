@@ -11212,7 +11212,7 @@ class SettingsWidgets:
                              "value": default}
         if kind == "entry":
             if key == NUMBER_OF_ORGANELLES:
-                return "plain", {"control": "text", "value": default}
+                return "plain", {"control": "text", "value": actual_default}
             shape = list_shape_for(key, self._defaults.get(key, default))
             if shape is not None:
                 nested_capable, allow_none, element_type, container = shape

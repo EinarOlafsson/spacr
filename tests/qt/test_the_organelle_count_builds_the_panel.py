@@ -1,16 +1,8 @@
-"""The number of organelles decides how many organelle slots are on screen.
+"""Counts bound progressive slots; configured values survive hiding and import.
 
-"a NUMBER OF ORGANELLES setting, and the organelle settings are generated
-from it -- two gives organelle 1 and organelle 2, seven gives seven."
-
-``spacr.organelle_types`` has said all of this correctly for some time --
-``organelle_role``, ``MAX_ORGANELLES``, ``active_organelle_roles``,
-``declared_organelle_roles`` -- and the panel was built from a defaults dict
-that stopped at four slots, so there were only ever four controls to reveal
-and the count changed nothing. Confirming the vocabulary is not confirming
-the feature. The optimized panel now builds only the slots the count names,
-so every assertion here builds the same form shape a committed count asks the
-window for and COUNTS THE ROWS ON THAT FORM.
+The integer count offers the first channel or mask-plane control. Configuring
+that switch reveals its settings and the next switch, up to the count. These
+controls distinguish that lazy form from the populated slots a saved run keeps.
 """
 from __future__ import annotations
 
@@ -75,8 +67,14 @@ def test_seven_renders_seven_slots_and_two_renders_two(qtbot, app_key):
     for count in (0, 7, 2, 7):
         screen, model = _screen_for_count(qtbot, app_key, count)
         assert model.collect()["number_of_organelles"] == count
-        assert _slots_on_screen(screen, app_key) == list(
-            organelle_roles(count))
+        assert _slots_on_screen(screen, app_key) == list(organelle_roles(min(1, count)))
+        model_before = model
+        switches = {f"{role}_{SWITCH[app_key]}": index
+                    for index, role in enumerate(organelle_roles(count))}
+        screen.apply_settings_dict(switches)
+        assert screen._settings_model is model_before
+        assert _slots_on_screen(screen, app_key) == list(organelle_roles(count))
+        assert {key: model.collect()[key] for key in switches} == switches
 
 
 def test_a_committed_slot_channel_brings_its_whole_settings_family(
@@ -100,12 +98,8 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         qapp.processEvents()
         screen = window._screens["mask"]
         count = screen._settings_model._widgets["number_of_organelles"]
-        if hasattr(count, "set_value"):
-            count.set_value(1)
-        elif hasattr(count, "setCurrentText"):
-            count.setCurrentText("1")
-        else:
-            count.setValue(1)
+        count.setText("1")
+        count.editingFinished.emit()
         qapp.processEvents()
 
         screen = window._screens["mask"]
@@ -167,7 +161,7 @@ def test_a_slot_the_run_does_not_have_takes_its_heading_with_it(qtbot):
         screen, model = _screen_for_count(qtbot, "mask", count, current)
         screen._open_every_waiting_heading()
         assert model.collect()["number_of_organelles"] == count
-        assert _slot_headings_on_screen(screen) == []
+        assert _slot_headings_on_screen(screen) == list(range(1, count + 1))
         assert _slots_on_screen(screen, "mask") == roles
         assert [role for role in screen._object_grid.objects()
                 if role in ALL_ORGANELLE_ROLES] == roles
@@ -183,7 +177,9 @@ def test_a_slot_the_run_does_not_have_takes_its_heading_with_it(qtbot):
 def test_a_panel_written_at_seven_keeps_seven_when_it_is_lowered_to_two(qtbot):
     from spacr.organelle_types import organelle_roles
 
-    _screen_, model = _screen_for_count(qtbot, "measure", 7)
+    initial = {f"{role}_mask_dim": index
+               for index, role in enumerate(organelle_roles(7))}
+    _screen_, model = _screen_for_count(qtbot, "measure", 7, initial)
 
     typed = {}
     for offset, role in enumerate(organelle_roles(7)):
@@ -215,7 +211,9 @@ def test_a_file_written_at_seven_opens_at_two_with_all_seven_kept(qtbot):
     """The round trip through a settings dict, not through the widgets."""
     from spacr.organelle_types import organelle_roles
 
-    _screen_, model = _screen_for_count(qtbot, "measure", 7)
+    initial = {f"{role}_mask_dim": index
+               for index, role in enumerate(organelle_roles(7))}
+    _screen_, model = _screen_for_count(qtbot, "measure", 7, initial)
     for offset, role in enumerate(organelle_roles(7)):
         model._widgets[f"{role}_mask_dim"].setText(str(20 + offset))
     qtbot.wait(1)
@@ -237,24 +235,19 @@ def test_a_file_written_at_seven_opens_at_two_with_all_seven_kept(qtbot):
 
 
 def test_a_run_carries_the_slots_it_asked_for_and_no_others(qtbot):
-    """The count decides the keys. There is no floor of four.
-
-    Measure used to carry four shipped slot keys whatever the count was, so a
-    two-organelle run wrote four slots into every settings CSV, run journal
-    and reproducibility hash. That floor was removed: if the user chooses two
-    organelles they get settings for two.
-
-    SLOT ONE IS ALWAYS THERE, which is why the floor is one and not zero. It
-    is the organelle itself rather than an extra slot, and it is seeded by
-    hand beside `organelle_type` rather than by the loop that adds the rest.
-    """
+    """Configured run slots survive collection without an eager floor of four."""
     from spacr.organelle_types import organelle_role_of, organelle_roles
 
     def slots(settings):
         return {role for role in map(organelle_role_of, settings) if role}
 
     for count in (0, 1, 2, 4, 6):
-        _screen_, model = _screen_for_count(qtbot, "measure", count)
+        screen, model = _screen_for_count(qtbot, "measure", count)
+        assert slots(model.collect()) == {"organelle"}
+        configured = {f"{role}_mask_dim": index
+                      for index, role in enumerate(organelle_roles(count))}
+        screen.apply_settings_dict(configured)
+        assert {key: model.collect()[key] for key in configured} == configured
         assert slots(model.collect()) == set(organelle_roles(max(1, count))), (
             f"a {count}-organelle run carried the wrong slots")
 
