@@ -1,6 +1,6 @@
 NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
-Status:    READY FOR MAINTAINER TEST — 2026-10-27 corrective Navigator implementation; tutorial handoff and Docs/API follow-up await explicit sign-off.
+Status:    IMPLEMENTATION APPROVED — 2026-10-27 maintainer sign-off received; new tutorial and Docs/API coverage handed off through shared HANDOFF.md; direct tutorial-session receipt unconfirmed.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -371,3 +371,5 @@ Implementation and reasonable validation qualify completion under the maintainer
 
 2026-10-27 — Corrected Measure/organism keyword routing and duplicate native/Help cards; selected files/folders now use their own evidence, annotation-only databases no longer imply measurements, and readable TIFF/PNG omit Converter. Actual raw ALIX and analyzed Replication master probes retain the appropriate two and ten tools, respectively.
 2026-10-27 — All cards reveal in 500 ms at 200 ms start intervals; faster incremental networks retain explored branches, remove node-travel effects and fade/restore search. Home resets state; disabling Navigator retains the native module. Both dock visibility preferences and duplicate Help entries are removed, alpha badges doubled, and focused regressions pass. Tutorial/Docs/API coverage remains pending explicit sign-off.
+
+2026-10-27 — Maintainer tested Navigator and approved: "works much better now so send message to tutorial session". Sign-off prerequisite is satisfied. Shared HANDOFF.md now requests the new Navigator tutorial plus user Docs/API coverage against e125b048e8; direct session messaging is unavailable and receipt remains unconfirmed.
