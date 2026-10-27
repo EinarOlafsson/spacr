@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from PIL import Image
-from PySide6.QtCore import QCoreApplication, QMimeData, QPoint, QPointF, QRectF, Qt, QUrl
+from PySide6.QtCore import QCoreApplication, QMimeData, QPoint, QPointF, QRect, QRectF, Qt, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QApplication, QPushButton
 
@@ -717,14 +717,14 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
 
 @pytest.mark.parametrize('global_theme', ['light', 'dark'])
 def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
-        qtbot, qapp, private_ai_profile, tmp_path, global_theme):
+        qtbot, qapp, private_ai_profile, tmp_path, monkeypatch, global_theme):
     from PySide6.QtGui import QColor, QPalette
     from PySide6.QtWidgets import QComboBox
     from spacr.qt import theme
     from spacr.qt.widgets.field_fade import fades
     from spacr.qt.app import APPS, app_is_visible, folded_children
     from spacr.qt.widgets.fold_strip import fold_label
-    from spacr.qt.widgets.home import _EasyHomePage
+    from spacr.qt.widgets.home import _EasyHomePage, _EASY_WORKFLOW_PORT_RADIUS
     from spacr.qt.hidpi import device_ratio, logical_size
 
     preferences, _, _ = private_ai_profile
@@ -749,20 +749,30 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         page.accept_paths([str(images[0])])
         qtbot.waitUntil(lambda: any(card._key == 'mask' for card in page.field.cards), timeout=5000)
         cards = tuple(page.field.cards)
-        next(card for card in cards if card._key == 'mask').click()
+        selected_card = next(card for card in cards if card._key == 'mask')
+        original_parent = selected_card.parentWidget()
+        original_rect = QRect(selected_card.mapToGlobal(QPoint()), selected_card.size())
+        selected_card.click()
         workflow = page._workflow
         assert workflow is not None and chosen == []
-        assert not page.path_edit.isVisible() and not page._suggestions_scroll.isVisible()
+        assert not page.path_edit.isVisible()
+        assert page._suggestions_scroll.isVisible() and page.field.isVisible()
+        assert workflow.central is selected_card
+        assert QRect(selected_card.mapToGlobal(QPoint()), selected_card.size()) == original_rect
+        assert selected_card.parentWidget() is workflow
+        assert workflow._progress == 1.0
+        page.field._finish_growth()
+        page.field._arrange()
+        assert QRect(selected_card.mapToGlobal(QPoint()), selected_card.size()) == original_rect
         assert workflow.central._key == 'mask' and workflow.central._path == str(tmp_path)
-        assert workflow.central.width() >= 260 and workflow.central.height() >= 144
-        assert abs(workflow.central.geometry().center().x() - workflow.rect().center().x()) <= 1
-        assert workflow.central.geometry().top() == workflow.tools.geometry().bottom() + 9
+        assert workflow.central.width() == workflow.central.height()
+        assert workflow.central.width() >= 192
         assert workflow.view.transform().m11() == 1.0
-        heading = workflow.central.content.layout().itemAt(0).layout()
-        title = heading.itemAt(1).widget()
-        assert title.font().pixelSize() >= 18
+        title = workflow.central.title
+        from spacr.qt.theme import font_px
+        assert title.font().pixelSize() == font_px(18)
         assert title.alignment() & Qt.AlignHCenter
-        assert logical_size(workflow.central.icon.pixmap()).width() == 64
+        assert logical_size(workflow.central.icon.pixmap()).width() == 96
         assert workflow.central.icon.pixmap().devicePixelRatioF() == device_ratio(workflow.central.icon)
         visible = {key for key, node in workflow.view.nodes.items() if node.isVisible()}
         assert {'measure', 'overview'} <= visible and len(visible) <= 4
@@ -774,7 +784,37 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
             workflow.details.toPlainText().split())
         for edge in workflow.view.edges:
             if edge.edge.get('mode_labels'):
-                assert edge.boundingRect().contains(QRectF(edge.end.x() - 110, edge.end.y() - 42, 220, 24))
+                assert edge.boundingRect().contains(edge._badge_rect())
+                assert edge._badge_rect().bottom() == workflow.view.nodes[edge.edge['to']].pos().y() - 14
+            assert edge.path().elementCount() >= 7
+            assert any(edge.path().elementAt(index).isCurveTo()
+                       for index in range(edge.path().elementCount()))
+            path = edge.path()
+            midpoint = path.pointAtPercent(path.percentAtLength(path.length() / 2))
+            assert (edge._arrow_center - midpoint).manhattanLength() < 0.0001
+            centroid = (edge.arrowhead[0] + edge.arrowhead[1] + edge.arrowhead[2]) / 3
+            assert (centroid - midpoint).manhattanLength() < 0.0001
+            before_mid = path.pointAtPercent(path.percentAtLength(path.length() / 2 - 0.1))
+            after_mid = path.pointAtPercent(path.percentAtLength(path.length() / 2 + 0.1))
+            tangent = after_mid - before_mid
+            arrow = edge.arrowhead[0] - (edge.arrowhead[1] + edge.arrowhead[2]) / 2
+            assert tangent.x() * arrow.x() + tangent.y() * arrow.y() > 0
+            if edge.edge.get('mode_labels'):
+                assert not edge.arrowhead.boundingRect().intersects(edge._badge_rect())
+            assert all(not edge.arrowhead.boundingRect().intersects(node.sceneBoundingRect())
+                       for node in workflow.view.nodes.values() if node.isVisible())
+            target = workflow.view.nodes[edge.edge['to']]
+            assert len(target._input_ports) == 1
+            assert target._input_ports[0].x() == _EASY_WORKFLOW_PORT_RADIUS + 1
+            assert target._input_ports[0].y() >= target.boundingRect().height() * 0.65
+            assert edge.end == target.pos() + target._input_ports[0]
+        ports = workflow.central._workflow_ports
+        assert len(ports) == len(workflow.view.edges) and _EASY_WORKFLOW_PORT_RADIUS == 4
+        assert len(set(point.y() for point in ports)) == len(ports)
+        assert all(point.x() == workflow.central.width() - _EASY_WORKFLOW_PORT_RADIUS - 1
+                   and point.y() <= workflow.central.height() / 3 for point in ports)
+        gaps = [second.y() - first.y() for first, second in zip(ports, ports[1:])]
+        assert max(gaps) - min(gaps) <= 1 and min(gaps) > 2 * _EASY_WORKFLOW_PORT_RADIUS
         owner = [edge for edge in workflow.view.edges if edge.edge['to'] == 'overview']
         assert len(owner) == 1 and owner[0].edge['kind'] == 'containment'
         folds = folded_children()
@@ -800,6 +840,12 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
                          pos=workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
         assert workflow.central._key == 'measure' and chosen == []
+        assert QRect(workflow.central.mapToGlobal(QPoint()), workflow.central.size()) == original_rect
+        assert workflow.central.icon.pixmap().devicePixelRatioF() == device_ratio(workflow.central.icon)
+        expected = workflow.central._module_icon.pixmap(round(96 * device_ratio(workflow.central.icon)),
+                                                       round(96 * device_ratio(workflow.central.icon)))
+        expected.setDevicePixelRatio(device_ratio(workflow.central.icon))
+        assert workflow.central.icon.pixmap().toImage() == expected.toImage()
         assert workflow.central._path == ''
         assert len(workflow.view.branch_records) == 4
         assert {record['to'] for record in workflow.view.branch_records} == {
@@ -828,14 +874,15 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
             assert matches > 5
         for size in ((500, 650), (640, 650), (1080, 601), (1280, 850)):
             page.resize(*size)
-            qtbot.waitUntil(lambda: workflow.view.width() == workflow.width())
+            qtbot.waitUntil(lambda: workflow.size() == page.size())
             assert not workflow.tools.geometry().intersects(workflow.more.geometry())
             assert not workflow.back.geometry().intersects(workflow.tools.geometry())
-            assert workflow.central.geometry().top() > workflow.more.geometry().bottom()
+            assert workflow.central.width() == workflow.central.height()
             assert workflow.rect().contains(workflow.central.geometry())
             assert workflow.rect().contains(workflow.details.geometry())
             assert not workflow.central.geometry().intersects(workflow.details.geometry())
-            assert workflow.view.geometry().top() > workflow.details.geometry().bottom()
+            assert not workflow.view.geometry().intersects(workflow.central.geometry())
+            assert not workflow.view.geometry().intersects(workflow.details.geometry())
             first_row = min(node.pos().y() for node in workflow.view.nodes.values() if node.isVisible())
             row_nodes = [node for node in workflow.view.nodes.values() if node.isVisible() and node.pos().y() == first_row]
             assert row_nodes and all(workflow.view.viewport().height() >= node.boundingRect().height() + first_row
@@ -846,6 +893,22 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
                 workflow.view.verticalScrollBar().setValue(workflow.view.verticalScrollBar().maximum())
                 assert workflow.view.verticalScrollBar().value() > 0
                 assert (workflow.central.geometry(), workflow.details.geometry(), workflow.back.geometry()) == fixed
+                from spacr.qt.widgets.home import _EasyWorkflowEdge
+                drawn = []
+                original_draw = _EasyWorkflowEdge.draw_connection
+
+                def draw_connection(edge, painter):
+                    drawn.append(edge)
+                    return original_draw(edge, painter)
+
+                with monkeypatch.context() as observer:
+                    observer.setattr(_EasyWorkflowEdge, 'draw_connection', draw_connection)
+                    assert not workflow.grab().isNull()
+                expected_edges = {edge for edge in workflow.view.edges
+                                  if workflow.view.mapFromScene(workflow.view.nodes[edge.edge['to']]
+                                      .sceneBoundingRect()).boundingRect().intersects(workflow.view.viewport().rect())}
+                assert expected_edges and len(expected_edges) < len(workflow.view.edges)
+                assert set(drawn) == expected_edges
         additional = workflow.more.itemData(0)
         workflow.more.showPopup()
         next_index = workflow.more.model().index(0, 0)
@@ -872,8 +935,118 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         assert page._workflow is None and page.path_edit.isVisible()
         assert page.path_edit.text() == str(images[0])
         assert tuple(page.field.cards) == cards
+        assert selected_card.parentWidget() is original_parent and selected_card.isVisible()
         assert _bytes(images) == before
     finally:
         page.close()
         qapp.setStyleSheet(original_sheet)
         qapp.setPalette(original_palette)
+
+
+def test_network_emerges_around_the_same_card_and_live_reduce_motion_finishes_it(
+        qtbot, qapp, private_ai_profile, isolated_input_root):
+    from PySide6.QtCore import QAbstractAnimation
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_ambient_enabled(True)
+    preferences.set_reduce_motion(True)
+    image = isolated_input_root / 'W0025F0001T0001Z000C1.tif'
+    _image(image)
+    original = image.read_bytes()
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1280, 850)
+    page.show()
+    chosen = []
+    page.module_requested.connect(lambda key, path: chosen.append((key, path)))
+    try:
+        page.accept_paths([str(image)])
+        qtbot.waitUntil(lambda: any(card._key == 'mask' for card in page.field.cards), timeout=5000)
+        source = next(card for card in page.field.cards if card._key == 'mask')
+        parent = source.parentWidget()
+        rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
+        field = page.field
+        preferences.set_reduce_motion(False)
+        source.click()
+        workflow = page._workflow
+        assert workflow.central is source and page.field is field and field.isVisible()
+        assert page._suggestions_scroll.isVisible() and workflow._transition.duration() == 2200
+        assert workflow.property('spacrAmbientTransparentOverlay') is True
+        assert not workflow.autoFillBackground() and not workflow.testAttribute(Qt.WA_OpaquePaintEvent)
+        assert workflow._progress == 0.0
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        qtbot.waitUntil(lambda: 0.2 <= workflow._progress < 0.8, timeout=1800)
+        middle = workflow._progress
+        assert field.isVisible() and QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        qtbot.waitUntil(lambda: workflow._progress > middle + 0.1, timeout=1000)
+        assert chosen == []
+        preferences.set_reduce_motion(True)
+        preferences._hold_the_backdrops_still(qapp)
+        assert workflow._progress == 1.0
+        assert workflow._transition.state() == QAbstractAnimation.Stopped
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        qtbot.keyClick(source, Qt.Key_Escape)
+        assert page._workflow is None and source.parentWidget() is parent and source.isVisible()
+        assert source.geometry() == source._final_rect and not source._workflow_ports
+        assert page.path_edit.text() == str(image) and image.read_bytes() == original
+    finally:
+        page.close()
+
+
+@pytest.mark.parametrize('width', [340, 500, 640])
+def test_single_action_keeps_its_anchor_and_complete_children_in_narrow_windows(
+        qtbot, private_ai_profile, isolated_input_root, width):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    path = isolated_input_root / 'objects.csv'
+    path.write_text('label,area\n1,12\n2,9\n')
+    original = path.read_bytes()
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(width, 700)
+    page.show()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: len(page.field.cards) == 1, timeout=5000)
+        source = page.field.cards[0]
+        assert source._key == 'foreign'
+        assert abs(source.geometry().center().x() - page.field.rect().center().x()) <= 1
+        rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
+        source.click()
+        workflow = page._workflow
+        assert workflow.central is source
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        visible = [node for node in workflow.view.nodes.values() if node.isVisible()]
+        assert visible
+        first = min(node.pos().y() for node in visible)
+        for node in visible:
+            assert node.boundingRect().width() == node.boundingRect().height()
+            assert 0 <= node.pos().x() and node.sceneBoundingRect().right() <= workflow.view.viewport().width()
+            if node.pos().y() == first:
+                assert node.sceneBoundingRect().bottom() <= workflow.view.viewport().height()
+        assert not workflow.view.geometry().intersects(workflow.central.geometry())
+        root_top = workflow.view.mapToScene(workflow.view.viewport().mapFromGlobal(
+            source.mapToGlobal(QPoint())))
+        root_rect = QRectF(root_top.x(), root_top.y(), source.width(), source.height())
+        for edge in workflow.view.edges:
+            direction = edge.path().pointAtPercent(edge.path().percentAtLength(2)) - edge.start
+            assert direction.x() > 0
+            target = workflow.view.nodes[edge.edge['to']]
+            if not workflow.view.mapFromScene(target.sceneBoundingRect()).boundingRect().intersects(
+                    workflow.view.viewport().rect()):
+                continue
+            path_length = edge.path().length()
+            for step in range(1, 80):
+                distance = 8 + (path_length - 16) * step / 80
+                point = edge.path().pointAtPercent(edge.path().percentAtLength(distance))
+                assert not root_rect.adjusted(1, 1, -1, -1).contains(point)
+        qtbot.keyClick(source, Qt.Key_Escape)
+        assert page._workflow is None and source.parentWidget() is page.field
+        assert path.read_bytes() == original
+    finally:
+        page.close()

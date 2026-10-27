@@ -1,9 +1,34 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
-Status:    COMPLETE — sparse workflow navigation and cleared-input live field validated; published with this change
+Status:    IN PROGRESS — reopened 2026-10-27 for anchored network emergence, card shape and icon refinement
 Requested: maintainer, 2026-10-26
-Owner:     Codex integration; G1 Home UI; G2 registry/workflow mapping; G4 inference; root publication
+Owner:     G2 graph/cards end to end; G3 independent black-transition/icon diagnosis; retained peers; root integration/publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-27 (supersedes prior network placement)
+
+The first card press must never replace the live field with a black screen.
+Keep the selected card at its original on-screen position; reveal its sparse
+network around that anchor while the surrounding field gradually dims. Both
+field emergence and dimming must be slow, bounded and respect Reduce motion.
+Cards must be square with rounded corners, larger centered sharp module icons
+(including Measure), and elegant curved connections rather than plain blue
+lines. Keep consistent gaps between cards and submodule connector labels,
+including Time. Preserve the sparse downstream hierarchy, access to every
+available tool, fixed scrollable descriptions, explicit second press to open,
+and Back/Escape restoration without changing the inspected source.
+Each visible connection has its own solid circular output port on the source
+card's upper-right edge segment and its own matching input port on the target
+card's lower-left edge segment. All port dots have the same diameter; distribute
+multiple ports evenly with clear gaps. Put the direction arrow at the curved
+line's arc-length midpoint, aligned with its tangent, never at the target tip.
+Mode badges must retain uniform card clearance and never obscure an arrow or
+port. Verify counts, equal dot size, midpoint direction and node clearance.
+G2 owns graph/card implementation and necessary acceptance; G3 independently
+binds the first-click black transition and icon source. Root owns integration
+and normal changed-source outputs. Existing scientific/input/privacy results
+remain retained; validate the changed transition and native appearance before
+whole-item closure. Source/design only while another native lease is live.
 
 REQUIRED BEHAVIOUR
 
@@ -199,3 +224,5 @@ All 21 final owning source/API/runtime/Help/flow checks pass, preserving publish
 2026-10-27 — Native MainWindow evidence exposed seven pixels of clipped first-row content and Light-theme selectors painted dark on dark. The graph now budgets the existing compact guidance height from its actual available row space and gives only its own selectors readable dark surfaces, idle placeholders and popups. Both global-theme owning controls pass; the affected joint native frame and final publication remain with root.
 
 2026-10-27 — Sparse next-step branches, all-tools/remaining-step selectors, readable placeholders and full first child rows pass both-theme native acceptance; matching CQ1 before/after frames confirm stale held-card dark patches disappear after clearing. Whole-window black was not reproduced. The native WM clamps small requests to 1080×650; bare-page 640 px controls do not claim a native 640 px window. All 27 reviewed translations, nine normal locale admissions, ten catalog output peers and four final runtime checks pass; API and Help/flow remain unchanged. Delivered through root Night publication; release CI remains tracked separately in item 43.
+
+2026-10-27 — Reopened before implementation for the maintainer's anchored card/network transition, gradual field dimming, square rounded cards, sharper larger centered icons and consistently spaced curved submodule connectors. G2 owns this refinement, G3 supplies disjoint causal diagnosis, and root retains publication; prior functional/scientific acceptance is preserved subject to directly affected controls.
