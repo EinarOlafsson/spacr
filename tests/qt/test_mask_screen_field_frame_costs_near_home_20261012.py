@@ -210,6 +210,42 @@ def test_a_mask_field_frame_costs_about_a_home_one(big_window, qtbot):
         f"Mask {statistics.median(mask):.1f} ms per frame at 2560x1440)")
 
 
+def test_dock_edge_follows_applied_themes_without_paint_store_reads(
+        applied, qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import QSettings
+    from PySide6.QtGui import QImage
+    from spacr.qt import preferences
+    from spacr.qt.theme import palette_for
+    from spacr.qt.widgets.dock import Dock, DockEdge
+
+    store = QSettings(str(tmp_path / "edge.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: store)
+    dock = Dock([])
+    qtbot.addWidget(dock)
+    edge = DockEdge(dock)
+    qtbot.addWidget(edge)
+    edge.resize(edge.width(), 96)
+    colors = []
+    for theme in ("dark", "light", "dark"):
+        preferences.set_theme(theme)
+        preferences.apply_preferences_to_app(applied)
+        image = QImage(edge.size(), QImage.Format_ARGB32)
+        image.fill(0)
+        edge.render(image)
+        reads = []
+        with monkeypatch.context() as counting:
+            counting.setattr(preferences, "_settings",
+                             lambda: reads.append(theme) or store)
+            for _frame in range(3):
+                edge.render(image)
+        assert reads == []
+        color = image.pixelColor(edge.rect().center().x(), 2).name()
+        assert color == palette_for(theme)["border_soft"].lower()
+        colors.append(color)
+    assert colors[0] != colors[1]
+    assert colors[0] == colors[2]
+
+
 def test_a_mask_field_frame_reads_no_preference_store(big_window, qtbot,
                                                      monkeypatch):
     from spacr.qt import preferences
