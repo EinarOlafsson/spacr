@@ -27,7 +27,7 @@ def _pathogens():
     return pd.DataFrame({
         "plateID": ["p1"] * 4, "rowID": ["A"] * 4,
         "columnID": ["1"] * 4, "fieldID": ["f1"] * 4,
-        "cell_id": [1, 1, 2, 3], "object_label": [1, 2, 1, 1],
+        "cell_id": [1, 1, 2, 3], "object_label": [1, 2, 3, 4],
         "area": [10.0, 20.0, 5.0, 7.0],
         "min_intensity": [1.0, 2.0, 3.0, 4.0],
     })
