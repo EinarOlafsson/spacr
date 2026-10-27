@@ -3864,6 +3864,21 @@ def resolve(key_or_path: Any,
 
 
 
+def _model_precision_kwargs(requested: Any, kwargs: Mapping[str, Any],
+                            records: Optional[Sequence[Mapping[str, Any]]] = None
+                            ) -> Dict[str, Any]:
+    """Honor a model's float32 evaluation contract without changing its device.
+
+    An explicit ``preprocess.use_bfloat16=False`` keeps the same Cellpose
+    weight precision used for that model's scorecard. Other models retain
+    the accelerator resolver's precision choice, including CPU and Metal.
+    """
+    result = dict(kwargs)
+    if _model_preprocess(requested, records).get("use_bfloat16") is False:
+        result["use_bfloat16"] = False
+    return result
+
+
 def _model_preprocess(requested: Any,
                       records: Optional[Sequence[Mapping[str, Any]]] = None
                       ) -> Dict[str, Any]:
