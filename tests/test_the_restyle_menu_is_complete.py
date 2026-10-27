@@ -453,8 +453,8 @@ def test_picking_a_font_colour_off_the_menu_applies_it(volcano, monkeypatch):
     from PySide6.QtGui import QColor
     from PySide6.QtWidgets import QColorDialog
 
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor("#abcdef")))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Accepted)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#abcdef"))
 
     _action(volcano, "Font colour").trigger()
 
@@ -465,8 +465,7 @@ def test_a_cancelled_colour_dialog_changes_nothing(volcano, monkeypatch):
     from PySide6.QtGui import QColor
     from PySide6.QtWidgets import QColorDialog
 
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor()))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Rejected)
 
     _action(volcano, "Font colour").trigger()
 
@@ -588,8 +587,8 @@ def test_asking_for_a_width_never_opens_a_colour_dialog(volcano, monkeypatch):
     opened = []
     monkeypatch.setattr(QInputDialog, "getDouble",
                         staticmethod(lambda *a, **k: (6.0, True)))
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: opened.append(1)))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: (
+        opened.append(1) or QColorDialog.DialogCode.Rejected))
 
     _action(volcano, "Line width").trigger()
 
@@ -606,11 +605,12 @@ def test_no_colour_dialog_in_this_module_asks_the_platform_for_one(volcano,
 
     seen = []
 
-    def spy(initial, parent=None, title="", options=QColorDialog.ColorDialogOptions()):
-        seen.append(options)
-        return QColor("#123456")
+    def spy(dialog):
+        seen.append(dialog.options())
+        return QColorDialog.DialogCode.Accepted
 
-    monkeypatch.setattr(QColorDialog, "getColor", staticmethod(spy))
+    monkeypatch.setattr(QColorDialog, "exec", spy)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#123456"))
 
     _action(volcano, "Line colour").trigger()
     _action(volcano, "Font colour").trigger()
@@ -1291,8 +1291,8 @@ def test_a_cancelled_line_width_never_reaches_the_colour_question(
     asked = []
     monkeypatch.setattr(QInputDialog, "getDouble",
                         staticmethod(lambda *a, **k: (6.0, False)))
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: asked.append(1)))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: (
+        asked.append(1) or QColorDialog.DialogCode.Rejected))
     before = volcano._pen_of(volcano.line_items()[0]).widthF()
 
     _action(volcano, "Line width").trigger()
