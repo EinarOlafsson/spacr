@@ -4733,6 +4733,11 @@ class _EasyWorkflowNode(_WorkflowNode):
         self.view.explain_node(self.key)
         event.accept()
 
+    def hoverLeaveEvent(self, event):
+        """Return candidate connections to the selected neighborhood after hovering."""
+        self.view._show_candidate_edges(self.view._selected_key)
+        event.accept()
+
     def mousePressEvent(self, event):
         """Center this tool first; only the central native card can launch it."""
         if event.button() == Qt.LeftButton:
@@ -4842,6 +4847,7 @@ class _EasyWorkflowView(_WorkflowView):
         from .workflow_diagram import node_description
         from ..i18n import tr
 
+        self._show_candidate_edges(key)
         text = node_description(self.data, key)
         note = self.data['modules'][key].get('documentation_note')
         if note:
@@ -4852,11 +4858,63 @@ class _EasyWorkflowView(_WorkflowView):
         """Keep the selected scene node underneath its central native action card."""
         self._selected_key = key
         self._fitted = True
+        self._arrange_branches(key)
         for candidate, node in self.nodes.items():
             node.setVisible(candidate != key)
         self.describe_node(key, center=True)
         self._center_selected()
         self.explain_node(key)
+
+    def _show_candidate_edges(self, key):
+        """Show documented paths by default and candidate paths only for the inspected tool."""
+        for edge in self.edges:
+            edge.setVisible(edge.edge['kind'] != 'compatible'
+                            or key in (edge.edge['from'], edge.edge['to']))
+
+    def _arrange_branches(self, selected):
+        """Place genuine upstream and downstream branches around the selected module."""
+        from PySide6.QtCore import QPointF
+        from shiboken6 import delete
+
+        records = self.data['easy_connections']
+        levels = {selected: 0}
+        for direction in (-1, 1):
+            frontier = [selected]
+            depth = 0
+            while frontier:
+                depth += direction
+                following = []
+                for key in frontier:
+                    for record in records:
+                        if record['kind'] == 'compatible':
+                            continue
+                        source, destination = record['from'], record['to']
+                        candidate = source if direction < 0 and destination == key else destination if direction > 0 and source == key else None
+                        if candidate in self.nodes and candidate not in levels:
+                            levels[candidate] = depth
+                            following.append(candidate)
+                frontier = following
+        outside = max([abs(level) for level in levels.values()] + [1]) + 1
+        remaining = [key for key in self.nodes if key not in levels]
+        for index, key in enumerate(remaining):
+            levels[key] = (outside + index // 8) * (-1 if index % 2 else 1)
+        for level in sorted(set(levels.values())):
+            keys = [key for key in self.nodes if levels[key] == level]
+            for index, key in enumerate(keys):
+                self.nodes[key].setPos(level * 340, (index - (len(keys) - 1) / 2) * 224)
+        for edge in self.edges:
+            self.scene().removeItem(edge)
+            delete(edge)
+        self.edges = []
+        for record in records:
+            source = self.nodes[record['from']].sceneBoundingRect()
+            destination = self.nodes[record['to']].sceneBoundingRect()
+            forward = destination.center().x() >= source.center().x()
+            edge = _EasyWorkflowEdge(self, record,
+                                     QPointF(source.right() if forward else source.left(), source.center().y()),
+                                     QPointF(destination.left() if forward else destination.right(), destination.center().y()))
+            self.scene().addItem(edge)
+            self.edges.append(edge)
 
     def _center_selected(self):
         """Leave enough scene margin to center even boundary modules without clamping."""
@@ -4947,6 +5005,18 @@ class _EasyWorkflowPage(QWidget):
         self.central = _EasySuggestionCard(action, self)
         self.central.setObjectName('EasySuggestionCard')
         self.central.description.hide()
+        from PySide6.QtWidgets import QBoxLayout
+
+        content = self.central.content.layout()
+        heading = content.itemAt(0).layout()
+        heading.setDirection(QBoxLayout.TopToBottom)
+        heading.setAlignment(Qt.AlignCenter)
+        self.central.icon.setAlignment(Qt.AlignCenter)
+        self.central.icon.setPixmap(self.central.icon.pixmap().scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        title = heading.itemAt(1).widget()
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet('font-family: "Open Sans"; font-size: 20px; font-weight: 300;')
+        content.setAlignment(Qt.AlignCenter)
         self.central.activated.connect(self.open_requested)
         self.central.show()
         self.view.center_selection(key)

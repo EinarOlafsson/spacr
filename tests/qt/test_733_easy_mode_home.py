@@ -702,6 +702,24 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
                        .manhattanLength() <= 2)
         assert workflow.view.transform().m11() == 1.0
         assert workflow.central.width() >= 260 and workflow.central.height() >= 180
+        heading = workflow.central.content.layout().itemAt(0).layout()
+        title = heading.itemAt(1).widget()
+        assert title.font().pixelSize() >= 18
+        assert title.alignment() & Qt.AlignHCenter
+        assert workflow.central.icon.pixmap().width() == 64
+        documented = [edge for edge in workflow.view.edges if edge.edge['kind'] != 'compatible']
+        assert documented and all(edge.isVisible() for edge in documented)
+        unrelated = [edge for edge in workflow.view.edges if edge.edge['kind'] == 'compatible'
+                     and 'mask' not in (edge.edge['from'], edge.edge['to'])]
+        assert unrelated and all(not edge.isVisible() for edge in unrelated)
+        incoming = [workflow.view.nodes[edge.edge['from']] for edge in documented
+                    if edge.edge['to'] == 'mask' and edge.edge['from'] != 'mask']
+        outgoing = [workflow.view.nodes[edge.edge['to']] for edge in documented
+                    if edge.edge['from'] == 'mask' and edge.edge['to'] != 'mask']
+        selected_node = workflow.view.nodes['mask']
+        assert incoming and outgoing
+        assert all(node.pos().x() < selected_node.pos().x() for node in incoming)
+        assert all(node.pos().x() > selected_node.pos().x() for node in outgoing)
         folds = folded_children()
         parents = {child: host for host, children in folds.items() for child in children}
         registered = {row[0] for row in APPS if app_is_visible(row[0])
