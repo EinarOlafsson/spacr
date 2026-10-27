@@ -3848,7 +3848,11 @@ def has_translation(text: object, language: Optional[str] = None) -> bool:
     source = str(text)
     code = normalize_language(language or current_language())
     if code == DEFAULT_LANGUAGE:
-        return source in _ROWS or source in _TERM_ROWS
+        if source in _ROWS or source in _TERM_ROWS:
+            return True
+        from .i18n_catalogs.en import UI_SOURCES
+
+        return source in UI_SOURCES
     return (_exact_translation(source, code) is not None
             or _term_translation(source, code) is not None)
 
