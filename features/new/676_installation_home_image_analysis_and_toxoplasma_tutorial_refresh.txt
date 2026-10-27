@@ -370,3 +370,12 @@ Sevenpriorpublishednewrecordings also requirepausecuts;13/70/19waitforHomeperfor
 58 merges 2341 rows but its brush publishes 656 keys with 0 visible selection and disabled Annotate; final gate accepts 3/23 clips at 12.23–28.88fps. Home owns app fixes; exact evidence/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
 p26/c09 finished normally (lesson rc=2, part rc=0); its queued retry is preserved. 13/70/19 remain held for Home performance fixes; no repeated failing-base retake.
 Continue the 23 missing English voices each for 06/48 and seven prior new-record pause edits, preserving accepted footage/audio. 01 waits for PyPI 1.5.1.6; item676 remains open.
+
+2026-10-26 — Visual review reopens lesson63: the recorded foreground Trellis is collapsed although its plot-data checks pass; narrated four/twelve-panel results are not visible.
+Codex owns the driver correction after divider movement and a fail-closed visible-canvas check; no safe pause-only repair or usable same-base alternate has been found. Retake only after current-nightly native validation; preserve the published source and all50 tracks.
+
+2026-10-26 — Lesson06 now offers all50voices:23newEnglish tracks added; original27 tracks, every visual and all13 published translations preserved.
+All23 new sentence-onset checks pass;107 candidate cases and82 published cases pass (84/59 standard routes plus23 new voices).
+HF n676-ws-06-api-voices-20261026-verified pins8a0102cfc9ef40bffdd465706170ec829d20f6a6; all6917 files/14476508061bytes read back with matching hashes.
+Restored13 exact historical link-only translation-review bindings from5430c0ceab; narration and translated prose are unchanged. Website deployment remains pending.
+Next:48 missing23English voices and six reviewed native pause edits;63 needs a visible Trellis retake, app/performance holds and01 PyPI hold remain. Item676 stays open.

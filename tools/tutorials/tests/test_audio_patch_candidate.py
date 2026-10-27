@@ -14,6 +14,221 @@ from stage_lesson import write
 
 
 @pytest.fixture
+def added_offerings(tmp_path, monkeypatch):
+    """Synthetic bytes exercise scope only; no audio is synthesized or decoded."""
+    from append_staged_lessons import JS_PREFIX, JS_SUFFIX
+    from apply_translation_review import translated_lesson
+    from render_all_voices import LANGUAGES
+    baseline, stage, repo = [tmp_path / name for name in ('baseline', 'stage', 'repo')]
+    identity = '06_api'
+    canonical = dict(id=identity, number=6, title='API', description='Use the API.',
+                     objectives=['Inspect inputs.'], prerequisite='Open Python.',
+                     scenes=[dict(visual='reference', narration='Inspect the inputs.')])
+    inventory = {language: list(pair[1]) for language, pair in LANGUAGES.items()}
+    old_voices = {**inventory, 'en': ['af_heart']}
+    english = dict(canonical, narration_voices=old_voices)
+    other = dict(id='01_intro', scenes=[dict(narration='Unchanged.')])
+    for name in CATALOGS:
+        language = name.split('_', 1)[1].removesuffix('.json')
+        if language == 'en':
+            localized = deepcopy(english)
+        else:
+            review = dict(lesson=identity, language=language,
+                          english_sha256=hashlib.sha256(json.dumps(canonical, sort_keys=True,
+                                                       ensure_ascii=False).encode()).hexdigest(),
+                          scenes=[language + ': Inspect the inputs.'],
+                          **{key: canonical[key] for key in
+                             ('title', 'description', 'objectives', 'prerequisite')})
+            localized = translated_lesson(review, english, {})
+            write(repo / 'tools/tutorials/lessons/reviews' / f'{identity}.{language}.json', review)
+        for root in (baseline / 'web', stage):
+            write(root / 'catalog' / name, dict(schema=1, lessons=[other, localized]))
+    write(repo / 'tools/tutorials/lessons' / f'{identity}.json', canonical)
+    write(stage / 'production' / identity / 'lesson.en.json', canonical)
+    runtime = dict(lessons=[other, dict(english, web=f'{identity}/web/{identity}_silent.mp4')])
+    (baseline / 'web/lesson_catalog.js').write_text(JS_PREFIX + json.dumps(runtime) + JS_SUFFIX)
+    records = []
+    for language, voices in inventory.items():
+        localized = next(row for row in patch.read(stage / 'catalog' / f'lessons_{language}.json')['lessons']
+                         if row['id'] == identity)
+        for voice in voices:
+            audio = stage / 'production' / identity / 'audio' / language / (voice + '.m4a')
+            audio.parent.mkdir(parents=True, exist_ok=True)
+            audio.write_bytes((language + '/' + voice).encode())
+            timing = dict(schema=1, language=language, voice=voice, media_sha256=patch.digest(audio),
+                          total_duration=2., render_inputs=dict(lesson=identity, language=language,
+                          voice=voice, scenes=localized['scenes']),
+                          scenes=[dict(scene=1, text=localized['scenes'][0]['narration'],
+                                       speech_start=0., speech_end=1., scene_end=2., duration=2.)])
+            write(audio.with_suffix('.json'), timing)
+            if voice in old_voices[language]:
+                for path in (audio, audio.with_suffix('.json')):
+                    relative = f'media_host/{identity}/audio/{language}/{path.name}'
+                    destination = baseline / relative
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(path.read_bytes())
+                    records.append(dict(path=relative, sha256=patch.digest(path), bytes=path.stat().st_size))
+    for relative in (f'media_host/{identity}/video/{identity}_silent.mp4',
+                     f'media_host/{identity}/web/{identity}_silent.mp4',
+                     f'web/production/{identity}/poster.jpg', 'web/app_v2.js'):
+        path = baseline / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(relative.encode())
+        records.append(dict(path=relative, sha256=patch.digest(path), bytes=path.stat().st_size))
+    for path in [*(baseline / 'web/catalog').glob('*.json'), baseline / 'web/lesson_catalog.js']:
+        records.append(dict(path=path.relative_to(baseline).as_posix(), sha256=patch.digest(path),
+                            bytes=path.stat().st_size))
+    write(baseline / 'release-manifest.json', dict(files=records, routes=2, ready_lessons=2,
+                                                 ceiling_bytes=10**7, narration_tracks=27))
+    write(baseline / 'checks/candidate-browser-checks.json', dict(passed=True,
+          manifest_sha256=patch.digest(baseline / 'release-manifest.json'),
+          ready_playback_cases=[dict(passed=True), dict(passed=True)]))
+    monkeypatch.setattr(patch, 'REPO', repo)
+    return baseline, stage, repo, identity
+
+
+def test_add_offerings_preserves_old_tracks_visuals_clock_and_other_objects(added_offerings, monkeypatch):
+    baseline, stage, _, identity = added_offerings
+    before = {row['path']: row for row in patch.read(baseline / 'release-manifest.json')['files']}
+    checked = []
+    monkeypatch.setattr(patch, 'validate', lambda *args, **kwargs: None)
+    monkeypatch.setattr(patch, 'require_published_script_baseline', lambda *args: None)
+    monkeypatch.setattr(patch, 'verify_current_tracks', lambda base, rows: checked.extend(rows))
+    candidate = patch.build(baseline, stage, [identity], add_english_offerings=True)
+    assert len(checked) == 23 and all(row['voice'] != 'af_heart' for row in checked)
+    after = {row['path']: row for row in patch.read(candidate / 'release-manifest.json')['files']}
+    changed = {'web/lesson_catalog.js', *('web/catalog/' + name for name in CATALOGS)}
+    for relative, row in before.items():
+        if relative not in changed:
+            assert after[relative] == row
+            assert (candidate / relative).read_bytes() == (baseline / relative).read_bytes()
+    assert len(set(after) - set(before)) == 46
+    for relative in changed:
+        old = (patch.parse_javascript((baseline / relative).read_text()) if relative.endswith('.js')
+               else patch.read(baseline / relative))
+        new = (patch.parse_javascript((candidate / relative).read_text()) if relative.endswith('.js')
+               else patch.read(candidate / relative))
+        selected = new['lessons'][1]
+        assert sum(map(len, selected['narration_voices'].values())) == 50
+        selected['narration_voices'] = old['lessons'][1]['narration_voices']
+        assert new == old
+
+
+@pytest.fixture
+def browser_offering_candidate(added_offerings, monkeypatch):
+    baseline, stage, _, identity = added_offerings
+    monkeypatch.setattr(patch, 'validate', lambda *args, **kwargs: None)
+    monkeypatch.setattr(patch, 'require_published_script_baseline', lambda *args: None)
+    monkeypatch.setattr(patch, 'verify_current_tracks', lambda *args: None)
+    return patch.build(baseline, stage, [identity], add_english_offerings=True)
+
+
+def test_added_offering_browser_preserves_all_heart_cases_and_adds_exact23(browser_offering_candidate):
+    from verify_release_candidate import added_offering_cases, playback_cases
+    candidate = browser_offering_candidate
+    manifest = patch.read(candidate / 'release-manifest.json')
+    added = added_offering_cases(candidate, manifest)
+    full = [dict(id=f'lesson{i}') for i in range(83)] + [dict(id='06_api')]
+    for ready in (full, full[25:]):
+        cases = playback_cases(ready, added)
+        assert cases[:len(ready)] == [(row, 'af_heart', False) for row in ready]
+        assert len(cases) == len(ready) + 23
+        assert all(row['id'] == '06_api' and voice != 'af_heart' and extra
+                   for row, voice, extra in cases[len(ready):])
+    with pytest.raises(ValueError, match='active playable'):
+        playback_cases(full[:-1], added)
+    assert added_offering_cases(candidate, {}) == []
+
+
+@pytest.mark.parametrize('change', ['lesson', 'dropped', 'duplicate', 'heart', 'language',
+                                   'hash', 'audio_bytes', 'timing_bytes', 'catalog', 'runtime'])
+def test_added_offering_browser_rejects_incomplete_or_unbound_scope(browser_offering_candidate, change):
+    from verify_release_candidate import added_offering_cases
+    candidate = browser_offering_candidate
+    manifest = patch.read(candidate / 'release-manifest.json')
+    tracks = manifest['audio_patch_tracks']
+    if change == 'lesson':
+        manifest['added_english_offerings'] = ['05_home']
+    elif change == 'dropped':
+        tracks.pop()
+    elif change == 'duplicate':
+        tracks[-1] = tracks[0]
+    elif change == 'heart':
+        tracks[0]['voice'] = 'af_heart'
+    elif change == 'language':
+        tracks[0]['language'] = 'es'
+    elif change == 'hash':
+        tracks[0]['audio_sha256'] = '0' * 64
+    elif change in {'audio_bytes', 'timing_bytes'}:
+        suffix = '.m4a' if change == 'audio_bytes' else '.json'
+        (candidate / f"media_host/06_api/audio/en/{tracks[0]['voice']}{suffix}").write_bytes(b'drift')
+    elif change == 'catalog':
+        path = candidate / 'web/catalog/captions_de.json'
+        value = patch.read(path)
+        value['lessons'][1]['narration_voices']['en'].pop()
+        write(path, value)
+    else:
+        from append_staged_lessons import JS_PREFIX, JS_SUFFIX
+        path = candidate / 'web/lesson_catalog.js'
+        value = patch.parse_javascript(path.read_text())
+        value['lessons'][1]['narration_voices']['en'].pop()
+        path.write_text(JS_PREFIX + json.dumps(value) + JS_SUFFIX)
+    with pytest.raises(ValueError):
+        added_offering_cases(candidate, manifest)
+
+
+def test_added_offering_navigation_avoids_appended_case_collision():
+    from verify_release_candidate import next_playable_lesson
+    ready = [dict(id='01_intro'), dict(id='06_api'), dict(id='07_mask')]
+    assert next_playable_lesson(ready, '06_api', 1) == '07_mask'
+    # The first appended case has position3; the old formula selected06 again.
+    assert next_playable_lesson(ready, '06_api', 3) == '01_intro'
+    with pytest.raises(ValueError, match='different ready'):
+        next_playable_lesson([dict(id='06_api')], '06_api', 1)
+
+
+@pytest.mark.parametrize('change', ['old_audio', 'old_timing', 'missing_old', 'metadata',
+                                    'review', 'canonical', 'extra_voice', 'clock'])
+def test_add_offerings_rejects_drift_before_final_audio_check(added_offerings, change):
+    baseline, stage, repo, identity = added_offerings
+    if change in {'old_audio', 'old_timing', 'missing_old'}:
+        path = stage / 'production' / identity / 'audio/en' / (
+            'af_heart.json' if change == 'old_timing' else 'af_heart.m4a')
+        if change == 'missing_old':
+            path.rename(path.with_suffix('.held'))
+        else:
+            path.write_bytes(b'mutated')
+    elif change == 'extra_voice':
+        (stage / 'production' / identity / 'audio/en/unapproved.m4a').write_bytes(b'extra')
+    elif change == 'clock':
+        path = baseline / 'media_host' / identity / 'audio/en/af_heart.json'
+        data = patch.read(path)
+        data['scenes'][0]['scene'] = 2
+        write(path, data)
+    else:
+        path = (stage / 'catalog/captions_de.json' if change == 'metadata' else
+                repo / 'tools/tutorials/lessons/reviews' / f'{identity}.fr.json' if change == 'review' else
+                repo / 'tools/tutorials/lessons' / f'{identity}.json')
+        data = patch.read(path)
+        if change == 'metadata':
+            data['lessons'][0]['title'] = 'Unrelated change'
+        elif change == 'review':
+            data['scenes'][0] = 'Different narration'
+        else:
+            data['title'] = 'Changed'
+        write(path, data)
+    with pytest.raises(ValueError):
+        patch.offering_patch_plan(baseline, stage, [identity])
+    assert not list(stage.glob('release-candidate-*'))
+
+
+@pytest.mark.parametrize('ids', [[], ['06_api', '48_hit_list'], ['07_mask']])
+def test_add_offerings_is_explicit_single_lesson_scope(ids):
+    with pytest.raises(ValueError, match='exactly one'):
+        patch.offering_patch_plan(Path('unused'), Path('unused'), ids)
+
+
+@pytest.fixture
 def staged(tmp_path, monkeypatch):
     baseline, stage, repo = [tmp_path / name for name in ('baseline', 'stage', 'repo')]
     canonical = {'id': '07_mask', 'number': 7, 'title': 'Masks',
@@ -280,3 +495,29 @@ def test_script_visual_reuse_requires_original_complete_publication(refreshed_sc
     write(path,data)
     with pytest.raises(ValueError):
         patch.require_published_script_baseline(baseline,json.loads((baseline/'release-manifest.json').read_text()))
+
+
+@pytest.mark.parametrize('change', [None, 'drop_active', 'ready', 'routes', 'hosted_web_copies'])
+def test_script_publication_requires_exact_archive_projection(refreshed_scripts, monkeypatch, change):
+    import archive_lessons
+    baseline, _, _, identity = refreshed_scripts
+    monkeypatch.setattr(archive_lessons.archived, 'ARCHIVED_IDS', (identity,))
+    receipt = patch.read(baseline / 'publication-receipt.json')
+    checks = patch.read(baseline / 'checks/published-media-browser-checks.json')
+    checks['ready_playback_cases'] = [row for row in checks['ready_playback_cases']
+                                     if row['lesson'] != identity]
+    assert len(checks['ready_playback_cases']) == 1
+    receipt['pages'].update(ready=1, routes=1, hosted_web_copies=0)
+    if change == 'drop_active':
+        checks['ready_playback_cases'] = []
+        receipt['pages'].update(ready=0, routes=0, hosted_web_copies=0)
+    elif change is not None:
+        receipt['pages'][change] += 1
+    write(baseline / 'publication-receipt.json', receipt)
+    write(baseline / 'checks/published-media-browser-checks.json', checks)
+    manifest = patch.read(baseline / 'release-manifest.json')
+    if change is None:
+        patch.require_published_script_baseline(baseline, manifest)
+    else:
+        with pytest.raises(ValueError, match='exact complete published'):
+            patch.require_published_script_baseline(baseline, manifest)
