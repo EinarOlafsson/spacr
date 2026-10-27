@@ -8683,23 +8683,23 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apri Classify da Home. Inizia scegliendo la famiglia di classificatori. Le lezioni su immagini e dati tabellari collegate qui presentano ciascuna un esempio completo.",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Classify da Home. Inizia scegliendo la famiglia di classificatori. Le lezioni su immagini e dati tabellari collegate qui presentano ciascuna un esempio completo."
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Scegli Computer Vision per imparare dalle immagini degli oggetti. Scegli Tabular Machine Learning per imparare da colonne di caratteristiche misurate. Measure fornisce questi input e Annotate ti permette di aggiungere etichette agli oggetti.",
-          "hold_after": 0.7,
-          "speech_text": "Scegli Computer Vision per imparare dalle immagini degli oggetti. Scegli Tabular Machine Learning per imparare da colonne di caratteristiche misurate. Measure fornisce questi input e Annotate ti permette di aggiungere etichette agli oggetti.",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Scegli Computer Vision per imparare dalle immagini degli oggetti. Scegli Tabular Machine Learning per imparare da colonne di caratteristiche misurate. Measure fornisce questi input e Annotate ti permette di aggiungere etichette agli oggetti."
         },
         {
           "visual": "main_03_tabular_family",
@@ -8710,21 +8710,21 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
-          "speech_text": "La vista Essentials raccoglie le impostazioni di cui entrambe le famiglie hanno bisogno per l’addestramento. Quando passa a Tabular Machine Learning, le impostazioni di Computer Vision diventano grigie, così compila solo ciò che usa la famiglia scelta.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La vista Essentials raccoglie le impostazioni di cui entrambe le famiglie hanno bisogno per l’addestramento. Quando passa a Tabular Machine Learning, le impostazioni di Computer Vision diventano grigie, così compila solo ciò che usa la famiglia scelta."
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "Per l’esempio tabellare, fai clic su Load test data e scegli Load. Seleziona le etichette di classe e le impostazioni delle caratteristiche, poi segui la lezione tabellare per addestrare il modello e salvare le previsioni.",
-          "hold_after": 0.7,
-          "speech_text": "Per l’esempio tabellare, fai clic su Load test data e scegli Load. Seleziona le etichette di classe e le impostazioni delle caratteristiche, poi segui la lezione tabellare per addestrare il modello e salvare le previsioni.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per l’esempio tabellare, fai clic su Load test data e scegli Load. Seleziona le etichette di classe e le impostazioni delle caratteristiche, poi segui la lezione tabellare per addestrare il modello e salvare le previsioni."
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8735,11 +8735,11 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Dopo l’esecuzione tabellare, esamina la mappa di calore delle previsioni e i punteggi salvati per oggetto. Gli oggetti privi di misure necessarie possono restare senza punteggio. Controlla i risultati della valutazione per decidere se rivedere etichette, caratteristiche o impostazioni del modello.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Dopo l’esecuzione tabellare, esamina la mappa di calore delle previsioni e i punteggi salvati per oggetto. Gli oggetti privi di misure necessarie possono restare senza punteggio. Controlla i risultati della valutazione per decidere se rivedere etichette, caratteristiche o impostazioni del modello."
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8750,11 +8750,11 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "Per la classificazione di immagini, segua la lezione Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, controlli le curve di perdita e di accuratezza, poi esamini le figure di valutazione e le previsioni salvate.",
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per la classificazione di immagini, segua la lezione Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, controlli le curve di perdita e di accuratezza, poi esamini le figure di valutazione e le previsioni salvate."
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8765,11 +8765,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apri Classifier Evaluation dagli strumenti in alto a destra. Seleziona un pacchetto di valutazione salvato per esaminare previsioni, metriche e suddivisione dei dati.",
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Classifier Evaluation dagli strumenti in alto a destra. Seleziona un pacchetto di valutazione salvato per esaminare previsioni, metriche e suddivisione dei dati."
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8780,11 +8780,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apri Explain CV per collegare le previsioni di un classificatore di immagini alle caratteristiche misurate. Fornisci i risultati delle previsioni sulle immagini e le misure corrispondenti, poi esamina quali caratteristiche spiegano i punteggi.",
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Explain CV per collegare le previsioni di un classificatore di immagini alle caratteristiche misurate. Fornisci i risultati delle previsioni sulle immagini e le misure corrispondenti, poi esamina quali caratteristiche spiegano i punteggi."
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8795,11 +8795,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apri Activation per vedere quali regioni dell’immagine influenzano le risposte del modello. Seleziona il checkpoint addestrato e usa gli stessi canali e la stessa preelaborazione dell’addestramento.",
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Activation per vedere quali regioni dell’immagine influenzano le risposte del modello. Seleziona il checkpoint addestrato e usa gli stessi canali e la stessa preelaborazione dell’addestramento."
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8810,20 +8810,20 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apri Training Runs per confrontare storici di addestramento salvati. Seleziona esecuzioni con metriche e suddivisioni dei dati compatibili, poi esamina le curve di apprendimento e le impostazioni.",
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Training Runs per confrontare storici di addestramento salvati. Seleziona esecuzioni con metriche e suddivisioni dei dati compatibili, poi esamina le curve di apprendimento e le impostazioni."
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Apri Feature Explorer per confrontare le caratteristiche misurate tra gruppi selezionati. Scegli gruppi e filtri, poi esamina la classifica delle caratteristiche e i grafici.",
-          "hold_after": 0.7,
-          "speech_text": "Apri Feature Explorer per confrontare le caratteristiche misurate tra gruppi selezionati. Scegli gruppi e filtri, poi esamina la classifica delle caratteristiche e i grafici.",
           "related_lessons": [
             "65_feature_explorer"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Apri Feature Explorer per confrontare le caratteristiche misurate tra gruppi selezionati. Scegli gruppi e filtri, poi esamina la classifica delle caratteristiche e i grafici."
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8834,19 +8834,42 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Conserva il modello addestrato, le previsioni e i risultati della valutazione nella cartella dell’esecuzione. Puoi usare i punteggi per oggetto in Regression insieme ai conteggi delle guide corrispondenti. Le lezioni collegate sui moduli mostrano i passi successivi.",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conserva il modello addestrato, le previsioni e i risultati della valutazione nella cartella dell’esecuzione. Puoi usare i punteggi per oggetto in Regression insieme ai conteggi delle guide corrispondenti. Le lezioni collegate sui moduli mostrano i passi successivi."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
