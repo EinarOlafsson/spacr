@@ -13,7 +13,7 @@ WELLS = ("A01", "A02", "B01", "B02")
 
 
 @pytest.fixture
-def overview(qtbot, tmp_path):
+def overview(qtbot, tmp_path, request):
     from spacr.qt.screens.app_screen import AppScreen
 
     folder = tmp_path / "images"
@@ -23,7 +23,8 @@ def overview(qtbot, tmp_path):
             tifffile.imwrite(folder / f"p1-{well}-f{field}-c1.tif",
                              np.arange(1200, dtype=np.uint16).reshape(30, 40) + index + field)
     screen = AppScreen("overview")
-    qtbot.addWidget(screen)
+    request.addfinalizer(screen.deleteLater)
+    request.addfinalizer(screen.close)
     screen.resize(1500, 1000)
     screen.show()
     assert screen._settings_model.set_value_for_key("overview_max_fields", "all")
@@ -55,7 +56,6 @@ def overview(qtbot, tmp_path):
     page.retire()
     from spacr.qt.bridge import prune_parked_threads
     qtbot.waitUntil(lambda: prune_parked_threads() == 0, timeout=15000)
-    screen.close()
 
 
 def _open_wells(view, qtbot):
