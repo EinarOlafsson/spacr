@@ -114,14 +114,17 @@ def _easy_workflow_data(apps, visible_keys, folded_children=None, *,
         node.setdefault("inputs", [])
         node.setdefault("outputs", [])
         modules[key] = node
+    owners = []
     for tool in subtools:
         key, host = tool["key"], tool["host_key"]
         if key in modules or host not in modules or not tool.get("route"):
             continue
         node = copy.deepcopy(tool)
-        node.update(requested_key=key, section=modules[host]["section"],
-                    inputs=[], outputs=[])
+        node.update(requested_key=key, section=modules[host]["section"])
+        node.setdefault("inputs", [])
+        node.setdefault("outputs", [])
         modules[key] = node
+        owners.append((host, key))
     result["modules"] = modules
     result["connections"] = [edge for edge in result.get("connections", ())
                              if edge["from"] in modules and edge["to"] in modules]
@@ -130,6 +133,11 @@ def _easy_workflow_data(apps, visible_keys, folded_children=None, *,
         edge["strength"] = 2 if edge["kind"] == "documented" else 1
         edge["mode_labels"] = list((mode_labels or {}).get(
             (edge["from"], edge["to"]), ()))
+    for host, key in owners:
+        edges = [edge for edge in edges
+                 if (edge["from"], edge["to"]) != (host, key)]
+        edges.append({"from": host, "to": key, "artifacts": [], "handoff": "",
+                      "kind": "containment", "strength": 0, "mode_labels": []})
     result["easy_connections"] = edges
     return result
 
@@ -186,6 +194,9 @@ def edge_description(data, edge):
         pathway prerequisite. Inferred links do not establish file compatibility.
     """
     source, target = (tr(data["modules"][edge[k]]["name"]) for k in ("from", "to"))
+    if edge["kind"] == "containment":
+        return (f'<b>{escape(source)} → {escape(target)}.</b> ' +
+                escape(tr(data["modules"][edge["to"]].get("guidance", ""))))
     if edge["kind"] == "documented":
         explanation = tr(edge["handoff"])
     elif edge["kind"] == "compatible":

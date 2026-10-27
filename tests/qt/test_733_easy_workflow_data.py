@@ -3,7 +3,7 @@
 import copy
 import sys
 
-from spacr.qt.widgets.workflow_diagram import _easy_workflow_data, workflow_map
+from spacr.qt.widgets.workflow_diagram import _easy_workflow_data, edge_description, workflow_map
 
 
 APPS = (("mask", "Mask", "Generate masks", "Images"),
@@ -68,7 +68,21 @@ def test_easy_graph_owner_subtools_have_explicit_routes_and_no_invented_io():
     overview = result["modules"]["overview"]
     assert overview["route"] == "overview" and overview["host_key"] == "mask"
     assert overview["inputs"] == overview["outputs"] == []
-    assert not any("overview" in (edge["from"], edge["to"])
-                   for edge in result["easy_connections"])
+    edges = [edge for edge in result["easy_connections"]
+             if "overview" in (edge["from"], edge["to"])]
+    assert edges == [{"from": "mask", "to": "overview", "artifacts": [],
+                      "handoff": "", "kind": "containment", "strength": 0,
+                      "mode_labels": []}]
+    description = edge_description(result, edges[0])
+    assert "Mask" in description and "Overview" in description
+    assert tool["guidance"] in description
+    assert "prerequisite" not in description and "transfer" not in description
+    explicit = dict(tool, inputs=["raw_images"], outputs=["figures"])
+    with_ports = _easy_workflow_data(APPS, {"mask", "measure"}, subtools=(explicit,))
+    assert with_ports["modules"]["overview"]["inputs"] == ["raw_images"]
+    assert with_ports["modules"]["overview"]["outputs"] == ["figures"]
+    owner_edge = next(edge for edge in with_ports["easy_connections"]
+                      if (edge["from"], edge["to"]) == ("mask", "overview"))
+    assert owner_edge["kind"] == "containment" and owner_edge["artifacts"] == []
     assert "overview" not in _easy_workflow_data(APPS, {"measure"}, subtools=(tool,))["modules"]
     assert "inputs" not in tool
