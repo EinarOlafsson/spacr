@@ -433,7 +433,8 @@ def inner(args) -> int:
                            QT_OPENGL='software', QT_QUICK_BACKEND='software', CUDA_VISIBLE_DEVICES='',
                            GDK_BACKEND='x11', GIO_USE_VFS='local', TMPDIR=str(dirs['run']))
                 x11 = dirs['run'] / 'x11'
-                x11.mkdir(mode=0o700)
+                x11.mkdir(mode=0o1777)
+                x11.chmod(0o1777)
                 bus_address = env['DBUS_SESSION_BUS_ADDRESS']
                 bus_binds = []
                 if bus_address.startswith('unix:path='):

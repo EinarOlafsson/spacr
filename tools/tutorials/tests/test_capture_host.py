@@ -236,6 +236,8 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
             assert values['DISPLAY'] == ':98' and values['CUDA_VISIBLE_DEVICES'] == ''
             assert values['GALLIUM_DRIVER'] == 'llvmpipe'
             assert values['TMPDIR'] == str(tmp_path / 'run')
+            assert (tmp_path / 'run').stat().st_mode & 0o777 == 0o700
+            assert (tmp_path / 'run/x11').stat().st_mode & 0o1777 == 0o1777
             assert values['__EGL_VENDOR_LIBRARY_FILENAMES'] == '/usr/share/glvnd/egl_vendor.d/50_mesa.json'
             assert values['DBUS_SYSTEM_BUS_ADDRESS'] == 'unix:path=' + str(tmp_path / 'run/logind-proxy')
             raise RuntimeError('stop before starting a compositor')
