@@ -38,9 +38,9 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub issues
 
-.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
+.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause-blue
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-   :alt: BSD 3-Clause with additional terms
+   :alt: BSD 3-Clause
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
