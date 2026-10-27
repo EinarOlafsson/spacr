@@ -396,3 +396,9 @@ Website deployment remains queued; next are six reviewed pause edits. Lesson63 n
 Lesson85 reviewed pause edit rendered from that baseline with all50 original tracks retained; complete master decode/PTS, poster and web-rendition validation pass.
 Normal published-edit route now binds explicit reviewed source idle fences and preserves seekable terminal frames;14 affected private tests retained against the exact integrated source.
 Generated edited85 idle policy adopted without changing other lesson policies; strict all50-voice browser/gap checks and publication remain pending.
+
+2026-10-26 — Lesson85 pause edits delivered inae87d10f7e: all50 original tracks retained,650 measured gaps0.800–1.065s,72 matrix cases and59 published routes pass.
+HFd6b7d25e68d3e9041b1309b15e39abc054eec246 readback matches6963files/14535942655bytes;64 pin tests pass with the existing Node-dependent skip.
+Codex next owns lesson56 reviewed pause cuts on that exact candidate baseline; preserve all50 narration tracks and every demonstrated picker/path/measurement action, then require strict browser gaps and normal publication.
+Native capture/app blockers, lesson63 visible Trellis retake and01 PyPI hold remain; live website deployment still needs confirmation.
+Lesson56 edited master, complete decode/PTS, poster and web copy pass; generated14-scene idle policy adopted while preserving other policies. Strict50-voice gap checks/publication remain pending.
