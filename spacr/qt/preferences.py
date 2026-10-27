@@ -5457,8 +5457,8 @@ RETIRED_DOCK_MODES = {"auto": "locked"}
 
 
 def get_easy_mode() -> bool:
-    """Whether the content-guided Easy mode Home is enabled (default: ``False``)."""
-    return _as_bool(_settings().value(_KEY_EASY_MODE, False), False)
+    """Whether the content-guided Easy mode Home is enabled (default: ``True``)."""
+    return _as_bool(_settings().value(_KEY_EASY_MODE, True), True)
 
 
 def set_easy_mode(on: bool) -> None:

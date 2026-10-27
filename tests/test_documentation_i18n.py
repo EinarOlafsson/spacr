@@ -154,15 +154,89 @@ def _retired_732_remote_api(docs):
 
 
 def _easy_mode_733_api_arrivals(docs):
-    """Bind the four Easy mode accessors to their complete canonical source text."""
+    """Bind current accessors while retaining their four original arrival records."""
     entries = json.loads((ROOT / "tests/data/release_contracts"
         / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    return _current_733_easy_mode_api(entries, docs)
+
+
+def _current_735_volume_api(entries, docs=None):
+    """Bind reviewed numeric NPY guidance without changing the historical arrival pin."""
+    assert len(entries) == 32
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True).encode()).hexdigest() == '126e9f50d91aa19b1d5013dc65a71a878adce3031a778ad110b514491005e208'
+    current = dict(entries)
+    symbol = 'spacr.qt.mask_engine.load_volume_image_and_mask'
+    current[symbol] = current[symbol].replace(
+        "means pixel coordinates.\nLabels retain", "means pixel coordinates.\nNumeric NPY volumes require an explicitly reviewed ZYX layout and image\nchannel; their spacing is in pixels and pickle is disabled.\nLabels retain")
+    current[symbol] = current[symbol].replace(
+        ":param filename: spatial TIFF or MRC volume filename.",
+        ":param filename: spatial TIFF, MRC or reviewed numeric NPY volume filename.")
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == '624c0f6738adc0ffba86ccf18e0a17f26ab4a0a238b7e175bd81156deadd1e04'
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_volume", "historical_other", "current_volume", "current_other"])
+def test_npy_revision_preserves_the_historical_volume_pin(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_735_volume_api(entries)
+    volume = "spacr.qt.mask_engine.load_volume_image_and_mask"
+    other = next(key for key in entries if key != volume)
+    assert entries == historical
+    assert all(current[key] == entries[key] for key in entries if key != volume)
+    if mutation == "historical_volume":
+        entries[volume] = current[volume]
+    elif mutation == "historical_other":
+        entries[other] += " changed"
+    elif mutation == "current_volume":
+        current[volume] = historical[volume]
+    else:
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        _current_735_volume_api(entries, current)
+
+
+def _current_733_easy_mode_api(entries, docs=None):
+    """Admit only the reviewed default-enabled getter over the original source pin."""
     expected = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
     assert entries.keys() == expected.keys()
-    assert {key: docs[key] for key in entries} == entries
     assert {key: hashlib.sha256(body.encode()).hexdigest()
             for key, body in entries.items()} == expected
-    return entries
+    current = dict(entries)
+    symbol = "spacr.qt.preferences.get_easy_mode"
+    current[symbol] = "Whether the content-guided Easy mode Home is enabled (default: ``True``)."
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "463248d1e222fc2757eb571f8512d74818561c9bc8899ef3bfedb998b95b3bea"
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_getter", "historical_dock", "current_getter", "current_dock", "extra_symbol"])
+def test_navigator_default_revision_preserves_the_historical_api_pin(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_733_easy_mode_api(entries)
+    getter = "spacr.qt.preferences.get_easy_mode"
+    dock = "spacr.qt.preferences.get_easy_mode_dock"
+    assert entries == historical
+    assert "``False``" in entries[getter] and "``True``" in current[getter]
+    assert all(current[key] == entries[key] for key in entries if key != getter)
+    if mutation == "historical_getter":
+        entries[getter] = current[getter]
+    elif mutation == "historical_dock":
+        entries[dock] += " changed"
+    elif mutation == "current_getter":
+        current[getter] = historical[getter]
+    elif mutation == "current_dock":
+        current[dock] += " changed"
+    else:
+        entries["spacr.qt.preferences.extra"] = "Unregistered arrival."
+    with pytest.raises(AssertionError):
+        _current_733_easy_mode_api(entries, current)
 
 
 def _current_718_metal_class_api(entries, docs):
@@ -3309,6 +3383,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     assert len(volume_arrivals) == 32
+    volume_arrivals = _current_735_volume_api(volume_arrivals, docs)
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
     # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the

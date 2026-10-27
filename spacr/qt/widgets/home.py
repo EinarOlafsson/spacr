@@ -3903,7 +3903,8 @@ def _easy_file_kind(path, metadata=None):
                  and stream.tell() + math.prod(shape) * dtype.itemsize
                  <= os.stat(path, follow_symlinks=False).st_size)
         if metadata is not None:
-            metadata.update(shape=list(shape), axes='', axes_unresolved=True)
+            metadata.update(shape=list(shape), dtype=str(dtype), dtype_kind=dtype.kind,
+                            axes='', axes_unresolved=True)
         return 'array' if valid else 'unsupported'
     try:
         with Image.open(io.BytesIO(header)) as image:
@@ -4599,6 +4600,236 @@ def _easy_regex_evidence(images, chosen, hints):
                 sample_filenames=names, img_format=extension, groups=groups, required=True)
 
 
+def _easy_generated_sample(folder, depth=4):
+    """Inspect a fixed directory/entry budget inside a canonical output folder."""
+    from itertools import islice
+
+    pending, files, directories, entries_left = [(folder, 0)], [], 0, 1024
+    while pending and directories < 24 and entries_left > 0:
+        current, level = pending.pop(0)
+        if current.is_symlink():
+            continue
+        directories += 1
+        try:
+            with os.scandir(current) as entries:
+                sampled = list(islice(entries, min(entries_left, 128)))
+            entries_left -= len(sampled)
+            for entry in sampled:
+                if entry.name.startswith('.') or entry.is_symlink():
+                    continue
+                candidate = type(folder)(entry.path)
+                if entry.is_file(follow_symlinks=False):
+                    files.append(candidate)
+                elif level < depth and entry.is_dir(follow_symlinks=False):
+                    pending.append((candidate, level + 1))
+        except OSError:
+            continue
+    return files
+
+
+def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False):
+    """Recognize bounded canonical outputs and enumerate their shared workflow consumers."""
+    import sqlite3
+    from pathlib import Path
+
+    from ...ports import CROPS, MASKS, MERGED_ARRAYS, MODEL_WEIGHTS, PORTS
+    from ..i18n import tr
+
+    empty = dict(project='', artifacts=[], routes={})
+    canonical = {Path(port.path).parts[0] for spec in PORTS.values()
+                 for port in spec.produces if port.path and '/' not in port.path.strip('/')}
+    canonical.update(('measurements',))
+    folder = path if path.is_dir() else path.parent
+    owner = next((parent for parent in (folder, *tuple(folder.parents)[:4])
+                  if parent.name in canonical), None)
+    if path.is_file() and (owner is None or
+            not (path.suffix.lower() == '.npy' and owner.name in ('merged', 'masks')
+                 or path.suffix.lower() == '.pth' and owner.name == 'model'
+                 or path.suffix.lower() == '.png' and owner.name == 'data'
+                 and path.parent.name.endswith('_png')
+                 or path.name == 'measurements.db' and owner.name == 'measurements'
+                 or any(item['path'] == str(path) for item in run_evidence['results']))):
+        return empty
+    project = owner.parent if owner is not None else folder
+    if owner is None:
+        discovered = next((item for item in schemas if item['objects'] and item['numeric']), None)
+        if discovered is not None:
+            discovered_database = Path(discovered['path'])
+            discovered_project = (discovered_database.parent.parent
+                                  if discovered_database.parent.name == 'measurements'
+                                  else discovered_database.parent)
+            if discovered_project.is_relative_to(folder):
+                project = discovered_project
+    if calibrated or os.path.lexists(project / 'plate_batch.json') or os.path.lexists(
+            project / 'psf' / 'segmentation_application.json'):
+        return empty
+    artifacts = []
+    port_kinds = {MERGED_ARRAYS: 'merged', MASKS: 'masks', CROPS: 'crops',
+                  MODEL_WEIGHTS: 'classifier'}
+    samples = {}
+    for spec in PORTS.values():
+        for port in spec.produces:
+            if port.kind not in port_kinds or not port.path or '/' in port.path:
+                continue
+            target = project / port.path
+            if target in samples or not target.is_dir() or target.is_symlink():
+                continue
+            if owner is not None and owner != target:
+                continue
+            if path.is_file():
+                candidates = [path]
+            elif port.kind in (CROPS, MODEL_WEIGHTS):
+                candidates = _easy_generated_sample(target)
+            else:
+                candidates = [item for item in files if item.is_relative_to(target)]
+                if not candidates:
+                    candidates = _easy_generated_sample(target, depth=1)
+            samples[target] = candidates
+            checked = 0
+            for candidate in candidates:
+                if checked >= 4:
+                    break
+                suffix = candidate.suffix.lower()
+                if port.kind in (MERGED_ARRAYS, MASKS) and suffix != '.npy':
+                    continue
+                if port.kind == CROPS and (suffix != '.png' or not any(
+                        parent.name.endswith('_png') for parent in candidate.parents
+                        if parent.is_relative_to(target))):
+                    continue
+                if port.kind == MODEL_WEIGHTS and suffix != '.pth':
+                    continue
+                checked += 1
+                try:
+                    metadata = {}
+                    if port.kind == MODEL_WEIGHTS:
+                        header = _easy_read_header(candidate, 16)
+                        valid = header.startswith((b'PK\x03\x04', b'\x80\x02', b'\x80\x03', b'\x80\x04', b'\x80\x05'))
+                    else:
+                        kind = _easy_file_kind(candidate, metadata)
+                        shape = metadata.get('shape', ())
+                        valid = (kind == 'image' if port.kind == CROPS else
+                                 kind == 'array' and metadata.get('dtype_kind') in
+                                 ('buif' if port.kind == MERGED_ARRAYS else 'bui')
+                                 and ((len(shape) in (3, 4) and shape[-1] >= 2)
+                                      if port.kind == MERGED_ARRAYS else len(shape) in (2, 3)))
+                except (OSError, ValueError, EOFError):
+                    continue
+                if valid:
+                    producer = 'measure' if port.kind == CROPS else 'classify_merged' if port.kind == MODEL_WEIGHTS else 'mask'
+                    artifacts.append(dict(kind=port_kinds[port.kind], path=str(candidate), producer=producer))
+                    break
+    scientific = next((item for item in schemas if item['objects'] and item['numeric']
+                       and Path(item['path']).parent in (project, project / 'measurements')), None)
+    database = project / 'measurements' / 'measurements.db'
+    if scientific is None and artifacts and database.is_file() and not database.is_symlink():
+        try:
+            evidence = _easy_database_evidence(database)
+            if evidence['objects'] and evidence['numeric']:
+                scientific = dict(path=str(database), **evidence)
+        except (OSError, sqlite3.Error):
+            pass
+    if scientific:
+        artifacts.append(dict(kind='measurements', path=scientific['path'], producer='measure'))
+        if scientific['crops']:
+            artifacts.append(dict(kind='crops', path=scientific['path'], producer='measure'))
+    for result in run_evidence['results']:
+        if Path(result['path']).is_relative_to(project):
+            artifacts.append(dict(kind='regression', path=result['path'], producer='regression'))
+    if not artifacts:
+        return empty
+    from ..app import APPS, folded_children
+    from ..dnd_handlers import NO_DROP_TARGET
+    from .fold_strip import fold_label
+    from .workflow_diagram import workflow_map
+
+    data = workflow_map()
+    modules = data['modules']
+    rows = {row[0]: row for row in APPS}
+    for children in folded_children().values():
+        for key in children:
+            title, guidance, _stage = fold_label(key)
+            rows.setdefault(key, (key, title, guidance, ''))
+    available = {item['kind'] for item in artifacts}
+    future = set(available)
+    selected = []
+    while True:
+        children = [key for key, module in modules.items() if key in rows and key not in selected
+                    and future.intersection(module.get('inputs', ()))
+                    and not set(module.get('inputs', ())) == {'raw_images'}]
+        if not children:
+            break
+        selected.extend(children)
+        for key in children:
+            future.update(modules[key].get('outputs', ()))
+    for producer in dict.fromkeys(item['producer'] for item in artifacts):
+        if producer in rows and producer not in selected:
+            selected.append(producer)
+    if 'merged' in available and 'measure' in selected:
+        selected.remove('measure')
+        selected.insert(0, 'measure')
+    routes = {}
+    for key in selected:
+        if key == 'mask':
+            continue
+        inputs = set(modules.get(key, {}).get('inputs', ()))
+        ready = False
+        source = project
+        producers = {item['producer'] for item in artifacts}
+        prerequisite = (key if key in producers else 'measure'
+                        if 'measurements' in future or 'crops' in future else artifacts[0]['producer'])
+        if key == 'measure' and 'merged' not in available and 'measure' not in producers:
+            prerequisite = 'mask'
+        if key == 'measure' and 'merged' in available:
+            ready = True
+        elif (scientific and inputs.intersection(('measurements', 'crops', 'labels', 'scores'))
+              and not (key in ('annotate', 'umap') and not scientific['crops'])):
+            ready = True
+            source = project if key in ('annotate', 'classify_merged', 'qc_dashboard', 'run_compare') else Path(scientific['path'])
+        elif key in ('hit_list', 'profiler', 'volcano_explorer') and 'regression' in available:
+            result = next(item for item in artifacts if item['kind'] == 'regression')
+            source = Path(result['path']).parent if key == 'hit_list' else Path(result['path'])
+            ready = True
+        elif key == 'regression_diagnostics':
+            diagnostics = next((item['diagnostics_folder'] for item in run_evidence['results']
+                                if item.get('diagnostics_folder')), None)
+            if diagnostics:
+                source = Path(diagnostics)
+                ready = True
+        if key in NO_DROP_TARGET:
+            ready = False
+            source = project
+            prerequisite = key
+        specification = PORTS.get(key)
+        required_port_kinds = dict(port_kinds, **{'measurements-db': 'measurements'})
+        if specification:
+            required = {required_port_kinds.get(port.kind, port.kind)
+                        for port in specification.consumes if port.required}
+        else:
+            required = {'measurements'} if 'measurements' in inputs else inputs.copy()
+        required.update(inputs.intersection(('classifier', 'feature_model', 'segmentation_model', 'evaluation')))
+        if 'measurements' not in inputs:
+            required.update(inputs.intersection(('labels', 'scores')))
+        if key in ('annotate', 'umap'):
+            required.add('crops')
+        missing = required - available
+        if ready and missing:
+            ready = False
+            source = project
+            prerequisite = next((producer for producer, module in modules.items()
+                                 if producer in rows and producer != key
+                                 and missing.intersection(module.get('outputs', ()))), prerequisite)
+        title = tr(rows[key][1])
+        prerequisite_title = tr(rows.get(prerequisite, (prerequisite, prerequisite))[1])
+        reason = (tr('Review merged arrays and mask channels.') if key == 'measure' and ready else
+                  tr(rows[key][2]) if ready or key == prerequisite else
+                  tr('Run {module} first, then review this module’s inputs before processing.', module=prerequisite_title))
+        routes[key] = dict(source=str(source), project=str(project), prerequisite=prerequisite,
+                           ready=ready, title=title, reason=reason, missing_inputs=sorted(missing))
+        if ready and scientific:
+            routes[key]['database'] = scientific['path']
+    return dict(project=str(project), artifacts=artifacts, routes=routes)
+
+
 def _easy_inspect_path_impl(value):
     """Infer local next steps from bounded headers, filename conventions and nearby folder structure."""
     from pathlib import Path
@@ -4739,6 +4970,25 @@ def _easy_inspect_path_impl(value):
         array_imports.append(dict(path=str(array), supported=True, axes=description['axes']))
         actions.append(('convert', tr('Import microscopy images'),
                         tr('Review the reader, embedded metadata and conversion plan before importing.'), str(array.parent)))
+    npy_image_source = None
+    if kinds.get('array'):
+        from ..mask_engine import _npy_image_header
+
+        for array in kinds['array'][:4]:
+            if array.parent != root and array.parent.parent != root:
+                continue
+            try:
+                _npy_image_header(array)
+            except (OSError, ValueError, EOFError):
+                continue
+            npy_image_source = str(array if path.is_file() else array.parent)
+            actions = [action for action in actions if action[0] != 'mask']
+            if path.is_file():
+                native_container = False
+            actions.append(('make_masks', tr('View and edit images'),
+                            tr('Inspect images and edit masks.'), npy_image_source))
+            input_map['make_masks'] = dict(source=npy_image_source)
+            break
     if candidates:
         exact = path if path.is_file() and path in candidates else chosen
         actions.extend([
@@ -4852,8 +5102,6 @@ def _easy_inspect_path_impl(value):
         actions.append(('map_barcodes', tr('Map Barcodes'), tr('FASTQ reads were found in this folder.'), str(fastq.parent)))
         input_map['map_barcodes'] = dict(source=str(fastq.parent), fastq=str(fastq))
     calibrated = os.path.lexists(root / 'plate_batch.json') or os.path.lexists(root / 'psf' / 'segmentation_application.json')
-    if path.is_dir() and any(item.parent == root / 'merged' for item in kinds.get('array', [])) and not calibrated:
-        actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(path)))
     paired_layout = _easy_paired_layout(images, root)
     if paired_layout:
         if paired_layout['kind'] == 'unstructured':
@@ -4883,6 +5131,24 @@ def _easy_inspect_path_impl(value):
             input_map['regression_diagnostics'] = dict(source=result_file['diagnostics_folder'],
                                                      diagnostics_folder=result_file['diagnostics_folder'],
                                                      coefficients=result_file['path'])
+    generated_outputs = _easy_generated_outputs(path, files, schemas, run_evidence, calibrated)
+    if generated_outputs['artifacts']:
+        if path.is_file() and path.suffix.lower() == '.npy':
+            actions = [action for action in actions if action[0] not in ('mask', 'convert')]
+            native_container = False
+        if npy_image_source:
+            generated_outputs['routes']['make_masks'] = dict(
+                source=npy_image_source, project=generated_outputs['project'], prerequisite='',
+                ready=True, title=tr('View and edit images'), reason=tr('Inspect images and edit masks.'))
+        generated_actions = []
+        for key, route in generated_outputs['routes'].items():
+            generated_actions.append((key, route['title'], route['reason'], route['source']))
+            if route['ready']:
+                input_map.setdefault(key, {name: route[name] for name in ('source', 'project', 'database')
+                                           if name in route})
+            else:
+                input_map.pop(key, None)
+        actions = generated_actions + actions
     submodule_settings = _easy_specialized_inputs(root, files, images, schemas) if path.is_dir() else {}
     for key, title in (('ops', tr('OPS')), ('spatial_masks', tr('Spatial Mask Generation')),
                        ('spatial_map', tr('Spatial Map'))):
@@ -4916,7 +5182,7 @@ def _easy_inspect_path_impl(value):
     if actions and external_documents:
         message += ' ' + ' '.join(_easy_external_guidance(kind)
                                  for kind in dict.fromkeys(item['kind'] for item in external_documents))
-    if path.is_file():
+    if path.is_file() and not generated_outputs['artifacts']:
         preferred = [action for action in actions if action[3] == str(path)
                      or (path in containers and action[0] == 'convert' and action[3] == str(path.parent))]
         actions = preferred + [action for action in actions if action not in preferred]
@@ -4935,6 +5201,7 @@ def _easy_inspect_path_impl(value):
                                                   else Path(item['path']).parent))
                                  for item in schemas if item['objects'] and item['numeric']],
                    run_evidence=run_evidence,
+                   generated_outputs=generated_outputs,
                    submodule_settings=submodule_settings,
                    unsupported_documents=external_documents,
                    reader_candidates=[dict(path=str(item), format=item.suffix.lower(),
@@ -5040,7 +5307,7 @@ class _EasyPathRim(_SetupCard):
 
     def __init__(self, parent=None):
         """Keep the rounded outline transparent to native editor interaction."""
-        super().__init__(parent, radius=28, mode='glow')
+        super().__init__(parent, radius=56, mode='glow')
         self.setObjectName('EasyPathRim')
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         make_transparent(self)
@@ -5094,7 +5361,7 @@ class _EasyPathEdit(QLineEdit):
         self.setFrame(False)
         self.setPlaceholderText(tr('Drop a file/folder, type a path or task'))
         self.setAccessibleName(tr('File or folder path'))
-        self.setFixedHeight(64)
+        self.setFixedHeight(128)
         self.setMouseTracking(True)
         self.browse = QPushButton(tr('Browse'), self)
         self.browse.setObjectName('EasyModeBrowse')
@@ -5142,8 +5409,7 @@ class _EasySuggestionCard(QPushButton):
 
     def __init__(self, action, parent=None):
         """Make the whole module card a native keyboard-accessible action."""
-        from ..app import APPS
-        from ..iconset import app_icon
+        from ..app import APPS, _icon_for_app
         from ..i18n import tr
         from PySide6.QtWidgets import QGraphicsOpacityEffect, QLayout
 
@@ -5174,7 +5440,7 @@ class _EasySuggestionCard(QPushButton):
         self.icon = icon
         icon.setAlignment(Qt.AlignCenter)
         icon.setStyleSheet('background: transparent;')
-        module_icon = app_icon(self._key, theme="dark")
+        module_icon = _icon_for_app(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
         self._module_icon = module_icon
@@ -5560,10 +5826,11 @@ class _EasyHomeField(QWidget):
         from PySide6.QtGui import QBrush, QLinearGradient, QRegion
 
         width, height = self.width(), self.height()
-        panel_width = min(720, max(180, width - 48))
-        panel_y = max(16, (height - 64) // 2)
-        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
-        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
+        panel_width = min(1440, max(180, width - 48))
+        panel_height = self.panel.height()
+        panel_y = max(16, (height - panel_height) // 2)
+        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
+        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
         details_width = min(780, max(180, width - 32))
         details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
@@ -5617,10 +5884,9 @@ class _EasyWorkflowNode(_WorkflowNode):
 
     def __init__(self, view, key):
         """Resolve one native icon and maturity once, outside repeated hover paints."""
-        from ..iconset import app_icon
+        from ..app import _icon_for_app
         super().__init__(view, key)
-        module = view.data['modules'][key]
-        self._glyph = app_icon(module['host_key'] if module.get('route') else key, theme='dark')
+        self._glyph = _icon_for_app(key, theme='dark')
         self._stage = _EasySuggestionCard._stage_for(key)
         self._hovered = False
         self._pressed = False
@@ -6500,8 +6766,8 @@ class _EasyHomePage(QWidget):
             resolve_effective_theme(), 'surface_alt', get_pane_opacity()))
         sheet = (
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
-            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
-            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
+            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 56px; font-size: {font_px(36)}px; padding: 0px; placeholder-text-color: {muted}; }} '
+            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(28)}px; }} '
             f'QPushButton#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; padding: 12px; min-width: 0px; min-height: 0px; text-align: left; }} '
             f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
             f'QPlainTextEdit#EasyRegexPattern {{ color: {foreground}; background: transparent; border: 1px solid {border}; border-radius: 6px; font-weight: 300; }} '

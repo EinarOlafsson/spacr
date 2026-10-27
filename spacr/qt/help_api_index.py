@@ -5562,7 +5562,7 @@ API_ENTRIES = (
     ('spacr.qt.preferences.get_default_graph_types', 'Every saved default graph type, as ``{shape: graph_type}``.'),
     ('spacr.qt.preferences.get_dock_mode', 'How the left app dock behaves — one of :data:`VALID_DOCK_MODES`.'),
     ('spacr.qt.preferences.get_dock_width', 'The width the user dragged the dock to, or 0 for its fitting width.'),
-    ('spacr.qt.preferences.get_easy_mode', 'Whether the content-guided Easy mode Home is enabled (default: ``False``).'),
+    ('spacr.qt.preferences.get_easy_mode', 'Whether the content-guided Easy mode Home is enabled (default: ``True``).'),
     ('spacr.qt.preferences.get_easy_mode_dock', 'Whether the app dock stays visible in Easy mode (default: ``False``).'),
     ('spacr.qt.preferences.get_field_fade_enabled', 'Whether input fields dissolve towards their right edge.'),
     ('spacr.qt.preferences.get_figure_color_tokens', 'The STORED ``(background, text)`` tokens, *unresolved*.'),

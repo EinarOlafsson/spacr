@@ -908,7 +908,53 @@ SHARED_ICON_ASSETS = {
     "investigate_hit": "hit_list.png",
     "classify_merged": "classify.png",
     "explain_cv": "ml_analyze.png",
+    "overview": "plate_view.png",
+    "3d": "layer_viewer.png",
+    "host_pathogen": "recruitment.png",
+    "import_images": "foreign.png",
+    "ops": "sequencing.png",
+    "spatial_masks": "mask.png",
+    "spatial_map": "map_barcodes.png",
 }
+
+
+_APP_COMMAND_ICONS = {
+    "About": "agreement", "About spaCR": "agreement",
+    "Homepage": "home", "GitHub": "methods_export",
+    "README": "report", "Preferences": "settings",
+    "Update": "download", "Check for updates…": "download",
+    "API": "methods_export", "Paper": "report",
+    "Pipeline overviews": "pipeline_graph", "Overview": "overview",
+    "Navigator": "pipeline_graph", "spaCR flowchart": "pipeline_graph",
+    "Keyboard shortcuts": "settings", "Set spaCR up again…": "settings",
+    "Tutorial": "report", "Documentation": "report",
+    "Feature Dictionary…": "feature_dict",
+    "Show startup animation": "app_icon",
+    "Review installation caches…": "data_manager",
+    "What's new…": "report", "Open log folder…": "project_browser",
+    "Borderless window": "app_icon", "Close window": "abort",
+    "Full screen": "layer_viewer", "Jobs": "queue",
+    "Maximise": "layer_viewer", "Minimise": "layer_viewer", "Quit": "abort",
+    "Reset this module's layout": "settings", "Settings templates…": "settings",
+    "Snap down": "align", "Snap left": "align",
+    "Snap right": "align", "Snap up": "align",
+}
+
+
+def _app_icon_key(key):
+    """Resolve synthetic navigation commands without changing native app keys."""
+    if not key.startswith('__easy_command__:'):
+        return key
+    from .i18n import tr
+
+    label = key.split(':', 1)[1]
+    normalized = ''.join(character for character in label.casefold() if character.isalnum())
+    for source, target in _APP_COMMAND_ICONS.items():
+        for candidate in (source, tr(source)):
+            if normalized == ''.join(character for character in candidate.casefold()
+                                     if character.isalnum()):
+                return target
+    return key
 
 
 def bundled_icon_path(key: str, override: Optional[str] = None
@@ -927,6 +973,7 @@ def bundled_icon_path(key: str, override: Optional[str] = None
         what it's pointed at, plus the handful of keys in
         :data:`SHARED_ICON_ASSETS` that share one picture everywhere.
     """
+    key = _app_icon_key(key)
     candidates = [override] if override else []
     candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
     alias = SHARED_ICON_ASSETS.get(key)
@@ -979,6 +1026,7 @@ def app_icon(key: str, override: Optional[str] = None,
         :func:`bundled_icon_path`, and used as the :func:`icon` name when no
         artwork is found or it cannot be read.
     """
+    key = _app_icon_key(key)
     path = bundled_icon_path(key, override)
     if path is not None:
         pix = themed_pixmap(path, theme)

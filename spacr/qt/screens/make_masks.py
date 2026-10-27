@@ -23879,6 +23879,8 @@ class MakeMasksScreen(QWidget):
                 tr("Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)"))
         if not path:
             return None
+        if str(path).lower().endswith('.npy') and not engine.is_seg_bundle(path):
+            return self._open_numeric_npy(path)
         if engine._is_volume_file(path):
             return self.open_volume(path)
         folder, name = os.path.split(os.path.abspath(path))
@@ -24148,6 +24150,39 @@ class MakeMasksScreen(QWidget):
         if os.path.isdir(first):
             self._open_folder(first)
 
+    def _open_numeric_npy(self, path):
+        """Review array axes and select one intensity channel before native editing."""
+        from ..i18n import tr
+
+        path = os.path.abspath(os.fspath(path))
+        try:
+            header = engine._npy_image_header(path)
+            shape = header['shape']
+            axes, channel = 'YX', 0
+            if len(shape) > 2:
+                choices = ('YXC', 'CYX', 'ZYX') if len(shape) == 3 else ('ZYXC', 'CZYX')
+                axes, accepted = QInputDialog.getItem(
+                    self, tr('NPY image layout'),
+                    tr('Array shape: {shape}. Select the stored axes. No planes are assumed to be masks.',
+                       shape=str(shape)), list(choices), 0, False)
+                if not accepted:
+                    return False
+                if 'C' in axes:
+                    channel, accepted = QInputDialog.getInt(
+                        self, tr('NPY image layout'),
+                        tr('Select the image channel to edit (0-based). Label-mask planes are not imported automatically.'),
+                        0, 0, shape[axes.index('C')] - 1)
+                    if not accepted:
+                        return False
+            folder, filename = os.path.split(path)
+            target = os.path.join(folder, 'masks',
+                                  os.path.splitext(filename)[0] + f'_{axes}_C{channel}')
+            engine._set_npy_image_view(path, axes, channel, masks_dir=target)
+            return self._open_folder(folder, files=[filename], masks_dir=target)
+        except (ValueError, OSError) as exc:
+            self._warn(tr('NPY image layout'), str(exc))
+            return False
+
     def open_paths(self, paths) -> bool:
         """Open a drop the way its contents say, asking where there is a choice.
 
@@ -24168,8 +24203,10 @@ class MakeMasksScreen(QWidget):
           opens as it always did: the folder as it is, or a queue;
         * images dropped with their masks open with those masks
           (:meth:`_open_with_masks`);
+        * a numeric NPY opens after spatial axes and its image channel are
+          reviewed; no label-mask planes are inferred from array values;
         * a folder spaCR wrote is named in the console and its images, if
-          any, open -- a ``.npy`` is never opened as an image.
+          any, open.
 
         Everything the drop held that is used for nothing is listed in the
         console.
@@ -24181,6 +24218,27 @@ class MakeMasksScreen(QWidget):
         from ... import drop_classification as dc
 
         paths = [os.path.abspath(str(p)) for p in paths]
+        if len(paths) == 1:
+            selected = paths[0]
+            if os.path.isfile(selected) and selected.lower().endswith('.npy') and not engine.is_seg_bundle(selected):
+                return self._open_numeric_npy(selected)
+            if os.path.isdir(selected) and not engine.list_images(selected):
+                from itertools import islice
+
+                try:
+                    with os.scandir(selected) as entries:
+                        numeric = sorted(entry.path for entry in islice(entries, 512)
+                                         if entry.is_file() and entry.name.lower().endswith('.npy')
+                                         and not engine.is_seg_bundle(entry.name))
+                except OSError as exc:
+                    self._warn(tr('NPY image layout'), str(exc))
+                    return False
+                if numeric:
+                    if len(numeric) == 1:
+                        return self._open_numeric_npy(numeric[0])
+                    chosen, accepted = QInputDialog.getItem(
+                        self, tr('NPY image layout'), tr('Choose an NPY image'), numeric, 0, False)
+                    return self._open_numeric_npy(chosen) if accepted else False
         found = dc.classify_drop(paths)
         for line in found.unrecognised:
             self._masks_console.post(
@@ -24466,7 +24524,7 @@ class MakeMasksScreen(QWidget):
         filename = self._image_files[self._current_index]
         image_path = os.path.join(self._folder, filename)
         self._leave_volume()
-        if engine._is_volume_file(image_path):
+        if engine._is_volume_file(image_path, self._masks_dir):
             self._show_volume(self._folder, filename)
             return
         if self._should_background_load(image_path) or _mask_writes_pending():

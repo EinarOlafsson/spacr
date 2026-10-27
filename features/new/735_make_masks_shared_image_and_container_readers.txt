@@ -1,13 +1,50 @@
 MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES
 
-Status:    QUEUED 2026-10-27 — confirmed reader/discovery gap; implementation is
-           a separate follow-up, not a completion gate for item 733.
+Status:    NUMERIC NPY IMPLEMENTED 2026-10-27 — focused native-scene checks pass
+           for nightly publication; other container/reader gaps remain queued.
 Requested: maintainer, 2026-10-27, while correcting Easy-mode image routing.
-Owner:     Queued implementation owner; Workstation session 2 records the gap.
+Owner:     Workstation session 2; bounded numeric NPY reader implementation.
 Related:   733 Easy routing; 363 Import; 462 vendor fixtures; 600 drops;
            690 TEM; 706 volume editing; 725 Overview numeric-array reading.
 
-CONFIRMED CURRENT GAPS
+CURRENT NUMERIC NPY REQUEST — 2026-10-27
+
+Open an individually selected real numeric NPY in Make Masks, including the
+reported canonical merged uint16 field shaped (2000, 2000, 4). Preserve the
+individual path, validate bounded headers before mapping pixels, and never
+unpickle object arrays or reinterpret Cellpose bundles. Two-dimensional YX
+arrays open directly. Higher-rank images require explicit spatial/channel
+axis and image-channel review; do not infer fluorescence or label-mask planes
+from integer values. Support the existing native 2D/volume scene only for
+validated layouts and bounded decoded sizes. Keep separately selected
+channels in separate mask destinations so their coordinates and labels cannot
+be silently reused. Cancel leaves the current editor and source unchanged.
+Canonical merged data remains a Measure input at its parent project root;
+this new editor route does not make raw Generate Masks preprocessing support
+NPY or complete the queued ND2/CZI/LIF and other reader work.
+
+NPY IMPLEMENTATION AND VALIDATION — 2026-10-27
+
+The native file/folder entry now intercepts numeric NPY for bounded header
+validation and explicit axes/channel review before using the existing image
+loader or volume scene. No fluorescence/mask separation is guessed. Each
+selected axes/channel combination has its own mask destination and immutable
+review binding, so another open channel cannot reuse the wrong labels.
+Object arrays, structured/string/complex data, oversized or truncated arrays,
+unsupported ranks and changed reviewed sources fail closed. Cellpose bundles
+retain their separate route. No raw Generate Masks NPY ingest was added.
+
+Qualified 15 focused checks in tests/qt/test_make_masks_numeric_npy.py cover
+real background 2D display, the reported merged-style four-plane layout,
+CYX/ZYX/ZYXC/CZYX scenes, mask-save/channel isolation, cancellation, invalid
+headers, file changes and folder errors. Two additional real native handoff
+checks in tests/qt/test_733_generated_native_handoff.py verify the exact NPY
+file reaches Make Masks and the existing measurement database reaches Graph
+Builder without changing source bytes. The actual NAS file was inspected
+only through its header: uint16 (2000, 2000, 4), complete 32,000,128 bytes.
+No user image pixels were read and no user data was written.
+
+ORIGINAL READER/DISCOVERY GAPS (NPY ENTRY NOW IMPLEMENTED ABOVE)
 
 MakeMasksScreen.open_paths delegates to drop_classification.classify_drop,
 whose channel_sorting.IMAGE_EXTS excludes numeric NPY and ND2/CZI/LIF.

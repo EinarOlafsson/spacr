@@ -34,7 +34,7 @@ class _RefreshOwner(QMainWindow):
         self.dock_refreshes += 1
 
 
-def test_easy_choices_default_off_and_preserve_ai_and_normal_dock(private_ai_profile):
+def test_navigator_defaults_on_and_preserves_ai_and_normal_dock(private_ai_profile):
     from spacr import crashreport
 
     preferences, terms, settings = private_ai_profile
@@ -42,10 +42,11 @@ def test_easy_choices_default_off_and_preserve_ai_and_normal_dock(private_ai_pro
     preferences.set_dock_mode("locked")
     agreement = terms.agreement_record()
     before = preferences._window_signature()
-    assert preferences.get_easy_mode() is False
+    assert preferences.get_easy_mode() is True
     assert preferences.get_easy_mode_dock() is False
-    preferences.set_easy_mode(True)
+    preferences.set_easy_mode(False)
     assert preferences._window_changes(before, preferences._window_signature()) == {"easy_mode"}
+    preferences.set_easy_mode(True)
     before = preferences._window_signature()
     preferences.set_easy_mode_dock(True)
     assert preferences._window_changes(before, preferences._window_signature()) == {"easy_mode_dock"}

@@ -422,3 +422,58 @@ def test_inferred_submodule_settings_preview_then_apply(commands, qtbot, monkeyp
     assert titles == [app.tr('Preview settings')]
     assert commands.opened == (['spatial_masks'] if accept else [])
     assert applied == ([settings] if accept else [])
+
+
+
+def test_upcoming_generated_folder_tool_opens_without_a_nonexistent_database(
+        qtbot, commands, monkeypatch, tmp_path):
+    from spacr.qt import dnd_handlers
+
+    project = str(tmp_path)
+    applied, messages = [], []
+    screen = QWidget(commands)
+    screen.apply_settings_dict = lambda settings: applied.append(settings)
+    commands._open_easy_named_module = lambda key: commands.opened.append(key) or screen
+    monkeypatch.setattr(type(commands), 'statusBar',
+                        lambda self: SimpleNamespace(showMessage=lambda *args: messages.append(args)))
+    monkeypatch.setattr(dnd_handlers, 'get_handler', lambda key: pytest.fail('unavailable output reached a file adapter'))
+    context = {'generated_outputs': {'routes': {'regression': {
+        'ready': False, 'project': project, 'prerequisite': 'measure',
+        'source': str(tmp_path / 'measurements' / 'measurements.db')}}},
+        'action_groups': {'regression': {'reason': 'Complete Measure first.'}}}
+    assert commands._open_easy_input('regression', project, context)
+    assert commands.opened == ['regression']
+    assert applied == [{'src': project}]
+    assert messages == [('Complete Measure first.', 10000)]
+    assert not (tmp_path / 'measurements').exists()
+
+
+
+def test_generated_measure_file_uses_native_project_source(
+        commands, tmp_path):
+    from spacr.qt.dnd_handlers import MeasureDropHandler
+    import numpy as np
+
+    project = tmp_path / 'plate1'
+    merged = project / 'merged'
+    merged.mkdir(parents=True)
+    file = merged / 'plate1_A03_8.npy'
+    np.save(file, np.zeros((8, 8, 4), dtype=np.uint16))
+    seen = []
+    class Model:
+        def set_value_for_key(self, key, value):
+            seen.append((key, value))
+            return True
+    screen = SimpleNamespace(_settings_model=Model())
+    original = commands._open_easy_named_module
+    commands._open_easy_named_module = lambda key: commands.opened.append(key) or screen
+    try:
+        context = {'generated_outputs': {'routes': {'measure': {
+            'source': str(project), 'project': str(project), 'ready': True}}},
+            'analysis_inputs': {'measure': {'source': str(project)}}}
+        assert commands._open_easy_input('measure', str(file), context)
+        assert commands.opened == ['measure']
+        assert ('src', str(project)) in seen
+        assert MeasureDropHandler().can_accept(file)
+    finally:
+        commands._open_easy_named_module = original

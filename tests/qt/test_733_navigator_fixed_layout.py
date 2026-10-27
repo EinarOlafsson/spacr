@@ -144,3 +144,23 @@ def test_mouse_wheel_scrolls_only_the_choice_row(navigator, qtbot):
     QApplication.sendEvent(field, event)
     assert field._scrollbar.value() > 0 and event.isAccepted()
     assert (field.panel.geometry(), field.details.geometry()) == anchor
+
+
+@pytest.mark.parametrize('width', [640, 1800])
+def test_input_default_text_and_box_are_twice_as_large_and_remain_centered(
+        navigator, qtbot, width):
+    from spacr.qt.theme import font_px
+
+    navigator.resize(width, 760)
+    navigator.show()
+    qtbot.waitUntil(lambda: navigator.path_edit.height() == 128)
+    field, editor = navigator.field, navigator.path_edit
+    assert editor.width() == min(1440, field.width() - 48)
+    assert editor.font().pixelSize() == font_px(36)
+    assert editor.browse.font().pixelSize() == font_px(28)
+    assert abs(editor.geometry().center().y() - field.rect().center().y()) <= 1
+    assert editor.rect().contains(editor.browse.geometry())
+    geometry = editor.geometry()
+    choices(navigator, 3)
+    assert editor.geometry() == geometry
+    assert not editor.geometry().intersects(navigator.field.details.geometry())

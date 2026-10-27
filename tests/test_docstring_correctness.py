@@ -2789,6 +2789,9 @@ def _validated_733_easy_mode_callables(callables):
     assert entries.keys() == expected_docs.keys()
     assert {key: hashlib.sha256(body.encode()).hexdigest()
             for key, body in entries.items()} == expected_docs
+    from tests.test_documentation_i18n import _current_733_easy_mode_api
+    entries = _current_733_easy_mode_api(entries)
+    body_hashes = {**body_hashes, "get_easy_mode": "c02928d290dd9cfcaeff246064cf63466c03f84b3f13771eb33d2154779515d1"}
     tree = ast.parse((root / "spacr/qt/preferences.py").read_text(encoding="utf-8"))
     declarations = {node.name: node for node in tree.body
                     if isinstance(node, ast.FunctionDef) and node.name in body_hashes}
@@ -5064,6 +5067,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     assert len(volume_additions) == 32
+    from tests.test_documentation_i18n import _current_735_volume_api
+    volume_additions = _current_735_volume_api(volume_additions, docs)
     assert {key: docs[key] for key in volume_additions} == volume_additions
     assert not volume_additions.keys() & (
         home_ui_arrivals.keys() | worker_additions.keys()
@@ -5254,6 +5259,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             from tests.test_documentation_i18n import _current_718_metal_class_api
             additions = _current_718_metal_class_api(additions, docs)
+        if contract == "733_easy_mode_api_arrivals_2026_10_26.json":
+            from tests.test_documentation_i18n import _current_733_easy_mode_api
+            additions = _current_733_easy_mode_api(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()

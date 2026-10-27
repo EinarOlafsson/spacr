@@ -12,9 +12,12 @@ from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
 _ITEM = Path(__file__).resolve().parents[2] / 'features/new/733_easy_mode_content_guided_home.txt'
-_CASES = [(phrase, tuple(keys.split(', '))) for phrase, keys in re.findall(
-    r'^\d{3}\. (.+) -> (.+)$', _ITEM.read_text(), re.M)]
-assert len(_CASES) == 100
+_PAIRS = [(original, alternate, tuple(keys.split(', ')))
+          for original, alternate, keys in re.findall(
+              r'^\d{3}\. (.+) \| (.+) -> (.+)$', _ITEM.read_text(), re.M)]
+_CASES = [(original, keys) for original, _alternate, keys in _PAIRS]
+_ALTERNATES = [(alternate, keys) for _original, alternate, keys in _PAIRS]
+assert len(_CASES) == len(_ALTERNATES) == 100
 
 
 @pytest.mark.parametrize('phrase,expected', _CASES)
@@ -97,3 +100,10 @@ def test_user_supplied_analysis_spellings_offer_image_tools(commands, phrase):
     rows = app.MainWindow._easy_navigation_suggestions(commands, phrase)
     assert tuple(row[0] for row in rows) == ('mask', 'measure', 'qc_dashboard')
     assert not commands.opened and not commands.navigated
+
+
+@pytest.mark.parametrize('phrase,expected', _ALTERNATES)
+def test_paired_alternate_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, expected):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, expected)

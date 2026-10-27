@@ -654,6 +654,92 @@ so saving a mask does not decode the image a second time to find it."""
 TEM_SUFFIXES = (".dm3", ".dm4", ".mrc", ".rec")
 
 
+_NPY_IMAGE_VIEWS = {}
+
+
+def _npy_image_header(path):
+    """Check bounded numeric array metadata without mapping source pixels."""
+    from ..resume import read_npy_header
+    from .i18n import tr
+
+    message = tr('NPY images require complete real numeric 2D, 3D or 4D arrays within 256 MiB; object arrays and Cellpose bundles use separate routes.')
+    try:
+        if str(path).lower().endswith('_seg.npy'):
+            raise ValueError(message)
+        with open(path, 'rb') as handle:
+            if handle.read(6) != b'\x93NUMPY':
+                raise ValueError(message)
+            version = handle.read(2)
+            if len(version) != 2 or version[0] not in (1, 2, 3):
+                raise ValueError(message)
+            size = 2 if version[0] == 1 else 4
+            length = handle.read(size)
+            if len(length) != size or not 0 < int.from_bytes(length, 'little') <= 65536:
+                raise ValueError(message)
+        header = read_npy_header(path)
+        dtype = np.dtype(header['descr'])
+        shape = header['shape']
+        if (dtype.kind not in 'buif' or dtype.fields or len(shape) not in (2, 3, 4)
+                or any(value <= 0 for value in shape)
+                or math.prod(shape) * dtype.itemsize > 256 * 1024 * 1024
+                or header['expected_bytes'] != header['actual_bytes']):
+            raise ValueError(message)
+        return header
+    except (TypeError, KeyError, OverflowError, ValueError) as exc:
+        raise ValueError(message) from exc
+
+
+def _set_npy_image_view(path, axes, channel=0, masks_dir=None):
+    """Retain one explicitly reviewed spatial/channel interpretation."""
+    from .i18n import tr
+
+    header = _npy_image_header(path)
+    options = {2: ('YX',), 3: ('YXC', 'CYX', 'ZYX'), 4: ('ZYXC', 'CZYX')}
+    if axes not in options[len(header['shape'])]:
+        raise ValueError(tr('Review the NPY spatial axes and image channel before opening it.'))
+    if isinstance(channel, bool) or not isinstance(channel, Integral) or channel < 0:
+        raise ValueError(tr('Review the NPY spatial axes and image channel before opening it.'))
+    if 'C' in axes and channel >= header['shape'][axes.index('C')]:
+        raise ValueError(tr('Review the NPY spatial axes and image channel before opening it.'))
+    if 'C' not in axes and channel:
+        raise ValueError(tr('Review the NPY spatial axes and image channel before opening it.'))
+    key = (os.path.abspath(os.fspath(path)),
+           os.path.abspath(os.fspath(masks_dir)) if masks_dir else None)
+    if len(_NPY_IMAGE_VIEWS) >= 128 and key not in _NPY_IMAGE_VIEWS:
+        _NPY_IMAGE_VIEWS.pop(next(iter(_NPY_IMAGE_VIEWS)))
+    stamp = os.stat(path)
+    _NPY_IMAGE_VIEWS[key] = (axes, int(channel), header,
+                           (stamp.st_mtime_ns, stamp.st_ctime_ns, stamp.st_ino, stamp.st_size))
+
+
+def _read_npy_image_view(path, masks_dir=None):
+    """Map a reviewed NPY and expose exactly one image channel without pickle."""
+    from .i18n import tr
+
+    key = (os.path.abspath(os.fspath(path)),
+           os.path.abspath(os.fspath(masks_dir)) if masks_dir else None)
+    header = _npy_image_header(path)
+    view = _NPY_IMAGE_VIEWS.get(key)
+    if view is None:
+        if len(header['shape']) != 2:
+            raise ValueError(tr('Review the NPY spatial axes and image channel before opening it.'))
+        _set_npy_image_view(path, 'YX', masks_dir=masks_dir)
+        view = _NPY_IMAGE_VIEWS[key]
+    axes, channel, expected, stamp = view
+    current = os.stat(path)
+    if header != expected or (current.st_mtime_ns, current.st_ctime_ns,
+                              current.st_ino, current.st_size) != stamp:
+        raise ValueError(tr('The NPY source changed after its layout was reviewed. Open it again.'))
+    image = np.load(path, mmap_mode='r', allow_pickle=False)
+    if image.shape != tuple(header['shape']) or image.dtype != np.dtype(header['descr']):
+        raise ValueError(tr('The NPY source changed after its layout was reviewed. Open it again.'))
+    if 'C' in axes:
+        selection = [slice(None)] * image.ndim
+        selection[axes.index('C')] = channel
+        image = image[tuple(selection)]
+    return image, axes.replace('C', '')
+
+
 def read_image(path: str) -> np.ndarray:
     """Read one image file the way Make Masks shows it.
 
@@ -1476,7 +1562,9 @@ def load_image_and_mask(folder: str, filename: str,
     if is_seg_bundle(filename):
         return load_seg_bundle(os.path.join(folder, filename))
     image_path = os.path.join(folder, filename)
-    image = _as_field_image(read_image(image_path), image_path)
+    pixels = (_read_npy_image_view(image_path, masks_dir)[0]
+              if filename.lower().endswith('.npy') else read_image(image_path))
+    image = _as_field_image(pixels, image_path)
 
     mask_dir = masks_folder(folder, masks_dir)
     stem = os.path.splitext(filename)[0]
@@ -6778,14 +6866,18 @@ def _spatial_page_axes(axes):
     return 'ZYX' if axes in ('QYX', 'IYX') else axes
 
 
-def _is_volume_file(path):
+def _is_volume_file(path, masks_dir=None):
     """Whether ``path`` holds a 3-D spatial volume, read from its header only.
 
-    TIFFs with three spatial axes (plain page stacks count as Z) and MRC
-    files with more than one section are volumes; anything unreadable is not.
+    TIFFs with three spatial axes (plain page stacks count as Z), MRC files
+    with multiple sections and explicitly reviewed NPY ZYX views are volumes.
     """
     path = Path(path)
     try:
+        if path.suffix.lower() == '.npy':
+            view = _NPY_IMAGE_VIEWS.get((os.path.abspath(os.fspath(path)),
+                                       os.path.abspath(os.fspath(masks_dir)) if masks_dir else None))
+            return view is not None and view[0].replace('C', '') == 'ZYX'
         if path.suffix.lower() in _VOLUME_MRC_SUFFIXES:
             import mrcfile
 
@@ -6898,11 +6990,13 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
     ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;
     they need the optional ``mrcfile`` package. Absent physical metadata
     means pixel coordinates.
+    Numeric NPY volumes require an explicitly reviewed ZYX layout and image
+    channel; their spacing is in pixels and pickle is disabled.
     Labels retain dtype and identity. A saved geometry sidecar is bound to
     the exact source file and mask pixels and is refused when stale.
 
     :param folder: source image directory.
-    :param filename: spatial TIFF or MRC volume filename.
+    :param filename: spatial TIFF, MRC or reviewed numeric NPY volume filename.
     :param masks_dir: optional existing sibling mask directory.
     :returns: a ``VolumeMaskSession`` owning the labels and source metadata.
     """
@@ -6912,7 +7006,12 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
 
     source = Path(folder) / filename
     digest = _yolo_source_hash(source)
-    if source.suffix.lower() in _VOLUME_MRC_SUFFIXES:
+    if source.suffix.lower() == '.npy':
+        image, axes = _read_npy_image_view(source, masks_dir)
+        spacing, unit = (1., 1., 1.), 'pixel'
+        if image.dtype.kind == 'b':
+            image = image.astype(np.uint8)
+    elif source.suffix.lower() in _VOLUME_MRC_SUFFIXES:
         image, axes, spacing, unit = _read_mrc_volume(source)
     else:
         image, axes, spacing, unit = _read_tiff_volume(source)
