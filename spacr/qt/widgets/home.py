@@ -4496,7 +4496,7 @@ class _EasyRegexCard(_EasySuggestionCard):
 
         self._proposal = dict(proposal)
         super().__init__(('regex', tr('Regex'), '', proposal['example_path']), parent)
-        self.icon.setPixmap(icon('regex', color='white', size=48, theme='dark').pixmap(48, 48))
+        self.icon.setPixmap(icon('regex', size=48, theme='dark').pixmap(48, 48))
         self.setAccessibleName(tr('Apply regex'))
         self.setToolTip(tr('Edit the pattern, then click this card to apply it.'))
         self.content.setAttribute(Qt.WA_TransparentForMouseEvents, False)
@@ -5012,7 +5012,7 @@ class _EasyWorkflowPage(QWidget):
         heading.setDirection(QBoxLayout.TopToBottom)
         heading.setAlignment(Qt.AlignCenter)
         self.central.icon.setAlignment(Qt.AlignCenter)
-        self.central.icon.setPixmap(self.central.icon.pixmap().scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.central.icon.setPixmap(scaled_for(self.central.icon.pixmap(), self.central.icon, 64))
         title = heading.itemAt(1).widget()
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(f'font-family: "Open Sans"; font-size: {font_px(20)}px; font-weight: 300;')

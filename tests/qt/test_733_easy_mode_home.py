@@ -24,10 +24,55 @@ def _bytes(paths):
     return {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
 
-def test_local_headers_identify_real_mixed_contents_without_decoding_or_writing(
+@pytest.fixture
+def isolated_input_root(tmp_path):
+    root = tmp_path / 'input'
+    root.mkdir()
+    return root
+
+
+def test_master_context_stops_at_the_intentional_parent_but_keeps_its_siblings(
         tmp_path, private_ai_profile, monkeypatch):
+    from PIL import TiffImagePlugin
     from spacr.qt.widgets.home import _easy_inspect_path
 
+    master = tmp_path / 'project'
+    source = master / 'images'
+    source.mkdir(parents=True)
+    image = source / 'field.tif'
+    _image(image)
+    outside = tmp_path / 'another_project'
+    outside.mkdir()
+    outside_container = outside / 'acquisition.czi'
+    outside_container.write_bytes(b'ZISRAWFILE' + bytes(54))
+    originals = _bytes([image, outside_container])
+
+    def no_pixels(*args, **kwargs):
+        raise AssertionError('context inspection must not decode pixels')
+
+    monkeypatch.setattr(TiffImagePlugin.TiffImageFile, 'load', no_pixels)
+    first = _easy_inspect_path(str(source))
+    assert [action[0] for action in first['actions']] == ['make_masks', 'mask']
+    assert first['context']['reader_candidates'] == []
+    assert str(outside) not in first['context']['image_folders']
+    neighbor = master / 'acquisition'
+    neighbor.mkdir()
+    inside_container = neighbor / 'acquisition.czi'
+    inside_container.write_bytes(outside_container.read_bytes())
+    originals.update(_bytes([inside_container]))
+    second = _easy_inspect_path(str(source))
+    assert [action[0] for action in second['actions']] == ['make_masks', 'mask', 'convert']
+    assert second['actions'][2][3] == str(neighbor)
+    assert [row['path'] for row in second['context']['reader_candidates']] == [str(inside_container)]
+    assert second['context']['reader_candidates'][0]['metadata_inspected'] is False
+    assert _bytes([image, outside_container, inside_container]) == originals
+
+
+def test_local_headers_identify_real_mixed_contents_without_decoding_or_writing(
+        isolated_input_root, private_ai_profile, monkeypatch):
+    from spacr.qt.widgets.home import _easy_inspect_path
+
+    tmp_path = isolated_input_root
     preferences, _, _ = private_ai_profile
     preferences._set_spacr_ai_enabled(False)
     image = tmp_path / 'field.tif'
@@ -68,9 +113,10 @@ def test_local_headers_identify_real_mixed_contents_without_decoding_or_writing(
 
 
 def test_invalid_and_calibrated_collection_inputs_have_honest_local_guidance(
-        tmp_path, private_ai_profile):
+        isolated_input_root, private_ai_profile):
     from spacr.qt.widgets.home import _easy_inspect_path
 
+    tmp_path = isolated_input_root
     assert _easy_inspect_path(str(tmp_path / 'missing'))['actions'] == []
     unsupported = tmp_path / 'notes.txt'
     unsupported.write_text('not an image or a table')
@@ -91,10 +137,11 @@ def test_invalid_and_calibrated_collection_inputs_have_honest_local_guidance(
 @pytest.mark.parametrize('theme', ['light', 'dark'])
 @pytest.mark.parametrize('size', [(640, 650), (1280, 850)])
 def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
-        qtbot, qapp, private_ai_profile, tmp_path, theme, size):
+        qtbot, qapp, private_ai_profile, isolated_input_root, theme, size):
     from spacr.qt import theme as styling
     from spacr.qt.widgets.home import _EasyHomePage
 
+    tmp_path = isolated_input_root
     preferences, _, _ = private_ai_profile
     preferences._set_spacr_ai_enabled(False)
     preferences.set_easy_mode(True)
@@ -706,7 +753,10 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         title = heading.itemAt(1).widget()
         assert title.font().pixelSize() >= 18
         assert title.alignment() & Qt.AlignHCenter
-        assert workflow.central.icon.pixmap().width() == 64
+        from spacr.qt.hidpi import device_ratio, logical_size
+
+        assert logical_size(workflow.central.icon.pixmap()).width() == 64
+        assert workflow.central.icon.pixmap().devicePixelRatioF() == device_ratio(workflow.central.icon)
         documented = [edge for edge in workflow.view.edges if edge.edge['kind'] != 'compatible']
         assert documented and all(edge.isVisible() for edge in documented)
         unrelated = [edge for edge in workflow.view.edges if edge.edge['kind'] == 'compatible'
