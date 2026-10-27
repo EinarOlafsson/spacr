@@ -4389,6 +4389,9 @@ class _EasyPathEdit(QLineEdit):
             self._gravity_feedback(event.position().toPoint())
 
 
+_EASY_WORKFLOW_PORT_RADIUS = 4
+
+
 class _EasySuggestionCard(QPushButton):
     """A growing local next-step card with an explicit module handoff."""
 
@@ -4420,24 +4423,56 @@ class _EasySuggestionCard(QPushButton):
         self.content.setGraphicsEffect(self._content_opacity)
         layout = QVBoxLayout(self.content)
         layout.setSizeConstraint(QLayout.SetNoConstraint)
-        heading = QHBoxLayout()
+        heading = QVBoxLayout()
+        heading.setAlignment(Qt.AlignCenter)
         icon = QLabel(self)
         self.icon = icon
+        icon.setAlignment(Qt.AlignCenter)
         module_icon = app_icon(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
-        icon.setPixmap(module_icon.pixmap(48, 48))
+        self._module_icon = module_icon
+        self._refresh_icon()
+        follow_device_ratio(icon, self._refresh_icon)
         icon.setAccessibleName(title)
         heading.addWidget(icon)
         module_name = next((row[1] for row in APPS if row[0] == self._key), title)
         name = QLabel(tr(module_name), self)
         name.setWordWrap(True)
-        heading.addWidget(name, 1)
+        name.setAlignment(Qt.AlignCenter)
+        name.setStyleSheet(f'font-size: {font_px(18)}px; font-weight: 300;')
+        self.title = name
+        heading.addWidget(name)
         layout.addLayout(heading)
         label = QLabel(description, self)
         self.description = label
         label.setWordWrap(True)
+        label.setVisible(self._key in ("regex", "warning"))
         layout.addWidget(label, 1)
+        self.setToolTip(description)
+        self.setAccessibleDescription(description)
+
+    def paintEvent(self, event):
+        """Keep native card painting and add equal output ports only for its network."""
+        super().paintEvent(event)
+        points = getattr(self, '_workflow_ports', ())
+        if points:
+            color = QColor(palette_for('dark')['accent'])
+            color.setAlpha(round(255 * getattr(self, '_port_opacity', 1.0)))
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(color)
+            for point in points:
+                painter.drawEllipse(point, _EASY_WORKFLOW_PORT_RADIUS, _EASY_WORKFLOW_PORT_RADIUS)
+            painter.end()
+
+    def _refresh_icon(self):
+        """Rasterize the original module icon for its actual display density."""
+        pixels = max(1, round(96 * device_ratio(self.icon)))
+        picture = self._module_icon.pixmap(pixels, pixels)
+        picture.setDevicePixelRatio(device_ratio(self.icon))
+        self.icon.setPixmap(picture)
 
     def _activate(self):
         """Emit the inspected input only after the user chooses this step."""
@@ -4499,7 +4534,8 @@ class _EasyRegexCard(_EasySuggestionCard):
 
         self._proposal = dict(proposal)
         super().__init__(('regex', tr('Regex'), '', proposal['example_path']), parent)
-        self.icon.setPixmap(icon('regex', size=48, theme='dark').pixmap(48, 48))
+        self._module_icon = icon('regex', size=96, theme='dark')
+        self._refresh_icon()
         self.setAccessibleName(tr('Apply regex'))
         self.setToolTip(tr('Edit the pattern, then click this card to apply it.'))
         self.content.setAttribute(Qt.WA_TransparentForMouseEvents, False)
@@ -4614,6 +4650,8 @@ class _EasyHomeField(QWidget):
             animation.deleteLater()
         self._animations.clear()
         for card in self.cards:
+            if card.parentWidget() is not self:
+                continue
             card._growing = False
             card._content_opacity.setOpacity(1.0)
             card.setEnabled(True)
@@ -4684,10 +4722,10 @@ class _EasyHomeField(QWidget):
         panel_height = self.panel.height()
         columns = max(1, min(4, (width - 28) // 240))
         gap = 20
-        card_width = min(310, (width - 48 - gap * (columns - 1)) // columns)
-        card_height = max([180] + [max(card.sizeHint().height(),
-                                      card.layout().totalHeightForWidth(card_width))
-                                    for card in self.cards])
+        card_width = min(224, (width - 48 - gap * (columns - 1)) // columns)
+        card_height = max([card_width] + [max(card.sizeHint().height(),
+                                           card.layout().totalHeightForWidth(card_width))
+                                         for card in self.cards if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard))])
         rows = (len(self.cards) + columns - 1) // columns
         grid_height = rows * card_height + max(0, rows - 1) * gap
         content_height = panel_height + (32 + grid_height if rows else 0)
@@ -4700,18 +4738,23 @@ class _EasyHomeField(QWidget):
             row, column = divmod(index, columns)
             row_count = min(columns, len(self.cards) - row * columns)
             row_width = row_count * card_width + (row_count - 1) * gap
+            height = card_height if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard)) else card_width
             card._final_rect = QRect((width - row_width) // 2 + column * (card_width + gap),
                                      panel_y + panel_height + 32 + row * (card_height + gap),
-                                     card_width, card_height)
-            if not card._growing:
+                                     card_width, height)
+            if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
 
 
 class _EasyWorkflowNode(_WorkflowNode):
     """Select a registered tool without opening it from a neighboring node."""
 
+    def boundingRect(self):
+        """Keep every neighboring module in the same rounded square footprint."""
+        return QRectF(0, 0, self.view._node_side, self.view._node_side)
+
     def paint(self, painter, option, widget=None):
-        """Keep module icons and Light typography consistent with Easy Home."""
+        """Draw the original icon sharply above a centered short module label."""
         from PySide6.QtGui import QPen
         from ..iconset import app_icon
         from ..i18n import tr
@@ -4720,17 +4763,26 @@ class _EasyWorkflowNode(_WorkflowNode):
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setBrush(QColor(palette['surface']))
         painter.setPen(QPen(QColor(palette['accent'] if self.highlighted else palette['border']), 1.5))
-        painter.drawRoundedRect(self.boundingRect().adjusted(1, 1, -1, -1), 16, 16)
+        painter.drawRoundedRect(self.boundingRect().adjusted(1, 1, -1, -1), 18, 18)
         module = self.view.data['modules'][self.key]
         glyph = app_icon(module['host_key'] if module.get('route') else self.key, theme='dark')
+        side = self.view._node_side
+        icon_side = 80 if side >= 192 else 64
+        icon_top = 28 if side >= 192 else 16
         if glyph is not None:
-            painter.drawPixmap(QRect(106, 28, 48, 48), glyph.pixmap(48, 48))
+            glyph.paint(painter, QRect((side - icon_side) // 2, icon_top, icon_side, icon_side))
         font = QFont('Open Sans')
         font.setWeight(QFont.Light)
         font.setPixelSize(font_px(18, scale=1))
         painter.setFont(font)
         painter.setPen(QColor(palette['fg']))
-        painter.drawText(QRectF(14, 88, 232, 76), Qt.AlignCenter | Qt.TextWordWrap, tr(module['name']))
+        title_top = icon_top + icon_side + 12
+        painter.drawText(QRectF(12, title_top, side - 24, side - title_top - 12),
+                         Qt.AlignCenter | Qt.TextWordWrap, tr(module['name']))
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(palette['accent']))
+        for port in getattr(self, '_input_ports', ()):
+            painter.drawEllipse(port, _EASY_WORKFLOW_PORT_RADIUS, _EASY_WORKFLOW_PORT_RADIUS)
 
     def hoverEnterEvent(self, event):
         """Describe a neighbor without moving the selected tool or changing its input."""
@@ -4760,60 +4812,128 @@ class _EasyWorkflowNode(_WorkflowNode):
 
 
 class _EasyWorkflowEdge(_WorkflowEdge):
-    """Draw one verified downstream branch, with modes on its connector."""
+    """Curve verified handoffs through shared clear gutters around square cards."""
 
     def __init__(self, view, edge, start, end):
-        """Use a shared vertical spine and a downward arrow above the child."""
+        """Retain the real handoff and attach it to the fixed card's scene origin."""
+        super().__init__(view, edge, start, end)
+        self._set_origin(start)
+
+    def _set_origin(self, start):
+        """Route distinct ports around card bounds and center the direction arrow by length."""
+        from math import cos, hypot, radians, sin
         from PySide6.QtCore import QPointF
         from PySide6.QtGui import QPainterPath, QPolygonF
 
-        super().__init__(view, edge, start, end)
-        turn = max(12, end.y() - 24)
-        spine = 0 if view._columns > 1 else -150
+        self.prepareGeometryChange()
+        self.start = start
+        node = self.view.nodes[self.edge['to']]
+        spine = 8 if self.view._direction > 0 else self.view.viewport().width() - 8
+        gutter = node.pos().y() - 46
+        approach = node.pos().x() - 24
+        points = [start]
+        if self.view._direction < 0 or self.view._root_x is not None:
+            root = self.view.parentWidget().central
+            root_top = self.view.mapToScene(self.view.viewport().mapFromGlobal(root.mapToGlobal(root.rect().topLeft())))
+            outside = start.x() + 24
+            over = min(root_top.y() - 38, self.view._first_y - 46)
+            points.extend((QPointF(outside, start.y()), QPointF(outside, over), QPointF(spine, over)))
+        else:
+            points.append(QPointF(spine, start.y()))
+        self._lead_path = QPainterPath(start)
+        for point in points[1:]:
+            self._lead_path.lineTo(point)
+        points.extend((QPointF(spine, gutter), QPointF(approach, gutter),
+                       QPointF(approach, self.end.y()), self.end))
+        unique = [points[0]]
+        for point in points[1:]:
+            if point != unique[-1]:
+                unique.append(point)
         path = QPainterPath(start)
-        path.lineTo(spine, 8)
-        path.lineTo(spine, turn - 10)
-        path.cubicTo(spine, turn, end.x(), turn, end.x(), end.y() - 12)
+        for previous, corner, following in zip(unique, unique[1:], unique[2:]):
+            incoming, outgoing = corner - previous, following - corner
+            before, after = hypot(incoming.x(), incoming.y()), hypot(outgoing.x(), outgoing.y())
+            radius = min(14.0, before / 2, after / 2)
+            path.lineTo(corner - incoming * (radius / before))
+            path.quadTo(corner, corner + outgoing * (radius / after))
+        path.lineTo(self.end)
         self.setPath(path)
-        self.arrowhead = QPolygonF([end, end + QPointF(-5, -12), end + QPointF(5, -12)])
+        fraction = path.percentAtLength(path.length() / 2)
+        self._arrow_center = path.pointAtPercent(fraction)
+        angle = radians(path.angleAtPercent(fraction))
+        direction = QPointF(cos(angle), -sin(angle))
+        self._arrow_direction = direction
+        normal = QPointF(-direction.y(), direction.x())
+        self.arrowhead = QPolygonF([self._arrow_center + direction * 6,
+                                   self._arrow_center - direction * 3 + normal * 4,
+                                   self._arrow_center - direction * 3 - normal * 4])
+
+    def _badge_rect(self):
+        """Use the same badge clearance above every module and owned submodule."""
+        node = self.view.nodes[self.edge['to']]
+        return QRectF(node.pos().x(), node.pos().y() - 38, self.view._node_side, 24)
 
     def boundingRect(self):
-        """Include connector mode badges in scene culling and repaint bounds."""
+        """Include connector labels in scene culling and repaint bounds."""
         bounds = super().boundingRect()
         if self.edge.get('mode_labels'):
-            bounds = bounds.united(QRectF(self.end.x() - 110, self.end.y() - 42, 220, 24))
+            bounds = bounds.united(self._badge_rect())
         return bounds
 
     def paint(self, painter, option, widget=None):
-        """Keep ownership dotted and documented handoffs solid without extra links."""
-        from PySide6.QtGui import QPen
+        """Let the transparent owner draw complete curves beyond the child viewport."""
+        return
+
+    def draw_connection(self, painter):
+        """Distinguish ownership while keeping midpoint arrows clear of mode badges."""
+        from PySide6.QtGui import QBrush, QLinearGradient, QPainterPath, QPainterPathStroker, QPen
         from ..i18n import tr
 
+        painter.save()
+        viewport = self.view.mapToScene(self.view.viewport().rect()).boundingRect()
+        clip = QPainterPath()
+        clip.addRect(viewport)
+        stroke = QPainterPathStroker()
+        stroke.setWidth(40)
+        clip = clip.united(stroke.createStroke(self._lead_path))
+        painter.setClipPath(clip, Qt.IntersectClip)
         palette = palette_for('dark')
         color = QColor(palette['accent'])
-        color.setAlpha(210 if self.highlighted else 130)
-        pen = QPen(color, 1.1 if self.edge['kind'] == 'containment' else 1.6)
+        color.setAlpha(200 if self.highlighted else 125)
+        gradient = QLinearGradient(self.start, self.end)
+        faint = QColor(color)
+        faint.setAlpha(45)
+        gradient.setColorAt(0, faint)
+        gradient.setColorAt(1, color)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setBrush(Qt.NoBrush)
+        if self.edge['kind'] != 'containment':
+            halo = QColor(color)
+            halo.setAlpha(24)
+            painter.setPen(QPen(halo, 5))
+            painter.drawPath(self.path())
+        pen = QPen(QBrush(gradient), 1.2 if self.edge['kind'] == 'containment' else 1.6)
         if self.edge['kind'] == 'containment':
             pen.setStyle(Qt.DotLine)
-        painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(pen)
-        painter.setBrush(Qt.NoBrush)
         painter.drawPath(self.path())
         painter.setBrush(color)
         painter.drawPolygon(self.arrowhead)
         labels = self.edge.get('mode_labels', ())
         if labels:
-            text = ' / '.join(tr(label) for label in labels)
+            painter.save()
+            painter.setClipRect(viewport, Qt.IntersectClip)
             font = QFont('Open Sans')
             font.setWeight(QFont.Light)
             font.setPixelSize(font_px(12))
             painter.setFont(font)
-            bounds = QRectF(self.end.x() - 110, self.end.y() - 42, 220, 24)
             painter.setBrush(QColor(palette['page']))
             painter.setPen(Qt.NoPen)
-            painter.drawRoundedRect(bounds, 8, 8)
+            painter.drawRoundedRect(self._badge_rect(), 8, 8)
             painter.setPen(QColor(palette['fg']))
-            painter.drawText(bounds, Qt.AlignCenter, text)
+            painter.drawText(self._badge_rect(), Qt.AlignCenter, ' / '.join(tr(label) for label in labels))
+            painter.restore()
+        painter.restore()
 
 
 class _EasyWorkflowView(_WorkflowView):
@@ -4835,6 +4955,11 @@ class _EasyWorkflowView(_WorkflowView):
 
         self._selected_key = None
         self._columns = 1
+        self._direction = 1
+        self._root_y = 0
+        self._root_x = None
+        self._node_side = 192
+        self._first_y = 64
         self.branch_records = []
         self.remaining_records = []
         super().__init__(data, keys=(), parent=parent)
@@ -4843,7 +4968,8 @@ class _EasyWorkflowView(_WorkflowView):
         self._auto_fit = False
         self.setObjectName('EasyWorkflowView')
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.verticalScrollBar().valueChanged.connect(self._position_connections)
         for edge in self.edges:
             self.scene().removeItem(edge)
             delete(edge)
@@ -4889,34 +5015,52 @@ class _EasyWorkflowView(_WorkflowView):
         self.explain_node(key)
 
     def _arrange_branches(self):
-        """Wrap a bounded direct-child row while retaining normal internal scrolling."""
+        """Wrap only direct children within the free side of the anchored card."""
         from PySide6.QtCore import QPointF
         from shiboken6 import delete
 
-        width = max(300, self.viewport().width())
-        self._columns = 2 if width >= 580 else 1
+        width = max(224, self.viewport().width())
+        self._columns = 2 if width >= 488 else 1
         for node in self.nodes.values():
             node.hide()
-        for edge in self.edges:
+        old_edges, self.edges = self.edges, []
+        for edge in old_edges:
             self.scene().removeItem(edge)
             delete(edge)
-        self.edges = []
         for index, record in enumerate(self.branch_records):
             row, column = divmod(index, self._columns)
-            count = min(self._columns, len(self.branch_records) - row * self._columns)
-            x = (column - (count - 1) / 2) * 304
+            x = 32 + column * (self._node_side + 40)
+            if self._direction < 0:
+                x = width - x - self._node_side
             node = self.nodes[record['to']]
-            node.setPos(x - 130, 56 + row * 224)
+            node.setPos(x, self._first_y + row * (self._node_side + 64))
+            node._input_ports = (QPointF(5, self._node_side * 0.75),)
             node.show()
-            edge = _EasyWorkflowEdge(self, record, QPointF(0, 0), QPointF(x, node.pos().y()))
+            edge = _EasyWorkflowEdge(self, record, QPointF(0, self._root_y),
+                                     node.pos() + node._input_ports[0])
             self.scene().addItem(edge)
             self.edges.append(edge)
         rows = (len(self.branch_records) + self._columns - 1) // self._columns
-        height = 56 + max(0, rows - 1) * 224 + (180 if rows else 0) + 16
-        self.setSceneRect(QRectF(-width / 2, 0, width, max(height, self.viewport().height())))
+        height = (self._first_y + max(0, rows - 1) * (self._node_side + 64)
+                  + (self._node_side if rows else 0) + 16)
+        self.setSceneRect(QRectF(0, 0, width, max(height, self.viewport().height())))
+        self._position_connections()
+
+    def _position_connections(self):
+        """Connect each visible child to its own unchanged native output port."""
+        parent = self.parentWidget()
+        if parent.central is None:
+            return
+        ports = getattr(parent.central, '_workflow_ports', ())
+        if len(ports) != len(self.edges):
+            return
+        for port, edge in zip(ports, self.edges):
+            point = self.viewport().mapFromGlobal(parent.central.mapToGlobal(port))
+            edge._set_origin(self.mapToScene(point))
+        parent.update()
 
     def resizeEvent(self, event):
-        """Only the downstream viewport reflows; the selected action remains fixed."""
+        """Reflow child rows without moving the original selected module card."""
         super().resizeEvent(event)
         if self._selected_key is not None:
             self._arrange_branches()
@@ -4928,17 +5072,25 @@ class _EasyWorkflowPage(QWidget):
     back_requested = Signal()
     open_requested = Signal(str, str)
 
-    def __init__(self, data, actions, selected, parent=None):
+    def __init__(self, data, actions, selected, source_card, anchor, parent=None):
         """Separate available navigation from scientific compatibility and future output."""
-        from PySide6.QtWidgets import QTextBrowser
+        from PySide6.QtCore import QEasingCurve, QVariantAnimation
+        from PySide6.QtWidgets import QGraphicsOpacityEffect, QTextBrowser
         from .field_fade import OPT_OUT_PROPERTY
         from ..i18n import tr
 
         self.central = None
+        self._source_card = source_card
+        self._source_parent = source_card.parentWidget()
+        self._anchor = QRect(anchor)
+        self._progress = 0.0
         super().__init__(parent)
         self.setObjectName('EasyWorkflowPage')
         make_transparent(self)
+        self.setProperty("spacrAmbientTransparentOverlay", True)
         self.data = data
+        self._source_card.setParent(self)
+        self._source_card.activated.connect(self.open_requested)
         self.routes = {action[0]: action for action in actions}
         artifacts = {'mask': {'raw_images'}, 'make_masks': {'raw_images'},
                      'measure': {'merged'}, 'db_browser': {'measurements'}, 'foreign': {'foreign_tables'}}
@@ -4986,6 +5138,19 @@ class _EasyWorkflowPage(QWidget):
         self.empty.setAlignment(Qt.AlignCenter)
         make_transparent(self.empty)
         self.select(selected)
+        self._effects = []
+        for widget in (self.view, self.details, self.tools, self.more, self.back, self.empty):
+            effect = QGraphicsOpacityEffect(widget)
+            effect.setOpacity(0.0)
+            widget.setGraphicsEffect(effect)
+            self._effects.append(effect)
+        self._transition = QVariantAnimation(self)
+        self._transition.setStartValue(0.0)
+        self._transition.setEndValue(1.0)
+        self._transition.setDuration(2200)
+        self._transition.setEasingCurve(QEasingCurve.InOutCubic)
+        self._transition.valueChanged.connect(self._emerge)
+        self._entered = False
 
     def _choose_tool(self, index):
         """Select an available tool without inventing an input or starting a run."""
@@ -5000,30 +5165,26 @@ class _EasyWorkflowPage(QWidget):
             self.select(key)
 
     def select(self, key):
-        """A child choice reveals its branch; only the selected native card opens it."""
-        from PySide6.QtWidgets import QBoxLayout
+        """Replace only the action at the original anchor when a child is chosen."""
+        from ..iconset import app_icon
         from ..i18n import tr
 
         if key not in self.data['modules']:
             return
         if self.central is not None:
             self.central.hide()
-            self.central.deleteLater()
+            if self.central is not self._source_card:
+                self.central.deleteLater()
         module = self.data['modules'][key]
-        action = self.routes.get(key, (key, tr(module['name']), tr(module.get('guidance', '')), ''))
-        self.central = _EasySuggestionCard(action, self)
-        self.central.description.hide()
-        content = self.central.content.layout()
-        heading = content.itemAt(0).layout()
-        heading.setDirection(QBoxLayout.TopToBottom)
-        heading.setAlignment(Qt.AlignCenter)
-        self.central.icon.setAlignment(Qt.AlignCenter)
-        self.central.icon.setPixmap(scaled_for(self.central.icon.pixmap(), self.central.icon, 64))
-        title = heading.itemAt(1).widget()
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet(f'font-family: "Open Sans"; font-size: {font_px(20)}px; font-weight: 300;')
-        content.setAlignment(Qt.AlignCenter)
-        self.central.activated.connect(self.open_requested)
+        if key == self._source_card._key:
+            self.central = self._source_card
+        else:
+            action = self.routes.get(key, (key, tr(module['name']), tr(module.get('guidance', '')), ''))
+            self.central = _EasySuggestionCard(action, self)
+            if module.get('route'):
+                self.central._module_icon = app_icon(module['host_key'], theme='dark')
+                self.central._refresh_icon()
+            self.central.activated.connect(self.open_requested)
         self.central.show()
         self.view.center_selection(key)
         self.tools.setCurrentIndex(-1)
@@ -5038,26 +5199,61 @@ class _EasyWorkflowPage(QWidget):
         self.central.setFocus()
 
     def _arrange(self):
-        """Reserve a complete child row at laptop sizes without scrolling the root."""
+        """Place the branch on the free side without recentering the selected card."""
         if self.central is None:
             return
-        width = min(320, max(260, self.width() - 48))
-        height = max(144, self.central.sizeHint().height(), self.central.layout().totalHeightForWidth(width))
+        self.central.setGeometry(self._anchor)
+        from PySide6.QtCore import QPoint
+
+        count = len(self.view.branch_records)
+        first, last = 16, max(16, self.central.height() // 3)
+        self.central._workflow_ports = tuple(QPoint(self.central.width() - 5,
+            round((first + last) / 2 if count == 1 else first + index * (last - first) / (count - 1)))
+            for index in range(count))
+        self.central._port_opacity = self._progress
+        self.central.update()
         header_height = max(32, self.back.sizeHint().height(),
                             self.tools.minimumSizeHint().height(), self.more.minimumSizeHint().height())
         stacked = self.width() < 572 and self.more.isVisible()
         header_bottom = 16 + header_height * (2 if stacked else 1) + (8 if stacked else 0)
-        self.central.setGeometry((self.width() - width) // 2, header_bottom + 8, width, height)
-        first_row_bottom = min((node.pos().y() + node.boundingRect().height()
-                                for node in self.view.nodes.values() if node.isVisible()), default=0)
-        details_height = 88 if (self.width() < 800 or self.height() <
-                               self.central.geometry().bottom() + 1 + 16 + 128 + 16
-                               + first_row_bottom + 12) else 128
         details_width = min(520, max(260, self.width() - 32))
-        details_y = self.central.geometry().bottom() + 17
-        self.details.setGeometry((self.width() - details_width) // 2, details_y, details_width, details_height)
-        branch_y = self.details.geometry().bottom() + 17
-        self.view.setGeometry(0, branch_y, self.width(), max(1, self.height() - branch_y - 12))
+        details_height = 88
+        bottom = QRect((self.width() - details_width) // 2, self.height() - details_height - 16,
+                       details_width, details_height)
+        if bottom.adjusted(-16, -16, 16, 16).intersects(self._anchor):
+            bottom.moveTop(header_bottom + 16)
+            top = bottom.bottom() + 17
+            limit = self.height() - 16
+        else:
+            top = header_bottom + 16
+            limit = bottom.top() - 16
+        self.details.setGeometry(bottom)
+        self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1
+        if self.view._direction > 0:
+            x, width = self._anchor.right() + 1, self.width() - self._anchor.right() - 17
+        else:
+            x, width = 16, self._anchor.left() - 16
+        self.view._node_side = 192
+        self.view._first_y = 64
+        self.view._root_x = None
+        self.view._root_y = self._anchor.center().y() - top
+        height = limit - top
+        if width < 224:
+            x, width = 16, self.width() - 32
+            self.view._node_side = 144
+            self.view._first_y = 46
+            self.view._root_x = self._anchor.center().x() - x
+            above = self._anchor.top() - top
+            below = limit - self._anchor.bottom() - 1
+            if above >= below:
+                height = above
+                self.view._root_y = height
+            else:
+                top = self._anchor.bottom() + 1
+                height = below
+                self.view._root_y = 0
+        self.view.setGeometry(x, top, max(1, width), max(1, height))
+        self.view._arrange_branches()
         self.empty.setGeometry(self.view.geometry())
         self.back.setGeometry(16, 16, max(70, self.back.sizeHint().width()), header_height)
         self.tools.setGeometry(max(104, self.width() - 236), 16, 220, header_height)
@@ -5069,10 +5265,74 @@ class _EasyWorkflowPage(QWidget):
         self.tools.raise_()
         self.more.raise_()
 
+    def _emerge(self, value):
+        """Dim the surrounding live field gradually as the branch becomes visible."""
+        self._progress = float(value)
+        if self.central is not None:
+            self.central._port_opacity = self._progress
+            self.central.update()
+        for effect in self._effects:
+            effect.setOpacity(self._progress)
+        self.update()
+
+    def _sync_run_state(self):
+        """Finish this single transition immediately when decorative motion is disabled."""
+        from ..preferences import get_ambient_enabled, get_reduce_motion
+
+        if not get_ambient_enabled() or get_reduce_motion():
+            self._transition.stop()
+            self._emerge(1.0)
+
+    def showEvent(self, event):
+        """Animate the network once while its original native card remains unchanged."""
+        from ..preferences import get_ambient_enabled, get_reduce_motion
+
+        super().showEvent(event)
+        if not self._entered:
+            self._entered = True
+            if get_ambient_enabled() and not get_reduce_motion():
+                self._transition.start()
+            else:
+                self._emerge(1.0)
+
+    def paintEvent(self, event):
+        """Shade only the field gently, leaving the selected card's anchor undimmed."""
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QRadialGradient
+
+        painter = QPainter(self)
+        gradient = QRadialGradient(QPointF(self._anchor.center()), max(self.width(), self.height()))
+        gradient.setColorAt(0.0, QColor(0, 0, 0, 0))
+        gradient.setColorAt(0.25, QColor(0, 0, 0, round(28 * self._progress)))
+        gradient.setColorAt(1.0, QColor(0, 0, 0, round(90 * self._progress)))
+        painter.fillRect(self.rect(), gradient)
+        painter.setOpacity(self._progress)
+        painter.translate(self.view.viewport().mapTo(self, self.view.viewport().rect().topLeft()))
+        painter.setWorldTransform(self.view.viewportTransform(), True)
+        for edge in self.view.edges:
+            node = self.view.nodes[edge.edge['to']]
+            visible = self.view.mapFromScene(node.sceneBoundingRect()).boundingRect()
+            if visible.intersects(self.view.viewport().rect()):
+                edge.draw_connection(painter)
+        painter.end()
+
+    def release_source_card(self):
+        """Restore the original card to its unchanged suggestion list before retiring."""
+        self._transition.stop()
+        self._source_card.activated.disconnect(self.open_requested)
+        self._source_card._workflow_ports = ()
+        self._source_card.setParent(self._source_parent)
+        self._source_card.setGeometry(self._source_card._final_rect)
+        self._source_card.show()
+        return self._source_card
+
     def resizeEvent(self, event):
-        """Reflow child rows while the selected action and guidance retain ownership."""
+        """Follow only the original grid placement when the window itself resizes."""
         super().resizeEvent(event)
         if self.central is not None:
+            source_rect = self._source_card._final_rect
+            origin = self.mapFromGlobal(self._source_parent.mapToGlobal(source_rect.topLeft()))
+            self._anchor = QRect(origin, source_rect.size())
             self._arrange()
 
 
@@ -5388,20 +5648,37 @@ class _EasyHomePage(QWidget):
         actions = list((self._last_result or {}).get('actions', ()))
         actions = [action for action in actions if action[0] != key]
         actions.insert(0, (key, data['modules'][key]['name'], data['modules'][key].get('guidance', ''), path))
-        self._workflow = _EasyWorkflowPage(data, actions, key, self)
+        source_card = next((card for card in self.field.cards if card._key == key), None)
+        if source_card is None:
+            return
+        self.field._finish_growth()
+        anchor = QRect(source_card.mapTo(self, source_card.rect().topLeft()), source_card.size())
+        source_card.activated.disconnect(self._select_suggestion)
+        for card in self.field.cards:
+            if card is not source_card:
+                card.hide()
+        self.path_edit.hide()
+        self.field.rim.hide()
+        self._workflow = _EasyWorkflowPage(data, actions, key, source_card, anchor, self)
+        self._workflow.setGeometry(self.rect())
         self._workflow.back_requested.connect(self._show_suggestions)
         self._workflow.open_requested.connect(self.module_requested)
-        self._suggestions_scroll.hide()
-        self.layout().addWidget(self._workflow)
         self._workflow.show()
+        self._workflow.raise_()
 
     def _show_suggestions(self):
         """Return to the unchanged path and suggestions without starting another inspection."""
         if self._workflow is not None:
+            source_card = self._workflow.release_source_card()
+            source_card.activated.connect(self._select_suggestion)
             self._workflow.hide()
             self._workflow.deleteLater()
             self._workflow = None
+            for card in self.field.cards:
+                card.show()
         self._suggestions_scroll.show()
+        self.path_edit.show()
+        self.field.rim.show()
         self.path_edit.setFocus()
 
     def _apply_regex(self, pattern):
@@ -5445,12 +5722,19 @@ class _EasyHomePage(QWidget):
         self.field.set_cards([])
         self._feedback(tr('This input could not be inspected. Check permissions and choose another path.'), visible=True)
 
+    def resizeEvent(self, event):
+        """Keep the transparent network over the same live field when resizing."""
+        super().resizeEvent(event)
+        if getattr(self, '_workflow', None) is not None:
+            self._workflow.setGeometry(self.rect())
+
     def closeEvent(self, event):
         """Stop owned timers and retire the local inspection worker before closing."""
         self._debounce.stop()
         self._cancel_regex_validation()
         self._sync_easy_ripple_policy(False)
         self._restore_easy_backdrop()
+        self._show_suggestions()
         self.field._finish_growth()
         self._runner.shutdown(3000)
         super().closeEvent(event)
