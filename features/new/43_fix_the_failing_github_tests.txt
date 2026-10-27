@@ -1,3 +1,11 @@
+CURRENT CUDA CAPABILITY GUARD — 2026-10-26
+widgets_g2 owns the Coverage 11 attribution-context false positive. Keep all
+training and inference memory-room guards; distinguish the exact CUDA RNG
+snapshot capability check from device selection without changing production.
+Require the snapshot's device list to feed only torch.random.fork_rng, retain
+busy-card behavior and the Chrome scheduler exclusion, and validate the
+smallest CPU-only owning controls before root publication.
+
 GET THE GITHUB ACTIONS RUNS GREEN
 CURRENT CENTERED COLOUR DIALOG TEST PROTOCOL — 2026-10-26
 The retained attribution worker owns five release 8e stale static-getColor
@@ -5173,3 +5181,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-26 — Closed the release paint_field_fade review gap without changing its prose, preserved reviewed prefixes, and incorporated only exact existing source-bound API overlays through normal assembly. All 18 strict locale admissions and the runtime/arrival, API/Help, source-boundary and reference/flow controls pass; all ten assembled API catalogs remain byte-exact after stock assembly. Final publication and hosted release CI remain with root; remote round 2 stays outside this candidate.
 
 2026-10-26 — Mask late/eager style comparison now opens both native category trees, activates existing hidden child layouts, and invalidates nested caches after child geometry settles. All original style, height and row assertions remain exact; Mask and Classify each pass on Qt 6.11.2 under the 8G CPU cap. Test-only; root owns publication and broader CI.
+
+2026-10-26 — Keep CUDA capability detection for the exact attribution RNG snapshot while requiring its device list to feed only fork_rng; every other training/inference availability call remains guarded. Production unchanged; all 14 busy-GPU owning CPU controls pass (8.49s). Root owns integration/publication.

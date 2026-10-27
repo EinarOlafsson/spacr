@@ -151,8 +151,7 @@ class TestWhatItSays:
 
 class TestNoEntryPointAsksTheOldQuestion:
     def test_the_training_and_inference_paths_ask_for_room(self):
-        """`torch.cuda.is_available()` alone is the question that produced
-        the OOM; a call site still asking it would still die."""
+        """Device selection asks for room; RNG snapshots ask for capability."""
         import ast
         import inspect
 
@@ -162,12 +161,33 @@ class TestNoEntryPointAsksTheOldQuestion:
         # `pick_device`'s own docstring, and a text search finds it there.
         tree = ast.parse(inspect.getsource(deep_spacr))
         allowed = {"pick_device", "_empty_device_cache"}
+        rng_assignment = ast.parse(
+            "devices = list(range(torch.cuda.device_count())) "
+            "if torch.cuda.is_available() else []").body[0]
+        rng_check = None
         stray = []
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if node.name in allowed:
                 continue
+            if node.name == "_deterministic_attribution":
+                assignment = next((part for part in ast.walk(node)
+                    if isinstance(part, ast.Assign)
+                    and ast.dump(part) == ast.dump(rng_assignment)), None)
+                assert assignment is not None, "CUDA snapshot guard changed"
+                readers = [part for part in ast.walk(node)
+                    if isinstance(part, ast.Name) and part.id == "devices"
+                    and isinstance(part.ctx, ast.Load)]
+                assert len(readers) == 1
+                assert any(isinstance(part, ast.Call)
+                    and ast.dump(part.func) == ast.dump(ast.parse(
+                        "torch.random.fork_rng", mode="eval").body)
+                    and any(keyword.arg == "devices"
+                        and keyword.value is readers[0]
+                        for keyword in part.keywords)
+                    for part in ast.walk(node))
+                rng_check = assignment.value.test
             for inner in ast.walk(node):
                 if not isinstance(inner, ast.Call):
                     continue
@@ -175,8 +195,10 @@ class TestNoEntryPointAsksTheOldQuestion:
                 if (isinstance(target, ast.Attribute)
                         and target.attr == "is_available"
                         and isinstance(target.value, ast.Attribute)
-                        and target.value.attr == "cuda"):
+                        and target.value.attr == "cuda"
+                        and inner is not rng_check):
                     stray.append(f"{node.name}:{inner.lineno}")
+        assert rng_check is not None, "CUDA RNG preservation was not checked"
         assert not stray, (
             f"{len(stray)} call site(s) still ask only whether a GPU "
             f"exists: {stray}")
