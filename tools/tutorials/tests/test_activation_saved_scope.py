@@ -51,3 +51,55 @@ def test_each_false_success_is_refused_after_positive(kind):
     if kind == 'no_grid': run['external_viewer']['saved_plots'] = []
     if kind == 'no_capture': run['external_viewer']['saved_plots'][0]['actual_desktop_capture'] = False
     with pytest.raises(ValueError): check_saved_runs(runs)
+
+
+@pytest.mark.parametrize('allow_drag', [True, False])
+def test_result_console_drag_requires_real_readable_geometry(allow_drag, monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication, QSplitter, QWidget
+    from PySide6.QtTest import QTest
+    from capture_activation import _balance_result_panes
+
+    app = QApplication.instance() or QApplication([])
+    window = QSplitter(Qt.Horizontal)
+    settings, console = QWidget(), QWidget()
+    window.addWidget(settings); window.addWidget(console)
+    window.resize(1600, 800); window.show()
+    window.setSizes([1500, 100]); app.processEvents()
+    screen = SimpleNamespace(_body_splitter=window, _settings_scroll=settings, _console=console)
+    if not allow_drag:
+        monkeypatch.setattr(QTest, 'mouseMove', lambda *args, **kwargs: None)
+    try:
+        if allow_drag:
+            _balance_result_panes(screen, window, lambda _: app.processEvents())
+            assert console.width() >= window.width() * .3
+            assert settings.width() >= window.width() * .25
+        else:
+            with pytest.raises(ValueError, match='both be readable'):
+                _balance_result_panes(screen, window, lambda _: app.processEvents())
+    finally:
+        window.close()
+
+
+def test_readable_result_panes_do_not_repeat_the_native_drag(monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication, QSplitter, QWidget
+    from PySide6.QtTest import QTest
+    from capture_activation import _balance_result_panes
+
+    app = QApplication.instance() or QApplication([])
+    window = QSplitter(Qt.Horizontal)
+    settings, console = QWidget(), QWidget()
+    window.addWidget(settings); window.addWidget(console)
+    window.resize(1600, 800); window.show()
+    window.setSizes([720, 880]); app.processEvents()
+    screen = SimpleNamespace(_body_splitter=window, _settings_scroll=settings, _console=console)
+    def unexpected_drag(*args, **kwargs):
+        raise AssertionError('An already readable layout must not be dragged again')
+    monkeypatch.setattr(QTest, 'mousePress', unexpected_drag)
+    try:
+        _balance_result_panes(screen, window, lambda _: app.processEvents())
+    finally:
+        window.close()

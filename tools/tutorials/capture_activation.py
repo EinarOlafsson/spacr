@@ -7,6 +7,32 @@ from capture_ui_drv_a import Rec, type_text
 from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs, check_saved_runs, require_cuda_reference, observe_cuda_run, check_cuda_run
 
 
+def _balance_result_panes(screen, window, settle):
+    from PySide6.QtCore import Qt, QPoint
+    from PySide6.QtTest import QTest
+
+    def balanced():
+        console = screen._console
+        origin = console.mapTo(window, QPoint(0, 0))
+        return (console.isVisible() and not console.visibleRegion().isEmpty()
+                and console.width() >= window.width() * .3
+                and origin.x() >= 0 and origin.x() + console.width() <= window.width()
+                and screen._settings_scroll.width() >= window.width() * .25)
+
+    if balanced():
+        return
+    handle = screen._body_splitter.handle(1)
+    start = handle.rect().center()
+    target_x = round(window.width() * .45)
+    end = start + QPoint(target_x - handle.mapTo(window, start).x(), 0)
+    QTest.mousePress(handle, Qt.LeftButton, pos=start)
+    QTest.mouseMove(handle, end, delay=150)
+    QTest.mouseRelease(handle, Qt.LeftButton, pos=end)
+    settle(.4)
+    if not balanced():
+        raise ValueError('The actual result console and settings panes must both be readable')
+
+
 def record_activation(app, window, stage, captures, capture, settle, write_json, timeout, *, saved_plots=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
@@ -66,6 +92,7 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
         if got!=value:raise ValueError(f'Visible setting {key}: {got!r} != {value!r}')
 
     def run(method,overlay,prefix):
+        _balance_result_panes(screen, window, settle)
         with Rec(capture,prefix+'_method_and_overlay',settle):
             set_value('cam_type',method);set_value('overlay',overlay)
         settings=screen._settings_model.collect()
@@ -95,6 +122,7 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             finally:
                 timer.stop();timer.deleteLater()
                 write_json(captures/(prefix+'_worker.json'),dict(outcome=outcome,lines=lines,settings=settings,cuda_execution=cuda_execution))
+        _balance_result_panes(screen, window, settle)
         with Rec(capture,prefix+'_finished_console',settle):
             capture_ui.console_end_all(capture,screen._console)
             capture_ui.console_to_end(capture,screen._console);settle(.3)
