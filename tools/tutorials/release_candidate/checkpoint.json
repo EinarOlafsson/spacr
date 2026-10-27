@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-ntdc4icl",
-  "manifest_sha256": "c70ac9f8f375522f58969394ca908ea808e424f72047eca9ec42f50ec7b0dbc0",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-gny53evh",
+  "manifest_sha256": "628971aa03743924617bb35b6c2c0471c3dd212b542df06f5030682cb62bbee6",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "474951c3f4180119610caa6f18cb595a67aaac2bce7fb02ec19875267808a074",
-      "bytes": 15694
+      "sha256": "eb5a032273c319a6e85056841c8a02d156956754c90857ed540d9e41179fcec1",
+      "bytes": 15682
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "d441c4a827e3f054e67c9cb31c74d17fbff2b36ad50268fcbce8188d352f8686",
-      "bytes": 621676
+      "sha256": "95cdd788fe28fb81731326343490a17b5850c98cb9412bbb167d7e26a845c402",
+      "bytes": 623226
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "c36fabf4e2250f30aa982e8eaf8d6879f2ad67730dc2b8e75aec7413abe25eb0",
+      "sha256": "1d9172d84c50b53e20584b32f028c2218c076fb0143206b6643655d30d9ac163",
       "bytes": 17171
     },
     {
@@ -674,8 +674,8 @@
     },
     {
       "path": "web/production/81_sequencing_pathways/poster.jpg",
-      "sha256": "13a72ac0d8a2dd26a4a7e6ca88c2cdd32e134461200384d95a79a0b643d806e2",
-      "bytes": 453259
+      "sha256": "bb0cd7d848f8244494c450a8b0c8a82d7fe388d9e068fedf88f7054a1c397617",
+      "bytes": 449556
     },
     {
       "path": "web/production/82_toxoplasma/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "c70ac9f8f375522f58969394ca908ea808e424f72047eca9ec42f50ec7b0dbc0",
-      "bytes": 1477415
+      "sha256": "628971aa03743924617bb35b6c2c0471c3dd212b542df06f5030682cb62bbee6",
+      "bytes": 1477463
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "f44153ee30961da9a1fb7682a9b4aecb57f966c8dd4de4c32148ba7fb4b939e5",
-      "bytes": 126692
+      "sha256": "e8bdd27b470c95a86c6968f3f6af06a526b0e22f1975f88ad0b20709aaf0af93",
+      "bytes": 126710
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-56-lineage-20261026-idle1",
-    "tag": "n676-ws-56-lineage-20261026-idle1-verified",
-    "commit": "e6851eb142c2145645211d597ff72634dd09498d",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e6851eb142c2145645211d597ff72634dd09498d"
+    "branch": "n676-ws-81-sequencing-pathways-20261027-idle1",
+    "tag": "n676-ws-81-sequencing-pathways-20261027-idle1-verified",
+    "commit": "0baf4da157a17f99b7a0b3d95f036960890e7afe",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0baf4da157a17f99b7a0b3d95f036960890e7afe"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

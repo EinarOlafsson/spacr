@@ -2699,7 +2699,7 @@ def _validated_prior_weighted_preview_callables(callables):
                         default = next(value.value for value in default.keywords
                                        if value.arg == "default")
                     assert ast.literal_eval(default) is None
-        assert hashlib.sha256(ast.dump(signature, include_attributes=False).encode()).hexdigest() == signature_sha
+        assert hashlib.sha256(_portable_boundary_ast_dump(signature).encode()).hexdigest() == signature_sha
     return [replace(item, parameters=item.parameters - contracts[item.symbol][2],
                     accepted_documented_parameters=(
                         item.accepted_documented_parameters - contracts[item.symbol][2]))
@@ -2743,6 +2743,40 @@ def _validated_signed_cell_measurement_arrival(callables):
     return callables
 
 
+def _portable_boundary_ast_dump(node):
+    """Keep pinned structural hashes stable across empty AST schema additions."""
+    import copy
+
+    canonical = copy.deepcopy(node)
+    for declaration in ast.walk(canonical):
+        if isinstance(declaration, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if "type_params" not in declaration._fields:
+                declaration._fields = (*declaration._fields, "type_params")
+            if not hasattr(declaration, "type_params"):
+                declaration.type_params = []
+    options = {"include_attributes": False}
+    if "show_empty" in inspect.signature(ast.dump).parameters:
+        options["show_empty"] = True
+    return ast.dump(canonical, **options)
+
+
+def test_boundary_ast_hash_preserves_semantics_across_empty_generic_schemas():
+    import copy
+
+    declaration = ast.parse("def boundary(value: bool) -> bool:\n    return value\n").body[0]
+    legacy = copy.deepcopy(declaration)
+    legacy._fields = tuple(field for field in legacy._fields if field != "type_params")
+    if hasattr(legacy, "type_params"):
+        del legacy.type_params
+    expected = _portable_boundary_ast_dump(declaration)
+    assert _portable_boundary_ast_dump(legacy) == expected
+    legacy.body[0].value = ast.Constant(value=False)
+    assert _portable_boundary_ast_dump(legacy) != expected
+    parameterized = copy.deepcopy(declaration)
+    parameterized.type_params = [ast.Name(id="T", ctx=ast.Load())]
+    assert _portable_boundary_ast_dump(parameterized) != expected
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -2774,7 +2808,7 @@ def _validated_733_easy_mode_callables(callables):
         assert _documented_parameter_names(item.docstring) == parameters
         declaration = declarations[name]
         assert _clean_doc(declaration) == entries[symbol]
-        assert hashlib.sha256(ast.dump(declaration, include_attributes=False).encode()).hexdigest() == body_hash
+        assert hashlib.sha256(_portable_boundary_ast_dump(declaration).encode()).hexdigest() == body_hash
         assert not declaration.decorator_list
         assert not declaration.args.posonlyargs and not declaration.args.defaults
         assert not declaration.args.kwonlyargs and not declaration.args.kw_defaults

@@ -228,7 +228,8 @@ def test_the_top_quality_loads_full_resolution_in_the_image_and_well_views(mask,
                     timeout=15000)
     assert view.view._item.pixmap().height() == 400
     qtbot.waitUntil(lambda: None in edges, timeout=15000)
-    qtbot.waitUntil(lambda: (panel.field_list.item(0).data(Qt.UserRole + 1) or (0,))[-1] is None, timeout=15000)
+    qtbot.waitUntil(lambda: len(panel.field_list.item(0).data(Qt.UserRole + 1) or ()) == 8
+                    and panel.field_list.item(0).data(Qt.UserRole + 1)[5] is None, timeout=15000)
     assert tab._settings_model._read_value("overview_preview_resolution") == 0
 
 
