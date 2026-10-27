@@ -7112,7 +7112,6 @@ class MainWindow(QMainWindow):
 
         if isinstance(self._startup, _EasyHomePage):
             self._startup.module_requested.connect(self._open_easy_suggestion)
-            self._startup.dock_visibility_changed.connect(self._set_easy_dock)
         if getattr(self, "_easy_drop_watcher", None) is None:
             self._easy_drop_watcher = _EasyDropWatcher(self)
         self._startup.tile_clicked.connect(self._on_nav_selected)
@@ -7126,13 +7125,6 @@ class MainWindow(QMainWindow):
         self._a_page_joined_the_stack(self._startup)
         self._stack.addWidget(self._startup)
         self._drop_a_redundant_screen_backdrop(self._startup)
-
-    def _set_easy_dock(self, visible):
-        """Apply Easy mode's dock choice without overwriting the ordinary dock setting."""
-        from .preferences import set_easy_mode_dock
-
-        set_easy_mode_dock(visible)
-        self.apply_dock_mode()
 
     def _easy_mode_drop(self, paths):
         """Bring the local Easy Home forward for a whole-window file or folder drop."""

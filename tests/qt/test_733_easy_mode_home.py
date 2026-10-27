@@ -112,7 +112,10 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
         qtbot.keyClicks(page.path_edit, str(image))
         qtbot.keyClick(page.path_edit, Qt.Key_Return)
         qtbot.waitUntil(lambda: len(page.field.cards) == 2, timeout=5000)
+        qtbot.waitUntil(lambda: all(not card._growing for card in page.field.cards), timeout=7000)
         assert page.path_edit.text() == str(image)
+        assert page.path_edit.placeholderText() == 'Type a path or Drop some images here ...'
+        assert page.path_edit.rect().contains(page.path_edit.browse.geometry())
         assert page.path_edit.isVisible()
         panel = page.field.panel.geometry()
         rectangles = [card.geometry() for card in page.field.cards]
@@ -128,7 +131,7 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
         assert selected == [('make_masks', str(image))]
         assert preferences.get_preferred_provider() == 'none'
         page.hide()
-        assert not page.field._timer.isActive()
+        assert not page.field._animations
     finally:
         page.close()
         assert not page._runner.active_jobs()
@@ -175,9 +178,12 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
             assert 'one local file or folder' in page.status.text()
             qtbot.keyClick(page.path_edit, Qt.Key_Return)
         qtbot.waitUntil(lambda: not page._runner.is_busy() and page._requested == str(second), timeout=5000)
-        assert len(page.field.cards) == 1
+        assert len(page.field.cards) == 3
+        assert {card._key for card in page.field.cards} == {'foreign', 'make_masks', 'mask'}
         assert page.field.cards[0]._key == 'foreign'
-        assert all(card._path == str(second) for card in page.field.cards)
+        assert page.field.cards[0]._path == str(second)
+        assert all(card._path == str(tmp_path) for card in page.field.cards[1:])
+        assert all(card._path != str(first) for card in page.field.cards)
         assert 'first.tif' not in page.status.text()
         page.accept_paths([str(first), str(second)])
         assert 'one local file or folder' in page.status.text()
@@ -217,10 +223,12 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
     assert isinstance(page, _EasyHomePage)
     try:
         assert window._dock_mode == 'hidden'
-        page.dock_toggle.setChecked(True)
+        preferences.set_easy_mode_dock(True)
+        window.refresh_after_preferences({"easy_mode_dock"})
         assert window._dock_mode == 'locked'
         assert preferences.get_dock_mode() == 'hidden'
-        page.dock_toggle.setChecked(False)
+        preferences.set_easy_mode_dock(False)
+        window.refresh_after_preferences({"easy_mode_dock"})
         assert window._dock_mode == 'hidden'
         mime = QMimeData()
         mime.setUrls([QUrl.fromLocalFile(str(image))])
@@ -234,6 +242,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         qtbot.waitUntil(lambda: len(page.field.cards) == 2, timeout=5000)
         assert page.path_edit.text() == str(image)
         card = next(card for card in page.field.cards if card._key == 'make_masks')
+        qtbot.waitUntil(lambda: not card._growing and card.button.isEnabled(), timeout=7000)
         card.button.click()
         qtbot.waitUntil(lambda: 'make_masks' in window._screens, timeout=10000)
         screen = window._screens['make_masks']
@@ -271,21 +280,67 @@ def test_reduce_motion_and_reinspection_retire_owned_animation_objects(
     qtbot.addWidget(page)
     page.show()
     try:
-        assert not page.field._timer.isActive()
         page.field.set_cards(actions)
         assert not page.field.findChildren(QPropertyAnimation)
+        assert all(not card._growing and card._content_opacity.opacity() == 1.0
+                   for card in page.field.cards)
         preferences.set_reduce_motion(False)
         preferences._hold_the_backdrops_still(qapp)
-        assert page.field._timer.isActive()
         for _ in range(3):
             page.field.set_cards(actions)
             QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
             assert len(page.field.findChildren(QPropertyAnimation)) == len(actions)
+        first = page.field.cards[0]
+        assert first.geometry().width() == 1
+        qtbot.waitUntil(lambda: 10 < first.width() < first._final_rect.width(), timeout=3000)
+        assert first._growing
+        assert not first.button.isEnabled()
+        assert first._content_opacity.opacity() < 1.0
         preferences.set_reduce_motion(True)
         preferences._hold_the_backdrops_still(qapp)
-        assert not page.field._timer.isActive()
-        assert all(card.graphicsEffect().opacity() == 1.0 for card in page.field.cards)
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not page.field._animations
+        assert not page.field.findChildren(QPropertyAnimation)
+        assert all(not card._growing and card.geometry() == card._final_rect
+                   and card.button.isEnabled() and card._content_opacity.opacity() == 1.0
+                   for card in page.field.cards)
+        preferences.set_reduce_motion(False)
+        preferences.set_ambient_enabled(False)
+        page.field.set_cards(actions)
+        assert not page.field._animations
+        assert all(card.geometry() == card._final_rect and card._content_opacity.opacity() == 1.0
+                   for card in page.field.cards)
         page.hide()
-        assert not page.field._timer.isActive()
+        assert not page.field._animations
     finally:
         page.close()
+
+
+def test_growing_card_footprints_part_existing_dots_and_release_without_lattice_mutation(qapp):
+    from spacr.qt.widgets import ambient
+
+    engine = ambient.make_engine('data_art_impulse_lens', 'spacr', '#101418', seed=42)
+    transport = ambient._QueuedArtInput()
+    x = np.array([0.45, 0.50, 0.55, 0.85], dtype=np.float32)
+    y = np.array([0.50, 0.50, 0.50, 0.85], dtype=np.float32)
+    original_x, original_y = x.copy(), y.copy()
+    transport._growing_regions = ((0.48, 0.48, 0.52, 0.52),)
+    transport._consume(engine)
+    small_x, small_y = engine._part_growing_regions(x, y, 1000, 800)
+    transport._growing_regions = ((0.35, 0.35, 0.65, 0.65),)
+    transport._consume(engine)
+    large_x, large_y = engine._part_growing_regions(x, y, 1000, 800)
+    assert large_x[0] < small_x[0] and large_x[2] > small_x[2]
+    assert np.all((large_x[:3] < 0.35) | (large_x[:3] > 0.65)
+                  | (large_y[:3] < 0.35) | (large_y[:3] > 0.65))
+    assert (large_x[-1], large_y[-1]) == (x[-1], y[-1])
+    np.testing.assert_array_equal(x, original_x)
+    np.testing.assert_array_equal(y, original_y)
+    transport._growing_regions = ()
+    transport._consume(engine)
+    restored_x, restored_y = engine._part_growing_regions(x, y, 1000, 800)
+    np.testing.assert_array_equal(restored_x, x)
+    np.testing.assert_array_equal(restored_y, y)
+    transport._growing_regions = ((0.35, 0.35, 0.65, 0.65),)
+    transport._consume(engine, discard_clicks=True)
+    assert engine._growing_regions == ()
