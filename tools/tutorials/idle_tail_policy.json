@@ -3591,6 +3591,79 @@
           "idle_tail_start": 11.0
         }
       ]
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "master_sha256": "e51255930ab287c316f6fc27d661264a8f680401fb7d536b0cd4537a0e1ccc64",
+      "visual_timing_sha256": "99598097dd04f231ba7f0f432f0a323f07ce9ae9fb9467f7ad27677162440e33",
+      "scenes": [
+        {
+          "visual": "home",
+          "source_start": 0.0,
+          "source_end": 41.766666666666666,
+          "idle_tail_start": 2.0
+        },
+        {
+          "visual": "module_map_barcodes",
+          "source_start": 41.766666666666666,
+          "source_end": 80.7,
+          "idle_tail_start": 17.3
+        },
+        {
+          "visual": "module_barcode_qc",
+          "source_start": 80.7,
+          "source_end": 109.96666666666667,
+          "idle_tail_start": 14.5
+        },
+        {
+          "visual": "module_ops",
+          "source_start": 109.96666666666667,
+          "source_end": 148.73333333333332,
+          "idle_tail_start": 12.8
+        },
+        {
+          "visual": "module_regression",
+          "source_start": 148.73333333333332,
+          "source_end": 203.26666666666668,
+          "idle_tail_start": 17.1
+        },
+        {
+          "visual": "module_power",
+          "source_start": 203.26666666666668,
+          "source_end": 239.9,
+          "idle_tail_start": 15.8
+        },
+        {
+          "visual": "module_experiment_design",
+          "source_start": 239.9,
+          "source_end": 280.8666666666667,
+          "idle_tail_start": 14.0
+        },
+        {
+          "visual": "module_dose_response",
+          "source_start": 280.8666666666667,
+          "source_end": 312.0,
+          "idle_tail_start": 13.0
+        },
+        {
+          "visual": "module_run_compare",
+          "source_start": 312.0,
+          "source_end": 344.6333333333333,
+          "idle_tail_start": 14.0
+        },
+        {
+          "visual": "module_simulation",
+          "source_start": 344.6333333333333,
+          "source_end": 417.76666666666665,
+          "idle_tail_start": 17.5
+        },
+        {
+          "visual": "home_summary",
+          "source_start": 417.76666666666665,
+          "source_end": 456.1333333333333,
+          "idle_tail_start": 2.0
+        }
+      ]
     }
   ]
 }
