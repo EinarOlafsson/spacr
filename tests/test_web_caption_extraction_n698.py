@@ -98,7 +98,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
     source_root = root / "spacr"
     (source_root / "qt").mkdir(parents=True)
     for filename in (
-        "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
+        "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py", "convert.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
         "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "channel_sorting.py", "utils.py",
