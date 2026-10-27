@@ -288,6 +288,8 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
         'beads/plate1_A01_1.tif', 'beads/plate1_A01_2.tif'} for row in records)
     measure.measure_crop(dict(options))
     before = database.read_bytes()
+    # Item 736 isolates fresh runs; these guards protect continuation instead.
+    options['resume'] = True
     _write_table(sessions, list(reversed(rows)))
     with pytest.raises(ValueError, match='unverified intensity'):
         measure.measure_crop(dict(options))
