@@ -620,6 +620,28 @@
   "historical_source_commit": "d988f1925e986f1da0036cab84dd951a3ff7dbd4",
   "historical_source_sha256": "5a8de59adfeaaa0fa03d72fef4f790f4f52974b25ad18453166d2c443d94cc1f",
   "retired": {
+    "Authenticate in spaCR (keyboard-interactive / MFA)": {
+      "de": "In spaCR authentifizieren (Keyboard-Interactive / MFA)",
+      "es": "Autenticarse en spaCR (interactiva por teclado / MFA)",
+      "fr": "S’authentifier dans spaCR (interaction clavier / MFA)",
+      "hi": "spaCR में प्रमाणीकरण करें (कीबोर्ड-इंटरैक्टिव / MFA)",
+      "is": "Auðkenna í spaCR (gagnvirkt lyklaborð / MFA)",
+      "ko": "spaCR에서 인증 (키보드 대화식 / MFA)",
+      "pt": "Autenticar no spaCR (interativa por teclado / MFA)",
+      "sv": "Autentisera i spaCR (tangentbordsinteraktivt / MFA)",
+      "zh_CN": "在 spaCR 中认证（键盘交互 / MFA）"
+    },
+    "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.": {
+      "de": "Great Lakes kann ein Kerberos-Passwort und eine Okta-Verifizierung anfordern. spaCR zeigt Serverabfragen unverändert an und speichert weder Passwort noch Einmalcode.",
+      "es": "Great Lakes puede pedir una contraseña Kerberos y verificación de Okta. spaCR muestra las solicitudes del servidor literalmente y no guarda contraseñas ni códigos de un solo uso.",
+      "fr": "Great Lakes peut demander un mot de passe Kerberos et une vérification Okta. spaCR affiche les demandes du serveur mot pour mot et ne conserve ni mot de passe ni code à usage unique.",
+      "hi": "Great Lakes Kerberos पासवर्ड और Okta सत्यापन माँग सकता है। spaCR सर्वर के संकेत ज्यों के त्यों दिखाता है और पासवर्ड या एकबारगी कोड नहीं सहेजता।",
+      "is": "Great Lakes gæti beðið um Kerberos-lykilorð og Okta-staðfestingu. spaCR sýnir beiðnir þjónsins orðrétt og vistar hvorki lykilorð né einnota kóða.",
+      "ko": "Great Lakes는 Kerberos 암호와 Okta 확인을 요청할 수 있습니다. spaCR는 서버 요청을 원문 그대로 표시하며 암호나 일회용 코드를 저장하지 않습니다.",
+      "pt": "Great Lakes pode pedir uma palavra-passe Kerberos e verificação Okta. O spaCR mostra os pedidos do servidor tal como recebidos e não guarda palavras-passe ou códigos de uso único.",
+      "sv": "Great Lakes kan be om ett Kerberos-lösenord och Okta-verifiering. spaCR visar serverns frågor ordagrant och lagrar inget lösenord eller någon engångskod.",
+      "zh_CN": "Great Lakes 可能要求 Kerberos 密码和 Okta 验证。spaCR 会原样显示服务器提示，不保存密码或一次性验证码。"
+    },
     "SSH authentication was denied. Test the connection to try again.": {
       "de": "Die SSH-Authentifizierung wurde abgelehnt. Testen Sie die Verbindung für einen neuen Versuch.",
       "es": "Se denegó la autenticación SSH. Prueba la conexión para reintentarlo.",
@@ -730,6 +752,15 @@
       "commit": "d7237413a253ac716c1e0c70c49b4d808001aa9e",
       "removed": [
         "SSH authentication was denied. Test the connection to try again."
+      ]
+    },
+    {
+      "added": [],
+      "changed": [],
+      "commit": "cd90922ad2e382ef1a9dd916c2044a728edf4b30",
+      "removed": [
+        "Authenticate in spaCR (keyboard-interactive / MFA)",
+        "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP."
       ]
     }
   ]

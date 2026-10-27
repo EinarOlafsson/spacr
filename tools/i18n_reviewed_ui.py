@@ -68,16 +68,6 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         '비밀 정보 없는 SSH 설정입니다. 연결하기 전에 가져온 파일 경로와 연결 경로를 검토하세요.',
         'SSH-stillingar án leyndarmála. Yfirfarðu innflutta skráarslóða og tengileiðir áður en þú tengist.',
         'Paramètres SSH sans secrets. Vérifiez les chemins de fichiers et les routes de connexion importés avant de vous connecter.'),
-    'Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.': _row(
-        'Great Lakes kan be om ett Kerberos-lösenord och Okta-verifiering. spaCR visar serverns frågor ordagrant och lagrar inget lösenord eller någon engångskod.',
-        'Great Lakes kann ein Kerberos-Passwort und eine Okta-Verifizierung anfordern. spaCR zeigt Serverabfragen unverändert an und speichert weder Passwort noch Einmalcode.',
-        'Great Lakes puede pedir una contraseña Kerberos y verificación de Okta. spaCR muestra las solicitudes del servidor literalmente y no guarda contraseñas ni códigos de un solo uso.',
-        'Great Lakes 可能要求 Kerberos 密码和 Okta 验证。spaCR 会原样显示服务器提示，不保存密码或一次性验证码。',
-        'Great Lakes pode pedir uma palavra-passe Kerberos e verificação Okta. O spaCR mostra os pedidos do servidor tal como recebidos e não guarda palavras-passe ou códigos de uso único.',
-        'Great Lakes Kerberos पासवर्ड और Okta सत्यापन माँग सकता है। spaCR सर्वर के संकेत ज्यों के त्यों दिखाता है और पासवर्ड या एकबारगी कोड नहीं सहेजता।',
-        'Great Lakes는 Kerberos 암호와 Okta 확인을 요청할 수 있습니다. spaCR는 서버 요청을 원문 그대로 표시하며 암호나 일회용 코드를 저장하지 않습니다.',
-        'Great Lakes gæti beðið um Kerberos-lykilorð og Okta-staðfestingu. spaCR sýnir beiðnir þjónsins orðrétt og vistar hvorki lykilorð né einnota kóða.',
-        'Great Lakes peut demander un mot de passe Kerberos et une vérification Okta. spaCR affiche les demandes du serveur mot pour mot et ne conserve ni mot de passe ni code à usage unique.'),
     # N699 exact-source AI technical reviews; no human/native-speaker signoff.
     'A private-key file cannot be used as SSH configuration.': _row(
         'En privatnyckelfil kan inte användas som SSH-konfiguration.',
@@ -89,16 +79,6 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         '개인 키 파일을 SSH 설정으로 사용할 수 없습니다.',
         'Ekki er hægt að nota einkalykilsskrá sem SSH-stillingar.',
         'Un fichier de clé privée ne peut pas servir de configuration SSH.'),
-    'Authenticate in spaCR (keyboard-interactive / MFA)': _row(
-        'Autentisera i spaCR (tangentbordsinteraktivt / MFA)',
-        'In spaCR authentifizieren (Keyboard-Interactive / MFA)',
-        'Autenticarse en spaCR (interactiva por teclado / MFA)',
-        '在 spaCR 中认证（键盘交互 / MFA）',
-        'Autenticar no spaCR (interativa por teclado / MFA)',
-        'spaCR में प्रमाणीकरण करें (कीबोर्ड-इंटरैक्टिव / MFA)',
-        'spaCR에서 인증 (키보드 대화식 / MFA)',
-        'Auðkenna í spaCR (gagnvirkt lyklaborð / MFA)',
-        'S’authentifier dans spaCR (interaction clavier / MFA)'),
     'Choose ProxyJump or ProxyCommand, not both.': _row(
         'Välj antingen ProxyJump eller ProxyCommand.',
         'Wählen Sie entweder ProxyJump oder ProxyCommand.',
