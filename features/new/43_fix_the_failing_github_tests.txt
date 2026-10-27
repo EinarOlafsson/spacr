@@ -5288,3 +5288,6 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — G3 owns four remaining organelle-count contract failures: bind integer entry and progressive slot capacity to approved item 326 while preserving actual saved counts, effective configured planes and off-form values. Qualify only the four reported selectors with G5 peer; root owns Nightly/Main publication.
 2026-10-27 — Count fixtures now exercise integer entry, explicit supported-range refusal and progressive numeric-plane activation while preserving seeded counts and all configured type/diameter values. The off-form slot-retention test is unchanged and passes with the existing seeded-count fix. All four reported selectors pass (2.43 s), G5 peer accepted; root owns Nightly/Main publication.
+
+2026-10-27 — G3 owns two walkthrough-menu CI failures: bind current visible Navigator modules and real menu-action routing, preserve module-specific assertions, and qualify only the reported two selectors after G5 peer. Root owns integration and publication.
+2026-10-27 — Walkthrough component checks now use a real standalone Help menu, preserving every visible-module entry and actual Measure action routing while respecting Navigator’s separately tested duplicate-module pruning. Both reported selectors pass (2.90 s); G5 peer accepted; root owns Main/Nightly publication.
