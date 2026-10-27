@@ -3919,6 +3919,103 @@
           "idle_tail_start": 7.2
         }
       ]
+    },
+    {
+      "lesson": "13_regression",
+      "master_sha256": "e34c18e8fda65ff41035d0c3af9790173a01d35005cad03acf1591654025f24d",
+      "visual_timing_sha256": "556a15f879acc29a0b41158c2e3489ce59e3de79c1c7a872328f94f2c2ac5ab9",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 24.2,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "02_download",
+          "source_start": 24.2,
+          "source_end": 39.2,
+          "idle_tail_start": 5.633333333333334
+        },
+        {
+          "visual": "19_setting_paired_data",
+          "source_start": 39.2,
+          "source_end": 62.1,
+          "idle_tail_start": 8.8
+        },
+        {
+          "visual": "19_setting_inference",
+          "source_start": 62.1,
+          "source_end": 89.46666666666667,
+          "idle_tail_start": 7.3
+        },
+        {
+          "visual": "19_setting_level",
+          "source_start": 89.46666666666667,
+          "source_end": 111.8,
+          "idle_tail_start": 7.1
+        },
+        {
+          "visual": "19_setting_analysis_unit",
+          "source_start": 111.8,
+          "source_end": 133.9,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "19_setting_guide_min_wells",
+          "source_start": 133.9,
+          "source_end": 156.7,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "19_setting_guide_permutations",
+          "source_start": 156.7,
+          "source_end": 183.63333333333333,
+          "idle_tail_start": 9.2
+        },
+        {
+          "visual": "19_setting_guide_permutation_seed",
+          "source_start": 183.63333333333333,
+          "source_end": 210.26666666666668,
+          "idle_tail_start": 9.8
+        },
+        {
+          "visual": "19_setting_annotation_source",
+          "source_start": 210.26666666666668,
+          "source_end": 232.0,
+          "idle_tail_start": 8.8
+        },
+        {
+          "visual": "21_batch_running",
+          "source_start": 232.0,
+          "source_end": 252.16666666666666,
+          "idle_tail_start": 9.933333333333334
+        },
+        {
+          "visual": "25_result_runs",
+          "source_start": 252.16666666666666,
+          "source_end": 275.6,
+          "idle_tail_start": 9.3
+        },
+        {
+          "visual": "25_result_results",
+          "source_start": 275.6,
+          "source_end": 296.6666666666667,
+          "idle_tail_start": 2.933333333333333
+        },
+        {
+          "visual": "26_detail_p_values",
+          "source_start": 296.6666666666667,
+          "source_end": 321.46666666666664,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "26_detail_coefficients",
+          "source_start": 321.46666666666664,
+          "source_end": 346.06666666666666,
+          "idle_tail_start": 3.933333333333333
+        }
+      ]
     }
   ]
 }
