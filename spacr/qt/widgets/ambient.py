@@ -14091,7 +14091,7 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     _publish_widget_ripple(widget, edge, rect, strength, vertical=False)
 
 
-def _field_growing_regions_for_widget(widget, rectangles=()) -> None:
+def _field_growing_regions_for_widget(widget, rectangles=(), *, invalidate=False) -> None:
     """Publish bounded card geometry to the window's existing field producer."""
     for backdrop in widget.window().findChildren(AmbientWidget):
         if backdrop._art_input is None or backdrop.theme() not in _FIELD_THEMES:
@@ -14107,7 +14107,12 @@ def _field_growing_regions_for_widget(widget, rectangles=()) -> None:
                     regions.append((mapped.x() / width, mapped.y() / height,
                                     (mapped.x() + mapped.width()) / width,
                                     (mapped.y() + mapped.height()) / height))
-        backdrop._art_input._growing_regions = tuple(regions)
+        regions = tuple(regions)
+        if invalidate or regions != backdrop._art_input._growing_regions:
+            held = getattr(backdrop, '_held_rows', None)
+            if held is not None and held.enabled:
+                held.stir()
+        backdrop._art_input._growing_regions = regions
         if backdrop._engine_lock.acquire(blocking=False):
             try:
                 backdrop._art_input._consume(backdrop._engine)

@@ -4598,13 +4598,13 @@ class _EasyHomeField(QWidget):
 
         return get_ambient_enabled() and not get_reduce_motion()
 
-    def _publish_growth(self):
+    def _publish_growth(self, *, invalidate=False):
         """Send at most four native card rectangles to the existing field worker."""
         from .ambient import _field_growing_regions_for_widget
 
         rectangles = [card.geometry() for card in self.cards
                       if card._growing and card.isVisible()]
-        _field_growing_regions_for_widget(self, rectangles)
+        _field_growing_regions_for_widget(self, rectangles, invalidate=invalidate)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
@@ -4633,6 +4633,7 @@ class _EasyHomeField(QWidget):
         """Grow suggestions sequentially through the ordered grid below the editor."""
         from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSequentialAnimationGroup
 
+        had_cards = bool(self.cards)
         self._finish_growth()
         for card in self.cards:
             card.hide()
@@ -4664,7 +4665,7 @@ class _EasyHomeField(QWidget):
                 group.finished.connect(card._growth_finished)
                 self._animations.append(group)
                 group.start()
-        self._publish_growth()
+        self._publish_growth(invalidate=had_cards or bool(self.cards))
 
     def resizeEvent(self, event):
         """Keep suggestions in responsive slots while leaving the field centered."""

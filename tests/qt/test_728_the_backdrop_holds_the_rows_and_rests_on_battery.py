@@ -466,3 +466,60 @@ def test_attributes_hiding_qt_methods_never_break_the_hold_169(screen, qtbot):
     qtbot.wait(800)
     qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
     assert held.region.contains(card.geometry().center())
+
+
+def test_changed_and_cleared_card_growth_releases_the_held_frame(screen, qtbot, monkeypatch):
+    host, backdrop, card, labels = screen
+    held = backdrop._held_rows
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    assert not held.live.isEmpty()
+    previous_stir = held._stirred
+    rectangle = card.geometry()
+    ambient._field_growing_regions_for_widget(host, (rectangle,))
+    regions = backdrop._art_input._growing_regions
+    assert regions and isinstance(regions, tuple)
+    assert held.frame is None and held._stirred > previous_stir
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    qtbot.waitUntil(lambda: backdrop._rate() == 20, timeout=5000)
+    frame, stirred = held.frame, held._stirred
+    ambient._field_growing_regions_for_widget(host, (rectangle,))
+    assert held.frame is frame and held._stirred == stirred
+    assert backdrop._art_input._growing_regions == regions
+    assert backdrop._rate() == 20
+    ambient._field_growing_regions_for_widget(host)
+    assert backdrop._art_input._growing_regions == ()
+    assert held.frame is None and held._stirred > stirred
+    qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+    qtbot.waitUntil(lambda: backdrop._rate() == 20, timeout=5000)
+    frame, stirred = held.frame, held._stirred
+    ambient._field_growing_regions_for_widget(host)
+    assert held.frame is frame and held._stirred == stirred
+    assert backdrop._rate() == 20
+
+    from spacr.qt.widgets.home import _EasyHomeField
+
+    card.hide()
+    field = _EasyHomeField(host)
+    field.resize(host.size())
+    monkeypatch.setattr(field, '_motion_enabled', lambda: False)
+    try:
+        field.show()
+        field.set_cards([('measure', 'Measure', 'Measure an existing dataset.', '')])
+        completed = field.cards[0]
+        assert completed.isVisible() and not completed._growing
+        assert backdrop._art_input._growing_regions == ()
+        qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+        qtbot.waitUntil(lambda: backdrop._rate() == 20, timeout=5000)
+        stirred = held._stirred
+        field.set_cards([])
+        assert not completed.isVisible() and not field.cards
+        assert backdrop._art_input._growing_regions == ()
+        assert held.frame is None and held._stirred > stirred
+        qtbot.waitUntil(lambda: held.frame is not None, timeout=5000)
+        qtbot.waitUntil(lambda: backdrop._rate() == 20, timeout=5000)
+        frame, stirred = held.frame, held._stirred
+        field.set_cards([])
+        assert held.frame is frame and held._stirred == stirred
+        assert backdrop._rate() == 20
+    finally:
+        field.close()
