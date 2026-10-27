@@ -271,6 +271,16 @@ class _AxisCutoffDialog(QDialog):
 
 
 def _read_merge_with_duplicate_notice(path, tables, policy, reader):
+    """Read a working set or return duplicate details with its aggregation rules.
+
+    :param path: source database used to construct the default merge rules.
+    :param tables: selected source tables whose aggregation choices are shown.
+    :param policy: merge policy used by the reader and rule display.
+    :param reader: zero-argument callable performing the actual read.
+    :returns: the reader's result, or its duplicate-observation refusal enriched for confirmation.
+
+    Other reader failures propagate unchanged.
+    """
     from ...derived_tables import default_definition
     from ...merge_tables import _DuplicateObservations, aggregation_overrides
     from ..widgets.merge_tables_dialog import _rule_rows
@@ -926,6 +936,12 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             labels = self.database_labels() if len(paths) > 1 else []
 
             def work():
+                """Read the captured working set with duplicate merging enabled for this job only.
+
+                :returns: the captured table label and the merged single- or multi-database frame.
+
+                Restore the previous duplicate-merging context even when the read fails.
+                """
                 token = _duplicate_merge_enabled.set(True)
                 try:
                     merged = (self._read_across_databases(paths, labels, tables, cap, policy)

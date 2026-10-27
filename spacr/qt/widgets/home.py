@@ -5976,6 +5976,10 @@ class _EasyWorkflowView(_WorkflowView):
             self._growth.start()
 
     def _grow_branches(self, value):
+        """Apply growth opacity to newly disclosed cards and update their surfaces.
+
+        :param value: animation progress converted to each card's opacity.
+        """
         for node in self._growth_nodes:
             node.setOpacity(float(value))
         self.viewport().update()

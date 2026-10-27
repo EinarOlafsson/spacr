@@ -2632,7 +2632,12 @@ from .widgets.home import HomePage as _HomePageBase, _EasyHomePage as _Navigator
 
 
 class _NavigatorAside(_HomePageBase):
+    """Foldable Home panels beside the Navigator's input and workflow."""
     def __init__(self, parent):
+        """Build the Navigator's queued, journal, news, totals and system panels.
+
+        :param parent: widget owning the side panels and their journal worker.
+        """
         from .job_runner import JobRunner
         from .theme import active_palette
         from .widgets.foldable import make_foldable
@@ -2661,6 +2666,7 @@ class _NavigatorAside(_HomePageBase):
         self.refresh()
 
     def refresh(self):
+        """Refresh active panels and read journal data only when its panels are open."""
         if self._closing:
             return
         self._queued.refresh()
@@ -2672,13 +2678,22 @@ class _NavigatorAside(_HomePageBase):
             self._read_the_journal()
 
     def closeEvent(self, event):
+        """Stop journal jobs and pass the close event to QWidget.
+
+        :param event: the native close event for this side panel.
+        """
         self._closing = True
         self._journal_jobs.shutdown()
         QWidget.closeEvent(self, event)
 
 
 class _NavigatorHomePage(_NavigatorPageBase):
+    """Navigator input and workflows with a separately foldable Home side panel."""
     def __init__(self, parent):
+        """Attach the Home side panels and track the workflow viewport.
+
+        :param parent: widget owning the Navigator page.
+        """
         from .widgets.collapsible_splitter import CollapsibleSplitter, EDGE
         from .preferences import scaled_px
         from .gil_priority import _watch_object_events
@@ -2700,42 +2715,76 @@ class _NavigatorHomePage(_NavigatorPageBase):
         _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
 
     def refresh(self):
+        """Refresh the Navigator and its side panels when they have been constructed."""
         super().refresh()
         aside = getattr(self, '_navigator_aside', None)
         if aside is not None:
             aside.refresh()
 
     def apply_release_news(self, releases):
+        """Forward fetched release records to the side panel's News display.
+
+        :param releases: release records passed unchanged to the Home news handler.
+        """
         self._navigator_aside.apply_release_news(releases)
 
     def refresh_pane_surfaces(self):
+        """Refresh side-panel opacity rules without rebuilding the Navigator.
+
+        :returns: the number of side-panel widgets scheduled to receive new rules.
+        """
         return self._navigator_aside.refresh_pane_surfaces()
 
     def _select_suggestion(self, key, path):
+        """Select a suggestion and fit its workflow to the Navigator viewport.
+
+        :param key: suggestion key passed to the base selection handler.
+        :param path: suggestion path passed unchanged to the base handler.
+        """
         super()._select_suggestion(key, path)
         self._fit_navigator_workflow()
 
     def _fit_navigator_workflow(self):
+        """Match an existing workflow overlay to the current suggestions scroll area."""
         if self._workflow is not None:
             rect = self._suggestions_scroll.rect()
             rect.moveTopLeft(self._suggestions_scroll.mapTo(self, rect.topLeft()))
             self._workflow.setGeometry(rect)
 
     def resizeEvent(self, event):
+        """Apply the base resize behavior and refit the workflow overlay.
+
+        :param event: page resize event forwarded to the base implementation.
+        """
         super().resizeEvent(event)
         self._fit_navigator_workflow()
 
     def eventFilter(self, watched, event):
+        """Refit the workflow after its scroll area moves or resizes.
+
+        :param watched: object receiving the event.
+        :param event: event also passed to the base filter.
+        :returns: whether the base filter consumes the event.
+        """
         if watched is self._suggestions_scroll and event.type() in (QEvent.Resize, QEvent.Move):
             self._fit_navigator_workflow()
         return super().eventFilter(watched, event)
 
     def closeEvent(self, event):
+        """Close the owned side panel before delegating page shutdown.
+
+        :param event: close event forwarded to the Navigator base page.
+        """
         self._navigator_aside.close()
         super().closeEvent(event)
 
 
 def _navigator_home_page(parent=None):
+    """Construct the Navigator page with its foldable Home side panels.
+
+    :param parent: optional owning widget.
+    :returns: the new Navigator home page.
+    """
     return _NavigatorHomePage(parent)
 
 

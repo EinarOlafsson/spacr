@@ -171,6 +171,12 @@ def _validated_preview(path, definition):
 
 
 def _confirm_duplicate_observations(parent, details):
+    """Ask whether to merge duplicate identities, with Abort as the default.
+
+    :param parent: widget owning the modal confirmation dialog.
+    :param details: local duplicate and aggregation details shown on request.
+    :returns: True only when the user selects Merge duplicates.
+    """
     box = QMessageBox(parent)
     box.setWindowTitle(tr("Duplicate objects detected"))
     box.setIcon(QMessageBox.Warning)
