@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from PIL import Image
-from PySide6.QtCore import QCoreApplication, QMimeData, QPoint, QPointF, Qt, QUrl
+from PySide6.QtCore import QCoreApplication, QMimeData, QPoint, QPointF, QRectF, Qt, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QApplication, QPushButton
 
@@ -720,10 +720,13 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
     from spacr.qt.app import APPS, app_is_visible, folded_children
     from spacr.qt.widgets.fold_strip import fold_label
     from spacr.qt.widgets.home import _EasyHomePage
+    from spacr.qt.hidpi import device_ratio, logical_size
 
     preferences, _, _ = private_ai_profile
     preferences.set_easy_mode(True)
     preferences.set_reduce_motion(True)
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
     images = [tmp_path / name for name in ('W0025F0001T0001Z000C1.tif', 'W0025F0001T0001Z000C2.tif')]
     for image in images:
         _image(image)
@@ -738,75 +741,100 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         page.accept_paths([str(images[0])])
         qtbot.waitUntil(lambda: any(card._key == 'mask' for card in page.field.cards), timeout=5000)
         cards = tuple(page.field.cards)
-        card = next(card for card in cards if card._key == 'mask')
-        card.click()
+        next(card for card in cards if card._key == 'mask').click()
         workflow = page._workflow
         assert workflow is not None and chosen == []
         assert not page.path_edit.isVisible() and not page._suggestions_scroll.isVisible()
         assert workflow.central._key == 'mask' and workflow.central._path == str(tmp_path)
-        qtbot.waitUntil(lambda: (workflow.central.geometry().center()
-                                - workflow.view.viewport().mapTo(workflow, workflow.view.viewport().rect().center()))
-                       .manhattanLength() <= 2)
+        assert workflow.central.width() >= 260 and workflow.central.height() >= 144
+        assert abs(workflow.central.geometry().center().x() - workflow.rect().center().x()) <= 1
+        assert workflow.central.geometry().top() == workflow.tools.geometry().bottom() + 9
         assert workflow.view.transform().m11() == 1.0
-        assert workflow.central.width() >= 260 and workflow.central.height() >= 180
         heading = workflow.central.content.layout().itemAt(0).layout()
         title = heading.itemAt(1).widget()
         assert title.font().pixelSize() >= 18
         assert title.alignment() & Qt.AlignHCenter
-        from spacr.qt.hidpi import device_ratio, logical_size
-
         assert logical_size(workflow.central.icon.pixmap()).width() == 64
         assert workflow.central.icon.pixmap().devicePixelRatioF() == device_ratio(workflow.central.icon)
-        documented = [edge for edge in workflow.view.edges if edge.edge['kind'] != 'compatible']
-        assert documented and all(edge.isVisible() for edge in documented)
-        unrelated = [edge for edge in workflow.view.edges if edge.edge['kind'] == 'compatible'
-                     and 'mask' not in (edge.edge['from'], edge.edge['to'])]
-        assert unrelated and all(not edge.isVisible() for edge in unrelated)
-        incoming = [workflow.view.nodes[edge.edge['from']] for edge in documented
-                    if edge.edge['to'] == 'mask' and edge.edge['from'] != 'mask']
-        outgoing = [workflow.view.nodes[edge.edge['to']] for edge in documented
-                    if edge.edge['from'] == 'mask' and edge.edge['to'] != 'mask']
-        selected_node = workflow.view.nodes['mask']
-        assert incoming and outgoing
-        assert all(node.pos().x() < selected_node.pos().x() for node in incoming)
-        assert all(node.pos().x() > selected_node.pos().x() for node in outgoing)
+        visible = {key for key, node in workflow.view.nodes.items() if node.isVisible()}
+        assert {'measure', 'overview'} <= visible and len(visible) <= 4
+        assert 'mask' not in visible
+        assert all(edge.edge['from'] == 'mask' and edge.edge['to'] in visible
+                   and edge.edge['kind'] in ('documented', 'containment') for edge in workflow.view.edges)
+        assert len(workflow.view.edges) == len(visible)
+        assert ' '.join(workflow.data['modules']['mask']['documentation_note'].split()) in ' '.join(
+            workflow.details.toPlainText().split())
+        for edge in workflow.view.edges:
+            if edge.edge.get('mode_labels'):
+                assert edge.boundingRect().contains(QRectF(edge.end.x() - 110, edge.end.y() - 42, 220, 24))
+        owner = [edge for edge in workflow.view.edges if edge.edge['to'] == 'overview']
+        assert len(owner) == 1 and owner[0].edge['kind'] == 'containment'
         folds = folded_children()
         parents = {child: host for host, children in folds.items() for child in children}
         registered = {row[0] for row in APPS if app_is_visible(row[0])
                       and (row[0] not in parents or app_is_visible(parents[row[0]]))}
         assert registered <= set(workflow.data['modules'])
+        picker_keys = {workflow.tools.itemData(index) for index in range(workflow.tools.count())}
+        assert picker_keys == set(workflow.data['modules'])
         for host, children in folds.items():
             for child in children:
                 if (app_is_visible(host) and app_is_visible(child)
                         and preferences.maturity_is_visible(fold_label(child)[2])):
-                    assert child in workflow.data['modules']
-        assert 'overview' in workflow.data['modules']
+                    assert child in picker_keys
         assert not {'3D', 'Time', 'concatenate'} & workflow.data['modules'].keys()
-        owner = [edge for edge in workflow.view.edges if edge.edge['to'] == 'overview'
-                 and edge.edge['kind'] == 'containment']
-        assert len(owner) == 1 and owner[0].edge['from'] == 'mask'
-        for size in ((640, 650), (1280, 850)):
-            page.resize(*size)
-            qtbot.waitUntil(lambda: workflow.view.size() == workflow.size())
-            assert workflow.rect().contains(workflow.central.geometry())
-            assert workflow.rect().contains(workflow.details.geometry())
-            assert workflow.details.height() == 128
-            assert not workflow.central.geometry().intersects(workflow.details.geometry())
-        qtbot.waitUntil(lambda: workflow.details.verticalScrollBar().maximum() > 0)
-        neighbor = workflow.view.nodes['make_masks']
+        neighbor = workflow.view.nodes['measure']
         workflow.view.ensureVisible(neighbor)
-        assert workflow.rect().contains(workflow.details.geometry())
-        selected = workflow.view.nodes[workflow.central._key]
-        projected = workflow.view.mapFromScene(selected.sceneBoundingRect()).boundingRect()
-        projected.moveTopLeft(workflow.view.viewport().mapTo(workflow, projected.topLeft()))
-        assert workflow.central.geometry() == projected
-        details_geometry = workflow.details.geometry()
+        geometry = workflow.details.geometry()
         qtbot.mouseMove(workflow.view.viewport(), workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
-        qtbot.waitUntil(lambda: 'Make Masks' in workflow.details.toPlainText())
-        assert workflow.details.geometry() == details_geometry
+        qtbot.waitUntil(lambda: 'Measure' in workflow.details.toPlainText())
+        assert workflow.details.geometry() == geometry
         assert workflow.central._key == 'mask' and chosen == []
         qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
                          pos=workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
+        assert workflow.central._key == 'measure' and chosen == []
+        assert workflow.central._path == ''
+        assert len(workflow.view.branch_records) == 4
+        assert {record['to'] for record in workflow.view.branch_records} == {
+            'annotate', 'classify_merged', 'umap', 'graph_builder'}
+        assert workflow.more.isVisible() and workflow.more.count() > 0
+        assert {workflow.more.itemData(index) for index in range(workflow.more.count())} == {
+            record['to'] for record in workflow.view.remaining_records}
+        assert not {record['to'] for record in workflow.view.branch_records} & {
+            workflow.more.itemData(index) for index in range(workflow.more.count())}
+        for size in ((500, 650), (640, 650), (1280, 850)):
+            page.resize(*size)
+            qtbot.waitUntil(lambda: workflow.view.width() == workflow.width())
+            assert not workflow.tools.geometry().intersects(workflow.more.geometry())
+            assert not workflow.back.geometry().intersects(workflow.tools.geometry())
+            assert workflow.central.geometry().top() > workflow.more.geometry().bottom()
+            assert workflow.rect().contains(workflow.central.geometry())
+            assert workflow.rect().contains(workflow.details.geometry())
+            assert not workflow.central.geometry().intersects(workflow.details.geometry())
+            assert workflow.view.geometry().top() > workflow.details.geometry().bottom()
+            first_row = min(node.pos().y() for node in workflow.view.nodes.values() if node.isVisible())
+            row_nodes = [node for node in workflow.view.nodes.values() if node.isVisible() and node.pos().y() == first_row]
+            assert row_nodes and all(workflow.view.viewport().height() >= node.boundingRect().height() + first_row
+                                     for node in row_nodes)
+            fixed = (workflow.central.geometry(), workflow.details.geometry(), workflow.back.geometry())
+            if size == (640, 650):
+                qtbot.waitUntil(lambda: workflow.view.verticalScrollBar().maximum() > 0)
+                workflow.view.verticalScrollBar().setValue(workflow.view.verticalScrollBar().maximum())
+                assert workflow.view.verticalScrollBar().value() > 0
+                assert (workflow.central.geometry(), workflow.details.geometry(), workflow.back.geometry()) == fixed
+        additional = workflow.more.itemData(0)
+        workflow.more.showPopup()
+        next_index = workflow.more.model().index(0, 0)
+        next_popup = workflow.more.view()
+        next_popup.scrollTo(next_index)
+        qtbot.waitUntil(lambda: next_popup.visualRect(next_index).intersects(next_popup.viewport().rect()))
+        qtbot.mouseClick(next_popup.viewport(), Qt.LeftButton, pos=next_popup.visualRect(next_index).center())
+        assert workflow.central._key == additional and chosen == []
+        workflow.tools.showPopup()
+        index = workflow.tools.model().index(workflow.tools.findData('make_masks'), 0)
+        popup = workflow.tools.view()
+        popup.scrollTo(index)
+        qtbot.waitUntil(lambda: popup.visualRect(index).intersects(popup.viewport().rect()))
+        qtbot.mouseClick(popup.viewport(), Qt.LeftButton, pos=popup.visualRect(index).center())
         assert workflow.central._key == 'make_masks' and chosen == []
         assert workflow.central._path == str(images[0])
         workflow.central.click()

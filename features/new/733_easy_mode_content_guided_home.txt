@@ -110,6 +110,20 @@ regressions. Work remains isolated; root alone integrates and publishes.
 
 WORKFLOW-TREE EXTENSION (2026-10-27)
 
+Latest maintainer correction supersedes the dense all-module graph: keep
+spaCR's animated field visible while inspecting images and after clearing the
+path; an empty input returns to the clean search without a guidance card.
+G1 owns that backdrop/empty-input correction. G2 owns a sparse downstream
+workflow: the selected module stays prominent at the top/center, only useful
+direct downstream branches are initially visible, and selecting a child
+progressively reveals its next steps. Do not draw all compatible cross-links
+or disconnected tools simultaneously. Preserve every permitted real module
+and submodule through an explicit all-tools navigation control, without
+inventing IO edges. Mode labels such as 3D/Time/OPS belong on verified
+connectors. Preserve fixed scrollable hover guidance, explicit second-click
+opening, Back/Escape restoration, input/privacy contracts and availability
+gates. G4 independently peers the sparse structure and actual software frames.
+
 The first click on a suggestion selects and centers its card, hides the search
 field, and reveals an elegant skill-tree of all actual spaCR modules and
 submodules. A second click on the central card opens that module with the
@@ -177,3 +191,7 @@ All 21 final owning source/API/runtime/Help/flow checks pass, preserving publish
 2026-10-27 — Reopened: entering an image path must retain the visible live spaCR field behind search and suggestions; remove any opaque container/lifetime regression rather than covering it with a black fill. Clearing the input cancels pending inspection/regex, clears suggestions and feedback, and restores the clean empty search with the live field; empty input never produces an Input guidance card. Nonempty invalid-input errors remain visible. G1 owns this disjoint lifecycle/input repair; G2 retains focus-surface and workflow presentation changes, root owns integration/publication.
 2026-10-27 — Empty input now cancels inspection/regex delivery, clears cards and feedback, and stays idle on Enter; two real MainWindow pending-work controls pass. One software-native Dark image→clear probe retains the live blue field and confirms no opaque viewport layer in the default profile. The reported black field is still under investigation with the actual CQ1 input and copied appearance settings; no speculative fill/transparency change is included.
 2026-10-27 — Exact CQ1 input and copied appearance settings expose stale dark card-shaped patches after removal: the old held backdrop survives completed-card coverage changes. Growth changes and explicit card replacement/removal now release that hold without producing extra ripples; unchanged empty/idle updates retain their held frame and normal 20 fps cap. The focused real-renderer completed-card regression passes; matching software-native before/after verification follows.
+
+2026-10-27 — Maintainer rejects the black image/cleared-input page and dense workflow graph. G1 owns restoring the field and clean empty input; G2 owns prominent selected-module and progressively explored sparse downstream branches with all-tools access, verified mode connectors and preserved explicit module opening. G4 peers graph semantics/layout; root alone integrates and publishes the reopened acceptance.
+
+2026-10-27 — Sparse downstream navigation now keeps the selected action and scientific guidance fixed above at most four direct branches, with separate remaining-next-step and all-tools selectors. Ownership stays distinct from scientific IO and retains mode labels. Four owning controls pass, including 500/640/desktop layout and native Mask/Overview routes; integrated field-backed visuals and normal changed-caption closure remain with root/G1 before whole-item acceptance.

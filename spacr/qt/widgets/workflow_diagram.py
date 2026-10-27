@@ -133,11 +133,15 @@ def _easy_workflow_data(apps, visible_keys, folded_children=None, *,
         edge["strength"] = 2 if edge["kind"] == "documented" else 1
         edge["mode_labels"] = list((mode_labels or {}).get(
             (edge["from"], edge["to"]), ()))
-    for host, key in owners:
+    documented = {(edge["from"], edge["to"]) for edge in edges if edge["kind"] == "documented"}
+    owners.extend((host, child) for child, host in parents.items()
+                  if host in modules and child in modules and (host, child) not in documented)
+    for host, key in dict.fromkeys(owners):
         edges = [edge for edge in edges
                  if (edge["from"], edge["to"]) != (host, key)]
         edges.append({"from": host, "to": key, "artifacts": [], "handoff": "",
-                      "kind": "containment", "strength": 0, "mode_labels": []})
+                      "kind": "containment", "strength": 0,
+                      "mode_labels": list((mode_labels or {}).get((host, key), ()))})
     result["easy_connections"] = edges
     return result
 

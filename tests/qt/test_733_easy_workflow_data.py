@@ -86,3 +86,22 @@ def test_easy_graph_owner_subtools_have_explicit_routes_and_no_invented_io():
     assert owner_edge["kind"] == "containment" and owner_edge["artifacts"] == []
     assert "overview" not in _easy_workflow_data(APPS, {"measure"}, subtools=(tool,))["modules"]
     assert "inputs" not in tool
+
+
+def test_real_fold_ownership_does_not_relabel_a_documented_handoff():
+    rows = (*APPS, ('ops', 'OPS', 'Optical pooled screening', 'Images'))
+    keys = {row[0] for row in rows} | {'train_cellpose'}
+    result = _easy_workflow_data(rows, keys,
+                                {'mask': ('ops',), 'make_masks': ('train_cellpose',)},
+                                folded_metadata={'train_cellpose': ('Train Cellpose', 'Train a model')},
+                                mode_labels={('mask', 'ops'): ('OPS',)})
+    ownership = [edge for edge in result['easy_connections']
+                 if (edge['from'], edge['to']) == ('mask', 'ops')]
+    assert len(ownership) == 1
+    assert ownership[0]['kind'] == 'containment' and ownership[0]['artifacts'] == []
+    assert ownership[0]['mode_labels'] == ['OPS']
+    training = [edge for edge in result['easy_connections']
+                if (edge['from'], edge['to']) == ('make_masks', 'train_cellpose')]
+    assert len(training) == 1 and training[0]['kind'] == 'documented'
+    assert training[0]['artifacts'] and training[0]['handoff']
+    assert not {'3D', 'Time'} & result['modules'].keys()

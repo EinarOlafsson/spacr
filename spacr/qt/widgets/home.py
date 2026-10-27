@@ -49,6 +49,7 @@ from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap
 from PySide6.QtGui import QSyntaxHighlighter as _SyntaxHighlighter
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -4738,7 +4739,8 @@ class _EasyWorkflowNode(_WorkflowNode):
 
     def hoverLeaveEvent(self, event):
         """Return candidate connections to the selected neighborhood after hovering."""
-        self.view._show_candidate_edges(self.view._selected_key)
+        if self.view._selected_key is not None:
+            self.view.explain_node(self.view._selected_key)
         event.accept()
 
     def mousePressEvent(self, event):
@@ -4758,28 +4760,42 @@ class _EasyWorkflowNode(_WorkflowNode):
 
 
 class _EasyWorkflowEdge(_WorkflowEdge):
-    """Show documented relationship strength and mode labels without creating tools."""
+    """Draw one verified downstream branch, with modes on its connector."""
+
+    def __init__(self, view, edge, start, end):
+        """Use a shared vertical spine and a downward arrow above the child."""
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPainterPath, QPolygonF
+
+        super().__init__(view, edge, start, end)
+        turn = max(12, end.y() - 24)
+        spine = 0 if view._columns > 1 else -150
+        path = QPainterPath(start)
+        path.lineTo(spine, 8)
+        path.lineTo(spine, turn - 10)
+        path.cubicTo(spine, turn, end.x(), turn, end.x(), end.y() - 12)
+        self.setPath(path)
+        self.arrowhead = QPolygonF([end, end + QPointF(-5, -12), end + QPointF(5, -12)])
+
+    def boundingRect(self):
+        """Include connector mode badges in scene culling and repaint bounds."""
+        bounds = super().boundingRect()
+        if self.edge.get('mode_labels'):
+            bounds = bounds.united(QRectF(self.end.x() - 110, self.end.y() - 42, 220, 24))
+        return bounds
 
     def paint(self, painter, option, widget=None):
-        """Give existing curved connections a quiet depth cue and honest weighting."""
+        """Keep ownership dotted and documented handoffs solid without extra links."""
         from PySide6.QtGui import QPen
         from ..i18n import tr
 
         palette = palette_for('dark')
         color = QColor(palette['accent'])
-        color.setAlpha(205 if self.highlighted else 105 if self.edge['kind'] == 'documented' else 40)
-        width = 2.8 if self.edge['kind'] == 'documented' else .9 if self.edge['kind'] == 'containment' else 1.1
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.save()
-        painter.translate(0, 2)
-        painter.setPen(QPen(QColor(palette['page']), width + 2))
-        painter.drawPath(self.path())
-        painter.restore()
-        pen = QPen(color, width)
+        color.setAlpha(210 if self.highlighted else 130)
+        pen = QPen(color, 1.1 if self.edge['kind'] == 'containment' else 1.6)
         if self.edge['kind'] == 'containment':
             pen.setStyle(Qt.DotLine)
-        elif self.edge['kind'] != 'documented':
-            pen.setStyle(Qt.DashLine)
+        painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(self.path())
@@ -4787,183 +4803,140 @@ class _EasyWorkflowEdge(_WorkflowEdge):
         painter.drawPolygon(self.arrowhead)
         labels = self.edge.get('mode_labels', ())
         if labels:
-            point = self.path().pointAtPercent(.5)
             text = ' / '.join(tr(label) for label in labels)
             font = QFont('Open Sans')
             font.setWeight(QFont.Light)
-            font.setPixelSize(font_px(13, scale=1))
+            font.setPixelSize(font_px(12))
             painter.setFont(font)
-            bounds = QRectF(point.x() - 85, point.y() - 13, 170, 26)
+            bounds = QRectF(self.end.x() - 110, self.end.y() - 42, 220, 24)
             painter.setBrush(QColor(palette['page']))
             painter.setPen(Qt.NoPen)
-            painter.drawRoundedRect(bounds, 9, 9)
+            painter.drawRoundedRect(bounds, 8, 8)
             painter.setPen(QColor(palette['fg']))
             painter.drawText(bounds, Qt.AlignCenter, text)
 
 
 class _EasyWorkflowView(_WorkflowView):
-    """Reuse the shared workflow layout and descriptions for Easy selection."""
+    """Reveal only the current module's direct documented downstream branches."""
 
     chosen = Signal(str)
     viewport_changed = Signal()
+    _PRIORITIES = {
+        'mask': ('measure', 'overview', 'timelapse', 'ops'),
+        'measure': ('annotate', 'classify_merged', 'umap', 'graph_builder'),
+        'make_masks': ('train_cellpose', 'measure', 'analyze_plaques', 'model_compare'),
+        'regression': ('hit_list', 'volcano_explorer', 'run_compare', 'regression_diagnostics'),
+        'map_barcodes': ('barcode_qc', 'regression', 'spatial_map'),
+    }
 
     def __init__(self, data, parent=None):
-        """Replace only the presentation items, retaining genuine shared connections."""
+        """Retain existing nodes and descriptions, excluding the global edge network."""
         from shiboken6 import delete
 
         self._selected_key = None
-        super().__init__(data, parent=parent)
+        self._columns = 1
+        self.branch_records = []
+        self.remaining_records = []
+        super().__init__(data, keys=(), parent=parent)
+        self.keys = list(data['modules'])
+        self._fitted = True
+        self._auto_fit = False
         self.setObjectName('EasyWorkflowView')
-        for key, previous in tuple(self.nodes.items()):
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        for edge in self.edges:
+            self.scene().removeItem(edge)
+            delete(edge)
+        self.edges = []
+        for key in self.keys:
             node = _EasyWorkflowNode(self, key)
-            node.setPos(previous.pos())
-            self.scene().removeItem(previous)
-            delete(previous)
             self.scene().addItem(node)
             self.nodes[key] = node
-        records = {(edge['from'], edge['to']): edge for edge in data['easy_connections']}
-        for index, previous in enumerate(tuple(self.edges)):
-            record = records[previous.edge['from'], previous.edge['to']]
-            edge = _EasyWorkflowEdge(self, record, previous.path().pointAtPercent(0), previous.end)
-            self.scene().removeItem(previous)
-            delete(previous)
-            self.scene().addItem(edge)
-            self.edges[index] = edge
-        from PySide6.QtCore import QPointF
-
-        existing = {(edge.edge['from'], edge.edge['to']) for edge in self.edges}
-        for record in data['easy_connections']:
-            if record['kind'] != 'containment':
-                continue
-            if (record['from'], record['to']) in existing:
-                continue
-            source = self.nodes[record['from']].sceneBoundingRect()
-            destination = self.nodes[record['to']].sceneBoundingRect()
-            edge = _EasyWorkflowEdge(self, record, QPointF(source.right(), source.center().y()),
-                                     QPointF(destination.left(), destination.center().y()))
-            self.scene().addItem(edge)
-            self.edges.append(edge)
-        self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-20, -20, 20, 20))
+            node.hide()
 
     def explain_node(self, key):
-        """Reuse translated IO guidance in the fixed, scrollable details area."""
+        """Describe the inspected tool without changing the selected root or input."""
         from .workflow_diagram import node_description
+
         from ..i18n import tr
 
-        self._show_candidate_edges(key)
         text = node_description(self.data, key)
         note = self.data['modules'][key].get('documentation_note')
         if note:
             text += '<p>' + escape(tr(note)) + '</p>'
         self.explanation.emit(text)
 
+    def _downstream_records(self, selected):
+        """Order only verified immediate handoffs and real owned subtools."""
+        candidates = {}
+        for record in self.data['easy_connections']:
+            if (record['from'] == selected and record['to'] != selected
+                    and record['kind'] in ('documented', 'containment')):
+                candidates.setdefault(record['to'], record)
+        priority = self._PRIORITIES.get(selected, ())
+        keys = [key for key in priority if key in candidates]
+        keys.extend(key for key in candidates if key not in keys)
+        return [candidates[key] for key in keys]
+
     def center_selection(self, key):
-        """Keep the selected scene node underneath its central native action card."""
+        """Keep the chosen root outside scrolling and disclose its next four tools."""
         self._selected_key = key
-        self._fitted = True
-        self._arrange_branches(key)
-        for candidate, node in self.nodes.items():
-            node.setVisible(candidate != key)
-        self.describe_node(key, center=True)
-        self._center_selected()
+        records = self._downstream_records(key)
+        self.branch_records = records[:4]
+        self.remaining_records = records[4:]
+        self._arrange_branches()
+        self.verticalScrollBar().setValue(0)
         self.explain_node(key)
 
-    def _show_candidate_edges(self, key):
-        """Show documented paths by default and candidate paths only for the inspected tool."""
-        for edge in self.edges:
-            edge.setVisible(edge.edge['kind'] != 'compatible'
-                            or key in (edge.edge['from'], edge.edge['to']))
-
-    def _arrange_branches(self, selected):
-        """Place genuine upstream and downstream branches around the selected module."""
+    def _arrange_branches(self):
+        """Wrap a bounded direct-child row while retaining normal internal scrolling."""
         from PySide6.QtCore import QPointF
         from shiboken6 import delete
 
-        records = self.data['easy_connections']
-        levels = {selected: 0}
-        for direction in (-1, 1):
-            frontier = [selected]
-            depth = 0
-            while frontier:
-                depth += direction
-                following = []
-                for key in frontier:
-                    for record in records:
-                        if record['kind'] == 'compatible':
-                            continue
-                        source, destination = record['from'], record['to']
-                        candidate = source if direction < 0 and destination == key else destination if direction > 0 and source == key else None
-                        if candidate in self.nodes and candidate not in levels:
-                            levels[candidate] = depth
-                            following.append(candidate)
-                frontier = following
-        outside = max([abs(level) for level in levels.values()] + [1]) + 1
-        remaining = [key for key in self.nodes if key not in levels]
-        for index, key in enumerate(remaining):
-            levels[key] = (outside + index // 8) * (-1 if index % 2 else 1)
-        for level in sorted(set(levels.values())):
-            keys = [key for key in self.nodes if levels[key] == level]
-            for index, key in enumerate(keys):
-                self.nodes[key].setPos(level * 340, (index - (len(keys) - 1) / 2) * 224)
+        width = max(300, self.viewport().width())
+        self._columns = 2 if width >= 580 else 1
+        for node in self.nodes.values():
+            node.hide()
         for edge in self.edges:
             self.scene().removeItem(edge)
             delete(edge)
         self.edges = []
-        for record in records:
-            source = self.nodes[record['from']].sceneBoundingRect()
-            destination = self.nodes[record['to']].sceneBoundingRect()
-            forward = destination.center().x() >= source.center().x()
-            edge = _EasyWorkflowEdge(self, record,
-                                     QPointF(source.right() if forward else source.left(), source.center().y()),
-                                     QPointF(destination.left() if forward else destination.right(), destination.center().y()))
+        for index, record in enumerate(self.branch_records):
+            row, column = divmod(index, self._columns)
+            count = min(self._columns, len(self.branch_records) - row * self._columns)
+            x = (column - (count - 1) / 2) * 304
+            node = self.nodes[record['to']]
+            node.setPos(x - 130, 56 + row * 224)
+            node.show()
+            edge = _EasyWorkflowEdge(self, record, QPointF(0, 0), QPointF(x, node.pos().y()))
             self.scene().addItem(edge)
             self.edges.append(edge)
-
-    def _center_selected(self):
-        """Leave enough scene margin to center even boundary modules without clamping."""
-        if self._selected_key is None:
-            return
-        scale = max(.04, abs(self.transform().m11()))
-        horizontal = self.viewport().width() / (2 * scale) + 20
-        vertical = self.viewport().height() / (2 * scale) + 20
-        self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-horizontal, -vertical,
-                                                                  horizontal, vertical))
-        self.centerOn(self.nodes[self._selected_key])
+        rows = (len(self.branch_records) + self._columns - 1) // self._columns
+        height = 56 + max(0, rows - 1) * 224 + (180 if rows else 0) + 16
+        self.setSceneRect(QRectF(-width / 2, 0, width, max(height, self.viewport().height())))
 
     def resizeEvent(self, event):
-        """Retain selected-card alignment rather than fitting every tool to tiny text."""
+        """Only the downstream viewport reflows; the selected action remains fixed."""
         super().resizeEvent(event)
         if self._selected_key is not None:
-            self._center_selected()
-        self.viewport_changed.emit()
-
-    def scrollContentsBy(self, dx, dy):
-        """Keep the native central action aligned with its actual scene connections."""
-        super().scrollContentsBy(dx, dy)
-        self.viewport_changed.emit()
-
-    def zoom(self, factor):
-        """Reproject the native action with the shared graph's deliberate zoom."""
-        super().zoom(factor)
-        self.viewport_changed.emit()
+            self._arrange_branches()
 
 
 class _EasyWorkflowPage(QWidget):
-    """A two-step module choice with fixed details and reversible navigation."""
+    """Keep a prominent selected action above a progressively explored workflow."""
 
     back_requested = Signal()
     open_requested = Signal(str, str)
 
     def __init__(self, data, actions, selected, parent=None):
-        """Retain verified suggestion routes separately from descriptive compatibility."""
+        """Separate available navigation from scientific compatibility and future output."""
         from PySide6.QtWidgets import QTextBrowser
-        from ..gui_scale import _set_actual_minimum_height
         from ..i18n import tr
 
         self.central = None
         super().__init__(parent)
         self.setObjectName('EasyWorkflowPage')
-        _set_actual_minimum_height(self, 500)
+        make_transparent(self)
         self.data = data
         self.routes = {action[0]: action for action in actions}
         artifacts = {'mask': {'raw_images'}, 'make_masks': {'raw_images'},
@@ -4981,21 +4954,51 @@ class _EasyWorkflowPage(QWidget):
                 host = self.routes[module['host_key']]
                 self.routes[key] = (key, module['name'], module.get('guidance', ''), host[3])
         self.view = _EasyWorkflowView(data, self)
+        make_transparent(self.view)
         self.view.chosen.connect(self.select)
-        self.view.viewport_changed.connect(self._arrange_overlay)
         self.back = QPushButton(tr('Back'), self)
         self.back.setObjectName('EasyWorkflowBack')
         self.back.clicked.connect(self.back_requested)
+        self.tools = QComboBox(self)
+        self.tools.setObjectName('EasyWorkflowTools')
+        self.tools.setPlaceholderText(tr('All tools'))
+        self.tools.setAccessibleName(tr('All tools'))
+        titles = {key: tr(module['name']) for key, module in data['modules'].items()}
+        ordering = {key: title.casefold() for key, title in titles.items()}
+        for key in sorted(titles, key=ordering.__getitem__):
+            self.tools.addItem(titles[key], key)
+        self.tools.activated.connect(self._choose_tool)
+        self.more = QComboBox(self)
+        self.more.setObjectName('EasyWorkflowNextTools')
+        self.more.setPlaceholderText(tr('More next steps'))
+        self.more.setAccessibleName(tr('More next steps'))
+        self.more.activated.connect(self._choose_next)
         self.details = QTextBrowser(self)
         self.details.setObjectName('EasyWorkflowDetails')
         self.details.setOpenExternalLinks(True)
         self.details.setOpenLinks(True)
         self.details.setAccessibleName(tr('Module description'))
         self.view.explanation.connect(self.details.setHtml)
+        self.empty = QLabel(tr('No suggested next steps.'), self)
+        self.empty.setAlignment(Qt.AlignCenter)
+        make_transparent(self.empty)
         self.select(selected)
 
+    def _choose_tool(self, index):
+        """Select an available tool without inventing an input or starting a run."""
+        key = self.tools.itemData(index)
+        if key:
+            self.select(key)
+
+    def _choose_next(self, index):
+        """Disclose an additional real downstream option from the current module."""
+        key = self.more.itemData(index)
+        if key:
+            self.select(key)
+
     def select(self, key):
-        """Select a real tool without opening it or inventing a source artifact."""
+        """A child choice reveals its branch; only the selected native card opens it."""
+        from PySide6.QtWidgets import QBoxLayout
         from ..i18n import tr
 
         if key not in self.data['modules']:
@@ -5006,10 +5009,7 @@ class _EasyWorkflowPage(QWidget):
         module = self.data['modules'][key]
         action = self.routes.get(key, (key, tr(module['name']), tr(module.get('guidance', '')), ''))
         self.central = _EasySuggestionCard(action, self)
-        self.central.setObjectName('EasySuggestionCard')
         self.central.description.hide()
-        from PySide6.QtWidgets import QBoxLayout
-
         content = self.central.content.layout()
         heading = content.itemAt(0).layout()
         heading.setDirection(QBoxLayout.TopToBottom)
@@ -5023,34 +5023,47 @@ class _EasyWorkflowPage(QWidget):
         self.central.activated.connect(self.open_requested)
         self.central.show()
         self.view.center_selection(key)
+        self.tools.setCurrentIndex(-1)
+        self.more.clear()
+        for record in self.view.remaining_records:
+            child = record['to']
+            self.more.addItem(tr(self.data['modules'][child]['name']), child)
+        self.more.setCurrentIndex(-1)
+        self.more.setVisible(bool(self.view.remaining_records))
+        self.empty.setVisible(not self.view.branch_records)
         self._arrange()
         self.central.setFocus()
 
     def _arrange(self):
-        """Keep the selected card central and descriptions bounded at every size."""
-        self.view.setGeometry(self.rect())
-        self._arrange_overlay()
-
-    def _arrange_overlay(self):
-        """Follow the selected scene rectangle without inventing a second graph transform."""
+        """Reserve a complete child row at laptop sizes without scrolling the root."""
         if self.central is None:
             return
-        node = self.view.nodes[self.central._key]
-        rectangle = self.view.mapFromScene(node.sceneBoundingRect()).boundingRect()
-        rectangle.moveTopLeft(self.view.viewport().mapTo(self, rectangle.topLeft()))
-        self.central.setGeometry(rectangle)
-        self.central.setMinimumSize(0, 0)
+        width = min(320, max(260, self.width() - 48))
+        height = max(144, self.central.sizeHint().height(), self.central.layout().totalHeightForWidth(width))
+        header_height = max(32, self.back.sizeHint().height(),
+                            self.tools.minimumSizeHint().height(), self.more.minimumSizeHint().height())
+        stacked = self.width() < 572 and self.more.isVisible()
+        header_bottom = 16 + header_height * (2 if stacked else 1) + (8 if stacked else 0)
+        self.central.setGeometry((self.width() - width) // 2, header_bottom + 8, width, height)
+        details_height = 88 if self.width() < 800 else 128
+        details_width = min(520, max(260, self.width() - 32))
+        details_y = self.central.geometry().bottom() + 17
+        self.details.setGeometry((self.width() - details_width) // 2, details_y, details_width, details_height)
+        branch_y = self.details.geometry().bottom() + 17
+        self.view.setGeometry(0, branch_y, self.width(), max(1, self.height() - branch_y - 12))
+        self.empty.setGeometry(self.view.geometry())
+        self.back.setGeometry(16, 16, max(70, self.back.sizeHint().width()), header_height)
+        self.tools.setGeometry(max(104, self.width() - 236), 16, 220, header_height)
+        self.more.setGeometry(16 if stacked else max(104, self.width() - 468),
+                              24 + header_height if stacked else 16, 220, header_height)
         self.central.raise_()
-        self.back.setGeometry(16, 16, max(70, self.back.sizeHint().width()), 36)
-        self.back.raise_()
-        detail_width = min(520, self.width() - 32)
-        self.details.setGeometry((self.width() - detail_width) // 2,
-                                 max(16, self.height() - 144),
-                                 detail_width, 128)
         self.details.raise_()
+        self.back.raise_()
+        self.tools.raise_()
+        self.more.raise_()
 
     def resizeEvent(self, event):
-        """Reproject only native geometry while preserving the selected module."""
+        """Reflow child rows while the selected action and guidance retain ownership."""
         super().resizeEvent(event)
         if self.central is not None:
             self._arrange()
@@ -5358,7 +5371,9 @@ class _EasyHomePage(QWidget):
                                   subtools=(dict(key='overview', name=tr('Overview'),
                                                  guidance=tr('Inspect images and field metadata.'),
                                                  host_key='mask', route='overview'),),
-                                  mode_labels={('mask', 'measure'): (tr('Concatenate'), tr('3D'), tr('Time'))})
+                                  mode_labels={('mask', 'measure'): (tr('Concatenate'), tr('3D'), tr('Time')),
+                                               ('mask', 'ops'): (tr('OPS'),),
+                                               ('mask', 'timelapse'): (tr('Time'),)})
         if key not in data['modules']:
             return
         actions = list((self._last_result or {}).get('actions', ()))
