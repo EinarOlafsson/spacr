@@ -1,6 +1,6 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
-Status:    COMPLETE — Easy grid/workflow extension implemented and validated; published with this change
+Status:    COMPLETE — sparse workflow navigation and cleared-input live field validated; published with this change
 Requested: maintainer, 2026-10-26
 Owner:     Codex integration; G1 Home UI; G2 registry/workflow mapping; G4 inference; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -197,3 +197,5 @@ All 21 final owning source/API/runtime/Help/flow checks pass, preserving publish
 2026-10-27 — Sparse downstream navigation now keeps the selected action and scientific guidance fixed above at most four direct branches, with separate remaining-next-step and all-tools selectors. Ownership stays distinct from scientific IO and retains mode labels. Four owning controls pass, including 500/640/desktop layout and native Mask/Overview routes; integrated field-backed visuals and normal changed-caption closure remain with root/G1 before whole-item acceptance.
 
 2026-10-27 — Native MainWindow evidence exposed seven pixels of clipped first-row content and Light-theme selectors painted dark on dark. The graph now budgets the existing compact guidance height from its actual available row space and gives only its own selectors readable dark surfaces, idle placeholders and popups. Both global-theme owning controls pass; the affected joint native frame and final publication remain with root.
+
+2026-10-27 — Sparse next-step branches, all-tools/remaining-step selectors, readable placeholders and full first child rows pass both-theme native acceptance; matching CQ1 before/after frames confirm stale held-card dark patches disappear after clearing. Whole-window black was not reproduced. The native WM clamps small requests to 1080×650; bare-page 640 px controls do not claim a native 640 px window. All 27 reviewed translations, nine normal locale admissions, ten catalog output peers and four final runtime checks pass; API and Help/flow remain unchanged. Delivered through root Night publication; release CI remains tracked separately in item 43.
