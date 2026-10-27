@@ -2,9 +2,9 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    requested; not implemented
+Status:    implementation in progress; isolated from the release candidate
 Requested: maintainer, 2026-10-26
-Owner:     unassigned
+Owner:     Codex G1; retained G2 persistence/UI peer; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 REQUIRED BEHAVIOUR
@@ -43,3 +43,7 @@ inspection and which, if any, require an enabled AI provider.
 
 This item records a new request; it does not add an implementation or
 an additional prerequisite for releasing 1.5.1.6.
+
+2026-10-26 — G1 owns item 733 end to end on isolated published Night 7cd974072e; G2 owns the disjoint startup/Preferences persistence slice. Implement a local content-inspection Home in existing modules, whole-window drops and module handoff, with Easy mode/dock defaults off and no AI dependency. Required meaningful/native two-theme checks and nine-locale normal reviewed outputs precede one coherent commit; root alone authorizes integration/publication after release.
+
+2026-10-26 — Isolated English preview implements local header-guided Home, whole-window drops, explicit module input handoff and independent Easy dock choices. Fourteen targeted cases pass after two native fixture-premise corrections; both-theme native visual acceptance and nine-locale normal reviewed artefacts remain before root integration/publication.

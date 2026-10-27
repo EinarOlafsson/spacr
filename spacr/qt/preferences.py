@@ -196,6 +196,8 @@ _KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
 _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
+_KEY_EASY_MODE = "prefs/easy_mode"
+_KEY_EASY_MODE_DOCK = "prefs/easy_mode_dock"
 _KEY_DOCK_WIDTH  = "prefs/dock_width"
 _KEY_RUNTIME_TEXT_SCALE = "prefs/runtime_text_scale"
 _KEY_HOME_ASIDE_TEXT = "prefs/home_aside_text"
@@ -5453,6 +5455,27 @@ DEFAULT_DOCK_MODE = "hidden"
 RETIRED_DOCK_MODES = {"auto": "locked"}
 
 
+
+def get_easy_mode() -> bool:
+    """Whether the content-guided Easy mode Home is enabled (default: ``False``)."""
+    return _as_bool(_settings().value(_KEY_EASY_MODE, False), False)
+
+
+def set_easy_mode(on: bool) -> None:
+    """Persist Easy mode independently of AI and ordinary dock preferences."""
+    _settings().setValue(_KEY_EASY_MODE, bool(on))
+
+
+def get_easy_mode_dock() -> bool:
+    """Whether the app dock stays visible in Easy mode (default: ``False``)."""
+    return _as_bool(_settings().value(_KEY_EASY_MODE_DOCK, False), False)
+
+
+def set_easy_mode_dock(on: bool) -> None:
+    """Persist the dock choice for Easy mode without changing its normal setting."""
+    _settings().setValue(_KEY_EASY_MODE_DOCK, bool(on))
+
+
 def get_dock_mode() -> str:
     """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`.
 
@@ -9146,7 +9169,7 @@ _WINDOW_SIGNATURE_NAMES = (
     "font_weight",
     "show_alpha", "show_beta", "show_alpha_features",
     "show_alpha_species",
-    "dock_mode", "dock_width", "pane_opacity",
+    "dock_mode", "dock_width", "pane_opacity", "easy_mode", "easy_mode_dock",
     "color_blind_mode", "field_fade",
     "ambient_enabled", "ambient_animation", "ambient_palette",
     "performance_level", "spacr_mode",
@@ -9196,6 +9219,7 @@ def _window_signature() -> tuple:
         get_show_alpha(), get_show_beta(), _get_show_alpha_features(),
         _get_show_alpha_species(),
         get_dock_mode(), get_dock_width(), get_pane_opacity(),
+        get_easy_mode(), get_easy_mode_dock(),
         get_color_blind_mode(), get_field_fade_enabled(),
         get_ambient_enabled(), get_ambient_animation(), get_ambient_palette(),
         get_performance_level(), get_spacr_mode(),
@@ -10611,6 +10635,24 @@ class PreferencesDialog:
             "Ctrl+1..9 and Ctrl+K."
         )
         form.addRow(tr("App dock"), dock_combo)
+
+        easy_mode_check = Toggle()
+        easy_mode_check.setObjectName("EasyMode")
+        easy_mode_check.setAccessibleName(tr("Easy mode"))
+        easy_mode_check.setToolTip(tr(
+            "Use a simple Home field for a file or folder and local suggestions for "
+            "the next step. Works without an AI provider."))
+        easy_mode_check.setChecked(get_easy_mode())
+        form.addRow(tr("Easy mode"), easy_mode_check)
+
+        easy_mode_dock_check = Toggle()
+        easy_mode_dock_check.setObjectName("EasyModeDock")
+        easy_mode_dock_check.setAccessibleName(tr("Show app dock in Easy mode"))
+        easy_mode_dock_check.setToolTip(tr(
+            "Keep the app dock visible while Easy mode is on. Off hides the dock "
+            "in Easy mode without changing its normal setting."))
+        easy_mode_dock_check.setChecked(get_easy_mode_dock())
+        form.addRow(tr("Show app dock in Easy mode"), easy_mode_dock_check)
 
         opacity_slider = QSlider(Qt.Horizontal)
         opacity_slider.setObjectName("PaneOpacity")
@@ -12269,6 +12311,8 @@ class PreferencesDialog:
                 _refresh_custom_colors()
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
+                easy_mode_check.setChecked(get_easy_mode())
+                easy_mode_dock_check.setChecked(get_easy_mode_dock())
                 _select(cb_combo, get_color_blind_mode())
                 _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
@@ -12433,6 +12477,8 @@ class PreferencesDialog:
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not apply the GUI scale", exc_info=True)
             set_dock_mode(dock_combo.currentData())
+            set_easy_mode(easy_mode_check.isChecked())
+            set_easy_mode_dock(easy_mode_dock_check.isChecked())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())
             set_hash_inputs(hash_check.isChecked())

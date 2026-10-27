@@ -3688,3 +3688,497 @@ QTabWidget#HomeTabs > QTabBar::tab:selected {{
     border-bottom-color: {selected_fill};
 }}
 """
+
+
+def _easy_file_kind(path):
+    """Inspect bounded local headers without decoding image pixels or loading arrays."""
+    import csv
+    import io
+    from pathlib import Path
+
+    from PIL import Image, UnidentifiedImageError
+
+    with Path(path).open('rb') as stream:
+        header = stream.read(8192)
+    if header.startswith(b'SQLite format 3\x00'):
+        return 'database'
+    if header.startswith(b'\x93NUMPY'):
+        from numpy.lib.format import read_array_header_1_0, read_array_header_2_0, read_magic
+
+        with Path(path).open('rb') as stream:
+            version = read_magic(stream)
+            reader = read_array_header_1_0 if version == (1, 0) else read_array_header_2_0
+            shape, _, dtype = reader(stream, max_header_size=16384)
+        return 'array' if len(shape) in (2, 3) and not dtype.hasobject else 'unsupported'
+    try:
+        with Image.open(path) as image:
+            if image.width > 0 and image.height > 0:
+                from ...channel_sorting import IMAGE_EXTS
+
+                return 'image' if Path(path).suffix.lower() in IMAGE_EXTS else 'filename_format'
+    except (UnidentifiedImageError, Image.DecompressionBombError, OSError, ValueError):
+        pass
+    try:
+        text = header.decode('utf-8-sig')
+        dialect = csv.Sniffer().sniff(text, delimiters=',\t;')
+        rows = list(csv.reader(io.StringIO(text), dialect))[:8]
+        if len(rows) >= 2 and len(rows[0]) >= 2:
+            return 'table' if Path(path).suffix.lower() in ('.csv', '.tsv', '.txt') else 'filename_format'
+    except (UnicodeError, csv.Error):
+        pass
+    return 'unsupported'
+
+
+def _easy_inspect_path_impl(value):
+    """Inspect existing local contents without modifying sources or running a module."""
+    from itertools import islice
+    from pathlib import Path
+
+    from ..i18n import tr
+
+    path = Path(os.path.expandvars(value.strip())).expanduser()
+    if not value.strip() or not path.exists():
+        return {'path': value, 'message': tr('Choose an existing local file or folder.'), 'actions': []}
+    path = path.resolve()
+    if not path.is_file() and not path.is_dir():
+        return {'path': str(path), 'message': tr('Choose a regular file or folder, rather than a device or pipe.'), 'actions': []}
+    actions = []
+    files = [path]
+    limited = False
+    if path.is_dir():
+        files = []
+        with os.scandir(path) as entries:
+            children = list(islice(entries, 97))
+        limited = len(children) > 96
+        folders = []
+        for entry in children[:96]:
+            if entry.name.startswith('.'):
+                continue
+            if entry.is_file(follow_symlinks=False):
+                files.append(Path(entry.path))
+            elif entry.is_dir(follow_symlinks=False):
+                folders.append(Path(entry.path))
+        for folder in folders[:16]:
+            if len(files) >= 96:
+                limited = True
+                break
+            with os.scandir(folder) as entries:
+                remaining = list(islice(entries, 97 - len(files)))
+            for entry in remaining:
+                if entry.is_file(follow_symlinks=False) and not entry.name.startswith('.'):
+                    files.append(Path(entry.path))
+            if len(files) > 96:
+                limited = True
+                files = files[:96]
+    kinds = {}
+    unreadable = 0
+    for candidate in files:
+        try:
+            kind = _easy_file_kind(candidate)
+        except (OSError, ValueError, EOFError):
+            unreadable += 1
+            continue
+        kinds.setdefault(kind, []).append(candidate)
+    images = kinds.get('image', [])
+    if images:
+        source = str(path if path.is_dir() else path.parent)
+        actions.extend([
+            ('make_masks', tr('View and edit images'), tr('Inspect the supplied images and edit masks before running a pipeline.'), str(path)),
+            ('mask', tr('Create segmentation masks'), tr('Open this image folder in Mask and review the channels and model before Run.'), source),
+        ])
+    databases = kinds.get('database', [])
+    if databases:
+        actions.append(('db_browser', tr('Browse measurements'), tr('Open the detected SQLite database without enabling edits.'), str(databases[0])))
+    tables = kinds.get('table', [])
+    if tables:
+        actions.append(('foreign', tr('Import a measurement table'), tr('Review the table columns, object identities and units before importing into a project.'), str(tables[0])))
+    if kinds.get('array') and path.is_dir() and (path / 'merged').is_dir():
+        record = path / 'psf' / 'segmentation_application.json'
+        if not os.path.lexists(path / 'plate_batch.json') and not os.path.lexists(record):
+            actions.append(('measure', tr('Measure segmented objects'), tr('Review the merged arrays, mask channels and measurement settings before Run.'), str(path)))
+    if actions:
+        message = tr('Suggestions come from local file headers. Review each module before running; nothing has been processed or sent to AI.')
+        if len(kinds.keys() - {'unsupported'}) > 1:
+            message += ' ' + tr('This input contains several content types; choose the next step you need.')
+        if limited:
+            message += ' ' + tr('A bounded sample of this folder was inspected; other files may differ.')
+    elif kinds.get('filename_format'):
+        message = tr('The contents look supported, but the filename extension is not accepted by the matching module. Keep the original and make a correctly named copy before continuing.')
+    elif path.is_dir() and (os.path.lexists(path / 'plate_batch.json') or os.path.lexists(path / 'psf' / 'segmentation_application.json')):
+        message = tr('This folder has calibrated segmentation provenance. Use a completed child dataset and the supported calibrated measurement workflow; ordinary Measure is not suggested.')
+    else:
+        message = tr('No supported image, data table or SQLite database was found. Choose an image folder, a delimited table or a spaCR database.')
+    if unreadable:
+        message += ' ' + tr('Some files could not be read. Check their permissions and try again.')
+    return {'path': str(path), 'message': message, 'actions': actions[:4]}
+
+
+def _easy_inspect_path(value):
+    """Convert expected local access errors into guidance without requesting AI reporting."""
+    from ..i18n import tr
+
+    try:
+        return _easy_inspect_path_impl(value)
+    except (OSError, ValueError, EOFError):
+        return {'path': value, 'message': tr('This input could not be inspected. Check permissions and choose another path.'), 'actions': []}
+
+
+class _EasyDropWatcher(QObject):
+    """Receive only local drag events belonging to the owned Easy mode window."""
+
+    def __init__(self, window):
+        """Register the three drag kinds without adding a Python paint filter."""
+        from ..gil_priority import _watch_application_events
+
+        super().__init__(window)
+        self._window = window
+        window.setAcceptDrops(True)
+        _watch_application_events(QApplication.instance(), self,
+                                  (QEvent.DragEnter, QEvent.DragMove, QEvent.Drop))
+
+    def eventFilter(self, watched, event):
+        """Route whole-window local drops while preserving every ordinary-mode event."""
+        from ..preferences import get_easy_mode
+
+        if event.type() not in (QEvent.DragEnter, QEvent.DragMove, QEvent.Drop):
+            return False
+        if not get_easy_mode() or not isinstance(watched, QWidget) or watched.window() is not self._window:
+            return False
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return False
+        if event.type() == QEvent.Drop:
+            paths = [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+            self._window._easy_mode_drop(paths if len(paths) == len(mime.urls()) else [])
+        event.acceptProposedAction()
+        return True
+
+
+class _EasySuggestionCard(QFrame):
+    """An accessible local next-step card with one explicit module handoff."""
+
+    activated = Signal(str, str)
+
+    def __init__(self, action, parent=None):
+        """Create a readable action without module icons or automatic processing."""
+        super().__init__(parent)
+        self._key, title, description, self._path = action
+        self.setObjectName('EasySuggestionCard')
+        layout = QVBoxLayout(self)
+        label = QLabel(description, self)
+        label.setWordWrap(True)
+        self.button = QPushButton(title, self)
+        self.button.setAccessibleName(title)
+        self.button.clicked.connect(self._activate)
+        layout.addWidget(self.button)
+        layout.addWidget(label)
+        self.setMinimumWidth(220)
+
+    def _activate(self):
+        """Emit the inspected input only after the user chooses this step."""
+        self.activated.emit(self._key, self._path)
+
+
+class _EasyHomeField(QWidget):
+    """Lay out a central path field and varied cards over a small CPU animation."""
+
+    def __init__(self, parent=None):
+        """Own all animation timers and suggestion widgets below the Home page."""
+        super().__init__(parent)
+        self.panel = QFrame(self)
+        self.panel.setObjectName('EasyPathPanel')
+        self.cards = []
+        self._slots = [0, 1, 2, 3]
+        self._phase = 0.0
+        self._animations = []
+        self._timer = QTimer(self)
+        self._timer.setInterval(80)
+        self._timer.timeout.connect(self._advance)
+        self.setMinimumSize(340, 680)
+
+    def _advance(self):
+        """Advance only the owned software-painted ambient field."""
+        self._phase += 0.012
+        self.update()
+
+    def _sync_run_state(self):
+        """Follow the existing live ambient-preference hook without a per-frame settings read."""
+        from ..preferences import get_ambient_enabled, get_reduce_motion
+
+        still = get_reduce_motion()
+        if self.isVisible() and get_ambient_enabled() and not still:
+            self._timer.start()
+        else:
+            self._timer.stop()
+        if still:
+            for animation in self._animations:
+                animation.setCurrentTime(animation.duration())
+                animation.stop()
+
+    def showEvent(self, event):
+        """Animate only when this page is visible and ambient motion is enabled."""
+        super().showEvent(event)
+        self._sync_run_state()
+
+    def hideEvent(self, event):
+        """Retire ambient motion while another module is visible."""
+        self._timer.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        """Paint a few translucent orbits without requesting an accelerator."""
+        import math
+
+        from PySide6.QtGui import QRadialGradient
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        base = self.palette().color(self.backgroundRole())
+        painter.fillRect(self.rect(), base)
+        for index, hue in enumerate((190, 265, 330)):
+            x = self.width() * (.5 + .35 * math.sin(self._phase + index * 2))
+            y = self.height() * (.5 + .34 * math.cos(self._phase + index * 2))
+            gradient = QRadialGradient(x, y, max(180, self.width() * .4))
+            gradient.setColorAt(0, QColor.fromHsv(hue, 120, 200, 35))
+            gradient.setColorAt(1, QColor.fromHsv(hue, 120, 200, 0))
+            painter.fillRect(self.rect(), gradient)
+
+    def set_cards(self, actions):
+        """Replace suggestions and randomize safe slots without crossing the input panel."""
+        import random
+
+        from PySide6.QtCore import QEasingCurve, QPropertyAnimation
+        from PySide6.QtWidgets import QGraphicsOpacityEffect
+
+        from ..preferences import get_reduce_motion
+
+        for animation in self._animations:
+            animation.stop()
+            animation.deleteLater()
+        self._animations.clear()
+        for card in self.cards:
+            card.hide()
+            card.deleteLater()
+        self.cards = [_EasySuggestionCard(action, self) for action in actions]
+        random.SystemRandom().shuffle(self._slots)
+        self._arrange()
+        for card in self.cards:
+            card.show()
+            if not get_reduce_motion():
+                effect = QGraphicsOpacityEffect(card)
+                card.setGraphicsEffect(effect)
+                animation = QPropertyAnimation(effect, b'opacity', self)
+                animation.setStartValue(0.0)
+                animation.setEndValue(1.0)
+                animation.setDuration(random.SystemRandom().randint(300, 600))
+                animation.setEasingCurve(QEasingCurve.OutCubic)
+                animation.start()
+                self._animations.append(animation)
+
+    def resizeEvent(self, event):
+        """Keep all cards in disjoint responsive slots when the viewport changes."""
+        super().resizeEvent(event)
+        self._arrange()
+
+    def _arrange(self):
+        """Allocate positive, nonoverlapping card and input rectangles at every width."""
+        from ..gui_scale import _set_actual_minimum_height
+
+        width = self.width()
+        wide = width >= 720
+        panel_width = min(680, width - 32)
+        panel_layout = self.panel.layout()
+        panel_height = max(220, self.panel.sizeHint().height(),
+                           panel_layout.totalHeightForWidth(panel_width) if panel_layout else 0)
+        card_width = min(310, (width - 64) // 2) if wide else width - 32
+        card_height = max([150] + [max(card.sizeHint().height(),
+                                     card.layout().totalHeightForWidth(card_width))
+                                   for card in self.cards])
+        if wide:
+            panel_y = card_height + 52
+            _set_actual_minimum_height(self, panel_height + card_height * 2 + 104)
+            slots = [QRect(24, 20, card_width, card_height),
+                     QRect(width - card_width - 24, 20, card_width, card_height),
+                     QRect(24, panel_y + panel_height + 24, card_width, card_height),
+                     QRect(width - card_width - 24, panel_y + panel_height + 24, card_width, card_height)]
+        else:
+            panel_y = 24
+            _set_actual_minimum_height(self, panel_height + len(self.cards) * (card_height + 20) + 68)
+            slots = [QRect(16, panel_y + panel_height + 24 + index * (card_height + 20),
+                           width - 32, card_height) for index in range(4)]
+        self.panel.setGeometry((width - panel_width) // 2, panel_y, panel_width, panel_height)
+        for index, card in enumerate(self.cards):
+            slot = self._slots[index] if wide else index
+            card.setGeometry(slots[slot])
+
+
+class _EasyHomePage(QWidget):
+    """A local content-guided Home that remains useful with every AI provider off."""
+
+    tile_clicked = Signal(str)
+    sample_project_requested = Signal()
+    update_check_requested = Signal()
+    news_refresh_requested = Signal()
+    module_requested = Signal(str, str)
+    dock_visibility_changed = Signal(bool)
+
+    def __init__(self, parent=None):
+        """Build the editable path, bounded inspector and owned suggestion field."""
+        from PySide6.QtWidgets import QCheckBox, QLineEdit
+
+        from ..i18n import tr
+        from ..job_runner import JobRunner
+        from ..preferences import get_easy_mode_dock
+
+        super().__init__(parent)
+        self.setObjectName('EasyHomePage')
+        layout = QVBoxLayout(self)
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        self.field = _EasyHomeField(scroll)
+        scroll.setWidget(self.field)
+        layout.addWidget(scroll)
+        panel = QVBoxLayout(self.field.panel)
+        title = QLabel(tr('What would you like to work on?'), self)
+        title.setStyleSheet(f'font-size: {font_px(24)}px; font-weight: 600;')
+        title.setWordWrap(True)
+        panel.addWidget(title)
+        row = QHBoxLayout()
+        self.path_edit = QLineEdit(self)
+        self.path_edit.setObjectName('EasyModePath')
+        self.path_edit.setPlaceholderText(tr('Type a file or folder path, or drop it anywhere in this window'))
+        self.path_edit.setAccessibleName(tr('File or folder path'))
+        row.addWidget(self.path_edit, 1)
+        browse = QPushButton(tr('Browse'), self)
+        browse.clicked.connect(self._browse)
+        row.addWidget(browse)
+        panel.addLayout(row)
+        self.inspect_button = QPushButton(tr('Find next steps'), self)
+        self.inspect_button.clicked.connect(self._inspect)
+        panel.addWidget(self.inspect_button)
+        self.status = QLabel(tr('Local suggestions. No AI provider or network connection is required.'), self)
+        self.status.setWordWrap(True)
+        self.status.setAccessibleName(tr('Input guidance'))
+        panel.addWidget(self.status)
+        self.dock_toggle = QCheckBox(tr('Show app dock in Easy mode'), self)
+        self.dock_toggle.setChecked(get_easy_mode_dock())
+        self.dock_toggle.toggled.connect(self.dock_visibility_changed)
+        panel.addWidget(self.dock_toggle)
+        self._runner = JobRunner(self, app_key='home', user_visible=False)
+        self._runner.job_failed.connect(self._inspection_failed)
+        self._runner.job_finished.connect(self._inspection_finished)
+        self._debounce = QTimer(self)
+        self._debounce.setSingleShot(True)
+        self._debounce.setInterval(600)
+        self._debounce.timeout.connect(self._inspect)
+        self.path_edit.textEdited.connect(self._schedule_inspection)
+        self.path_edit.returnPressed.connect(self._inspect)
+        self._requested = ''
+        self._input_generation = 0
+        self.refresh()
+
+    def refresh(self):
+        """Refresh the local dock choice and readable palette without changing the path."""
+        from ..preferences import get_easy_mode_dock
+
+        self.dock_toggle.blockSignals(True)
+        self.dock_toggle.setChecked(get_easy_mode_dock())
+        self.dock_toggle.blockSignals(False)
+        palette = self.palette()
+        from PySide6.QtGui import QPalette
+
+        surface = palette.color(QPalette.Base).name()
+        foreground = palette.color(QPalette.Text).name()
+        border = palette.color(QPalette.Mid).name()
+        self.setStyleSheet(f'QFrame#EasyPathPanel, QFrame#EasySuggestionCard {{ background: {surface}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; }} QFrame#EasyPathPanel QLabel, QFrame#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; }}')
+
+    def accept_paths(self, paths):
+        """Accept exactly one local input and give useful feedback for ambiguous drops."""
+        from ..i18n import tr
+
+        if len(paths) != 1:
+            self._input_generation += 1
+            self._debounce.stop()
+            self._requested = self.path_edit.text()
+            self.field.set_cards([])
+            self.status.setText(tr('Drop one local file or folder at a time.'))
+            return
+        self.path_edit.setText(paths[0])
+        self._inspect()
+
+    def _browse(self):
+        """Offer both native file and folder selection without guessing the input type."""
+        from PySide6.QtWidgets import QFileDialog, QMenu
+
+        from ..i18n import tr
+
+        menu = QMenu(self)
+        file_action = menu.addAction(tr('Choose a file'))
+        folder_action = menu.addAction(tr('Choose a folder'))
+        selected = menu.exec(self.mapToGlobal(self.rect().center()))
+        if selected is file_action:
+            path, _ = QFileDialog.getOpenFileName(self, tr('Choose a file'))
+        elif selected is folder_action:
+            path = QFileDialog.getExistingDirectory(self, tr('Choose a folder'))
+        else:
+            return
+        if path:
+            self.accept_paths([path])
+
+    def _schedule_inspection(self, text):
+        """Debounce typed paths without interpreting the signal text as a timer interval."""
+        self.field.set_cards([])
+        self._debounce.start()
+
+    def _inspect(self):
+        """Run one bounded local inspection off the GUI thread, never an AI request."""
+        from functools import partial
+
+        from ..i18n import tr
+
+        self._debounce.stop()
+        if self._runner.is_busy():
+            return
+        value = self.path_edit.text()
+        self._requested = value
+        self._input_generation += 1
+        self.field.set_cards([])
+        self.status.setText(tr('Inspecting local file headers…'))
+        self._runner.submit(partial(_easy_inspect_path, value),
+                            on_done=partial(self._show_result, self._input_generation))
+
+    def _show_result(self, generation, result):
+        """Publish only the latest inspected path and wire explicit next-step actions."""
+        if generation != self._input_generation or self.path_edit.text() != self._requested:
+            return
+        from ..app import app_is_visible
+        from ..i18n import tr
+
+        actions = [action for action in result['actions'] if app_is_visible(action[0])]
+        message = result['message']
+        if len(actions) < len(result['actions']):
+            message += ' ' + tr('Additional matching modules are hidden by your maturity or alpha preferences.')
+        self.status.setText(message)
+        self.field.set_cards(actions)
+        for card in self.field.cards:
+            card.activated.connect(self.module_requested)
+
+    def _inspection_finished(self, ok):
+        """Inspect a changed input after the previous owned worker has retired."""
+        if self.path_edit.text() != self._requested:
+            self._debounce.start()
+
+    def _inspection_failed(self, message):
+        """Present the normal worker failure without leaving stale actions available."""
+        from ..i18n import tr
+
+        self.field.set_cards([])
+        self.status.setText(tr('This input could not be inspected. Check permissions and choose another path.'))
+
+    def closeEvent(self, event):
+        """Stop owned timers and retire the local inspection worker before closing."""
+        self._debounce.stop()
+        self.field._timer.stop()
+        self._runner.shutdown(3000)
+        super().closeEvent(event)

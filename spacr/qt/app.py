@@ -2332,14 +2332,19 @@ def home_bands(
 def make_home_page(parent=None):
     """Build the Home page exactly as the running app builds it.
 
-    The grouping, the stages, the notes and the icon provider are four
+    Easy mode uses local content inspection and explicit module handoffs.
+    Otherwise the grouping, stages, notes and icon provider are four
     arguments that have to agree, and a test that assembles its own
     HomePage is testing a page that does not ship — which is the exact
     class of bug #16i was: Home grouped by one table and the tabs by
     another. One constructor call, used by :class:`MainWindow` and by
     the suite.
     """
-    from .widgets.home import HomePage
+    from .preferences import get_easy_mode
+    from .widgets.home import HomePage, _EasyHomePage
+
+    if get_easy_mode():
+        return _EasyHomePage(parent)
     apps = tiled_apps(visible_apps())
     return HomePage(
         apps, _icon_for_app, parent,
@@ -2354,7 +2359,9 @@ def _apply_home_tab_scroll_policy(root, home):
     from .theme import take_the_scroll_arrows_off
 
     count = take_the_scroll_arrows_off(root)
-    home._tabs.setUsesScrollButtons(True)
+    tabs = getattr(home, "_tabs", None)
+    if tabs is not None:
+        tabs.setUsesScrollButtons(True)
     return count
 
 
@@ -5369,7 +5376,7 @@ class MainWindow(QMainWindow):
         "backdrop_off", "font_scale", "gui_scale", "runtime_text_scale",
         "font_weight", "show_alpha", "show_beta", "show_alpha_features",
         "show_alpha_species", "ambient_enabled", "ambient_animation",
-        "ambient_palette", "spaceout",
+        "ambient_palette", "spaceout", "easy_mode",
     })
 
     def refresh_after_preferences(self, changed) -> str:
@@ -5393,7 +5400,7 @@ class MainWindow(QMainWindow):
         if changed & self.REBUILT_FOR:
             self.refresh_theme()
             return "rebuilt"
-        if changed & {"dock_mode", "dock_width"}:
+        if changed & {"dock_mode", "dock_width", "easy_mode_dock"}:
             try:
                 self.apply_dock_mode()
                 self._backdrop_the_dock_column()
@@ -5455,7 +5462,11 @@ class MainWindow(QMainWindow):
         old = getattr(self, "_startup", None)
         was_current = (old is not None
                        and self._stack.currentWidget() is old)
+        previous_path = getattr(getattr(old, "path_edit", None), "text", None)
+        value = previous_path() if callable(previous_path) else ""
         self._install_startup_page()
+        if value and hasattr(self._startup, "path_edit"):
+            self._startup.accept_paths([value])
         if old is not None:
             self._stack.removeWidget(old)
             try:
@@ -6602,6 +6613,10 @@ class MainWindow(QMainWindow):
         Idempotent, and safe to call before the menu exists.
         """
         mode = mode or self.dock_mode()
+        from .preferences import get_easy_mode, get_easy_mode_dock
+
+        if get_easy_mode():
+            mode = "locked" if get_easy_mode_dock() else "hidden"
         drawer = getattr(self, "_app_drawer", None)
         sidebar = getattr(self, "_sidebar", None)
         slot = getattr(self, "_dock_slot", None)
@@ -7093,6 +7108,13 @@ class MainWindow(QMainWindow):
     def _install_startup_page(self):
         """Instantiate the Home page and add it to the stack."""
         self._startup = make_home_page()
+        from .widgets.home import _EasyDropWatcher, _EasyHomePage
+
+        if isinstance(self._startup, _EasyHomePage):
+            self._startup.module_requested.connect(self._open_easy_suggestion)
+            self._startup.dock_visibility_changed.connect(self._set_easy_dock)
+        if getattr(self, "_easy_drop_watcher", None) is None:
+            self._easy_drop_watcher = _EasyDropWatcher(self)
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._startup.sample_project_requested.connect(self._start_a_sample_project)
         self._startup.update_check_requested.connect(self._check_for_updates)
@@ -7104,6 +7126,39 @@ class MainWindow(QMainWindow):
         self._a_page_joined_the_stack(self._startup)
         self._stack.addWidget(self._startup)
         self._drop_a_redundant_screen_backdrop(self._startup)
+
+    def _set_easy_dock(self, visible):
+        """Apply Easy mode's dock choice without overwriting the ordinary dock setting."""
+        from .preferences import set_easy_mode_dock
+
+        set_easy_mode_dock(visible)
+        self.apply_dock_mode()
+
+    def _easy_mode_drop(self, paths):
+        """Bring the local Easy Home forward for a whole-window file or folder drop."""
+        from .widgets.home import _EasyHomePage
+
+        if isinstance(self._startup, _EasyHomePage):
+            self._on_nav_selected("home")
+            self._startup.accept_paths(paths)
+
+    def _open_easy_suggestion(self, key, path):
+        """Open an inspected input through the destination's existing native input route."""
+        if not app_is_visible(key):
+            self.statusBar().showMessage(tr("This module is hidden by the current application preferences."), 5000)
+            return
+        if key in ("make_masks", "db_browser", "foreign"):
+            target = self.open_module(key)
+            widget = _opened_module_screen(self, key, target)
+            if widget is not None:
+                if key == "make_masks":
+                    widget.open_paths([path])
+                elif key == "db_browser":
+                    widget.set_database(path)
+                else:
+                    widget.set_measurements(path)
+        else:
+            self._on_train_requested(key, {"src": path})
 
     def _show_the_screensaver(self) -> bool:
         """Open the backdrop full screen, with nothing else on it.
