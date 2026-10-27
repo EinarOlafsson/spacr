@@ -700,6 +700,8 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         qtbot.waitUntil(lambda: (workflow.central.geometry().center()
                                 - workflow.view.viewport().mapTo(workflow, workflow.view.viewport().rect().center()))
                        .manhattanLength() <= 2)
+        assert workflow.view.transform().m11() == 1.0
+        assert workflow.central.width() >= 260 and workflow.central.height() >= 180
         folds = folded_children()
         parents = {child: host for host, children in folds.items() for child in children}
         registered = {row[0] for row in APPS if app_is_visible(row[0])

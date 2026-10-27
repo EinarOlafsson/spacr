@@ -4851,6 +4851,7 @@ class _EasyWorkflowView(_WorkflowView):
     def center_selection(self, key):
         """Keep the selected scene node underneath its central native action card."""
         self._selected_key = key
+        self._fitted = True
         for candidate, node in self.nodes.items():
             node.setVisible(candidate != key)
         self.describe_node(key, center=True)
