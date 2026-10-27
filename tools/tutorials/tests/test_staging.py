@@ -357,3 +357,39 @@ def test_selected_source_clip_files_cannot_be_omitted_from_scientific_proof(cell
     stage.write(capture / 'scientific_acceptance.json', proof)
     with pytest.raises(ValueError, match='scientific acceptance'):
         stage.require_cellpose_acceptance(changed, capture, frames)
+
+
+@pytest.mark.parametrize('authored', ['focus_buttons', 'focus_modules'])
+@pytest.mark.parametrize('defect', [None, 'unbound', 'other_english', 'other_scene',
+                                   'other_capture', 'other_frame', 'outside', 'null'])
+def test_frame_bound_recapture_bypasses_obsolete_authored_lookup(project, authored, defect):
+    import hashlib
+    root, capture, lesson, changed, retained = project
+    changed['scenes'][0].pop('focus_modules')
+    changed['scenes'][0][authored] = 'FoldButton' if authored == 'focus_buttons' else ['obsolete']
+    stage.write(lesson, changed)
+    canonical = hashlib.sha256(json.dumps(changed, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    frame = stage.read(capture / 'frames.json')['home']['sha256']
+    override = {'english_sha256': canonical, 'scenes': {'home': [50, 20, 100, 80]},
+                'recapture': {'capture_module': 'home', 'frames': {'home': frame}}}
+    if defect == 'unbound': override.pop('recapture')
+    elif defect == 'other_english': override['english_sha256'] = '0' * 64
+    elif defect == 'other_scene': override['scenes'] = {'wrong': [50, 20, 100, 80]}
+    elif defect == 'other_capture': override['recapture']['capture_module'] = 'wrong'
+    elif defect == 'other_frame': override['recapture']['frames']['home'] = '0' * 64
+    elif defect == 'outside': override['scenes']['home'] = [3839, 0, 20, 20]
+    elif defect == 'null': override['scenes']['home'] = None
+    focus_map = lesson.with_name('recapture-focus.json')
+    stage.write(focus_map, override)
+    before = (root / 'catalog/lessons_en.json').read_bytes()
+    if defect:
+        with pytest.raises(ValueError):
+            stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert (root / 'catalog/lessons_en.json').read_bytes() == before
+        assert not (root / 'production').exists()
+    else:
+        stage.stage_lesson(lesson, 'home', root, check_only=True, focus_map=focus_map)
+        assert (root / 'catalog/lessons_en.json').read_bytes() == before
+        stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert stage.read(root / 'production/home/lesson.en.json') == changed
+        assert stage.read(root / 'production/home/visual.json')['scenes'][0]['focus'] == [50, 20, 100, 80]
