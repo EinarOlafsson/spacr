@@ -162,8 +162,8 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             archive = Path(prepared['archive'])
             grid = archive.parent / archive.stem / method / 'batch_grids' / 'batch_0_grid.png'
             evidence['external_viewer'] = show_saved_plots(
-                app, window, stage,
-                lambda name, **kwargs: capture(prefix + '_' + name, **kwargs), settle, [grid])
+                app, window, stage, capture, settle, [grid],
+                inspect_activation_grid=True, scene_prefix=prefix + '_')
             # Recheck the raw maps and complete source identities after viewing.
             if verify_saved(prepared, method, oracle) != {
                     key: evidence[key] for key in ('method', 'maps', 'database',
