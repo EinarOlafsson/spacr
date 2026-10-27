@@ -5288,3 +5288,6 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — G3 owns four remaining organelle-count contract failures: bind integer entry and progressive slot capacity to approved item 326 while preserving actual saved counts, effective configured planes and off-form values. Qualify only the four reported selectors with G5 peer; root owns Nightly/Main publication.
 2026-10-27 — Count fixtures now exercise integer entry, explicit supported-range refusal and progressive numeric-plane activation while preserving seeded counts and all configured type/diameter values. The off-form slot-retention test is unchanged and passes with the existing seeded-count fix. All four reported selectors pass (2.43 s), G5 peer accepted; root owns Nightly/Main publication.
+
+2026-10-27 — G3 owns the stale unnamed-preferences inventory: remove only the explicitly retired app-dock mode choice while retaining theme, colour-blind and figure-format/DPI coverage; assert the retired choice stays absent. Qualify only the reported selector after G5 peer; root owns publication.
+2026-10-27 — The unnamed-preferences check preserves all six current choices and explicitly rejects the retired locked dock-mode choice. Its sole selector passes on Qt 6.11.3 (3.34 s), G5 peer accepted; no product or generated outputs changed, root owns publication.
