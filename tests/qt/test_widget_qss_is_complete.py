@@ -152,8 +152,11 @@ def test_a_fresh_stylesheet_carries_every_registered_block(qapp, theme_name):
     pins is that ``stylesheet()`` itself does the loading -- take that call
     out and the assertion below fails on a fresh interpreter.
     """
-    from spacr.qt import theme
+    from spacr.qt import theme, widgets
 
+    first_sheet = theme.stylesheet(theme_name, load_widget_registrars=False)
+    assert "QFrame#CanvasComposerSurface" in first_sheet
+    assert "QGraphicsView#CanvasComposerView, QWidget#CanvasComposerViewport" in first_sheet
     theme.load_widget_qss_registrars()
     sheet = theme.stylesheet(theme_name)
     registered = set(theme._WIDGET_QSS)
@@ -171,6 +174,9 @@ def test_a_fresh_stylesheet_carries_every_registered_block(qapp, theme_name):
     empty = [name for name, fn in theme._WIDGET_QSS.items()
              if not str(fn(palette, 1.0) or "").strip()]
     assert not empty, f"registered but rendering to nothing: {sorted(empty)}"
+    assert "CanvasComposerSurface" in registered
+    assert "QFrame#CanvasComposerSurface" in sheet
+    assert "QGraphicsView#CanvasComposerView, QWidget#CanvasComposerViewport" in sheet
 
 
 def _modules_registering_only_inside_a_function() -> set[str]:

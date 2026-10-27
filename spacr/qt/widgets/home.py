@@ -5015,7 +5015,7 @@ class _EasyWorkflowPage(QWidget):
         self.central.icon.setPixmap(self.central.icon.pixmap().scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         title = heading.itemAt(1).widget()
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet('font-family: "Open Sans"; font-size: 20px; font-weight: 300;')
+        title.setStyleSheet(f'font-family: "Open Sans"; font-size: {font_px(20)}px; font-weight: 300;')
         content.setAlignment(Qt.AlignCenter)
         self.central.activated.connect(self.open_requested)
         self.central.show()

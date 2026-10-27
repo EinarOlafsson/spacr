@@ -14045,6 +14045,10 @@ def _field_ripple_for_popup(dialog, strength=1.0) -> None:
     """
     try:
         owner = dialog.parentWidget()
+    except RuntimeError:
+        _note_container_ripple()
+        return
+    try:
         if owner is None or owner.window().property("spacrEasySearchRippleOnly"):
             return
         _note_container_ripple()

@@ -34,6 +34,7 @@ from .object_settings_grid import ObjectSettingsGrid, ObjectSettingsModel
 from .section import Section
 from .tile import HTile, Tile
 from .toggle import Toggle
+from . import picture_export as _picture_export
 from .usage_bar import UsageBar
 
 #: The names that cost real time to import, and the module behind each.

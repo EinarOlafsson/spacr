@@ -1534,9 +1534,7 @@ class _CanvasComposer(QDialog):
         self.scene = _CanvasScene(self)
         self.scene.selectionChanged.connect(self._selection_changed)
         from PySide6.QtWidgets import QFrame
-        from ..theme import RADIUS, ensure_widget_qss_applied, register_widget_qss
-
-        register_widget_qss("CanvasComposerSurface", _canvas_surface_qss, replace=True)
+        from ..theme import RADIUS, ensure_widget_qss_applied
         surface = QFrame(self)
         surface.setObjectName("CanvasComposerSurface")
         surface_layout = QVBoxLayout(surface)
@@ -2559,3 +2557,8 @@ _CANVAS_UI_SOURCES = frozenset({
 The runtime catalog generator cannot see them at a literal call site and
 imports this set instead, as it does ``_DOSE_RESPONSE_UI_SOURCES``.
 """
+
+
+from ..theme import register_widget_qss
+
+register_widget_qss("CanvasComposerSurface", _canvas_surface_qss, replace=True)

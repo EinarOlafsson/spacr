@@ -71,7 +71,7 @@ def state(tmp_path, monkeypatch):
 def _screen(qtbot, tmp_path, runner, *profiles, preview=False, reuse=False, threaded=False):
     store = ProfileStore(tmp_path / "profiles.json")
     for profile in () if reuse else profiles or (
-            ExecutionProfile("fakelakes", "slurm", host="fakelakes", workdir="/home/ada_fake/w"),):
+            ExecutionProfile("fakelakes", "slurm", host="fakelakes", workdir="/projects/ada_fake/w"),):
         store.save(profile)
     manager = RemoteJobManager(store, JobStore(tmp_path / "jobs.json"), runner)
     screen = DistributedJobsScreen(manager=manager, threaded=threaded, auto_poll=False, preview=preview)
@@ -94,7 +94,7 @@ def test_jobs_sit_in_a_glass_card_and_the_console_replaces_the_details_pane(qtbo
 
 def test_a_submission_prints_the_event_and_script_then_follows_the_log(qtbot, qt_theme_applied, state, tmp_path):
     settings = tmp_path / "s.json"
-    settings.write_text('{"src": "/home/ada_fake/plate"}')
+    settings.write_text('{"src": "/projects/ada_fake/plate"}')
     runner = Runner(CommandResult(0), CommandResult(0, "4242\n"))
     screen = _screen(qtbot, state, runner)
     screen._module.setCurrentIndex(screen._module.findData("mask"))
@@ -202,7 +202,7 @@ def test_a_custom_script_without_settings_is_saved_and_previewed(qtbot, qt_theme
     screen._save_script()
     assert "my-tool {module}" in screen.manager.profiles.get("fakelakes").job_script
     preview = screen._preview_script()
-    assert "my-tool mask /home/ada_fake/w/spacr-jobs/preview/settings.json" in preview
+    assert "my-tool mask /projects/ada_fake/w/spacr-jobs/preview/settings.json" in preview
     assert "--settings" not in preview
     screen._use_script_preset()
     screen._save_script()
@@ -299,7 +299,7 @@ def test_a_preset_fills_environment_resources_and_login_hosts(qtbot, qt_theme_ap
     dialog._apply_preset(dialog._preset.currentIndex())
     dialog._name.setText("lakes")
     dialog._host.setText("lakes")
-    dialog._workdir.setText("/home/ada_fake")
+    dialog._workdir.setText("/projects/ada_fake")
     profile = dialog.profile()
     assert profile.backend == "slurm" and "mamba activate spacr" in profile.env_setup
     assert profile.resources["gpus"] == "1" and profile.login_hosts == "*login*"

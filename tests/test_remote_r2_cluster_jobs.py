@@ -74,7 +74,7 @@ def _manager(tmp_path, profile, runner):
 
 
 def _slurm(**changes):
-    profile = ExecutionProfile("fakelakes", "slurm", host="fakelakes", workdir=f"/home/{FAKE_USER}/work")
+    profile = ExecutionProfile("fakelakes", "slurm", host="fakelakes", workdir=f"/projects/{FAKE_USER}/work")
     return replace(profile, **changes).validate()
 
 
@@ -157,7 +157,7 @@ def test_the_template_decides_the_command_and_nothing_appends_settings(tmp_path)
     job = _submit_job(_manager(tmp_path, profile, runner), "mask", {"src": "/data"}, "fakelakes")
     script = runner.calls[1][1]["input_text"]
     assert script == job.job_script
-    assert f"my-wrapper mask /home/{FAKE_USER}/work/spacr-jobs/{job.job_id}/settings.json --threads" in script
+    assert f"my-wrapper mask /projects/{FAKE_USER}/work/spacr-jobs/{job.job_id}/settings.json --threads" in script
     assert "--settings" not in script
     assert "${SLURM_CPUS_PER_TASK:-1}" in script
     assert "module load fakeenv" in script
@@ -166,7 +166,7 @@ def test_the_template_decides_the_command_and_nothing_appends_settings(tmp_path)
 
 def test_the_default_script_still_builds_the_spacr_run_line_with_settings():
     script = _preview_job_script(_slurm(), "measure")
-    assert "exec spacr-run measure --settings /home/ada_fake/work/spacr-jobs/preview/settings.json" in script
+    assert "exec spacr-run measure --settings /projects/ada_fake/work/spacr-jobs/preview/settings.json" in script
 
 
 def test_an_unknown_placeholder_is_refused_when_the_profile_is_saved():
@@ -175,9 +175,9 @@ def test_an_unknown_placeholder_is_refused_when_the_profile_is_saved():
 
 
 def test_values_with_spaces_are_quoted_and_code_placeholders_are_not():
-    profile = _slurm(workdir="/home/ada_fake/my work", env_setup="conda activate spacr")
+    profile = _slurm(workdir="/projects/ada_fake/my work", env_setup="conda activate spacr")
     script = _preview_job_script(profile, "mask")
-    assert "cd '/home/ada_fake/my work'" in script
+    assert "cd '/projects/ada_fake/my work'" in script
     assert "\nconda activate spacr\n" in script
 
 

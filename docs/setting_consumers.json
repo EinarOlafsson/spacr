@@ -7961,7 +7961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 1975,
+    "line": 1973,
     "module": "spacr.qt.widgets.picture_export",
     "nested": false,
     "qualname": "_CanvasComposer.set_import"
@@ -16847,7 +16847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14258,
+    "line": 14262,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"

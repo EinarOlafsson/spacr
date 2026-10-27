@@ -179,3 +179,25 @@ def test_the_compact_catalog_still_answers_without_the_external_one():
     finally:
         builtins.__import__ = real_import
         sys.modules.update(hidden)
+
+
+def test_english_availability_survives_missing_external_catalogs(monkeypatch):
+    """Extended English coverage is optional; compact entries remain usable."""
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS, has_translation
+
+    source = "Easy mode"
+    assert source not in _ROWS and source not in _TERM_ROWS
+    assert has_translation(source, "en")
+    real_import = builtins.__import__
+
+    def blocked(name, *args, **kwargs):
+        if "i18n_catalogs" in name:
+            raise ModuleNotFoundError("simulated light install")
+        return real_import(name, *args, **kwargs)
+
+    with monkeypatch.context() as missing:
+        missing.setattr(builtins, "__import__", blocked)
+        assert has_translation("Settings", "en")
+        assert not has_translation(source, "en")
+        assert not has_translation("not a spaCR catalog caption", "en")
+    assert has_translation(source, "en")

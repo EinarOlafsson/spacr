@@ -3417,6 +3417,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.widgets.formula_editor",
     "spacr.qt.widgets.graph_builder",
     "spacr.qt.widgets.pca_view",
+    "spacr.qt.widgets.picture_export",
     "spacr.qt.widgets.pivot_builder",
     "spacr.qt.widgets.qc_field_browser",
 )
