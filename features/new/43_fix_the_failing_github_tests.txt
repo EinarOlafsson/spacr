@@ -5200,4 +5200,6 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — Retired two obsolete remote-authentication captions from the reviewed UI vocabulary, preserving all 56 original arrivals and historical 99-row digests. Their 18 translations exactly match both the original rows and archived reviews; the existing retirement contract records them and the actual source-removal commit. All three vocabulary tests pass (0.73 s), source peer accepted; active runtime/API sources are unchanged.
 
+2026-10-27 — Repair the Minimum 2 public-boundary checks without changing their pinned hashes: Python before 3.12 omits empty AST generic-parameter fields. Removing only that empty field exactly reproduces the hosted failing hash. Normalized this schema difference and explicit empty-field rendering while retaining every semantic node and pinned hash. Both inventories and the cross-schema mutation control pass (3 cases, 39.68 s); source peer accepted.
+
 2026-10-27 — Coverage 0's Swedish/French runtime syntax guards now reconstruct the frozen 80-heading cohort from its 79 active rows and exact archived job-details row, preserving original hashes, bytes and historical totals. Both affected guards pass (69.29 s); no catalog or production changes. Root owns integration/publication and hosted CI remains open.
