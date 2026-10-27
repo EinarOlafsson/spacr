@@ -37,8 +37,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
+import random
 import shutil
 import sys
+import time
+from email.utils import parsedate_to_datetime
+from datetime import timezone
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
@@ -84,6 +89,24 @@ def _group(data: dict, name: str) -> dict:
     return groups[name]
 
 
+def _retry_delay(response, attempt):
+    """Honor Retry-After dates or seconds, otherwise use jittered backoff."""
+    header = response.headers.get("Retry-After", "") if response is not None else ""
+    try:
+        seconds = float(header)
+    except (TypeError, ValueError):
+        try:
+            date = parsedate_to_datetime(header)
+            if date.tzinfo is None:
+                date = date.replace(tzinfo=timezone.utc)
+            seconds = date.timestamp() - time.time()
+        except (TypeError, ValueError, OverflowError):
+            seconds = -1.0
+    if math.isfinite(seconds) and seconds >= 0:
+        return seconds
+    return 2.0 ** attempt + random.uniform(0.0, 1.0)
+
+
 def media_path(tree_path: str, group: str = "deck", pin: Path = PIN) -> Path:
     """Return a verified local copy of one pinned file, from the cache.
 
@@ -98,14 +121,27 @@ def media_path(tree_path: str, group: str = "deck", pin: Path = PIN) -> Path:
 
     spec = _group(load_pin(pin), group)
     record = spec["files"][tree_path]
-    try:
-        local = Path(hf_hub_download(spec["repo"], record["path_in_repo"],
-                                     repo_type=spec["repo_type"],
-                                     revision=spec["revision"]))
-    except Exception as error:
-        raise RuntimeError(
-            f"could not fetch {record['path_in_repo']} from {spec['repo']} at "
-            f"{spec['revision']}: {error}") from error
+    deadline = time.monotonic() + 120.0
+    for attempt in range(4):
+        try:
+            local = Path(hf_hub_download(spec["repo"], record["path_in_repo"],
+                                         repo_type=spec["repo_type"],
+                                         revision=spec["revision"]))
+            break
+        except Exception as error:
+            response = getattr(error, "response", None)
+            status = getattr(response, "status_code", None) if response is not None else None
+            if status in (429, 500, 502, 503, 504) and attempt < 3:
+                delay = _retry_delay(response, attempt)
+                remaining = deadline - time.monotonic()
+                if remaining > 0 and delay <= remaining:
+                    time.sleep(delay)
+                    if time.monotonic() < deadline:
+                        continue
+            detail = f"HTTP {status}" if type(status) is int else type(error).__name__
+            raise RuntimeError(
+                f"could not fetch {record['path_in_repo']} from {spec['repo']} at "
+                f"{spec['revision']} ({detail})") from None
     if sha256(local) != record["sha256"]:
         raise RuntimeError(f"{record['path_in_repo']} at {spec['revision']} does not match the pin")
     return local
