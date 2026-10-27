@@ -10,6 +10,7 @@ Rebuild, from the repository root:
 
     cd tools/readme_deck
     npm ci
+    python scripts/prep_assets.py --mosaic-only
     PUBLIC=1 node scripts/build.js
     cd ../..
     python tools/fetch_docs_media.py fetch
@@ -27,3 +28,6 @@ pictures. Publishing needs a Hugging Face token with write access to that datase
 `python tools/build_readme_deck.py --out /private/rendered` runs the node steps itself;
 `--pres DIR` selects other sources. `--out` must be a new folder. Choose the pages that
 changed by comparing the rendered slides with the published ones.
+
+The cover mosaic is generated from the packaged startup mosaic and its occupied-cell map.
+The deck builder refreshes this clipped asset before building; background tiles stay transparent.

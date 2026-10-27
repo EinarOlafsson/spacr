@@ -118,6 +118,10 @@ def make_pptx(pres: Path) -> Path:
         raise SystemExit(f"no deck sources in {pres}")
     if not (pres / "node_modules").is_dir():
         subprocess.run(["npm", "ci"], cwd=pres, check=True)
+    subprocess.run(
+        [sys.executable, str(pres / "scripts" / "prep_assets.py"),
+         "--mosaic-only", "--mosaic-source",
+         str(ROOT / "spacr" / "resources" / "splash")], check=True)
     environment = dict(os.environ, PUBLIC="1")
     subprocess.run(["node", "scripts/build.js"], cwd=pres, check=True, env=environment)
     return pres / "spacr_overview.pptx"
@@ -629,6 +633,12 @@ def refresh_pages(baseline: Path, rendered: Path, output: Path, numbers: Sequenc
         for key in ("image", "thumb"):
             shutil.copyfile(rendered / item[key], output / item[key])
         old["slides"][number - 1] = item
+    if 1 in selected:
+        title_base = rendered / "title_base.jpg"
+        if title_base.is_file():
+            shutil.copyfile(title_base, output / "title_base.jpg")
+        else:
+            (output / "title_base.jpg").unlink(missing_ok=True)
     (output / "slides.json").write_text(json.dumps(old, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     github_pages(output, [item["title"] for item in old["slides"]])
     (output / "index.html").write_text(

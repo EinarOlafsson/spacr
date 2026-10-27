@@ -204,3 +204,32 @@ def test_a_bump_never_fails_on_the_deck(tmp_path, monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", no_pil)
     assert release.restamp_info_deck(root, "2.0.0.0") is None
+
+
+def test_refreshing_the_cover_preserves_its_template_for_future_stamps(tmp_path):
+    from PIL import Image
+
+    baseline, rendered = tmp_path / 'baseline', tmp_path / 'rendered'
+    title_line = {"x": 0.05, "y": 0.85, "w": 0.7, "h": 0.06,
+                  "size": 0.04, "colour": "#FFFFFF", "text": "spaCR {version}"}
+    manifest = {"count": 3, "aspect": 16 / 9, "title_line": title_line,
+                "slides": [{"image": f"slides/slide_{number:02d}.jpg",
+                            "thumb": f"thumbs/slide_{number:02d}.jpg",
+                            "title": f"Slide {number}", "animations": []}
+                           for number in range(1, 4)]}
+    for folder, colour in ((baseline, 'red'), (rendered, 'green')):
+        folder.mkdir()
+        _fake_render(None, folder / 'slides', 800, 86)
+        _fake_render(None, folder / 'thumbs', 320, 75)
+        Image.new('RGB', (800, 450), colour).save(folder / 'title_base.jpg')
+        _fake_to_pdf(None, folder)
+        (folder / 'deck.pdf').rename(folder / 'spacr_deck.pdf')
+        (folder / 'slides.json').write_text(json.dumps(manifest))
+    output = tmp_path / 'output'
+    deck.refresh_pages(baseline, rendered, output, [1])
+    assert (output / 'title_base.jpg').read_bytes() == (rendered / 'title_base.jpg').read_bytes()
+    assert (output / 'slides/slide_02.jpg').read_bytes() == (baseline / 'slides/slide_02.jpg').read_bytes()
+    deck.stamp_title(output, '9.8.7.6')
+    with Image.open(output / 'slides/slide_01.jpg') as picture:
+        red, green, blue = picture.convert('RGB').getpixel((0, 0))
+    assert green > red and green > blue
