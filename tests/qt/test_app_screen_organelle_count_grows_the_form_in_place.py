@@ -135,11 +135,13 @@ class _OrganelleModel:
         self.count = count
         self.wanted = list(wanted)
         self.spawned = list(spawned)
+        self.spawn_counts = []
         self.refreshed = 0
         self.hidden = []
         self._widgets = {}
 
     def spawn_organelle_slots(self, count):
+        self.spawn_counts.append(count)
         return list(self.spawned)
 
     def _setting_value(self, key):
@@ -191,11 +193,13 @@ def test_nothing_spawned_still_reruns_the_rule_and_a_grid_failure_is_kept(
                         lambda *a: laid.append(a))
     screen._object_grid_binding = types.SimpleNamespace(seed=_raise())
     try:
-        assert screen._grow_the_organelle_slots_in_place() is True
+        for attempts in (1, 2):
+            assert screen._grow_the_organelle_slots_in_place() is True
+            assert model.spawn_counts == [2] * attempts
+            assert model.refreshed == attempts
     finally:
         screen._object_grid_binding = None
     assert laid == []
-    assert model.refreshed == 1
     assert model.hidden == []
 
 
