@@ -13335,7 +13335,10 @@ class AmbientWidget(QWidget):
             producer = self._producer_box[0]
             tints = self._card_tints
             held = self._held_rows
+            visible = self.visibleRegion()
             whole = (QRegion(rect).subtracted(event.region()).isEmpty()
+                     or (not visible.isEmpty()
+                         and visible.subtracted(event.region()).isEmpty())
                      or held.takes_a_frame(event.region()))
             if whole or (tints is not None and tints.active):
                 self._partial_frame = None

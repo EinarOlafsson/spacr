@@ -7,6 +7,14 @@ busy-card behavior and the Chrome scheduler exclusion, and validate the
 smallest CPU-only owning controls before root publication.
 
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT COMPLETE VISIBLE AMBIENT EXPOSURE — 2026-10-26
+The retained attribution worker owns the reproduced release 8e composite
+regression: opaque child regions leave holes in a complete visible repaint.
+Advance the frame for actual complete visible coverage, retaining empty-region
+and disjoint partial-exposure safety, composite/classic equality and all
+existing assertions. Composite and original disjoint controls pass (4.63s);
+CPU-only qualification retained, root reviews/publishes.
+
 CURRENT CENTERED COLOUR DIALOG TEST PROTOCOL — 2026-10-26
 The retained attribution worker owns five release 8e stale static-getColor
 fixtures. Bind the approved real instance-dialog protocol while preserving
