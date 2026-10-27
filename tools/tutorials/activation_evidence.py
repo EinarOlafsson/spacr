@@ -10,11 +10,103 @@ import shutil
 import sqlite3
 import tarfile
 import tempfile
+import re
+from contextlib import contextmanager
 
 import numpy as np
 from PIL import Image
 
 from capture_database import _digest, file_bundle, require_unchanged_source, _readonly
+
+
+def require_cuda_reference(device):
+    """Reject CPU fallback before the reference or any recording begins."""
+    if getattr(device, 'type', None) != 'cuda':
+        raise ValueError('Tutorial 16 requires an actual CUDA reference, not CPU fallback')
+    return str(device)
+
+
+@contextmanager
+def observe_cuda_run(owner, model_path, method):
+    """Observe the genuine loaded classifier's forward inputs without altering them.
+
+    The loader delegates exactly once and returns its original result. A normal
+    read-only Torch pre-hook returns None; it changes no tensor, model or output.
+    The original loader and all hooks are restored even when the worker fails.
+    """
+    import torch
+    original = owner._load_inference_model
+    expected = str(Path(model_path).resolve())
+    record = dict(method=method, model_path=expected,
+                  observer='loaded_classifier_forward_pre_hook', loads=[], errors=[])
+    handles = []
+
+    def observed_loader(*args, **kwargs):
+        result = original(*args, **kwargs)
+        model = result[0]
+        actual_path = args[0] if args else kwargs.get('model_path')
+        loaded = dict(model_path=str(Path(actual_path).resolve()), forwards=[])
+        record['loads'].append(loaded)
+
+        def before_forward(actual_model, inputs):
+            try:
+                if len(loaded['forwards']) >= 16:
+                    raise ValueError('Unexpected number of classifier forward calls')
+                tensors = []
+                def collect(value):
+                    if torch.is_tensor(value):
+                        tensors.append(value)
+                    elif isinstance(value, (tuple, list)):
+                        for item in value: collect(item)
+                    elif isinstance(value, dict):
+                        for item in value.values(): collect(item)
+                collect(inputs)
+                loaded['forwards'].append(dict(
+                    parameter_devices=sorted({str(p.device) for p in actual_model.parameters()}),
+                    buffer_devices=sorted({str(p.device) for p in actual_model.buffers()}),
+                    input_devices=[str(t.device) for t in tensors],
+                    input_shapes=[list(t.shape) for t in tensors]))
+            except Exception as error:
+                record['errors'].append(type(error).__name__ + ': ' + str(error))
+            # No return value: Torch receives the original inputs unchanged.
+
+        handles.append(model.register_forward_pre_hook(before_forward))
+        return result
+
+    owner._load_inference_model = observed_loader
+    try:
+        yield record
+    finally:
+        owner._load_inference_model = original
+        for handle in handles:
+            handle.remove()
+
+
+def check_cuda_run(run):
+    """Accept actual classifier/input observations, never availability or EGL."""
+    evidence = run.get('cuda_execution')
+    if (not isinstance(evidence, dict) or evidence.get('method') != run.get('method')
+            or evidence.get('observer') != 'loaded_classifier_forward_pre_hook'
+            or evidence.get('errors') or len(evidence.get('loads', [])) != 1):
+        raise ValueError('Both GUI saliency runs require their own actual CUDA execution evidence')
+    loaded = evidence['loads'][0]
+    if (not evidence.get('model_path') or loaded.get('model_path') != evidence['model_path']
+            or not loaded.get('forwards')):
+        raise ValueError('CUDA evidence does not bind the actual loaded classifier forward')
+    observed_devices = set()
+    for row in loaded['forwards']:
+        parameters, inputs = row.get('parameter_devices'), row.get('input_devices')
+        buffers = row.get('buffer_devices')
+        if (not isinstance(parameters, list) or not parameters or not isinstance(inputs, list) or not inputs
+                or not isinstance(buffers, list)
+                or any(not isinstance(device, str) or not re.fullmatch(r'cuda:\d+', device)
+                       for device in parameters + inputs + buffers)
+                or row.get('input_shapes') != [[4, 3, 128, 128]]):
+            raise ValueError('Actual classifier parameters, buffers and four crop inputs must be on CUDA')
+        observed_devices.update(parameters + inputs + buffers)
+        if len(observed_devices) != 1:
+            raise ValueError('Actual classifier parameters, buffers and inputs must share one CUDA device index')
+    return evidence
 
 
 def encode_gradient(gradient, method):
@@ -71,6 +163,8 @@ def check_native_runs(runs):
     """Saved PNGs alone cannot certify two successful, visible GUI results."""
     if len(runs) != 2 or {r['method'] for r in runs} != {'saliency_image','saliency_channel'}:
         raise ValueError('Both distinct saliency runs must be recorded')
+    for run in runs:
+        check_cuda_run(run)
     if any(not r['outcome']['finished'] or not r['outcome']['ok'] or r['outcome']['errors'] or
            r['gui_figure_count'] < 1 or not r['figures_card_visible'] or r['settings_errors'] for r in runs):
         raise ValueError('Activation outputs exist but native figures or settings validation failed')
@@ -83,6 +177,7 @@ def check_saved_runs(runs):
     if len(runs) != 2 or {r['method'] for r in runs} != {'saliency_image', 'saliency_channel'}:
         raise ValueError('Both distinct saliency runs must be recorded')
     for run in runs:
+        check_cuda_run(run)
         check_saved_file_run(run)
         per_map = 128 * 128 * (3 if run['method'] == 'saliency_channel' else 1)
         maps = run['maps']

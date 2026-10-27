@@ -4,7 +4,7 @@ import time
 
 import capture_ui
 from capture_ui_drv_a import Rec, type_text
-from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs, check_saved_runs
+from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs, check_saved_runs, require_cuda_reference, observe_cuda_run, check_cuda_run
 
 
 def record_activation(app, window, stage, captures, capture, settle, write_json, timeout, *, saved_plots=False):
@@ -76,23 +76,25 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
                     outcome['errors'].append(box.windowTitle()+': '+box.text())
                     capture(prefix+'_prompt');box.reject()
         timer=QTimer(window);timer.timeout.connect(reject_prompt);timer.start(300)
-        try:
-            if not screen._btn_run.isEnabled():raise ValueError('Actual Run is disabled')
-            # Host: the clip starts before the pointer reaches Run.
-            running=Rec(capture,prefix+'_running',settle).start()
-            QTest.mouseClick(screen._btn_run,Qt.LeftButton)
-            worker=getattr(screen,'_worker',None)
-            if worker is None:
-                running.abort();raise ValueError('Actual Run did not start a worker')
-            worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))
-            worker.error.connect(lambda text:outcome['errors'].append(str(text)))
-            worker.line_ready.connect(lambda text:lines.append(str(text)))
-            settle(.5);running.stop()
-            while not outcome['finished'] or screen._worker_thread_is_running():tick();settle(.1)
-            settle(1)
-        finally:
-            timer.stop();timer.deleteLater()
-            write_json(captures/(prefix+'_worker.json'),dict(outcome=outcome,lines=lines,settings=settings))
+        import spacr.deep_spacr as actual_activation
+        with observe_cuda_run(actual_activation, prepared['model'], method) as cuda_execution:
+            try:
+                if not screen._btn_run.isEnabled():raise ValueError('Actual Run is disabled')
+                # Host: the clip starts before the pointer reaches Run.
+                running=Rec(capture,prefix+'_running',settle).start()
+                QTest.mouseClick(screen._btn_run,Qt.LeftButton)
+                worker=getattr(screen,'_worker',None)
+                if worker is None:
+                    running.abort();raise ValueError('Actual Run did not start a worker')
+                worker.finished.connect(lambda ok:outcome.update(finished=True,ok=bool(ok)))
+                worker.error.connect(lambda text:outcome['errors'].append(str(text)))
+                worker.line_ready.connect(lambda text:lines.append(str(text)))
+                settle(.5);running.stop()
+                while not outcome['finished'] or screen._worker_thread_is_running():tick();settle(.1)
+                settle(1)
+            finally:
+                timer.stop();timer.deleteLater()
+                write_json(captures/(prefix+'_worker.json'),dict(outcome=outcome,lines=lines,settings=settings,cuda_execution=cuda_execution))
         with Rec(capture,prefix+'_finished_console',settle):
             capture_ui.console_end_all(capture,screen._console)
             capture_ui.console_to_end(capture,screen._console);settle(.3)
@@ -111,9 +113,11 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
             capture(prefix+'_missing_gui_plot')
         evidence=verify_saved(prepared,method,oracle)
         evidence.update(settings=settings,outcome=outcome,console=lines,figures=figures,
+                        cuda_execution=cuda_execution,
                         gui_figure_count=queue.count(), figures_card_visible=screen._figures_card.isVisible(),
                         settings_errors=[line for line in lines if '[settings] ERROR' in line])
         proof['runs'].append(evidence);write_json(captures/'activation-workflow.json',proof)
+        check_cuda_run(evidence)
         if saved_plots:
             from capture_saved_plots import check_saved_file_run, show_saved_plots
             check_saved_file_run(evidence)
@@ -133,7 +137,10 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
         from spacr.deep_spacr import pick_device
         device,note=pick_device(what='tutorial reference')
         proof['reference_device_resolution']=dict(device=str(device),note=note)
+        require_cuda_reference(device)
         oracle = reference(prepared,device=str(device)); proof['independent_reference'] = oracle['proof']
+        if not oracle['proof']['reference_device'].startswith('cuda:'):
+            raise ValueError('Independent reference model did not actually reside on CUDA')
         tiles=[w for w in window.findChildren(QAbstractButton) if w.isVisible() and
                (w.property('moduleAppKey')==HOST_KEY or w.property('navKey')==HOST_KEY)]
         if not tiles:raise ValueError('No actual Home Classify route')
