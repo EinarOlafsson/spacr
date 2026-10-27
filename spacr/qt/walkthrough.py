@@ -696,7 +696,7 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     except Exception:
         rows = []
     for key, name, desc, _section in rows:
-        action = QAction(str(name), submenu)
+        action = QAction(tr(MENU_TITLE) + ": " + tr(str(name)), submenu)
         action.setStatusTip(str(desc))
         action.setProperty("moduleAppKey", key)
         action.setProperty("moduleNameSource", str(name))
