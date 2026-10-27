@@ -1,3 +1,5 @@
+GET THE GITHUB ACTIONS RUNS GREEN
+
 CURRENT NAVIGATOR ENGLISH FALLBACK — 2026-10-27
 widgets_g2 owns Coverage 5 job 122347867367: bind the extended-English
 availability fixture to the shipped Navigator caption after the Easy mode
@@ -19,7 +21,6 @@ Require the snapshot's device list to feed only torch.random.fork_rng, retain
 busy-card behavior and the Chrome scheduler exclusion, and validate the
 smallest CPU-only owning controls before root publication.
 
-GET THE GITHUB ACTIONS RUNS GREEN
 CURRENT INSTALLED MODULE INVENTORY — 2026-10-27
 Bind CI's exact inventory to the three already-shipped macOS transport modules
 (metal_cellpose, mps_reduce, torch_loader), increasing the denominator from
@@ -5252,3 +5253,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — The organelle integer control now displays the constructor/import count instead of resetting to zero. Progressive import and panel controls preserve same-screen updates, configured slots, numbered groups and seven-value lower/restore round trips; all eight CI failures plus one populated-import control pass (9 cases, 66.62 s). G5 source peer accepted; root owns publication.
 2026-10-27 — Coverage 5 extended-English fallback now names the shipped Navigator caption instead of retired Easy mode. The owning selector passes (1 case, 2.41 s), retaining compact coverage, missing-catalog negatives and restored availability; no production or generated output changed. Root owns publication.
 2026-10-27 — Embeddings uses the existing compact section spacing so styled alpha controls receive their full wrapping height at 1280×760. The owning test now explicitly applies the canonical theme; all width, wrapping, containment and timeout assertions remain unchanged. G5 peer accepted; the sole affected Qt 6.11.3 selector passes (1 case, 2.84 s). Root owns publication.
+
+2026-10-27 — widgets_g2 owns Coverage 10 job 122347867461 stale instruction-index repair: regenerate features/00_INDEX.txt once from current instruction files with the stock builder, then run its strict owning selector. Preserve all instructions and --check behavior; root owns publication.
