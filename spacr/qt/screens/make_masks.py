@@ -1232,6 +1232,52 @@ class _PageStack(QStackedWidget):
                 else super().minimumSizeHint())
 
 
+class _ToolbarViewport(QScrollArea):
+    """Keep the existing tool groups reachable when their rows overflow.
+
+    :param widget: the unchanged wrapping toolbar and its button groups.
+    """
+
+    def __init__(self, widget):
+        """Own the toolbar in a transparent, vertically scrolling viewport.
+
+        :param widget: the existing toolbar with all its live controls.
+        """
+        super().__init__()
+        self.setObjectName("MakeMasksToolbarViewport")
+        self.setFrameShape(QFrame.NoFrame)
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setWidget(widget)
+        self.setAutoFillBackground(False)
+        self.viewport().setAutoFillBackground(False)
+        widget.setAutoFillBackground(False)
+        policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+
+    def hasHeightForWidth(self):
+        """Measure the unchanged wrapped toolbar at the available width."""
+        return True
+
+    def heightForWidth(self, width):
+        """Return the full toolbar height before any overflow is scrolled.
+
+        :param width: available viewport width in pixels.
+        :returns: the toolbar's natural wrapped height.
+        """
+        widget = self.widget()
+        return (widget.heightForWidth(width) if widget is not None
+                else super().heightForWidth(width))
+
+    def minimumSizeHint(self):
+        """Allow the viewport to shrink while retaining the controls inside."""
+        widget = self.widget()
+        return (QSize(widget.minimumSizeHint().width(), 0) if widget is not None
+                else super().minimumSizeHint())
+
+
 class _ImageContainer(CollapsibleSplitter):
     """The image between its two button bars, which re-fit as they wrap.
 
@@ -1268,6 +1314,28 @@ class _ImageContainer(CollapsibleSplitter):
         self._refit_pending = False
         if isValid(self) and self._laid_out:
             self.rebalance(refit=True)
+            if any(getattr(self.handle(index), "_pressed_at", None) is not None
+                   for index in range(1, self.count())):
+                return
+            if self.count() != 3:
+                return
+            top, body, bottom = (self.widget(index) for index in range(3))
+            if top.isHidden() or bottom.isHidden():
+                return
+            room = self.height() - self.handleWidth() * 2
+            bottom_height = (0 if self.is_collapsed("Bottom bar")
+                             else self._height_for_width(bottom))
+            body_height = max(body.minimumHeight(),
+                              body.minimumSizeHint().height())
+            top_height = (0 if self.is_collapsed("Top bar")
+                          else self._height_for_width(top))
+            available = max(0, room - bottom_height - body_height)
+            if top_height > available:
+                from ..gui_scale import _set_actual_sizes
+
+                _set_actual_sizes(self, [available,
+                                        max(body_height, room - available
+                                            - bottom_height), bottom_height])
 
 
 class _SourceLabel(QLabel):
@@ -14806,7 +14874,7 @@ class MakeMasksScreen(QWidget):
         label.setObjectName("MakeMasksGroupTitle")
         label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         column.addWidget(label, 0, Qt.AlignLeft | Qt.AlignTop)
-        row = _GroupFlow(spacing=SPACING["sm"])
+        row = _GroupFlow(spacing=SPACING["xs"])
         policy = QSizePolicy(
             QSizePolicy.Expanding if wrap else QSizePolicy.Preferred,
             QSizePolicy.Preferred)
@@ -14833,7 +14901,7 @@ class MakeMasksScreen(QWidget):
         from ..prefs import _s
 
         annotation, curate_row = self._titled_group(
-            tr("ANNOTATION"), "MakeMasksAnnotationGroup", keep_one_line=True)
+            tr("ANNOTATION"), "MakeMasksAnnotationGroup")
         self._annotation_group = annotation
         self._nav_curate_group = annotation
 
@@ -14900,7 +14968,7 @@ class MakeMasksScreen(QWidget):
             "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
         curate_row.addWidget(self._btn_discard)
-        self._top_bar_layout.addWidget(annotation, 0, Qt.AlignTop)
+        self._top_bar_layout.addWidget(annotation, 1, Qt.AlignTop)
 
         io_group, io_row = self._titled_group(tr("IO"), "MakeMasksIoGroup")
         io_row._space = SPACING["xs"]
@@ -14958,7 +15026,7 @@ class MakeMasksScreen(QWidget):
         io_row.addWidget(self._build_roi_button())
 
         nav_group, nav_row = self._titled_group(
-            tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
+            tr("NAVIGATION"), "MakeMasksNavigationGroup")
         nav_row._space = SPACING["xs"]
         self._navigation_group = nav_group
         self._btn_save = _SplitMenuButton(tr("Save mask"), self)
@@ -16882,7 +16950,7 @@ class MakeMasksScreen(QWidget):
         line = QHBoxLayout(strip)
         line.setContentsMargins(0, 0, 0, 0)
         line.setSpacing(SPACING["md"])
-        line.addWidget(group, 1, Qt.AlignTop)
+        line.addWidget(group, 3, Qt.AlignTop)
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         policy.setHeightForWidth(True)
         strip.setSizePolicy(policy)
@@ -17051,8 +17119,10 @@ class MakeMasksScreen(QWidget):
         rather than an empty one. The bar below stays: it holds Open File /
         Folder and Load test data, the two ways in.
         """
-        self._tool_row.setVisible(
-            self._body_stack.currentWidget() is self._image_page)
+        shown = self._body_stack.currentWidget() is self._image_page
+        self._tool_row.setVisible(shown)
+        self._tool_viewport.setVisible(
+            shown and not self._image_container.is_collapsed("Top bar"))
         self._body_stack.updateGeometry()
         self._image_container.queue_refit()
 
@@ -19860,7 +19930,7 @@ class MakeMasksScreen(QWidget):
         self._prob_pane = _FlowPane()
         self._flow_pane = _FlowPane()
         for pane in (self._canvas, self._prob_pane, self._flow_pane):
-            pane.setMinimumHeight(1)
+            pane.setMinimumHeight(120 if pane is self._canvas else 1)
         self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
         self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
         tabs.setCornerWidget(controls, Qt.TopRightCorner)
@@ -20271,7 +20341,8 @@ class MakeMasksScreen(QWidget):
         image = _ImageContainer(Qt.Vertical,
                                 persist_key="make_masks::image")
         image.setObjectName("MakeMasksImageContainer")
-        image.add_pane(self._tool_row, "Top bar", mode=EDGE, stretch=0,
+        self._tool_viewport = _ToolbarViewport(self._tool_row)
+        image.add_pane(self._tool_viewport, "Top bar", mode=EDGE, stretch=0,
                        fold_key=MAKE_MASKS_TOP_BAR_FOLD_KEY,
                        hint="Hides the tools and the Keep, Skip and "
                             "Discard buttons above the image.")
@@ -20279,7 +20350,7 @@ class MakeMasksScreen(QWidget):
         image_body.setObjectName("MakeMasksImageBody")
         image_layout = QVBoxLayout(image_body)
         image_layout.setContentsMargins(0, 0, 0, 0)
-        image_layout.setSpacing(SPACING["xs"])
+        image_layout.setSpacing(0)
         image_layout.addWidget(self._body_stack, 1)
         self._image_footer = self._build_queue_tally()
         image_layout.addWidget(self._image_footer)
