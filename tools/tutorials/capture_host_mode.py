@@ -600,7 +600,10 @@ def handoff_receipt(video: Path, *, native: Path, wall_seconds: float, recording
             'frames': [{'pts': int(row[2]), 'decoded_md5': row[-1].strip()} for row in rows],
             'unique_decoded_frames': len({row[-1].strip() for row in rows}),
             'timing': f'GNOME ScreenCast frames at original wallclock speed ({fps} fps constant-rate)',
-            'surface': ('actual spaCR (spacr.qt.run) in isolated software-rendered GNOME Shell: '
+            'surface': ('actual spaCR (spacr.qt.run) in isolated software-rendered nested Wayland GNOME Shell: '
+                        'real cursor embedded; pointer and keys via mutter RemoteDesktop'
+                        if os.environ.get('SPACR_CAPTURE_HOST_BACKEND') == 'software-nested-wayland' else
+                        'actual spaCR (spacr.qt.run) in isolated software-rendered GNOME Shell: '
                         'X11, real cursor embedded; pointer and keys via mutter RemoteDesktop'
                         if os.environ.get('SPACR_CAPTURE_HOST_BACKEND') == 'software-x11' else
                         'actual spaCR (spacr.qt.run) in headless GNOME Shell 42: mutter compositor, '

@@ -195,3 +195,54 @@ def test_private_chrome_extension_matches_the_installed_shell_module_format(tmp_
         assert script == expected + '\nexport default class { enable() { enable(); } disable() { disable(); } }\n'
     else:
         assert script == host.CHROME_EXTENSION_JS
+
+
+def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import gnome_capture_host as host
+
+    seen = []
+    exists, read_text = Path.exists, Path.read_text
+    monkeypatch.setattr(Path, 'is_file', lambda path: True)
+    monkeypatch.setattr(Path, 'exists', lambda path: False
+                        if str(path) in ('/tmp/.X11-unix/X98', '/tmp/.X98-lock') else exists(path))
+    monkeypatch.setattr(Path, 'read_text', lambda path, *args, **kwargs: '12345'
+                        if str(path) == '/tmp/.X98-lock' else read_text(path, *args, **kwargs))
+    monkeypatch.setenv('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/tmp/private-test-bus')
+    monkeypatch.setattr(host, 'wait_for', lambda *args: None)
+    monkeypatch.setattr(host.subprocess, 'run', lambda *args, **kwargs: None)
+
+    def start(argv, **kwargs):
+        seen.append((argv, kwargs['env']))
+        if '/usr/bin/gnome-shell' in argv:
+            assert argv[:5] == ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/']
+            assert '--dev' in argv and '--dev-bind' not in argv
+            assert '--nested' in argv and '--wayland' in argv and '--no-x11' in argv
+            assert '--headless' not in argv and '--replace' not in argv
+            values = kwargs['env']
+            assert values['MUTTER_DEBUG_DUMMY_MODE_SPECS'] == '2560x1440@60'
+            assert values['DISPLAY'] == ':98' and values['CUDA_VISIBLE_DEVICES'] == ''
+            assert values['GALLIUM_DRIVER'] == 'llvmpipe'
+            assert values['__EGL_VENDOR_LIBRARY_FILENAMES'] == '/usr/share/glvnd/egl_vendor.d/50_mesa.json'
+            assert values['DBUS_SYSTEM_BUS_ADDRESS'] == 'unix:path=' + str(tmp_path / 'run/logind-proxy')
+            raise RuntimeError('stop before starting a compositor')
+        return SimpleNamespace(pid=12345, poll=lambda: None, terminate=lambda: None, wait=lambda timeout=None: 0)
+
+    monkeypatch.setattr(host.subprocess, 'Popen', start)
+    args = SimpleNamespace(stage=tmp_path, cursor_theme='Yaru', cursor_size=32,
+                           show_top_bar=False, compositor_gpu='nvidia', size='2560x1440',
+                           refresh=60, shell_env=[], software_nested=True, x11_display=98)
+    with pytest.raises(RuntimeError, match='stop before starting a compositor'):
+        host.inner(args)
+    proxy = next(argv for argv, _env in seen if argv[0] == '/usr/bin/xdg-dbus-proxy')
+    assert proxy[:2] == ['/usr/bin/xdg-dbus-proxy', 'unix:path=/run/dbus/system_bus_socket']
+    assert proxy[3:6] == ['--filter', '--log', '--see=org.freedesktop.login1']
+    calls = {value for value in proxy if value.startswith('--call=')}
+    expected_calls = {'--call=org.freedesktop.login1=org.freedesktop.login1.Manager.' + method + '@/org/freedesktop/login1'
+                      for method in ('GetSession', 'GetSessionByPID', 'GetUser', 'GetUserByPID', 'GetSeat', 'ListSessions', 'ListUsers', 'ListSeats')}
+    expected_calls |= {'--call=org.freedesktop.login1=' + method + '@' + path
+                       for method in ('org.freedesktop.DBus.Properties.Get', 'org.freedesktop.DBus.Properties.GetAll', 'org.freedesktop.DBus.Introspectable.Introspect')
+                       for path in ('/org/freedesktop/login1', '/org/freedesktop/login1/*')}
+    assert calls == expected_calls
+    assert len(proxy) == 23
+    assert proxy[2] == str(tmp_path / 'run/logind-proxy')
