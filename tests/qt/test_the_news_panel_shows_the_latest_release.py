@@ -279,6 +279,11 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp,
         gui_scale._resize_actual(window, QSize(1200, 640))
         window.show()
         qtbot.waitExposed(window)
+        dock_preferences = (preferences.get_dock_mode(), preferences.get_dock_width())
+        assert window._dock_edge.isVisible() and not window._dock_edge.is_collapsed()
+        qtbot.mouseClick(window._dock_edge, Qt.LeftButton)
+        assert window._dock_edge.isVisible() and window._dock_edge.is_collapsed()
+        assert (preferences.get_dock_mode(), preferences.get_dock_width()) == dock_preferences
 
         def snapshot(page, panel, headings, require_idle=True):
             fit_types = (home._NewsTitleFit, home._HomeBodyFit, home._HeroTextFit, home._AsideFloorFit)
@@ -333,6 +338,8 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp,
                 assert window._startup is not old_page and window._startup._news is not old_panel
                 qtbot.waitUntil(lambda: not shiboken6.isValid(old_timer))
             page, panel = window._startup, window._startup._news
+            assert window._dock_edge.isVisible() and window._dock_edge.is_collapsed()
+            assert (preferences.get_dock_mode(), preferences.get_dock_width()) == dock_preferences
             panel._older.setChecked(True)
             qtbot.waitUntil(lambda: not panel._pending_releases)
             blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
