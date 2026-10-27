@@ -2604,10 +2604,10 @@
           "visual": "26_detail_coefficients",
           "narration": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。",
           "hold_after": 0.7,
+          "speech_text": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。",
           "related_lessons": [
             "48_hit_list"
-          ],
-          "speech_text": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。"
+          ]
         }
       ],
       "narration_voices": {

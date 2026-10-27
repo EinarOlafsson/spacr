@@ -2604,10 +2604,10 @@
           "visual": "26_detail_coefficients",
           "narration": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi.",
           "hold_after": 0.7,
+          "speech_text": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi.",
           "related_lessons": [
             "48_hit_list"
-          ],
-          "speech_text": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi."
+          ]
         }
       ],
       "narration_voices": {

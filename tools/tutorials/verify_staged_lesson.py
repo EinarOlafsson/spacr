@@ -244,8 +244,8 @@ def check_complete_native_boundary_playback(page, visual, spoken, *, all_boundar
     """Observe complete speech, one-second idle cuts, and actual final EOF."""
     preserve = visual.get('preserve_visual_intervals') is True
     candidates = [i for i in range(len(visual['scenes']) - 1)
-                  if visual['scenes'][i].get('native_live_video')
-                  and (preserve or visual['scenes'][i + 1].get('native_live_video'))
+                  if (preserve or (visual['scenes'][i].get('native_live_video')
+                                   and visual['scenes'][i + 1].get('native_live_video')))
                   and (all_boundaries or float(visual['scenes'][i]['duration'])
                        - (float(spoken['scenes'][i]['speech_end'])
                           - float(spoken['scenes'][i]['speech_start'])) > .8)]

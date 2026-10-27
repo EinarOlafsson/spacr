@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "À la fin de l’exécution, ouvrez Runs et sélectionnez l’analyse enregistrée. Vérifiez le dossier et les paramètres avant de la comparer à une autre exécution. Relancez l’analyse après avoir modifié les paramètres si vous voulez de nouveaux résultats.",
           "hold_after": 0.7,
+          "speech_text": "À la fin de l’exécution, ouvrez Runs et sélectionnez l’analyse enregistrée. Vérifiez le dossier et les paramètres avant de la comparer à une autre exécution. Relancez l’analyse après avoir modifié les paramètres si vous voulez de nouveaux résultats.",
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "À la fin de l’exécution, ouvrez Runs et sélectionnez l’analyse enregistrée. Vérifiez le dossier et les paramètres avant de la comparer à une autre exécution. Relancez l’analyse après avoir modifié les paramètres si vous voulez de nouveaux résultats."
+          ]
         },
         {
           "visual": "25_result_results",
@@ -2616,21 +2616,21 @@
           "visual": "26_detail_p_values",
           "narration": "Ouvrez la vue des valeurs p et l’outil Diagnostics. Examinez la distribution des résultats avec la résolution des permutations, la famille de tests et les avertissements sur le plan d’expérience. Réglez les problèmes de diagnostic importants avant d’interpréter les associations.",
           "hold_after": 0.7,
+          "speech_text": "Ouvrez la vue des valeurs p et l’outil Diagnostics. Examinez la distribution des résultats avec la résolution des permutations, la famille de tests et les avertissements sur le plan d’expérience. Réglez les problèmes de diagnostic importants avant d’interpréter les associations.",
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "Ouvrez la vue des valeurs p et l’outil Diagnostics. Examinez la distribution des résultats avec la résolution des permutations, la famille de tests et les avertissements sur le plan d’expérience. Réglez les problèmes de diagnostic importants avant d’interpréter les associations."
+          ]
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "Utilisez la barre d’outils pour ouvrir Volcano Explorer, Hit List ou Investigate Hit à l’étape suivante. Leurs tutoriels montrent comment examiner les résultats sélectionnés. Gardez ensemble les tables d’entrée, les paramètres enregistrés, les fichiers de résultats et les rapports de diagnostic lorsque vous partagez l’analyse.",
           "hold_after": 0.7,
+          "speech_text": "Utilisez la barre d’outils pour ouvrir Volcano Explorer, Hit List ou Investigate Hit à l’étape suivante. Leurs tutoriels montrent comment examiner les résultats sélectionnés. Gardez ensemble les tables d’entrée, les paramètres enregistrés, les fichiers de résultats et les rapports de diagnostic lorsque vous partagez l’analyse.",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ],
-          "speech_text": "Utilisez la barre d’outils pour ouvrir Volcano Explorer, Hit List ou Investigate Hit à l’étape suivante. Leurs tutoriels montrent comment examiner les résultats sélectionnés. Gardez ensemble les tables d’entrée, les paramètres enregistrés, les fichiers de résultats et les rapports de diagnostic lorsque vous partagez l’analyse."
+          ]
         }
       ],
       "narration_voices": {

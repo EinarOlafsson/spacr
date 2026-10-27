@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "运行完成后，打开Runs并选择保存的分析。在与其他运行比较之前，先确认文件夹和设置。如果需要新的结果，请在更改设置后重新运行分析。",
           "hold_after": 0.7,
+          "speech_text": "运行完成后，打开Runs并选择保存的分析。在与其他运行比较之前，先确认文件夹和设置。如果需要新的结果，请在更改设置后重新运行分析。",
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "运行完成后，打开Runs并选择保存的分析。在与其他运行比较之前，先确认文件夹和设置。如果需要新的结果，请在更改设置后重新运行分析。"
+          ]
         },
         {
           "visual": "25_result_results",
@@ -2616,21 +2616,21 @@
           "visual": "26_detail_p_values",
           "narration": "打开p值视图和Diagnostics工具。结合置换分辨率、检验族和设计警告来查看结果分布。在解读关联之前，请先解决重要的诊断问题。",
           "hold_after": 0.7,
+          "speech_text": "打开p值视图和Diagnostics工具。结合置换分辨率、检验族和设计警告来查看结果分布。在解读关联之前，请先解决重要的诊断问题。",
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "打开p值视图和Diagnostics工具。结合置换分辨率、检验族和设计警告来查看结果分布。在解读关联之前，请先解决重要的诊断问题。"
+          ]
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。",
           "hold_after": 0.7,
+          "speech_text": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ],
-          "speech_text": "下一步，使用工具栏打开Volcano Explorer、Hit List或Investigate Hit。它们的教程介绍如何检查选中的结果。共享分析时，请把输入表、保存的设置、结果文件和诊断报告放在一起。"
+          ]
         }
       ],
       "narration_voices": {

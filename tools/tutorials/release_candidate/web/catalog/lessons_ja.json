@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "実行が終わったら、Runsを開いて保存された解析を選びます。別の実行と比べる前に、フォルダーと設定を確認します。新しい結果が必要なら、設定を変えた後に解析を再実行します。",
           "hold_after": 0.7,
+          "speech_text": "実行が終わったら、Runsを開いて保存された解析を選びます。別の実行と比べる前に、フォルダーと設定を確認します。新しい結果が必要なら、設定を変えた後に解析を再実行します。",
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "実行が終わったら、Runsを開いて保存された解析を選びます。別の実行と比べる前に、フォルダーと設定を確認します。新しい結果が必要なら、設定を変えた後に解析を再実行します。"
+          ]
         },
         {
           "visual": "25_result_results",
@@ -2616,21 +2616,21 @@
           "visual": "26_detail_p_values",
           "narration": "p値の表示とDiagnosticsツールを開きます。結果の分布を、並べ替えの分解能、検定のまとまり、デザインに関する警告と合わせて確認します。関連を解釈する前に、重要な診断上の問題を解決します。",
           "hold_after": 0.7,
+          "speech_text": "p値の表示とDiagnosticsツールを開きます。結果の分布を、並べ替えの分解能、検定のまとまり、デザインに関する警告と合わせて確認します。関連を解釈する前に、重要な診断上の問題を解決します。",
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "p値の表示とDiagnosticsツールを開きます。結果の分布を、並べ替えの分解能、検定のまとまり、デザインに関する警告と合わせて確認します。関連を解釈する前に、重要な診断上の問題を解決します。"
+          ]
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。",
           "hold_after": 0.7,
+          "speech_text": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ],
-          "speech_text": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。"
+          ]
         }
       ],
       "narration_voices": {
