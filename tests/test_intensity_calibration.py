@@ -7,10 +7,12 @@ uncalibrated they differ 2.5-fold.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
 import sqlite3
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -230,6 +232,39 @@ def _assert_refused_before_database_writes(monkeypatch, settings, database):
     assert database.read_bytes() == before
 
 
+def _assert_fresh_run_archives_calibration_history(settings, database):
+    """A new item-736 population preserves the complete old calibration history."""
+    tables = ("cell", "intensity_rescale", "settings")
+    with sqlite3.connect(database) as conn:
+        previous = {table: conn.execute(f'SELECT * FROM "{table}"').fetchall()
+                    for table in tables}
+        old_records = [json.loads(row[0]) for row in conn.execute(
+            "SELECT intensity_calibration FROM intensity_rescale")]
+        old_identities = {record["identity"] for record in old_records}
+    assert all(previous.values())
+    assert len(old_identities) == 1
+    measure.measure_crop(settings)
+    with sqlite3.connect(database) as conn:
+        for table, rows in previous.items():
+            assert conn.execute(f'SELECT * FROM "{table}_1"').fetchall() == rows
+        assert conn.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == len(previous["cell"])
+        records = [row[0] for row in conn.execute(
+            "SELECT intensity_calibration FROM intensity_rescale")]
+        assert len(records) == len(previous["intensity_rescale"])
+        if settings["intensity_calibration"]:
+            current_identities = {json.loads(text)["identity"] for text in records}
+            assert len(current_identities) == 1
+            assert current_identities.isdisjoint(old_identities)
+            expected_hashes = {
+                name: hashlib.sha256((Path(settings["src"]) / name).read_bytes()).hexdigest()
+                for name in old_records[0]["reference_files"]}
+            assert expected_hashes
+            assert all(json.loads(text)["reference_files"] == expected_hashes
+                       for text in records)
+        else:
+            assert all(text is None for text in records)
+
+
 @pytest.mark.parametrize("enabled", [False, True])
 def test_unchanged_calibration_and_legacy_disabled_projects_resume(
         tmp_path, monkeypatch, measured_calibration_projects, enabled):
@@ -287,8 +322,11 @@ def test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp(
     os.utime(reference, ns=(previous.st_atime_ns, previous.st_mtime_ns))
     assert reference.stat().st_size == previous.st_size
     assert reference.stat().st_mtime_ns == previous.st_mtime_ns
-    _assert_refused_before_database_writes(monkeypatch, _settings(
-        merged, intensity_calibration=True, resume=resume), database)
+    settings = _settings(merged, intensity_calibration=True, resume=resume)
+    if resume:
+        _assert_refused_before_database_writes(monkeypatch, settings, database)
+    else:
+        _assert_fresh_run_archives_calibration_history(settings, database)
 
 
 @pytest.mark.parametrize("resume", [False, True])
@@ -296,8 +334,11 @@ def test_disabling_calibration_cannot_mix_with_retained_calibrated_rows(
         tmp_path, monkeypatch, measured_calibration_projects, resume):
     merged, database = _copy_measured_project(
         measured_calibration_projects, tmp_path / "disabled")
-    _assert_refused_before_database_writes(monkeypatch, _settings(
-        merged, intensity_calibration=False, resume=resume), database)
+    settings = _settings(merged, intensity_calibration=False, resume=resume)
+    if resume:
+        _assert_refused_before_database_writes(monkeypatch, settings, database)
+    else:
+        _assert_fresh_run_archives_calibration_history(settings, database)
 
 
 @pytest.mark.parametrize("damage", ["legacy_identity", "missing_field_provenance"])
