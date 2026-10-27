@@ -7,6 +7,13 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+SPACEOUT UPDATED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes prior GIF):
+use the unchanged a84bd079c68e26a88e4b4f7db0b13bf3.gif provided in Downloads,
+a 500×500 animated dotted vortex. Match only Spaceout's card fill to the GIF's
+RGB(32,32,32) background in idle, hover and pressed states so its square is
+seamless, preserving title text and the existing colored maturity outlines.
+Keep the existing visible-only QMovie, Reduce motion and packaging behavior.
+
 SPACEOUT PROVIDED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes procedural mark):
 bundle the user's unchanged /home/carruthers/Downloads/spaceout.gif and use its
 actual black-background, white animated rosette for Spaceout. Play the GIF with

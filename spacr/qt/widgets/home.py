@@ -5516,6 +5516,7 @@ class _EasySuggestionCard(QPushButton):
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
+        self.setProperty('spaceout', self._key == '__easy_command__:Spaceout')
         self._stage = self._stage_for(self._key)
         self.setProperty('stage', self._stage)
         self.setCursor(Qt.PointingHandCursor)
@@ -7148,6 +7149,10 @@ class _EasyHomePage(QWidget):
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
         from ..theme import _stage_button_rules
         sheet += _stage_button_rules('QPushButton#EasySuggestionCard')
+        sheet += ('QPushButton#EasySuggestionCard[spaceout="true"], '
+                  'QPushButton#EasySuggestionCard[spaceout="true"]:hover, '
+                  'QPushButton#EasySuggestionCard[spaceout="true"]:pressed '
+                  '{ background-color: rgb(32, 32, 32); }')
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)

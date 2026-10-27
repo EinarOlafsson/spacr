@@ -31,12 +31,13 @@ def test_static_icon_uses_actual_black_white_reference_frame(qapp, monkeypatch, 
     fallback = _pixels(iconset.app_icon('__unregistered_icon__', theme=theme), side)
     assert not np.array_equal(pixels, fallback)
     reader = QImageReader(str(iconset._spaceout_gif_path()))
-    source = reader.read().scaled(side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    original = reader.read()
+    assert original.pixelColor(0, 0).getRgb()[:3] == (32, 32, 32)
+    source = original.scaled(side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation)
     reference = source.convertToFormat(QImage.Format_RGBA8888)
     expected = np.frombuffer(reference.constBits(), np.uint8).reshape(side, side, 4)
     assert np.array_equal(pixels, expected)
     assert pixels[:, :, 3].min() == 255
-    assert pixels[0, 0, :3].max() < 10
     assert pixels[:, :, :3].max() > 100
     assert np.ptp(pixels[:, :, :3].astype(int), axis=2).max() < 10
 
@@ -103,7 +104,7 @@ def test_reference_asset_is_unchanged_and_explicitly_packaged():
     root = Path(__file__).resolve().parents[2]
     source = iconset._spaceout_gif_path()
     assert hashlib.sha256(source.read_bytes()).hexdigest() == (
-        '1eaf358e2859ee4527633267652d9c9b65770d65bb0b3d68b02c358dff2fe9a4')
+        '5dfae77c1ecee2736861b5ad129d12912ebb202fb2d72177858eb9b3f8d42b94')
     tree = ast.parse((root / 'setup.py').read_text())
     declarations = [keyword.value for node in ast.walk(tree) if isinstance(node, ast.Call)
                     for keyword in node.keywords if keyword.arg == 'package_data']
@@ -114,3 +115,41 @@ def test_reference_asset_is_unchanged_and_explicitly_packaged():
     manifest = (root / 'MANIFEST.in').read_text()
     assert 'recursive-include spacr/resources/icons *' in manifest
     assert 'exclude spacr/resources/icons/spaceout.gif' not in manifest
+
+
+def test_native_spaceout_card_fill_matches_gif_on_hover_and_press(qtbot, private_ai_profile):
+    from PySide6.QtCore import QPoint
+
+    from spacr.qt.theme import STAGE_HOVER
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1000, 900)
+    page.show()
+    page.field.set_cards([('__easy_command__:Spaceout', 'Spaceout', '', ''),
+                          ('measure', 'Measure', '', '')])
+    page.field._finish_growth()
+    card, ordinary = page.field.cards
+    qtbot.mouseMove(page, QPoint(0, 0))
+    qtbot.wait(10)
+    def fill(widget):
+        return widget.grab().toImage().pixelColor(20, 20).getRgb()[:3]
+    assert fill(card) == (32, 32, 32)
+    assert fill(ordinary) == (25, 25, 25)
+    assert card.icon.pixmap().toImage().pixelColor(0, 0).getRgb()[:3] == (32, 32, 32)
+    qtbot.mouseMove(card, QPoint(20, 20))
+    qtbot.wait(30)
+    assert fill(card) == (32, 32, 32)
+    from PySide6.QtGui import QColor
+
+    expected = QColor(STAGE_HOVER[card._stage]).getRgb()[:3]
+    border = card.grab().toImage().pixelColor(0, card.height() // 2).getRgb()[:3]
+    assert border == expected
+    qtbot.mousePress(card, Qt.LeftButton, pos=QPoint(20, 20))
+    assert fill(card) == (32, 32, 32)
+    qtbot.mouseRelease(card, Qt.LeftButton, pos=QPoint(20, 20))
+    page.close()
