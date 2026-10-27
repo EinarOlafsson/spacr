@@ -141,7 +141,22 @@ def test_pool_runs_one_image_per_task_and_matches_the_serial_path(tmp_path, monk
         assert "channel_0_texture_glcm_contrast" not in row
 
 
-def test_cancelling_a_parallel_run_stops_its_workers_and_publishes_nothing(tmp_path):
+def _measure_worker_with_ignored_termination():
+    """Keep a real Measure worker alive after a handled termination signal."""
+    import signal
+    from spacr.measure import _initialize_measure_worker
+
+    _initialize_measure_worker()
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+
+
+@pytest.mark.parametrize("ignore_termination", [False, True], ids=["normal", "handled-sigterm"])
+def test_cancelling_a_parallel_run_stops_its_workers_and_publishes_nothing(
+        tmp_path, monkeypatch, ignore_termination):
+    if ignore_termination:
+        import spacr.measure as measure
+        monkeypatch.setattr(measure, "_initialize_measure_worker", _measure_worker_with_ignored_termination)
+
     fields = _fields(tmp_path, 6)
     stopped = threading.Event()
     report = _overview_measurements_export(fields, tmp_path, (0,), workers=2, cancelled=stopped,
