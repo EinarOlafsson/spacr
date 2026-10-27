@@ -65,15 +65,16 @@ def test_spaceout_card_plays_uncached_movie_only_while_visible(qtbot, private_ai
     card.resize(224, 224)
     movie = card._spaceout_movie
     assert movie.cacheMode() == QMovie.CacheNone and movie.state() == QMovie.NotRunning
-    assert movie.scaledSize().width() == 192
     assert Path(movie.fileName()) == iconset._spaceout_gif_path()
     parent.show()
     qtbot.waitUntil(lambda: movie.state() == QMovie.Running)
-    before = card.icon.pixmap().toImage()
+    assert movie.scaledSize().width() == 448
+    assert card.content.isHidden() and not card.title.isVisible()
+    before = card._spaceout_display.toImage()
     qtbot.waitUntil(lambda: movie.currentFrameNumber() >= 2)
-    assert card.icon.pixmap().toImage() != before
-    assert movie.currentPixmap().width() == 192
-    assert card.icon.pixmap().deviceIndependentSize().width() == 96
+    assert card._spaceout_display.toImage() != before
+    assert movie.currentPixmap().width() == 448
+    assert card._spaceout_display.deviceIndependentSize().width() == 224
     card.hide()
     assert movie.state() == QMovie.NotRunning
     frame = movie.currentFrameNumber()
@@ -82,9 +83,9 @@ def test_spaceout_card_plays_uncached_movie_only_while_visible(qtbot, private_ai
     preferences.set_reduce_motion(True)
     card.show()
     assert movie.state() == QMovie.NotRunning
-    still = card.icon.pixmap().toImage()
+    still = card._spaceout_display.toImage()
     qtbot.wait(120)
-    assert card.icon.pixmap().toImage() == still
+    assert card._spaceout_display.toImage() == still
     preferences.set_reduce_motion(False)
     card._sync_run_state()
     assert movie.state() == QMovie.Running
@@ -136,20 +137,30 @@ def test_native_spaceout_card_fill_matches_gif_on_hover_and_press(qtbot, private
     card, ordinary = page.field.cards
     qtbot.mouseMove(page, QPoint(0, 0))
     qtbot.wait(10)
-    def fill(widget):
-        return widget.grab().toImage().pixelColor(20, 20).getRgb()[:3]
-    assert fill(card) == (32, 32, 32)
-    assert fill(ordinary) == (25, 25, 25)
-    assert card.icon.pixmap().toImage().pixelColor(0, 0).getRgb()[:3] == (32, 32, 32)
+    assert card.content.isHidden() and not card.title.isVisible() and not card.icon.isVisible()
+    assert card.accessibleName() == 'Spaceout'
+    def pixels(widget):
+        image = widget.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+        return np.frombuffer(image.constBits(), np.uint8).reshape(image.height(), image.width(), 4).copy()
+    normal = pixels(card)
+    assert tuple(pixels(ordinary)[20, 20, :3]) == (25, 25, 25)
+    assert (normal[20:-20, 12:40, :3] > 60).any()
+    assert normal[0, 0, 3] == 0
     qtbot.mouseMove(card, QPoint(20, 20))
     qtbot.wait(30)
-    assert fill(card) == (32, 32, 32)
+    hovered = pixels(card)
+    assert np.array_equal(normal[20:-20, 20:-20], hovered[20:-20, 20:-20])
     from PySide6.QtGui import QColor
 
     expected = QColor(STAGE_HOVER[card._stage]).getRgb()[:3]
     border = card.grab().toImage().pixelColor(0, card.height() // 2).getRgb()[:3]
     assert border == expected
     qtbot.mousePress(card, Qt.LeftButton, pos=QPoint(20, 20))
-    assert fill(card) == (32, 32, 32)
+    assert np.array_equal(hovered[20:-20, 20:-20], pixels(card)[20:-20, 20:-20])
     qtbot.mouseRelease(card, Qt.LeftButton, pos=QPoint(20, 20))
+    activated = []
+    card.activated.connect(lambda key, path: activated.append((key, path)))
+    card.setFocus()
+    qtbot.keyClick(card, Qt.Key_Return)
+    assert activated == [('__easy_command__:Spaceout', '')]
     page.close()

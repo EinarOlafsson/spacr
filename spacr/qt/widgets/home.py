@@ -5573,6 +5573,9 @@ class _EasySuggestionCard(QPushButton):
         self.alpha.setAlignment(Qt.AlignCenter)
         self.alpha.resize(40, 40)
         self.alpha.setVisible(self._stage == 'alpha')
+        if self._spaceout_movie is not None:
+            self.content.hide()
+            self.alpha.hide()
 
     def enterEvent(self, event):
         """Keep card explanations in the stationary lower description panel."""
@@ -5599,6 +5602,8 @@ class _EasySuggestionCard(QPushButton):
     def resizeEvent(self, event):
         """Keep the alpha annotation at the rounded card's upper-right corner."""
         super().resizeEvent(event)
+        if getattr(self, '_spaceout_movie', None) is not None:
+            self._resize_spaceout()
         if hasattr(self, 'alpha'):
             self.alpha.move(max(0, self.width() - self.alpha.width() - 8), 8)
             self.alpha.raise_()
@@ -5606,6 +5611,37 @@ class _EasySuggestionCard(QPushButton):
     def paintEvent(self, event):
         """Keep native card painting and add equal output ports only for its network."""
         super().paintEvent(event)
+        picture = getattr(self, '_spaceout_display', None)
+        if picture is not None and not picture.isNull():
+            from PySide6.QtGui import QPainterPath
+
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform)
+            target = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+            clip = QPainterPath()
+            clip.addRoundedRect(target, 15, 15)
+            painter.setClipPath(clip)
+            source = QRectF(picture.rect())
+            ratio = target.width() / max(1, target.height())
+            if source.width() / max(1, source.height()) > ratio:
+                wanted = source.height() * ratio
+                source.setLeft((source.width() - wanted) / 2)
+                source.setWidth(wanted)
+            else:
+                wanted = source.width() / ratio
+                source.setTop((source.height() - wanted) / 2)
+                source.setHeight(wanted)
+            painter.drawPixmap(target, picture, source)
+            if self.hasFocus():
+                from PySide6.QtWidgets import QStyle, QStyleOptionFocusRect
+
+                painter.setClipping(False)
+                focus = QStyleOptionFocusRect()
+                focus.initFrom(self)
+                focus.rect = self.rect().adjusted(3, 3, -3, -3)
+                self.style().drawPrimitive(QStyle.PE_FrameFocusRect, focus, painter, self)
+            painter.end()
         points = getattr(self, '_workflow_ports', ())
         if points:
             color = QColor(palette_for('dark')['accent'])
@@ -5625,9 +5661,20 @@ class _EasySuggestionCard(QPushButton):
         picture.setDevicePixelRatio(device_ratio(self.icon))
         self.icon.setPixmap(picture)
         if self._spaceout_movie is not None:
-            self._spaceout_picture = picture
-            self._spaceout_movie.setScaledSize(QSize(pixels, pixels))
+            self._resize_spaceout()
             self._sync_run_state()
+
+    def _resize_spaceout(self):
+        """Decode at bounded card resolution only when its size or density changes."""
+        pixels = max(1, min(500, round(max(self.width(), self.height()) * device_ratio(self))))
+        size = QSize(pixels, pixels)
+        if self._spaceout_movie.scaledSize() == size:
+            return
+        self._spaceout_movie.setScaledSize(size)
+        self._spaceout_picture = self._module_icon.pixmap(size)
+        self._spaceout_picture.setDevicePixelRatio(device_ratio(self))
+        self._spaceout_display = self._spaceout_picture
+        self.update()
 
     def _sync_run_state(self):
         """Play the provided animation only while visible and motion is allowed."""
@@ -5639,13 +5686,15 @@ class _EasySuggestionCard(QPushButton):
             self._spaceout_movie.start()
         else:
             self._spaceout_movie.stop()
-            self.icon.setPixmap(self._spaceout_picture)
+            self._spaceout_display = self._spaceout_picture
+            self.update()
 
     def _spaceout_frame(self, _frame):
         """Show one native decoded frame at the icon's current display density."""
         picture = self._spaceout_movie.currentPixmap()
-        picture.setDevicePixelRatio(device_ratio(self.icon))
-        self.icon.setPixmap(picture)
+        picture.setDevicePixelRatio(device_ratio(self))
+        self._spaceout_display = picture
+        self.update()
 
     def showEvent(self, event):
         """Resume the animation when the Spaceout card reappears."""
@@ -5657,6 +5706,14 @@ class _EasySuggestionCard(QPushButton):
         if self._spaceout_movie is not None:
             self._spaceout_movie.stop()
         super().hideEvent(event)
+
+    def keyPressEvent(self, event):
+        """Keep the image-only command explicitly keyboard-activatable."""
+        if self._spaceout_movie is not None and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.click()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
     def _activate(self):
         """Emit the inspected input only after the user chooses this step."""
