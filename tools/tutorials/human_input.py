@@ -229,8 +229,8 @@ def min_jerk(t: float) -> float:
 class Human:
     """Human-like use of a HostSession's real pointer and keyboard.
 
-    Every visible pointer change is an eased path; ``log`` keeps a trace of
-    (monotonic seconds, x, y, event) for verification against the video.
+    Pointer commands follow an eased path; ``log`` records commanded coordinates
+    after completed RPCs, not observed compositor or presented-video positions.
     """
 
     def __init__(self, host: HostSession, *, hz: float = 60.0, seed: int = 7):
@@ -241,6 +241,7 @@ class Human:
 
     @property
     def position(self):
+        """Last commanded position used for trajectory planning, not an observation."""
         return self.host.pointer
 
     def _note(self, event, call_ms=None):

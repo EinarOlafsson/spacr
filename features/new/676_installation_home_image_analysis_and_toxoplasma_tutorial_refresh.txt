@@ -467,3 +467,7 @@ Next04 scope is2 current-nightly GUI clips plusvalidation/retention of12 install
 Codex driver/root own the narrow recapture-focus repair: exact frame-bound focus replacement must supersede obsolete authored lookup; wrong lesson/module/frame/scene maps still fail. Forward existing focus-map input through the normal private builder.
 Require affected real behavior checks once, then fresh source stage/clock/master acceptance and reviewed clean cuts with all15 source fences before final publication. Preserve the failed initial private stage; no gate weakening or invented UI focus.
 Actual26 selected focus/recapture/geometry cases pass; fresh13 source stage with exact15-frame focus map nowstages successfully, original failedgates unchanged. Source clock/master and four reviewed cuts/all15 fences remain pending.
+
+2026-10-27 — Root assigns Codex/G5 an owned-app xcb pointer observation correction: cached motion/position traces are commands, never observed cursor proof.
+Require independent Qt xcb server-query target confirmation before native click acceptance; unsupported platform/screen/query or mismatched position must refuse without cached fallback.
+Keep the trajectory cache, private namespaces, strict video gates and normal defaults. G4 source peer accepted; seven related CPU/offscreen boundary cases pass (0.47s); native qualification and lesson22 remain unaccepted.

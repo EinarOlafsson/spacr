@@ -32,6 +32,8 @@ from __future__ import annotations
 
 import atexit
 import json
+import math
+import os
 import queue
 import re
 import threading
@@ -374,21 +376,54 @@ class QTestAdapter:
             self.note('escape-popup', popup=type(popup).__name__)
         self.pump.run(0.25)
 
+    def _observed_pointer(self, point):
+        """Query the existing xcb app connection; this is not a video acknowledgement."""
+        from PySide6.QtCore import QPoint, QThread
+        from PySide6.QtGui import QCursor, QGuiApplication
+        app = QGuiApplication.instance()
+        if app is None or app.platformName() != 'xcb' or not os.environ.get('SPACR_CAPTURE_HOST'):
+            raise RuntimeError('Independent pointer observation requires the owned capture app on xcb')
+        if QThread.currentThread() != app.thread():
+            raise RuntimeError('Independent pointer observation must run on the GUI thread')
+        screens = app.screens()
+        if len(screens) != 1 or not screens[0].geometry().contains(QPoint(*point)):
+            raise RuntimeError('Independent pointer observation requires the owned single target screen')
+        try:
+            observed = QCursor.pos(screens[0])
+        except Exception as exc:
+            raise RuntimeError('Independent X server pointer query failed') from exc
+        if observed.isNull() or not screens[0].geometry().contains(observed):
+            raise RuntimeError('Independent X server pointer observation is unavailable or outside the target screen')
+        return observed.x(), observed.y()
+
+    def _require_observed_pointer(self, point):
+        """Refuse target acceptance without independent X server coordinates."""
+        observed = self._observed_pointer(point)
+        if (not isinstance(observed, (tuple, list)) or len(observed) != 2
+                or any(not isinstance(v, (int, float)) or isinstance(v, bool)
+                       or not math.isfinite(v) for v in observed)):
+            raise RuntimeError('Independent pointer observation is unavailable or invalid')
+        if abs(observed[0] - point[0]) > 1 or abs(observed[1] - point[1]) > 1:
+            raise RuntimeError(f'Observed X server pointer {observed} did not reach target {point}')
+        self.note('observed-pointer', point=list(observed), source='Qt xcb server query; not video acknowledgement')
+
     def _glide(self, function, widget, pos):
         self._close_unrelated_popup(widget)
         point = self.target_point(widget, pos)
         why = self.reachable(widget, point)
         if why is not None:
             return point, why
+        commanded_point = point
         self.call('move_to', *point)
         self.pump.run(0.02)
         # Moving can reveal or re-lay-out things (hover effects); check again.
         point = self.target_point(widget, pos)
         why = self.reachable(widget, point)
         if why is None:
-            current = self.call('position')
-            if abs(current[0] - point[0]) > 1 or abs(current[1] - point[1]) > 1:
+            if point != commanded_point:
                 self.call('move_to', *point)
+                self.pump.run(0.02)
+            self._require_observed_pointer(point)
         return point, why
 
     def _with_modifiers(self, modifiers, action):
