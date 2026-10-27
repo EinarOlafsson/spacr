@@ -3421,6 +3421,85 @@
           "idle_tail_start": 5.6
         }
       ]
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "master_sha256": "0c5cc48c2b54b379e5498e1ef6afab053ef22bf700ecd497cbdd5133b7edb479",
+      "visual_timing_sha256": "e0a0e882a3ce32983d4b30ed72a756f78562e41265800e2098dd7316cbbd220d",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 19.8,
+          "idle_tail_start": 9.5
+        },
+        {
+          "visual": "01_test_data",
+          "source_start": 19.8,
+          "source_end": 50.833333333333336,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "02_source",
+          "source_start": 50.833333333333336,
+          "source_end": 78.96666666666667,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "03_compartments",
+          "source_start": 78.96666666666667,
+          "source_end": 112.63333333333334,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "04_markers",
+          "source_start": 112.63333333333334,
+          "source_end": 140.76666666666668,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "05_thresholds",
+          "source_start": 140.76666666666668,
+          "source_end": 174.4,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "06_counts",
+          "source_start": 174.4,
+          "source_end": 206.46666666666667,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "07_preview",
+          "source_start": 206.46666666666667,
+          "source_end": 230.03333333333333,
+          "idle_tail_start": 11.1
+        },
+        {
+          "visual": "08_run",
+          "source_start": 230.03333333333333,
+          "source_end": 258.6,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "09_vacuoles",
+          "source_start": 258.6,
+          "source_end": 290.96666666666664,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "10_summaries",
+          "source_start": 290.96666666666664,
+          "source_end": 326.76666666666665,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "11_denominators",
+          "source_start": 326.76666666666665,
+          "source_end": 360.56666666666666,
+          "idle_tail_start": 7.0
+        }
+      ]
     }
   ]
 }
