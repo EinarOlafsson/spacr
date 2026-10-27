@@ -2,7 +2,7 @@
 GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
 ================================================================================
 
-Status:    DONE 2026-10-27 — non-timelapse merge guidance and explicit duplicate Merge/Abort choice delivered in this nightly publication.
+Status:    DONE 2026-10-27 — duplicate Merge/Abort choice and GitHub #172 editable validation follow-up implemented and validated for nightly publication.
 History:   DONE 2026-08-07 (evidence 5c15056c) — (5c15056c + item 7). Header corrected
            2026-08-26: it still said "not started" while this file's
            own closing section records every item as landed. One
@@ -10,6 +10,12 @@ History:   DONE 2026-08-07 (evidence 5c15056c) — (5c15056c + item 7). Header c
 Requested: 2026-08-07
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+GitHub #172 follow-up (owner: Workstation session 2): verify full-key duplicate
+Merge/Abort handling against the reported filename-inclusive schema. Expected
+MergeError validation must return an editable dialog result without going through
+the crash/AI reporting worker path. Reject object_counts as a default object
+base with explicit Customize merging guidance, preserving custom mappings.
 
 Gate Editor's Merge tables reports that image and time must be added to the
 composite label for a non-timelapse experiment with no time column. Reproduce
@@ -34,6 +40,8 @@ the user has deliberately approved the duplicate aggregation.
 
 Focused non-timelapse default/custom merges and real Gate Editor controls must
 pass before ordinary publication. Earlier delivery history follows unchanged.
+
+2026-10-27 — GitHub #172: expected MergeError results stay in the editable dialog instead of reaching worker crash/AI reporting. Non-object default bases receive Customize merging guidance before object-key validation. Real threaded filename-inclusive duplicate Abort/Merge, count-table correction, unexpected-error propagation and adjacent custom/default checks pass; sources remain unchanged.
 
 2026-10-27 — Distinct-field cell labels merge correctly without time. Reproduced incomplete-key and true-repeat cases; diagnostics now name only available discriminators. Source tables remain unchanged.
 2026-10-27 — Shared Graph/Gate preview and ordinary Gate working-set loading warn with Merge duplicates/Abort (Abort default). Explicit merging uses displayed base/child rules and overrides; IDs, parent links, missing values and distinct images remain protected. Focused backend, metadata, real-popup and native-screen handoff checks pass; public API prose is unchanged.

@@ -268,6 +268,9 @@ def execute(path, definition):
     validate_source(path, definition)
     if definition.get('mode') == 'metadata':
         return _execute_prepared(path, definition)
+    if definition.get("mode") == "default" and not is_one_row_per_cell(definition["base"]):
+        raise MergeError("Default output is one row per cell or cytoplasm. "
+                         "Use Customize merging for another observation level.")
     base_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][definition['base']]])
     _require_keys(base_columns, definition['base_keys'], definition['base'])
     for join in definition['joins']:
@@ -315,9 +318,6 @@ def _execute_prepared(path, definition):
                         "joins": [], "image_provenance": bool(provenance),
                         "original_filenames": metadata}
     _require_keys(base, definition["base_keys"], base_name, unique=True)
-    if mode == "default" and not is_one_row_per_cell(base_name):
-        raise MergeError("Default output is one row per cell or cytoplasm. "
-                         "Use Customize merging for another observation level.")
     if mode == "default" and not set(IDENTITY).issubset(base.columns):
         raise MergeError("Default merging requires plateID, rowID, columnID and fieldID. "
                          "Use Customize merging for external data without image provenance.")
