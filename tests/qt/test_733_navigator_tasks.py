@@ -107,3 +107,23 @@ def test_paired_alternate_tasks_offer_cards_without_opening_modules(
         commands, qtbot, monkeypatch, phrase, expected):
     test_reviewed_tasks_offer_cards_without_opening_modules(
         commands, qtbot, monkeypatch, phrase, expected)
+
+
+@pytest.mark.parametrize('phrase', [
+    'analyze masks', 'ANALYSE MASKS', 'mask analysis',
+    'analyze segmentation masks', 'segmentation mask analysis',
+])
+def test_existing_mask_analysis_tasks_offer_native_cards_on_enter(
+        commands, qtbot, monkeypatch, phrase):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, ('measure', 'qc_dashboard', 'make_masks'))
+
+
+@pytest.mark.parametrize('phrase', [
+    'detect features', 'FEATURE DETECTION', 'detect image features',
+    'detect morphological features', 'extract features', 'feature extraction',
+])
+def test_feature_detection_tasks_offer_measure_without_launching(
+        commands, qtbot, monkeypatch, phrase):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, ('measure',))

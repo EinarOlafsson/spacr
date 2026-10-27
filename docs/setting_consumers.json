@@ -31160,7 +31160,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 4308,
+    "line": 4396,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"
@@ -31508,7 +31508,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 4230,
+    "line": 4231,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -41826,7 +41826,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 4221,
+    "line": 4222,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50655,7 +50655,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4295,
+    "line": 4296,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50664,7 +50664,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4303,
+    "line": 4304,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -53060,7 +53060,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7893,
+    "line": 8082,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"

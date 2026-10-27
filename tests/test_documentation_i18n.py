@@ -91,6 +91,41 @@ if str(TOOLS) not in sys.path:
 
 
 
+def _current_startup_frame_stats_api(entries, docs=None):
+    """Retain the original startup inventory and admit its reviewed cadence prose."""
+    assert len(entries) == 21
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == "4f9021a15b35e2c6cb8ffd900a00f14377edf4dba8fe471c8b90b1e7b9ea9b2d"
+    current = dict(entries)
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
+    current[symbol] = "What drawing the blow-away cost, for measuring it.\n\n:returns: ``frames``, ``mean_ms``, ``max_ms`` and ``most_tiles``;\n    ``paint_p95_ms``; the display's ``refresh_hz`` and ``refresh_ms``;\n    the final ``paced_ms``, ``stride``, ``divisor`` and ``vsync``;\n    ``interval_mean_ms``, ``interval_p50_ms``, ``interval_p95_ms``,\n    ``interval_p99_ms``, ``longest_gap_ms``, ``late_frames``,\n    ``dropped_frames`` and ``dropped_share``. Times are milliseconds.\n    Intervals measure paint callbacks, not verified display\n    presentation; dropped frames are estimates against the refresh\n    interval. With no paint callbacks, paint and interval summaries\n    and counters are zero; display and pacing metadata remain reported."
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "33b83cd0893cf1fabc001bd6735384102382d72c6d22052844e8df30f92bfaa7"
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_frame", "historical_other", "current_frame", "current_other"])
+def test_startup_cadence_revision_keeps_its_historical_inventory(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_startup_frame_stats_api(entries)
+    assert entries == historical
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
+    other = next(key for key in entries if key != symbol)
+    assert all(current[key] == entries[key] for key in entries if key != symbol)
+    if mutation == "historical_frame":
+        entries[symbol] = current[symbol]
+    elif mutation == "historical_other":
+        entries[other] += " changed"
+    elif mutation == "current_frame":
+        current[symbol] = historical[symbol]
+    else:
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        _current_startup_frame_stats_api(entries, current)
+
+
 def _retired_707_home_api(docs):
     """Restore the exact removed Home helper only for historical inventory replay."""
     retirement = json.loads((ROOT / "tests/data/release_contracts"
@@ -3450,6 +3485,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     splash_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_arrivals) == 21
+    splash_arrivals = _current_startup_frame_stats_api(splash_arrivals, docs)
     assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
     assert not splash_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **splash_arrivals}

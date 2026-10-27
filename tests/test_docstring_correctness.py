@@ -5148,6 +5148,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     splash_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_additions) == 21
+    from tests.test_documentation_i18n import _current_startup_frame_stats_api
+    splash_additions = _current_startup_frame_stats_api(splash_additions, docs)
     assert {key: docs[key] for key in splash_additions} == splash_additions
     assert not splash_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **splash_additions}

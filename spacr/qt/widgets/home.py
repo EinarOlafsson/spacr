@@ -5705,6 +5705,10 @@ class _EasyHomeField(QWidget):
         """Clear transient card forces while keeping the original reveal animation."""
         from .ambient import _field_growing_regions_for_widget
 
+        state = tuple((id(card), card._growing, card.isVisible())
+                      for card in self.cards if card.parentWidget() is self)
+        invalidate = invalidate or state != getattr(self, '_growth_state', ())
+        self._growth_state = state
         _field_growing_regions_for_widget(self, (), invalidate=invalidate)
 
     def _finish_growth(self):
@@ -6792,6 +6796,7 @@ class _EasyHomePage(QWidget):
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
         self.field.details.setPlainText(message)
         self.field._arrange()
+        self.field._publish_growth(invalidate=True)
 
     def accept_paths(self, paths):
         """Accept exactly one local input and give useful feedback for ambiguous drops."""

@@ -7,6 +7,23 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+FORMAT-KEYWORD FOLLOW-UP — 2026-10-27: pure file-format tokens with or without a leading dot (including sql/db/sqlite, npy, tif/tiff, bmp and explicit bnp typo, png/jpeg, csv/tsv, fastq/fq with optional gzip, pdf and available ND2/CZI/LIF readers) must offer real compatible native module cards on Enter without launching or processing. Derive support from existing reader/drop capabilities, keep maturity gates and canonical deduplication, and leave actual filenames/paths/existing relative folders to evidence-based inspection. A sql keyword refers to SQLite tools; an actual .sql dump is not a supported database ingest. No universal-format claim or new UI captions is required.
+
+FEATURE-DETECTION PHRASE FOLLOW-UP — 2026-10-27: detect features and feature
+detection must offer Measure on Enter, including case-insensitive questions.
+An empty search must not leave a frozen particle rectangle until mouse movement.
+
+NAVIGATOR ENTER-FEEDBACK FOLLOW-UP — 2026-10-27: entering a task such as
+“detect features” must resolve to cards without leaving a stationary square
+of dots above the search field. Completion, empty results, cancellation and
+feedback changes must invalidate stale growth/fade/overlay pixels without
+requiring mouse movement. Preserve live field rendering and Enter-only
+discovery; no GPU, tutorial or processing behavior changes are requested.
+
+MASK-ANALYSIS PHRASE FOLLOW-UP — 2026-10-27: case-insensitive analyze masks,
+analyse masks and mask analysis must offer Measure, QC and Make Masks on
+Enter. Reuse existing native cards; do not launch tools or run AI automatically.
+
 LATEST GENERATED-FOLDER FOLLOW-UP — 2026-10-27: dropping a canonical spaCR merged folder containing valid numeric NPY planes must offer Measure and its native downstream modules. Recognize other verified spaCR output folders and artifacts using existing producer/consumer contracts, including masks, crop data, measurement databases, result tables and model outputs; suggest the producer and relevant downstream routes without processing. Inspect bounded headers/schema and canonical structure, preserve correct project/input routing, and explain prerequisite review. An explicitly selected raw file must remain isolated from unrelated project analysis, and annotation-only databases must not masquerade as scientific measurements.
 
 LATEST GENERATED-FILE FOLLOW-UP — 2026-10-27: a verified NPY selected inside its canonical merged folder intentionally inherits its own plate context and downstream Measure routes. Measure must receive the parent plate root, while file-capable viewers/editors receive the actual selected file. Recognize both YXC and ZYXC numeric merged arrays with at least two final planes. Preserve explicit raw-TIFF scope isolation and calibrated-workflow barriers; do not claim a native module supports a selected input mode unless its existing reader/input contract does.
@@ -492,3 +509,5 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Delivered 100 documented task-to-card mappings plus supplied typo/short-form aliases, task placeholder and spaceout-nav/spaceout-navigator launch commands. Case, path isolation, native/folded routes, visibility gates and Enter-only card behavior pass focused checks. Navigator implementation approval is retained; the separate tutorial/Docs/API handoff remains unacknowledged.
 
 2026-10-27 — Navigator now defaults on for fresh profiles while retaining saved opt-outs; the centered input doubles in font/size, and all 100 tasks have paired noun/verb forms. Canonical merged arrays and verified generated artifacts offer native downstream routes with prerequisite guidance and module-specific source paths. Numeric NPY Make Masks editing is delivered under 735; tutorial/Docs/API handoff receipt remains unconfirmed.
+
+2026-10-27 — Added analyzed-mask and feature-detection aliases plus dotted/undotted format queries from actual reader/handler capabilities; actual Enter controls pass. Card lifecycle/feedback invalidation fixes the reproduced stale particle square without mouse movement; five focused rendering controls pass.

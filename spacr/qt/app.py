@@ -124,6 +124,13 @@ _EASY_TASK_GROUPS = ((('mask', 'measure', 'qc_dashboard'),
    'cell boundary correction',
    'mask correction',
    'manual cell outlining')),
+ (('measure', 'qc_dashboard', 'make_masks'),
+  ('analyze masks',
+   'analyse masks',
+   'mask analysis',
+   'analyze segmentation masks',
+   'analyse segmentation masks',
+   'segmentation mask analysis')),
  (('measure',),
   ('measure cell features',
    'extract image measurements',
@@ -134,7 +141,13 @@ _EASY_TASK_GROUPS = ((('mask', 'measure', 'qc_dashboard'),
    'image measurement extraction',
    'profile cell morphology',
    'cell shape quantification',
-   'fluorescence intensity measurement')),
+   'fluorescence intensity measurement',
+   'detect features',
+   'feature detection',
+   'detect image features',
+   'detect morphological features',
+   'extract features',
+   'feature extraction')),
  (('db_browser',),
   ('read a database',
    'open my database',
@@ -418,6 +431,61 @@ def _easy_module_search(value):
                 name, description = rows[key]
                 found.append((key, tr(name), tr(description), ''))
     return found
+
+
+def _easy_format_suggestions(value):
+    """Offer native readers for a pure format token without interpreting paths."""
+    import re
+
+    from .. import convert
+    from . import dnd_handlers as handlers
+    from .widgets.fold_strip import fold_label
+
+    text = str(value).strip()
+    if (not re.fullmatch(r'\.?[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*', text)
+            or os.path.exists(text)):
+        return None
+    token = text.lower().lstrip('.')
+    extension = '.' + {'sql': 'db', 'bnp': 'bmp'}.get(token, token)
+    keys = []
+    table_suffixes = handlers.TableDropHandler.suffixes
+    if extension in table_suffixes:
+        database = extension in handlers._ch.DB_SUFFIXES
+        for key, handler_class in handlers._HANDLERS.items():
+            if (issubclass(handler_class, handlers.TableDropHandler)
+                    and extension in handler_class.suffixes):
+                keys.append(key)
+            elif database and issubclass(
+                    handler_class, (handlers.DatabaseDropHandler, handlers.MeasurementsDropHandler)):
+                keys.append(key)
+    elif extension in handlers.MapBarcodesDropHandler._FQ_EXTS:
+        keys.append('map_barcodes')
+    elif extension == '.pdf':
+        keys.append('analyze_plaques')
+    elif extension in convert._image_extensions():
+        if not convert.reader_available(extension):
+            return []
+        from ..io import _RAW_IMAGE_SUFFIXES
+        from . import mask_engine
+
+        keys.append('convert')
+        if extension == '.npy' and callable(getattr(mask_engine, '_npy_image_header', None)):
+            keys.extend(('make_masks', 'measure'))
+        elif extension in mask_engine.IMAGE_EXTS:
+            keys.append('make_masks')
+            if extension in _RAW_IMAGE_SUFFIXES and extension not in ('.nd2', '.czi', '.lif'):
+                keys.append('mask')
+    else:
+        return None
+    rows = {key: (name, description) for key, name, description, _section in APPS}
+    for children in folded_children().values():
+        for key in children:
+            rows.setdefault(key, fold_label(key)[:2])
+    priority = ('make_masks', 'mask', 'measure', 'convert', 'db_browser', 'graph_builder', 'gate_editor')
+    ordered = [key for key in priority if key in keys]
+    ordered.extend(key for key in keys if key not in ordered)
+    return [(key, tr('Mask Generation') if key == 'mask' else tr(rows[key][0]),
+             tr(rows[key][1]), '') for key in ordered if key in rows and app_is_visible(key)]
 
 
 def _prune_native_help_actions(window):
@@ -7755,6 +7823,9 @@ class MainWindow(QMainWindow):
 
     def _easy_navigation_suggestions(self, value):
         """Combine actual module names and existing menu destinations for a search."""
+        formats = _easy_format_suggestions(value)
+        if formats is not None:
+            return formats
         wanted = _easy_command_text(value)
         if not wanted:
             return []
