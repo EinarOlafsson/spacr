@@ -533,3 +533,47 @@ def test_the_canvas_toolbar_wraps_to_fit_the_export_section(view, qtbot):
     assert toolbar is not None and toolbar.hasHeightForWidth()
     assert toolbar.heightForWidth(300) > toolbar.heightForWidth(2400)
     assert composer.minimumSizeHint().width() < 600
+
+
+def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtbot, source):
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.gui_scale import _resize_actual
+    from PySide6.QtCore import QSize
+
+    screen = AppScreen("overview")
+    qtbot.addWidget(screen)
+    _resize_actual(screen, QSize(1100, 900))
+    screen.show()
+    page = screen._overview_page
+    try:
+        wizard = page.run({"src": str(source), "custom_regex": PATTERN})
+        qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
+        wizard._next()
+        qtbot.waitUntil(lambda: page.browser is not None and page.browser._normalization_ready,
+                        timeout=15000)
+        view = page.browser
+        section = browser._overview_section(screen, "Figure settings")
+        section.set_expanded(False)
+        screen._runtime_splitter.set_collapsed("Console", False, by_user=True)
+        screen._runtime_splitter.set_collapsed("Actions", False, by_user=True)
+        screen._runtime_splitter.set_collapsed("Figures", True, by_user=True)
+        qtbot.wait(50)
+        before = screen.size()
+        for widget in (screen._console_wrap, screen._actions_section):
+            assert widget.isVisible()
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+        section.set_expanded(True)
+        qtbot.mouseClick(screen._figures_card.title_label, Qt.LeftButton)
+        qtbot.waitUntil(lambda: not screen._runtime_splitter.is_collapsed("Figures"))
+        qtbot.wait(100)
+        assert screen.size() == before
+        assert view.isVisible() and view.width() > 0 and view.height() > 0
+        assert not screen._runtime_splitter.is_collapsed("Console")
+        assert not screen._runtime_splitter.is_collapsed("Actions")
+        for widget in (screen._console_wrap, screen._actions_section):
+            assert widget.isVisible()
+            assert screen.rect().contains(widget.mapTo(screen, QPoint(0, 0)))
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+    finally:
+        page._retire_browser()
+        screen.close()
