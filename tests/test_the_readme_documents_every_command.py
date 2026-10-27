@@ -73,7 +73,9 @@ def test_the_readme_names_no_command_that_does_not_exist():
 #: rename; the README line naming them was removed on 2026-10-12 (16a9294c6)
 #: with the rest of the README trim, so they stay installed for old scripts
 #: but are no longer written about.
-HIDDEN_ON_PURPOSE = {"spaceout"}
+#: The two Navigator aliases enter the same intentionally hidden launcher,
+#: so they retain its README absence policy rather than becoming public commands.
+HIDDEN_ON_PURPOSE = {"spaceout", "spaceout-nav", "spaceout-navigator"}
 UNDOCUMENTED_ON_PURPOSE = HIDDEN_ON_PURPOSE | {"spacr-qt", "spacr-nightly"}
 
 

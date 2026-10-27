@@ -520,6 +520,8 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 .. code-block:: bash
 
    spacr              # the desktop application
+   spacr-nav
+   spacr-navigator
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
 

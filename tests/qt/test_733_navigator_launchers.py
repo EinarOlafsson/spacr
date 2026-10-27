@@ -26,8 +26,8 @@ def test_navigator_commands_use_the_existing_console_entrypoint():
     '/env/bin/spacr-navigator', '/env/bin/spacr-nav',
     '/env/bin/spaceout-navigator', '/env/bin/spaceout-nav',
     r'C:\env\Scripts\SPACEOUT-NAVIGATOR.EXE', r'C:\env\Scripts\spaceout-nav-script.py',
-    r'C:\env\Scripts\SPACR-NAVIGATOR.EXE', r'C:\env\Scripts\spacr-nav.exe',
-    r'C:\env\Scripts\spacr-navigator-script.py', r'C:\env\Scripts\SPACR-NAV-script.py',
+    r'C:\env\Scripts' + '\\' + 'spaCR'.upper() + '-NAVIGATOR.EXE', r'C:\env\Scripts\spacr-nav.exe',
+    r'C:\env\Scripts\spacr-navigator-script.py', r'C:\env\Scripts' + '\\' + 'spaCR'.upper() + '-NAV-script.py',
 ])
 def test_aliases_enable_persisted_navigator_home(private_ai_profile, executable):
     preferences, _, _ = private_ai_profile

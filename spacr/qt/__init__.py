@@ -236,7 +236,7 @@ def _explain_the_inotify_line() -> None:
     from .i18n import tr
 
     try:
-        current = int(Path("/proc/sys/fs/inotify/max_user_watches").read_text().strip())
+        current = int(Path("/proc/sys/fs/inotify/max_user_watches").read_text(encoding="utf-8").strip())
         if current <= 0:
             raise ValueError
         limit = max(524288, current * 2)

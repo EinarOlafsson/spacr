@@ -514,13 +514,17 @@ def test_closing_the_window_quits_the_application_exactly_once(win,
 def test_the_dock_can_be_moved_before_its_menu_action_exists(win):
     """The dock preference is applied during construction, menu or no menu.
 
-    "All apps" is greyed out with an explanation when the dock is hidden,
-    because a control that silently does nothing is worse than one that says
-    why. The placement itself runs once before the menu is finished.
+    Legacy hidden preferences leave the dock present and its action enabled.
+    The action expands it; placement also runs before the menu is finished.
     """
     win.apply_dock_mode("hidden")
-    assert win._act_all_apps.isEnabled() is False
-    assert "Preferences" in win._act_all_apps.toolTip()
+    assert win._dock_mode == "locked"
+    assert win._act_all_apps.isEnabled() is True
+    assert win._act_all_apps.toolTip() == "Show the full app list."
+    win._dock_edge.set_collapsed(True)
+    assert win._dock_edge.is_collapsed()
+    win._act_all_apps.trigger()
+    assert not win._dock_edge.is_collapsed()
 
     del win._act_all_apps
     win.apply_dock_mode("locked")

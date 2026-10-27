@@ -55,9 +55,9 @@ def cytoplasms(n=2):
 
 
 def children(table, per_cell, n_cells=2):
-    """`per_cell` children in each cell, labelled 1..per_cell."""
+    """`per_cell` children per cell, with labels unique within the image."""
     return pd.DataFrame([
-        {**BASE, "object_label": j, "cell_id": i,
+        {**BASE, "object_label": (i - 1) * per_cell + j, "cell_id": i,
          f"{table}_area": 10.0 * j, "mean_intensity": 5.0 * j}
         for i in range(1, n_cells + 1) for j in range(1, per_cell + 1)])
 
@@ -127,14 +127,18 @@ def test_a_measurement_already_named_for_its_table_is_not_prefixed_twice(
 
 def test_cytoplasm_and_a_rolled_up_child_can_share_one_merge(tmp_path):
     """The two join styles have to coexist: the whole point of the registry."""
-    db = build(tmp_path, cell=cells(), cytoplasm=cytoplasms(),
-               nucleus=children("nucleus", per_cell=2))
+    nuclei = children("nucleus", per_cell=2)
+    assert nuclei["object_label"].tolist() == [1, 2, 3, 4]
+    assert nuclei["cell_id"].tolist() == [1, 1, 2, 2]
+    db = build(tmp_path, cell=cells(), cytoplasm=cytoplasms(), nucleus=nuclei)
     out = merge_tables(db, ["cell", "cytoplasm", "nucleus"])
 
     assert len(out) == 2, "one row per cell, whatever the children did"
     assert "cytoplasm_area" in out.columns
     assert "nucleus_count" in out.columns
     assert list(out.sort_values("object_label")["nucleus_count"]) == [2, 2]
+    assert list(out.sort_values("object_label")["cytoplasm_area"]) == [60., 120.]
+    assert list(out.sort_values("object_label")["nucleus_area"]) == [30., 30.]
 
 
 # ---------------------------------------------------------------------------

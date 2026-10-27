@@ -151,7 +151,7 @@ def test_the_help_menu_lists_every_visible_module(window):
     from spacr.qt.app import APPS, app_is_visible
     for _key, name, _desc, _section in APPS:
         if app_is_visible(_key):
-            assert name in labels, f"{name} has no walkthrough entry"
+            assert W.tr(W.MENU_TITLE) + ": " + W.tr(name) in labels, f"{name} has no walkthrough entry"
     assert "Show all walkthroughs again" in labels
 
 
@@ -170,7 +170,8 @@ def test_a_menu_entry_runs_its_own_module(window, qtbot, monkeypatch):
         lambda win, key, **kw: shown.append(key))
     submenu = window._walkthrough_menu
     for action in submenu.actions():
-        if action.text() == "Measure":
+        if action.property("moduleAppKey") == "measure":
+            assert action.text() == W.tr(W.MENU_TITLE) + ": " + W.tr("Measure")
             action.trigger()
             break
     assert shown == ["measure"]

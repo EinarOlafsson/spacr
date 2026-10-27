@@ -576,7 +576,6 @@ def _row(dialog, label_text):
 _POINTED_AT_A_STORED_VALUE = (
     ("get_theme_choice", "Theme", "space:nebula"),
     ("get_ambient_animation", "Animation", "lava lamp"),
-    ("get_dock_mode", "App dock", "sideways"),
     ("get_color_blind_mode", "Colour-blind mode", "tetrachromacy"),
     ("get_figure_format", "Figure format", "bmp"),
     ("get_figure_png_dpi", "PNG resolution", 999),
@@ -811,19 +810,21 @@ def test_reset_leaves_a_dropdown_alone_when_the_default_is_not_on_it(
     from PySide6.QtWidgets import QPushButton
 
     dialog = _dialog(qtbot)
-    dock = _row(dialog, "App dock")
-    dock.setCurrentIndex(dock.count() - 1)
-    chosen = dock.currentData()
+    combo = _row(dialog, "Colour-blind mode")
+    assert combo.count() > 1
+    combo.setCurrentIndex(combo.count() - 1)
+    chosen = combo.currentData()
+    assert chosen != combo.itemData(0)
 
-    monkeypatch.setattr(prefs, "get_dock_mode", lambda: "sideways")
+    monkeypatch.setattr(prefs, "get_color_blind_mode", lambda: "tetrachromacy")
     dialog.findChild(QPushButton, "PreferencesReset").click()
-    assert dock.currentData() == chosen
+    assert combo.currentData() == chosen
 
     # A default the dropdown does hold moves it, which is what says the
     # reset above did reach this control.
-    monkeypatch.setattr(prefs, "get_dock_mode", lambda: dock.itemData(0))
+    monkeypatch.setattr(prefs, "get_color_blind_mode", lambda: combo.itemData(0))
     dialog.findChild(QPushButton, "PreferencesReset").click()
-    assert dock.currentIndex() == 0
+    assert combo.currentIndex() == 0
 
 
 def test_a_backdrop_that_will_not_restart_does_not_lose_the_saved_numbers(

@@ -304,6 +304,13 @@ def execute(path, definition):
 
 
 def _execute_prepared(path, definition):
+    """Apply a prepared merge recipe and return its frame and diagnostics.
+
+    :param path: source database read through the active source-frame context.
+    :param definition: default, custom or filename-enrichment recipe to copy and apply.
+    :returns: output DataFrame and merge diagnostic mapping, including image provenance.
+    :raises MergeError: if the recipe, keys, aggregations or resulting observation count are invalid.
+    """
     definition = copy.deepcopy(definition)
     mode = definition.get("mode")
     if mode not in ("default", "custom", "metadata"):
