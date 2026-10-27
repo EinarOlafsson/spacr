@@ -3,7 +3,7 @@ REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT,
 PER-PROFILE RESOURCES, A LOGIN-NODE SAFEGUARD, AND THE CONSOLE AND SYSTEM PANELS
 ================================================================================
 
-Status:    OPEN; isolated post-1.5.1.6 delivery. Source/tests and nine-locale
+Status:    OPEN; current Night delivery authorized. Source/tests and nine-locale
            review closure are owned by Codex; real-cluster acceptance needs
            the maintainer's Great Lakes account (see HOW TO KNOW IT WORKED).
 Requested: maintainer, 2026-10-26, after testing the module on the University
@@ -228,7 +228,7 @@ DELIBERATELY NOT DONE
   they have no setting labels or consumer-map rows; their captions and
   tooltips are runtime UI text with nine-locale reviewed records.
 
-2026-10-26 — Isolated post-1.5.1.6 delivery; preserve original worktrees and the final release pin. No cluster submissions or external messages were made.
+2026-10-26 — Current Night delivery is authorized with the accepted Easy/Overview joint source; preserve original worktrees and all accepted release records. No cluster submissions or external messages were made.
 Remote/SSH/Qt owning cohort: 394 passed, two Windows-only skips; three scheduler-path cases and three hygiene checks also passed. Only affected failures were rerun; the old full-suite outcome remains unverified.
 Fixed stale cluster probes, log draining/UTF-8, duplicate error capture, allocation ownership/cancellation, profile-connection binding, terminal accounting and quoted scheduler output paths; existing safety guards remain. Removing all seven GUI closures also retires its now-empty nested-helper rollout entry, without weakening the zero-helper guard.
 Nine-locale closure is ready on review side branch 53c7d108 and API memory 27e99ce3, preserving the final release records; normal runtime, API, consumer, Help and caption-arrival outputs are generated. Three source-bound historical checks and all 15 final API/Help/runtime checks passed, preserving accepted source, catalog and pin bytes; original required parameters, counts and digests remain unchanged.

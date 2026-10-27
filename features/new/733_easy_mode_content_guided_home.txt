@@ -2,7 +2,7 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    implementation in progress; isolated from the release candidate
+Status:    implementation and native validation ready; final contracts and Night publication pending
 Requested: maintainer, 2026-10-26
 Owner:     Codex G1; retained G2 persistence/UI peer; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -77,8 +77,8 @@ at supported window sizes. Easy mode must remain usable when spaCR AI
 is disabled or unavailable; document which suggestions use local file
 inspection and which, if any, require an enabled AI provider.
 
-This item records a new request; it does not add an implementation or
-an additional prerequisite for releasing 1.5.1.6.
+The maintainer authorized implementation and immediate Night publication on
+2026-10-26, including accepted native visuals and reviewed nine-language outputs.
 
 2026-10-26 — G1 owns item 733 end to end on isolated published Night 7cd974072e; G2 owns the disjoint startup/Preferences persistence slice. Implement a local content-inspection Home in existing modules, whole-window drops and module handoff, with Easy mode/dock defaults off and no AI dependency. Required meaningful/native two-theme checks and nine-locale normal reviewed outputs precede one coherent commit; root alone authorizes integration/publication after release.
 
@@ -88,3 +88,9 @@ an additional prerequisite for releasing 1.5.1.6.
 
 2026-10-26 — Extend local discovery to bounded microscope filename/regex, sibling/master-folder and structural metadata inference with explicit uncertainty; add slowly appearing icon/name/short-description/Open cards. G1 owns Home/inference and central routing; retained G4 owns disjoint Essential-only defaults for every Easy-opened module, with user expansion and ordinary defaults preserved.
 2026-10-26 — Suggestions must grow point-to-card under the existing field with synchronized local displacement, final edge ripple and final foreground ownership; preserve palette and reduced-motion/off behavior with bounded existing rendering effects.
+
+2026-10-26 — Immediate Night delivery is now authorized: Easy mode defaults off, shares startup/Preferences choices, accepts whole-window drops and routes bounded local content suggestions without AI.
+Native wide/small/return frames and both-theme lifecycle controls are accepted; persistent random placement, independent dock/Essential settings and existing-worker card displacement retain their owning passing results.
+All 414 Easy translation targets and 36 Overview drafts were reviewed; the final combined stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
+Normal nine-language API/runtime, Help, consumer and settings-flow outputs are generated and independently accepted; four legitimate API arrivals have exact source-bound test admission, with historical ratchets unchanged.
+Root owns the final affected contract run, coherent commit and Night push; no remaining release or hosted-CI waiting condition applies to this authorized delivery.
