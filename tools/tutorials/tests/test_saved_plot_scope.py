@@ -60,6 +60,7 @@ def test_activation_grid_pan_requires_measured_fullscreen_geometry(fault):
 def test_activation_grid_window_queries_actual_owner_and_state(monkeypatch, fault):
     import capture_saved_plots as driver
     monkeypatch.setattr(driver, '_inspection_display', lambda stage: ':105')
+    monkeypatch.setattr(driver, '_inspection_process', lambda stage, pid, record: dict(png=record['path']))
     def query(args, **kwargs):
         if args[1] == '-root': return '_NET_ACTIVE_WINDOW(WINDOW): window id # 0x123'
         if args[0] == 'xprop':
@@ -70,9 +71,9 @@ def test_activation_grid_window_queries_actual_owner_and_state(monkeypatch, faul
         return 'Absolute upper-left X: 0\nAbsolute upper-left Y: 0\nWidth: 2560\nHeight: 1440\nMap State: IsViewable\n'
     monkeypatch.setattr(driver.subprocess, 'check_output', query)
     if fault:
-        with pytest.raises(RuntimeError): driver._inspection_window(Path('/private'), 123, 'batch_0_grid.png', fullscreen=True)
+        with pytest.raises(RuntimeError): driver._inspection_window(Path('/private'), 123, dict(path='/private/batch_0_grid.png'), fullscreen=True)
     else:
-        actual = driver._inspection_window(Path('/private'), 123, 'batch_0_grid.png', fullscreen=True)
+        actual = driver._inspection_window(Path('/private'), 123, dict(path='/private/batch_0_grid.png'), fullscreen=True)
         assert actual['rect'] == [0, 0, 2560, 1440]
         assert actual['image_viewport_verified'] is False
 
@@ -133,6 +134,7 @@ def test_activation_grid_private_display_one_requires_owned_stage_runtime(tmp_pa
 def test_activation_grid_discovers_inactive_owned_viewer_without_waiving_focus(monkeypatch, wrong_owner):
     import capture_saved_plots as driver
     monkeypatch.setattr(driver, '_inspection_display', lambda stage: ':1')
+    monkeypatch.setattr(driver, '_inspection_process', lambda stage, pid, record: dict(png=record['path']))
     def query(args, **kwargs):
         if args[1] == '-root':
             if args[2] == '_NET_ACTIVE_WINDOW':
@@ -147,10 +149,51 @@ def test_activation_grid_discovers_inactive_owned_viewer_without_waiving_focus(m
     monkeypatch.setattr(driver.subprocess, 'check_output', query)
     if wrong_owner:
         with pytest.raises(RuntimeError, match='expected_pid=123'):
-            driver._find_inspection_window(Path('/private'), 123, 'batch_0_grid.png')
+            driver._find_inspection_window(Path('/private'), 123, dict(path='/private/batch_0_grid.png'))
     else:
-        actual = driver._find_inspection_window(Path('/private'), 123, 'batch_0_grid.png')
+        actual = driver._find_inspection_window(Path('/private'), 123, dict(path='/private/batch_0_grid.png'))
         assert actual['window_id'] == '0x222' and actual['active_window_id'] == '0x111'
         with pytest.raises(RuntimeError, match='Owned viewer is not active') as error:
-            driver._inspection_window(Path('/private'), 123, 'batch_0_grid.png', window_id='0x222')
+            driver._inspection_window(Path('/private'), 123, dict(path='/private/batch_0_grid.png'), window_id='0x222')
         assert 'wid=0x222 active=0x111 properties=' in str(error.value)
+
+
+@pytest.mark.parametrize('fault', [None, 'wrong_png', 'wrong_uid', 'wrong_x_pid', 'changed_png'])
+def test_activation_grid_generic_title_requires_exact_process_and_png(tmp_path, monkeypatch, fault):
+    import hashlib
+    import os
+    import capture_saved_plots as driver
+    stage = tmp_path / 's'
+    runtime = stage / 'gnome-host' / 'run'
+    runtime.mkdir(parents=True)
+    png = stage / 'batch_0_grid.png'
+    png.write_bytes(b'original verified PNG fixture bytes')
+    record = dict(path=str(png), sha256=hashlib.sha256(png.read_bytes()).hexdigest())
+    if fault == 'changed_png': png.write_bytes(b'changed PNG bytes')
+    proc = tmp_path / 'proc' / '123'
+    proc.mkdir(parents=True)
+    argument = str(stage / 'different.png') if fault == 'wrong_png' else str(png)
+    (proc / 'cmdline').write_bytes(('eog\0--new-instance\0' + argument + '\0').encode())
+    (proc / 'environ').write_bytes(('DISPLAY=:1\0SPACR_CAPTURE_HOST=' + str(stage / 'gnome-host')
+        + '\0XDG_RUNTIME_DIR=' + str(runtime) + '\0WAYLAND_DISPLAY=w\0').encode())
+    monkeypatch.setattr(driver, '_PROC', tmp_path / 'proc')
+    monkeypatch.setattr(driver, '_inspection_display', lambda stage: ':1')
+    monkeypatch.setenv('WAYLAND_DISPLAY', 'w')
+    if fault == 'wrong_uid':
+        actual_uid = os.getuid()
+        monkeypatch.setattr(driver.os, 'getuid', lambda: actual_uid + 1)
+    def query(args, **kwargs):
+        if args[1] == '-root': return '_NET_ACTIVE_WINDOW(WINDOW): window id # 0xa00007'
+        if args[0] == 'xprop':
+            pid = 999 if fault == 'wrong_x_pid' else 123
+            return f'_NET_WM_PID(CARDINAL) = {pid}\n_NET_WM_NAME(UTF8_STRING) = "Image Viewer"\nWM_NAME(STRING) = "Image Viewer"\n_NET_WM_STATE(ATOM) = _NET_WM_STATE_FULLSCREEN\n'
+        return 'Absolute upper-left X: 0\nAbsolute upper-left Y: 0\nWidth: 2560\nHeight: 1440\nMap State: IsViewable\n'
+    monkeypatch.setattr(driver.subprocess, 'check_output', query)
+    if fault:
+        with pytest.raises(RuntimeError): driver._inspection_window(stage, 123, record, fullscreen=True)
+    else:
+        actual = driver._inspection_window(stage, 123, record, fullscreen=True)
+        assert actual['wm_titles'] == ['Image Viewer', 'Image Viewer']
+        assert actual['expected_png'] == str(png)
+        assert actual['process']['png_sha256'] == record['sha256']
+        assert actual['image_viewport_verified'] is False
