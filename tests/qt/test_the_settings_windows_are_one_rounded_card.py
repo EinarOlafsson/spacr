@@ -382,6 +382,7 @@ class TestSetupNeedsNoGithubAccount:
         monkeypatch.setattr(github_auth, "auth_source", auth_source)
         monkeypatch.setattr(shutil, "which", which)
         agreement_before = terms.needs_agreement()
+        easy_before = preferences.get_easy_mode()
         slides = SetupSlides()
         try:
             slides.show()
@@ -392,12 +393,14 @@ class TestSetupNeedsNoGithubAccount:
             answers = slides.answers()
             assert set(answers) == {question[0] for question in setup_screen.questions()}
             assert set(answers) == {"language", "theme", "colour_blind",
-                                    "spacr_mode", "hash_inputs", "spacr_ai"}
+                                    "spacr_mode", "hash_inputs", "spacr_ai", "easy_mode"}
             assert answers["spacr_ai"] is False
+            assert answers["easy_mode"] is easy_before
             assert setup_screen.apply(answers) == []
             assert preferences.get_preferred_provider() == "none"
             assert crashreport.error_report_mode() == "off"
             assert setup_screen.current() == answers
+            assert preferences.get_easy_mode() is easy_before
             assert terms.needs_agreement() is agreement_before
             assert probes == []
         finally:
