@@ -294,6 +294,8 @@ blocks:
 - h2: 启动应用程序
 - code: |-
     spacr              # the desktop application
+    spacr-nav
+    spacr-navigator
     spacr-tutorial     # the interactive tutorial library
     spacr-server       # no first-run setup screen, for unattended launches
   lang: bash
