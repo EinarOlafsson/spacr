@@ -197,10 +197,15 @@ def test_private_chrome_extension_matches_the_installed_shell_module_format(tmp_
         assert script == host.CHROME_EXTENSION_JS
 
 
-def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_path, monkeypatch):
+def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_path, monkeypatch, request):
     from types import SimpleNamespace
     import gnome_capture_host as host
 
+    import socket
+    bus = socket.socket(socket.AF_UNIX)
+    bus_path = tmp_path / 'session-bus'
+    bus.bind(str(bus_path))
+    request.addfinalizer(bus.close)
     seen = []
     exists, read_text = Path.exists, Path.read_text
     monkeypatch.setattr(Path, 'is_file', lambda path: True)
@@ -208,7 +213,7 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
                         if str(path) in ('/tmp/.X11-unix/X98', '/tmp/.X98-lock') else exists(path))
     monkeypatch.setattr(Path, 'read_text', lambda path, *args, **kwargs: '12345'
                         if str(path) == '/tmp/.X98-lock' else read_text(path, *args, **kwargs))
-    monkeypatch.setenv('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/tmp/private-test-bus')
+    monkeypatch.setenv('DBUS_SESSION_BUS_ADDRESS', 'unix:path=' + str(bus_path))
     monkeypatch.setattr(host, 'wait_for', lambda *args: None)
     monkeypatch.setattr(host.subprocess, 'run', lambda *args, **kwargs: None)
 
@@ -217,6 +222,11 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
         if '/usr/bin/gnome-shell' in argv:
             assert argv[:5] == ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/']
             assert '--dev' in argv and '--dev-bind' not in argv
+            position = argv.index('--tmpfs')
+            assert argv[position + 1] == '/tmp'
+            assert ['--bind', str(tmp_path / 'run/x11'), '/tmp/.X11-unix'] == argv[position + 2:position + 5]
+            assert ['--ro-bind', '/tmp/.X11-unix/X98', '/tmp/.X11-unix/X98'] == argv[position + 5:position + 8]
+            assert ['--ro-bind', str(bus_path), str(bus_path)] == argv[position + 8:position + 11]
             position = argv.index('--bind')
             assert argv[position + 1:position + 3] == [str(tmp_path.parent), str(tmp_path.parent)]
             assert '--nested' in argv and '--wayland' in argv and '--no-x11' not in argv

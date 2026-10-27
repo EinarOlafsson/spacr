@@ -432,8 +432,22 @@ def inner(args) -> int:
                            MUTTER_DEBUG_DUMMY_MODE_SPECS=f'{args.size}@{args.refresh}',
                            QT_OPENGL='software', QT_QUICK_BACKEND='software', CUDA_VISIBLE_DEVICES='',
                            GDK_BACKEND='x11', GIO_USE_VFS='local', TMPDIR=str(dirs['run']))
+                x11 = dirs['run'] / 'x11'
+                x11.mkdir(mode=0o700)
+                bus_address = env['DBUS_SESSION_BUS_ADDRESS']
+                bus_binds = []
+                if bus_address.startswith('unix:path='):
+                    bus_socket = Path(bus_address.removeprefix('unix:path=').split(',', 1)[0])
+                    if not bus_socket.is_socket() or bus_socket.stat().st_uid != os.getuid():
+                        raise RuntimeError('The private session bus socket is not owned by this host user')
+                    bus_binds = ['--ro-bind', str(bus_socket), str(bus_socket)]
+                elif not bus_address.startswith('unix:abstract='):
+                    raise RuntimeError('The private session bus must use a local Unix socket')
                 isolation = ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/',
                              '--bind', str(capture_stage or stage), str(capture_stage or stage),
+                             '--tmpfs', '/tmp', '--bind', str(x11), '/tmp/.X11-unix',
+                             '--ro-bind', f'/tmp/.X11-unix/X{args.x11_display}',
+                             f'/tmp/.X11-unix/X{args.x11_display}', *bus_binds,
                              '--dev', '/dev', '--proc', '/proc', '--']
                 shell_argv = [*isolation, '/usr/bin/gnome-shell', '--nested', '--wayland',
                               '--wayland-display', 'wayland-capture', '--sm-disable']
@@ -474,12 +488,13 @@ def inner(args) -> int:
                 raise RuntimeError('The owned nested Xwayland authentication is not private to this host')
             display = connection['DISPLAY']
             env['XAUTHORITY'] = str(authority)
-            wait_for(lambda: Path(f'/tmp/.X11-unix/X{display[1:]}').exists(),
+            wait_for(lambda: (x11 / f'X{display[1:]}').is_socket(),
                      30, 'owned nested Xwayland socket', shell)
         # What gsd-xsettings does in a full session: X clients (Qt on xcb
         # reads Xcursor.* from RESOURCE_MANAGER, not XCURSOR_THEME) get the
         # same pointer theme and size as the shell.
-        subprocess.run(['/usr/bin/xrdb', '-merge'], env={**env, 'DISPLAY': display},
+        subprocess.run([*(isolation if software_nested else []), '/usr/bin/xrdb', '-merge'],
+                       env={**env, 'DISPLAY': display},
                        input=f'Xcursor.theme: {args.cursor_theme}\nXcursor.size: {args.cursor_size}\n'
                              'Xft.dpi: 96\n', text=True, check=True)
         time.sleep(args.settle)
