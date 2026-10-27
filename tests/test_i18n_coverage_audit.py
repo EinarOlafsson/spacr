@@ -1,7 +1,9 @@
 """The localization coverage report is anchored to live source inventory."""
 from __future__ import annotations
 
+import copy
 import json
+from functools import lru_cache, partial
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -119,7 +121,74 @@ def test_report_ignores_stale_generated_english_manifests(
     assert "measured against live application/API source" in report
 
 
-def test_checked_in_coverage_report_is_the_live_source_report():
+def _copy_review_scope_blocks(cached, *args, **kwargs):
+    """Keep mutable splitter results private to each real caller."""
+    return copy.deepcopy(cached(*args, **kwargs))
+
+
+def _review_scope_api_memoizers(builder):
+    """Reuse bounded exact-text derivations without caching record admission."""
+    return {
+        "translatable_blocks": partial(
+            _copy_review_scope_blocks, lru_cache(maxsize=256)(builder.translatable_blocks)),
+        "_api_translation_source": lru_cache(maxsize=8192)(builder._api_translation_source),
+        "_reviewed_api_block_valid": lru_cache(maxsize=8192)(builder._reviewed_api_block_valid),
+    }
+
+
+def test_review_scope_reuse_keeps_target_validation_and_split_results_isolated():
+    """A changed protected target is refused and cannot poison a cached split."""
+    import build_documentation_i18n as builder
+
+    cached = _review_scope_api_memoizers(builder)
+    validate = cached["_reviewed_api_block_valid"]
+    source, target = "Read ``plate_id``.", "Läs ``plate_id``."
+    assert builder._reviewed_api_block_valid(source, target, "sv") is True
+    assert validate(source, target, "sv") is True
+    assert validate(source, target, "sv") is True
+    assert validate.cache_info().hits == 1
+    changed = "Läs ``well_id``."
+    assert builder._reviewed_api_block_valid(source, changed, "sv") is False
+    assert validate(source, changed, "sv") is False
+    assert validate.cache_info().misses == 2
+    assert builder._reviewed_api_block_valid(source, target, "zh_CN") is False
+    assert validate(source, target, "zh_CN") is False
+    changed_source = "Read ``well_id``."
+    assert validate(changed_source, target, "sv") is False
+    assert validate.cache_info().misses == 4
+    assert validate(source, target, "sv") is True
+    prose = "First paragraph.\n\nSecond paragraph."
+    expected = builder.translatable_blocks(prose)
+    blocks, layout = cached["translatable_blocks"](prose)
+    blocks[0] = "Mutated by a caller."
+    layout.append(("raw", "Caller-only mutation."))
+    assert cached["translatable_blocks"](prose) == expected
+    assert cached["translatable_blocks"](prose + " Changed.") == builder.translatable_blocks(prose + " Changed.")
+
+
+@pytest.fixture(scope="module")
+def live_source_snapshot(request):
+    """Share one real source extraction and scoped pure derivations per module."""
+    import build_documentation_i18n as api_builder
+    import build_i18n_catalogs as runtime_builder
+
+    docs = api_builder.public_docstrings()
+    sources = runtime_builder.canonical_sources()
+    memoizers = _review_scope_api_memoizers(api_builder)
+    runtime_builder.reviewed_runtime_translations.cache_clear()
+    try:
+        with pytest.MonkeyPatch.context() as snapshot:
+            for name, memoized in memoizers.items():
+                snapshot.setattr(api_builder, name, memoized)
+            snapshot.setattr(api_builder, "public_docstrings", partial(dict, docs))
+            snapshot.setattr(runtime_builder, "canonical_sources", partial(copy.deepcopy, sources))
+            request.getfixturevalue("api_catalogs")
+            yield api_builder, runtime_builder, docs, sources
+    finally:
+        runtime_builder.reviewed_runtime_translations.cache_clear()
+
+
+def test_checked_in_coverage_report_is_the_live_source_report(live_source_snapshot):
     """The published counts may not remain an older green snapshot."""
     checked_in = (ROOT / "docs" / "i18n" / "COVERAGE.md").read_text(
         encoding="utf-8",
@@ -128,16 +197,12 @@ def test_checked_in_coverage_report_is_the_live_source_report():
 
 
 @pytest.fixture(scope="module")
-def live_review_scope():
-    """Extract one live source snapshot shared by the nine locale checks."""
-    import build_documentation_i18n as api_builder
-    import build_i18n_catalogs as runtime_builder
-
-    docs = api_builder.public_docstrings()
+def live_review_scope(live_source_snapshot):
+    """Use the same live inventory and the real session's pinned API build."""
+    api_builder, runtime_builder, docs, sources = live_source_snapshot
     report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE.md").read_text(
         encoding="utf-8",
     )
-    sources = runtime_builder.canonical_sources()
     return api_builder, runtime_builder, docs, report, sources
 
 
