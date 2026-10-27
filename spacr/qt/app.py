@@ -263,9 +263,9 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
 _ROOMY_SCREEN = (1500, 900)
 
 _CRAMPED_SCREENS = frozenset({
-    "batch", "data_manager", "dose_response", "foreign", "gate_editor",
-    "graph_builder", "investigate_hit", "plate_view", "power", "profiler",
-    "tabulate", "train_compare",
+    "batch", "data_manager", "distributed_jobs", "dose_response", "foreign",
+    "gate_editor", "graph_builder", "investigate_hit", "plate_view", "power",
+    "profiler", "tabulate", "train_compare",
 })
 
 
