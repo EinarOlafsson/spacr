@@ -525,3 +525,8 @@ Use the existing exact lesson/voice/text pronunciation override to say leading r
 Codex owns the capture-driver correction: expand the real visible dock handle and click its available module row, preserving native input, alpha visibility and legacy Home tiles; no app or preference override.
 Preserve the failed stage and all50 tracks; validate the affected production dock route before a fresh normal capture and retry.
 Real production DockEdge/Sidebar checks pass for collapsed and expanded docks, native category opening, disabled and missing rows; legacy Home routes remain accepted. Normal startup maturity registration retains Graph Builder beta with alpha off; native recording acceptance remains pending.
+
+2026-10-27 — Maintainer limits the remaining campaign to finishing Graph Builder58, then the new Navigator tutorial plus Docs/API; write the Claude handoff and pause afterward, with no other lessons.
+p44 completes real2341-cell merge and coherent656-object brush/handoff/clear, but raw quality failures remain preserved. Codex owns the Extract source combo viewport correction before the held normal retry; no app or gate change.
+The genotype dialog has a recorded1.348s GUI gap during initialization/restyling; retain its exact saved stack references for Home, without claiming a deadlock or bypassing freeze admission.
+Native dropdown choices now wheel to their reachable item before clicking; three affected combo checks pass. The Trellis shortcut opens its real empty Small Multiples page and closes its native tab; the production-widget route check passes, with actual capture acceptance still required.

@@ -201,8 +201,30 @@ def choose_combo(capture, combo, index=None):
     for attempt in range(3):
         if not view.isVisible():
             break                                    # the popup closed already (a click that closed it early)
-        rect = view.visualRect(combo.model().index(target, combo.modelColumn()))
-        click(view.viewport(), rect.center())
+        item = combo.model().index(target, combo.modelColumn())
+        if not item.isValid():
+            raise RuntimeError(f'Invalid combo item: {target}')
+        for _ in range(combo.count() + 1):
+            rect = view.visualRect(item)
+            port = view.viewport().rect()
+            visible = rect.intersected(port)
+            point = visible.center()
+            if (not visible.isEmpty() and rect.top() >= port.top()
+                    and rect.bottom() <= port.bottom() and view.indexAt(point) == item):
+                break
+            bar = view.verticalScrollBar()
+            before = bar.value()
+            wheel(capture, view.viewport(), 1 if rect.center().y() > port.bottom() else -1,
+                  port.center())
+            if bar.value() == before:
+                raise RuntimeError(f'Native wheel did not expose combo item {target}')
+        else:
+            raise RuntimeError(f'Combo item {target} is outside its popup viewport')
+        adapter = host_of(capture).adapter
+        reason = adapter.reachable(view.viewport(), adapter.target_point(view.viewport(), point))
+        if reason is not None:
+            raise RuntimeError(f'Combo item {target} is not reachable: {reason}')
+        click(view.viewport(), point)
         try:
             wait_until(capture, lambda: not view.isVisible(), 8, 'combo list did not close')
             break
