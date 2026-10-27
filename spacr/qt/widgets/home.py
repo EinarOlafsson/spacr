@@ -3887,7 +3887,7 @@ def _easy_inspect_path_impl(value):
         exact = path if path.is_file() and path in candidates else chosen
         actions.extend([
             ('make_masks', tr('View and edit images'), tr('Inspect images and edit masks.'), str(exact)),
-            ('mask', tr('Create segmentation masks'), tr('Candidate folder: {folder}; review channels and the model.', folder=chosen.name), str(chosen)),
+            ('mask', tr('Create segmentation masks'), tr('Create segmentation masks for images in {folder}.', folder=chosen.name), str(chosen)),
         ])
         if not local_images:
             for folder in candidate_folders[1:3]:
@@ -4249,6 +4249,7 @@ class _EasyHomePage(QWidget):
         from ..job_runner import JobRunner
 
         super().__init__(parent)
+        self._easy_backdrop_state = None
         self.setObjectName('EasyHomePage')
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -4279,6 +4280,57 @@ class _EasyHomePage(QWidget):
         self._requested = ''
         self._input_generation = 0
         self.refresh()
+
+    def _sync_easy_backdrop(self):
+        """Use the existing dark field fill only while this Home is visible."""
+        import weakref
+
+        from ..preferences import get_easy_mode
+
+        if not self.isVisible() or not get_easy_mode():
+            return
+        getter = getattr(self.window(), 'window_backdrop', None)
+        backdrop = getter() if callable(getter) else None
+        if backdrop is None:
+            return
+        if self._easy_backdrop_state is not None:
+            if self._easy_backdrop_state[0]() is backdrop:
+                return
+            self._restore_easy_backdrop()
+        self._easy_backdrop_state = (weakref.ref(backdrop), backdrop.background_color(),
+                                     backdrop._background_explicit, backdrop.backdrop())
+        backdrop.set_background_color(palette_for('dark')['page'])
+        backdrop.set_backdrop(None)
+
+    def _restore_easy_backdrop(self):
+        """Return the shared field to its existing module and theme policy."""
+        from shiboken6 import isValid
+
+        from .ambient import _preferred_background
+
+        state = self._easy_backdrop_state
+        self._easy_backdrop_state = None
+        if state is None:
+            return
+        reference, color, explicit, image = state
+        backdrop = reference()
+        getter = getattr(self.window(), 'window_backdrop', None)
+        if (backdrop is None or not isValid(backdrop)
+                or not callable(getter) or getter() is not backdrop):
+            return
+        backdrop._background_explicit = explicit
+        backdrop._apply_background(color if explicit else _preferred_background(), explicit=explicit)
+        backdrop.set_backdrop(image)
+
+    def showEvent(self, event):
+        """Apply the local backdrop after native Home visibility becomes real."""
+        super().showEvent(event)
+        self._sync_easy_backdrop()
+
+    def hideEvent(self, event):
+        """Restore ordinary modules without changing their saved theme."""
+        self._restore_easy_backdrop()
+        super().hideEvent(event)
 
     def refresh(self):
         """Keep existing dark field colors and apply Open Sans Light only to this Home."""
@@ -4391,6 +4443,7 @@ class _EasyHomePage(QWidget):
     def closeEvent(self, event):
         """Stop owned timers and retire the local inspection worker before closing."""
         self._debounce.stop()
+        self._restore_easy_backdrop()
         self.field._finish_growth()
         self._runner.shutdown(3000)
         super().closeEvent(event)

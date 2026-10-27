@@ -8368,6 +8368,9 @@ class MainWindow(QMainWindow):
                 host, None,
                 theme=get_ambient_theme(), palette=get_ambient_palette(),
                 backdrop=theme_background_path(resolve_effective_theme()))
+            sync = getattr(getattr(self, '_startup', None), '_sync_easy_backdrop', None)
+            if callable(sync):
+                sync()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not put a backdrop behind the dock",
                       exc_info=True)

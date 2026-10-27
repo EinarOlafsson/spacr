@@ -195,12 +195,23 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
 
 
 def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
-        qtbot, private_ai_profile, tmp_path):
+        qtbot, qapp, request, private_ai_profile, tmp_path):
     from spacr.qt.app import MainWindow, make_home_page
     from spacr.qt.widgets.home import HomePage, _EasyHomePage
     from spacr.qt.walkthrough import mark_seen
 
+    from spacr.qt import theme
+    from spacr.qt.widgets.ambient import _preferred_background
+
+    from functools import partial
+
+    old_palette = qapp.palette()
+    request.addfinalizer(partial(qapp.setPalette, old_palette))
     preferences, _, _ = private_ai_profile
+    preferences.set_theme('light')
+    theme.apply_qpalette(qapp, 'light')
+    normal_background = _preferred_background()
+    palette_choice = preferences.get_ambient_palette()
     preferences._set_spacr_ai_enabled(False)
     preferences.set_easy_mode(False)
     ordinary = make_home_page()
@@ -223,6 +234,17 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
     assert isinstance(page, _EasyHomePage)
     try:
         assert window._dock_mode == 'hidden'
+        qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
+        backdrop = window.window_backdrop()
+        assert backdrop.background_color().name() == theme.palette_for('dark')['page']
+        assert preferences.get_theme() == 'light'
+        assert preferences.get_ambient_palette() == palette_choice
+        window._retire_the_dock_backdrop()
+        assert window.window_backdrop() is None
+        window._backdrop_the_dock_column()
+        qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
+        assert window.window_backdrop() is not backdrop
+        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
         preferences.set_easy_mode_dock(True)
         window.refresh_after_preferences({"easy_mode_dock"})
         assert window._dock_mode == 'locked'
@@ -249,6 +271,14 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         qtbot.waitUntil(lambda: bool(screen._image_files), timeout=5000)
         assert (Path(screen._folder) / screen._image_files[0]).resolve() == image
         assert window._stack.currentWidget() is screen
+        assert window.window_backdrop().background_color() == normal_background
+        assert not window.window_backdrop()._background_explicit
+        window._stack.setCurrentWidget(page)
+        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
+        window._stack.setCurrentWidget(screen)
+        assert window.window_backdrop().background_color() == normal_background
+        assert preferences.get_theme() == 'light'
+        assert preferences.get_ambient_palette() == palette_choice
         np.testing.assert_array_equal(np.asarray(Image.open(image)), pixels)
         assert image.read_bytes() == before
         preferences.set_easy_mode(False)

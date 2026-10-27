@@ -38,6 +38,7 @@ Its gray placeholder is exactly "Type a path or Drop some images here ...".
 Browse sits inside the far-right end as white text without button chrome.
 Use Open Sans Light throughout. Remove the title, explanatory panel, Find next
 steps button and local dock checkbox; keep saved dock choices in Preferences.
+Keep the Easy Home backdrop dark even under the global Light theme; restore the normal module backdrop on exit without changing global theme or palette preferences.
 Retain the existing dark blue dotted field colors, with only a subtle bounded
 CPU gravity effect. Respect Reduce motion/off and stop hidden animation.
 Suggestions may animate after input, remain readable and never overlap it.
