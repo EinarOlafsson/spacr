@@ -146,7 +146,7 @@ def _inspection_pan(dimensions, window, screen):
     end = [x + round(thumb_width / 2), start[1]]
     if not x + 20 <= end[0] < start[0] < x + width - 20:
         raise ValueError('The single actual-size grid pan cannot stay within the measured window')
-    return dict(grabpoint=grabpoint, start=start, end=end, duration=6.0, kind='horizontal_scrollbar',
+    return dict(grabpoint=grabpoint, start=start, end=end, duration=6.0, interaction='horizontal_scrollbar',
                 thumb_width=thumb_width, expected_image_displacement=(dimensions[0] - width) / 2,
                 actual_size_key='1', image_viewport_verified=False,
                 image_area_review='Actual native frames must confirm all four cells and labels')

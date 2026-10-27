@@ -54,7 +54,7 @@ def test_activation_grid_pan_requires_measured_fullscreen_geometry(fault):
         pan = _inspection_pan(dimensions, window, screen)
         assert pan['start'] == [1280, 1360] and pan['end'] == [683, 1360]
         assert pan['grabpoint'] == [1280, 1436]
-        assert pan['kind'] == 'horizontal_scrollbar'
+        assert pan['interaction'] == 'horizontal_scrollbar'
         assert pan['thumb_width'] == pytest.approx(2560 ** 2 / 4800)
         assert pan['expected_image_displacement'] == 1120
         large = _inspection_pan(dimensions, dict(rect=[0, 0, 3840, 2160], fullscreen=True), [0, 0, 3840, 2160])
@@ -98,7 +98,10 @@ def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch, fa
         calls.append((args, kwargs))
         if fault == 'pan' and args == ('move_to', 683, 1360):
             raise RuntimeError('native move failed')
-    adapter = SimpleNamespace(call=call, note=lambda *a, **kw: None)
+    from types import MethodType
+    from capture_host_adapter import QTestAdapter
+    adapter = SimpleNamespace(call=call, actions=[], _log=None)
+    adapter.note = MethodType(QTestAdapter.note, adapter)
     helper = SimpleNamespace(host_of=lambda capture: SimpleNamespace(adapter=adapter))
     monkeypatch.setattr(capture_ui, '_h', lambda: helper)
     monkeypatch.setattr(QApplication, 'screens', lambda: [SimpleNamespace(geometry=lambda: QRect(0, 0, 2560, 1440))])
@@ -117,6 +120,9 @@ def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch, fa
         assert calls[-1] == (('button_up', 'left'), {})
     else:
         proof = inspect()
+        assert len(adapter.actions) == 1
+        assert adapter.actions[0]['kind'] == 'saved-grid-inspection'
+        assert adapter.actions[0]['interaction'] == 'horizontal_scrollbar'
         assert proof['native_frame_review_required'] is True
         assert proof['png_modified'] is False and proof['repeated_motion'] is False
     expected = [(('click_at', 1150, 66), {}), (('settle', .4), {}),
