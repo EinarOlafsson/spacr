@@ -68,16 +68,26 @@ def test_result_console_drag_requires_real_readable_geometry(allow_drag, monkeyp
     window.resize(1600, 800); window.show()
     window.setSizes([1500, 100]); app.processEvents()
     screen = SimpleNamespace(_body_splitter=window, _settings_scroll=settings, _console=console)
-    if not allow_drag:
-        monkeypatch.setattr(QTest, 'mouseMove', lambda *args, **kwargs: None)
+    import capture_ui
+    moves = []
+    class NativeInput:
+        def drag(self, capture, handle, start, delta, *, duration):
+            moves.append((handle, start, delta, duration))
+            if allow_drag:
+                window.moveSplitter(handle.pos().x() + delta[0], 1)
+                app.processEvents()
+    monkeypatch.setattr(capture_ui, '_h', lambda: NativeInput())
+    capture = SimpleNamespace(host=object())
     try:
         if allow_drag:
-            _balance_result_panes(screen, window, lambda _: app.processEvents())
+            _balance_result_panes(capture, screen, window, lambda _: app.processEvents())
             assert console.width() >= window.width() * .3
             assert settings.width() >= window.width() * .25
+            assert len(moves) == 1 and moves[0][0] is window.handle(1)
+            assert moves[0][2][1] == 0 and moves[0][3] == .9
         else:
             with pytest.raises(ValueError, match='both be readable'):
-                _balance_result_panes(screen, window, lambda _: app.processEvents())
+                _balance_result_panes(capture, screen, window, lambda _: app.processEvents())
     finally:
         window.close()
 
@@ -98,8 +108,45 @@ def test_readable_result_panes_do_not_repeat_the_native_drag(monkeypatch):
     screen = SimpleNamespace(_body_splitter=window, _settings_scroll=settings, _console=console)
     def unexpected_drag(*args, **kwargs):
         raise AssertionError('An already readable layout must not be dragged again')
-    monkeypatch.setattr(QTest, 'mousePress', unexpected_drag)
+    import capture_ui
+    monkeypatch.setattr(capture_ui, '_h', lambda: SimpleNamespace(drag=unexpected_drag))
+    capture = SimpleNamespace(host=object())
     try:
-        _balance_result_panes(screen, window, lambda _: app.processEvents())
+        _balance_result_panes(capture, screen, window, lambda _: app.processEvents())
     finally:
         window.close()
+
+
+def test_actual_activation_form_supports_balanced_result_geometry(monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.screens.app_screen import AppScreen
+    import capture_ui
+    from capture_activation import _balance_result_panes
+
+    # Exercise the actual form geometry without a field/GPU or any scientific run.
+    monkeypatch.setattr(AppScreen, '_install_ambient', lambda self: None)
+    app = QApplication.instance() or QApplication([])
+    screen = AppScreen('activation')
+    screen.resize(2560, 1440); screen.show(); app.processEvents()
+    screen._body_splitter.moveSplitter(2400, 1); app.processEvents()
+    assert screen._console.width() < 768
+    moves = []
+    class NativeInput:
+        def drag(self, capture, handle, start, delta, *, duration):
+            moves.append((delta, duration))
+            splitter = screen._body_splitter
+            splitter.moveSplitter(handle.pos().x() + delta[0], 1)
+            app.processEvents()
+    monkeypatch.setattr(capture_ui, '_h', lambda: NativeInput())
+    try:
+        _balance_result_panes(SimpleNamespace(host=object()), screen, screen,
+                              lambda _: app.processEvents())
+        assert len(moves) == 1 and moves[0][1] == .9
+        assert screen._console.width() >= 768
+        assert screen._settings_scroll.width() >= 640
+        print('ACTUAL_ACTIVATION_GEOMETRY', screen._body_splitter.sizes(),
+              'console', screen._console.width(), 'settings', screen._settings_scroll.width())
+        assert screen._ambient is None
+    finally:
+        screen.close()
