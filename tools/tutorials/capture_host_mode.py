@@ -252,6 +252,8 @@ class HostRuntime:
         self._paint_baselines = weakref.WeakKeyDictionary()
         self._observed_field_frames = 0
         self._next_field_identity = 0
+        self._producer_identities = weakref.WeakKeyDictionary()
+        self._next_producer_identity = 0
 
     def to_handoff(self, rect):
         """A rectangle on the host monitor, in the 3840x2160 hand-off frame."""
@@ -268,6 +270,22 @@ class HostRuntime:
         from spacr.qt.widgets.ambient import AmbientWidget
         widgets = [w for w in self.window.findChildren(AmbientWidget)
                    if not w.property('spacrPopupBackdrop')]
+        ambient = sys.modules['spacr.qt.widgets.ambient']
+        compiler_threads = getattr(ambient, '_COMPILER_THREADS', None)
+        kernel_state = {
+            'startup_warmup_allowed': (ambient._AMBIENT_STARTUP_READY.is_set()
+                                       if hasattr(ambient, '_AMBIENT_STARTUP_READY') else None),
+            'packed_ready': (ambient._PACKED_SCATTER is not None if hasattr(ambient, '_PACKED_SCATTER') else None),
+            'subpixel_ready': (ambient._SUBPIXEL_SCATTER is not None if hasattr(ambient, '_SUBPIXEL_SCATTER') else None),
+            'colored_ready': (ambient._COLORED_SCATTER is not None if hasattr(ambient, '_COLORED_SCATTER') else None),
+            'packed_started': getattr(ambient, '_PACKED_SCATTER_STARTED', None),
+            'packed_failed': getattr(ambient, '_PACKED_SCATTER_FAILED', None),
+            'colored_failed': getattr(ambient, '_COLORED_SCATTER_FAILED', None),
+            'compiler_threads': (None if compiler_threads is None else
+                                 [{'name': worker.name, 'alive': worker.is_alive()}
+                                  for worker in tuple(compiler_threads)]),
+        }
+        kernel_state['sampled_monotonic_s'] = time.monotonic()
         present = set(widgets)
         for widget, (identity, count, shown, observed) in list(self._paint_baselines.items()):
             if widget not in present:
@@ -275,6 +293,7 @@ class HostRuntime:
         visible = []
         identities = []
         for widget in widgets:
+            sample_begin = time.monotonic()
             count, shown = int(widget.frames_painted), widget.isVisible()
             previous = self._paint_baselines.get(widget)
             if previous is None:
@@ -287,10 +306,31 @@ class HostRuntime:
                     observed += delta
                     self._observed_field_frames += delta
             self._paint_baselines[widget] = (identity, count, shown, observed)
-            identities.append({'id': identity, 'frames_painted': count,
+            producer = widget._producer_box[0]
+            producer_identity = None
+            if producer is not None:
+                producer_identity = self._producer_identities.get(producer)
+                if producer_identity is None:
+                    self._next_producer_identity += 1
+                    producer_identity = self._next_producer_identity
+                    self._producer_identities[producer] = producer_identity
+            frame = widget._last_frame
+            pacing = _field_pacing(widget)
+            identities.append({'sample_begin_monotonic_s': sample_begin,
+                               'producer_present': producer is not None,
+                               'producer_identity': producer_identity,
+                               'frames_shaded': widget.frames_shaded(),
+                               'repeated_frames': widget.repeated_frames,
+                               'last_frame_cache_key': None if frame is None else str(frame.cacheKey()),
+                               'kernel_state': kernel_state,
+                               'hold_paced': pacing['_hold_paced'],
+                               'run_paced': bool(widget._run_paced),
+                               'paused': not widget.is_running(),
+                               'id': identity, 'frames_painted': count,
                                'visible': shown, 'observed_frames_painted': observed,
                                'counter_reset': previous is not None and count < previous[1],
-                               **_field_pacing(widget)})
+                               **pacing})
+            identities[-1]['sample_end_monotonic_s'] = time.monotonic()
             if shown:
                 visible.append(widget)
         return {'t': time.monotonic(), 'frames_painted': self._observed_field_frames,
@@ -365,7 +405,8 @@ class HostRuntime:
         # Ask mutter for its own frame-clock rate (the monitor refresh): a
         # max-framerate above what the stream offers never negotiates.
         self.adapter.call('start_recording', str(native), fps=self.fps,
-                          source_fps=int(os.environ.get('SPACR_CAPTURE_HOST_REFRESH', '60')))
+                          source_fps=int(os.environ.get('SPACR_CAPTURE_HOST_REFRESH', '60')),
+                          diagnostics=os.environ.get('SPACR_TUTORIAL_GST_DIAGNOSTICS') == '1')
         scene['begin'] = time.monotonic()
         scene['field_before'] = self._sample_scene(scene)
         sampler.start()
@@ -462,9 +503,13 @@ class HostRuntime:
         bypasses = self.adapter.bypasses[scene['first_bypass']:]
         captures, name = scene['captures'], scene['name']
         (captures / f'{name}.pointer.json').write_text(json.dumps(
-            [{**e, 't': round(e['t'] - begin, 4)} for e in trace], indent=0) + '\n')
+            [{**e, 'monotonic_s': e['t'], 't': round(e['t'] - begin, 4)} for e in trace], indent=0) + '\n')
         fb = scene['field_before']
         scene['host_facts'] = {
+            'capture_clock': {'scene_begin_monotonic_s': begin,
+                              'input_trace_mark_monotonic_s': scene['mark'].get('t'),
+                              'input_trace_mark_index': scene['mark']['index'],
+                              'native_pts_alignment': 'unmeasured'},
             'adapter_bypasses': [{**b, 't': round(b['t'] - begin, 3)} for b in bypasses],
             'actions': scene['performed'], 'loadavg_before': scene['load_before'],
             'loadavg_after': os.getloadavg(),
@@ -626,7 +671,13 @@ def handoff_receipt(video: Path, *, native: Path, wall_seconds: float, recording
             'frames': [{'pts': int(row[2]), 'decoded_md5': row[-1].strip()} for row in rows],
             'unique_decoded_frames': len({row[-1].strip() for row in rows}),
             'timing': f'GNOME ScreenCast frames at original wallclock speed ({fps} fps constant-rate)',
-            'surface': ('actual spaCR (spacr.qt.run) in headless GNOME Shell 42: mutter compositor, '
+            'surface': ('actual spaCR (spacr.qt.run) through owned Xwayland in isolated software-rendered nested Wayland GNOME Shell: '
+                        'real cursor embedded; pointer and keys via mutter RemoteDesktop'
+                        if os.environ.get('SPACR_CAPTURE_HOST_BACKEND') == 'software-nested-wayland' else
+                        'actual spaCR (spacr.qt.run) in isolated software-rendered GNOME Shell: '
+                        'X11, real cursor embedded; pointer and keys via mutter RemoteDesktop'
+                        if os.environ.get('SPACR_CAPTURE_HOST_BACKEND') == 'software-x11' else
+                        'actual spaCR (spacr.qt.run) in headless GNOME Shell 42: mutter compositor, '
                         'Xwayland, real cursor embedded; pointer and keys via mutter RemoteDesktop'),
             'native': {'video': native.name, 'sha256': sha256(native), 'recorder': recording,
                        'size': verdict['size'], 'scaled_to_handoff': 'lanczos'},
@@ -723,6 +774,9 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
                 raise RuntimeError(f'spaCR does not fill the monitor (top bar not hidden?): {placed}')
             fps = recording_fps(window, os.environ.get('SPACR_CAPTURE_FPS', 'auto'))
             placed['recording_fps'] = fps
+            placed['capture_pacing'] = {
+                'requested_held_fps': CAPTURE_PROFILE['field_held_fps'],
+                'scope': 'process-local API request; effective rates sampled per widget'}
             (stage / 'host-window.json').write_text(json.dumps(placed, indent=2) + '\n')
             adapter = QTestAdapter(human, pump=pump, log=(logs / 'adapter.jsonl').open('w')).install()
             _RUNTIME = HostRuntime(window, adapter, stage=stage, fps=fps)

@@ -130,13 +130,14 @@ class HostSession:
     # -- recording -----------------------------------------------------------
     def start_recording(self, output: Path, fps: int = 30, quantizer: int = 18,
                         preset: str = 'superfast', threads: int = 12, source_fps: int = 60,
-                        constant_rate: bool = True, nice: int = 5) -> None:
+                        constant_rate: bool = True, nice: int = 5, diagnostics: bool = False) -> None:
         """Record the monitor to H.264 MP4 at a constant ``fps`` until stop_recording().
 
         mutter is asked for up to ``source_fps`` (its own frame clock), and
         ``videorate`` picks the newest frame for every output slot. Asking
         mutter for exactly 30 made its rate limiter skip frames that fell a
         little early, which ``videorate`` then filled with repeats.
+        ``diagnostics`` enables fixed caps and buffer-mapping logs for a bounded investigation.
         """
         output = Path(output)
         if output.exists():
@@ -158,10 +159,14 @@ class HostSession:
         env = {k: v for k, v in os.environ.items()
                if not k.startswith(('GST_', 'LD_', 'PYTHON', 'CONDA'))}
         env['PATH'] = '/usr/bin:/bin'
+        if diagnostics:
+            env['GST_DEBUG'] = ('2,pipewiresrc:6,pipewirepool:6,videofilter:6,default:6,'
+                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6')
+            env['GST_DEBUG_NO_COLOR'] = '1'
         self._log = output.with_suffix('.gst.log').open('wb')
         # Niced: when the machine is busy the compositor (which draws the
         # frames and the pointer) must win the CPU over the encoder.
-        self.recorder = subprocess.Popen(['/usr/bin/nice', '-n', str(nice), SYSTEM_GST, '-e', *pipeline], env=env,
+        self.recorder = subprocess.Popen(['/usr/bin/nice', '-n', str(nice), SYSTEM_GST, '-e', *(['-v'] if diagnostics else []), *pipeline], env=env,
                                          stdout=self._log, stderr=self._log, stdin=subprocess.DEVNULL)
         self.output = output
         self.recording_started = time.monotonic()
@@ -198,6 +203,10 @@ class HostSession:
         if rc:
             raise RuntimeError(f'GStreamer recorder failed ({rc}): '
                                + self.output.with_suffix('.gst.log').read_text())
+        log = self.output.with_suffix('.gst.log').read_text(errors='replace')
+        if any(message in log for message in
+               ('invalid video buffer received', 'gst_buffer_peek_memory')):
+            raise RuntimeError('GStreamer recorder produced invalid video buffers: ' + log)
         return {'video': str(self.output), 'wall_seconds': seconds, 'node_id': self.node_id}
 
     def close(self):
