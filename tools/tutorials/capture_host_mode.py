@@ -32,6 +32,7 @@ false, ``status`` ``gate_failed``), which ``stage_lesson.py`` refuses.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import math
@@ -267,7 +268,11 @@ class HostRuntime:
                     observed += delta
                     self._observed_field_frames += delta
             self._paint_baselines[widget] = (identity, count, shown, observed)
-            identities.append({'id': identity, 'frames_painted': count,
+            identities.append({'configured_fps': widget.fps(), 'effective_rate': widget._rate(),
+                               'hold_paced': bool(getattr(widget, '_hold_paced', False)),
+                               'run_paced': bool(widget._run_paced),
+                               'paused': not widget.is_running(),
+                               'id': identity, 'frames_painted': count,
                                'visible': shown, 'observed_frames_painted': observed,
                                'counter_reset': previous is not None and count < previous[1]})
             if shown:
@@ -637,6 +642,19 @@ def recording_fps(window, requested: str = 'auto') -> int:
     return AUTO_FPS
 
 
+@contextlib.contextmanager
+def _capture_pacing(fps):
+    """Keep held rows while matching their private capture cadence, then restore it."""
+    from spacr.qt.widgets import ambient
+
+    normal = ambient._HOLD_FPS
+    ambient._HOLD_FPS = max(normal, int(fps))
+    try:
+        yield {'normal_hold_fps': normal, 'capture_hold_fps': ambient._HOLD_FPS}
+    finally:
+        ambient._HOLD_FPS = normal
+
+
 # -- 2./3. launch the real app and run the recorder inside it -----------------
 def run_child(stage: Path, capture_args: list[str]) -> int:
     """Inside the capture host and the neutral stage: profile, real launch, scenes."""
@@ -701,6 +719,7 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
                 raise RuntimeError(f'spaCR does not fill the monitor (top bar not hidden?): {placed}')
             fps = recording_fps(window, os.environ.get('SPACR_CAPTURE_FPS', 'auto'))
             placed['recording_fps'] = fps
+            placed['capture_pacing'] = pacing
             (stage / 'host-window.json').write_text(json.dumps(placed, indent=2) + '\n')
             adapter = QTestAdapter(human, pump=pump, log=(logs / 'adapter.jsonl').open('w')).install()
             _RUNTIME = HostRuntime(window, adapter, stage=stage, fps=fps)
@@ -736,7 +755,8 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
             os._exit(4)
 
     threading.Thread(target=watcher, name='capture-host-watcher', daemon=True).start()
-    app_rc = spacr.qt.run(['--fresh', '--no-setup'])
+    with _capture_pacing(recording_fps(None, os.environ.get('SPACR_CAPTURE_FPS', 'auto'))) as pacing:
+        app_rc = spacr.qt.run(['--fresh', '--no-setup'])
     human.close()
     summary = _RUNTIME.gates if _RUNTIME is not None else {}
     failed = _RUNTIME.failed if _RUNTIME is not None else []
