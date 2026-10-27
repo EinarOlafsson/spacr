@@ -7593,11 +7593,11 @@
           "visual": "14_import_scope",
           "narration": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。",
           "hold_after": 0.7,
+          "speech_text": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ],
-          "speech_text": "表を確認するにはDatabase Browserに、物体の切り出しを確認するにはAnnotateに進みます。確認済みの対応付けは、完成したプロジェクトと一緒に保管してください。"
+          ]
         }
       ],
       "narration_voices": {

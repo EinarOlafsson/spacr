@@ -535,7 +535,7 @@ def test_the_canvas_toolbar_wraps_to_fit_the_export_section(view, qtbot):
     assert composer.minimumSizeHint().width() < 600
 
 
-def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtbot, source):
+def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtbot, source, qt_theme_applied):
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.gui_scale import _resize_actual
     from PySide6.QtCore import QSize
@@ -561,7 +561,10 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
         before = screen.size()
         for widget in (screen._console_wrap, screen._actions_section):
             assert widget.isVisible()
-            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight())), (
+                widget.objectName(), widget.geometry(), widget.minimumSizeHint(), widget.minimumHeight(),
+                screen._runtime_splitter.geometry(), screen._runtime_splitter.sizes(),
+                screen._body_splitter.geometry(), screen._body_splitter.minimumSizeHint())
         section.set_expanded(True)
         qtbot.mouseClick(screen._figures_card.title_label, Qt.LeftButton)
         qtbot.waitUntil(lambda: not screen._runtime_splitter.is_collapsed("Figures"))
@@ -573,7 +576,98 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
         for widget in (screen._console_wrap, screen._actions_section):
             assert widget.isVisible()
             assert screen.rect().contains(widget.mapTo(screen, QPoint(0, 0)))
-            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight()))
+            assert screen.rect().contains(widget.mapTo(screen, widget.rect().bottomRight())), (
+                widget.objectName(), widget.geometry(), widget.minimumSizeHint(), widget.minimumHeight(),
+                screen._runtime_splitter.geometry(), screen._runtime_splitter.sizes(),
+                screen._body_splitter.geometry(), screen._body_splitter.minimumSizeHint())
+        from PySide6.QtWidgets import QScrollArea
+
+        actions_scroll = screen._actions_section.body
+        assert isinstance(actions_scroll, QScrollArea)
+        assert actions_scroll.widget().isAncestorOf(screen._btn_overview_pdfs)
+        assert not screen._actions_section.hasHeightForWidth()
+        assert actions_scroll.verticalScrollBar().maximum() > 0
+        for button in (screen._btn_run, screen._btn_overview_pdfs, screen._btn_export):
+            actions_scroll.ensureWidgetVisible(button, 0, 0)
+            assert actions_scroll.viewport().rect().contains(
+                button.mapTo(actions_scroll.viewport(), button.rect().topLeft()))
+            assert actions_scroll.viewport().rect().contains(
+                button.mapTo(actions_scroll.viewport(), button.rect().bottomRight()))
+        screen._runtime_splitter.set_collapsed("Actions", True, by_user=True)
+        assert not actions_scroll.isVisible()
+        screen._runtime_splitter.set_collapsed("Actions", False, by_user=True)
+        assert actions_scroll.isVisible()
+        assert screen.rect().contains(screen._actions_section.mapTo(
+            screen, screen._actions_section.rect().bottomRight()))
     finally:
         page._retire_browser()
         screen.close()
+
+
+def test_canvas_text_double_click_edits_saves_and_exports(qtbot, tmp_path):
+    composer = picture_export._CanvasComposer()
+    qtbot.addWidget(composer)
+    composer.resize(1000, 750)
+    composer.show()
+    box = composer.add_text(40, 40, 240, 100, text="Before", font_size=18)
+    qtbot.waitUntil(lambda: composer.view.isVisible())
+    item = composer._items[box["id"]]
+    point = composer.view.mapFromScene(item.mapToScene(QPointF(30, 25)))
+    qtbot.mouseDClick(composer.view.viewport(), Qt.MouseButton.LeftButton, pos=point)
+    qtbot.waitUntil(lambda: item._text_proxy is not None and item._text_proxy.widget().hasFocus())
+    editor = item._text_proxy.widget()
+    assert editor.textCursor().position() >= 0
+    qtbot.keyClick(editor, Qt.Key.Key_A, modifier=Qt.KeyboardModifier.ControlModifier)
+    qtbot.keyClicks(editor, "Typed on canvas")
+    qtbot.keyClick(editor, Qt.Key.Key_Backspace)
+    qtbot.keyClicks(editor, "s")
+    assert editor.toPlainText() == "Typed on canvas"
+    assert composer.canvas.find(box["id"])[1]["text"] == "Typed on canvas"
+    assert composer.text_edit.toPlainText() == "Typed on canvas"
+    composer.settings_button.setFocus()
+    qtbot.waitUntil(lambda: not item._text_proxy.isVisible())
+    path = tmp_path / "edited.json"
+    composer.save_layout(str(path))
+    loaded = picture_export._CanvasLayout.load(str(path))
+    assert loaded.find(box["id"])[1]["text"] == "Typed on canvas"
+    pdf = tmp_path / "edited.pdf"
+    written, errors = picture_export._canvas_pdf(loaded, str(pdf), None)
+    assert written and not errors
+    assert "".join(PdfReader(pdf).pages[0].extract_text().split()) == "Typedoncanvas"
+    composer.undo()
+    assert composer.canvas.find(box["id"])[1]["text"] == "Before"
+    composer.close()
+
+
+@pytest.mark.parametrize("theme", ("dark", "light"))
+def test_canvas_desk_uses_the_rounded_translucent_surface(qtbot, qt_theme_applied, theme):
+    from PySide6.QtGui import QColor
+    from spacr.qt.theme import apply_qpalette, stylesheet
+
+    composer = picture_export._CanvasComposer()
+    qtbot.addWidget(composer)
+    composer.resize(1000, 750)
+    before = composer.canvas.to_dict()
+    previous_sheet = qt_theme_applied.styleSheet()
+    previous_palette = qt_theme_applied.palette()
+    try:
+        apply_qpalette(qt_theme_applied, theme)
+        qt_theme_applied.setStyleSheet(stylesheet(theme, surface_opacity=.65))
+        composer.show()
+        qtbot.waitExposed(composer)
+        surface = composer.view.parentWidget()
+        frame = surface.grab().toImage()
+        desk = composer.view.viewport().grab().toImage()
+        margin = frame.pixelColor(4, frame.height() // 2)
+        desk_point = composer.view.viewport().mapTo(surface, QPoint(4, desk.height() // 2))
+        assert frame.pixelColor(desk_point) == margin
+        assert desk.pixelColor(4, desk.height() // 2).alpha() == 0
+        assert margin != frame.pixelColor(0, 0)
+        assert margin.red() > 0 and margin.green() > 0 and margin.blue() > 0
+        center = composer.view.mapFromScene(QPointF(200, 300))
+        assert desk.pixelColor(center) == QColor(picture_export._CANVAS_PAPER)
+        assert composer.canvas.to_dict() == before
+    finally:
+        composer.close()
+        qt_theme_applied.setPalette(previous_palette)
+        qt_theme_applied.setStyleSheet(previous_sheet)

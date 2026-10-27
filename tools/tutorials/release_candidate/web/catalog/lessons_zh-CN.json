@@ -7593,11 +7593,11 @@
           "visual": "14_import_scope",
           "narration": "接下来可以在Database Browser中检查这些表，或在Annotate中审阅对象裁剪图。请把检查过的映射与完成的项目一起保存。",
           "hold_after": 0.7,
+          "speech_text": "接下来可以在Database Browser中检查这些表，或在Annotate中审阅对象裁剪图。请把检查过的映射与完成的项目一起保存。",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ],
-          "speech_text": "接下来可以在Database Browser中检查这些表，或在Annotate中审阅对象裁剪图。请把检查过的映射与完成的项目一起保存。"
+          ]
         }
       ],
       "narration_voices": {

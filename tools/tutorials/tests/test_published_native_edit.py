@@ -403,3 +403,81 @@ def test_inherited_repeat_fences_use_original_clock_and_index_after_prior_edit(r
     result=edit.edited_policy(root,'05_home',timing,bindings)['lessons'][0]['scenes']
     assert [f['idle_tail_start'] for f in result]==[1,1.5]
     assert [f['source_start'] for f in result]==[0,2]
+
+
+@pytest.fixture
+def published_explicit_policy_plan(retained_stage,monkeypatch):
+    """Published NONMEDIA fixture; no codec/finish acceptance is claimed."""
+    from stage_lesson import read,write
+    stage,root,baseline,repo=retained_stage;monkeypatch.setattr(edit,'REPO',repo)
+    for path in (root/'audio').glob('*/*.json'):
+        track=read(path)
+        for i,scene in enumerate(track['scenes']):
+            scene.update(speech_start=i*2,speech_end=i*2+1.48)
+        write(path,track)
+    _,original,bindings,_=edit._published_inputs(baseline,'05_home')
+    plan=dict(schema=1,lesson='05_home',master_sha256=bindings['master']['sha256'],
+        visual_timing_sha256=bindings['timing']['sha256'],scenes=[dict(
+        visual=original['scenes'][0]['visual'],keep_frames=[[0,30]],
+        confirmed_idle_frames=[[30,90]],final_result_frame=29)])
+    policy=stage.parent/'explicit-published-source-policy.json'
+    write(policy,dict(schema=1,lessons=[dict(lesson='05_home',
+        master_sha256=bindings['master']['sha256'],visual_timing_sha256=bindings['timing']['sha256'],
+        scenes=[dict(visual=original['scenes'][1]['visual'],source_start=3,source_end=6,idle_tail_start=1.2)])]))
+    return stage,root,baseline,plan,policy
+
+
+def test_published_explicit_policy_binds_without_original_canonical_adoption(published_explicit_policy_plan):
+    from stage_lesson import read,write
+    stage,root,baseline,plan,policy=published_explicit_policy_plan
+    _,_,bindings,source,_,timing=edit.inputs(stage,'05_home',baseline,plan,source_idle_policy=policy)
+    assert source['source_idle_policy']==dict(path=str(policy.resolve()),sha256=edit.digest(policy))
+    assert timing['scenes'][1]['source_keep_frames']==[[0,90]]
+    (root/'video').mkdir(exist_ok=True)
+    (root/'video/05_home_silent.mp4').write_bytes(b'explicit nonmedia output')
+    write(root/'video/native-live-timings.json',timing)
+    rebound=edit.edited_policy(root,'05_home',timing,bindings,
+        original=read(baseline/bindings['timing']['path']),policy=read(policy))
+    assert [s['idle_tail_start'] for s in rebound['lessons'][0]['scenes']]==[1,1.2]
+
+
+@pytest.mark.parametrize('fault',['master','clock','missing','late'])
+def test_published_explicit_policy_rejects_wrong_source_or_full_speech_fit(published_explicit_policy_plan,fault):
+    from stage_lesson import read,write
+    stage,root,baseline,plan,path=published_explicit_policy_plan
+    policy=read(path);entry=policy['lessons'][0]
+    if fault=='master':entry['master_sha256']='0'*64
+    elif fault=='clock':entry['visual_timing_sha256']='0'*64
+    elif fault=='missing':entry['scenes']=[]
+    else:entry['scenes'][0]['idle_tail_start']=1.49
+    write(path,policy)
+    with pytest.raises(ValueError):edit.inputs(stage,'05_home',baseline,plan,source_idle_policy=path)
+    assert not (root/'scenes.json').exists()
+
+
+def test_published_explicit_policy_is_rechecked_after_render(published_explicit_policy_plan):
+    from stage_lesson import read,write
+    stage,root,baseline,plan,policy=published_explicit_policy_plan
+    _,_,_,source,spec,timing=edit.inputs(stage,'05_home',baseline,plan,source_idle_policy=policy)
+    master=root/'video/05_home_silent.mp4';master.parent.mkdir(exist_ok=True)
+    master.write_bytes(b'explicit nonmedia edited output')
+    write(root/'scenes.json',spec);timing['visual_spec_sha256']=edit.digest(root/'scenes.json')
+    write(root/'video/native-live-timings.json',timing)
+    write(root/edit.RECORD,dict(schema=1,kind='edited_published_native_intervals',lesson='05_home',
+        fresh_capture=False,raw_capture_revalidated=False,**source,edit=plan,rendered_master_sha256=edit.digest(master)))
+    assert edit.checked_edited_native_timing(stage,'05_home')==root/'video/native-live-timings.json'
+    data=read(policy);data['lessons'][0]['scenes'][0]['idle_tail_start']=1.1;write(policy,data)
+    with pytest.raises(ValueError,match='source or rendered output changed'):
+        edit.checked_edited_native_timing(stage,'05_home')
+
+
+def test_published_render_uses_terminal_seekability_for_every_scene(published_explicit_policy_plan,monkeypatch):
+    import render_visual_master
+    stage,root,baseline,plan,policy=published_explicit_policy_plan
+    encoded=[]
+    def encode(source,row,target,*,terminal_seekable=False):
+        encoded.append(terminal_seekable);target.write_bytes(b'synthetic encoded scene')
+    monkeypatch.setattr(edit,'encode_scene',encode)
+    monkeypatch.setattr(render_visual_master,'concat',lambda parts,target,_:target.write_bytes(b'synthetic concatenation'))
+    edit.render(stage,'05_home',baseline,plan,source_idle_policy=policy)
+    assert encoded==[True,True]

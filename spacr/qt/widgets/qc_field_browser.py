@@ -5953,7 +5953,7 @@ class _FieldOverview(QWidget):
         self.view.detail_requested.connect(self._request_detail)
         self.view.horizontalScrollBar().valueChanged.connect(self._request_native_detail)
         self.view.verticalScrollBar().valueChanged.connect(self._request_native_detail)
-        self._image_panel = _OverviewPanel(tr("Image"), shrink_width=True)
+        self._image_panel = _OverviewPanel(tr("Image"))
         self._image_panel.body_layout.addWidget(self.view)
         self.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
         self.metadata_toggle.setProperty("spacrContrastBacking", True)
@@ -14114,6 +14114,17 @@ def _install_overview_actions(screen, buttons):
     :param screen: the Overview module screen.
     :param buttons: the Actions container's button strip.
     """
+    from PySide6.QtWidgets import QScrollArea
+
+    section = screen._actions_section
+    content = section.body
+    scroll = QScrollArea(section)
+    scroll.setObjectName("OverviewActionsScroll")
+    scroll.setFrameShape(QFrame.NoFrame)
+    scroll.setWidgetResizable(True)
+    section._outer.replaceWidget(content, scroll)
+    scroll.setWidget(content)
+    section.body = scroll
     screen._btn_overview_pdfs = QPushButton(tr("Export…"))
     screen._btn_overview_pdfs.setObjectName("OverviewExportPdfs")
     screen._btn_overview_pdfs.setToolTip(tr("Guided export, Custom export or contact sheet PDFs, written to the results folder."))

@@ -1074,6 +1074,21 @@ def _canvas_qimage(pixels):
     return image.copy()
 
 
+class _CanvasTextEditor(QPlainTextEdit):
+    """An inline canvas editor that returns to the rendered box on focus loss."""
+
+    def focusOutEvent(self, event):
+        """Finish inline editing when keyboard focus leaves the text field.
+
+        :param event: the Qt focus transition.
+        """
+        super().focusOutEvent(event)
+        proxy = self.graphicsProxyWidget()
+        if proxy is not None:
+            proxy.hide()
+            proxy.parentItem().update()
+
+
 class _CanvasBoxItem(QGraphicsRectItem):
     """One box drawn on the composer's page: text, or an image preview."""
 
@@ -1083,6 +1098,7 @@ class _CanvasBoxItem(QGraphicsRectItem):
         self._composer = composer
         self.box_id = box["id"]
         self._resizing = False
+        self._text_proxy = None
         self.setPos(box["x"], box["y"])
         self.setFlags(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable
                       | QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -1136,6 +1152,51 @@ class _CanvasBoxItem(QGraphicsRectItem):
             return
         super().mouseReleaseEvent(event)
         self._composer._moved(self.box_id)
+
+    def mouseDoubleClickEvent(self, event):
+        """Edit a text box in place, leaving image double-click handling intact.
+
+        :param event: the graphics-scene double-click.
+        """
+        from PySide6.QtGui import QFont
+        from PySide6.QtWidgets import QFrame, QGraphicsProxyWidget
+
+        box = self.box()
+        if event.button() != Qt.MouseButton.LeftButton or box is None or box["kind"] != "text":
+            return super().mouseDoubleClickEvent(event)
+        self._composer.select([self.box_id])
+        if self._text_proxy is None:
+            editor = _CanvasTextEditor()
+            editor.setFrameShape(QFrame.Shape.NoFrame)
+            editor.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            editor.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self._text_proxy = QGraphicsProxyWidget(self)
+            self._text_proxy.setWidget(editor)
+            editor.textChanged.connect(self._inline_text_changed)
+        editor = self._text_proxy.widget()
+        editor.blockSignals(True)
+        editor.setPlainText(box.get("text") or "")
+        font = QFont(editor.font())
+        font.setPixelSize(max(1, int(round(float(box.get("font_size") or 10.0)))))
+        font.setBold(bool(box.get("bold")))
+        font.setItalic(bool(box.get("italic")))
+        editor.setFont(font)
+        option = editor.document().defaultTextOption()
+        option.setAlignment({"left": Qt.AlignmentFlag.AlignLeft, "center": Qt.AlignmentFlag.AlignHCenter,
+                             "right": Qt.AlignmentFlag.AlignRight}[box.get("align") or "left"])
+        editor.document().setDefaultTextOption(option)
+        editor.blockSignals(False)
+        self._text_proxy.setGeometry(self.rect().adjusted(_CANVAS_TEXT_PAD, _CANVAS_TEXT_PAD,
+                                                        -_CANVAS_TEXT_PAD, -_CANVAS_TEXT_PAD))
+        self._text_proxy.show()
+        self._text_proxy.setFocus(Qt.FocusReason.MouseFocusReason)
+        editor.setFocus(Qt.FocusReason.MouseFocusReason)
+        editor.setTextCursor(editor.cursorForPosition(editor.mapFromGlobal(event.screenPos())))
+        event.accept()
+
+    def _inline_text_changed(self):
+        """Use the existing text-model and undo path for inline edits."""
+        self._composer.text_edit.setPlainText(self._text_proxy.widget().toPlainText())
 
     def contextMenuEvent(self, event):
         """Offer current Overview display settings for this image only.
@@ -1308,6 +1369,22 @@ class _CanvasScene(QGraphicsScene):
         event.ignore()
 
 
+def _canvas_surface_qss(palette, opacity):
+    """Style the canvas desk with the shared rounded container surface.
+
+    :param palette: the current theme's rendered palette.
+    :param opacity: the page-opacity preference passed to the shared surface.
+    :returns: the canvas container and transparent view rules.
+    """
+    from ..theme import RADIUS, block_surface
+
+    surface = block_surface("surface_alt", palette["theme"], opacity)
+    return (f"QFrame#CanvasComposerSurface {{ background: {surface}; "
+            f"border: 1px solid {palette['border']}; border-radius: {RADIUS['md']}px; }}"
+            "QGraphicsView#CanvasComposerView, QWidget#CanvasComposerViewport { "
+            "background: transparent; border: none; }")
+
+
 class _CanvasView(QGraphicsView):
     """The composer's zoomable view of the page."""
 
@@ -1317,6 +1394,7 @@ class _CanvasView(QGraphicsView):
         from PySide6.QtGui import QPainter
 
         self.setObjectName("CanvasComposerView")
+        self.viewport().setObjectName("CanvasComposerViewport")
         self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -1455,8 +1533,19 @@ class _CanvasComposer(QDialog):
         root.addWidget(self._build_toolbar())
         self.scene = _CanvasScene(self)
         self.scene.selectionChanged.connect(self._selection_changed)
-        self.view = _CanvasView(self.scene, self)
-        root.addWidget(self.view, 1)
+        from PySide6.QtWidgets import QFrame
+        from ..theme import RADIUS, ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("CanvasComposerSurface", _canvas_surface_qss, replace=True)
+        surface = QFrame(self)
+        surface.setObjectName("CanvasComposerSurface")
+        surface_layout = QVBoxLayout(surface)
+        margin = RADIUS["md"]
+        surface_layout.setContentsMargins(margin, margin, margin, margin)
+        self.view = _CanvasView(self.scene, surface)
+        surface_layout.addWidget(self.view)
+        root.addWidget(surface, 1)
+        ensure_widget_qss_applied("CanvasComposerSurface", root=self)
         self._build_settings()
         self.live_display = Toggle(tr("Apply current settings to all canvas images"))
         self.live_display.setObjectName("CanvasLiveDisplaySettings")

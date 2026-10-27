@@ -7593,11 +7593,11 @@
           "visual": "14_import_scope",
           "narration": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato.",
           "hold_after": 0.7,
+          "speech_text": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato.",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ],
-          "speech_text": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato."
+          ]
         }
       ],
       "narration_voices": {

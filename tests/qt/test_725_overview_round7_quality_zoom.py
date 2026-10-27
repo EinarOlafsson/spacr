@@ -116,7 +116,8 @@ def test_quality_changes_redraw_the_open_plate_well_and_image_views(view, qtbot)
     qtbot.waitUntil(lambda: view.view._item is not None and _edge(view.view._item.pixmap()) <= 128, timeout=15000)
     tiles = [fields for fields in view._field_lists() if fields.isVisible() and fields.count()]
     assert tiles
-    qtbot.waitUntil(lambda: all((fields.item(0).data(Qt.UserRole + 1) or (0,))[-1] is not None
+    qtbot.waitUntil(lambda: all(len(fields.item(0).data(Qt.UserRole + 1) or ()) == 8
+                                and fields.item(0).data(Qt.UserRole + 1)[5] is not None
                                 for fields in tiles), timeout=15000)
     qtbot.waitUntil(lambda: (_item(view, "A02").data(Qt.UserRole + 1) or (0,) * 5)[4] is not None, timeout=20000)
     first.view.scale(2, 2)
@@ -131,7 +132,8 @@ def test_quality_changes_redraw_the_open_plate_well_and_image_views(view, qtbot)
     assert first.view._user_zoomed and not second.view._user_zoomed
     qtbot.waitUntil(lambda: view.view._item is not None and _edge(view.view._item.pixmap()) == WIDTH,
                     timeout=20000)
-    qtbot.waitUntil(lambda: all((fields.item(0).data(Qt.UserRole + 1) or (0,))[-1] is None
+    qtbot.waitUntil(lambda: all(len(fields.item(0).data(Qt.UserRole + 1) or ()) == 8
+                                and fields.item(0).data(Qt.UserRole + 1)[5] is None
                                 for fields in tiles), timeout=20000)
     qtbot.waitUntil(lambda: (_item(view, "A02").data(Qt.UserRole + 1) or (0,) * 5)[4] is None, timeout=20000)
 

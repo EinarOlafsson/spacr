@@ -20,7 +20,14 @@ def test_reviewed_headings_render_and_preserve_fold_names(qtbot, language):
                          "2026-09-22-section-headings.json").read_text(encoding="utf-8"))
     inventory = json.loads((ROOT / "tests/data/release_contracts/288_section_title_inventory_2026-09-22.json").read_text(encoding="utf-8"))
     records = {row["source"]: row["translation"] for row in review["records"]}
-    assert set(records) == set(inventory["added"])
+    archive = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language / "archive" /
+                          "2026-10-26-remote-r2-retired" /
+                          "2026-10-26-remote-r2-retired.json").read_text(encoding="utf-8"))
+    retired = {row["source"] for row in archive["records"]
+               if row["source"] in inventory["added"]}
+    assert retired == {"Job details and log"}
+    assert set(records).isdisjoint(retired)
+    assert set(records) | retired == set(inventory["added"])
     splitter = CollapsibleSplitter(Qt.Vertical)
     qtbot.addWidget(splitter)
     sections = {source: splitter.add_section(QWidget(), source)

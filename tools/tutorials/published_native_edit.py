@@ -65,9 +65,9 @@ def _staged_policy(policy,identity,original,bindings,rows,tracks):
             or not isinstance(policy['lessons'],list)):
         raise ValueError('Invalid staged source policy')
     selected=[entry for entry in policy['lessons'] if entry.get('lesson')==identity]
-    records=[dict(row,path='media_host/'+row['path'].removeprefix('production/')) for row in bindings.values()]
-    lesson={'id':identity,'silent':bindings['master']['path'].removeprefix('production/'),
-            'visual_timings':bindings['timing']['path'].removeprefix('production/')}
+    records=[dict(row,path='media_host/'+row['path'].removeprefix('production/').removeprefix('media_host/')) for row in bindings.values()]
+    lesson={'id':identity,'silent':bindings['master']['path'].removeprefix('production/').removeprefix('media_host/'),
+            'visual_timings':bindings['timing']['path'].removeprefix('production/').removeprefix('media_host/')}
     bound=bind_policy(dict(schema=1,lessons=selected),records,[lesson],lambda _:original)[0]
     inherited={}
     for fence in bound.get('native_idle_tails',{}).get('scenes',[]):
@@ -180,6 +180,9 @@ def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
         source['source_idle_policy']=dict(path=str(source_idle_policy),sha256=digest(source_idle_policy))
     else:
         baseline,original,bindings,source=_published_inputs(baseline,identity)
+        if source_idle_policy is not None:
+            source_idle_policy=Path(source_idle_policy).resolve()
+            source['source_idle_policy']=dict(path=str(source_idle_policy),sha256=digest(source_idle_policy))
     if not root.resolve().is_relative_to(stage) or not (root/'video').resolve().is_relative_to(root.resolve()):
         raise ValueError('Published edit destinations must stay inside their independent stage')
     if stage==baseline or stage.is_relative_to(baseline) or baseline.is_relative_to(stage):
@@ -199,7 +202,7 @@ def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
             if before!=after:raise ValueError('Staged edits must retain every catalog object')
     rows=plan_intervals(english,original,tracks,edit,bindings)
     kind='edited_staged_native_intervals' if staged_source is not None else 'edited_published_native_intervals'
-    if staged_source is not None:
+    if source_idle_policy is not None:
         _staged_policy(read(source_idle_policy),identity,original,bindings,rows,tracks)
     spec={'lesson':identity,'kind':kind,'size':[3840,2160],'fps':30,
           'scenes':[{'visual':a['visual'],'narration':a['narration'],'published_frames':deepcopy(r)}
@@ -256,8 +259,7 @@ def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
     source_master=baseline/bindings['master']['path'];parts=[]
     for row in timing['scenes']:
         part=work/f'scene-{row["scene"]:02}.mp4'
-        if staged_source is not None:encode_scene(source_master,row,part,terminal_seekable=True)
-        else:encode_scene(source_master,row,part)
+        encode_scene(source_master,row,part,terminal_seekable=True)
         parts.append(part)
     # Reuse the normal exact frame-count/rational-duration concatenation.
     sys.path.insert(0,str(REPO/'tools/tutorials/authoring/tools'))
@@ -272,7 +274,7 @@ def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
         fresh_capture=False,raw_capture_revalidated=False,**source,edit=edit,
         rendered_master_sha256=digest(target)))
     write(timing_path,timing)
-    if staged_source is not None:
+    if source_idle_policy is not None:
         original=read(baseline/bindings['timing']['path'])
         policy=edited_policy(root,identity,timing,bindings,original=original,policy=read(source_idle_policy))
         from idle_tail_policy import bind_policy
@@ -294,7 +296,7 @@ def edited_policy(root,identity,timing,bindings,*,original=None,policy=None):
     selected=[e for e in (load_policy(REPO) if policy is None else policy)['lessons'] if e['lesson']==identity]
     inherited={}
     if selected:
-        policy_bindings=({k:dict(v,path='media_host/'+v['path'].removeprefix('production/')) for k,v in bindings.items()}
+        policy_bindings=({k:dict(v,path='media_host/'+v['path'].removeprefix('production/').removeprefix('media_host/')) for k,v in bindings.items()}
                          if policy is not None else bindings)
         source_lesson={'id':identity,'silent':policy_bindings['master']['path'].removeprefix('media_host/'),
                        'visual_timings':policy_bindings['timing']['path'].removeprefix('media_host/')}
@@ -320,7 +322,8 @@ def edited_policy(root,identity,timing,bindings,*,original=None,policy=None):
 
 def checked_edited_native_timing(stage,identity):
     root=Path(stage)/'production'/identity;record=read(root/RECORD)
-    root,_,_,source,spec,timing=inputs(stage,identity,record['baseline_root'],record['edit'])
+    policy=record.get('source_idle_policy',{}).get('path')
+    root,_,_,source,spec,timing=inputs(stage,identity,record['baseline_root'],record['edit'],source_idle_policy=policy)
     expected=dict(schema=1,kind='edited_published_native_intervals',lesson=identity,
         fresh_capture=False,raw_capture_revalidated=False,**source,edit=record['edit'],
         rendered_master_sha256=digest(root/'video'/f'{identity}_silent.mp4'))

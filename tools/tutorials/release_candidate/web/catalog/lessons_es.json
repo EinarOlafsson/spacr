@@ -7593,11 +7593,11 @@
           "visual": "14_import_scope",
           "narration": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado.",
           "hold_after": 0.7,
+          "speech_text": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado.",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ],
-          "speech_text": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado."
+          ]
         }
       ],
       "narration_voices": {
