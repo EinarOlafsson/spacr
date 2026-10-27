@@ -715,8 +715,13 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
         window.close()
 
 
+@pytest.mark.parametrize('global_theme', ['light', 'dark'])
 def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
-        qtbot, private_ai_profile, tmp_path):
+        qtbot, qapp, private_ai_profile, tmp_path, global_theme):
+    from PySide6.QtGui import QColor, QPalette
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt import theme
+    from spacr.qt.widgets.field_fade import fades
     from spacr.qt.app import APPS, app_is_visible, folded_children
     from spacr.qt.widgets.fold_strip import fold_label
     from spacr.qt.widgets.home import _EasyHomePage
@@ -732,6 +737,9 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         _image(image)
     before = _bytes(images)
     chosen = []
+    original_sheet, original_palette = qapp.styleSheet(), qapp.palette()
+    theme.apply_qpalette(qapp, global_theme)
+    qapp.setStyleSheet(theme.stylesheet(global_theme, preferences.get_font_scale()))
     page = _EasyHomePage()
     qtbot.addWidget(page)
     page.resize(1280, 850)
@@ -801,7 +809,24 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
             record['to'] for record in workflow.view.remaining_records}
         assert not {record['to'] for record in workflow.view.branch_records} & {
             workflow.more.itemData(index) for index in range(workflow.more.count())}
-        for size in ((500, 650), (640, 650), (1280, 850)):
+        dark = theme.palette_for('dark')
+        ordinary = QComboBox()
+        qtbot.addWidget(ordinary)
+        assert fades(ordinary)
+        for selector in (workflow.tools, workflow.more):
+            assert selector.currentIndex() == -1 and selector.placeholderText()
+            assert not fades(selector)
+            assert selector.palette().color(QPalette.Text) == QColor(dark['fg'])
+            assert selector.palette().color(QPalette.PlaceholderText) == QColor(dark['fg_muted'])
+            raster = selector.grab().toImage()
+            background = raster.pixelColor(raster.width() // 2, raster.height() - 6)
+            background_sum = background.red() + background.green() + background.blue()
+            matches = sum(raster.pixelColor(x, y).red() + raster.pixelColor(x, y).green()
+                          + raster.pixelColor(x, y).blue() >= background_sum + 36
+                          for y in range(6, raster.height() - 6)
+                          for x in range(8, raster.width() - 28))
+            assert matches > 5
+        for size in ((500, 650), (640, 650), (1080, 601), (1280, 850)):
             page.resize(*size)
             qtbot.waitUntil(lambda: workflow.view.width() == workflow.width())
             assert not workflow.tools.geometry().intersects(workflow.more.geometry())
@@ -825,6 +850,8 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         workflow.more.showPopup()
         next_index = workflow.more.model().index(0, 0)
         next_popup = workflow.more.view()
+        assert next_popup.palette().color(QPalette.Text) == QColor(dark['fg'])
+        assert next_popup.palette().color(QPalette.HighlightedText) == QColor(dark['bg'])
         next_popup.scrollTo(next_index)
         qtbot.waitUntil(lambda: next_popup.visualRect(next_index).intersects(next_popup.viewport().rect()))
         qtbot.mouseClick(next_popup.viewport(), Qt.LeftButton, pos=next_popup.visualRect(next_index).center())
@@ -832,6 +859,8 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         workflow.tools.showPopup()
         index = workflow.tools.model().index(workflow.tools.findData('make_masks'), 0)
         popup = workflow.tools.view()
+        assert popup.palette().color(QPalette.Text) == QColor(dark['fg'])
+        assert popup.palette().color(QPalette.HighlightedText) == QColor(dark['bg'])
         popup.scrollTo(index)
         qtbot.waitUntil(lambda: popup.visualRect(index).intersects(popup.viewport().rect()))
         qtbot.mouseClick(popup.viewport(), Qt.LeftButton, pos=popup.visualRect(index).center())
@@ -846,3 +875,5 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         assert _bytes(images) == before
     finally:
         page.close()
+        qapp.setStyleSheet(original_sheet)
+        qapp.setPalette(original_palette)

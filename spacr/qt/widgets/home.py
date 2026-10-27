@@ -4931,6 +4931,7 @@ class _EasyWorkflowPage(QWidget):
     def __init__(self, data, actions, selected, parent=None):
         """Separate available navigation from scientific compatibility and future output."""
         from PySide6.QtWidgets import QTextBrowser
+        from .field_fade import OPT_OUT_PROPERTY
         from ..i18n import tr
 
         self.central = None
@@ -4961,6 +4962,7 @@ class _EasyWorkflowPage(QWidget):
         self.back.clicked.connect(self.back_requested)
         self.tools = QComboBox(self)
         self.tools.setObjectName('EasyWorkflowTools')
+        self.tools.setProperty(OPT_OUT_PROPERTY, True)
         self.tools.setPlaceholderText(tr('All tools'))
         self.tools.setAccessibleName(tr('All tools'))
         titles = {key: tr(module['name']) for key, module in data['modules'].items()}
@@ -4970,6 +4972,7 @@ class _EasyWorkflowPage(QWidget):
         self.tools.activated.connect(self._choose_tool)
         self.more = QComboBox(self)
         self.more.setObjectName('EasyWorkflowNextTools')
+        self.more.setProperty(OPT_OUT_PROPERTY, True)
         self.more.setPlaceholderText(tr('More next steps'))
         self.more.setAccessibleName(tr('More next steps'))
         self.more.activated.connect(self._choose_next)
@@ -5045,7 +5048,11 @@ class _EasyWorkflowPage(QWidget):
         stacked = self.width() < 572 and self.more.isVisible()
         header_bottom = 16 + header_height * (2 if stacked else 1) + (8 if stacked else 0)
         self.central.setGeometry((self.width() - width) // 2, header_bottom + 8, width, height)
-        details_height = 88 if self.width() < 800 else 128
+        first_row_bottom = min((node.pos().y() + node.boundingRect().height()
+                                for node in self.view.nodes.values() if node.isVisible()), default=0)
+        details_height = 88 if (self.width() < 800 or self.height() <
+                               self.central.geometry().bottom() + 1 + 16 + 128 + 16
+                               + first_row_bottom + 12) else 128
         details_width = min(520, max(260, self.width() - 32))
         details_y = self.central.geometry().bottom() + 17
         self.details.setGeometry((self.width() - details_width) // 2, details_y, details_width, details_height)
@@ -5218,6 +5225,8 @@ class _EasyHomePage(QWidget):
             f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
             f'QPlainTextEdit#EasyRegexPattern {{ color: {foreground}; background: transparent; border: 1px solid {border}; border-radius: 6px; font-weight: 300; }} '
             f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
+            f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
+            f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
             f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
 
