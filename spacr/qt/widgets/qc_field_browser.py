@@ -11376,6 +11376,10 @@ class _FieldOverview(QWidget):
         """Coalesce viewport and navigation updates on one owned timer."""
         if self.isVisible() and not self._cancelled.is_set() and not self._controls_lost:
             self._visual_timer.start(0)
+        composer = getattr(self, "_canvas_composer", None)
+        dock = getattr(self, "_export_dock", None)
+        if composer is not None and dock is not None and dock.content is composer and self._normalization_ready:
+            composer.refresh_display_settings()
 
     def _visual_context(self):
         """Snapshot live navigation and display choices for stale-result checks."""
@@ -11768,12 +11772,7 @@ class _FieldOverview(QWidget):
             channels, limits = self._choices()
         except _OverviewValidationError:
             channels, limits = (0,), None
-        display = self._display_kwargs()
-        shown = self._display_kwargs(view=True)
-        for key in ("channel_limits", "image_overrides", "percentile_channels"):
-            if key in shown:
-                display[key] = shown[key]
-        return _OverviewCanvasSnapshot(self._fields, channels, limits, display)
+        return _OverviewCanvasSnapshot(self._fields, channels, limits, self._display_kwargs(view=True))
 
     def _canvas_well_fields(self, plate, well):
         """The fields of one well at the shown time and Z, in field order."""
@@ -15919,7 +15918,10 @@ class _OverviewWellMeanContext:
         from collections import OrderedDict
         import threading
 
+        import copy
+
         options = dict(options)
+        self._canvas_options = copy.deepcopy(options)
         if options.get("reference_channel") is not None or options.get("mean_match", False):
             raise _OverviewValidationError(tr(
                 "Well-mean display scaling cannot be combined with channel-reference scaling."))
@@ -16245,24 +16247,92 @@ def _overview_import_pixels(box, edge, display=None):
     return np.ascontiguousarray(pixels[..., :3] if pixels.ndim == 3 else pixels)
 
 
-class _OverviewCanvasSnapshot:
-    """What the browser shows, frozen on the GUI thread, for rendering fields elsewhere.
+def _overview_canvas_pack(value):
+    """Encode display mappings, tuple keys and immutable chains for layout JSON.
 
-    Images go through :func:`_overview_pixels` with the browser's display
-    keywords, its scope limits and per-image overrides, so a canvas image
-    matches the screen; the display-only enhancement chain stays out, as in
-    every export. Image files with import settings go through the same
-    function (:func:`_overview_import_pixels`).
+    :param value: a display value, including mappings with acquisition tuple keys.
+    """
+    from ..detect_chain import Chain
+
+    if isinstance(value, Chain):
+        return {"chain": _overview_canvas_pack(value._asdict())}
+    if isinstance(value, dict):
+        return {"mapping": [[_overview_canvas_pack(key), _overview_canvas_pack(item)]
+                            for key, item in value.items()]}
+    if isinstance(value, tuple):
+        return {"tuple": [_overview_canvas_pack(item) for item in value]}
+    if isinstance(value, list):
+        return [_overview_canvas_pack(item) for item in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def _overview_canvas_unpack(value):
+    """Restore JSON display snapshots without treating tuple keys as text.
+
+    :param value: a value encoded by :func:`_overview_canvas_pack`.
+    """
+    from ..detect_chain import Chain
+
+    if isinstance(value, dict):
+        if "chain" in value:
+            return Chain(**_overview_canvas_unpack(value["chain"]))
+        if "mapping" in value:
+            return {_overview_canvas_unpack(key): _overview_canvas_unpack(item)
+                    for key, item in value["mapping"]}
+        if "tuple" in value:
+            return tuple(_overview_canvas_unpack(item) for item in value["tuple"])
+    if isinstance(value, list):
+        return [_overview_canvas_unpack(item) for item in value]
+    return value
+
+
+class _OverviewCanvasSnapshot:
+    """Render each box with its captured display, including display-only enhancement.
+
+    The JSON-ready box snapshot also survives layout save and reopen. Lazy
+    same-plate reference plans are reconstructed on a worker from the captured
+    source identities and options, never from later browser settings.
     """
 
     imports = True
 
     def __init__(self, fields, channels, limits, display):
-        """Keep the fields by image key and the display settings."""
+        """Detach display mappings and reference cancellation from the browser.
+
+        :param fields: loaded source fields available to the canvas.
+        :param channels: physical channels shown in the image.
+        :param limits: percentile bounds, or ``None`` to disable percentile scaling.
+        :param display: the applied visualization keyword values.
+        """
+        import copy
+
         self._fields = {_overview_key_text(_overview_image_key(field)): field for field in fields}
         self._channels = tuple(channels)
-        self._limits = limits
-        self._display = dict(display)
+        self._limits = copy.deepcopy(limits)
+        context = display.get("normalization_context")
+        self._context = context._new_generation(threading.Event()) if context is not None else None
+        self._display = copy.deepcopy({key: value for key, value in display.items()
+                                       if key != "normalization_context"})
+        self._context_spec = None
+        if self._context is not None:
+            self._context_spec = dict(options=self._context._canvas_options,
+                channels=self._context.channels,
+                fields=tuple(_overview_key_text(_overview_image_key(field))
+                             for group in self._context._fields.values() for field in group))
+        self._settings = _overview_canvas_pack(dict(channels=self._channels, limits=self._limits,
+            display=self._display, context=self._context_spec))
+        self._restored = {}
+
+    def capture(self, box):
+        """Bind a detached JSON-ready display snapshot to one image box.
+
+        :param box: the canvas image dictionary to update.
+        """
+        import copy
+
+        box["overview_display"] = copy.deepcopy(self._settings)
 
     def field_of(self, box):
         """The field an image box shows, or ``None``."""
@@ -16271,23 +16341,51 @@ class _OverviewCanvasSnapshot:
             return None
         return self._fields.get(_overview_key_text(tuple(source.get("key") or ())))
 
-    def __call__(self, box, edge):
-        """The box's field rendered with the frozen display settings.
+    def _restore(self, settings):
+        """Resolve a saved snapshot using its original source scope and options.
 
-        :param edge: longest side wanted, or ``None`` for every source pixel.
-        :raises ValueError: when the field is not in the loaded plates.
+        :param settings: the packed display snapshot from one image box.
         """
+        import json
+
+        key = json.dumps(settings, sort_keys=True)
+        if key in self._restored:
+            return self._restored[key]
+        values = _overview_canvas_unpack(settings)
+        display = values["display"]
+        context = values.get("context")
+        if context is not None:
+            fields = tuple(self._fields[key] for key in context["fields"])
+            selection = context["options"].get("selection") or {}
+            axes = {key: selection[key] for key in ("time_index", "z_mode", "z_index") if key in selection}
+            read = functools.partial(_overview_raw_planes, edge=256, **axes)
+            display["normalization_context"] = _OverviewWellMeanContext(
+                fields, context["channels"], context["options"], read)
+        snapshot = _OverviewCanvasSnapshot(self._fields.values(), values["channels"], values["limits"], display)
+        self._restored[key] = snapshot
+        return snapshot
+
+    def __call__(self, box, edge):
+        """Render captured pixels for preview or full-resolution PDF export.
+
+        :param box: an image dictionary with its optional captured display.
+        :param edge: longest preview side, or ``None`` for every source pixel.
+        """
+        settings = box.get("overview_display")
+        if settings is not None and settings != self._settings:
+            return self._restore(settings)(dict(box, overview_display=None), edge)
         if (box.get("source") or {}).get("type") == "file":
             return _overview_import_pixels(box, edge, self._display)
         field = self.field_of(box)
         if field is None:
             raise ValueError(tr("The image source is not loaded: {label}", label=box.get("label") or "?"))
-        pixels = _overview_pixels(field, self._channels, self._limits, edge=edge, **self._display)
+        pixels = _overview_pixels(field, self._channels, self._limits, edge=edge,
+                                  normalization_context=self._context, **self._display)
         return np.ascontiguousarray(pixels[..., :3] if pixels.ndim == 3 else pixels)
 
 
 class _OverviewCanvasSource:
-    """Hands the composer a fresh snapshot of the browser's display whenever it renders."""
+    """Supply current defaults while preserving each canvas image's captured display."""
 
     imports = True
 
