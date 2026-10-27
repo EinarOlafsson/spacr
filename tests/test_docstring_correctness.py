@@ -2743,6 +2743,52 @@ def _validated_signed_cell_measurement_arrival(callables):
     return callables
 
 
+def _validated_733_easy_mode_callables(callables):
+    """Check the exact four executable Easy mode boundaries before historical replay."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    body_hashes = {'get_easy_mode': '5a9bcc1d2dbf9a15e8877f837d9d7d2499252c0706c3c22412050b9a73c7ad96', 'set_easy_mode': 'f699c14863cd293e762ec67fe01873f96ba88090595a08890f732a90298f1b8f', 'get_easy_mode_dock': 'a19cac388a84d7b67033a5482fc605f248e50d42e952657a528faa46ff71c1db', 'set_easy_mode_dock': '65b4034959e5c3d6bacb35e519eb43aa8bc66066216912f27e457c1bcc90af1b'}
+    expected_docs = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
+    assert entries.keys() == expected_docs.keys()
+    assert {key: hashlib.sha256(body.encode()).hexdigest()
+            for key, body in entries.items()} == expected_docs
+    tree = ast.parse((root / "spacr/qt/preferences.py").read_text(encoding="utf-8"))
+    declarations = {node.name: node for node in tree.body
+                    if isinstance(node, ast.FunctionDef) and node.name in body_hashes}
+    assert declarations.keys() == body_hashes.keys()
+    by_symbol = {item.symbol: item for item in callables}
+    for name, body_hash in body_hashes.items():
+        symbol = "spacr.qt.preferences." + name
+        item = by_symbol[symbol]
+        parameters = {"on"} if name.startswith("set_") else set()
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == parameters
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+        assert _documented_parameter_names(item.docstring) == parameters
+        declaration = declarations[name]
+        assert _clean_doc(declaration) == entries[symbol]
+        assert hashlib.sha256(ast.dump(declaration, include_attributes=False).encode()).hexdigest() == body_hash
+        assert not declaration.decorator_list
+        assert not declaration.args.posonlyargs and not declaration.args.defaults
+        assert not declaration.args.kwonlyargs and not declaration.args.kw_defaults
+        assert not declaration.args.vararg and not declaration.args.kwarg
+        assert [argument.arg for argument in declaration.args.args] == sorted(parameters)
+        if parameters:
+            assert isinstance(declaration.args.args[0].annotation, ast.Name)
+            assert declaration.args.args[0].annotation.id == "bool"
+            assert isinstance(declaration.returns, ast.Constant) and declaration.returns.value is None
+        else:
+            assert isinstance(declaration.returns, ast.Name) and declaration.returns.id == "bool"
+    return callables
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2764,6 +2810,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_prior_weighted_preview_callables(callables)
     callables = _validated_calibrated_batch_inventory(callables)
     callables = _validated_signed_cell_measurement_arrival(callables)
+    callables = _validated_733_easy_mode_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3196,7 +3243,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4670,7 +4718,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert not imported_package_modules
 
-    actual_callables = list(_public_callables())
+    actual_callables = _validated_733_easy_mode_callables(list(_public_callables()))
     radius_symbols = {
         "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
         "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
@@ -5163,6 +5211,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
         ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
+        ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5690,7 +5739,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5778,7 +5828,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

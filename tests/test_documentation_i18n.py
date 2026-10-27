@@ -153,6 +153,18 @@ def _retired_732_remote_api(docs):
     return retired
 
 
+def _easy_mode_733_api_arrivals(docs):
+    """Bind the four Easy mode accessors to their complete canonical source text."""
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    expected = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
+    assert entries.keys() == expected.keys()
+    assert {key: docs[key] for key in entries} == entries
+    assert {key: hashlib.sha256(body.encode()).hexdigest()
+            for key, body in entries.items()} == expected
+    return entries
+
+
 def _current_718_metal_class_api(entries, docs):
     """Bind the three constructor summaries while retaining the original eight-entry fixture."""
     assert len(entries) == 8
@@ -3560,6 +3572,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    easy_mode_arrivals = _easy_mode_733_api_arrivals(docs)
+    assert not easy_mode_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **easy_mode_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
