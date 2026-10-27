@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-27 Codex WS to Home — capture route passes; Regression source still needs editing
+
+Short capture60 probe on40722add65 (nightly9d0e315a74 plusfourdrivers) finishes05:29:54 rc0:Home29.69distinct/58.65paint fps andPreferences29.44distinct/60.25paint fps; both raw gatesPASS, both GUI gap lists empty, no app-freeze buckets. Held60 is proven; native-debugger threshold2.5s avoids the earlier0.1s attach confound. This accepts the short route only.
+
+Lesson13 firsttake and plannedretry on that SAME base finish06:01:51, both jobsrc2. Accepted union12/15 (includes p-values27.74 capture-loss near-miss and retry run-list28.68PASS). Stillmissing:21_batch_running24.78/24.37fps,25_result_results13.8/23.39fps,26_detail_coefficients23.92/25.86fps. Source roots:/media/carruthers/mnt1/t18-captures/t18-13-regression_run-capture30-1/captures/regression/ and corresponding -b stage. No additional identical take or raw-gate waiver; Codex is reviewing clean action/result intervals for normal guarded source cuts.
+
+Analysis effective rate falls60→30 at4.469s, consistent with existing run backpressure. Firsttake logs/spacr.log reports05:45:30.686 CPU warning 'Dynamic animation holds the GPU for analysis', then05:45:54.591 ambient.py:1913 a136ms GPU-frame interpreter hold and30s CPU shading fallback. Representative21_batch_running.stalls.txt main stack:collapse_arrow.py:96 paint_collapse_arrow -> dock.py:832 paintEvent -> gil_priority.py:796 eventFilter -> ambient.py:12972 _on_tick, via capture_acceptance.py:43 observe_pipeline_run/:96 run_recorded_pipeline. Short0.12–0.16s observations do not establish a multi-second GUI deadlock.
+
+First25_result_results has252 continuous samples, effective60 throughout, observedpaints21934→23413 over25.067s (~59fps), no GUI gaps/GIL stalls/native dump, yet13.8 distinctfps. Saved evidence cannot distinguish compositor/PipeWire loss from repeatedly painted equivalent images. Home owns any normal-app rendering fix; direct Home acknowledgement remains unconfirmed.
+
+## 2026-10-27 Codex tutorial capture profile — explicit held cadence
+
+Tutorial captures now explicitly request a process-local60fps held-field cap through the private ambient API before application startup. Normal app pacing remains20fps; configured caps and pipeline backpressure remain authoritative. Existing and later-created fields receive the request. Profile metadata labels this a REQUEST; continuous per-widget effective-rate, held-state and paint telemetry remains the runtime evidence. All12 focused tests pass against this actual checkout. Actual native acceptance is pending; no gate threshold or freeze rule changed.
+
+The first actual request probe on6a14a1772b preserved0/2 raw failures. Home62 continuous samples show configured60/effective30/heldtrue,30.01fps painted but26.7 distinct capture fps: insufficient recorder margin. Preferences has an observed sampler gap9.743–13.060s and99/107 unchanged frames in that window, but native gdb triggered after0.1s and attaching explicitly pauses the process for seconds (capture_host_mode.py:392–393). Its native stack is select -> capture adapter/EventPump -> QDialog.exec, not proof of a renderer deadlock. NVIDIA EGL was active, no CPU shading fallback logged. Exact source: /media/carruthers/mnt1/t18-captures/t18-field-capture30-1/captures/home/. The next fresh probe requests held60 and restores the normal2.5s native debugger threshold while retaining0.12s GUI/GIL sampling. No gate waiver, uninstrumented-freeze claim or lesson13 acceptance is made.
+
+Lesson16's actual-CUDA guard is already shipped: it rejects CPU reference/model/input placement and requires the same CUDA device during both genuine GUI runs, retaining pixel difference<=1 and database checks. The older Home smoke omitted --cuda; its separate CUDA304 warning does not establish a defect in the existing writable/proc/dev CUDA capture route. The upcoming normal queued smoke will use --cuda, but will not count as lesson16 scientific acceptance.
+
+Lesson37 pause edit is uploaded/read back and pushed in223378165c:50 retained tracks,700 gaps0.800–1.047s,72 matrix/59 Pages cases;64 pin tests pass with1 existing Node skip. The public site was last verified at12;26/37 deployment is separate from uploaded-media acceptance.
+
 ## 2026-10-27 Codex WS to Home — continuous telemetry proves held-field pacing
 
 Short Home/Preferences diagnostic on capture base `0158c25910` (pushed nightly `bd566b5e7a`, including visible-region fix `f1ac75cf41` and brush fix `95e051c83c`) finished normally at01:39:17 with rc=2: neither raw gate passes. Source: `/media/carruthers/mnt1/t18-captures/t18-field-paced1/captures/home/`.

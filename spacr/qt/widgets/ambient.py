@@ -10973,6 +10973,24 @@ _HOLD_SETTLE_S = 1.5
 _HOLD_RECHECK_S = 1.0
 _HOLD_FADE_S = 0.25
 _HOLD_FPS = 20
+_CAPTURE_HELD_FPS = None
+
+
+def _set_capture_held_fps(fps: Optional[int]) -> None:
+    """Request a process-local held cap for an explicit capture profile.
+
+    None restores the normal held cap. Call on the GUI thread; existing
+    backdrops update immediately and subsequently created ones inherit it.
+    Configured caps and pipeline backpressure remain authoritative.
+    """
+    if fps is not None and (type(fps) is not int or not MIN_FPS <= fps <= MAX_FPS):
+        raise ValueError('Capture held fps must be an integer within the supported frame caps')
+    global _CAPTURE_HELD_FPS
+    _CAPTURE_HELD_FPS = fps
+    for widget in _live_ambient_widgets():
+        widget._apply_rate()
+
+
 _HOLD_GRID = 8
 _BLIT_STRIPE = 64
 _HOLD_CONTAINERS = frozenset(("QWidget", "QFrame", "QScrollArea",
@@ -12158,7 +12176,7 @@ class AmbientWidget(QWidget):
         """
         rate = min(self._fps, _RUN_FPS) if self._run_paced else self._fps
         if self.__dict__.get("_hold_paced"):
-            rate = min(rate, _HOLD_FPS)
+            rate = min(rate, _HOLD_FPS if _CAPTURE_HELD_FPS is None else _CAPTURE_HELD_FPS)
         return rate
 
     def _apply_rate(self) -> None:
