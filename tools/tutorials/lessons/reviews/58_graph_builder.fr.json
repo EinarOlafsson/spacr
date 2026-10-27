@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "fr",
   "title": "Graph Builder : tracer des mesures et filtrer des objets",
@@ -30,7 +35,7 @@
     "Dans le panneau de filtres à droite, ajoutez cell_area et saisissez un minimum. L’exemple utilise vingt et un mille neuf cent vingt-cinq, ce qui laisse mille cent soixante et onze lignes. Choisissez des seuils adaptés à vos mesures et observez l’évolution du nombre tracé et des axes.",
     "Cliquez sur Clear all dans le panneau de filtres pour retrouver la table complète. Utilisez Clear all channels à gauche lorsque vous voulez retirer les attributions du graphique et en commencer un autre.",
     "Clear all channels conserve le type de graphique mais retire toutes les colonnes du graphique, et la zone de dessin indique alors ce qui manque : faites glisser une colonne sur X ou Y pour tracer à nouveau un graphique. Redéposez les mêmes colonnes pour continuer.",
-    "Retirez une facette avec sa petite croix pour revenir à un seul nuage de points. Tracez un rectangle autour d’objets pour sélectionner une région. Si Open selection in Annotate n’est pas disponible, ouvrez Annotate séparément avec le projet correspondant et examinez les objets là-bas.",
+    "Retirez une facette avec sa petite croix pour revenir à un seul nuage de points. Tracez un rectangle autour d’objets pour sélectionner une région. Le nombre d’objets sélectionnés et les points surlignés se mettent à jour ensemble, et Open selection in Annotate devient disponible pour examiner ces objets dans le projet correspondant.",
     "Cliquez dans une zone vide du graphique pour effacer la sélection. Vérifiez les filtres actifs et le nombre affiché avant d’explorer un autre groupe d’objets.",
     "Cliquez sur Annotate conditions. Nommez la première sortie genotype et utilisez Assign values. Choisissez Exact values, puis étiquetez les valeurs de columnID c1, c2 et c3 comme WildType. Ajoutez une deuxième boîte nommée mutant pour c7, c4, c5 et c6. Ce sont des étiquettes illustratives, pas des génotypes validés. La table téléchargée ne contient que c1 et c2 : toutes les cellules correspondent donc à WildType et aucune à mutant. Exact values compare des valeurs entières : c1 ne correspond pas à c10.",
     "Ajoutez une colonne de sortie nommée replicate. Faites correspondre les valeurs de rowID r1, r4, r5 et r6 dans une boîte nommée replicate 1. Ajoutez une autre boîte du même nom pour r7, r9 et r10. Les boîtes de même étiquette forment une union ; des étiquettes différentes en conflit dans une sortie doivent être résolues avant Apply conditions. L’exemple contient r5 et r12 : r5 correspond et r12 reste vide. Ces étiquettes d’exercice n’établissent pas une réplication biologique.",

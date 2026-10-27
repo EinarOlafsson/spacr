@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "es",
   "title": "Graph Builder: representar mediciones y filtrar objetos",
@@ -30,7 +35,7 @@
     "En el panel de filtros de la derecha, añade cell_area e introduce un mínimo. El ejemplo usa veintiún mil novecientos veinticinco, lo que deja mil ciento setenta y una filas. Elige umbrales adecuados a tus propias mediciones y observa cómo cambian el número representado y los ejes.",
     "Haz clic en Clear all en el panel de filtros para recuperar la tabla completa. Usa Clear all channels a la izquierda cuando quieras quitar las asignaciones del gráfico y empezar otro distinto.",
     "Clear all channels conserva el tipo de gráfico pero quita todas las columnas del gráfico, y el lienzo indica entonces lo que falta: arrastre una columna a X o Y para volver a dibujar un gráfico. Suelte de nuevo las mismas columnas para continuar.",
-    "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. Si Open selection in Annotate no está disponible, abre Annotate por separado con el proyecto correspondiente y revisa allí los objetos.",
+    "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. El recuento de objetos seleccionados y los puntos resaltados se actualizan a la vez, y Open selection in Annotate pasa a estar disponible para inspeccionar esos objetos en el proyecto correspondiente.",
     "Haz clic en una parte vacía del gráfico para borrar la selección. Comprueba los filtros activos y el número mostrado antes de explorar otro grupo de objetos.",
     "Haga clic en Annotate conditions. Llame genotype a la primera salida y use Assign values. Elija Exact values y etiquete los valores de columnID c1, c2 y c3 como WildType. Añada una segunda caja llamada mutant para c7, c4, c5 y c6. Son etiquetas ilustrativas, no genotipos validados. La tabla descargada solo contiene c1 y c2, así que todas las células coinciden con WildType y ninguna con mutant. Exact values compara valores completos: c1 no coincide con c10.",
     "Añada una columna de salida llamada replicate. Haga coincidir los valores de rowID r1, r4, r5 y r6 en una caja llamada replicate 1. Añada otra caja con el mismo nombre para r7, r9 y r10. Las cajas con la misma etiqueta forman una unión; las etiquetas distintas que entren en conflicto en una salida deben resolverse antes de Apply conditions. El ejemplo contiene r5 y r12, así que r5 coincide y r12 queda vacía. Estas etiquetas de práctica no establecen una replicación biológica.",

@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "ko",
   "title": "Graph Builder: 측정값 그래프와 객체 필터링",
@@ -30,7 +35,7 @@
     "오른쪽 필터 패널에서 cell_area를 추가하고 최솟값을 입력하세요. 예제는 21,925를 쓰며, 그러면 1,171개 행이 남습니다. 자신의 측정값에 맞는 기준값을 고르고, 그려진 개수와 축이 바뀌는 것을 확인하세요.",
     "필터 패널의 Clear all을 클릭하면 전체 표로 돌아갑니다. 그래프 매핑을 지우고 다른 차트를 시작하려면 왼쪽의 Clear all channels를 쓰세요.",
     "Clear all channels는 그래프 종류는 그대로 두고 그래프에서 모든 열을 뺍니다. 그러면 캔버스에 무엇이 빠졌는지 표시됩니다. 그래프를 다시 그리려면 열을 X나 Y로 끌어다 놓으세요. 같은 열을 다시 놓으면 이어서 진행할 수 있습니다.",
-    "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. Open selection in Annotate를 쓸 수 없다면, 대응하는 프로젝트로 Annotate를 따로 열어 그곳에서 객체를 확인하세요.",
+    "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. 선택된 객체 수와 강조 표시된 점이 함께 업데이트되며, 해당 프로젝트에서 그 객체들을 살펴볼 수 있도록 Open selection in Annotate가 활성화됩니다.",
     "그래프의 빈 곳을 클릭하면 선택이 해제됩니다. 다른 객체 그룹을 살펴보기 전에 활성 필터와 표시된 개수를 확인하세요.",
     "Annotate conditions를 클릭하세요. 첫 번째 출력의 이름을 genotype으로 하고 Assign values를 사용합니다. Exact values를 고른 뒤 columnID 값 c1, c2, c3에 WildType 레이블을 붙이세요. c7, c4, c5, c6을 위한 mutant라는 두 번째 상자를 추가하세요. 이것은 예시용 레이블이며 검증된 유전형이 아닙니다. 내려받은 테이블에는 c1과 c2만 있으므로 모든 세포가 WildType에 해당하고 mutant에 해당하는 세포는 없습니다. Exact values는 값 전체로 비교하므로 c1은 c10과 일치하지 않습니다.",
     "replicate라는 출력 열을 추가하세요. rowID 값 r1, r4, r5, r6을 replicate 1이라는 상자에 지정하세요. 같은 이름의 상자를 하나 더 추가해 r7, r9, r10을 지정하세요. 같은 레이블의 상자는 합집합이 되며, 한 출력 안에서 서로 다른 레이블이 충돌하면 Apply conditions 전에 해결해야 합니다. 예제에는 r5와 r12가 있으므로 r5는 일치하고 r12는 비어 있습니다. 이 연습용 레이블은 생물학적 반복을 입증하지 않습니다.",

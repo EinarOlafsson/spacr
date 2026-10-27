@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "da",
   "title": "Graph Builder: plot målinger, og filtrér objekter",
@@ -30,7 +35,7 @@
     "I filterpanelet til højre tilføjer du cell_area og indtaster et minimum. Eksemplet bruger 21.925, hvilket efterlader 1.171 rækker. Vælg tærskler, der passer til dine egne målinger, og se, hvordan det plottede antal og akserne ændres.",
     "Klik på Clear all i filterpanelet for at gendanne hele tabellen. Brug Clear all channels til venstre, når du vil fjerne plottets tildelinger og begynde på et andet diagram.",
     "Clear all channels beholder diagramtypen, men fjerner alle kolonner fra diagrammet, og lærredet fortæller derefter, hvad der mangler: træk en kolonne til X eller Y for at tegne et diagram igen. Slip de samme kolonner tilbage for at fortsætte.",
-    "Fjern en facet med dens lille kryds for at vende tilbage til ét punktdiagram. Træk et rektangel omkring objekter for at vælge et område. Hvis Open selection in Annotate ikke er tilgængelig, åbner du Annotate separat med det tilsvarende projekt og undersøger objekterne der.",
+    "Fjern en facet med dens lille kryds for at vende tilbage til ét punktdiagram. Træk et rektangel omkring objekter for at vælge et område. Antallet af markerede objekter og de fremhævede punkter opdateres samtidig, og Open selection in Annotate bliver tilgængelig, så du kan undersøge objekterne i det tilhørende projekt.",
     "Klik på en tom del af plottet for at rydde markeringen. Kontrollér de aktive filtre og det viste antal, før du udforsker en anden gruppe objekter.",
     "Klik på Annotate conditions. Navngiv det første output genotype og brug Assign values. Vælg Exact values, og giv columnID-værdierne c1, c2 og c3 etiketten WildType. Tilføj en anden boks kaldet mutant for c7, c4, c5 og c6. Det er illustrative etiketter, ikke validerede genotyper. Den downloadede tabel indeholder kun c1 og c2, så alle celler matcher WildType og ingen matcher mutant. Exact values matcher hele værdier: c1 matcher ikke c10.",
     "Tilføj en outputkolonne kaldet replicate. Match rowID-værdierne r1, r4, r5 og r6 i en boks kaldet replicate 1. Tilføj en boks mere med samme navn for r7, r9 og r10. Bokse med samme etiket danner en forening; modstridende forskellige etiketter i ét output skal løses før Apply conditions. Eksemplet indeholder r5 og r12, så r5 matcher og r12 forbliver tom. Disse øvelsesetiketter dokumenterer ikke biologisk replikation.",

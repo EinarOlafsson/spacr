@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "ja",
   "title": "Graph Builder：測定値をプロットして物体を絞り込む",
@@ -30,7 +35,7 @@
     "右側のフィルターのパネルでcell_areaを追加し、最小値を入力します。この例では二万千九百二十五を使い、千百七十一行が残ります。自分の測定値に合ったしきい値を選び、プロットされる数と軸がどう変わるかを見ます。",
     "フィルターのパネルでClear allをクリックすると、表全体に戻ります。プロットへの割り当てを外して別のグラフを始めたいときは、左側のClear all channelsを使います。",
     "Clear all channelsはグラフの種類はそのままに、グラフからすべての列を外します。キャンバスには足りないものが表示されます。グラフを再び描くには、列をXかYにドラッグします。同じ列を戻せば続けられます。",
-    "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。Open selection in Annotateが使えない場合は、対応するプロジェクトでAnnotateを別に開き、そこで物体を確認します。",
+    "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。選択数とハイライトされた点は連動して更新され、対応するプロジェクトでそれらのオブジェクトを確認するためにOpen selection in Annotateが使えるようになります。",
     "プロットの空いている部分をクリックすると、選択が解除されます。別の物体のグループを探る前に、有効なフィルターと表示されている数を確認します。",
     "Annotate conditionsをクリックします。最初の出力にgenotypeと名前を付け、Assign valuesを使います。Exact valuesを選び、columnIDの値c1、c2、c3にWildTypeとラベルを付けます。c7、c4、c5、c6用にmutantという二つ目のボックスを追加します。これは例示用のラベルで、検証された遺伝子型ではありません。ダウンロードしたテーブルにはc1とc2しかないため、すべての細胞がWildTypeに一致し、mutantに一致するものはありません。Exact valuesは値全体で一致を判定するので、c1はc10には一致しません。",
     "replicateという出力列を追加します。rowIDの値r1、r4、r5、r6を、replicate 1というボックスで一致させます。同じ名前のボックスをもう一つ追加し、r7、r9、r10を指定します。同じラベルのボックスは和集合になります。一つの出力内で異なるラベルが衝突する場合は、Apply conditionsの前に解消する必要があります。例にはr5とr12が含まれるため、r5は一致し、r12は空のままです。これらの練習用ラベルは、生物学的な反復を示すものではありません。",

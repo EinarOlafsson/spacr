@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "nb",
   "title": "Graph Builder: plott målinger og filtrer objekter",
@@ -30,7 +35,7 @@
     "I filterpanelet til høyre legger du til cell_area og skriver inn et minimum. Eksemplet bruker 21 925, som gir 1 171 gjenværende rader. Velg terskler som passer dine egne målinger, og se hvordan antall plottede punkter og aksene endres.",
     "Klikk på Clear all i filterpanelet for å gjenopprette hele tabellen. Bruk Clear all channels til venstre når du vil fjerne tilordningene i plottet og begynne på et annet diagram.",
     "Clear all channels beholder diagramtypen, men fjerner alle kolonner fra diagrammet, og lerretet forteller da hva som mangler: dra en kolonne til X eller Y for å tegne et diagram igjen. Slipp de samme kolonnene tilbake for å fortsette.",
-    "Fjern en fasett med det lille krysset for å gå tilbake til ett spredningsplott. Dra et rektangel rundt objekter for å velge et område. Hvis Open selection in Annotate ikke er tilgjengelig, åpner du Annotate separat med det tilhørende prosjektet og undersøker objektene der.",
+    "Fjern en fasett med det lille krysset for å gå tilbake til ett spredningsplott. Dra et rektangel rundt objekter for å velge et område. Antallet valgte objekter og de uthevede punktene oppdateres samtidig, og Open selection in Annotate blir tilgjengelig for å undersøke objektene i det tilhørende prosjektet.",
     "Klikk på en tom del av plottet for å fjerne markeringen. Kontroller aktive filtre og antallet som vises, før du utforsker en annen gruppe objekter.",
     "Klikk Annotate conditions. Gi det første utdataet navnet genotype og bruk Assign values. Velg Exact values, og gi columnID-verdiene c1, c2 og c3 etiketten WildType. Legg til en andre boks kalt mutant for c7, c4, c5 og c6. Dette er illustrative etiketter, ikke validerte genotyper. Den nedlastede tabellen inneholder bare c1 og c2, så alle celler treffer WildType og ingen treffer mutant. Exact values sammenligner hele verdier: c1 treffer ikke c10.",
     "Legg til en utdatakolonne kalt replicate. Koble rowID-verdiene r1, r4, r5 og r6 i en boks kalt replicate 1. Legg til en boks til med samme navn for r7, r9 og r10. Bokser med samme etikett danner en union; motstridende ulike etiketter i ett utdata må løses før Apply conditions. Eksempelet inneholder r5 og r12, så r5 treffer og r12 forblir tom. Disse øvingsetikettene påviser ikke biologisk replikasjon.",

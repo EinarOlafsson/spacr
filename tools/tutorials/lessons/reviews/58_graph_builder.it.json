@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "it",
   "title": "Graph Builder: tracciare misure e filtrare oggetti",
@@ -30,7 +35,7 @@
     "Nel pannello dei filtri a destra, aggiungi cell_area e inserisci un minimo. L’esempio usa ventunomilanovecentoventicinque, che lascia millecentosettantuno righe. Scegli soglie adatte alle tue misure e osserva come cambiano il numero di punti e gli assi.",
     "Fai clic su Clear all nel pannello dei filtri per ripristinare la tabella completa. Usa Clear all channels a sinistra quando vuoi togliere le assegnazioni del grafico e iniziarne uno diverso.",
     "Clear all channels mantiene il tipo di grafico ma toglie ogni colonna dal grafico, e l’area di disegno indica allora cosa manca: trascina una colonna su X o Y per disegnare di nuovo un grafico. Rilascia di nuovo le stesse colonne per continuare.",
-    "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Se Open selection in Annotate non è disponibile, apri Annotate separatamente con il progetto corrispondente ed esamina lì gli oggetti.",
+    "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Il conteggio degli oggetti selezionati e i punti evidenziati si aggiornano insieme, e Open selection in Annotate diventa disponibile per esaminare quegli oggetti nel progetto corrispondente.",
     "Fai clic su una parte vuota del grafico per cancellare la selezione. Controlla i filtri attivi e il numero visualizzato prima di esplorare un altro gruppo di oggetti.",
     "Fai clic su Annotate conditions. Chiama genotype la prima uscita e usa Assign values. Scegli Exact values, poi etichetta i valori di columnID c1, c2 e c3 come WildType. Aggiungi un secondo riquadro chiamato mutant per c7, c4, c5 e c6. Sono etichette illustrative, non genotipi validati. La tabella scaricata contiene solo c1 e c2, quindi ogni cellula corrisponde a WildType e nessuna a mutant. Exact values confronta valori interi: c1 non corrisponde a c10.",
     "Aggiungi una colonna di uscita chiamata replicate. Fai corrispondere i valori di rowID r1, r4, r5 e r6 in un riquadro chiamato replicate 1. Aggiungi un altro riquadro con lo stesso nome per r7, r9 e r10. I riquadri con la stessa etichetta formano un’unione; etichette diverse in conflitto in un’uscita vanno risolte prima di Apply conditions. L’esempio contiene r5 e r12, quindi r5 corrisponde e r12 resta vuota. Queste etichette di prova non dimostrano una replica biologica.",

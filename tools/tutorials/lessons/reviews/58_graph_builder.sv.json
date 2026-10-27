@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "sv",
   "title": "Graph Builder: rita mätningar och filtrera objekt",
@@ -30,7 +35,7 @@
     "I filterpanelen till höger lägger du till cell_area och anger ett minimum. Exemplet använder 21 925, vilket lämnar 1 171 rader. Välj gränser som passar dina egna mätningar och se hur antalet punkter och axlarna ändras.",
     "Klicka på Clear all i filterpanelen för att återställa hela tabellen. Använd Clear all channels till vänster när du vill ta bort diagrammets tilldelningar och börja ett annat diagram.",
     "Clear all channels behåller diagramtypen men tar bort alla kolumner ur diagrammet, och ritytan säger då vad som saknas: dra en kolumn till X eller Y för att rita ett diagram igen. Släpp tillbaka samma kolumner för att fortsätta.",
-    "Ta bort en facett med dess lilla kryss för att återgå till ett enda spridningsdiagram. Dra en rektangel runt objekt för att välja ett område. Om Open selection in Annotate inte är tillgängligt öppnar du Annotate separat med motsvarande projekt och granskar objekten där.",
+    "Ta bort en facett med dess lilla kryss för att återgå till ett enda spridningsdiagram. Dra en rektangel runt objekt för att välja ett område. Antalet markerade objekt och de markerade punkterna uppdateras samtidigt, och Open selection in Annotate blir tillgängligt för att undersöka objekten i motsvarande projekt.",
     "Klicka på en tom del av diagrammet för att rensa markeringen. Kontrollera aktiva filter och det visade antalet innan du utforskar en annan grupp objekt.",
     "Klicka på Annotate conditions. Ge det första utdata namnet genotype och använd Assign values. Välj Exact values och märk columnID-värdena c1, c2 och c3 som WildType. Lägg till en andra ruta som heter mutant för c7, c4, c5 och c6. Detta är illustrativa etiketter, inte validerade genotyper. Den nedladdade tabellen innehåller bara c1 och c2, så alla celler matchar WildType och ingen matchar mutant. Exact values jämför hela värden: c1 matchar inte c10.",
     "Lägg till en utdatakolumn som heter replicate. Matcha rowID-värdena r1, r4, r5 och r6 i en ruta som heter replicate 1. Lägg till ytterligare en ruta med samma namn för r7, r9 och r10. Rutor med samma etikett bildar en union; motstridiga olika etiketter i ett utdata måste lösas före Apply conditions. Exemplet innehåller r5 och r12, så r5 matchar och r12 förblir tom. Dessa övningsetiketter visar inte biologisk replikering.",
