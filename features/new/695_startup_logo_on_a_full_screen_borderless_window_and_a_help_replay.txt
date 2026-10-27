@@ -2,8 +2,8 @@
 STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP REPLAY
 ================================================================================
 
-Status:    built 2026-10-12 (Home); nine-language translations current;
-           WS capture (SPACR_NO_SPLASH unset) remains owner work
+Status:    startup delivery accepted; borderless-toggle disappearance is open.
+           G4 owns the focused repair; root owns Nightly publication.
 Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
            and the logo blow away window are the same window not seperate the
            spacr log mosaic on a black background is the first thing loaded
@@ -204,3 +204,5 @@ Tests: tests/qt/test_695_startup_dialogs_deferred.py.
 
 2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
 No new tutorial/native acceptance or release claim; those remain with their existing owners.
+
+2026-10-27 — Reopened only the reported borderless-toggle disappearance; startup delivery remains accepted. Preserve visible-window state and geometry when changing native flags, and keep startup-hidden windows hidden. Reasonable implementation, a focused Qt regression and publication qualify this follow-up; no human/manual or native-platform acceptance campaign is required. G4 owns the repair; root owns Nightly publication.
