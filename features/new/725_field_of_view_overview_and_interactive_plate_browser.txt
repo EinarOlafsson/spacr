@@ -1151,8 +1151,8 @@ Check resizable Add folders/Add plates pickers (about 960x640; every button visi
 
 2026-10-26 — Pooled plates and the one-field default are integrated with metadata contrast, viewport-fixed overlays and a centred shared colour picker that retains its initial colour; real shown controls and both-theme visuals pass. Normal nine-language catalogs and affected reference, flow and consumer outputs are current. Owning Linux checks pass; final Night publication, hosted release CI and Windows follow-up remain with their owners.
 
-2026-10-26 — New maintainer request; owner Codex Overview team, isolated from release 1.5.1.6: newly added canvas images must freeze the currently adjusted visualization settings.
-Add a right-click Propagate settings action for the selected canvas image and an explicit boolean to apply current visualization changes live to all canvas images; existing images otherwise keep their snapshots.
-Fix the multiwell size slider so it scales images rather than only moving equal-size tiles, and keep the console and bottom controls inside the window when Figure opens.
-Acceptance: meaningful adjusted-image/add/propagate/live-toggle controls, real multiwell geometry at two sizes, and bounded Figure-open layout checks; retain unrelated passing results and use normal translated/generated outputs.
-Publication remains with the root release coordinator; native platform acceptance and other existing item requirements remain open.
+2026-10-26 — Codex Overview follow-up, isolated from release 1.5.1.6: newly added canvas images freeze the currently adjusted visualization; saved layouts retain channel, normalization, colour and enhancement snapshots.
+Right-click Propagate settings updates only its target; the live boolean applies current settings to all pages and future images, while switching it off preserves each snapshot. Explicit disk-file Import settings remain independent.
+The multiwell size slider now invalidates size-dependent thumbnail icons, and Figures scrolls internally so opening it keeps the Console and Actions inside the window.
+Validation: six canvas/import controls, two real multiwell Original/capped-quality geometry cases and one real Figure-open allocation case passed; normal owning-module API/public boundaries remain 31/25 with zero arrivals or required-parameter omissions.
+Pending root joint-source normal runtime/consumer/flow/index generation and translated four-caption closure, integration and publication; native platform acceptance and other existing item requirements remain open.
