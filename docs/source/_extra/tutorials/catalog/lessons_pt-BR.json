@@ -2604,15 +2604,38 @@
           "visual": "26_detail_coefficients",
           "narration": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise.",
           "hold_after": 0.7,
-          "speech_text": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise.",
           "related_lessons": [
             "48_hit_list"
-          ]
+          ],
+          "speech_text": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
