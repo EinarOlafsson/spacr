@@ -211,6 +211,22 @@ def prepare_profile(font_scale: float) -> dict:
 
 
 # -- 2./4. the runtime the recorder talks to --------------------------------------
+def _field_pacing(widget):
+    """Read diagnostic pacing, preserving unavailable/invalid values as null."""
+    def positive_rate(name):
+        try:
+            method = getattr(widget, name, None)
+            value = method() if callable(method) else None
+        except Exception:
+            return None
+        return (float(value) if type(value) in (int, float)
+                and math.isfinite(value) and value > 0 else None)
+    held = vars(widget).get('_hold_paced')
+    return {'configured_fps': positive_rate('fps'),
+            'effective_rate': positive_rate('_rate'),
+            '_hold_paced': held if type(held) is bool else None}
+
+
 class HostRuntime:
     """What :mod:`capture_refresh` uses in host mode: the window, the pump, the clip recorder."""
 
@@ -269,11 +285,15 @@ class HostRuntime:
             self._paint_baselines[widget] = (identity, count, shown, observed)
             identities.append({'id': identity, 'frames_painted': count,
                                'visible': shown, 'observed_frames_painted': observed,
-                               'counter_reset': previous is not None and count < previous[1]})
+                               'counter_reset': previous is not None and count < previous[1],
+                               **_field_pacing(widget)})
             if shown:
                 visible.append(widget)
         return {'t': time.monotonic(), 'frames_painted': self._observed_field_frames,
-                'fps_cap': [w.fps() for w in visible], 'widgets': identities}
+                'fps_cap': [w.fps() for w in visible], 'widgets': identities,
+                'pacing': [{key: row[key] for key in
+                            ('id', 'configured_fps', 'effective_rate', '_hold_paced')}
+                           for row in identities if row['visible']]}
 
     def _sample_scene(self, scene):
         """Record GUI timer delivery separately from the paint delta count."""
@@ -454,6 +474,8 @@ class HostRuntime:
             'app_gui_sampler_gaps_s': [[round(a - begin, 3), round(b - begin, 3)]
                                        for a, b in scene['gui_sampler_gaps']],
             'app_field': {'fps_cap': fb['fps_cap'],
+                          'pacing_before': fb['pacing'],
+                          'pacing_after': field_after['pacing'],
                           'painted_fps_scope': 'sum_of_observed_visible_widget_deltas',
                           'painted_fps': round((field_after['frames_painted'] - fb['frames_painted'])
                                                / max(1e-6, field_after['t'] - fb['t']), 2)},

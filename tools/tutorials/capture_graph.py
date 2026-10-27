@@ -25,7 +25,7 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
     import pandas as pd
     from capture_diagnostics import PrivateDesktop
     from capture_graph_annotations import record_annotations
-    from graph_evidence import check_brush, check_histogram, check_points
+    from graph_evidence import check_brush, check_brush_cleared, check_histogram, check_points
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QPushButton
@@ -312,8 +312,36 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         print(f'Observed genuine mouse events {events}; linked keys={len(canvas.link.selection)}; source={canvas.link.selection.source}', flush=True)
         for observer in observers:
             canvas._canvas.mpl_disconnect(observer)
+        press = [event for event in events if event['kind'] == 'button_press_event']
+        release = [event for event in events if event['kind'] == 'button_release_event']
+        if len(press) != 1 or len(release) != 1 or not all(e['in_current_axes'] for e in press + release):
+            raise RuntimeError('Expected one genuine rectangle inside the plotted axes')
+        lo_x, hi_x = sorted([press[0]['x'],release[0]['x']])
+        lo_y, hi_y = sorted([press[0]['y'],release[0]['y']])
+        rows = expected_frame[expected_frame.cell_area.between(lo_x,hi_x) &
+                              expected_frame.cell_channel_1_mean_intensity.between(lo_y,hi_y)]
+        if not 0 < len(rows) < initial_count:
+            raise RuntimeError('Expected a genuine partial rectangle of the unchanged source table')
+        # This source's literal untyped identifiers contain no escaped parts.
+        columns = ['plateID','rowID','columnID','fieldID','object_label']
+        parts = rows[columns].astype(str)
+        if parts.apply(lambda col: col.str.contains('_|%')).any().any():
+            raise RuntimeError('Escaped identities require a separate source audit')
+        expected_keys = parts.agg('_'.join,axis=1).tolist()
+        brush_review = check_brush(expected_keys,canvas.link.selection.keys,selected,screen._to_annotate.isEnabled())
+        if canvas.link.selection.source != canvas.link_source:
+            raise RuntimeError('The actual brush publication belongs to a different view')
+        current_axes = canvas.axes_at()
+        if len(current_axes.collections) != 2 or not current_axes.collections[-1].get_visible():
+            raise RuntimeError('The actual full scatter highlight artist is missing')
+        highlight_points = rows[['cell_area', 'cell_channel_1_mean_intensity']].to_numpy()
+        check_points(highlight_points, current_axes.collections[-1].get_offsets())
+        if f'{selected:,} highlighted' not in canvas.notice():
+            raise RuntimeError('The actual visible brush count notice is stale')
+        check_scatter('11_brush_keeps_all_points', expected_frame)
+        brush_review['highlight_points_independently_checked'] = len(rows)
         brush_proof = {
-            'accepted': bool(0 < selected < initial_count and screen._to_annotate.isEnabled()),
+            'accepted': True, 'brush_review': brush_review,
             'rows': initial_count, 'visible_selected_rows': selected,
             'published_object_keys': len(canvas.link.selection),
             'handoff_enabled': screen._to_annotate.isEnabled(),
@@ -326,27 +354,13 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         drv.finish(capture, scene11)
         write_json(captures / 'brush_outcome.json', brush_proof)
         if review_handoff:
-            press = [event for event in events if event['kind'] == 'button_press_event']
-            release = [event for event in events if event['kind'] == 'button_release_event']
-            if len(press) != 1 or len(release) != 1 or not all(e['in_current_axes'] for e in press + release):
-                raise RuntimeError('Expected one genuine rectangle inside the plotted axes')
-            lo_x, hi_x = sorted([press[0]['x'],release[0]['x']])
-            lo_y, hi_y = sorted([press[0]['y'],release[0]['y']])
-            rows = expected_frame[expected_frame.cell_area.between(lo_x,hi_x) &
-                                  expected_frame.cell_channel_1_mean_intensity.between(lo_y,hi_y)]
-            # This source's literal untyped identifiers contain no escaped parts.
-            columns = ['plateID','rowID','columnID','fieldID','object_label']
-            parts = rows[columns].astype(str)
-            if parts.apply(lambda col: col.str.contains('_|%')).any().any():
-                raise RuntimeError('Escaped identities require a separate source audit')
-            expected_keys = parts.agg('_'.join,axis=1).tolist()
-            brush_review = check_brush(expected_keys,canvas.link.selection.keys,selected,screen._to_annotate.isEnabled())
             # A plain native click clears publication too, not only its stale display.
             with capture_ui.clip(capture, '12_selection_cleared'):
                 QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
                 settle(0.8)
-                if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
-                    raise RuntimeError('The native click failed to clear the brush state')
+                clear_review = check_brush_cleared(canvas.link.selection.keys, canvas.selected_count(),
+                                                  screen._to_annotate.isEnabled(), canvas.link.selection.is_active)
+                check_points([], canvas.axes_at().collections[-1].get_offsets())
             extras = {'schema': stage / 'graph_schema' / captures.name / 'conditions.schema.json'}
             extras['schema'].parent.mkdir(parents=True, exist_ok=True)
             annotation_proof = record_annotations(app, screen, capture, settle, timeout, extras=extras)
@@ -360,16 +374,17 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             pd.testing.assert_frame_equal(after, expected_frame)
             annotation_proof['cell_table_unchanged_after_writes'] = True
             write_json(captures/'scientific_acceptance.json', {
-                'accepted':True, 'scope':'Actual native charts and reversible filters; annotation handoff explicitly BROKEN',
+                'accepted':True, 'scope':'Actual native charts, reversible filters and coherent brush handoff availability',
                 'condition_annotations': annotation_proof,
-                'original_handoff_hold_preserved':True, 'brush_review':brush_review,
+                'brush_review':brush_review, 'clear_review':clear_review,
+                'annotation_handoff_clicked':False,
                 'database':str(database),'database_sha256':original_hash,'rows':initial_count,
                 'area_filter_cutoff':cutoff,'filtered_rows':filtered_count,'filter_cleared':True,
                 'selection_publication_cleared':True,'chart_checks':chart_checks,
                 'folds':list(FOLDED_APPS),'final_spec':asdict(screen.builder.spec),
                 'source_database_unchanged':True,'app_source_modified':False,
-                'annotation_handoff_fixed':False,'chart_export_button_used':False,'published':False})
-            print('Verified native graph and filter data; annotation handoff remains broken',flush=True)
+                'annotation_handoff_available':True,'chart_export_button_used':False,'published':False})
+            print('Verified native graph, exact brush highlights and reversible handoff availability',flush=True)
             return
         if not 0 < selected < initial_count or not screen._to_annotate.isEnabled():
             write_json(captures / 'scientific_acceptance.json', brush_proof)
@@ -379,8 +394,9 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         with capture_ui.clip(capture, '12_selection_cleared'):
             QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
             settle(0.8)
-            if canvas.selected_count() != 0 or screen._to_annotate.isEnabled():
-                raise RuntimeError('The actual click did not clear the linked selection')
+            clear_review = check_brush_cleared(canvas.link.selection.keys, canvas.selected_count(),
+                                              screen._to_annotate.isEnabled(), canvas.link.selection.is_active)
+            check_points([], canvas.axes_at().collections[-1].get_offsets())
         annotation_proof = record_annotations(app, screen, capture, settle, timeout)
         if digest(database) != original_hash:
             raise RuntimeError('Exploring the chart modified the downloaded database')
@@ -390,6 +406,7 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             'filtered_rows': filtered_count, 'filter_cleared': True,
             'condition_annotations': annotation_proof,
             'brushed_rows': selected, 'selection_cleared': True,
+            'brush_review':brush_review, 'clear_review':clear_review,
             'source_database_unchanged': True, 'actual_native_column_drags': True,
             'folds': list(FOLDED_APPS), 'final_spec': asdict(screen.builder.spec),
             'notice': canvas.notice(), 'chart_or_spec_export_button_used': False,
