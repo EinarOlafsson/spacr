@@ -2,7 +2,7 @@
 THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
 ================================================================================
 
-Status:    REOPENED 2026-10-27 — add actionable Linux inotify recovery guidance to the existing warning.
+Status:    DONE 2026-10-27 — actionable Linux inotify recovery guidance delivered alongside the existing setup polish.
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 Workstation session 2 owns the inotify warning follow-up. Show pasteable
 terminal commands for increasing the current limit and making it persistent,
@@ -19,7 +19,7 @@ Primary references: https://man7.org/linux/man-pages/man7/inotify.7.html
 https://man7.org/linux/man-pages/man5/sysctl.d.5.html
 
 VERIFIED 2026-10-04: tests/qt/test_the_setup_window_is_one_rounded_surface.py green; spacr/__init__ filters the pynvml warning.
-Owner:     spacr/qt -- setup slides, glass, home, preferences.
+Owner:     Workstation session 2 for the inotify follow-up; existing setup/UI ownership retained.
 
   1. One rounded translucent surface -- "the setup window now looks like i
      want it to look". The second rectangle was the ambient backdrop
@@ -154,3 +154,6 @@ HOW TO KNOW IT WORKED
   and clicking one starts its login.
 * The GitHub button opens the default browser.
 * Starting spaCR prints neither the ibus line nor the pynvml warning.
+
+2026-10-27 — Linux-only once-per-process warning now prints temporary and persistent sysctl commands, recommends an increase above the current watch limit and explains application closure, reboot, WSL and restarting affected apps. Commands are displayed only; spaCR changes no system settings.
+2026-10-27 — Nine focused message/quieting checks pass, including unreadable-limit fallback, shell quoting, platform and once-only controls. Four new captions have source-bound nine-language reviews; normal runtime catalogs/index and nightly publication complete the follow-up.
