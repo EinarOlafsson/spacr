@@ -419,3 +419,5 @@ Codex continues12/26/37 reviewed pause edits; diagnostic-only held-pacing classi
 Private guard retains27 affected passes plus15 affected validator passes after device-index refinement; actual CUDA/native acceptance remains pending.
 Lesson12 reviewed pause cuts retain all50 narration tracks and original demonstrated actions; edited master, full decode/PTS, poster and web copy pass. Strict all-voice browser gaps and normal publication remain required.
 Lesson12 generated final idle policy added (no prior entry), preserving all other policies; publication uses the completed81 candidate baseline.
+
+2026-10-27 — G5 reconciles the private lesson22 helpers onto published dabd97, preserving incoming per-widget pacing and held-gate diagnostics alongside private30 pacing, raw producer/clock telemetry, hidden-folder UI actions and invalid-buffer refusal; only affected helper tests run, with all native capture/publication held.
