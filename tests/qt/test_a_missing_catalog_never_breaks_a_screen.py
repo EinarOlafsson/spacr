@@ -185,7 +185,7 @@ def test_english_availability_survives_missing_external_catalogs(monkeypatch):
     """Extended English coverage is optional; compact entries remain usable."""
     from spacr.qt.i18n import _ROWS, _TERM_ROWS, has_translation
 
-    source = "Easy mode"
+    source = "Navigator"
     assert source not in _ROWS and source not in _TERM_ROWS
     assert has_translation(source, "en")
     real_import = builtins.__import__
