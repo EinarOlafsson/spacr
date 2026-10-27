@@ -273,18 +273,13 @@ def test_a_seven_slot_file_validates_when_the_count_is_two():
 
 
 def test_the_count_is_offered_as_the_closed_range_it_is():
-    """Every number the alphabet can name, and none it cannot.
-
-    A free number field would accept thirty and be clamped to twenty-six on
-    the way in, which is a value the user did not ask for arriving without
-    being mentioned.
-    """
+    """Integer entry accepts the supported range and refuses invalid counts."""
     from spacr.settings_spec import convert_settings_dict_for_gui
 
     kind, options, _default = convert_settings_dict_for_gui(
         {"number_of_organelles": 7})["number_of_organelles"]
-    assert kind == "combo"
-    assert options == list(range(MAX_ORGANELLES + 1))
+    assert kind == "entry"
+    assert options is None
 
 
 def test_the_count_control_carries_the_number_the_file_holds(qapp):
@@ -299,8 +294,20 @@ def test_the_count_control_carries_the_number_the_file_holds(qapp):
 
     panel = SettingsWidgets("mask", current={"number_of_organelles": 7})
     panel.build_sections()
-    assert panel._widgets["number_of_organelles"].currentText() == "7"
+    from PySide6.QtWidgets import QLineEdit
+
+    assert isinstance(panel._widgets["number_of_organelles"], QLineEdit)
+    assert panel._widgets["number_of_organelles"].text() == "7"
     assert panel.collect()["number_of_organelles"] == 7
+    field = panel._widgets["number_of_organelles"]
+    for count in (0, 7, 99, MAX_ORGANELLES):
+        field.setText(str(count))
+        assert panel.collect()["number_of_organelles"] == count
+    for invalid in ("-1", "1.5", "seven", str(MAX_ORGANELLES + 1)):
+        field.setText(invalid)
+        with pytest.raises(ValueError):
+            panel.collect()
+        assert field.text() == invalid
 
 
 def test_the_count_itself_is_declared_like_any_other_setting():
@@ -338,10 +345,17 @@ def test_the_panel_builds_a_control_for_every_slot_the_number_asks_for(qapp):
     seven = S.set_default_settings_preprocess_generate_masks(
         {"src": "/tmp/s", "number_of_organelles": 7})
     _panel, slots = built_slots(seven)
+    assert slots == {"organelle"}
+    assert {key for key in _panel._widgets if organelle_role_of(key)} == {"organelle_channel"}
+    seven.update({f"{role}_channel": index
+                  for index, role in enumerate(organelle_roles(7))})
+    _panel, slots = built_slots(seven)
+    assert _panel.collect()["number_of_organelles"] == 7
     assert slots == set(organelle_roles(7))
     for role in organelle_roles(7):
         assert f"{role}_type" in _panel._widgets
         assert f"{role}_diameter" in _panel._widgets
+        assert _panel.collect()[f"{role}_channel"] == seven[f"{role}_channel"]
 
 
 def test_a_slot_the_panel_does_not_draw_still_reaches_the_run(qapp):
