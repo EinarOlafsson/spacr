@@ -3286,7 +3286,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8215,10 +8238,10 @@
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Åpne Feature Explorer for å sammenligne målte egenskaper mellom valgte grupper. Velg grupper og filtre, og undersøk deretter rangeringen av egenskaper og plottene.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
