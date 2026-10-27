@@ -167,8 +167,8 @@ class TestTheFormShapeDecision:
     """`_bulk_apply_changes_form_shape` -- does this change need a rebuild?
 
     Item 356 as the maintainer extended it on 2026-10-17: a settings file
-    follows the rule a typed value does. Only `number_of_organelles` adds
-    or removes rows; a channel or organelle-slot switch is shown in place.
+    follows the rule a typed value does. The 2026-10-27 progressive form
+    grows organelle controls in place for both counts and configured switches.
     """
 
     def test_an_object_switch_never_reshapes_the_form(self, screen):
@@ -183,11 +183,12 @@ class TestTheFormShapeDecision:
                 settings, current) is False, settings
 
     def test_a_new_organelle_count_reshapes_the_form(self, screen):
+        """A changed count is answered in place, as an unchanged count is."""
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
 
         current = {NUMBER_OF_ORGANELLES: 1, "organelle_channel": 1}
         assert screen._bulk_apply_changes_form_shape(
-            {NUMBER_OF_ORGANELLES: 2}, current) is True
+            {NUMBER_OF_ORGANELLES: 2}, current) is False
         assert screen._bulk_apply_changes_form_shape(
             {NUMBER_OF_ORGANELLES: 1}, current) is False
 
