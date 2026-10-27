@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "Quando a execução terminar, abra Runs e selecione a análise salva. Confirme a pasta e as configurações antes de compará-la com outra execução. Execute a análise de novo depois de mudar as configurações se quiser resultados novos.",
           "hold_after": 0.7,
-          "speech_text": "Quando a execução terminar, abra Runs e selecione a análise salva. Confirme a pasta e as configurações antes de compará-la com outra execução. Execute a análise de novo depois de mudar as configurações se quiser resultados novos.",
           "related_lessons": [
             "73_parameter_sweep"
-          ]
+          ],
+          "speech_text": "Quando a execução terminar, abra Runs e selecione a análise salva. Confirme a pasta e as configurações antes de compará-la com outra execução. Execute a análise de novo depois de mudar as configurações se quiser resultados novos."
         },
         {
           "visual": "25_result_results",
@@ -2616,26 +2616,49 @@
           "visual": "26_detail_p_values",
           "narration": "Abra a visualização de valores p e a ferramenta Diagnostics. Revise a distribuição dos resultados junto com a resolução das permutações, a família de testes e os avisos sobre o delineamento. Resolva os problemas de diagnóstico importantes antes de interpretar as associações.",
           "hold_after": 0.7,
-          "speech_text": "Abra a visualização de valores p e a ferramenta Diagnostics. Revise a distribuição dos resultados junto com a resolução das permutações, a família de testes e os avisos sobre o delineamento. Resolva os problemas de diagnóstico importantes antes de interpretar as associações.",
           "related_lessons": [
             "75_regression_diagnostics"
-          ]
+          ],
+          "speech_text": "Abra a visualização de valores p e a ferramenta Diagnostics. Revise a distribuição dos resultados junto com a resolução das permutações, a família de testes e os avisos sobre o delineamento. Resolva os problemas de diagnóstico importantes antes de interpretar as associações."
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise.",
           "hold_after": 0.7,
-          "speech_text": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise.",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ]
+          ],
+          "speech_text": "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

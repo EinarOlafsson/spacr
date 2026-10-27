@@ -155,7 +155,22 @@ def plan_intervals(english,original,tracks,edit,bindings):
         kept=sum(b-a for a,b in keep)
         if selected is None and max(durations)>source_frames/30+1e-9:
             raise ValueError('New narration exceeds an untouched published interval')
-        frames=source_frames if selected is None else max(kept,math.ceil(max(durations)*30-1e-8))
+        required_duration=max(durations)
+        if selected is not None and index==len(original['scenes'])-1:
+            # EOF has an explicit one-second sound-to-end policy. Hold the
+            # reviewed result frame; never stretch recorded motion or audio.
+            for track in tracks:
+                spoken=track['scenes'][index]
+                sentences=spoken.get('sentences')
+                if not isinstance(sentences,list) or not sentences:
+                    raise ValueError('Edited final hold requires validated last audible timing')
+                last=sentences[-1].get('audible_end')
+                start=float(spoken['speech_start']);end=float(spoken['speech_end'])
+                if (type(last) not in (int,float) or not math.isfinite(last)
+                        or not start<=last<=end):
+                    raise ValueError('Edited final hold requires validated last audible timing')
+                required_duration=max(required_duration,last-start+1)
+        frames=source_frames if selected is None else max(kept,math.ceil(required_duration*30-1e-8))
         rows.append(dict(scene=index+1,visual=source['visual'],text=authored['narration'],
             speech_start=cursor/30,speech_end=(cursor+frames)/30,scene_end=(cursor+frames)/30,
             duration=frames/30,native_live_video=source.get('native_live_video') is True,

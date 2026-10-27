@@ -109,6 +109,9 @@ def source_plan():
                         {'visual':'untouched','speech_start':10,'scene_end':20,'duration':10,'native_live_video':True}]}
     tracks=[{'scenes':[{'speech_start':0,'speech_end':2+i/100,'duration':2.52+i/100},
                       {'speech_start':3,'speech_end':5,'duration':2.52}]} for i in range(50)]
+    for track in tracks:
+        for scene in track['scenes']:
+            scene['sentences']=[{'audible_end':scene['speech_end']-.18}]
     bindings={'master':{'sha256':'a'*64},'timing':{'sha256':'b'*64}}
     plan={'schema':1,'lesson':'07_mask','master_sha256':'a'*64,'visual_timing_sha256':'b'*64,
           'scenes':[{'visual':'organize','keep_frames':[[0,30],[240,270]],
@@ -481,3 +484,42 @@ def test_published_render_uses_terminal_seekability_for_every_scene(published_ex
     monkeypatch.setattr(render_visual_master,'concat',lambda parts,target,_:target.write_bytes(b'synthetic concatenation'))
     edit.render(stage,'05_home',baseline,plan,source_idle_policy=policy)
     assert encoded==[True,True]
+
+
+def test_edited_final_result_hold_covers_all_voices_audible_eof_without_changing_prior_scene(source_plan):
+    args=deepcopy(source_plan)
+    before=edit.plan_intervals(*args)
+    final=dict(visual='untouched',keep_frames=[[0,30]],
+        confirmed_idle_frames=[[30,300]],final_result_frame=29)
+    args[3]['scenes'].append(final)
+    # Longest complete clip has .18 quiet tail + .52 hold: only .70 to EOF.
+    for track in args[2]:
+        scene=track['scenes'][1]
+        scene.update(speech_start=3,speech_end=27.08,duration=24.60,
+                     sentences=[{'audible_end':26.90}])
+    args[2][0]['scenes'][1].update(speech_end=27.18,duration=24.70,
+        sentences=[{'audible_end':27.0}])
+    tracks_before=deepcopy(args[2])
+    rows=edit.plan_intervals(*args)
+    assert args[2]==tracks_before
+    assert rows[0]==before[0]
+    assert rows[1]['duration']==25.0
+    assert rows[1]['source_keep_frames']==[[0,30]]
+    assert rows[1]['final_frame_hold_frames']==720
+    for track in args[2]:
+        last=track['scenes'][1]
+        assert rows[1]['duration']-(last['sentences'][-1]['audible_end']-last['speech_start'])>=1
+    assert rows[1]['duration']-(args[2][0]['scenes'][1]['sentences'][-1]['audible_end']-3)<1+1/30
+
+
+@pytest.mark.parametrize('fault',['missing','nonfinite','after_speech'])
+def test_edited_final_result_hold_rejects_unbound_audible_endpoint(source_plan,fault):
+    args=deepcopy(source_plan)
+    args[3]['scenes'].append(dict(visual='untouched',keep_frames=[[0,30]],
+        confirmed_idle_frames=[[30,300]],final_result_frame=29))
+    scene=args[2][-1]['scenes'][1]
+    if fault=='missing':scene.pop('sentences')
+    elif fault=='nonfinite':scene['sentences'][-1]['audible_end']=float('nan')
+    else:scene['sentences'][-1]['audible_end']=scene['speech_end']+.01
+    with pytest.raises(ValueError,match='validated last audible timing'):
+        edit.plan_intervals(*args)

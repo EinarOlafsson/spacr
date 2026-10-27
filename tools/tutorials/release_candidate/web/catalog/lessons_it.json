@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "Al termine dell’esecuzione, apri Runs e seleziona l’analisi salvata. Conferma la cartella e le impostazioni prima di confrontarla con un’altra esecuzione. Riesegui l’analisi dopo aver cambiato le impostazioni se vuoi nuovi risultati.",
           "hold_after": 0.7,
-          "speech_text": "Al termine dell’esecuzione, apri Runs e seleziona l’analisi salvata. Conferma la cartella e le impostazioni prima di confrontarla con un’altra esecuzione. Riesegui l’analisi dopo aver cambiato le impostazioni se vuoi nuovi risultati.",
           "related_lessons": [
             "73_parameter_sweep"
-          ]
+          ],
+          "speech_text": "Al termine dell’esecuzione, apri Runs e seleziona l’analisi salvata. Conferma la cartella e le impostazioni prima di confrontarla con un’altra esecuzione. Riesegui l’analisi dopo aver cambiato le impostazioni se vuoi nuovi risultati."
         },
         {
           "visual": "25_result_results",
@@ -2616,26 +2616,49 @@
           "visual": "26_detail_p_values",
           "narration": "Apri la vista dei valori p e lo strumento Diagnostics. Esamina la distribuzione dei risultati insieme alla risoluzione delle permutazioni, alla famiglia di test e agli avvisi sul disegno. Risolvi i problemi diagnostici importanti prima di interpretare le associazioni.",
           "hold_after": 0.7,
-          "speech_text": "Apri la vista dei valori p e lo strumento Diagnostics. Esamina la distribuzione dei risultati insieme alla risoluzione delle permutazioni, alla famiglia di test e agli avvisi sul disegno. Risolvi i problemi diagnostici importanti prima di interpretare le associazioni.",
           "related_lessons": [
             "75_regression_diagnostics"
-          ]
+          ],
+          "speech_text": "Apri la vista dei valori p e lo strumento Diagnostics. Esamina la distribuzione dei risultati insieme alla risoluzione delle permutazioni, alla famiglia di test e agli avvisi sul disegno. Risolvi i problemi diagnostici importanti prima di interpretare le associazioni."
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi.",
           "hold_after": 0.7,
-          "speech_text": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi.",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ]
+          ],
+          "speech_text": "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

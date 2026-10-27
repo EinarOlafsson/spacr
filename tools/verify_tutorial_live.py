@@ -11,12 +11,15 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools/tutorials'))
+from archived import visible
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
 
@@ -98,10 +101,33 @@ def source_equivalent_assets(remote: dict[str, bytes]) -> dict[str, bytes]:
         player = player.replace('publishedMedia(activeLesson.poster)', '`${PRODUCTION_ROOT}/${activeLesson.poster}`')
         assets['app_v2.js'] = player.encode()
     index = assets['index.html'].decode()
+    hf_script = ('<script>window.huggingface={variables:{"SPACE_CREATOR_USER_ID":'
+                 '"651dd0c2e956b4858bd2f10e"}};</script>')
+    hf_metadata = ('<meta property="og:title" content="spaCR nightly documentation">'
+                   '<meta property="og:description" content="Nightly preview of the spaCR documentation">'
+                   '<meta property="og:image" content="https://cdn-thumbnails.huggingface.co/social-thumbnails/spaces/einarolafsson/spacr-docs-nightly-v2.png">'
+                   '<meta name="twitter:card" content="summary_large_image">'
+                   '<meta name="twitter:image" content="https://cdn-thumbnails.huggingface.co/social-thumbnails/spaces/einarolafsson/spacr-docs-nightly-v2.png">')
+    local_index = (LOCAL / 'index.html').read_text(encoding='utf-8')
+    if (hf_script not in local_index and hf_metadata not in local_index
+            and index.count('<head>' + hf_script) == 1
+            and index.count(hf_metadata + '</head>') == 1):
+        index = index.replace('<head>' + hf_script, '<head>', 1)
+        index = index.replace(hf_metadata + '</head>', '</head>', 1)
     index = re.sub(r'<div class="spacr-publication-channel"[^>]*>.*?</div>', '', index, count=1)
     index = re.sub(r'(app_v2\.js\?v=)[^"\s]+', lambda m: m[1] + EXPECTED_APP_KEY, index)
     assets['index.html'] = index.encode()
     return assets
+
+
+def expected_visible_lessons() -> list[dict]:
+    """Use the local catalog and normal archive projection, without a fixed count."""
+    catalog = _catalog_payload((LOCAL / 'lesson_catalog.js').read_text(encoding='utf-8'))
+    lessons = catalog['lessons']
+    identities = [lesson['id'] for lesson in lessons]
+    assert identities and len(identities) == len(set(identities))
+    selected = set(visible(identities))
+    return [lesson for lesson in lessons if lesson['id'] in selected]
 
 
 def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
@@ -111,8 +137,8 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
     index = remote["index.html"].decode("utf-8")
     voices_source = remote["voice_catalog.js"].decode("utf-8")
     catalog = _catalog_payload(remote["lesson_catalog.js"].decode("utf-8"))
-    local_catalog = _catalog_payload((LOCAL / "lesson_catalog.js").read_text(encoding="utf-8"))
-    expected_scenes = sum(len(lesson["scenes"]) for lesson in local_catalog["lessons"])
+    expected_lessons = expected_visible_lessons()
+    expected_scenes = sum(len(lesson['scenes']) for lesson in expected_lessons)
     languages, voices = _voice_inventory(voices_source)
     lessons = catalog["lessons"]
     scene_count = sum(len(lesson["scenes"]) for lesson in lessons)
@@ -141,7 +167,8 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         normalized = {name: _sha256(payload) for name, payload in source_equivalent_assets(remote).items()}
         result["source_equivalent_sha256"] = normalized
         result["hashes_match_local"] = normalized == local_hashes
-    assert result["lessons"] == 84, result
+    assert result['lessons'] == len(expected_lessons), result
+    assert [lesson['id'] for lesson in lessons] == [lesson['id'] for lesson in expected_lessons], result
     assert catalog["lesson_aliases"] == {
         "02_conda_install": "02_install_spacr",
         "03_pip_install": "02_install_spacr",
@@ -265,7 +292,7 @@ def mobile_browser_audit(url: str, *, timeout: int, screenshot: Path) -> dict:
 
     result = {"initial": initial, "playing": playing, "paused": paused,
               "ended": ended, "replay": replay, "screenshot": str(screenshot)}
-    assert initial["lessonPosition"] == "Lesson 1 of 84", result
+    assert initial['lessonPosition'] == f'Lesson 1 of {len(expected_visible_lessons())}', result
     assert initial["voices"] == 50 and initial["languages"] == 8, result
     assert initial["captionsEnabled"] and initial["captionSrc"].startswith("blob:"), result
     assert initial["audioSrc"].startswith("blob:"), result
