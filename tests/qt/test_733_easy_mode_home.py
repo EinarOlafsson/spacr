@@ -279,7 +279,19 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert window._dock_mode == 'hidden'
         qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         backdrop = window.window_backdrop()
-        assert backdrop.background_color().name() == theme.palette_for('dark')['page']
+        assert backdrop.background_color().getRgb() == (25, 25, 25, 255)
+        from PySide6.QtCore import QRect
+        from PySide6.QtGui import QColor, QImage, QPainter
+
+        base = QImage(12, 12, QImage.Format_ARGB32)
+        base.fill(QColor('magenta'))
+        painter = QPainter(base)
+        try:
+            backdrop._paint_base(painter, QRect(0, 0, 12, 12))
+        finally:
+            painter.end()
+        assert all(base.pixelColor(x, y).getRgb() == (25, 25, 25, 255)
+                   for x in range(12) for y in range(12))
         assert preferences.get_theme() == 'light'
         assert preferences.get_ambient_palette() == palette_choice
         old_page = page
@@ -287,13 +299,13 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         page = window._startup
         assert page is not old_page and isinstance(page, _EasyHomePage)
         assert window._stack.currentWidget() is page
-        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
+        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
         window._retire_the_dock_backdrop()
         assert window.window_backdrop() is None
         window._backdrop_the_dock_column()
         qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         assert window.window_backdrop() is not backdrop
-        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
+        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
         preferences.set_easy_mode_dock(True)
         window.refresh_after_preferences({"easy_mode_dock"})
         assert window._dock_mode == 'locked'
@@ -323,7 +335,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert window.window_backdrop().background_color() == normal_background
         assert not window.window_backdrop()._background_explicit
         window._stack.setCurrentWidget(page)
-        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
+        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
         window._stack.setCurrentWidget(screen)
         assert window.window_backdrop().background_color() == normal_background
         assert preferences.get_theme() == 'light'

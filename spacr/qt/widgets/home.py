@@ -4297,7 +4297,7 @@ class _EasyHomePage(QWidget):
         """Use the existing dark field fill only while this Home is visible."""
         import weakref
 
-        from ..preferences import get_easy_mode
+        from ..preferences import DEFAULT_AMBIENT_BACKGROUND, get_easy_mode
 
         if not self.isVisible() or not get_easy_mode():
             return
@@ -4317,7 +4317,7 @@ class _EasyHomePage(QWidget):
             backdrop._easy_home_background_state = state
         self._easy_backdrop_state = (weakref.ref(backdrop), *state)
         backdrop._easy_home_owner = weakref.ref(self)
-        backdrop.set_background_color(palette_for('dark')['page'])
+        backdrop.set_background_color(DEFAULT_AMBIENT_BACKGROUND)
         backdrop.set_backdrop(None)
 
     def _restore_easy_backdrop(self):
