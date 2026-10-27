@@ -1369,6 +1369,22 @@ class _CanvasScene(QGraphicsScene):
         event.ignore()
 
 
+def _canvas_surface_qss(palette, opacity):
+    """Style the canvas desk with the shared rounded container surface.
+
+    :param palette: the current theme's rendered palette.
+    :param opacity: the page-opacity preference passed to the shared surface.
+    :returns: the canvas container and transparent view rules.
+    """
+    from ..theme import RADIUS, block_surface
+
+    surface = block_surface("surface_alt", palette["theme"], opacity)
+    return (f"QFrame#CanvasComposerSurface {{ background: {surface}; "
+            f"border: 1px solid {palette['border']}; border-radius: {RADIUS['md']}px; }}"
+            "QGraphicsView#CanvasComposerView, QWidget#CanvasComposerViewport { "
+            "background: transparent; border: none; }")
+
+
 class _CanvasView(QGraphicsView):
     """The composer's zoomable view of the page."""
 
@@ -1378,6 +1394,7 @@ class _CanvasView(QGraphicsView):
         from PySide6.QtGui import QPainter
 
         self.setObjectName("CanvasComposerView")
+        self.viewport().setObjectName("CanvasComposerViewport")
         self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -1516,8 +1533,19 @@ class _CanvasComposer(QDialog):
         root.addWidget(self._build_toolbar())
         self.scene = _CanvasScene(self)
         self.scene.selectionChanged.connect(self._selection_changed)
-        self.view = _CanvasView(self.scene, self)
-        root.addWidget(self.view, 1)
+        from PySide6.QtWidgets import QFrame
+        from ..theme import RADIUS, ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("CanvasComposerSurface", _canvas_surface_qss, replace=True)
+        surface = QFrame(self)
+        surface.setObjectName("CanvasComposerSurface")
+        surface_layout = QVBoxLayout(surface)
+        margin = RADIUS["md"]
+        surface_layout.setContentsMargins(margin, margin, margin, margin)
+        self.view = _CanvasView(self.scene, surface)
+        surface_layout.addWidget(self.view)
+        root.addWidget(surface, 1)
+        ensure_widget_qss_applied("CanvasComposerSurface", root=self)
         self._build_settings()
         self.live_display = Toggle(tr("Apply current settings to all canvas images"))
         self.live_display.setObjectName("CanvasLiveDisplaySettings")

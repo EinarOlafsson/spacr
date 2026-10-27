@@ -612,3 +612,37 @@ def test_canvas_text_double_click_edits_saves_and_exports(qtbot, tmp_path):
     composer.undo()
     assert composer.canvas.find(box["id"])[1]["text"] == "Before"
     composer.close()
+
+
+@pytest.mark.parametrize("theme", ("dark", "light"))
+def test_canvas_desk_uses_the_rounded_translucent_surface(qtbot, qt_theme_applied, theme):
+    from PySide6.QtGui import QColor
+    from spacr.qt.theme import apply_qpalette, stylesheet
+
+    composer = picture_export._CanvasComposer()
+    qtbot.addWidget(composer)
+    composer.resize(1000, 750)
+    before = composer.canvas.to_dict()
+    previous_sheet = qt_theme_applied.styleSheet()
+    previous_palette = qt_theme_applied.palette()
+    try:
+        apply_qpalette(qt_theme_applied, theme)
+        qt_theme_applied.setStyleSheet(stylesheet(theme, surface_opacity=.65))
+        composer.show()
+        qtbot.waitExposed(composer)
+        surface = composer.view.parentWidget()
+        frame = surface.grab().toImage()
+        desk = composer.view.viewport().grab().toImage()
+        margin = frame.pixelColor(4, frame.height() // 2)
+        desk_point = composer.view.viewport().mapTo(surface, QPoint(4, desk.height() // 2))
+        assert frame.pixelColor(desk_point) == margin
+        assert desk.pixelColor(4, desk.height() // 2).alpha() == 0
+        assert margin != frame.pixelColor(0, 0)
+        assert margin.red() > 0 and margin.green() > 0 and margin.blue() > 0
+        center = composer.view.mapFromScene(QPointF(200, 300))
+        assert desk.pixelColor(center) == QColor(picture_export._CANVAS_PAPER)
+        assert composer.canvas.to_dict() == before
+    finally:
+        composer.close()
+        qt_theme_applied.setPalette(previous_palette)
+        qt_theme_applied.setStyleSheet(previous_sheet)
