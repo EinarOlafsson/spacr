@@ -505,3 +505,6 @@ All50-voice boundary/EOF playback, hosted-media readback and nightly publication
 
 2026-10-27 — Classify overview published at46204baf8b:50voices/600gaps0.800–1.068s,72playback checks,7104hostedfiles fullyreadback,59Pages routes and64pin tests pass(1existingNode skip). Livewebsite deployment remains separate.
 Codex next owns Activation Maps16 on the freshly rebased nightly capture clone: require actual CUDA placement in both genuine GUI runs, all four maps within one pixel of the independent CUDA reference, and the existing database/input/output checks. Preserve old pending jobs; use fresh CUDA-enabled stages and the normal single retry.
+
+2026-10-27 — Activation Maps passes both actual CUDA runs: channel/reference errors [0,1,0,0], image errors all zero; original database, crops, model and card remain unchanged. Normal composition binds every selected take to the same scientific inputs.
+Native scrollbar inspection shows all four labeled cells. Reviewed grid excerpts pass the unchanged gate at29.38/29.06fps with100% pointer detection; full-clip failures remain preserved. All50 narration tracks are retained; final pause edit, playback checks and publication remain in progress.
