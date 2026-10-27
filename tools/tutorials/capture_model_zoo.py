@@ -88,6 +88,38 @@ def _directory_picker_state(dialog, requested):
 
 
 
+def _show_hidden_directory_components(capture, dialog, path):
+    """Use the actual picker menu when a live path contains hidden folders."""
+    from PySide6.QtCore import QDir, Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QListView, QTreeView, QMenu
+    import capture_home_live as live
+
+    hidden = any(part.startswith('.') and part not in ('.', '..') for part in Path(path).parts)
+    if not capture_ui.live(capture) or not hidden or dialog.filter() & QDir.Hidden:
+        return
+    views = [view for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView)
+             if view.objectName() in ('listView', 'treeView') and view.isVisible()]
+    if len(views) != 1:
+        raise RuntimeError('The actual directory picker has no unique visible file view')
+    viewport = views[0].viewport()
+    QTest.mouseClick(viewport, Qt.RightButton, pos=viewport.rect().center())
+    menu = live.wait_until(capture, lambda: QApplication.activePopupWidget(), 5,
+                           'The actual directory context menu did not open')
+    if not isinstance(menu, QMenu):
+        raise RuntimeError('The directory popup is not the actual context menu')
+    actions = [action for action in menu.actions()
+               if action.objectName() == 'qt_show_hidden_action']
+    if len(actions) != 1 or not actions[0].isCheckable() or actions[0].isChecked():
+        raise RuntimeError('The actual Show hidden action is absent or already enabled')
+    QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(actions[0]).center())
+    live.wait_until(capture, lambda: QApplication.activePopupWidget() is None, 5,
+                    'The directory context menu did not close')
+    if not dialog.filter() & QDir.Hidden:
+        raise RuntimeError('The normal Show hidden action did not enable hidden directories')
+
+
+
 def _stat(path):
     """Stable file identity; deliberately exclude read-induced access times."""
     value = Path(path).stat()
@@ -240,6 +272,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     capture_ui.file_dialog_dir(capture, dialog, Path(path).parent)
                     settle(.4)
                     record_picker_state('before_typing')
+                    _show_hidden_directory_components(capture, dialog, path)
                     typed = str(path) if capture_ui.live(capture) else Path(path).name
                     edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                     fill(edit, typed)

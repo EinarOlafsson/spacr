@@ -396,5 +396,5 @@ All23 new onset checks,107 candidate playback cases and82 published cases pass; 
 Voice additions retain the explicitly published independent picture clock while validating every original language timing against its published narration;17 affected tests pass.
 Website deployment remains queued; next are six reviewed pause edits. Lesson63 needs visible Trellis capture, native performance/app holds and01 PyPI hold remain; item676 stays open.
 
-2026-10-26 — Lesson22 remains unaccepted: the real model-folder picker leaves Choose disabled, and one retained native clip has invalid-buffer/memory errors and uniform green pixels.
-Next: record actual picker resolution before its watchdog and narrowly scoped negotiated-buffer diagnostics; reject proven capture errors even when GStreamer exits0. No retry, encoding or publication until the finite native lease.
+2026-10-27 — Lesson22 remains unaccepted; actual Qt6.10 visible-folder and hidden-path controls prove the normal Show hidden action enables Choose and returns the exact model path, with owned jobs retired.
+Private driver repair follows that real action; its preservation test passes, and capture admission rejects proven invalid-buffer errors. Whole-lesson native/scientific/smoothness gates and publication remain pending; no inference or video was run by the picker control.

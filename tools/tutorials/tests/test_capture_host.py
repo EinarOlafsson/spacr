@@ -362,3 +362,29 @@ def test_recorder_diagnostics_are_fixed_and_explicit(tmp_path, monkeypatch, diag
             assert not any(key.startswith('GST_') for key in seen['env'])
     finally:
         host._log.close()
+
+
+def test_live_directory_picker_preserves_paths_that_need_no_menu_action(tmp_path):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QDir
+    from PySide6.QtWidgets import QApplication, QFileDialog
+    from capture_model_zoo import _show_hidden_directory_components
+
+    app = QApplication.instance() or QApplication([])
+    for already_hidden in (False, True):
+        target = tmp_path / ('.models' if already_hidden else 'models')
+        target.mkdir()
+        dialog = QFileDialog(None, 'Choose a directory', str(target))
+        dialog.setFileMode(QFileDialog.Directory)
+        if already_hidden:
+            dialog.setFilter(dialog.filter() | QDir.Hidden)
+        before = (dialog.directory().absolutePath(), dialog.selectedFiles(), dialog.filter())
+        try:
+            _show_hidden_directory_components(SimpleNamespace(host=object()), dialog, target)
+            assert (dialog.directory().absolutePath(), dialog.selectedFiles(), dialog.filter()) == before
+            assert QApplication.activePopupWidget() is None
+            assert target.is_dir()
+        finally:
+            dialog.close()
+            dialog.deleteLater()
+            app.processEvents()
