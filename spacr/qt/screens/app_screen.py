@@ -4657,7 +4657,13 @@ class AppScreen(QWidget):
             organelle slot the run does not have, as the model last decided.
         """
         model = getattr(self, "_settings_model", None)
-        return set(getattr(model, "_headings_of_absent_slots", None) or ())
+        hidden = set(getattr(model, "_headings_of_absent_slots", None) or ())
+        for section in getattr(self, "_settings_sections", ()):
+            if (getattr(section, "_spacr_declared_rows", None) == ()
+                    and getattr(section, "_spacr_waiting_spec", None) is None
+                    and self._every_heading_below_is_hidden(section, hidden)):
+                hidden.add(id(section))
+        return hidden
 
     def _lay_out_the_rows_that_are_back(self, hidden) -> None:
         """Caption every waiting row the object rule no longer hides.

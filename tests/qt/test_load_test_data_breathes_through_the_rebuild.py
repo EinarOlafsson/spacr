@@ -4,8 +4,8 @@ The example plate ships a settings pack that names the object channels. That
 rebuilt the whole Mask screen in one GUI-thread block of about 0.4 s on the
 tutorial capture host, with the backdrop stopped (tutorial 07 recorded it as
 an app freeze in every take). Item 356, extended 2026-10-17: a channel in a
-pack is shown in place, so the load no longer rebuilds; a rebuild that is
-still needed (a new organelle count) takes the breaths of a module open.
+pack and its organelle capacity are shown in place, so the load no longer
+rebuilds. An explicit form rebuild still takes the breaths of a module open.
 """
 from __future__ import annotations
 
@@ -83,19 +83,29 @@ def test_load_test_data_shows_the_channels_in_place(mask_window, example_plate,
     assert not window._opening_a_screen
 
 
-def test_a_new_organelle_count_rebuilds_with_breaths(mask_window, qtbot):
+def test_a_new_organelle_count_updates_in_place_and_explicit_rebuild_breathes(
+        mask_window, qtbot):
     from spacr.organelle_types import NUMBER_OF_ORGANELLES
 
     window, screen = mask_window
-    count = screen._settings_model.collect().get(NUMBER_OF_ORGANELLES) or 0
+    model = screen._settings_model
+    count = model.collect().get(NUMBER_OF_ORGANELLES) or 0
+    screen.apply_settings_dict({NUMBER_OF_ORGANELLES: int(count) + 1})
+    assert window._screens["mask"] is screen
+    assert screen._settings_model is model
+    assert model._widgets[NUMBER_OF_ORGANELLES].text() == str(int(count) + 1)
+    settings = model.collect()
+    assert settings[NUMBER_OF_ORGANELLES] == int(count) + 1
     timer, stamps = _ticks()
     qtbot.wait(30)
     started = time.perf_counter()
-    screen.apply_settings_dict({NUMBER_OF_ORGANELLES: int(count) + 1})
+    window.rebuild_app_screen("mask", settings)
     ended = time.perf_counter()
     timer.stop()
 
-    assert window._screens["mask"] is not screen, "the count did not rebuild"
+    assert window._screens["mask"] is not screen, "the explicit rebuild did not replace the screen"
+    assert window._screens["mask"]._settings_model.collect()[
+        NUMBER_OF_ORGANELLES] == int(count) + 1
     inside = [started] + [t for t in stamps if started < t < ended] + [ended]
     longest = max(b - a for a, b in zip(inside, inside[1:]))
     assert len(inside) > 3, "the event loop never ran during the rebuild"

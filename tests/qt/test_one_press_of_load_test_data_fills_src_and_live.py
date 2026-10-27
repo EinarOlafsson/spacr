@@ -14,7 +14,8 @@ told. The second press rebuilt nothing, so its field was the live one.
 These tests drive a real window, press once with the data already cached in
 a temporary folder (no network, nothing under the real home), and assert on
 the screen the window shows AFTERWARDS: `src` holds the real path and the
-Live panel was handed it.
+Live panel was handed it. Progressive organelle imports now keep that same
+screen and model alive; the imported count and channel values must still land.
 """
 from __future__ import annotations
 
@@ -28,9 +29,8 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 #: What a Mask pack carries that matters here: the template token for `src`,
-#: object channels, and an organelle count that reshapes the form. Since item
-#: 356 channels are shown in place; only a new `number_of_organelles` rebuilds,
-#: and the rebuild is what retires the screen the button was on.
+#: object channels and organelle capacity. Both now update the existing form
+#: in place, while source and Live delivery must still work with one press.
 MASK_PACK = [("src", "<src>"), ("channels", "[0, 1, 2, 3]"),
              ("cell_channel", "1"), ("nucleus_channel", "0"),
              ("pathogen_channel", "2"), ("number_of_organelles", "1")]
@@ -112,13 +112,24 @@ def test_mask_one_press(qtbot, monkeypatch, tmp_path, loads, live_first):
     monkeypatch.setattr(AppScreen, "example_images_destination",
                         lambda self: plate)
     window, rebuilds = _open(qtbot, monkeypatch, "mask")
+    original = window._screens["mask"]
+    model = original._settings_model
     if live_first:
         _live(window, "mask", True)
     loads.clear()
 
     window._screens["mask"]._example_images_button.click()
 
-    assert rebuilds, "the pack must reshape the form for this to test 514"
+    assert not rebuilds
+    assert window._screens["mask"] is original
+    assert original._settings_model is model
+    assert model._widgets["number_of_organelles"].text() == "1"
+    settings = model.collect()
+    assert settings["number_of_organelles"] == 1
+    assert settings["channels"] == [0, 1, 2, 3]
+    assert settings["cell_channel"] == 1
+    assert settings["nucleus_channel"] == 0
+    assert settings["pathogen_channel"] == 2
     assert _src(window, "mask") == str(plate)
     screen = window._screens["mask"]
     assert screen._preview_switch.isChecked() is live_first
