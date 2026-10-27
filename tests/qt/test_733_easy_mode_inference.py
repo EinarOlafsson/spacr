@@ -129,7 +129,7 @@ def test_explicit_table_keeps_its_own_import_action_among_many_image_children(tm
     table.write_text('label,area\n1,24\n2,12\n')
     before = _digest([table, *images])
     result = home._easy_inspect_path(str(table))
-    assert len(result['actions']) <= 4
+    assert {'foreign', 'graph_builder', 'gate_editor'} <= {action[0] for action in result['actions']}
     assert result['actions'][0][0] == 'foreign'
     assert result['actions'][0][3] == str(table)
     assert 'nearby folders' in result['message']
@@ -211,8 +211,8 @@ def test_cq1_late_ifd_image_keeps_exact_source_and_finds_parent_outputs(tmp_path
     monkeypatch.setattr(TiffImagePlugin.TiffImageFile, 'load', no_pixels)
     monkeypatch.setattr(tifffile.TiffPage, 'asarray', no_pixels)
     result = home._easy_inspect_path(str(first))
-    assert [action[0] for action in result['actions']] == ['make_masks', 'mask', 'db_browser', 'measure']
-    assert [action[3] for action in result['actions']] == [str(first), str(folder), str(database), str(plate)]
+    assert [action[0] for action in result['actions']] == ['make_masks', 'mask', 'convert', 'db_browser', 'measure']
+    assert [action[3] for action in result['actions']] == [str(first), str(folder), str(folder), str(database), str(plate)]
     assert _resolve_measure_src(result['actions'][-1][3])[0] == str(merged)
     assert any(hint['convention'] == 'cq1' and hint['matched'] == 2
                for hint in result['context']['filename_matches'])

@@ -16530,8 +16530,10 @@ A CSV of guide barcodes, with the column holding them named prefix, barcode or s
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_easy_specialized_inputs`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_ops``, ``ops_defaults``.
+Read by ``run_ops``, ``ops_defaults``, ``_easy_specialized_inputs``.
 
 .. _setting-flow-ops_raster_overlap:
 
@@ -19511,8 +19513,10 @@ The folder holding the high-magnification phenotype acquisition of the same well
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_easy_specialized_inputs`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_ops``, ``ops_defaults``.
+Read by ``run_ops``, ``ops_defaults``, ``_easy_specialized_inputs``.
 
 .. _setting-flow-photometric:
 
@@ -23907,8 +23911,10 @@ Which Visium HD bins are read: 2, 8 or 16 micrometres. 2 um bins are smaller tha
 
 | :py:func:`~spacr.ops_engine.run_spatial_map` **-- reads it**
 | :py:func:`~spacr.ops_settings.spatial_map_defaults` **-- reads it**
+| ``_easy_specialized_inputs`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_spatial_map``, ``spatial_map_defaults``.
+Read by ``run_spatial_map``, ``spatial_map_defaults``, ``_easy_specialized_inputs``.
 
 .. _setting-flow-spatial_cell_expansion_um:
 

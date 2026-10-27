@@ -2,7 +2,22 @@
 THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
 ================================================================================
 
-Status:    DONE 2026-08-23 — all six items, confirmed by the maintainer as each landed.
+Status:    REOPENED 2026-10-27 — add actionable Linux inotify recovery guidance to the existing warning.
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+Workstation session 2 owns the inotify warning follow-up. Show pasteable
+terminal commands for increasing the current limit and making it persistent,
+explain that closing watcher applications/restarting frees their watches while
+reboot clears all watches but does not raise the configured limit, and explain
+that inotify is Linux-specific (including Linux environments such as WSL).
+Keep the once-per-process diagnostic and genuine disk-space distinction.
+Display commands only; do not run sudo, change system settings or terminate
+applications. Avoid recommending a value lower than the current limit.
+Use translated prose and protected literal commands. Focused message/once-only/
+platform/no-system-change checks and normal affected artifacts precede nightly
+publication. Earlier setup/UI work remains delivered as recorded below.
+Primary references: https://man7.org/linux/man-pages/man7/inotify.7.html
+https://man7.org/linux/man-pages/man5/sysctl.d.5.html
+
 VERIFIED 2026-10-04: tests/qt/test_the_setup_window_is_one_rounded_surface.py green; spacr/__init__ filters the pynvml warning.
 Owner:     spacr/qt -- setup slides, glass, home, preferences.
 

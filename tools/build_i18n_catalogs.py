@@ -302,6 +302,7 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
+    "Navigator",
     # The maintainer's exact branded theme titles retain their spelling.
     "spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore", "spaCR waves",
     "spaCR blobs", "spaCR aurora", "spaCR stratified", "spaCR spinn",
@@ -4668,6 +4669,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
     paths.add(ROOT / "spacr" / "channel_sorting.py")
+    paths.add(ROOT / "spacr" / "convert.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")
     paths.add(ROOT / "spacr" / "psf_pipeline.py")

@@ -1,9 +1,118 @@
-EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
+NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
-Status:    COMPLETE — anchored live-field network, sharp square cards and per-connection ports delivered
+Status:    DONE 2026-10-27 — Navigator content routing, native handoff, rendering, dock/panel defaults and input guidance delivered.
 Requested: maintainer, 2026-10-26
-Owner:     G2 graph/cards end to end; G3 independent black-transition/icon diagnosis; retained peers; root integration/publication
+Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
 Related:   startup options, Preferences, Home, dock, spaCR AI
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+LATEST LAYOUT FOLLOW-UP — 2026-10-27: in Navigator, retain the app dock on
+the left in its collapsed state by default; an explicitly saved dock choice
+takes precedence. Keep the right-side containers/panels present but collapsed
+by default. Give the text description panel the same subtle opacity treatment
+as the bottom Home panel, rather than a fully opaque black fill. Preserve
+explicit user expansion, saved placement/state and normal non-Navigator mode.
+
+The maintainer-selected Navigator input hint is "Drop a file/folder, type a
+path or query" (query spelling corrected). This supersedes the proposed
+question/keyword alternatives; images are not the only supported input.
+
+NAMING: the maintainer selected Navigator on 2026-10-27. Rename visible Easy
+mode labels and explanations, including Help and Start spaCR, to Navigator;
+retain persisted preference keys, compatibility APIs and internal identities.
+
+Workstation session 2 owns this follow-up; preserve the other workstation's
+tutorial work and Home's general CI/source changes. Fix the black screen when
+selecting a suggested module after importing a file or folder, preserving the
+live field, anchored workflow, explicit navigation and Back/Escape behavior.
+
+Recognize the actual analyzed folder
+/nas_mnt/carruthers/anu/revision/Replication09182026_20260918_164600
+and offer Database Browser, Graph Builder, Gate Editor, Image UMAP, Regression,
+Dose Response, QC, Run Compare, Annotate and Classify with their actual inputs.
+Raw FASTQ files/folders offer Map Barcodes; completed spaCR sequencing analyses
+offer Regression. Numeric CSV files offer Graph Builder and Gate Editor.
+
+Use shared reader capabilities for images and containers (including NPY, ND2,
+LIF and CZI), rather than a new format whitelist. Image inputs with no matching
+canonical metadata preset still offer Import, Generate Masks and Make Masks;
+containers offer Import and Make Masks where a real reader supports opening.
+Keep editable regex guidance without replacing these useful choices. Audit
+Make Masks against the shared readers and record a separate feature item for
+any missing format support instead of silently claiming that it is supported.
+
+Enter on a module or submodule name opens that destination. An organism name
+within a question opens its organism module, including Toxoplasma gondii,
+T. gondii, T.gondii and T.g.; preserve existing species availability gates.
+Support About, homepage, GitHub, README (including "radme"), Preferences,
+every Help menu action, Update, API, paper/preprint, Pipeline overview and
+Overview through their existing real actions. File paths retain path semantics.
+Approved additional rules: matching images and masks offer Measure, QC and
+Annotate only when their spaCR project structure is valid. Unstructured pairs
+offer Import and Make Masks; before reorganizing them, ask whether to create
+the Make Masks images/ and masks/ layout. Preserve the originals and refuse
+ambiguous pairing or overwrites. A spaCR settings file previews its settings
+and opens its matching module with those settings actually applied. Mixed
+folders group suggestions by data type and explain each suggestion's basis.
+Also approved: retain separate plate identities and allow selecting one or
+all compatible plates; detect actual image dimensions for 3D/Time suggestions;
+recognize regression outputs for Hit List, Diagnostics and Prediction Profiler;
+explain incomplete/failed runs and offer Run History/QC as appropriate. Reuse
+real registered routes and required files; never infer completed analysis from
+a folder name alone or execute a scientific workflow during inspection.
+
+LATEST ACCESS CORRECTION: keep the Easy mode boolean in Start spaCR, remove
+the Easy mode boolean from Preferences, and expose Easy mode in the top Help
+menu. Preserve the saved setting and existing dock controls; do not offer two
+independent mode preferences. This supersedes the older Preferences-checkbox
+requirements elsewhere in this historical item.
+
+LATEST VISUAL FOLLOW-UP: the black flash lasts about one second while dropping
+the exact example folder, then the live field returns; verify frames during
+the drop rather than only settled screenshots. The user also reports a brief
+pause in field dots to the right of the card-to-network connection as the
+network opens. Diagnose that motion interruption, make the node illumination
+clearly visible, and steer the existing wandering compression toward the
+selected node before resuming its random walk. Preserve field colors, bounded
+rendering, normal app behavior, Reduce motion/off settings and hidden cleanup.
+The bottom workflow description box uses RGB(25,25,25), is 50 percent wider
+by default and gains two text rows in height, bounded by the available window.
+Alpha module cards show a small teal alpha symbol in Open Sans Light at the
+top-right corner. Hover and click use the existing old Home teal flash opacity;
+module icon backgrounds use RGB(25,25,25). Preserve alpha availability gates.
+All command and suggestion matching is case-insensitive. Partial names also
+produce matching module/submodule suggestions while typing; for example mask
+or mask: offers Make Masks and Mask Generation. Exact names retain explicit
+Enter-to-open behavior; partial/ambiguous searches remain selectable choices.
+
+LATEST UNSUPPORTED INPUT FOLLOW-UP — 2026-10-27: offer prepared, actionable
+responses for recognizable formats spaCR cannot read, including FlowJo
+workspaces recommending FlowJo and PDB/AlphaFold structural models recommending
+a structure viewer such as ChimeraX or PyMOL. Recognize structure formats and
+explicit PDB/AlphaFold references without unpickling model objects. Add a few evidence-based examples using
+actual unsupported-format detection, honest compatible-export guidance and
+no fake spaCR processing route. PDF files offer the Plaque Assay module via
+its actual supported input path; inspect real PDF reader behavior and do not
+silently discard pages or claim a scientific result from arbitrary PDFs.
+
+LATEST NETWORK FOLLOW-UP — 2026-10-27: include actual submodules reachable
+from the Help menu in the Easy mode networks, with their real host/input
+routes and existing maturity gates. Case-insensitive partial search "plan"
+offers both Experimental Design and Power Design. Preserve all-tools access
+and real scientific/containment relationships rather than inventing edges.
+
+LATEST INPUT FOLLOW-UP — 2026-10-27: characterize real input structures and
+settings for OPS, Spatial and 3D using their actual readers and registered
+submodule routes. Add evidence-based Easy mode suggestions for the appropriate
+submodule and settings; do not infer scientific mode solely from folder names
+or start processing. Reuse existing settings previews, dimensional metadata
+and native input handoff, preserving ambiguous-input guidance.
+
+Acceptance: focused real input/schema and navigation regressions, actual-folder
+read-only discovery, black-transition rendering/lifecycle verification, shared
+reader audit, normal changed-source catalogs/Help/flow/index outputs, commit
+and nightly publication. Do not run image processing or mutate inspected data.
 
 LATEST MAINTAINER REQUIREMENTS — 2026-10-27 (supersedes prior network placement)
 
@@ -230,3 +339,7 @@ All 21 final owning source/API/runtime/Help/flow checks pass, preserving publish
 2026-10-27 — The original card and live field remain in place while the sparse network gradually emerges and dims its surroundings; square rounded cards use original high-resolution icons, evenly sized per-connection ports and curved links with midpoint arrows.
 All 12 affected controls and both native window cases pass, including unchanged card position, live field, navigation and input restoration. API335, existing captions and 27 reviewed translations remain unchanged; the normal consumer output is refreshed.
 Implementation and reasonable validation qualify completion under the maintainer's updated release instructions; no human review or further testing is a delivery gate. Root publishes this qualified change to nightly.
+
+2026-10-27 — Renamed Navigator; case-insensitive partial/module/organism/Help commands, plan suggestions and ten-tool nested measurement discovery use real native routes. Settings and inferred OPS/Spatial values preview before applying; explicit T/Z, PDF, sequencing, tables, mixed types and unsupported-format guidance retain bounded read-only inspection.
+2026-10-27 — Exact-NAS repeated real drops retain the live field; hover paints within milliseconds. Alpha cards, illumination/node visits, grouped explanations, wider translucent RGB25 descriptions and collapsed left dock/runtime panels preserve saved choices and cleanup.
+2026-10-27 — Safe paired-layout copying, numeric 2D NPY and installed single-frame Pillow Import routes preserve sources; missing direct Make Masks/container/axis support is queued separately in 735. Focused input, command, reader, renderer and catalog checks pass; normal outputs and source-bound nine-language reviews are included in the nightly publication.

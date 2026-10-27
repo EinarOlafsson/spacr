@@ -7336,7 +7336,24 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         self._graphics_idle_until = 0.0
         self._graphics_idle = False
         self._growing_regions = ()
+        self._node_visit = None
         super().__init__(*args, **kwargs)
+
+    def _field_center(self):
+        """Visit one selected node smoothly, then return to the existing wandering lens."""
+        cx = 0.5 + 0.20 * math.sin(self.time * 0.10 + self._anchors[0][0])
+        cy = 0.5 + 0.18 * math.cos(self.time * 0.083 + self._anchors[0][1])
+        weight = 0.0
+        if self._node_visit is not None:
+            started, point = self._node_visit
+            age = self.time - started
+            if 0.0 <= age < 6.0:
+                weight = math.sin(math.pi * age / 6.0) ** 2
+                cx += (point[0] - cx) * weight
+                cy += (point[1] - cy) * weight
+            elif age >= 6.0:
+                self._node_visit = None
+        return cx, cy, weight
 
     def _part_growing_regions(self, px, py, width, height):
         """Move existing dots outside up to four expanding card footprints."""
@@ -8437,10 +8454,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         x, y, impulse_fields, popup_fields = lattice
         shorter = max(1, min(width, height))
         aspect_x, aspect_y = width / shorter, height / shorter
-        cx = 0.5 + 0.20 * math.sin(
-            self.time * 0.10 + self._anchors[0][0])
-        cy = 0.5 + 0.18 * math.cos(
-            self.time * 0.083 + self._anchors[0][1])
+        cx, cy, visit = self._field_center()
         dx, dy = (x - cx) * aspect_x, (y - cy) * aspect_y
         radius = np.sqrt(dx * dx + dy * dy + 1e-6)
         envelope = np.exp(-(radius / 0.34) ** 2)
@@ -8448,7 +8462,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         px = x + dx / aspect_x * gravity
         py = y + dy / aspect_y * gravity
         px, py = self._bend_pointer(px, py, width, height)
-        energy = envelope * 0.12
+        energy = envelope * (0.12 + 0.42 * visit)
         active_origins = {origin for started, origin, _ in self._gravity_impulses
                           if 0.0 <= self.time - started < 5.0}
         for origin in tuple(impulse_fields):
@@ -9831,6 +9845,8 @@ class _QueuedArtInput:
         self._boundary_waves = ()
         self._applied_boundary_serial = 0
         self._growing_regions = ()
+        self._node_visit = (0, None)
+        self._applied_node_visit = 0
 
     def _offer_boundary_waves(self, points) -> None:
         """Publish bounded immutable boundary events without a shading lock."""
@@ -9860,6 +9876,13 @@ class _QueuedArtInput:
         serial, elapsed, pointer, clicks = self._snapshot
         if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
             engine._growing_regions = () if discard_clicks else self._growing_regions
+            visit_serial, point = self._node_visit
+            if discard_clicks:
+                engine._node_visit = None
+                self._applied_node_visit = visit_serial
+            elif visit_serial != self._applied_node_visit:
+                engine._node_visit = None if point is None else (engine.time, point)
+                self._applied_node_visit = visit_serial
             if discard_clicks:
                 self._applied_boundary_serial = self._boundary_serial
             else:
@@ -14091,6 +14114,30 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     :returns: None.
     """
     _publish_widget_ripple(widget, edge, rect, strength, vertical=False)
+
+
+def _field_visit_node(widget, active=True) -> None:
+    """Send a bounded selected-node visit through the existing field input channel."""
+    from ..preferences import get_ambient_enabled, get_reduce_motion
+
+    active = bool(active and widget.isVisible() and get_ambient_enabled() and not get_reduce_motion())
+    for backdrop in widget.window().findChildren(AmbientWidget):
+        if backdrop._art_input is None or backdrop.theme() not in _FIELD_THEMES:
+            continue
+        point = None
+        if active and backdrop._should_run():
+            center = backdrop.mapFromGlobal(widget.mapToGlobal(widget.rect().center()))
+            point = (max(0.0, min(1.0, center.x() / max(1, backdrop.width()))),
+                     max(0.0, min(1.0, center.y() / max(1, backdrop.height()))))
+        serial, _previous = backdrop._art_input._node_visit
+        backdrop._art_input._node_visit = serial + 1, point
+        backdrop._held_rows.stir()
+        if backdrop._engine_lock.acquire(blocking=False):
+            try:
+                backdrop._art_input._consume(backdrop._engine)
+            finally:
+                backdrop._engine_lock.release()
+        backdrop.update()
 
 
 def _field_growing_regions_for_widget(widget, rectangles=(), *, invalidate=False) -> None:

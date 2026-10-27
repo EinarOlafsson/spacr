@@ -148,7 +148,7 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          prefs.set_hash_inputs, None),
         ("spacr_ai", "spaCR AI", prefs._get_spacr_ai_enabled,
          prefs._set_spacr_ai_enabled, None),
-        ("easy_mode", "Easy mode", prefs.get_easy_mode, prefs.set_easy_mode, None),
+        ("easy_mode", "Navigator", prefs.get_easy_mode, prefs.set_easy_mode, None),
     ]
     return [q for q in out if q[4] is None or q[4]]
 

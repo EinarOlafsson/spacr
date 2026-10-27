@@ -72,6 +72,89 @@ DOCS_URL = f"{DOCS_BASE_URL}/index.html"
 TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"
 
 
+def _easy_command_text(value):
+    """Normalize a navigation label while leaving explicit paths to inspection."""
+    import re
+    import unicodedata
+
+    value = str(value).strip()
+    if '/' in value or '\\' in value or value.startswith(('~', '.')):
+        labels = (label for _key, name, _description, _section in APPS
+                  for label in (name, tr(name)))
+        compact = ''.join(value.casefold().split())
+        if not any(compact == ''.join(str(label).casefold().split()) for label in labels):
+            return ''
+    return ' '.join(re.sub(r'[\W_]+', ' ', unicodedata.normalize('NFKC', value).casefold()).split())
+
+
+def _easy_module_matches(value):
+    """Resolve actual registry names and organism questions without running tools."""
+    import re
+    from .widgets.fold_strip import fold_label
+
+    wanted = _easy_command_text(value)
+    if not wanted:
+        return ()
+    names = {}
+    for key, name, _description, _section in APPS:
+        for label in (key, name, tr(name)):
+            names.setdefault(_easy_command_text(label), set()).add(key)
+    for children in folded_children().values():
+        for key in children:
+            name = fold_label(key)[0]
+            for label in (key, name, tr(name)):
+                names.setdefault(_easy_command_text(label), set()).add(key)
+    aliases = {'generate masks': 'mask', 'mask generation': 'mask',
+               'make mask': 'make_masks', 'image umap': 'umap', 'classify': 'classify_merged',
+               'experimental design': 'experiment_design', 'power design': 'power',
+               'qc': 'qc_dashboard', 'quality control': 'qc_dashboard',
+               'import': 'foreign', 'time': 'timelapse', '3d': '3d'}
+    if wanted in aliases:
+        return (aliases[wanted],)
+    if wanted in names:
+        return tuple(sorted(names[wanted]))
+    patterns = {
+        'toxoplasma': r'\b(?:toxoplasma|t\.\s*(?:gondii\b|g\.))',
+        'plasmodium': r'\b(?:plasmodium|p\.\s*(?:falciparum|vivax|berghei|knowlesi)\b)',
+        'candida': r'\b(?:candida|c\.\s*(?:albicans|glabrata|auris)\b)',
+        'trypanosoma': r'\b(?:trypanosoma|t\.\s*(?:brucei|cruzi)\b)',
+        'leishmania': r'\b(?:leishmania|l\.\s*(?:major|donovani|infantum)\b)',
+        'giardia': r'\b(?:giardia|g\.\s*(?:duodenalis|lamblia|intestinalis)\b)',
+        'virus': r'\b(?:virus|viruses|viral)\b',
+        'mammalian': r'\b(?:mammalian|human cells|mouse cells)\b',
+    }
+    return tuple(key for key, pattern in patterns.items() if re.search(pattern, str(value), re.I))
+
+
+def _easy_module_search(value):
+    """Offer case-insensitive partial names without interpreting paths as commands."""
+    from .widgets.fold_strip import fold_label
+
+    wanted = _easy_command_text(value)
+    if not wanted:
+        return []
+    rows = {key: (name, description) for key, name, description, _section in APPS}
+    for children in folded_children().values():
+        for key in children:
+            rows.setdefault(key, fold_label(key)[:2])
+    rows.setdefault('3d', ('3D', rows.get('mask', ('', ''))[1]))
+    found = []
+    for key, (name, description) in rows.items():
+        title = tr('Mask Generation') if key == 'mask' else tr(name)
+        aliases = {'mask': ('Generate Masks',),
+                   'experiment_design': ('Experimental Design', 'plan', 'planning'),
+                   'power': ('Power Design', 'plan', 'planning')}
+        labels = (key, name, title, *aliases.get(key, ()))
+        if any(wanted in _easy_command_text(label) for label in labels if label):
+            found.append((key, title, tr(description), ''))
+    if not found:
+        for key in _easy_module_matches(value):
+            if key in rows:
+                name, description = rows[key]
+                found.append((key, tr(name), tr(description), ''))
+    return found
+
+
 def _carry_preview_state(old, fresh) -> None:
     """Move the live preview's loaded image from a retiring screen to its
     replacement.
@@ -4613,6 +4696,17 @@ class MainWindow(QMainWindow):
         edit_menu.aboutToShow.connect(self._edit_menu_about_to_show)
 
         help_menu = mb.addMenu("&Help")
+        self._easy_help_menu = help_menu
+        from .preferences import get_easy_mode
+
+        easy_action = QAction(tr("Navigator"), self)
+        easy_action.setObjectName("EasyModeAction")
+        easy_action.setCheckable(True)
+        easy_action.setChecked(get_easy_mode())
+        easy_action.triggered.connect(self._set_easy_mode_from_help)
+        help_menu.addAction(easy_action)
+        self._act_easy_mode = easy_action
+        help_menu.aboutToShow.connect(lambda: easy_action.setChecked(get_easy_mode()))
         from .widgets.workflow_diagram import show_spacr_flowchart
 
         act_flowchart = QAction(tr("spaCR flowchart"), self)
@@ -6613,16 +6707,40 @@ class MainWindow(QMainWindow):
         Idempotent, and safe to call before the menu exists.
         """
         mode = mode or self.dock_mode()
-        from .preferences import get_easy_mode, get_easy_mode_dock
+        from .preferences import (get_easy_mode, get_easy_mode_dock,
+                                  _settings, _KEY_EASY_MODE_DOCK)
 
-        if get_easy_mode():
-            mode = "locked" if get_easy_mode_dock() else "hidden"
+        navigator = get_easy_mode()
+        settings = _settings()
+        dock_chosen = settings.contains(_KEY_EASY_MODE_DOCK)
+        if navigator:
+            mode = "locked" if not dock_chosen or get_easy_mode_dock() else "hidden"
         drawer = getattr(self, "_app_drawer", None)
         sidebar = getattr(self, "_sidebar", None)
         slot = getattr(self, "_dock_slot", None)
         if drawer is None or sidebar is None or slot is None:
             return
         self._dock_mode = mode
+        edge = getattr(self, "_dock_edge", None)
+        if edge is not None:
+            if not getattr(self, '_navigator_dock_watched', False):
+                self._navigator_dock_watched = True
+                edge.collapsedChanged.connect(self._remember_navigator_dock)
+            if navigator:
+                if not getattr(self, '_navigator_dock_active', False):
+                    self._ordinary_dock_collapsed = edge.is_collapsed()
+                collapse_key = 'prefs/navigator_dock_collapsed'
+                collapse = (settings.value(collapse_key, type=bool)
+                            if settings.contains(collapse_key) else not dock_chosen)
+                self._navigator_dock_active = True
+                self._setting_navigator_dock = True
+                try:
+                    edge.set_collapsed(collapse)
+                finally:
+                    self._setting_navigator_dock = False
+            elif getattr(self, '_navigator_dock_active', False):
+                self._navigator_dock_active = False
+                edge.set_collapsed(getattr(self, '_ordinary_dock_collapsed', False))
 
         drawer.close()
         drawer.set_enabled(False)
@@ -6638,6 +6756,8 @@ class MainWindow(QMainWindow):
         edge = getattr(self, "_dock_edge", None)
         if edge is not None:
             edge.setVisible(mode == "locked")
+        for screen in getattr(self, '_screens', {}).values():
+            self._apply_navigator_layout(screen)
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:
@@ -6646,6 +6766,58 @@ class MainWindow(QMainWindow):
                 "The app dock is hidden. Turn it back on in Preferences → "
                 "App dock." if mode == "hidden" else
                 "Show the full app list.")
+
+    def _remember_navigator_dock(self, collapsed):
+        """Remember a person's Navigator edge choice, never its initial default."""
+        from .preferences import get_easy_mode, _settings
+
+        if get_easy_mode() and not getattr(self, '_setting_navigator_dock', False):
+            _settings().setValue('prefs/navigator_dock_collapsed', bool(collapsed))
+
+    def _navigator_pane_changed(self, screen, folder, key, shut, by_user):
+        """Remember only explicit Navigator pane choices in its separate layout."""
+        if not by_user:
+            return
+        current = getattr(screen, '_navigator_pane_states', {}).get(folder)
+        if current is not None:
+            from .preferences import _settings
+
+            current['automatic'] = False
+            _settings().setValue(key, bool(shut))
+
+    def _apply_navigator_layout(self, screen):
+        """Keep native runtime headings present and default them closed in Navigator."""
+        from .preferences import get_easy_mode, get_folded_panels, _settings
+        from .widgets.collapsible_splitter import CollapsibleSplitter
+
+        navigator = get_easy_mode()
+        states = getattr(screen, '_navigator_pane_states', {})
+        if not navigator:
+            for folder, state in states.items():
+                if state['automatic']:
+                    folder.set_shut(state['original'], by_user=False)
+            screen._navigator_pane_states = {}
+            return
+        settings = _settings()
+        folded = get_folded_panels()
+        for split in screen.findChildren(CollapsibleSplitter):
+            for pane in split._panes:
+                folder = pane.folder
+                if pane.name not in ('Console', 'System', 'Actions', 'AI chat', 'AI Chat') or folder is None or folder in states:
+                    continue
+                key = 'ui/navigator/panes/' + str(split._persist_key) + '/' + pane.name
+                state = {'original': folder.shut, 'automatic': True}
+                states[folder] = state
+                if not getattr(folder, '_navigator_layout_watched', False):
+                    folder._navigator_layout_watched = True
+                    from functools import partial
+
+                    folder.add_listener(partial(self._navigator_pane_changed, screen, folder, key))
+                if settings.contains(key):
+                    folder.set_shut(settings.value(key, type=bool), by_user=False)
+                elif folder.persist_key not in folded and pane.name not in split._stored:
+                    folder.set_shut(True, by_user=False)
+        screen._navigator_pane_states = states
 
     def _set_backdrop_blank(self, blank: bool) -> int:
         """Pause every backdrop and paint the ground flat. Ctrl+B.
@@ -7112,6 +7284,7 @@ class MainWindow(QMainWindow):
 
         if isinstance(self._startup, _EasyHomePage):
             self._startup.module_requested.connect(self._open_easy_suggestion)
+            self._startup.command_requested.connect(self._open_easy_command)
         if getattr(self, "_easy_drop_watcher", None) is None:
             self._easy_drop_watcher = _EasyDropWatcher(self)
         self._startup.tile_clicked.connect(self._on_nav_selected)
@@ -7134,8 +7307,284 @@ class MainWindow(QMainWindow):
             self._on_nav_selected("__home__")
             self._startup.accept_paths(paths)
 
+    def _set_easy_mode_from_help(self, enabled=True):
+        """Share the startup choice and return to the requested Home immediately."""
+        from .preferences import get_easy_mode, set_easy_mode
+
+        if get_easy_mode() != bool(enabled):
+            set_easy_mode(bool(enabled))
+            self.refresh_after_preferences({'easy_mode'})
+        action = getattr(self, '_act_easy_mode', None)
+        if action is not None:
+            action.setChecked(bool(enabled))
+        self._on_nav_selected('__home__')
+
+    def _open_easy_named_module(self, key):
+        """Open a registered module or its real page within a host."""
+        from .chaining import screen_for_module
+        from .screens.map_barcodes import page_fold_host
+
+        if key == '3d':
+            key, dimension = 'mask', 'z'
+        elif key == 'timelapse':
+            key, dimension = 'mask', 't'
+        else:
+            dimension = None
+        host = page_fold_host(key) or next(
+            (parent for parent, children in folded_children().items() if key in children),
+            screen_for_module(key))
+        if not app_is_visible(key) or not app_is_visible(host):
+            self.statusBar().showMessage(tr("This module is hidden by the current application preferences."), 5000)
+            return None
+        self.open_module(host)
+        screen = self._screens.get(host)
+        if screen is None:
+            return None
+        if dimension is not None:
+            screen.set_dimension(dimension, True)
+            return screen
+        if key != host:
+            opener = getattr(screen, 'open_folded', None)
+            openers = getattr(screen, '_fold_openers', ())
+            installed = (openers.get(key) if isinstance(openers, dict) else
+                         next((candidate for candidate in openers
+                               if getattr(candidate, 'key', None) == key), None))
+            if callable(opener):
+                opened = opener(key)
+                if opened is not None:
+                    return opened
+            elif installed is not None:
+                opened = installed.open()
+                if opened is not None:
+                    return opened
+            else:
+                self._switch_a_fold_on(host, key)
+        return _opened_module_screen(self, key, host)
+
+    def _easy_navigation_suggestions(self, value):
+        """Combine actual module names and existing menu destinations for a search."""
+        wanted = _easy_command_text(value)
+        if not wanted:
+            return []
+        rows = _easy_module_search(value)
+        labels = ['About', 'Homepage', 'GitHub', 'README', 'Preferences', 'Update',
+                  'API', 'Paper', 'Pipeline overviews', 'Overview']
+        from PySide6.QtWidgets import QMenu
+
+        by_action = {menu.menuAction(): menu for menu in self.menuBar().findChildren(QMenu)}
+        pending, visited = [getattr(self, '_easy_help_menu', None)], set()
+        while pending:
+            menu = pending.pop()
+            if menu is None or menu in visited:
+                continue
+            visited.add(menu)
+            for action in menu.actions():
+                if action in by_action:
+                    pending.append(by_action[action])
+                elif action.isEnabled() and action.isVisible() and not action.isSeparator():
+                    labels.append(action.text().split('\t', 1)[0].replace('&', ''))
+        seen = set()
+        for label in labels:
+            normalized = _easy_command_text(label)
+            if normalized not in seen and wanted in normalized:
+                seen.add(normalized)
+                rows.append(('__easy_command__:' + label, tr(label), tr(label), ''))
+        return rows
+
+    def _open_easy_command(self, value):
+        """Route an explicit Enter through existing menus and module navigation."""
+        from PySide6.QtWidgets import QInputDialog, QMenu
+
+        wanted = _easy_command_text(value)
+        if not wanted:
+            self._startup._inspect()
+            return
+        if wanted in ('navigator', 'easy mode'):
+            self._set_easy_mode_from_help(True)
+            return
+        aliases = {'about': 'about spacr', 'preferences': 'preferences',
+                   'update': 'check for updates', 'updates': 'check for updates',
+                   'pipeline overview': 'pipeline overviews'}
+        wanted = aliases.get(wanted, wanted)
+        if wanted == 'preferences':
+            self._act_preferences.trigger()
+            return
+        if wanted == 'pipeline overviews':
+            self._start_a_sample_project()
+            return
+        if wanted in ('overview', 'field of view overview'):
+            from .widgets.qc_field_browser import _open_overview_module
+
+            screen = self._open_easy_named_module('mask')
+            if screen is not None:
+                _open_overview_module(screen, screen._settings_model.collect())
+            return
+        urls = {'homepage': 'https://einarolafsson.github.io/projects/spacr/',
+                'github': 'https://github.com/EinarOlafsson/spacr',
+                'readme': 'https://github.com/EinarOlafsson/spacr#readme',
+                'radme': 'https://github.com/EinarOlafsson/spacr#readme',
+                'api': DOCS_URL,
+                'paper': 'https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1',
+                'bioarchive': 'https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1',
+                'biorxiv': 'https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1'}
+        if wanted in urls:
+            self._open_url(urls[wanted])
+            return
+        menus = self.menuBar().findChildren(QMenu)
+        by_action = {menu.menuAction(): menu for menu in menus}
+        pending = [getattr(self, '_easy_help_menu', None)]
+        seen, actions = set(), []
+        while pending:
+            menu = pending.pop()
+            if menu is None or menu in seen:
+                continue
+            seen.add(menu)
+            for action in menu.actions():
+                if action in by_action:
+                    pending.append(by_action[action])
+                elif action.isEnabled() and action.isVisible() and not action.isSeparator():
+                    label = action.text().split('\t', 1)[0].replace('&', '')
+                    if _easy_command_text(label) == wanted:
+                        actions.append(action)
+        matches = _easy_module_matches(value)
+        choices = [(action.text().replace('&', ''), action.trigger) for action in actions]
+        choices.extend((key.replace('_', ' '), lambda key=key: self._open_easy_named_module(key))
+                       for key in matches)
+        if not choices:
+            self._startup._inspect()
+            return
+        if len(choices) > 1:
+            label, accepted = QInputDialog.getItem(self, tr("Choose a module"),
+                                                   tr("Choose a module"), [label for label, _ in choices], 0, False)
+            if not accepted:
+                return
+            next(callback for name, callback in choices if name == label)()
+        else:
+            choices[0][1]()
+
+    def _preview_easy_settings(self, module, settings, *, inferred=False):
+        """Show the actual imported values before applying them to a module."""
+        import json
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPlainTextEdit, QVBoxLayout
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr('Preview settings') if inferred else tr('Open saved settings'))
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(QLabel(module.replace('_', ' ')))
+        preview = QPlainTextEdit(dialog)
+        preview.setObjectName('EasySettingsPreview')
+        preview.setReadOnly(True)
+        preview.setPlainText(json.dumps(settings, indent=2, ensure_ascii=False, default=str))
+        layout.addWidget(preview)
+        buttons = QDialogButtonBox(QDialogButtonBox.Open | QDialogButtonBox.Cancel, parent=dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        dialog.resize(640, 480)
+        return dialog.exec() == QDialog.Accepted
+
+    def _easy_input_paths(self, key, path, context, handler):
+        """Keep plate identities explicit and combine only supported native inputs."""
+        from PySide6.QtWidgets import QInputDialog
+
+        plates = context.get('plate_inputs', ())
+        if len(plates) < 2 or key not in context.get('analysis_inputs', {}):
+            return [path]
+        use_projects = key in ('qc_dashboard', 'run_compare', 'annotate', 'classify_merged')
+        field = 'project' if use_projects else 'database'
+        candidates = list(dict.fromkeys(row[field] for row in plates))
+        if path not in candidates:
+            return [path]
+        labels = list(candidates)
+        multiple = bool(handler.accepts_multiple())
+        all_label = tr('All compatible plates')
+        if multiple:
+            labels.insert(0, all_label)
+        selected, accepted = QInputDialog.getItem(self, tr('Choose a plate'),
+                                                 tr('Choose a plate'), labels, 0, False)
+        if not accepted:
+            return []
+        return candidates if multiple and selected == all_label else [selected]
+
+    def _open_easy_input(self, key, path, context):
+        """Use each screen's real input adapter for schema-verified suggestions."""
+        from pathlib import Path
+        from .dnd_handlers import get_handler
+
+        dimension = context.get('dimension_routes', {}).get(key)
+        if dimension:
+            screen = self._open_easy_named_module(key)
+            if screen is not None:
+                from .dnd_handlers import MaskDropHandler
+
+                MaskDropHandler().apply(Path(dimension['source']), screen)
+            return True
+        saved = context.get('saved_settings') or {}
+        if saved.get('module') == key and saved.get('path') == path:
+            settings = saved['settings']
+            if self._preview_easy_settings(key, settings):
+                screen = self._open_easy_named_module(key)
+                if screen is not None:
+                    apply = getattr(screen, 'apply_settings_dict', None)
+                    if not callable(apply):
+                        self.statusBar().showMessage(tr('This module cannot apply the selected settings.'), 6000)
+                        return True
+                    apply(dict(settings))
+            return True
+        inferred = context.get('submodule_settings', {}).get(key)
+        if inferred:
+            settings = dict(inferred['settings'])
+            if self._preview_easy_settings(key, settings, inferred=True):
+                screen = self._open_easy_named_module(key)
+                if screen is not None:
+                    apply = getattr(screen, 'apply_settings_dict', None)
+                    if callable(apply):
+                        apply(settings)
+                    else:
+                        self.statusBar().showMessage(tr('This module cannot apply the selected settings.'), 6000)
+            return True
+        paired = context.get('paired_layout') or {}
+        if key == 'make_masks' and paired.get('kind') == 'unstructured':
+            screen = self._open_easy_named_module(key)
+            if screen is not None:
+                screen._open_paired_layout(paired['pairs'])
+            return True
+        if key == 'regression_diagnostics':
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+
+            folder = context.get('analysis_inputs', {}).get(key, {}).get('diagnostics_folder')
+            if folder and Path(folder).is_dir():
+                QDesktopServices.openUrl(QUrl.fromLocalFile(folder))
+            return True
+        if (key not in context.get('analysis_inputs', {})
+                and key not in ('foreign', 'analyze_plaques', 'graph_builder', 'gate_editor', 'dose_response', 'umap',
+                                'run_compare', 'qc_dashboard', 'run_history', 'map_barcodes',
+                                'hit_list', 'profiler', 'regression_diagnostics')):
+            return False
+        handler = get_handler(key)
+        paths = self._easy_input_paths(key, path, context, handler)
+        if not paths:
+            return True
+        screen = self._open_easy_named_module(key)
+        if screen is None:
+            return True
+        for value in paths:
+            source = Path(value)
+            try:
+                if handler.can_accept(source):
+                    handler.apply(source, screen)
+                else:
+                    self.statusBar().showMessage(handler.error_message(source), 6000)
+            except (OSError, ValueError) as exc:
+                self.statusBar().showMessage(str(exc), 6000)
+        return True
+
     def _open_easy_suggestion(self, key, path):
         """Open an inspected input through the destination's existing native input route."""
+        result = getattr(self._startup, '_last_result', None) or {}
+        if self._open_easy_input(key, path, result.get('context', {})):
+            return
         workflow = getattr(self._startup, '_workflow', None)
         node = workflow.data['modules'].get(key, {}) if workflow is not None else {}
         if node.get('route') == 'overview':
@@ -7804,6 +8253,7 @@ class MainWindow(QMainWindow):
                     self._screens[key].ensurePolished()
                 self._breathe_while_opening(force=True)
             with _timing.span("show screen", key):
+                self._apply_navigator_layout(self._screens[key])
                 self._stack.setCurrentWidget(self._screens[key])
         finally:
             self._hide_preparing(card)
