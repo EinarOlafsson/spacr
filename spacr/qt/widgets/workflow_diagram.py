@@ -8,6 +8,7 @@ one to read its description in the owning dialog's fixed details area.
 from __future__ import annotations
 
 import json
+import copy
 from collections import defaultdict
 from html import escape
 from pathlib import Path
@@ -76,6 +77,60 @@ def connections(data, keys=None, steps=None):
                         set(modules.get(target, {}).get("inputs", ())))
         result.append({"from": source, "to": target, "artifacts": shared,
                        "handoff": "", "kind": "compatible" if shared else "prerequisite"})
+    return result
+
+
+def _easy_workflow_data(apps, visible_keys, folded_children=None, *,
+                        folded_metadata=None, available_keys=None, data=None,
+                        mode_labels=None, subtools=()):
+    """Restrict workflow metadata to the caller's available navigation routes."""
+    result = copy.deepcopy(workflow_map() if data is None else data)
+    mapped = result["modules"]
+    rows = {str(row[0]): row for row in apps}
+    visible = set(visible_keys)
+    available = visible if available_keys is None else set(available_keys)
+    parents = {}
+    for host, children in (folded_children or {}).items():
+        for child in children:
+            parents.setdefault(str(child), str(host))
+    metadata = folded_metadata or {}
+    modules = {}
+    for key in dict.fromkeys((*rows, *parents)):
+        if key not in visible or key not in available:
+            continue
+        if key in parents and (parents[key] not in rows
+                               or parents[key] not in visible
+                               or parents[key] not in available):
+            continue
+        row = rows.get(key)
+        fallback = metadata.get(key)
+        if row is None and (fallback is None or parents[key] not in rows):
+            continue
+        node = copy.deepcopy(mapped.get(key, {}))
+        node.update(name=row[1] if row is not None else fallback[0],
+                    guidance=row[2] if row is not None else fallback[1],
+                    section=row[3] if row is not None else rows[parents[key]][3],
+                    requested_key=key, host_key=parents.get(key, key))
+        node.setdefault("inputs", [])
+        node.setdefault("outputs", [])
+        modules[key] = node
+    for tool in subtools:
+        key, host = tool["key"], tool["host_key"]
+        if key in modules or host not in modules or not tool.get("route"):
+            continue
+        node = copy.deepcopy(tool)
+        node.update(requested_key=key, section=modules[host]["section"],
+                    inputs=[], outputs=[])
+        modules[key] = node
+    result["modules"] = modules
+    result["connections"] = [edge for edge in result.get("connections", ())
+                             if edge["from"] in modules and edge["to"] in modules]
+    edges = connections(result)
+    for edge in edges:
+        edge["strength"] = 2 if edge["kind"] == "documented" else 1
+        edge["mode_labels"] = list((mode_labels or {}).get(
+            (edge["from"], edge["to"]), ()))
+    result["easy_connections"] = edges
     return result
 
 
