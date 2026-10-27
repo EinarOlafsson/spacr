@@ -1032,6 +1032,7 @@ _NAME_TO_GLYPH = {
     "chart":           "fa5s.chart-bar",
     "tag":             "fa5s.tag",
     "search":          "fa5s.search",
+    "regex":           "fa5s.asterisk",
     "mask":            "fa5s.mask",
     "measure":         "fa5s.ruler",
     "annotate":        "fa5s.tag",

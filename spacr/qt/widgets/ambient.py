@@ -12849,6 +12849,8 @@ class AmbientWidget(QWidget):
         from PySide6.QtWidgets import QDialog
 
         self._popup_wave_popup_id = None
+        if self.window().property("spacrEasySearchRippleOnly"):
+            return None
         if (self._theme not in _FIELD_THEMES
                 or not self._ripples_enabled or not self._should_run()):
             return None
@@ -14025,7 +14027,8 @@ def _ripples_are_explicit(widget) -> bool:
         current = widget if isinstance(widget, QWidget) else None
         while current is not None:
             window = current.window()
-            if window.property(EXPLICIT_RIPPLES_PROPERTY):
+            if (window.property(EXPLICIT_RIPPLES_PROPERTY)
+                    or window.property("spacrEasySearchRippleOnly")):
                 return True
             current = window.parentWidget()
         return False
@@ -14040,11 +14043,11 @@ def _field_ripple_for_popup(dialog, strength=1.0) -> None:
     :param strength: positive enables the wave; zero disables it.
     :returns: None.
     """
-    _note_container_ripple()
     try:
         owner = dialog.parentWidget()
-        if owner is None:
+        if owner is None or owner.window().property("spacrEasySearchRippleOnly"):
             return
+        _note_container_ripple()
         for backdrop in owner.window().findChildren(AmbientWidget):
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
                 continue
@@ -14104,9 +14107,12 @@ def _field_column_ripple_for_widget(widget, edge="bottom", strength=1.0) -> None
 def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
                            rings=False) -> None:
     """Send ``widget``'s ripple to every running field backdrop of its window."""
-    _note_container_ripple()
     try:
         window = widget.window()
+        if (window.property("spacrEasySearchRippleOnly")
+                and widget.objectName() != "EasyModePath"):
+            return
+        _note_container_ripple()
         backdrops = window.findChildren(AmbientWidget)
         for backdrop in backdrops:
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():

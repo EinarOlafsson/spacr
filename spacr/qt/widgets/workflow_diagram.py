@@ -8,6 +8,7 @@ one to read its description in the owning dialog's fixed details area.
 from __future__ import annotations
 
 import json
+import copy
 from collections import defaultdict
 from html import escape
 from pathlib import Path
@@ -79,6 +80,68 @@ def connections(data, keys=None, steps=None):
     return result
 
 
+def _easy_workflow_data(apps, visible_keys, folded_children=None, *,
+                        folded_metadata=None, available_keys=None, data=None,
+                        mode_labels=None, subtools=()):
+    """Restrict workflow metadata to the caller's available navigation routes."""
+    result = copy.deepcopy(workflow_map() if data is None else data)
+    mapped = result["modules"]
+    rows = {str(row[0]): row for row in apps}
+    visible = set(visible_keys)
+    available = visible if available_keys is None else set(available_keys)
+    parents = {}
+    for host, children in (folded_children or {}).items():
+        for child in children:
+            parents.setdefault(str(child), str(host))
+    metadata = folded_metadata or {}
+    modules = {}
+    for key in dict.fromkeys((*rows, *parents)):
+        if key not in visible or key not in available:
+            continue
+        if key in parents and (parents[key] not in rows
+                               or parents[key] not in visible
+                               or parents[key] not in available):
+            continue
+        row = rows.get(key)
+        fallback = metadata.get(key)
+        if row is None and (fallback is None or parents[key] not in rows):
+            continue
+        node = copy.deepcopy(mapped.get(key, {}))
+        node.update(name=row[1] if row is not None else fallback[0],
+                    guidance=row[2] if row is not None else fallback[1],
+                    section=row[3] if row is not None else rows[parents[key]][3],
+                    requested_key=key, host_key=parents.get(key, key))
+        node.setdefault("inputs", [])
+        node.setdefault("outputs", [])
+        modules[key] = node
+    owners = []
+    for tool in subtools:
+        key, host = tool["key"], tool["host_key"]
+        if key in modules or host not in modules or not tool.get("route"):
+            continue
+        node = copy.deepcopy(tool)
+        node.update(requested_key=key, section=modules[host]["section"])
+        node.setdefault("inputs", [])
+        node.setdefault("outputs", [])
+        modules[key] = node
+        owners.append((host, key))
+    result["modules"] = modules
+    result["connections"] = [edge for edge in result.get("connections", ())
+                             if edge["from"] in modules and edge["to"] in modules]
+    edges = connections(result)
+    for edge in edges:
+        edge["strength"] = 2 if edge["kind"] == "documented" else 1
+        edge["mode_labels"] = list((mode_labels or {}).get(
+            (edge["from"], edge["to"]), ()))
+    for host, key in owners:
+        edges = [edge for edge in edges
+                 if (edge["from"], edge["to"]) != (host, key)]
+        edges.append({"from": host, "to": key, "artifacts": [], "handoff": "",
+                      "kind": "containment", "strength": 0, "mode_labels": []})
+    result["easy_connections"] = edges
+    return result
+
+
 def _artifact_names(data, keys):
     """Resolve artifact titles without discarding an unknown artifact key."""
     return [tr(data.get("artifacts", {}).get(key, {}).get("title", key)) for key in keys]
@@ -131,6 +194,9 @@ def edge_description(data, edge):
         pathway prerequisite. Inferred links do not establish file compatibility.
     """
     source, target = (tr(data["modules"][edge[k]]["name"]) for k in ("from", "to"))
+    if edge["kind"] == "containment":
+        return (f'<b>{escape(source)} → {escape(target)}.</b> ' +
+                escape(tr(data["modules"][edge["to"]].get("guidance", ""))))
     if edge["kind"] == "documented":
         explanation = tr(edge["handoff"])
     elif edge["kind"] == "compatible":

@@ -2,9 +2,9 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    IN PROGRESS — current Easy workflow-tree extension; published behaviour retained
+Status:    IN PROGRESS — current Easy grid/workflow extension; native acceptance and normal outputs pending
 Requested: maintainer, 2026-10-26
-Owner:     Codex Overview integration; G1 Home UI; G2 registry/workflow mapping; root publication
+Owner:     Codex integration; G1 Home UI; G2 registry/workflow mapping; G4 inference; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 REQUIRED BEHAVIOUR
@@ -67,6 +67,49 @@ field displacement through bounded existing effects, preserve its colors,
 and skip motion when Reduce motion or animation is off. Opacity alone does
 not meet this interaction contract.
 
+
+GRID AND INPUT CORRECTIONS (2026-10-26; supersedes random placement)
+
+Arrange suggestions in an organized left-to-right grid below the search
+field; reveal them sequentially from left to right. Enlarge module icons,
+make each entire card clickable, and remove its separate Open button.
+Remove text under the search and the rectangular backplate behind its
+rounded field. Give the field a rim using spaCR's existing chasing blue
+effect. Only a click on the search field triggers an Easy-mode ripple;
+drops, cards and automatic emergence must not trigger ripples. Other
+modules retain their normal ripple behavior.
+A file or folder drop anywhere in spaCR must remain on Easy Home and
+inspect there, with no module navigation before an explicit card click.
+Recognize valid CQ1 TIFFs and sibling images, inspect actual parent spaCR
+analysis outputs, and offer Generate Masks for the containing image folder,
+Make Masks for the single image, and Measure/Database Browser only where
+matching real outputs justify them. Do not label a valid image unsupported.
+When both databases exist, prefer the scientific measurements database over
+an artifacts/cache database for the Database Browser suggestion.
+Sample up to 100 filenames initially, distributed usefully across channels
+and wells, with only a few representative image-header reads. Expand filename
+sampling to at most 1,000 only when the initial sample is inconclusive;
+never default to 1,000 header parses. Reserve a separate bounded parent
+analysis-output budget so large raw-image folders cannot starve discovery.
+Easy mode is the general spaCR entry point for every image/container format
+supported by the actual import/readers and all existing metadata structures,
+not a separate format whitelist. Reuse shared import capabilities and metadata
+adapters for filenames, embedded metadata, siblings, bounded subfolders and
+parent analysis outputs, including Zeiss, Nikon, Thermo Fisher and Leica.
+Try existing microscope filename presets without decoding image arrays.
+When a required reader is unavailable, offer the real Import/install route
+instead of falsely declaring the input unsupported. Preserve valid source,
+metadata and confirmed regex state through module handoff without asking the
+user to repeat configuration.
+When none validates, make the first suggestion an editable regex card with
+the existing white regex icon, proposed pattern and image path underneath.
+Color corresponding capture groups in both pattern and path consistently.
+Editing remains native; an explicit card click validates and applies the
+pattern, regenerates module suggestions, and passes the validated regex to
+actual downstream module settings. No external regex file is required.
+G1 owns UI/routing/closure; retained G4 owns bounded inference and real-file
+regressions. Work remains isolated; root alone integrates and publishes.
+
 WORKFLOW-TREE EXTENSION (2026-10-27)
 
 The first click on a suggestion selects and centers its card, hides the search
@@ -122,3 +165,5 @@ Normal nine-language API/runtime, Help, consumer and settings-flow outputs are g
 All 21 final owning source/API/runtime/Help/flow checks pass, preserving published catalog bytes; root owns the coherent Night push and shared editable-checkout update. No release or hosted-CI waiting condition remains.
 
 2026-10-27 — Maintainer adds a two-stage centered workflow tree with actual module/submodule cards, mode-labelled truthful IO edges, strength thickness, fixed scrollable hover descriptions and Escape/Back restoration. Requirements recorded before implementation; G1 retains UI, G2 maps actual registry/workflows, and the integration owner retains one final source/translation/output closure and root publication. Existing v2 fixes and passing controls remain valid.
+
+2026-10-27 — Reopen Easy mode for general input discovery, editable validated regex, ordered whole-card suggestions and a two-click registered workflow tree. Affected inference/process, native-route and workflow interaction controls pass; both-theme native visual acceptance, changed locale outputs and root publication remain in progress.

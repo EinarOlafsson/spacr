@@ -43,9 +43,10 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QRect, QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QObject, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap,
                            QTextDocumentFragment)
+from PySide6.QtGui import QSyntaxHighlighter as _SyntaxHighlighter
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -53,6 +54,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QProgressBar,
     QPushButton,
     QScrollArea,
@@ -69,7 +71,10 @@ from ..theme import (
     make_transparent, palette_for,
 )
 from .divider import Divider
+from .setup_card import SetupCard as _SetupCard
 from .height_grip import HeightGrip
+from .workflow_diagram import WorkflowView as _WorkflowView
+from .workflow_diagram import _Node as _WorkflowNode, _Edge as _WorkflowEdge
 
 #: Hero brand sizes. The mark and wordmark are the first thing on the first
 #: screen, so they are sized to read as a masthead rather than as a row of
@@ -3692,15 +3697,15 @@ QTabWidget#HomeTabs > QTabBar::tab:selected {{
 
 
 _EASY_DIRECTORY_LIMIT = 24
-_EASY_FILE_LIMIT = 128
-_EASY_ENTRY_LIMIT = 512
+_EASY_FILE_LIMIT = 1032
+_EASY_ENTRY_LIMIT = 8192
 _EASY_HEADER_LIMIT = 8192
 _EASY_METADATA_LIMIT = 16384
 _EASY_METADATA_NAMES = ('metadata.json', 'acquisition.json', 'experiment.json',
                         'MeasurementProtocol.xml', 'ImagingResult.xml', 'MeasurementDetail.mrf')
 
 
-def _easy_read_header(path, limit):
+def _easy_read_header(path, limit, offset=0):
     """Read bounded regular-file bytes without following a symbolic link or opening a device."""
     import stat
 
@@ -3712,6 +3717,9 @@ def _easy_read_header(path, limit):
         current = os.fstat(descriptor)
         if not stat.S_ISREG(current.st_mode) or (original.st_dev, original.st_ino) != (current.st_dev, current.st_ino):
             raise ValueError('Not a regular file')
+        if offset < 0 or offset > current.st_size:
+            raise ValueError('Invalid header offset')
+        os.lseek(descriptor, offset, os.SEEK_SET)
         return os.read(descriptor, limit)
     finally:
         os.close(descriptor)
@@ -3725,7 +3733,50 @@ def _easy_file_kind(path):
 
     from PIL import Image, UnidentifiedImageError
 
-    header = _easy_read_header(path, _EASY_HEADER_LIMIT)
+    header = _easy_read_header(path, 16)
+    if header[:4] in (b'II*\x00', b'MM\x00*', b'II+\x00', b'MM\x00+'):
+        from ...channel_sorting import IMAGE_EXTS
+
+        endian = 'little' if header[:2] == b'II' else 'big'
+        big = int.from_bytes(header[2:4], endian) == 43
+        if big and header[4:8] != (b'\x08\x00\x00\x00' if endian == 'little' else b'\x00\x08\x00\x00'):
+            return 'unsupported'
+        offset = int.from_bytes(header[8:16] if big else header[4:8], endian)
+        count_size, entry_size = (8, 20) if big else (2, 12)
+        raw_count = _easy_read_header(path, count_size, offset)
+        if len(raw_count) != count_size:
+            return 'unsupported'
+        count = int.from_bytes(raw_count, endian)
+        if not count or count > (_EASY_HEADER_LIMIT - 16 - count_size) // entry_size:
+            return 'unsupported'
+        entries = _easy_read_header(path, count * entry_size, offset + count_size)
+        if len(entries) != count * entry_size:
+            return 'unsupported'
+        dimensions = {}
+        organized = False
+        for index in range(count):
+            entry = entries[index * entry_size:(index + 1) * entry_size]
+            tag = int.from_bytes(entry[:2], endian)
+            kind = int.from_bytes(entry[2:4], endian)
+            values = int.from_bytes(entry[4:12] if big else entry[4:8], endian)
+            if tag in (273, 324) and values > 0 and kind in (3, 4, 16):
+                width = {3: 2, 4: 4, 16: 8}[kind]
+                inline = entry[12:] if big else entry[8:]
+                pointer = int.from_bytes(inline[:width] if values * width <= len(inline) else inline, endian)
+                organized = 0 < pointer < os.stat(path, follow_symlinks=False).st_size
+            if tag in (256, 257) and values == 1 and kind in (3, 4, 16):
+                width = {3: 2, 4: 4, 16: 8}[kind]
+                inline = entry[12:] if big else entry[8:]
+                if width <= len(inline):
+                    dimensions[tag] = int.from_bytes(inline[:width], endian)
+        if organized and dimensions.get(256, 0) > 0 and dimensions.get(257, 0) > 0:
+            try:
+                Image._decompression_bomb_check((dimensions[256], dimensions[257]))
+            except Image.DecompressionBombError:
+                return 'unsupported'
+            return 'image' if Path(path).suffix.lower() in IMAGE_EXTS else 'filename_format'
+        return 'unsupported'
+    header += _easy_read_header(path, _EASY_HEADER_LIMIT - 16, len(header))
     if header.startswith(b'SQLite format 3\x00'):
         return 'database'
     if header.startswith(b'\x93NUMPY'):
@@ -3752,40 +3803,64 @@ def _easy_file_kind(path):
             return 'table' if Path(path).suffix.lower() in ('.csv', '.tsv', '.txt') else 'filename_format'
     except (UnicodeError, csv.Error):
         pass
+    from ...convert import IMAGE_EXTENSIONS
+    from ..dnd_handlers import _MASK_FILE_EXTS
+
+    if Path(path).suffix.lower() in set(_MASK_FILE_EXTS) - set(IMAGE_EXTENSIONS) and header.startswith(b'PK\x03\x04'):
+        return 'native_container'
+    if Path(path).suffix.lower() in IMAGE_EXTENSIONS and Path(path).suffix.lower() not in ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp'):
+        return 'container'
     return 'unsupported'
 
 
-def _easy_local_sample(path):
+def _easy_local_sample(path, sample_limit=100):
     """Sample the source, one child level and its immediate master folder within global budgets."""
     from itertools import islice
     from pathlib import Path
+    import random
 
     root = path if path.is_dir() else path.parent
     queue = [(root, True)]
     files = [] if path.is_dir() else [path]
     seen_files, seen_dirs = set(files), set()
+    parent_files = []
+    rng = random.Random(733)
+    counts = [len(files), 0]
     entries_left, unreadable, limited = _EASY_ENTRY_LIMIT, 0, False
-    while queue and len(seen_dirs) < _EASY_DIRECTORY_LIMIT and len(files) < _EASY_FILE_LIMIT:
+    while queue and len(seen_dirs) < _EASY_DIRECTORY_LIMIT:
         folder, descend = queue.pop(0)
         if folder in seen_dirs or folder.is_symlink():
             continue
         seen_dirs.add(folder)
         try:
             with os.scandir(folder) as entries:
-                sample = list(islice(entries, entries_left + 1))
-            if len(sample) > entries_left:
+                allowance = min(entries_left, 4096 if folder == root else 128)
+                sample = list(islice(entries, allowance + 1))
+            if len(sample) > allowance:
                 limited = True
-                sample = sample[:entries_left]
+                sample = sample[:allowance]
             entries_left -= len(sample)
             for entry in sample:
                 if entry.name.startswith('.') or entry.is_symlink():
                     continue
                 candidate = Path(entry.path)
                 if entry.is_file(follow_symlinks=False) and candidate not in seen_files:
-                    if len(files) >= _EASY_FILE_LIMIT:
+                    parent_context = folder != root and folder.parent != root
+                    target = parent_files if parent_context else files
+                    cap = 32 if parent_context else sample_limit
+                    index = int(parent_context)
+                    counts[index] += 1
+                    if len(target) < cap:
+                        target.append(candidate)
+                    else:
                         limited = True
-                        break
-                    files.append(candidate)
+                        position = rng.randrange(counts[index])
+                        if parent_context and candidate.suffix.lower() in ('.db', '.sqlite', '.sqlite3'):
+                            position = next((i for i, item in enumerate(target[8:], 8)
+                                             if item.suffix.lower() not in ('.db', '.sqlite', '.sqlite3')), cap)
+                        if (8 <= position < cap and (path.is_dir() or target[position] != path)
+                                and (not parent_context or target[position].suffix.lower() not in ('.db', '.sqlite', '.sqlite3'))):
+                            target[position] = candidate
                     seen_files.add(candidate)
                 elif descend and entry.is_dir(follow_symlinks=False):
                     queue.append((candidate, False))
@@ -3796,7 +3871,7 @@ def _easy_local_sample(path):
         if not entries_left:
             limited = True
             break
-    return files, tuple(sorted(seen_dirs)), unreadable, limited or bool(queue)
+    return files + parent_files, tuple(sorted(seen_dirs)), unreadable, limited or bool(queue)
 
 
 def _easy_filename_hints(images):
@@ -3842,9 +3917,172 @@ def _easy_metadata_hints(folders):
     return hints
 
 
+def _easy_validate_regex_inline(result, pattern):
+    """Validate an explicit filename pattern through the same parser the Mask run will use."""
+    import re
+
+    from ..i18n import tr
+    from ..regex_detect import KNOWN_FIELDS, apply_regex, validate_records
+    from ...import_plan import for_get_regex
+    from ...regex_infer import _metadata_parse_report, _metadata_pattern
+
+    proposal = dict(result.get('regex') or {})
+    names = proposal.get('sample_filenames') or []
+    updated = dict(result)
+    try:
+        if not isinstance(pattern, str) or not pattern.strip() or len(pattern) > 4096 or not 0 < len(names) <= 1000:
+            raise ValueError('Unbounded filename mapping')
+        compiled = re.compile(pattern)
+        records, missed = apply_regex(names, pattern)
+        warnings = validate_records(records, multichannel='chanID' in compiled.groupindex)
+        required = [warning for warning in warnings if not warning.startswith('Optional:')]
+        required.extend(warning for record in records
+                        for warning in validate_records([record], multichannel='chanID' in compiled.groupindex)
+                        if not warning.startswith('Optional:'))
+        stored = for_get_regex(pattern)
+        extension = proposal['img_format']
+        report = _metadata_parse_report(names, 'custom', extension, stored)
+        downstream = re.compile(_metadata_pattern('custom', extension, stored))
+        if not names or missed or required or report[:2] != (len(names), len(names)) or not all(
+                compiled.fullmatch(name) and downstream.fullmatch(name) for name in names):
+            raise ValueError('Incomplete filename mapping')
+        example = proposal['example_path']
+        from pathlib import Path
+
+        match = compiled.fullmatch(Path(example).name)
+        if match is None:
+            raise ValueError('The example does not match')
+        offset = len(example) - len(Path(example).name)
+        groups = [dict(name=name, start=offset + match.start(name), end=offset + match.end(name), color_index=index)
+                  for index, name in enumerate(KNOWN_FIELDS)
+                  if name in compiled.groupindex and match.start(name) >= 0]
+        proposal.update(pattern=pattern, required=False, groups=groups)
+        proposal.pop('validation_error', None)
+        updated.update(regex=proposal, settings_overrides={'mask': dict(
+            metadata_type='custom', custom_regex=stored)})
+        updated.pop('error', None)
+    except (re.error, ValueError, KeyError, TypeError):
+        proposal.update(pattern=pattern, required=True, validation_error=tr(
+            'The pattern must match every sampled filename and capture the field and channel identities required by the import parser.'))
+        updated['regex'] = proposal
+        updated.pop('settings_overrides', None)
+    return updated
+
+
+def _easy_regex_worker(proposal, pattern, connection):
+    """Return primitive parser results from an isolated explicit-validation process."""
+    import json
+
+    try:
+        result = _easy_validate_regex_inline({'regex': json.loads(proposal)}, pattern)
+        payload = json.dumps(result, ensure_ascii=False).encode('utf-8')
+    except Exception:
+        payload = b'null'
+    try:
+        connection.send_bytes(payload)
+    except (OSError, EOFError):
+        pass
+    finally:
+        connection.close()
+
+
+def _easy_validate_regex(result, pattern, cancelled=None):
+    """Bound arbitrary explicit patterns outside the GUI process and retire the owned child."""
+    import json
+    import multiprocessing
+    import time
+
+    from ..i18n import tr
+
+    updated = dict(result)
+    proposal = dict(result.get('regex') or {})
+    proposal.update(pattern=pattern, required=True)
+    updated['regex'] = proposal
+    updated.pop('settings_overrides', None)
+    if callable(cancelled) and cancelled():
+        return updated
+    names = proposal.get('sample_filenames') or []
+    if not isinstance(pattern, str) or len(pattern) > 4096 or not 0 < len(names) <= 1000:
+        proposal['validation_error'] = tr('This pattern could not be validated within the local limits. Simplify it and try again.')
+        return updated
+    payload = json.dumps({key: proposal[key] for key in (
+        'pattern', 'example_path', 'source_folder', 'sample_filenames', 'img_format', 'required')
+        if key in proposal}, ensure_ascii=False)
+    if len(payload.encode('utf-8')) > 1048576:
+        proposal['validation_error'] = tr('This pattern could not be validated within the local limits. Simplify it and try again.')
+        return updated
+    context = multiprocessing.get_context('spawn')
+    receiver, sender = context.Pipe(duplex=False)
+    process = context.Process(target=_easy_regex_worker, args=(payload, pattern, sender))
+    started = False
+    try:
+        process.start()
+        started = True
+        sender.close()
+        deadline = time.monotonic() + 3.0
+        while time.monotonic() < deadline:
+            if callable(cancelled) and cancelled():
+                return updated
+            if receiver.poll(0.025):
+                reply = json.loads(receiver.recv_bytes(1048576))
+                if isinstance(reply, dict) and isinstance(reply.get('regex'), dict):
+                    updated.update(reply)
+                    return updated
+                break
+            if not process.is_alive():
+                break
+    except (OSError, EOFError, ValueError):
+        pass
+    finally:
+        receiver.close()
+        sender.close()
+        if started:
+            if process.is_alive():
+                process.terminate()
+            process.join(timeout=0.25)
+            if process.is_alive():
+                process.kill()
+                process.join()
+        process.close()
+    proposal['validation_error'] = tr('This pattern could not be validated within the local limits. Simplify it and try again.')
+    return updated
+
+
+def _easy_regex_evidence(images, chosen, hints):
+    """Propose a local editable pattern without applying it or claiming acquisition metadata."""
+    import re
+
+    from ..regex_detect import KNOWN_FIELDS, auto_detect_regex
+    from ...regex_infer import _metadata_parse_report
+
+    own = [image for image in images if image.parent == chosen]
+    if not own:
+        return None
+    example = own[0]
+    extension = example.suffix.lstrip('.')
+    names = [image.name for image in own if image.suffix == example.suffix]
+    if any(hint['folder'] == str(chosen)
+           and _metadata_parse_report(names, hint['convention'], extension)[:2] == (len(names), len(names))
+           for hint in hints):
+        return None
+    pattern, _, _ = auto_detect_regex(names)
+    pattern = pattern or ''
+    match = re.match(pattern, example.name) if pattern else None
+    groups = []
+    if match:
+        for index, name in enumerate(KNOWN_FIELDS):
+            if name in match.re.groupindex and match.start(name) >= 0:
+                offset = len(str(example)) - len(example.name)
+                groups.append(dict(name=name, start=offset + match.start(name),
+                                   end=offset + match.end(name), color_index=index))
+    return dict(pattern=pattern, example_path=str(example), source_folder=str(chosen),
+                sample_filenames=names, img_format=extension, groups=groups, required=True)
+
+
 def _easy_inspect_path_impl(value):
     """Infer local next steps from bounded headers, filename conventions and nearby folder structure."""
     from pathlib import Path
+    from importlib.util import find_spec
 
     from ..i18n import tr
 
@@ -3859,30 +4097,62 @@ def _easy_inspect_path_impl(value):
     path = Path(os.path.normpath(path))
     if not path.is_file() and not path.is_dir():
         return {'path': str(path), 'message': tr('Choose a regular file or folder, rather than a device or pipe.'), 'actions': []}
-    files, folders, unreadable, limited = _easy_local_sample(path)
+    from ...convert import IMAGE_EXTENSIONS, _READERS
+    from ..dnd_handlers import _MASK_FILE_EXTS
+
+    sample_limit = 100
+    files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
+    names = [candidate for candidate in files if candidate.suffix.lower() in IMAGE_EXTENSIONS]
+    hints = _easy_filename_hints(names)
+    if limited and not any(hint['matched'] == hint['sampled'] and hint['sampled'] for hint in hints):
+        sample_limit = 1000
+        files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
+        names = [candidate for candidate in files if candidate.suffix.lower() in IMAGE_EXTENSIONS]
+        hints = _easy_filename_hints(names)
     kinds = {}
+    representatives = [] if path.is_dir() else [path]
+    seen = {(item.parent, item.suffix.lower()) for item in representatives}
+    root = path if path.is_dir() else path.parent
     for candidate in files:
+        identity = (candidate.parent, candidate.suffix.lower())
+        own = candidate.parent == root or candidate.parent.parent == root
+        maximum = 8 if own else 16
+        if identity not in seen and len(representatives) < maximum:
+            representatives.append(candidate)
+            seen.add(identity)
+    classified = {}
+    for candidate in representatives:
         try:
             kind = _easy_file_kind(candidate)
         except (OSError, ValueError, EOFError):
             unreadable += 1
             continue
         kinds.setdefault(kind, []).append(candidate)
+        classified[(candidate.parent, candidate.suffix.lower())] = kind
+    for candidate in names:
+        kind = classified.get((candidate.parent, candidate.suffix.lower()))
+        if kind in ('image', 'container') and candidate not in kinds.get(kind, []):
+            kinds.setdefault(kind, []).append(candidate)
     if path.is_file():
         selected = next((kind for kind, candidates in kinds.items() if path in candidates), 'unsupported')
-        if selected not in ('image', 'table', 'database'):
+        if selected not in ('image', 'table', 'database', 'container', 'array', 'native_container'):
             kinds = {selected: [path]}
     images = kinds.get('image', [])
     root = path if path.is_dir() else path.parent
     local_images = [image for image in images if image.parent == root]
     own_images = [image for image in images if image.parent == root or image.parent.parent == root]
     own_data = any(candidate.parent == root or candidate.parent.parent == root
-                   for kind in ('array', 'table', 'database') for candidate in kinds.get(kind, []))
+                   for kind in ('array', 'table', 'database', 'container', 'native_container') for candidate in kinds.get(kind, []))
     candidates = own_images if own_images else ([] if own_data else images)
     candidate_folders = sorted({image.parent for image in candidates})
     image_folders = sorted({image.parent for image in images})
     chosen = root if local_images else (candidate_folders[0] if candidate_folders else root)
     actions = []
+    native_container = (path.is_file() and path.suffix.lower() in set(_MASK_FILE_EXTS) - set(IMAGE_EXTENSIONS)
+                        and path in kinds.get('array', []) + kinds.get('native_container', []))
+    if native_container:
+        actions.append(('mask', tr('Preview a container dataset'),
+                        tr('Review the native extraction preview before generating masks.'), str(path)))
     if candidates:
         exact = path if path.is_file() and path in candidates else chosen
         actions.extend([
@@ -3893,17 +4163,36 @@ def _easy_inspect_path_impl(value):
             for folder in candidate_folders[1:3]:
                 actions.append(('mask', tr('Create masks: {folder}', folder=folder.name),
                                 tr('Another candidate folder; review channels before Run.'), str(folder)))
+    containers = kinds.get('container', [])
+    if containers:
+        container = path if path in containers else containers[0]
+        reader, install = _READERS.get(container.suffix.lower(), ('spacr.convert', ''))
+        description = tr('Review the reader, embedded metadata and conversion plan before importing.')
+        if find_spec(reader) is None:
+            description = tr('This import needs {reader}. Install it with {command}, then review the import plan.',
+                             reader=reader, command=install)
+        actions.append(('convert', tr('Import microscopy images'),
+                        description, str(container.parent)))
     for kind, key, title, description in (
             ('database', 'db_browser', tr('Browse measurements'), tr('Browse the detected SQLite database.')),
             ('table', 'foreign', tr('Import a measurement table'), tr('Review identities, columns and units.'))):
         own = next((candidate for candidate in kinds.get(kind, [])
-                    if candidate.parent == root or candidate.parent.parent == root), None)
+                    if candidate.parent == root or candidate.parent.parent == root
+                    or (kind == 'database' and local_images
+                        and candidate.parent in (root.parent, root.parent / 'measurements'))), None)
+        if kind == 'database' and local_images and path not in kinds.get('database', []):
+            own = next((candidate for candidate in kinds.get(kind, [])
+                        if candidate.parent == root.parent / 'measurements'
+                        and candidate.name == 'measurements.db'), own)
         if own is not None:
             actions.append((key, title, description, str(own)))
     calibrated = os.path.lexists(root / 'plate_batch.json') or os.path.lexists(root / 'psf' / 'segmentation_application.json')
     if path.is_dir() and any(item.parent == root / 'merged' for item in kinds.get('array', [])) and not calibrated:
         actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(path)))
-    hints = _easy_filename_hints(images)
+    parent = root.parent
+    parent_calibrated = os.path.lexists(parent / 'plate_batch.json') or os.path.lexists(parent / 'psf' / 'segmentation_application.json')
+    if local_images and any(item.parent == parent / 'merged' for item in kinds.get('array', [])) and not parent_calibrated:
+        actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(parent)))
     metadata = _easy_metadata_hints(folders)
     if actions:
         message = tr('Suggestions come from local file headers. Review each module before running; nothing has been processed or sent to AI.')
@@ -3926,13 +4215,40 @@ def _easy_inspect_path_impl(value):
     if unreadable:
         message += ' ' + tr('Some files could not be read. Check their permissions and try again.')
     if path.is_file():
-        actions = ([action for action in actions if action[3] == str(path)]
-                   + [action for action in actions if action[3] != str(path)])
+        preferred = [action for action in actions if action[3] == str(path)
+                     or (path in containers and action[0] == 'convert' and action[3] == str(path.parent))]
+        actions = preferred + [action for action in actions if action not in preferred]
     context = dict(sampled_files=len(files), sampled_directories=len(folders),
                    image_folders=[str(folder) for folder in image_folders], filename_matches=hints,
-                   metadata_files=metadata, truncated=limited)
-    return {'path': str(path), 'message': message, 'actions': actions[:4], 'context': context,
-            'confidence': 'filename_hint' if hints else 'content_only'}
+                   metadata_files=metadata, truncated=limited, header_files=len(representatives),
+                   filename_sample_limit=sample_limit, sampled_image_filenames=len(names),
+                   reader_candidates=[dict(path=str(item), format=item.suffix.lower(),
+                       reader=_READERS.get(item.suffix.lower(), ('spacr.convert', ''))[0],
+                       install_hint=_READERS.get(item.suffix.lower(), ('', ''))[1],
+                       available=find_spec(_READERS.get(item.suffix.lower(), ('spacr.convert', ''))[0]) is not None,
+                       metadata_inspected=False) for item in containers[:4]])
+    if native_container:
+        context.update(native_mask_container=str(path), native_metadata_inspected=False)
+    result = {'path': str(path), 'message': message, 'actions': actions[:4], 'context': context,
+              'confidence': 'filename_hint' if hints else 'content_only'}
+    proposal = _easy_regex_evidence(images, chosen, hints) if not native_container else None
+    if proposal:
+        result['regex'] = proposal
+    elif images and not native_container:
+        from ...regex_infer import _metadata_parse_report
+
+        example = next((image for image in images if image.parent == chosen), None)
+        if example is not None:
+            extension = example.suffix.lstrip('.')
+            own_names = [image.name for image in images if image.parent == chosen and image.suffix == example.suffix]
+            preset = next((hint['convention'] for hint in hints
+                           if hint['folder'] == str(chosen)
+                           and _metadata_parse_report(own_names, hint['convention'], extension)[:2]
+                           == (len(own_names), len(own_names))), None)
+            if preset:
+                result['metadata_preset'] = preset
+                result['settings_overrides'] = {'mask': dict(metadata_type=preset)}
+    return result
 
 
 def _easy_inspect_path(value):
@@ -3975,6 +4291,49 @@ class _EasyDropWatcher(QObject):
         return True
 
 
+class _EasyPathRim(_SetupCard):
+    """Reuse the existing chasing blue rim without painting another backplate."""
+
+    def __init__(self, parent=None):
+        """Keep the rounded outline transparent to native editor interaction."""
+        super().__init__(parent, radius=28, mode='glow')
+        self.setObjectName('EasyPathRim')
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        make_transparent(self)
+
+    def _paint(self):
+        """Draw only the existing border and its pointer-following accent."""
+        from PySide6.QtCore import QRectF
+        from PySide6.QtGui import QPen
+
+        painter = QPainter(self)
+        self._frame = {}
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            rect = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+            painter.setBrush(Qt.NoBrush)
+            painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
+            painter.drawRoundedRect(rect, self._radius, self._radius)
+            self._paint_accent(painter, QColor('#4A9EFF'), rect)
+        finally:
+            self._frame = None
+            painter.end()
+
+    def _sync_run_state(self):
+        """Keep this reused rim still when decorative motion is disabled."""
+        from ..preferences import get_ambient_enabled, get_reduce_motion
+
+        if not self.isVisible() or not get_ambient_enabled() or get_reduce_motion():
+            self._timer.stop()
+        else:
+            self._start()
+
+    def showEvent(self, event):
+        """Apply the current motion policy when the editor becomes visible."""
+        super().showEvent(event)
+        self._sync_run_state()
+
+
 class _EasyPathEdit(QLineEdit):
     """One rounded path field with an inset text-only native Browse control."""
 
@@ -3986,6 +4345,7 @@ class _EasyPathEdit(QLineEdit):
 
         super().__init__(parent)
         self.setObjectName('EasyModePath')
+        self.setFrame(False)
         self.setPlaceholderText(tr('Type a path or Drop some images here ...'))
         self.setAccessibleName(tr('File or folder path'))
         self.setFixedHeight(64)
@@ -3994,7 +4354,6 @@ class _EasyPathEdit(QLineEdit):
         self.browse.setObjectName('EasyModeBrowse')
         self.browse.setCursor(Qt.PointingHandCursor)
         self._gravity_clock = QElapsedTimer()
-        self._gravity_clock.start()
 
     def resizeEvent(self, event):
         """Reserve native editor space for Browse without covering editable text."""
@@ -4009,7 +4368,8 @@ class _EasyPathEdit(QLineEdit):
         """Offer a small rate-limited impulse through the existing field renderer."""
         from ..preferences import _field_ripples_enabled, get_ambient_enabled, get_reduce_motion
 
-        if (not self.isVisible() or self._gravity_clock.elapsed() < 180
+        if (not self.isVisible()
+                or (self._gravity_clock.isValid() and self._gravity_clock.elapsed() < 180)
                 or get_reduce_motion() or not get_ambient_enabled()
                 or not _field_ripples_enabled()):
             return
@@ -4019,24 +4379,20 @@ class _EasyPathEdit(QLineEdit):
         field_ripple_for_widget(self, rect=QRect(point.x() - 2, point.y() - 2, 4, 4),
                                 strength=0.12)
 
-    def focusInEvent(self, event):
-        """Keep normal text editing and add only local field feedback on focus."""
-        super().focusInEvent(event)
-        self._gravity_feedback(self.rect().center())
-
-    def mouseMoveEvent(self, event):
-        """Preserve native selection while coalescing subtle pointer feedback."""
-        super().mouseMoveEvent(event)
-        self._gravity_feedback(event.position().toPoint())
+    def mousePressEvent(self, event):
+        """Keep native editing and ripple only on an actual search-field click."""
+        super().mousePressEvent(event)
+        if event.button() == Qt.LeftButton:
+            self._gravity_feedback(event.position().toPoint())
 
 
-class _EasySuggestionCard(QFrame):
+class _EasySuggestionCard(QPushButton):
     """A growing local next-step card with an explicit module handoff."""
 
     activated = Signal(str, str)
 
     def __init__(self, action, parent=None):
-        """Show a module icon, short guidance and a separate Open control."""
+        """Make the whole module card a native keyboard-accessible action."""
         from ..app import APPS
         from ..iconset import app_icon
         from ..i18n import tr
@@ -4047,10 +4403,14 @@ class _EasySuggestionCard(QFrame):
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
+        self.setCursor(Qt.PointingHandCursor)
+        self.setAccessibleName(title)
+        self.clicked.connect(self._activate)
         outer = QVBoxLayout(self)
         outer.setSizeConstraint(QLayout.SetNoConstraint)
         outer.setContentsMargins(0, 0, 0, 0)
         self.content = QWidget(self)
+        self.content.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         outer.addWidget(self.content)
         self._content_opacity = QGraphicsOpacityEffect(self.content)
         self._content_opacity.setOpacity(1.0)
@@ -4059,10 +4419,11 @@ class _EasySuggestionCard(QFrame):
         layout.setSizeConstraint(QLayout.SetNoConstraint)
         heading = QHBoxLayout()
         icon = QLabel(self)
+        self.icon = icon
         module_icon = app_icon(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
-        icon.setPixmap(module_icon.pixmap(24, 24))
+        icon.setPixmap(module_icon.pixmap(48, 48))
         icon.setAccessibleName(title)
         heading.addWidget(icon)
         module_name = next((row[1] for row in APPS if row[0] == self._key), title)
@@ -4071,12 +4432,9 @@ class _EasySuggestionCard(QFrame):
         heading.addWidget(name, 1)
         layout.addLayout(heading)
         label = QLabel(description, self)
+        self.description = label
         label.setWordWrap(True)
         layout.addWidget(label, 1)
-        self.button = QPushButton(tr('Open'), self)
-        self.button.setAccessibleName(title)
-        self.button.clicked.connect(self._activate)
-        layout.addWidget(self.button, 0, Qt.AlignRight)
 
     def _activate(self):
         """Emit the inspected input only after the user chooses this step."""
@@ -4090,17 +4448,131 @@ class _EasySuggestionCard(QFrame):
         self.parentWidget()._publish_growth()
 
     def _growth_finished(self):
-        """Release the parted field with a ripple from the card's final edges."""
-        from .ambient import field_ripple_for_widget
-
+        """Release the parted field without an automatic card ripple."""
         self._growing = False
         self._content_opacity.setOpacity(1.0)
-        self.button.setEnabled(True)
+        self.setEnabled(True)
         self.setGeometry(self._final_rect)
         self.raise_()
         self.parentWidget()._publish_growth()
-        if self.parentWidget()._motion_enabled() and self.isVisible():
-            field_ripple_for_widget(self, strength=0.35)
+
+
+class _EasyRegexHighlight(_SyntaxHighlighter):
+    """Color compiled named-group headers without interpreting another regex grammar."""
+
+    def __init__(self, document):
+        """Own only presentation formats on the native editable document."""
+        self.colors = {}
+        super().__init__(document)
+
+    def highlightBlock(self, text):
+        """Match the displayed group names to the example's capture colors."""
+        from PySide6.QtGui import QTextCharFormat
+
+        for name, color in self.colors.items():
+            token = '(?P<' + name + '>'
+            start = text.find(token)
+            while start >= 0:
+                previous = start - 1
+                while previous >= 0 and text[previous] == '\\':
+                    previous -= 1
+                if (start - previous - 1) % 2 == 0:
+                    format = QTextCharFormat()
+                    format.setForeground(QColor(color))
+                    self.setFormat(len(text[:start].encode('utf-16-le')) // 2,
+                                   len(token.encode('utf-16-le')) // 2, format)
+                start = text.find(token, start + len(token))
+
+
+class _EasyRegexCard(_EasySuggestionCard):
+    """Offer an editable filename pattern before applying any metadata settings."""
+
+    regex_requested = Signal(str)
+
+    def __init__(self, proposal, parent=None):
+        """Show native editable regex text and a capture-colored example path."""
+        from ..iconset import icon
+        from ..i18n import tr
+
+        self._proposal = dict(proposal)
+        super().__init__(('regex', tr('Regex'), '', proposal['example_path']), parent)
+        self.icon.setPixmap(icon('regex', color='white', size=48, theme='dark').pixmap(48, 48))
+        self.setAccessibleName(tr('Apply regex'))
+        self.setToolTip(tr('Edit the pattern, then click this card to apply it.'))
+        self.content.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.pattern_edit = QPlainTextEdit(self.content)
+        self.pattern_edit.setObjectName('EasyRegexPattern')
+        self.pattern_edit.setAccessibleName(tr('Filename regex'))
+        self.pattern_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.pattern_edit.setFixedHeight(76)
+        self.content.layout().insertWidget(1, self.pattern_edit)
+        self._highlight = _EasyRegexHighlight(self.pattern_edit.document())
+        self._preview_pattern = None
+        self.description.setAccessibleName(tr('Example image path'))
+        self.error = QLabel(self.content)
+        self.error.setWordWrap(True)
+        self.content.layout().addWidget(self.error)
+        self.pattern_edit.textChanged.connect(self._refresh_preview)
+        self.pattern_edit.setPlainText(proposal.get('pattern', ''))
+        self._refresh_preview()
+
+    def _refresh_preview(self):
+        """Color corresponding compiled captures without changing stored settings."""
+        from ..i18n import tr
+        from ..regex_detect import KNOWN_FIELDS
+
+        path = self._proposal['example_path']
+        pattern = self.pattern_edit.toPlainText()
+        if pattern == self._preview_pattern:
+            return
+        self._preview_pattern = pattern
+        self._highlight.colors = {}
+        parts = []
+        try:
+            compiled = re.compile(pattern) if len(pattern) <= 4096 else None
+            for index, group in enumerate(compiled.groupindex if compiled is not None else ()):
+                position = KNOWN_FIELDS.index(group) if group in KNOWN_FIELDS else len(KNOWN_FIELDS) + index
+                color = QColor.fromHsvF((0.56 + position * 0.135) % 1.0, 0.55, 1.0).name()
+                self._highlight.colors[group] = color
+            if pattern == self._proposal.get('pattern'):
+                for group in self._proposal.get('groups', ()):
+                    color = self._highlight.colors.get(group['name'])
+                    if color and 0 <= group['start'] <= group['end'] <= len(path):
+                        parts.append((group['start'], group['end'], color))
+            self.error.setText(self._proposal.get('validation_error', '')
+                               if self.pattern_edit.toPlainText() == self._proposal.get('pattern') else '')
+        except (re.error, RecursionError, OverflowError) as error:
+            self.error.setText(tr('Invalid regex: {error}', error=str(error)))
+        rendered = []
+        end = 0
+        for start, stop, color in sorted(parts):
+            if start < end:
+                continue
+            rendered.append(escape(path[end:start]))
+            rendered.append('<span style="color:' + color + '">' + escape(path[start:stop]) + '</span>')
+            end = stop
+        rendered.append(escape(path[end:]))
+        self.description.setText(''.join(rendered))
+        self._highlight.rehighlight()
+
+    def _activate(self):
+        """Validate only when the user explicitly chooses this regex card."""
+        if not self._growing:
+            self.regex_requested.emit(self.pattern_edit.toPlainText())
+
+
+class _EasyGuidanceCard(_EasySuggestionCard):
+    """Keep a failed input's explanation visible without prose under the search."""
+
+    def __init__(self, message, parent=None):
+        """Present the real local failure and offer focus back to the editor."""
+        from ..i18n import tr
+
+        super().__init__(('warning', tr('Input guidance'), message, ''), parent)
+
+    def _activate(self):
+        """Return to the search field without opening a module."""
+        self.parentWidget().panel.setFocus()
 
 
 class _EasyHomeField(QWidget):
@@ -4110,11 +4582,12 @@ class _EasyHomeField(QWidget):
         """Own the path, feedback and suggestion widgets without another frame timer."""
         super().__init__(parent)
         self.cards = []
-        self._slots = [0, 1, 2, 3]
-        self._anchors = [(0.5, 0.5)] * 4
         self._animations = []
         self.feedback = None
+        self.setObjectName('EasyHomeField')
+        make_transparent(self)
         self.panel = _EasyPathEdit(self)
+        self.rim = _EasyPathRim(self)
         self.setMinimumSize(340, 300)
 
     def _motion_enabled(self):
@@ -4140,7 +4613,7 @@ class _EasyHomeField(QWidget):
         for card in self.cards:
             card._growing = False
             card._content_opacity.setOpacity(1.0)
-            card.button.setEnabled(True)
+            card.setEnabled(True)
             card.setGeometry(card._final_rect)
         self._publish_growth()
 
@@ -4154,10 +4627,8 @@ class _EasyHomeField(QWidget):
         self._finish_growth()
         super().hideEvent(event)
 
-    def set_cards(self, actions):
-        """Grow staggered suggestions from points into randomized safe slots."""
-        import random
-
+    def set_cards(self, actions, leading=None, leading_index=0):
+        """Grow suggestions sequentially through the ordered grid below the editor."""
         from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSequentialAnimationGroup
 
         self._finish_growth()
@@ -4165,12 +4636,12 @@ class _EasyHomeField(QWidget):
             card.hide()
             card.deleteLater()
         self.cards = [_EasySuggestionCard(action, self) for action in actions[:4]]
-        positions = random.SystemRandom()
-        positions.shuffle(self._slots)
-        self._anchors = [(positions.random(), positions.random()) for _ in range(4)]
+        if leading is not None:
+            self.cards.insert(min(leading_index, len(self.cards)), leading)
         self._arrange()
         for index, card in enumerate(self.cards):
             card.show()
+            card.setMinimumSize(0, 0)
             card.raise_()
             if self._motion_enabled() and self.isVisible():
                 target = QRect(card._final_rect)
@@ -4178,7 +4649,7 @@ class _EasyHomeField(QWidget):
                 card._content_opacity.setOpacity(0.0)
                 card.setGeometry(start)
                 card._growing = True
-                card.button.setEnabled(False)
+                card.setEnabled(False)
                 group = QSequentialAnimationGroup(self)
                 group.addPause(300 + index * 650)
                 animation = QPropertyAnimation(card, b'geometry', group)
@@ -4201,49 +4672,314 @@ class _EasyHomeField(QWidget):
             self._arrange()
 
     def _arrange(self):
-        """Allocate disjoint native rectangles and scroll only when space requires it."""
+        """Keep a centered search followed by a disjoint left-to-right module grid."""
         from ..gui_scale import _set_actual_minimum_height
 
         width = self.width()
-        wide = width >= 720
         panel_width = min(720, width - 48)
         panel_height = self.panel.height()
-        card_width = min(310, (width - 64) // 2) if wide else min(310, width - 48)
-        card_height = max([140] + [max(card.sizeHint().height(),
-                                     card.layout().totalHeightForWidth(card_width))
-                                   for card in self.cards])
-        if wide or not self.cards:
-            minimum = panel_height + (card_height * 2 + 128 if self.cards else 160)
-            _set_actual_minimum_height(self, minimum)
-            panel_y = (self.height() - panel_height) // 2
-            horizontal = [(24, width // 2 - card_width - 12),
-                          (width // 2 + 12, width - card_width - 24)]
-            vertical = [(24, panel_y - card_height - 24),
-                        (panel_y + panel_height + 24, self.height() - card_height - 24)]
-            slots = []
-            for index, (anchor_x, anchor_y) in enumerate(self._anchors):
-                left, right = horizontal[index % 2]
-                top, bottom = vertical[index // 2]
-                slots.append(QRect(left + round(max(0, right - left) * anchor_x),
-                                   top + round(max(0, bottom - top) * anchor_y),
-                                   card_width, card_height))
-        else:
-            panel_y = 32
-            _set_actual_minimum_height(self, panel_height + len(self.cards) * (card_height + 32) + 100)
-            slots = [QRect(16 + round(max(0, width - card_width - 32) * anchor_x),
-                           panel_y + panel_height + 40 + index * (card_height + 32)
-                           + round(12 * anchor_y), card_width, card_height)
-                     for index, (anchor_x, anchor_y) in enumerate(self._anchors)]
+        columns = max(1, min(4, (width - 28) // 240))
+        gap = 20
+        card_width = min(310, (width - 48 - gap * (columns - 1)) // columns)
+        card_height = max([180] + [max(card.sizeHint().height(),
+                                      card.layout().totalHeightForWidth(card_width))
+                                    for card in self.cards])
+        rows = (len(self.cards) + columns - 1) // columns
+        grid_height = rows * card_height + max(0, rows - 1) * gap
+        content_height = panel_height + (32 + grid_height if rows else 0)
+        _set_actual_minimum_height(self, content_height + 128)
+        panel_y = max(32, (self.height() - content_height) // 2)
         self.panel.setGeometry((width - panel_width) // 2, panel_y, panel_width, panel_height)
-        if self.feedback is not None:
-            height = max(44, self.feedback.heightForWidth(panel_width))
-            self.feedback.setGeometry((width - panel_width) // 2, panel_y + panel_height + 12,
-                                      panel_width, height)
+        self.rim.setGeometry(self.panel.geometry())
+        self.rim.raise_()
         for index, card in enumerate(self.cards):
-            slot = self._slots[index] if wide else index
-            card._final_rect = QRect(slots[slot])
+            row, column = divmod(index, columns)
+            row_count = min(columns, len(self.cards) - row * columns)
+            row_width = row_count * card_width + (row_count - 1) * gap
+            card._final_rect = QRect((width - row_width) // 2 + column * (card_width + gap),
+                                     panel_y + panel_height + 32 + row * (card_height + gap),
+                                     card_width, card_height)
             if not card._growing:
                 card.setGeometry(card._final_rect)
+
+
+class _EasyWorkflowNode(_WorkflowNode):
+    """Select a registered tool without opening it from a neighboring node."""
+
+    def paint(self, painter, option, widget=None):
+        """Keep module icons and Light typography consistent with Easy Home."""
+        from PySide6.QtGui import QPen
+        from ..iconset import app_icon
+        from ..i18n import tr
+
+        palette = palette_for('dark')
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setBrush(QColor(palette['surface']))
+        painter.setPen(QPen(QColor(palette['accent'] if self.highlighted else palette['border']), 1.5))
+        painter.drawRoundedRect(self.boundingRect().adjusted(1, 1, -1, -1), 16, 16)
+        module = self.view.data['modules'][self.key]
+        glyph = app_icon(module['host_key'] if module.get('route') else self.key, theme='dark')
+        if glyph is not None:
+            painter.drawPixmap(QRect(106, 28, 48, 48), glyph.pixmap(48, 48))
+        font = QFont('Open Sans')
+        font.setWeight(QFont.Light)
+        font.setPixelSize(font_px(18, scale=1))
+        painter.setFont(font)
+        painter.setPen(QColor(palette['fg']))
+        painter.drawText(QRectF(14, 88, 232, 76), Qt.AlignCenter | Qt.TextWordWrap, tr(module['name']))
+
+    def hoverEnterEvent(self, event):
+        """Describe a neighbor without moving the selected tool or changing its input."""
+        self.view.explain_node(self.key)
+        event.accept()
+
+    def mousePressEvent(self, event):
+        """Center this tool first; only the central native card can launch it."""
+        if event.button() == Qt.LeftButton:
+            self.view.chosen.emit(self.key)
+            self.setFocus()
+        event.accept()
+
+    def keyPressEvent(self, event):
+        """Offer the same explicit selection to keyboard navigation."""
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self.view.chosen.emit(self.key)
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
+class _EasyWorkflowEdge(_WorkflowEdge):
+    """Show documented relationship strength and mode labels without creating tools."""
+
+    def paint(self, painter, option, widget=None):
+        """Give existing curved connections a quiet depth cue and honest weighting."""
+        from PySide6.QtGui import QPen
+        from ..i18n import tr
+
+        palette = palette_for('dark')
+        color = QColor(palette['accent'])
+        color.setAlpha(205 if self.highlighted else 105 if self.edge['kind'] == 'documented' else 40)
+        width = 2.8 if self.edge['kind'] == 'documented' else .9 if self.edge['kind'] == 'containment' else 1.1
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.save()
+        painter.translate(0, 2)
+        painter.setPen(QPen(QColor(palette['page']), width + 2))
+        painter.drawPath(self.path())
+        painter.restore()
+        pen = QPen(color, width)
+        if self.edge['kind'] == 'containment':
+            pen.setStyle(Qt.DotLine)
+        elif self.edge['kind'] != 'documented':
+            pen.setStyle(Qt.DashLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.NoBrush)
+        painter.drawPath(self.path())
+        painter.setBrush(color)
+        painter.drawPolygon(self.arrowhead)
+        labels = self.edge.get('mode_labels', ())
+        if labels:
+            point = self.path().pointAtPercent(.5)
+            text = ' / '.join(tr(label) for label in labels)
+            font = QFont('Open Sans')
+            font.setWeight(QFont.Light)
+            font.setPixelSize(font_px(13, scale=1))
+            painter.setFont(font)
+            bounds = QRectF(point.x() - 85, point.y() - 13, 170, 26)
+            painter.setBrush(QColor(palette['page']))
+            painter.setPen(Qt.NoPen)
+            painter.drawRoundedRect(bounds, 9, 9)
+            painter.setPen(QColor(palette['fg']))
+            painter.drawText(bounds, Qt.AlignCenter, text)
+
+
+class _EasyWorkflowView(_WorkflowView):
+    """Reuse the shared workflow layout and descriptions for Easy selection."""
+
+    chosen = Signal(str)
+    viewport_changed = Signal()
+
+    def __init__(self, data, parent=None):
+        """Replace only the presentation items, retaining genuine shared connections."""
+        from shiboken6 import delete
+
+        self._selected_key = None
+        super().__init__(data, parent=parent)
+        self.setObjectName('EasyWorkflowView')
+        for key, previous in tuple(self.nodes.items()):
+            node = _EasyWorkflowNode(self, key)
+            node.setPos(previous.pos())
+            self.scene().removeItem(previous)
+            delete(previous)
+            self.scene().addItem(node)
+            self.nodes[key] = node
+        records = {(edge['from'], edge['to']): edge for edge in data['easy_connections']}
+        for index, previous in enumerate(tuple(self.edges)):
+            record = records[previous.edge['from'], previous.edge['to']]
+            edge = _EasyWorkflowEdge(self, record, previous.path().pointAtPercent(0), previous.end)
+            self.scene().removeItem(previous)
+            delete(previous)
+            self.scene().addItem(edge)
+            self.edges[index] = edge
+        from PySide6.QtCore import QPointF
+
+        existing = {(edge.edge['from'], edge.edge['to']) for edge in self.edges}
+        for record in data['easy_connections']:
+            if record['kind'] != 'containment':
+                continue
+            if (record['from'], record['to']) in existing:
+                continue
+            source = self.nodes[record['from']].sceneBoundingRect()
+            destination = self.nodes[record['to']].sceneBoundingRect()
+            edge = _EasyWorkflowEdge(self, record, QPointF(source.right(), source.center().y()),
+                                     QPointF(destination.left(), destination.center().y()))
+            self.scene().addItem(edge)
+            self.edges.append(edge)
+        self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-20, -20, 20, 20))
+
+    def explain_node(self, key):
+        """Reuse translated IO guidance in the fixed, scrollable details area."""
+        from .workflow_diagram import node_description
+        from ..i18n import tr
+
+        text = node_description(self.data, key)
+        note = self.data['modules'][key].get('documentation_note')
+        if note:
+            text += '<p>' + escape(tr(note)) + '</p>'
+        self.explanation.emit(text)
+
+    def center_selection(self, key):
+        """Keep the selected scene node underneath its central native action card."""
+        self._selected_key = key
+        for candidate, node in self.nodes.items():
+            node.setVisible(candidate != key)
+        self.describe_node(key, center=True)
+        self._center_selected()
+        self.explain_node(key)
+
+    def _center_selected(self):
+        """Leave enough scene margin to center even boundary modules without clamping."""
+        if self._selected_key is None:
+            return
+        scale = max(.04, abs(self.transform().m11()))
+        horizontal = self.viewport().width() / (2 * scale) + 20
+        vertical = self.viewport().height() / (2 * scale) + 20
+        self.setSceneRect(self.scene().itemsBoundingRect().adjusted(-horizontal, -vertical,
+                                                                  horizontal, vertical))
+        self.centerOn(self.nodes[self._selected_key])
+
+    def resizeEvent(self, event):
+        """Retain selected-card alignment rather than fitting every tool to tiny text."""
+        super().resizeEvent(event)
+        if self._selected_key is not None:
+            self._center_selected()
+        self.viewport_changed.emit()
+
+    def scrollContentsBy(self, dx, dy):
+        """Keep the native central action aligned with its actual scene connections."""
+        super().scrollContentsBy(dx, dy)
+        self.viewport_changed.emit()
+
+    def zoom(self, factor):
+        """Reproject the native action with the shared graph's deliberate zoom."""
+        super().zoom(factor)
+        self.viewport_changed.emit()
+
+
+class _EasyWorkflowPage(QWidget):
+    """A two-step module choice with fixed details and reversible navigation."""
+
+    back_requested = Signal()
+    open_requested = Signal(str, str)
+
+    def __init__(self, data, actions, selected, parent=None):
+        """Retain verified suggestion routes separately from descriptive compatibility."""
+        from PySide6.QtWidgets import QTextBrowser
+        from ..gui_scale import _set_actual_minimum_height
+        from ..i18n import tr
+
+        self.central = None
+        super().__init__(parent)
+        self.setObjectName('EasyWorkflowPage')
+        _set_actual_minimum_height(self, 500)
+        self.data = data
+        self.routes = {action[0]: action for action in actions}
+        artifacts = {'mask': {'raw_images'}, 'make_masks': {'raw_images'},
+                     'measure': {'merged'}, 'db_browser': {'measurements'}, 'foreign': {'foreign_tables'}}
+        self.native_routes = set()
+        for key, module in data['modules'].items():
+            if key in self.routes:
+                continue
+            for action in actions:
+                if set(module.get('inputs', ())) & artifacts.get(action[0], set()):
+                    self.routes[key] = (key, module['name'], module.get('guidance', ''), action[3])
+                    self.native_routes.add(key)
+                    break
+            if module.get('route') == 'overview' and module['host_key'] in self.routes:
+                host = self.routes[module['host_key']]
+                self.routes[key] = (key, module['name'], module.get('guidance', ''), host[3])
+        self.view = _EasyWorkflowView(data, self)
+        self.view.chosen.connect(self.select)
+        self.view.viewport_changed.connect(self._arrange_overlay)
+        self.back = QPushButton(tr('Back'), self)
+        self.back.setObjectName('EasyWorkflowBack')
+        self.back.clicked.connect(self.back_requested)
+        self.details = QTextBrowser(self)
+        self.details.setObjectName('EasyWorkflowDetails')
+        self.details.setOpenExternalLinks(True)
+        self.details.setOpenLinks(True)
+        self.details.setAccessibleName(tr('Module description'))
+        self.view.explanation.connect(self.details.setHtml)
+        self.select(selected)
+
+    def select(self, key):
+        """Select a real tool without opening it or inventing a source artifact."""
+        from ..i18n import tr
+
+        if key not in self.data['modules']:
+            return
+        if self.central is not None:
+            self.central.hide()
+            self.central.deleteLater()
+        module = self.data['modules'][key]
+        action = self.routes.get(key, (key, tr(module['name']), tr(module.get('guidance', '')), ''))
+        self.central = _EasySuggestionCard(action, self)
+        self.central.setObjectName('EasySuggestionCard')
+        self.central.description.hide()
+        self.central.activated.connect(self.open_requested)
+        self.central.show()
+        self.view.center_selection(key)
+        self._arrange()
+        self.central.setFocus()
+
+    def _arrange(self):
+        """Keep the selected card central and descriptions bounded at every size."""
+        self.view.setGeometry(self.rect())
+        self._arrange_overlay()
+
+    def _arrange_overlay(self):
+        """Follow the selected scene rectangle without inventing a second graph transform."""
+        if self.central is None:
+            return
+        node = self.view.nodes[self.central._key]
+        rectangle = self.view.mapFromScene(node.sceneBoundingRect()).boundingRect()
+        rectangle.moveTopLeft(self.view.viewport().mapTo(self, rectangle.topLeft()))
+        self.central.setGeometry(rectangle)
+        self.central.setMinimumSize(0, 0)
+        self.central.raise_()
+        self.back.setGeometry(16, 16, max(70, self.back.sizeHint().width()), 36)
+        self.back.raise_()
+        detail_width = min(520, self.width() - 32)
+        self.details.setGeometry((self.width() - detail_width) // 2,
+                                 max(16, self.height() - 144),
+                                 detail_width, 128)
+        self.details.raise_()
+
+    def resizeEvent(self, event):
+        """Reproject only native geometry while preserving the selected module."""
+        super().resizeEvent(event)
+        if self.central is not None:
+            self._arrange()
 
 
 class _EasyHomePage(QWidget):
@@ -4257,6 +4993,7 @@ class _EasyHomePage(QWidget):
 
     def __init__(self, parent=None):
         """Build only the path field initially; expose guidance after an input attempt."""
+        from PySide6.QtGui import QKeySequence, QShortcut
         from ..i18n import tr
         from ..job_runner import JobRunner
 
@@ -4271,6 +5008,10 @@ class _EasyHomePage(QWidget):
         self.field = _EasyHomeField(scroll)
         scroll.setWidget(self.field)
         layout.addWidget(scroll)
+        self._suggestions_scroll = scroll
+        self._workflow = None
+        self._workflow_escape = QShortcut(QKeySequence(Qt.Key_Escape), self)
+        self._workflow_escape.activated.connect(self._show_suggestions)
         self.path_edit = self.field.panel
         self.path_edit.browse.clicked.connect(self._browse)
         self.path_edit.setToolTip(tr('Local suggestions. No AI provider or network connection is required.'))
@@ -4291,6 +5032,9 @@ class _EasyHomePage(QWidget):
         self.path_edit.returnPressed.connect(self._inspect)
         self._requested = ''
         self._input_generation = 0
+        self._last_result = None
+        self._settings_overrides = {}
+        self._regex_cancel = None
         self.refresh()
 
     def _sync_easy_backdrop(self):
@@ -4345,13 +5089,29 @@ class _EasyHomePage(QWidget):
         backdrop._apply_background(color if explicit else _preferred_background(), explicit=explicit)
         backdrop.set_backdrop(image)
 
+    def _sync_easy_ripple_policy(self, active):
+        """Own the search-only policy independently of backdrop replacement."""
+        import weakref
+
+        window = self.window()
+        owner = getattr(window, '_easy_search_ripple_owner', None)
+        if active:
+            window._easy_search_ripple_owner = weakref.ref(self)
+            window.setProperty('spacrEasySearchRippleOnly', True)
+        elif owner is not None and owner() is self:
+            window._easy_search_ripple_owner = None
+            window.setProperty('spacrEasySearchRippleOnly', False)
+
     def showEvent(self, event):
         """Apply the local backdrop after native Home visibility becomes real."""
         super().showEvent(event)
+        self._sync_easy_ripple_policy(True)
         self._sync_easy_backdrop()
 
     def hideEvent(self, event):
         """Restore ordinary modules without changing their saved theme."""
+        self._cancel_regex_validation()
+        self._sync_easy_ripple_policy(False)
         self._restore_easy_backdrop()
         super().hideEvent(event)
 
@@ -4365,26 +5125,35 @@ class _EasyHomePage(QWidget):
         border = palette['border']
         self.setStyleSheet(
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
-            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
+            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
             f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
-            f'QFrame#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; }} '
-            f'QFrame#EasySuggestionCard QLabel, QFrame#EasySuggestionCard QPushButton {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
+            f'QPushButton#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; padding: 12px; min-width: 0px; min-height: 0px; text-align: left; }} '
+            f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
+            f'QPlainTextEdit#EasyRegexPattern {{ color: {foreground}; background: transparent; border: 1px solid {border}; border-radius: 6px; font-weight: 300; }} '
+            f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
+            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
 
     def _feedback(self, message, visible=False):
         """Keep normal guidance accessible without adding an explanatory panel."""
         self.status.setText(message)
-        self.status.setVisible(visible)
+        self.status.hide()
         self.path_edit.setAccessibleDescription(message)
         self.path_edit.setToolTip(message)
+        if visible:
+            self.field.set_cards([], _EasyGuidanceCard(message, self.field))
         self.field._arrange()
 
     def accept_paths(self, paths):
         """Accept exactly one local input and give useful feedback for ambiguous drops."""
         from ..i18n import tr
 
+        self._show_suggestions()
         if len(paths) != 1:
+            self._cancel_regex_validation()
             self._input_generation += 1
+            self._last_result = None
+            self._settings_overrides = {}
             self._debounce.stop()
             self._requested = self.path_edit.text()
             self.field.set_cards([])
@@ -4414,6 +5183,9 @@ class _EasyHomePage(QWidget):
 
     def _schedule_inspection(self, text):
         """Debounce typed paths without interpreting the signal text as a timer interval."""
+        self._cancel_regex_validation()
+        self._last_result = None
+        self._settings_overrides = {}
         self.field.set_cards([])
         self.status.hide()
         self._debounce.start()
@@ -4425,11 +5197,14 @@ class _EasyHomePage(QWidget):
         from ..i18n import tr
 
         self._debounce.stop()
+        self._cancel_regex_validation()
         if self._runner.is_busy():
             return
         value = self.path_edit.text()
         self._requested = value
         self._input_generation += 1
+        self._last_result = None
+        self._settings_overrides = {}
         self.field.set_cards([])
         self._feedback(tr('Inspecting local file headers…'))
         self._runner.submit(partial(_easy_inspect_path, value),
@@ -4439,17 +5214,105 @@ class _EasyHomePage(QWidget):
         """Publish only the latest inspected path and wire explicit next-step actions."""
         if generation != self._input_generation or self.path_edit.text() != self._requested:
             return
+        self._regex_cancel = None
         from ..app import app_is_visible
         from ..i18n import tr
 
         actions = [action for action in result['actions'] if app_is_visible(action[0])]
+        visible_count = len(actions)
+        self._last_result = result
+        self._settings_overrides = dict(result.get('settings_overrides', {}))
+        proposal = result.get('regex')
+        leading = None
+        if proposal:
+            if proposal.get('required'):
+                actions = [action for action in actions if action[0] != 'mask']
+            leading = _EasyRegexCard(proposal, self.field)
+            leading.regex_requested.connect(self._apply_regex)
+        elif result.get('metadata_preset'):
+            actions = [(key, title,
+                        description + ' ' + tr('Filename preset: {preset}', preset=result['metadata_preset'])
+                        if key == 'mask' else description, path)
+                       for key, title, description, path in actions]
         message = result['message']
-        if len(actions) < len(result['actions']):
+        if visible_count < len(result['actions']):
             message += ' ' + tr('Additional matching modules are hidden by your maturity or alpha preferences.')
-        self._feedback(message, visible=not actions)
-        self.field.set_cards(actions)
+        self._feedback(message, visible=not actions and leading is None)
+        if not actions and leading is None:
+            return
+        leading_index = int(bool(actions and actions[0][0] in ('foreign', 'db_browser', 'measure', 'convert')
+                                 and actions[0][3] == result['path']))
+        self.field.set_cards(actions, leading, leading_index)
         for card in self.field.cards:
-            card.activated.connect(self.module_requested)
+            if not isinstance(card, _EasyRegexCard):
+                card.activated.connect(self._select_suggestion)
+
+    def _select_suggestion(self, key, path):
+        """Center a suggested tool and reveal its real workflow before opening it."""
+        from ..app import APPS, app_is_visible, folded_children
+        from ..preferences import maturity_is_visible
+        from .fold_strip import fold_label
+        from .workflow_diagram import _easy_workflow_data
+        from ..i18n import tr
+
+        folds = folded_children()
+        all_keys = {row[0] for row in APPS} | {child for children in folds.values() for child in children}
+        labels = {candidate: fold_label(candidate) for children in folds.values() for candidate in children}
+        visible = {candidate for candidate in all_keys if app_is_visible(candidate)
+                   and (candidate not in labels or maturity_is_visible(labels[candidate][2]))}
+        metadata = {candidate: values[:2] for candidate, values in labels.items()}
+        data = _easy_workflow_data(APPS, visible, folds, folded_metadata=metadata,
+                                  subtools=(dict(key='overview', name=tr('Overview'),
+                                                 guidance=tr('Inspect images and field metadata.'),
+                                                 host_key='mask', route='overview'),),
+                                  mode_labels={('mask', 'measure'): (tr('Concatenate'), tr('3D'), tr('Time'))})
+        if key not in data['modules']:
+            return
+        actions = list((self._last_result or {}).get('actions', ()))
+        actions = [action for action in actions if action[0] != key]
+        actions.insert(0, (key, data['modules'][key]['name'], data['modules'][key].get('guidance', ''), path))
+        self._workflow = _EasyWorkflowPage(data, actions, key, self)
+        self._workflow.back_requested.connect(self._show_suggestions)
+        self._workflow.open_requested.connect(self.module_requested)
+        self._suggestions_scroll.hide()
+        self.layout().addWidget(self._workflow)
+        self._workflow.show()
+
+    def _show_suggestions(self):
+        """Return to the unchanged path and suggestions without starting another inspection."""
+        if self._workflow is not None:
+            self._workflow.hide()
+            self._workflow.deleteLater()
+            self._workflow = None
+        self._suggestions_scroll.show()
+        self.path_edit.setFocus()
+
+    def _apply_regex(self, pattern):
+        """Validate a chosen pattern off the GUI thread before storing any seed."""
+        from functools import partial
+        from threading import Event
+        from ..i18n import tr
+
+        if self._last_result is None or self._runner.is_busy():
+            return
+        self._input_generation += 1
+        self._regex_cancel = Event()
+        self._feedback(tr('Validating regex…'))
+        for card in self.field.cards:
+            card.setEnabled(False)
+        self._runner.submit(partial(_easy_validate_regex, self._last_result, pattern,
+                                    cancelled=self._regex_cancel.is_set),
+                            on_done=partial(self._show_result, self._input_generation))
+
+    def _cancel_regex_validation(self):
+        """Retire the owned validation child before abandoning its completion."""
+        if self._regex_cancel is not None:
+            self._regex_cancel.set()
+            self._regex_cancel = None
+            self._input_generation += 1
+            self._runner.cancel()
+            for card in self.field.cards:
+                card.setEnabled(True)
 
     def _inspection_finished(self, ok):
         """Inspect a changed input after the previous owned worker has retired."""
@@ -4466,6 +5329,8 @@ class _EasyHomePage(QWidget):
     def closeEvent(self, event):
         """Stop owned timers and retire the local inspection worker before closing."""
         self._debounce.stop()
+        self._cancel_regex_validation()
+        self._sync_easy_ripple_policy(False)
         self._restore_easy_backdrop()
         self.field._finish_growth()
         self._runner.shutdown(3000)
