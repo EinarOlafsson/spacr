@@ -263,3 +263,44 @@ def test_final_eof_keeps_one_second_policy_without_a_following_sound():
     trace,events,visual,spoken=observation(final=True,seek_at=1.62)
     with pytest.raises(AssertionError,match='actual_sound_gap_outside_policy'):
         check_complete_native_trace(trace,events,visual,spoken,0,True)
+
+
+@pytest.mark.parametrize('preserve,final_native,expected',[
+    (True,False,list(range(14))),
+    (False,True,[6,13]),
+    (False,False,None),
+])
+def test_complete_boundary_selection_preserved_cards_and_strict_native_pairs(
+        monkeypatch,preserve,final_native,expected):
+    import verify_staged_lesson as verifier
+    visual=dict(preserve_visual_intervals=preserve,scenes=[dict(
+        speech_start=i*4,scene_end=(i+1)*4,duration=4,
+        native_live_video=(i in (6,7) or (i==13 and final_native))) for i in range(14)])
+    spoken=dict(scenes=[dict(speech_start=i*2,speech_end=i*2+1) for i in range(14)])
+    calls=[]
+    class SavedObservationPage:
+        def evaluate(self,script,arg=None):
+            if script=='window.__completeNativeTrace':return [dict(synthetic_observation=True)]
+            if script=='window.__completeNativeEvents':return []
+            if 'wall:performance.now()' in script and 'trace.append' not in script:
+                return dict(synthetic_observation=True)
+        def wait_for_function(self,*args,**kwargs):pass
+    def strict_trace_spy(trace,events,actual_visual,actual_spoken,index,final,*,require_gap):
+        assert actual_visual is visual and actual_spoken is spoken
+        assert require_gap is True
+        assert final==(index==13)
+        assert trace and events==[]
+        calls.append(index)
+        return dict(checked_boundary_after_scene=index+1)
+    monkeypatch.setattr(verifier,'check_complete_native_trace',strict_trace_spy)
+    if expected is None:
+        with pytest.raises(ValueError,match='boundary and final recorded tail'):
+            verifier.check_complete_native_boundary_playback(SavedObservationPage(),visual,spoken,
+                all_boundaries=True,require_gap=True)
+        assert calls==[]
+    else:
+        result=verifier.check_complete_native_boundary_playback(SavedObservationPage(),visual,spoken,
+            all_boundaries=True,require_gap=True)
+        assert calls==expected
+        assert len(result['boundaries'])==len(expected)-1
+        assert result['final_tail']['checked_boundary_after_scene']==14

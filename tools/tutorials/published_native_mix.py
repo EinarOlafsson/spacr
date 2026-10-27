@@ -233,7 +233,13 @@ def product_policy(root,timing,fences):
         visual_timing_sha256=digest(root/'video/native-live-timings.json'),scenes=rows)])
 
 
-def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revision=None):
+def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revision=None,native_companions_plan=None):
+    if reference_revision=='native-companions-v1':
+        if identity_!='04_platform_installers' or edit is not None or native_companions_plan is None:
+            raise ValueError('Native companion refresh requires only its explicit Platform plan')
+        from published_platform_native_refresh import render as render_companions
+        return render_companions(stage,baseline,native_companions_plan,source_policy)
+    if native_companions_plan is not None:raise ValueError('Companion plan requires its explicit Platform revision')
     root,baseline,bindings,source,spec,timing,edit,fences=inputs(stage,baseline,edit,source_policy,identity_,reference_revision)
     target=root/'video'/(identity_+'_silent.mp4');work=root/'mixed-render';clock=target.with_name('native-live-timings.json')
     if any(os.path.lexists(p) for p in [target,clock,root/'scenes.json',root/RECORD,root/'mixed-idle-tail-policy.json',work]):
@@ -261,6 +267,11 @@ def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revis
 
 
 def checked_mixed_native_timing(stage,identity_):
+    record_path=Path(stage)/'production'/identity_/RECORD
+    if record_path.is_file() and read(record_path).get('reference_revision')=='native-companions-v1':
+        if identity_!='04_platform_installers':raise ValueError('Native companions are Platform-only')
+        from published_platform_native_refresh import checked
+        return checked(stage)
     if identity_ not in {'05_home','15_image_umap','21_model_compare','04_platform_installers','02_install_spacr'}:raise ValueError('Unreviewed mixed source')
     root=Path(stage)/'production'/identity_;record=read(root/RECORD)
     if 'reference_revision' in record and record['reference_revision']!='maintenance-v1':raise ValueError('Unknown explicit reference revision')
@@ -298,7 +309,8 @@ def main():
     source.add_argument('--source-idle-policy',type=Path)
     source.add_argument('--canonical-source-policy',action='store_true',help='Explicitly bind the one existing canonical04/21/02 source entry')
     p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare','04_platform_installers','02_install_spacr'],default='05_home')
-    p.add_argument('--reference-revision',choices=['maintenance-v1'],help='Explicit ten-slot Platform maintenance reference contract; default Doctor-only unchanged')
+    p.add_argument('--reference-revision',choices=['maintenance-v1','native-companions-v1'],help='Explicit Platform reference or two-native-companion contract; default Doctor-only unchanged')
+    p.add_argument('--native-companions-plan',type=Path,help='Exact reviewed two-clip source bindings and action fences')
     a=p.parse_args();print(render(a.stage,a.baseline,read(a.reviewed_edit) if a.reviewed_edit else None,
-        read(a.source_idle_policy) if a.source_idle_policy else canonical_source_policy(a.lesson) if a.canonical_source_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson,a.reference_revision))
+        read(a.source_idle_policy) if a.source_idle_policy else canonical_source_policy(a.lesson) if a.canonical_source_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson,a.reference_revision,read(a.native_companions_plan) if a.native_companions_plan else None))
 if __name__=='__main__':main()
