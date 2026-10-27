@@ -258,7 +258,7 @@ def _theme_palette(theme: Optional[str]) -> dict:
 
 
 class _SpaceoutIconEngine(QIconEngine):
-    """Paint a font-independent infinity with a spiral inside each lobe."""
+    """Paint a font-independent spiral viewed from above."""
 
     def __init__(self, color):
         """Retain only the selected theme ink and rendered pixmaps."""
@@ -271,26 +271,22 @@ class _SpaceoutIconEngine(QIconEngine):
         return _SpaceoutIconEngine(self._color)
 
     def paint(self, painter, rect, mode, state):
-        """Scale the same infinity and spiral geometry to the requested rectangle."""
+        """Scale the same top-down spiral to the requested rectangle."""
+        import math
+
         from PySide6.QtCore import Qt
         from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
 
         path = QPainterPath()
-        path.moveTo(50, 50)
-        path.cubicTo(32, 20, 10, 20, 10, 50)
-        path.cubicTo(10, 80, 32, 80, 50, 50)
-        path.cubicTo(68, 20, 90, 20, 90, 50)
-        path.cubicTo(90, 80, 68, 80, 50, 50)
-        path.moveTo(40, 45)
-        path.cubicTo(32, 29, 19, 33, 19, 49)
-        path.cubicTo(19, 64, 33, 67, 36, 55)
-        path.cubicTo(39, 44, 25, 41, 26, 51)
-        path.cubicTo(26, 55, 30, 56, 31, 52)
-        path.moveTo(60, 55)
-        path.cubicTo(68, 71, 81, 67, 81, 51)
-        path.cubicTo(81, 36, 67, 33, 64, 45)
-        path.cubicTo(61, 56, 75, 59, 74, 49)
-        path.cubicTo(74, 45, 70, 44, 69, 48)
+        for step in range(401):
+            fraction = step / 400
+            angle = fraction * math.tau * 2.65
+            radius = 2 + 38 * fraction
+            x, y = 50 + radius * math.cos(angle), 50 + radius * math.sin(angle)
+            if step:
+                path.lineTo(x, y)
+            else:
+                path.moveTo(x, y)
         side = min(rect.width(), rect.height())
         painter.save()
         try:

@@ -14188,6 +14188,11 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
                            rings=False) -> None:
     """Send ``widget``'s ripple to every running field backdrop of its window."""
     try:
+        current = widget
+        while current is not None:
+            if current.property("spacrPassivePanelOverlay"):
+                return
+            current = current.parentWidget()
         window = widget.window()
     except RuntimeError:
         _note_container_ripple()

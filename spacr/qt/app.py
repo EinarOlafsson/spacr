@@ -5383,14 +5383,18 @@ class _NavigatorHomePage(_NavigatorPageBase):
         for name in ('tile_clicked', 'sample_project_requested',
                      'update_check_requested', 'news_refresh_requested'):
             getattr(aside, name).connect(getattr(self, name))
-        split = CollapsibleSplitter(Qt.Horizontal, persist_key='navigator::body')
-        self.layout().removeWidget(self._suggestions_scroll)
-        split.add_pane(self._suggestions_scroll, 'Navigator', stretch=1)
+        split = CollapsibleSplitter(Qt.Horizontal, persist_key='navigator::body', parent=self)
+        split.setProperty('spacrPassivePanelOverlay', True)
+        split.setProperty('spacrAmbientPassiveOverlay', True)
+        split.add_pane(QWidget(), 'Navigator', stretch=1)
         split.add_pane(aside, 'Widgets', mode=EDGE, fold_key='navigator/Widgets',
                        stretch=0, extent=scaled_px(_HomePageBase.ASIDE_W))
-        self.layout().addWidget(split, 1)
         self._navigator_aside_split = split
-        split.splitterMoved.connect(lambda *_: self._fit_navigator_workflow())
+        split.splitterMoved.connect(lambda *_: self._fit_navigator_aside())
+        split.pane_toggled.connect(lambda *_: self._fit_navigator_aside())
+        _watch_object_events(aside, self, (QEvent.Resize, QEvent.Move))
+        _watch_object_events(split.handle(1), self, (QEvent.Resize, QEvent.Move))
+        self._fit_navigator_aside()
         _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
 
     def _show_running_runs(self):
@@ -5415,11 +5419,25 @@ class _NavigatorHomePage(_NavigatorPageBase):
         super()._select_suggestion(key, path)
         self._fit_navigator_workflow()
 
+    def _fit_navigator_aside(self):
+        from PySide6.QtGui import QRegion
+
+        split = getattr(self, '_navigator_aside_split', None)
+        if split is None:
+            return
+        split.setGeometry(self.rect())
+        region = QRegion(split.handle(1).geometry())
+        if not split.is_collapsed('Widgets'):
+            region |= QRegion(self._navigator_aside.geometry())
+        split.setMask(region)
+        split.raise_()
+
     def _fit_navigator_workflow(self):
         if self._workflow is not None:
             rect = self._suggestions_scroll.rect()
             rect.moveTopLeft(self._suggestions_scroll.mapTo(self, rect.topLeft()))
             self._workflow.setGeometry(rect)
+        self._fit_navigator_aside()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -5428,6 +5446,8 @@ class _NavigatorHomePage(_NavigatorPageBase):
     def eventFilter(self, watched, event):
         if watched is self._suggestions_scroll and event.type() in (QEvent.Resize, QEvent.Move):
             self._fit_navigator_workflow()
+        if event.type() in (QEvent.Resize, QEvent.Move):
+            self._fit_navigator_aside()
         return super().eventFilter(watched, event)
 
     def closeEvent(self, event):
@@ -6672,6 +6692,12 @@ class MainWindow(QMainWindow):
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
                                       width=self._sidebar.width())
+        from .gil_priority import _watch_object_events
+
+        _watch_object_events(central, self, (QEvent.Resize, QEvent.LayoutRequest))
+        _watch_object_events(self._sidebar, self, (QEvent.Resize,))
+        self._stack.currentChanged.connect(lambda _index: self._sync_navigator_dock_overlay())
+        self._dock_edge.collapsedChanged.connect(lambda _collapsed: self._sync_navigator_dock_overlay())
         self.apply_dock_mode()
         self._backdrop_the_dock_column()
 
@@ -7178,6 +7204,9 @@ class MainWindow(QMainWindow):
         :returns: ``True`` when a menu-bar mouse gesture is consumed;
             otherwise ``False``.
         """
+        if event.type() in (QEvent.Resize, QEvent.LayoutRequest):
+            if watched is self.centralWidget() or watched is getattr(self, '_sidebar', None):
+                self._sync_navigator_dock_overlay()
         try:
             bar = (self.menuBar() if not self.isFullScreen()
                    and getattr(self, "_borderless", True) else None)
@@ -9696,6 +9725,42 @@ class MainWindow(QMainWindow):
             logging.getLogger(__name__).debug(
                 "could not write the hint for %s", key, exc_info=True)
 
+    def _sync_navigator_dock_overlay(self):
+        if getattr(self, '_syncing_navigator_overlay', False):
+            return
+        stack = getattr(self, '_stack', None)
+        edge = getattr(self, '_dock_edge', None)
+        if stack is None or edge is None:
+            return
+        active = isinstance(stack.currentWidget(), _NavigatorHomePage)
+        central = self.centralWidget()
+        row = central.layout()
+        slot = self._dock_slot
+        self._syncing_navigator_overlay = True
+        try:
+            previous = getattr(self, '_navigator_dock_overlay', False)
+            self._navigator_dock_overlay = active
+            edge.setProperty('spacrPassivePanelOverlay', active)
+            slot.setProperty('spacrPassivePanelOverlay', active)
+            edge.setProperty('spacrAmbientPassiveOverlay', active)
+            slot.setProperty('spacrAmbientPassiveOverlay', active)
+            if active:
+                row.removeWidget(slot)
+                row.removeWidget(edge)
+                width = self._sidebar.width() if not edge.is_collapsed() else 0
+                slot.setGeometry(0, 0, width, central.height())
+                edge.setGeometry(width, 0, edge.width(), central.height())
+                slot.raise_()
+                edge.raise_()
+            elif previous:
+                row.insertWidget(0, slot)
+                row.insertWidget(1, edge)
+            if active != previous:
+                row.invalidate()
+                row.activate()
+        finally:
+            self._syncing_navigator_overlay = False
+
     def apply_dock_mode(self, mode: Optional[str] = None) -> None:
         """Keep the app dock present and preserve its width and collapse controls.
 
@@ -9748,6 +9813,7 @@ class MainWindow(QMainWindow):
         edge = getattr(self, "_dock_edge", None)
         if edge is not None:
             edge.show()
+        self._sync_navigator_dock_overlay()
         for screen in getattr(self, '_screens', {}).values():
             self._apply_navigator_layout(screen)
 

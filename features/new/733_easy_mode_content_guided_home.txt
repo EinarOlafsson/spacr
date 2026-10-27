@@ -7,6 +7,25 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+SPACEOUT ICON FOLLOW-UP — 2026-10-27: replace the infinity-shaped Spaceout
+mark with a white spiral viewed from above. Continuously rotate only that
+Navigator card's cached native vector icon while it is visible; respect Reduce
+motion, stop hidden work and retain the animation through workflow reparenting.
+
+PANEL/PAINT FOLLOW-UP — 2026-10-27: snapping News/Widgets or the app dock
+must not repaint hidden module cards as non-interactive ghosts. Expanding
+or collapsing either side must leave Navigator's search, card/network
+content and lower text geometries and field theme unchanged; panels overlay
+the canvas rather than reflow it. Add an accessible upward resize affordance
+to the fixed-bottom text box without moving the search. Workstation session 2
+owns the correction, focused rendering/geometry checks and nightly publication.
+AI fill must be solid matte provider colour; replace the spinning texture with
+a subtle rotating glow while retaining the white perimeter and typing pulse.
+Delivered in this follow-up: explicit hidden-card presentation state preserves
+departure fades; native side controls overlay a stationary canvas and publish
+no field feedback; the bottom-anchored text grip remembers its chosen height.
+Focused native geometry, rendering, resizing and animation checks pass.
+
 CURRENT RUNS FOLLOW-UP — 2026-10-27: typing current runs/running runs/running jobs/show running runs (and equivalents in all supported languages) offers a click-only Running card. Clicking reveals Navigator's Widgets pane and its Running fold, listing every active user-visible job from the existing live run registry with native open/pause/stop controls. Queue remains the separate plate queue. Keep hidden housekeeping out, reconcile completed jobs, default the fold collapsed, and do not launch processing or change global preferences.
 
 PASSIVE THEME OVERLAY FOLLOW-UP — 2026-10-27: Navigator input and module cards must simply overlay the selected spaCR field theme. Remove Navigator-owned search rim idle animation, search-click gravity feedback, card growth physics, ambient holds/exclusions and background/ripple policy overrides. Leaving the pointer still must not start a search or field effect. Preserve the selected theme's normal animation, fixed dark25 controls, ordinary card fades/growth and the independently requested AI typing/busy icon animation.

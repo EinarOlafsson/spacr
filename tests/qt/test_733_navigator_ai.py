@@ -1,7 +1,7 @@
 """Explicit Navigator assistance uses native controls and mocked existing transport."""
 import pytest
 from PySide6.QtCore import QObject, Qt, Signal
-from PySide6.QtGui import QImage
+from PySide6.QtGui import QColor, QImage
 from PySide6.QtWidgets import QComboBox, QDialog, QTextBrowser
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
@@ -156,7 +156,7 @@ def test_cancel_invalidates_queued_replies_without_blocking(ai_page, qtbot, acti
     assert page._ai_thread is None and not page.path_edit.ai._busy
 
 
-def test_icon_is_hollow_off_provider_textured_on_and_typing_speed_pulses(ai_page, qtbot):
+def test_icon_is_hollow_off_matte_on_and_busy_glow_rotates_while_typing_pulses(ai_page, qtbot):
     page, calls, drained = ai_page
     button = page.path_edit.ai
     def image():
@@ -170,7 +170,12 @@ def test_icon_is_hollow_off_provider_textured_on_and_typing_speed_pulses(ai_page
     pictures = []
     for provider in button._COLORS:
         button._provider = provider
-        pictures.append(bytes(image().constBits()))
+        frame = image()
+        center = button.rect().center()
+        assert all(frame.pixelColor(center.x() + dx, center.y() + dy)
+                   == QColor(button._COLORS[provider])
+                   for dx in range(-4, 5) for dy in range(-4, 5))
+        pictures.append(bytes(frame.constBits()))
     assert len(set(pictures)) == 4 and bytes(off.constBits()) not in pictures
     button._last_key = button._clock.elapsed() - 1000
     button._typing('a')
@@ -181,9 +186,13 @@ def test_icon_is_hollow_off_provider_textured_on_and_typing_speed_pulses(ai_page
     button._last_key = button._clock.elapsed() - 100000
     button._busy = True
     button._tick()
-    before = bytes(image().constBits())
+    before = image()
     qtbot.wait(80)
-    assert bytes(image().constBits()) != before
+    after = image()
+    assert bytes(after.constBits()) != bytes(before.constBits())
+    assert after.pixelColor(17, 3) == before.pixelColor(17, 3)
+    assert all(after.pixelColor(x, y) == before.pixelColor(x, y)
+               for x in range(13, 22) for y in range(13, 22))
     assert button._motion.isActive()
     button.setChecked(False)
     assert not button._motion.isActive() and not calls

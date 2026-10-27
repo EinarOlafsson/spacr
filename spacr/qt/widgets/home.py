@@ -5367,7 +5367,7 @@ class _NavigatorAiButton(QPushButton):
                'codex': '#A8E6CF', 'gemini': '#4285F4'}
 
     def __init__(self, parent=None):
-        """Keep the provider texture inside a native, keyboard-accessible toggle."""
+        """Keep a matte provider fill inside a native, keyboard-accessible toggle."""
         from PySide6.QtCore import QElapsedTimer
 
         from ..i18n import tr
@@ -5420,17 +5420,27 @@ class _NavigatorAiButton(QPushButton):
         super().hideEvent(event)
 
     def paintEvent(self, event):
-        """Keep the white perimeter still while the clipped provider texture spins."""
+        """Keep the provider fill matte while a subtle busy glow circles outside."""
         import math
 
-        from PySide6.QtGui import QPainterPath, QPen
+        from PySide6.QtGui import QPen
 
         from ..preferences import get_reduce_motion
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        center = self.rect().center()
-        painter.translate(center)
+        painter.translate(self.rect().center())
+        color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
+        if self.isChecked() and self._busy and not get_reduce_motion():
+            painter.save()
+            painter.rotate((self._clock.elapsed() * 0.18) % 360)
+            painter.setBrush(Qt.NoBrush)
+            for width, alpha in ((4.0, 18), (2.5, 35), (1.0, 90)):
+                glow = QColor(color)
+                glow.setAlpha(alpha)
+                painter.setPen(QPen(glow, width, Qt.SolidLine, Qt.RoundCap))
+                painter.drawArc(QRectF(-12, -12, 24, 24), 20 * 16, 100 * 16)
+            painter.restore()
         painter.setPen(QPen(QColor('white'), 1.5 if not self.hasFocus() else 2.5))
         painter.setBrush(Qt.NoBrush)
         painter.drawEllipse(QRectF(-14, -14, 28, 28))
@@ -5438,20 +5448,9 @@ class _NavigatorAiButton(QPushButton):
             elapsed = max(0, self._clock.elapsed() - self._last_key)
             pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
             radius = 8.0 + 5.0 * pulse
-            fill = QRectF(-radius, -radius, radius * 2, radius * 2)
-            color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
             painter.setPen(Qt.NoPen)
             painter.setBrush(color)
-            painter.drawEllipse(fill)
-            clip = QPainterPath()
-            clip.addEllipse(fill)
-            painter.setClipPath(clip)
-            if self._busy and not get_reduce_motion():
-                painter.rotate((self._clock.elapsed() * 0.18) % 360)
-            painter.setPen(QPen(color.lighter(155), 2))
-            painter.drawArc(QRectF(-6, -6, 12, 12), 20 * 16, 110 * 16)
-            painter.setPen(QPen(color.darker(155), 2))
-            painter.drawLine(-2, 1, 7, 6)
+            painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
         painter.end()
 
 
@@ -5505,6 +5504,15 @@ class _EasySuggestionCard(QPushButton):
 
         super().__init__(parent)
         self._key, title, description, self._path = action
+        self._spaceout_timer = None
+        if self._key == '__easy_command__:Spaceout':
+            from PySide6.QtCore import QElapsedTimer
+
+            self._spaceout_clock = QElapsedTimer()
+            self._spaceout_clock.start()
+            self._spaceout_timer = QTimer(self)
+            self._spaceout_timer.setInterval(40)
+            self._spaceout_timer.timeout.connect(self._spin_spaceout)
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
@@ -5615,6 +5623,54 @@ class _EasySuggestionCard(QPushButton):
         picture = self._module_icon.pixmap(pixels, pixels)
         picture.setDevicePixelRatio(device_ratio(self.icon))
         self.icon.setPixmap(picture)
+        if self._spaceout_timer is not None:
+            self._spaceout_picture = picture
+            self._sync_run_state()
+
+    def _sync_run_state(self):
+        """Rotate only the visible Spaceout mark while motion is allowed."""
+        from ..preferences import get_reduce_motion
+
+        if self._spaceout_timer is None:
+            return
+        if self.isVisible() and not get_reduce_motion():
+            self._spaceout_timer.start()
+        else:
+            self._spaceout_timer.stop()
+            self.icon.setPixmap(self._spaceout_picture)
+
+    def _spin_spaceout(self):
+        """Rotate a cached raster inside its unchanged native icon geometry."""
+        from ..preferences import get_reduce_motion
+
+        if not self.isVisible() or get_reduce_motion():
+            self._sync_run_state()
+            return
+        source = self._spaceout_picture
+        picture = QPixmap(source.size())
+        picture.setDevicePixelRatio(source.devicePixelRatio())
+        picture.fill(Qt.transparent)
+        painter = QPainter(picture)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        side = source.width() / source.devicePixelRatio()
+        painter.translate(side / 2, side / 2)
+        painter.rotate((self._spaceout_clock.elapsed() * 0.045) % 360)
+        from PySide6.QtCore import QPointF
+
+        painter.drawPixmap(QPointF(-side / 2, -side / 2), source)
+        painter.end()
+        self.icon.setPixmap(picture)
+
+    def showEvent(self, event):
+        """Resume the existing Spaceout timer when its card reappears."""
+        super().showEvent(event)
+        self._sync_run_state()
+
+    def hideEvent(self, event):
+        """Stop all Spaceout icon work while its card is hidden."""
+        if self._spaceout_timer is not None:
+            self._spaceout_timer.stop()
+        super().hideEvent(event)
 
     def _activate(self):
         """Emit the inspected input only after the user chooses this step."""
@@ -5756,6 +5812,71 @@ class _EasyGuidanceCard(_EasySuggestionCard):
         self.parentWidget().panel.setFocus()
 
 
+class _NavigatorDetailsGrip(HeightGrip):
+    """Resize the fixed-bottom description from its upper edge."""
+
+    def __init__(self, field):
+        """Carry the handle with the description when the workflow reparents it."""
+        from ..i18n import tr
+
+        self._field = field
+        super().__init__(field.details, 96, 4096, parent=field.details,
+                         name=tr('Resize this panel'))
+        self.setObjectName('NavigatorDetailsHeightGrip')
+        self.height_changed.connect(self._persist)
+
+    def resize_target(self, height):
+        """Clamp the requested height without imposing a fixed widget size."""
+        from ..preferences import get_font_scale
+
+        wanted = max(self._min, min(self._max, int(height)))
+        self._field._details_height_base = wanted / max(0.01, get_font_scale())
+        self._field._arrange()
+        return self._target.height()
+
+    def _persist(self, _height):
+        """Remember an explicit resize in font-independent pixels."""
+        from ..preferences import _settings
+
+        _settings().setValue('home/navigator_details_height', self._field._details_height_base)
+
+    def reset(self):
+        """Restore the responsive default through the existing reset menu."""
+        from ..preferences import _settings
+
+        self._field._details_height_base = None
+        _settings().remove('home/navigator_details_height')
+        self._field._arrange()
+        return self._target.height()
+
+    def mouseMoveEvent(self, event):
+        """Dragging upward grows the box while its lower edge stays fixed."""
+        if self._from_y is None:
+            return super().mouseMoveEvent(event)
+        self.resize_target(self._from_h + int(self._from_y - event.globalPosition().y()))
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        """Persist the drag without adding an ambient-field gesture."""
+        if self._from_y is None:
+            return super().mouseReleaseEvent(event)
+        self._from_y = None
+        self.height_changed.emit(self._target.height())
+        event.accept()
+
+    def keyPressEvent(self, event):
+        """Up grows and Down shrinks this upper-edge handle."""
+        from ..preferences import scaled_px
+
+        moves = {Qt.Key_Up: 1, Qt.Key_Down: -1,
+                 Qt.Key_PageUp: 5, Qt.Key_PageDown: -5}
+        if event.key() in moves:
+            self.nudge(scaled_px(self.STEP) * moves[event.key()])
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
 class _EasyHomeField(QWidget):
     """Place a single centered editor over the window's unchanged ambient field."""
 
@@ -5763,6 +5884,7 @@ class _EasyHomeField(QWidget):
         """Own the path, feedback and suggestion widgets without another frame timer."""
         super().__init__(parent)
         self.cards = []
+        self._suggestions_active = True
         self._animations = []
         self.feedback = None
         self.setObjectName('EasyHomeField')
@@ -5782,6 +5904,14 @@ class _EasyHomeField(QWidget):
         self.details.setAccessibleName(tr('Module description'))
         self.details.setOpenExternalLinks(True)
         self.details.setProperty(OPT_OUT_PROPERTY, True)
+        from ..preferences import _settings
+
+        try:
+            stored = float(_settings().value('home/navigator_details_height', 0))
+            self._details_height_base = stored if 0 < stored < 100000 else None
+        except (TypeError, ValueError):
+            self._details_height_base = None
+        self._details_grip = _NavigatorDetailsGrip(self)
         self._scrollbar = QScrollBar(Qt.Horizontal, self)
         self._scrollbar.setObjectName('EasySuggestionsScroll')
         self._scrollbar.setAccessibleName(tr('Tools'))
@@ -5809,7 +5939,7 @@ class _EasyHomeField(QWidget):
             animation.deleteLater()
         self._animations.clear()
         for card in self.cards:
-            if card.parentWidget() is not self:
+            if card.parentWidget() is not self or not self._suggestions_active:
                 continue
             card._growing = False
             card._content_opacity.setOpacity(1.0)
@@ -5863,7 +5993,7 @@ class _EasyHomeField(QWidget):
             card._content_opacity.setOpacity(0.0 if animate else 1.0)
         self._arrange()
         for index, card in enumerate(self.cards):
-            card.setVisible(card._final_rect.intersects(self._row_rect))
+            card.setVisible(self._suggestions_active and card._final_rect.intersects(self._row_rect))
             card.setMinimumSize(0, 0)
             card.raise_()
             if animate:
@@ -5932,10 +6062,19 @@ class _EasyHomeField(QWidget):
         self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
         details_width = min(1560, max(180, width - 32))
-        details_height = min(176 + 2 * self.details.fontMetrics().lineSpacing(),
-                             max(1, height - panel_y - panel_height - 32))
+        from ..preferences import scaled_px
+
+        default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
+        maximum_height = max(1, height - panel_y - panel_height - 32)
+        wanted_height = (default_height if self._details_height_base is None
+                         else scaled_px(self._details_height_base))
+        details_height = min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
+        self._details_grip._min = min(scaled_px(96), maximum_height)
+        self._details_grip._max = maximum_height
+        self._details_grip.setGeometry(12, 0, max(1, details_width - 24), self._details_grip.height())
+        self._details_grip.raise_()
         available = max(64, panel_y - 40)
         side = min(224, available, max(96, width - 64))
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
@@ -5951,7 +6090,7 @@ class _EasyHomeField(QWidget):
         self._scrollbar.setSingleStep(side + gap)
         self._scrollbar.blockSignals(False)
         self._scrollbar.setGeometry(24, self._row_rect.bottom() + 5, max(1, width - 48), 12)
-        self._scrollbar.setVisible(bool(maximum))
+        self._scrollbar.setVisible(self._suggestions_active and bool(maximum))
         start = self._row_rect.left() + max(0, (self._row_rect.width() - total) // 2)
         start -= self._scrollbar.value()
         for index, card in enumerate(self.cards):
@@ -5960,6 +6099,8 @@ class _EasyHomeField(QWidget):
             if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
             if card.parentWidget() is not self:
+                continue
+            if not self._suggestions_active:
                 continue
             local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
             if local.isEmpty():
@@ -7288,6 +7429,7 @@ class _EasyHomePage(QWidget):
         departure = {card: (card.isVisible(), card._content_opacity.opacity())
                      for card in self.field.cards if card is not source_card}
         self.field._finish_growth()
+        self.field._suggestions_active = False
         for card, (visible, opacity) in departure.items():
             card._content_opacity.setOpacity(opacity)
             card.setVisible(visible and opacity > 0.0)
@@ -7303,6 +7445,7 @@ class _EasyHomePage(QWidget):
 
     def _show_suggestions(self):
         """Return to the unchanged path and suggestions without starting another inspection."""
+        self.field._suggestions_active = True
         if self._workflow is not None:
             source_card = self._workflow.release_source_card()
             source_card.activated.connect(self._select_suggestion)
