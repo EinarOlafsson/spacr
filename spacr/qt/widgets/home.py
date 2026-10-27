@@ -4293,12 +4293,18 @@ class _EasyHomePage(QWidget):
         backdrop = getter() if callable(getter) else None
         if backdrop is None:
             return
+        owner = getattr(backdrop, '_easy_home_owner', None)
         if self._easy_backdrop_state is not None:
-            if self._easy_backdrop_state[0]() is backdrop:
+            if (self._easy_backdrop_state[0]() is backdrop
+                    and owner is not None and owner() is self):
                 return
             self._restore_easy_backdrop()
-        self._easy_backdrop_state = (weakref.ref(backdrop), backdrop.background_color(),
-                                     backdrop._background_explicit, backdrop.backdrop())
+        state = getattr(backdrop, '_easy_home_background_state', None)
+        if state is None:
+            state = (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop())
+            backdrop._easy_home_background_state = state
+        self._easy_backdrop_state = (weakref.ref(backdrop), *state)
+        backdrop._easy_home_owner = weakref.ref(self)
         backdrop.set_background_color(palette_for('dark')['page'])
         backdrop.set_backdrop(None)
 
@@ -4318,6 +4324,11 @@ class _EasyHomePage(QWidget):
         if (backdrop is None or not isValid(backdrop)
                 or not callable(getter) or getter() is not backdrop):
             return
+        owner = getattr(backdrop, '_easy_home_owner', None)
+        if owner is None or owner() is not self:
+            return
+        backdrop._easy_home_owner = None
+        backdrop._easy_home_background_state = None
         backdrop._background_explicit = explicit
         backdrop._apply_background(color if explicit else _preferred_background(), explicit=explicit)
         backdrop.set_backdrop(image)

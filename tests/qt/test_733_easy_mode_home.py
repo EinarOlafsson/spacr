@@ -239,6 +239,12 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert backdrop.background_color().name() == theme.palette_for('dark')['page']
         assert preferences.get_theme() == 'light'
         assert preferences.get_ambient_palette() == palette_choice
+        old_page = page
+        window.refresh_theme()
+        page = window._startup
+        assert page is not old_page and isinstance(page, _EasyHomePage)
+        assert window._stack.currentWidget() is page
+        assert window.window_backdrop().background_color().name() == theme.palette_for('dark')['page']
         window._retire_the_dock_backdrop()
         assert window.window_backdrop() is None
         window._backdrop_the_dock_column()
