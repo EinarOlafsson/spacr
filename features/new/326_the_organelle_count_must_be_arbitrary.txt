@@ -1,7 +1,7 @@
 326 — THE ORGANELLE COUNT MUST BE ARBITRARY
 ============================================
 
-Status:    REOPENED 2026-10-27 — integer count and progressive channel/segmentation settings requested.
+Status:    DONE 2026-10-27 — progressive integer count, channel/mask-plane reveals and numbered settings groups delivered within the retained 702 limit.
 Owner:     Workstation session 2; retained settings worker implements, root integrates and publishes.
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
@@ -690,3 +690,6 @@ raised ceiling (step 2, today), and the vocabulary reconciliation (today).
 The hold on `spacr/schema.py` is released.
 
 VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
+
+2026-10-27 — Integer entry preserves invalid text and explicitly validates 0..702; count changes create only the next available channel/mask-plane slot. Numeric values including zero reveal the matching segmentation, advanced and Additional settings groups without reloading the module.
+2026-10-27 — Existing and sparse imported values survive clear/lower/restore; Mask/Time follow acquisition channels and Measure follows actual mask planes. Forty focused checks pass; source-bound reviews and normal affected catalogs/API/Help/consumer/flow/index outputs accompany nightly publication.

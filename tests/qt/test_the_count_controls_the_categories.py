@@ -318,10 +318,16 @@ def test_a_raised_count_brings_the_organelle_rows_and_categories(qapp):
         if hasattr(count, "setCurrentText"):
             count.setCurrentText("2")
         else:
-            count.setValue(2)
+            count.setText('2')
+            count.editingFinished.emit()
         qapp.processEvents()
 
         screen = win._screens["mask"]
+        assert 'organelle_type' not in screen._settings_model._widgets
+        channel = screen._settings_model._widgets['organelle_channel']
+        channel.setText('0')
+        channel.editingFinished.emit()
+        qapp.processEvents()
         categories = _categories(screen)
         assert "Organelle Segmentation" in categories
         assert "Organelle Segmentation (advanced)" in categories
@@ -353,7 +359,8 @@ def test_two_rebuilds_keep_what_the_first_one_set(qapp):
         if hasattr(count, "setCurrentText"):
             count.setCurrentText("2")
         else:
-            count.setValue(2)
+            count.setText('2')
+            count.editingFinished.emit()
         qapp.processEvents()
 
         screen = win._screens["mask"]

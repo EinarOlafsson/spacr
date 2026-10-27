@@ -458,6 +458,46 @@ def _names_a_plane(value: Any) -> bool:
 PANEL_ORGANELLE_SLOTS: int = _MAX_ORGANELLES
 
 
+def _organelle_count_input(value):
+    """Validate the entered integer without truncating or clamping it."""
+    from ..i18n import tr
+
+    text = str(value).strip()
+    if not text.isascii() or not text.isdecimal() or int(text) > PANEL_ORGANELLE_SLOTS:
+        raise ValueError(tr("Number of organelles must be an integer from 0 to {maximum}.", maximum=PANEL_ORGANELLE_SLOTS))
+    return int(text)
+
+
+def _progressive_organelle_slots(count, settings, switch='channel'):
+    """Offer slots progressively using the form's actual channel or mask-plane switch."""
+    wanted = _organelle_count_input(count)
+    configured = {role for role in ALL_ORGANELLE_ROLES[:wanted]
+                  if _names_a_plane(settings.get(f"{role}_{switch}"))}
+    shown = {ALL_ORGANELLE_ROLES[0]} if wanted else set()
+    shown.update(configured)
+    for role in configured:
+        number = organelle_number(role)
+        if number < wanted:
+            shown.add(ALL_ORGANELLE_ROLES[number])
+    return shown, configured
+
+
+def _object_split_categories():
+    """Include the organelle families in per-object collapsible groups."""
+    return set(_shared_category_parents()) | {
+        "Organelle Segmentation", "Organelle Segmentation (advanced)", "Additional Settings"}
+
+
+def _progressive_slot_of_setting(key):
+    """Resolve both prefixed slot settings and the shared organelle switches."""
+    role = object_of_setting(key)
+    if role in ALL_ORGANELLE_ROLES:
+        return role
+    if key != NUMBER_OF_ORGANELLES and 'organelle' in str(key).lower():
+        return ALL_ORGANELLE_ROLES[0]
+    return None
+
+
 #: The key endings that name ONE PLANE of the stack: the raw acquisition
 #: channel an object is imaged in, the channel paired with its mask when an
 #: overlay is drawn, and the plane its label mask sits on in the merged array.
@@ -604,6 +644,9 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
     on_panel = {str(key) for key in keys}
     counted = NUMBER_OF_ORGANELLES in on_panel
     active = active_organelle_roles(settings) if counted else ()
+    switch = 'channel' if 'organelle_channel' in on_panel else 'mask_dim'
+    shown, configured = (_progressive_organelle_slots(settings.get(NUMBER_OF_ORGANELLES, 0), settings, switch)
+                         if counted else (set(), set()))
     hidden = set()
     for key in on_panel:
         role = object_of_setting(key)
@@ -613,6 +656,10 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
             continue
         is_slot = role not in CHANNELLED_OBJECTS
         if counted and is_slot and role not in active:
+            hidden.add(key)
+            continue
+        if counted and is_slot and (role not in shown or
+                (key != f"{role}_{switch}" and role not in configured)):
             hidden.add(key)
             continue
         switches = [k for k in object_switch_keys(role) if k in on_panel]
@@ -10027,7 +10074,15 @@ class SettingsWidgets:
             wanted = organelle_count(current_values)
         else:
             wanted = organelle_count(shipped)
-        self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
+        if NUMBER_OF_ORGANELLES in current_values:
+            try:
+                wanted = _organelle_count_input(current_values[NUMBER_OF_ORGANELLES])
+            except ValueError:
+                wanted = 0
+        self._organelle_switch_suffix = 'channel' if 'organelle_channel' in shipped else 'mask_dim'
+        shown, configured = _progressive_organelle_slots(wanted, deciding, self._organelle_switch_suffix)
+        self._organelle_count_last_valid = wanted
+        self._slots_built_for = max((organelle_number(role) for role in shown), default=0)
         self._defaults = organelle_slots_beyond_the_count(
             shipped, self._slots_built_for)
         from spacr.settings import expected_types
@@ -10038,8 +10093,9 @@ class SettingsWidgets:
                     and key in expected_types):
                 self._defaults[key] = value
         self._skip_keys = frozenset(self._skip_keys) | frozenset(
-            self._organelle_keys_beyond(self._slots_built_for,
-                                        self._defaults)
+            key for key in self._defaults
+            if (role := _progressive_slot_of_setting(key)) is not None
+            and (role not in shown or (key != f"{role}_{self._organelle_switch_suffix}" and role not in configured))
         )
         self._slots_the_panel_added = {
             key: value for key, value in self._defaults.items()
@@ -10248,7 +10304,7 @@ class SettingsWidgets:
         self._state_passes_ready = True
 
         used_keys = set()
-        split_by_object = set(_shared_category_parents())
+        split_by_object = _object_split_categories()
         sections: List[SettingsSection] = []
         for cat_name, keys in cats.items():
             if cat_name in hidden:
@@ -10505,28 +10561,16 @@ class SettingsWidgets:
         return beyond
 
     def grow_to_fit_the_organelle_count(self, count) -> int:
-        """Build the organelle slots a raised count now asks for.
+        """Prepare slot defaults without constructing controls or discarding values.
 
-        :param count: the new ``number_of_organelles``.
-        :returns: how many slots the panel holds afterwards.
-
-        THE PANEL OPENS WITH WHAT THE RUN HAS. Building every nameable slot
-        up front and hiding the surplus is what made the Mask screen 1,551
-        widgets; a control that was never built cannot be revealed, so the
-        panel has to be able to grow instead.
-
-        ONE CONTROL, DELIBERATELY CHANGED. This is safe to do here and was
-        not safe to do per keystroke: the count is a single spinbox somebody
-        sets on purpose, where a channel is a field they type digits into.
-        Growing never shrinks -- a slot built once keeps whatever the user
-        has since put in it, and a count lowered and raised again finds its
-        values where it left them.
+        :param count: nonnegative integer within the supported slot vocabulary.
+            Invalid input leaves the existing defaults unchanged.
+        :returns: highest slot for which the panel has prepared defaults.
         """
         try:
-            wanted = max(0, int(count or 0))
+            wanted = _organelle_count_input(count)
         except (TypeError, ValueError):
             return getattr(self, "_slots_built_for", 0)
-        wanted = min(wanted, PANEL_ORGANELLE_SLOTS)
         if wanted <= getattr(self, "_slots_built_for", 0):
             return self._slots_built_for
 
@@ -10553,37 +10597,50 @@ class SettingsWidgets:
         of them before anything is built.
 
         :param count: the new ``number_of_organelles``.
-        :returns: the keys of the slots past those already built, in the
-            order the defaults declare them; empty when there are none.
+        The first channel or mask-plane switch is offered when the count is
+        positive. Each numeric switch reveals that slot's settings and the
+        next switch, up to the count. Imported configured slots remain
+        available across gaps.
+
+        :returns: missing controls in declaration order, without building them.
+            Invalid count input returns an empty list without clamping it.
         """
         from spacr.organelle_types import organelle_role_of
         from spacr.settings import organelle_slots_beyond_the_count
 
         try:
-            wanted = min(max(0, int(count or 0)), PANEL_ORGANELLE_SLOTS)
+            wanted = _organelle_count_input(count)
         except (TypeError, ValueError):
             return []
-        before = int(getattr(self, "_slots_built_for", 0) or 0)
-        if wanted <= before:
-            return []
-        roles = set(ALL_ORGANELLE_ROLES[before:wanted])
-        fresh = organelle_slots_beyond_the_count(
-            resolve_default_settings(self.app_key), wanted)
+        current = dict(self._defaults)
+        switch = self._organelle_switch_suffix
+        current.update((key, self._setting_value(key)) for key in self._widgets
+                       if key.endswith('_' + switch))
+        roles, configured = _progressive_organelle_slots(wanted, current, switch)
+        self._organelle_count_last_valid = wanted
+        target = max((organelle_number(role) for role in roles), default=0)
+        shipped = resolve_default_settings(self.app_key)
+        fresh = organelle_slots_beyond_the_count(shipped, target)
+        for key, value in fresh.items():
+            if _progressive_slot_of_setting(key) in roles and key not in self._defaults:
+                self._defaults[key] = value
+                if key not in shipped:
+                    self._slots_the_panel_added[key] = value
+        self._slots_built_for = max(target, self._slots_built_for)
         hidden = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
         keys = dict.fromkeys(list(self._defaults) + list(fresh))
         return [key for key in keys
-                if organelle_role_of(key) in roles
+                if _progressive_slot_of_setting(key) in roles
+                and (key == f"{_progressive_slot_of_setting(key)}_{switch}" or _progressive_slot_of_setting(key) in configured)
                 and key not in self._widgets and key not in hidden]
 
     def spawn_organelle_slots(self, count) -> List[str]:
-        """Build the controls a raised ``number_of_organelles`` asks for.
+        """Build newly relevant organelle controls in the existing panel.
 
-        A slot's controls do not exist until the count says so, and
-        rebuilding the whole screen to add them would discard what the user
-        had typed. This builds ONLY the new slots' controls, on the panel already
-        on screen; every control that existed keeps its identity and
-        whatever the user typed into it. The caller lays the new controls
-        out.
+        Only plane switches reached by the progressive sequence and settings for
+        numerically configured slots are built. Existing widgets and hidden
+        values retain their identities and contents. The caller lays out the
+        returned controls without rebuilding the module.
 
         EXISTING VALUES WIN. A slot above the count that a settings file
         carried is already in ``_defaults`` (see :meth:`set_hidden_value`),
@@ -10596,12 +10653,12 @@ class SettingsWidgets:
         """
         from spacr.settings_spec import convert_settings_dict_for_gui
 
-        before = int(getattr(self, "_slots_built_for", 0) or 0)
         wanted = self.organelle_keys_to_spawn(count)
-        after = self.grow_to_fit_the_organelle_count(count)
-        if after <= before or not wanted:
+        if not wanted:
             return []
-        roles = set(ALL_ORGANELLE_ROLES[before:after])
+        from spacr.organelle_types import organelle_role_of
+        roles = {_progressive_slot_of_setting(key) for key in wanted
+                 if not key.endswith('_' + self._organelle_switch_suffix)}
         self._skip_keys = frozenset(self._skip_keys) - frozenset(wanted)
         variables = convert_settings_dict_for_gui(
             {key: self._defaults[key] for key in wanted
@@ -10616,6 +10673,7 @@ class SettingsWidgets:
             self._widgets[key] = widget
             spawned.append(key)
         for role in sorted(roles):
+            getattr(self, '_roles_followed', set()).discard(role)
             self._connect_the_signals_of_role(role)
         self._slot_heading_cache = None
         return spawned
@@ -11153,6 +11211,8 @@ class SettingsWidgets:
             return "plain", {"control": "combo", "items": items,
                              "value": default}
         if kind == "entry":
+            if key == NUMBER_OF_ORGANELLES:
+                return "plain", {"control": "text", "value": default}
             shape = list_shape_for(key, self._defaults.get(key, default))
             if shape is not None:
                 nested_capable, allow_none, element_type, container = shape
@@ -11205,6 +11265,8 @@ class SettingsWidgets:
         coerces, it does not validate, and it must never turn a real value
         into None behind the user's back.
         """
+        if key == NUMBER_OF_ORGANELLES:
+            return _organelle_count_input(value)
         if not isinstance(value, str):
             return value
         try:
@@ -12396,6 +12458,9 @@ class SettingsWidgets:
         """
         current: Dict[str, Any] = {}
         for key in self._object_visibility_keys():
+            if key == NUMBER_OF_ORGANELLES:
+                current[key] = self._setting_value(key)
+                continue
             if key not in self._widgets:
                 current[key] = self._defaults.get(key)
                 continue
@@ -12676,7 +12741,7 @@ class SettingsWidgets:
                     _names_a_plane(settings.get(key)) for key in switches)
             return switched_off[role]
 
-        elsewhere = set(getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
+        elsewhere = set(getattr(self, "_hidden_by_their_object", ()) or ()) | set(getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
             getattr(self, "_hidden_by_the_mode", ()) or ()) | set(
             getattr(self, "_hidden_by_the_family", ()) or ())
         for ident, (section, keys) in headings.items():
@@ -12865,6 +12930,8 @@ class SettingsWidgets:
         try:
             return self._coerce_to_expected_type(key, self._read_value(key))
         except Exception:                                    # noqa: BLE001
+            if key == NUMBER_OF_ORGANELLES:
+                return self._organelle_count_last_valid
             return self._defaults.get(key)
 
     def _setting_value_equals(self, key: str, expected: Any) -> bool:
