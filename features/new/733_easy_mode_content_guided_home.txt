@@ -2,7 +2,7 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    implementation and native validation ready; final contracts and Night publication pending
+Status:    READY for Night publication; implementation, native validation and normal outputs accepted
 Requested: maintainer, 2026-10-26
 Owner:     Codex G1; retained G2 persistence/UI peer; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -91,6 +91,6 @@ The maintainer authorized implementation and immediate Night publication on
 
 2026-10-26 — Immediate Night delivery is now authorized: Easy mode defaults off, shares startup/Preferences choices, accepts whole-window drops and routes bounded local content suggestions without AI.
 Native wide/small/return frames and both-theme lifecycle controls are accepted; persistent random placement, independent dock/Essential settings and existing-worker card displacement retain their owning passing results.
-All 414 Easy translation targets and 36 Overview drafts were reviewed; the final combined stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
+The 414 Easy drafts and 36 Overview drafts were independently reviewed; the final retargeted stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
 Normal nine-language API/runtime, Help, consumer and settings-flow outputs are generated and independently accepted; four legitimate API arrivals have exact source-bound test admission, with historical ratchets unchanged.
-Root owns the final affected contract run, coherent commit and Night push; no remaining release or hosted-CI waiting condition applies to this authorized delivery.
+All 21 final owning source/API/runtime/Help/flow checks pass, preserving published catalog bytes; root owns the coherent Night push and shared editable-checkout update. No release or hosted-CI waiting condition remains.
