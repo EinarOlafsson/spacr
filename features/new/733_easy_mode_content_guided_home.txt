@@ -7,6 +7,8 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+INPUT PLACEHOLDER FOLLOW-UP — 2026-10-27: use exactly “Drop a file or folder | Type a Path | Ask a Question ◉” in the English Navigator input. Keep the input actions and AI control unchanged, and provide corresponding localized guidance.
+
 SPACEOUT UPDATED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes prior GIF):
 use the unchanged a84bd079c68e26a88e4b4f7db0b13bf3.gif provided in Downloads,
 a 500×500 animated dotted vortex. Match only Spaceout's card fill to the GIF's

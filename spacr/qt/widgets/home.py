@@ -5466,7 +5466,7 @@ class _EasyPathEdit(QLineEdit):
         self.setObjectName('EasyModePath')
         self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
-        self.setPlaceholderText(tr('Drop a file/folder, type a path or task'))
+        self.setPlaceholderText(tr('Drop a file or folder | Type a Path | Ask a Question ◉'))
         self.setAccessibleName(tr('File or folder path'))
         self.setFixedHeight(64)
         self.setMouseTracking(True)

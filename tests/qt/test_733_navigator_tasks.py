@@ -64,7 +64,7 @@ def test_task_cards_keep_maturity_filter_and_existing_module_partial_search(comm
     assert not commands.opened
     assert 'measure' in {row[0] for row in app._easy_module_search('MeAsUr')}
     assert 'db_browser' in {row[0] for row in app._easy_module_search('DaTaBaSe')}
-    assert page.path_edit.placeholderText() == 'Drop a file/folder, type a path or task'
+    assert page.path_edit.placeholderText() == 'Drop a file or folder | Type a Path | Ask a Question ◉'
 
 
 @pytest.mark.parametrize('phrase,expected', [
