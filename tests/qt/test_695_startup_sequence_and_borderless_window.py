@@ -538,3 +538,30 @@ def test_the_borderless_preference_defaults_on():
     assert preferences.get_borderless_window() is True
     preferences.set_borderless_window(False)
     assert preferences.get_borderless_window() is False
+
+
+@pytest.mark.parametrize('plain', [False, True])
+def test_mosaic_hold_and_initial_departure_have_no_text_or_rules(host_cover, monkeypatch, plain):
+    cover, clock = host_cover
+    from PySide6.QtGui import QImage
+
+    def assert_clear_below_logo(image):
+        _x, y, side, _tile, _ratio = cover._mosaic_layout()
+        start = int(y + side + 10)
+        image = image.toImage().convertToFormat(QImage.Format_RGBA8888)
+        values = np.frombuffer(image.bits(), np.uint8).reshape(image.height(), image.width(), 4)
+        band = values[start:, :, :3]
+        assert band.size
+        assert np.all(band == band[-1, -1])
+
+    def unexpected_strap(*args):
+        raise AssertionError('Mosaic rendering must not draw the plain-fallback strap.')
+
+    monkeypatch.setattr(cover, '_paint_strap_under', unexpected_strap)
+    assert_clear_below_logo(cover.grab())
+    assert cover.blow_away(force=True, plain=plain)
+    clock.now += ls._MOSAIC_MIN_HOLD_S
+    cover._begin()
+    clock.now = cover._began_at
+    assert_clear_below_logo(cover.grab())
+    cover._finish()

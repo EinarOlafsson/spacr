@@ -22728,6 +22728,7 @@ save
 | :py:func:`~spacr.plot.graph_importance` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
+| :py:func:`~spacr.qt.screens.settings_model.resolve_default_settings` **-- reads it**
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.check_cellpose_models` **-- reads it**
@@ -22752,7 +22753,7 @@ save
 | :py:func:`~spacr.submodules.test_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_test_cellpose_model_settings` **-- reads it**
 
-Read by ``_run_measured_lineage_step``, ``_run_lineage_step``, ``preprocess_generate_masks``, ``generate_activation_map``, ``analyze_host_pathogen``, ``create_extended_radar_plot``, ``interpret_vision_model``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_analyze_colony_plates``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``, ``apply_cellpose_model``, ``interpret_vision_model``, ``test_cellpose_model``, ``_run_event_detection_step``.
+Read by ``_run_measured_lineage_step``, ``_run_lineage_step``, ``preprocess_generate_masks``, ``generate_activation_map``, ``analyze_host_pathogen``, ``create_extended_radar_plot``, ``interpret_vision_model``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``resolve_default_settings``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_analyze_colony_plates``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``, ``apply_cellpose_model``, ``interpret_vision_model``, ``test_cellpose_model``, ``_run_event_detection_step``.
 
 .. _setting-flow-save_arrays:
 

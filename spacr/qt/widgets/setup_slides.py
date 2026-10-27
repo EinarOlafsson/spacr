@@ -51,7 +51,7 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
      "battery; Workstation the most. The same spaCR code runs at every "
      "level, and the reproducibility hash records what each run used.",
-     ("spacr_mode", "hash_inputs", "spacr_ai", "easy_mode")),
+     ("spacr_mode", "hash_inputs", "spacr_ai")),
     ("Terms of use",
      "Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.",
      ()),
@@ -590,6 +590,17 @@ class SetupSlides(QDialog):
                 if key not in asked:
                     continue
                 form.addRow(*self._row(asked[key], answers.get(key)))
+                if key == "spacr_ai":
+                    for translated in (
+                        _say("spaCR AI"),
+                        _say("AI can explain tools, settings, workflows and errors throughout spaCR. The module console offers AI help for the current module and its output."),
+                        _say("spaCR AI provides free hosted access within a daily allowance. Claude, Codex and Gemini use your own installed CLI and provider login; their account limits and charges apply."),
+                        _say("In Navigator, click the AI icon in the search field, choose a provider, then press Enter on an unmatched task. Answers appear in the lower description box. Recognized tools and local paths keep their normal routes; AI does not run an analysis from this field."),
+                    ):
+                        help_label = QLabel(translated, page)
+                        help_label.setWordWrap(True)
+                        help_label.setObjectName('StartupAiGuidance')
+                        form.addRow(help_label)
                 if key == "theme":
                     animation = self._animation_row()
                     if animation is not None:
@@ -834,10 +845,6 @@ class SetupSlides(QDialog):
                 "Turning this off selects no AI provider and turns AI Error report off. "
                 "You can later enable GitHub error reports in Preferences while "
                 "keeping the provider set to None."))
-        if key == "easy_mode":
-            label.setToolTip(_say(
-                "Use a simple Home field for a file or folder and local suggestions for "
-                "the next step. Works without an AI provider."))
         editor = self._editor(key, choices, value)
         self._editors[key] = editor
         return label, editor

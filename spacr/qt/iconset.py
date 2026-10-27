@@ -39,9 +39,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Tuple
 
-from PySide6.QtGui import QIcon
-from ..logging_util import _spacr_home
+from PySide6.QtGui import QIcon, QIconEngine
 
+from ..logging_util import _spacr_home
 from .theme import (
     contrast_ratio,
     effective_surface,
@@ -257,6 +257,74 @@ def _theme_palette(theme: Optional[str]) -> dict:
 
 
 
+class _SpaceoutIconEngine(QIconEngine):
+    """Paint a font-independent infinity with a spiral inside each lobe."""
+
+    def __init__(self, color):
+        """Retain only the selected theme ink and rendered pixmaps."""
+        super().__init__()
+        self._color = color
+        self._pixmaps = {}
+
+    def clone(self):
+        """Keep copied QIcons independent of the original engine lifetime."""
+        return _SpaceoutIconEngine(self._color)
+
+    def paint(self, painter, rect, mode, state):
+        """Scale the same infinity and spiral geometry to the requested rectangle."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
+
+        path = QPainterPath()
+        path.moveTo(50, 50)
+        path.cubicTo(32, 20, 10, 20, 10, 50)
+        path.cubicTo(10, 80, 32, 80, 50, 50)
+        path.cubicTo(68, 20, 90, 20, 90, 50)
+        path.cubicTo(90, 80, 68, 80, 50, 50)
+        path.moveTo(40, 45)
+        path.cubicTo(32, 29, 19, 33, 19, 49)
+        path.cubicTo(19, 64, 33, 67, 36, 55)
+        path.cubicTo(39, 44, 25, 41, 26, 51)
+        path.cubicTo(26, 55, 30, 56, 31, 52)
+        path.moveTo(60, 55)
+        path.cubicTo(68, 71, 81, 67, 81, 51)
+        path.cubicTo(81, 36, 67, 33, 64, 45)
+        path.cubicTo(61, 56, 75, 59, 74, 49)
+        path.cubicTo(74, 45, 70, 44, 69, 48)
+        side = min(rect.width(), rect.height())
+        painter.save()
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.translate(rect.x() + (rect.width() - side) / 2,
+                              rect.y() + (rect.height() - side) / 2)
+            painter.scale(side / 100, side / 100)
+            ink = QColor(self._color)
+            if mode == QIcon.Disabled:
+                ink.setAlpha(140)
+            painter.setPen(QPen(ink, 5.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawPath(path)
+        finally:
+            painter.restore()
+
+    def pixmap(self, size, mode, state):
+        """Keep native rasterizations at each requested size, mode and state."""
+        from PySide6.QtCore import QRect, Qt
+        from PySide6.QtGui import QPainter, QPixmap
+
+        key = (size.width(), size.height(), mode, state)
+        if key not in self._pixmaps:
+            pixmap = QPixmap(size)
+            pixmap.fill(Qt.transparent)
+            painter = QPainter(pixmap)
+            try:
+                self.paint(painter, QRect(0, 0, size.width(), size.height()), mode, state)
+            finally:
+                painter.end()
+            self._pixmaps[key] = pixmap
+        return self._pixmaps[key]
+
+
 def icon(name: str, color: Optional[str] = None, size: int = 16,
          theme: Optional[str] = None) -> QIcon:
     """Return a QIcon for the named glyph, with a bundled fallback.
@@ -270,6 +338,10 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     :param name: semantic icon key looked up in the module's glyph table,
         e.g. ``"open"`` or ``"run"``.
     """
+    if name == 'spaceout':
+        foreground = _theme_palette(theme)['fg']
+        ink = color or ('#ffffff' if relative_luminance(foreground) > .5 else foreground)
+        return QIcon(_SpaceoutIconEngine(ink))
     qta = _try_qta()
     if qta is None:
         return _fallback_icon(name, theme, color=color, size=size)
@@ -919,6 +991,12 @@ SHARED_ICON_ASSETS = {
 
 
 _APP_COMMAND_ICONS = {
+    "Spaceout": "spaceout",
+    "PyPI": "download", "conda-forge": "download",
+    "Statistics": "graph_builder", "Logs": "project_browser",
+    "Cache": "data_manager", "Models": "model_zoo",
+    "Docker": "distributed_jobs", "Nightly build": "download",
+    "Running": "queue",
     "About": "agreement", "About spaCR": "agreement",
     "Homepage": "home", "GitHub": "methods_export",
     "README": "report", "Preferences": "settings",

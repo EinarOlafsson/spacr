@@ -1,5 +1,5 @@
-"""Startup owns Navigator; obsolete dock visibility preferences stay out of the UI."""
-from PySide6.QtWidgets import QDialogButtonBox, QFormLayout, QMainWindow
+"""Startup preserves Navigator choices; obsolete visibility controls stay out of the UI."""
+from PySide6.QtWidgets import QDialogButtonBox, QMainWindow
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
@@ -64,45 +64,32 @@ def test_navigator_defaults_on_and_preserves_ai_and_normal_dock(private_ai_profi
     assert terms.agreement_record() == agreement
 
 
-def test_both_startup_layouts_put_easy_mode_directly_below_ai_and_share_saved_answers(
+def test_startup_omits_navigator_without_changing_default_or_saved_choice(
         qtbot, private_ai_profile):
+    from PySide6.QtWidgets import QLabel
+
     from spacr.qt.setup_screen import questions
     from spacr.qt.widgets.setup_dialog import GROUPS, SetupDialog
     from spacr.qt.widgets.setup_slides import SLIDES, SetupSlides
-    from spacr.qt.widgets.toggle import Toggle
 
     preferences, terms, settings = private_ai_profile
-    preferences._set_spacr_ai_enabled(False)
-    keys = [question[0] for question in questions()]
-    assert keys.index("easy_mode") == keys.index("spacr_ai") + 1
-    assert next(group for title, group in GROUPS if "spacr_ai" in group)[-2:] == (
-        "spacr_ai", "easy_mode")
-    assert next(group for title, blurb, group in SLIDES if "spacr_ai" in group)[-2:] == (
-        "spacr_ai", "easy_mode")
-    slides = SetupSlides()
-    qtbot.addWidget(slides)
-    easy = slides._editors["easy_mode"]
-    assert isinstance(easy, Toggle) and not easy.isChecked()
-    form = easy.parentWidget().layout()
-    assert isinstance(form, QFormLayout)
-    assert form.getWidgetPosition(easy)[0] == form.getWidgetPosition(
-        slides._editors["spacr_ai"])[0] + 1
-    easy.setChecked(True)
-    slides.reject()
-    assert preferences.get_easy_mode() is True
-    dialog = SetupDialog()
-    qtbot.addWidget(dialog)
-    easy = dialog._editors["easy_mode"]
-    assert easy.isChecked()
-    form = next(layout for layout in dialog.findChildren(QFormLayout)
-                if layout.getWidgetPosition(easy)[0] >= 0)
-    assert form.getWidgetPosition(easy)[0] == form.getWidgetPosition(
-        dialog._editors["spacr_ai"])[0] + 1
-    easy.setChecked(False)
-    dialog.accept()
-    assert preferences.get_easy_mode() is False
-    assert preferences.get_preferred_provider() == "none"
-    assert preferences.get_easy_mode_dock() is False
+    assert 'easy_mode' not in {question[0] for question in questions()}
+    assert all('easy_mode' not in group for _, group in GROUPS)
+    assert all('easy_mode' not in group for _, _, group in SLIDES)
+    assert preferences.get_easy_mode()
+    for saved in (False, True):
+        preferences.set_easy_mode(saved)
+        for screen in (SetupDialog(), SetupSlides()):
+            qtbot.addWidget(screen)
+            assert 'easy_mode' not in screen._editors
+            if isinstance(screen, SetupSlides):
+                prose = ' '.join(label.text() for label in screen.findChildren(
+                    QLabel, 'StartupAiGuidance'))
+                assert all(word in prose for word in (
+                    'daily allowance', 'Claude', 'Codex', 'Gemini', 'CLI',
+                    'module console', 'Enter', 'unmatched', 'lower description'))
+            screen.reject()
+            assert preferences.get_easy_mode() is saved
 
 
 def test_preferences_save_and_cancel_preserve_legacy_dock_values_without_controls(
@@ -138,6 +125,6 @@ def test_preferences_save_and_cancel_preserve_legacy_dock_values_without_control
     assert preferences.get_easy_mode() and not preferences.get_easy_mode_dock()
     startup = SetupSlides()
     qtbot.addWidget(startup)
-    assert startup._editors["easy_mode"].isChecked()
+    assert "easy_mode" not in startup._editors
 
     startup.close()

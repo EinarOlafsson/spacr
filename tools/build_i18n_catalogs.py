@@ -302,7 +302,7 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
-    "Navigator",
+    "Navigator", "Spaceout", "Docker", "PyPI", "conda-forge",
     # The maintainer's exact branded theme titles retain their spelling.
     "spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore", "spaCR waves",
     "spaCR blobs", "spaCR aurora", "spaCR stratified", "spaCR spinn",

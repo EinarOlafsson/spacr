@@ -1,0 +1,302 @@
+"""Explicit Navigator assistance uses native controls and mocked existing transport."""
+import pytest
+from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QComboBox, QDialog, QTextBrowser
+
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
+
+
+class _Worker(QObject):
+    chunk_ready = Signal(str)
+    finished = Signal(bool, str)
+
+    def __init__(self):
+        super().__init__()
+        self.cancelled = False
+
+    def cancel(self):
+        self.cancelled = True
+
+
+class _Thread(QObject):
+    def __init__(self):
+        super().__init__()
+        self.started = False
+
+    def start(self):
+        self.started = True
+
+    def isRunning(self):
+        return self.started
+
+
+@pytest.fixture
+def ai_page(qtbot, private_ai_profile, monkeypatch):
+    from spacr.qt import bridge
+    from spacr.qt.ai import providers, worker
+    from spacr.qt.widgets.home import _EasyHomePage
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(False)
+    calls, drained = [], []
+
+    class Provider:
+        def is_configured(self):
+            return True
+
+    monkeypatch.setattr(providers, 'get_provider', lambda name: Provider())
+    def stream(provider, messages, **kwargs):
+        thread, work = _Thread(), _Worker()
+        calls.append((messages, thread, work))
+        return thread, work
+    monkeypatch.setattr(worker, 'make_stream_thread', stream)
+    monkeypatch.setattr(bridge, 'drain_thread', lambda thread, work, **kw: drained.append((thread, work, kw)))
+    page = _EasyHomePage()
+    page.resize(1000, 800)
+    qtbot.addWidget(page)
+    page.show()
+    yield page, calls, drained
+    page.close()
+
+
+def _enable(page):
+    page._ai_provider = 'spacr_hosted'
+    page.path_edit.ai.setChecked(True)
+    page._toggle_navigator_ai(True)
+
+
+@pytest.mark.parametrize('accept', [False, True])
+def test_first_use_explains_four_providers_and_requires_acceptance(ai_page, qtbot, monkeypatch, accept):
+    from spacr.qt.ai import providers
+    from spacr.qt.preferences import _settings
+    page, calls, drained = ai_page
+    applied = []
+    monkeypatch.setattr(providers, 'apply_provider_choice', applied.append)
+    def choose(dialog):
+        assert dialog is not None
+        combo = dialog.findChild(QComboBox, 'NavigatorAiProviderChoice')
+        assert {combo.itemData(i) for i in range(combo.count())} == {
+            'spacr_hosted', 'claude', 'codex', 'gemini'}
+        explanation = dialog.findChild(QTextBrowser).toPlainText()
+        assert all(word in explanation for word in ('daily allowance', 'CLI login', 'shared', 'does not run'))
+        combo.setCurrentIndex(combo.findData('codex'))
+        dialog.accept() if accept else dialog.reject()
+        return dialog.result()
+    monkeypatch.setattr(QDialog, 'exec', choose)
+    qtbot.mouseClick(page.path_edit.ai, Qt.LeftButton)
+    assert page.path_edit.ai.isChecked() is accept
+    assert applied == (['codex'] if accept else [])
+    assert _settings().value('home/navigator_ai_provider', '') == ('codex' if accept else '')
+    assert not calls
+
+
+def test_only_unmatched_enter_streams_to_lower_box(ai_page, qtbot):
+    page, calls, drained = ai_page
+    _enable(page)
+    page.path_edit.setFocus()
+    qtbot.keyClicks(page.path_edit, 'Explain why fluorescence becomes patchy overnight')
+    qtbot.wait(60)
+    assert not calls
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert len(calls) == 1 and calls[0][1].started
+    assert page.path_edit.ai._busy
+    work = calls[0][2]
+    work.chunk_ready.emit('Helpful <b>literal</b> advice')
+    qtbot.waitUntil(lambda: 'literal' in page.field.details.toPlainText())
+    assert page.field.details.toPlainText() == 'Helpful <b>literal</b> advice'
+    work.finished.emit(True, 'Final answer')
+    qtbot.waitUntil(lambda: page._ai_thread is None)
+    assert page.field.details.toPlainText() == 'Final answer'
+    assert not page.path_edit.ai._busy and not page.field.cards
+    page._cancel_navigator_ai()
+    assert len(drained) == 1 and drained[0][2]['timeout_ms'] == 0
+
+
+@pytest.mark.parametrize('value', ['Measure', 'Make Masks', 'Overview', '/tmp/unknown-images', 'field.npy'])
+def test_tools_and_paths_never_enter_ai_transport(ai_page, qtbot, monkeypatch, value):
+    from spacr.qt.widgets import home
+    page, calls, drained = ai_page
+    _enable(page)
+    inspected = []
+    monkeypatch.setattr(home, '_easy_inspect_path', lambda path: (
+        inspected.append(path) or dict(path=path, actions=[], context={}, message='')))
+    page.path_edit.setText(value)
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    qtbot.waitUntil(lambda: bool(page.field.cards) or bool(inspected))
+    assert not calls
+
+
+@pytest.mark.parametrize('action', ['edit', 'clear', 'disable', 'hide', 'reset'])
+def test_cancel_invalidates_queued_replies_without_blocking(ai_page, qtbot, action):
+    page, calls, drained = ai_page
+    _enable(page)
+    page.path_edit.setText('Explain an unfamiliar experimental workflow')
+    page._submit()
+    assert len(calls) == 1
+    old_generation = page._ai_generation
+    work = calls[0][2]
+    if action == 'edit':
+        qtbot.keyClicks(page.path_edit, ' changed')
+    elif action == 'clear':
+        page.path_edit.selectAll()
+        qtbot.keyClick(page.path_edit, Qt.Key_Backspace)
+    elif action == 'disable':
+        qtbot.mouseClick(page.path_edit.ai, Qt.LeftButton)
+    elif action == 'hide':
+        page.hide()
+    else:
+        page._reset_for_home()
+    assert work.cancelled and page._ai_generation > old_generation
+    assert drained and drained[0][2]['timeout_ms'] == 0
+    work.chunk_ready.emit('STALE ANSWER')
+    work.finished.emit(True, 'STALE ANSWER')
+    qtbot.wait(70)
+    assert 'STALE' not in page.field.details.toPlainText()
+    assert page._ai_thread is None and not page.path_edit.ai._busy
+
+
+def test_icon_is_hollow_off_provider_textured_on_and_typing_speed_pulses(ai_page, qtbot):
+    page, calls, drained = ai_page
+    button = page.path_edit.ai
+    def image():
+        return button.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+    off = image()
+    assert any(off.pixelColor(x, y).red() > 235
+               and off.pixelColor(x, y).green() > 235
+               and off.pixelColor(x, y).blue() > 235
+               for x in range(36) for y in range(36))
+    _enable(page)
+    pictures = []
+    for provider in button._COLORS:
+        button._provider = provider
+        pictures.append(bytes(image().constBits()))
+    assert len(set(pictures)) == 4 and bytes(off.constBits()) not in pictures
+    button._last_key = button._clock.elapsed() - 1000
+    button._typing('a')
+    slow = button._pulse
+    button._typing('ab')
+    assert button._pulse > slow
+    assert button._motion.isActive()
+    button._last_key = button._clock.elapsed() - 100000
+    button._busy = True
+    button._tick()
+    before = bytes(image().constBits())
+    qtbot.wait(80)
+    assert bytes(image().constBits()) != before
+    assert button._motion.isActive()
+    button.setChecked(False)
+    assert not button._motion.isActive() and not calls
+
+
+def test_saved_provider_reuses_consent_and_change_retires_old_stream(ai_page, qtbot, monkeypatch):
+    from spacr.qt.ai import providers
+    from spacr.qt.preferences import _settings
+    page, calls, drained = ai_page
+    _settings().setValue('home/navigator_ai_provider', 'claude')
+    qtbot.mouseClick(page.path_edit.ai, Qt.LeftButton)
+    assert page._ai_provider == 'claude' and page.path_edit.ai.isChecked()
+    assert page.findChild(QDialog, 'NavigatorAiProviderDialog') is None
+    page.path_edit.setText('Explain a completely unfamiliar experiment')
+    page._submit()
+    old_worker = calls[0][2]
+    applied = []
+    monkeypatch.setattr(providers, 'apply_provider_choice', applied.append)
+    def choose(dialog):
+        combo = dialog.findChild(QComboBox, 'NavigatorAiProviderChoice')
+        combo.setCurrentIndex(combo.findData('gemini'))
+        return QDialog.Accepted
+    monkeypatch.setattr(QDialog, 'exec', choose)
+    page._choose_navigator_ai()
+    assert applied == ['gemini'] and page._ai_provider == 'gemini'
+    assert old_worker.cancelled and drained
+    old_worker.finished.emit(True, 'STALE PROVIDER ANSWER')
+    qtbot.wait(30)
+    assert 'STALE PROVIDER' not in page.field.details.toPlainText()
+    assert len(calls) == 1
+
+
+def test_real_stream_thread_delivers_on_gui_and_retires_cleanly(
+        qtbot, private_ai_profile, monkeypatch):
+    import threading
+
+    from PySide6.QtCore import QThread
+    from shiboken6 import isValid
+
+    from spacr.qt.ai import providers, worker
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+    stream_threads, callback_threads, created, prompts = [], [], [], []
+    gui_thread = QThread.currentThread()
+
+    class Provider:
+        def is_configured(self):
+            return True
+
+        def stream_chat(self, messages, system='', model=None):
+            stream_threads.append(QThread.currentThread())
+            prompts.append((messages, system))
+            entered.set()
+            if not release.wait(3):
+                raise RuntimeError('Test did not release offline provider')
+            yield 'Offline '
+            yield 'thread answer'
+            completed.set()
+
+        def cancel_stream(self):
+            release.set()
+
+    monkeypatch.setattr(providers, 'get_provider', lambda name: Provider())
+    monkeypatch.setattr(worker, 'question_cache_key', lambda messages: '')
+    real_make = worker.make_stream_thread
+    def capture(*args, **kwargs):
+        pair = real_make(*args, **kwargs)
+        created.append(pair)
+        return pair
+    monkeypatch.setattr(worker, 'make_stream_thread', capture)
+    class RecordingPage(_EasyHomePage):
+        def _navigator_ai_chunk(self, *args):
+            callback_threads.append(QThread.currentThread())
+            super()._navigator_ai_chunk(*args)
+
+        def _navigator_ai_finished(self, *args):
+            callback_threads.append(QThread.currentThread())
+            super()._navigator_ai_finished(*args)
+
+    page = RecordingPage()
+    qtbot.addWidget(page)
+    page.resize(1000, 800)
+    page.show()
+    _enable(page)
+    try:
+        page.path_edit.setText('Explain a novel imaging experiment in plain words')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(entered.is_set)
+        assert page._ai_thread is created[0][0] and page.path_edit.ai._busy
+        assert stream_threads and stream_threads[0] != gui_thread
+        assert not callback_threads
+        release.set()
+        qtbot.waitUntil(completed.is_set)
+        qtbot.waitUntil(lambda: page._ai_thread is None)
+        qtbot.waitUntil(lambda: page.field.details.toPlainText() == 'Offline thread answer')
+        assert len(callback_threads) == 3
+        assert all(thread == gui_thread for thread in callback_threads)
+        assert not page.path_edit.ai._busy
+        assert len(prompts) == 1
+        assert 'Do not invoke tools, run commands or analyses' in prompts[0][1]
+        thread = created[0][0]
+        qtbot.waitUntil(lambda: not isValid(thread) or not thread.isRunning())
+        page._cancel_navigator_ai()
+        assert not page._ai_retired and page._ai_worker is None
+        page.close()
+    finally:
+        release.set()
+        for thread, work in created:
+            if isValid(thread) and thread.isRunning():
+                work.cancel()
+                thread.quit()
+                assert thread.wait(3000)
+        page.close()

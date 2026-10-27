@@ -4203,7 +4203,7 @@ expected_types = {
     "single_direction":str,
     "delete_intermediate":bool,
     "outlier_detection":bool,
-    "CP_prob":int,
+    "CP_prob":(int, float),
     "diameter":int,
     "flow_threshold":float,
     "cell_diameter":int,

@@ -195,6 +195,30 @@ def _easy_mode_733_api_arrivals(docs):
     return _current_733_easy_mode_api(entries, docs)
 
 
+def test_startup_mosaic_review_rejects_the_old_strap_description(tmp_path, monkeypatch):
+    import ast
+
+    import build_documentation_i18n as builder
+
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen"
+    tree = ast.parse((ROOT / "spacr/qt/widgets/loading_screen.py").read_text())
+    source = ast.get_docstring(next(node for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "LoadingScreen"))
+    old = "By default it shows the white mark beside the strap line. Once :meth:`show_mosaic` is called it shows the spaCR photomosaic above the strap line instead, and :meth:`blow_away` ends it by blowing the mosaic's tiles off the window to reveal the window underneath."
+    target = "Som standard visar det det vita märket bredvid slagordsraden. När :meth:`show_mosaic` har anropats visar det i stället spaCR:s fotomosaik ovanför slagordsraden, och :meth:`blow_away` avslutar det genom att blåsa mosaikens brickor av fönstret så att fönstret under syns."
+    directory = tmp_path / "sv"
+    directory.mkdir()
+    (directory / "old.json").write_text(json.dumps({
+        "schema": 1, "language": "sv", "records": [{
+            "label": symbol + "#1", "source": old,
+            "source_sha256": builder._source_hash(old),
+            "context": builder._api_translation_source(old), "translation": target,
+        }]}))
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", tmp_path)
+    with pytest.raises(ValueError, match="stale reviewed API source"):
+        builder.reviewed_api_block_translations({symbol: source}, "sv")
+
+
 def _current_735_volume_api(entries, docs=None):
     """Bind reviewed numeric NPY guidance without changing the historical arrival pin."""
     assert len(entries) == 32

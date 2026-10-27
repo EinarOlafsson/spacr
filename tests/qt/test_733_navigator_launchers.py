@@ -113,7 +113,7 @@ def test_real_launch_applies_alias_after_setup_and_keeps_launch_flags(
     assert setup_calls == ([] if '--no-setup' in args else [True])
 
 
-def test_fresh_profile_defaults_to_navigator_home_and_startup_checkbox(qtbot, private_ai_profile):
+def test_fresh_profile_defaults_to_navigator_home_without_startup_checkbox(qtbot, private_ai_profile):
     from spacr.qt import preferences
     from spacr.qt.widgets.home import _EasyHomePage
     from spacr.qt.widgets.setup_dialog import SetupDialog
@@ -128,8 +128,8 @@ def test_fresh_profile_defaults_to_navigator_home_and_startup_checkbox(qtbot, pr
     slides = SetupSlides()
     qtbot.addWidget(dialog)
     qtbot.addWidget(slides)
-    assert dialog._editors['easy_mode'].isChecked()
-    assert slides._editors['easy_mode'].isChecked()
+    assert 'easy_mode' not in dialog._editors
+    assert 'easy_mode' not in slides._editors
     assert not preferences._settings().contains(preferences._KEY_EASY_MODE)
 
 

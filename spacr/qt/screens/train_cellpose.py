@@ -35,7 +35,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QPushButton, QTabWidget, QVBoxLayout, QWidget
 
 from ..i18n import tr
 from ..theme import SPACING
@@ -83,6 +83,28 @@ CHECKPOINT_DIR = ("models", "cellpose_model", "models")
 #: final save has no infix, so a finished run is preferred over a mid-run
 #: snapshot of itself.
 EPOCH_INFIX = "_epoch_"
+
+
+def _cellpose_folder_error(source):
+    """Check the native folder runner's format contract within a bounded listing."""
+    from itertools import islice
+
+    from ...channel_sorting import IMAGE_EXTS
+
+    if not isinstance(source, str) or not os.path.isdir(source):
+        return tr('Choose a folder containing lowercase .tif images before running Cellpose.')
+    try:
+        with os.scandir(source) as entries:
+            sample = list(islice(entries, 4097))
+    except OSError:
+        return tr('Choose a folder containing lowercase .tif images before running Cellpose.')
+    images = [entry.name for entry in sample[:4096] if entry.is_file(follow_symlinks=False)
+              and entry.name.lower().endswith(tuple(IMAGE_EXTS) + ('.npy', '.mrc', '.rec', '.map'))]
+    if any(not name.endswith('.tif') for name in images):
+        return tr('Cellpose folder masking requires lowercase .tif images. Convert other image formats before running.')
+    if not images:
+        return tr('Choose a folder containing lowercase .tif images before running Cellpose.')
+    return ''
 
 
 def carried_setting_keys() -> Tuple[str, ...]:
@@ -275,6 +297,10 @@ class CellposeWorkbenchScreen(QWidget):
             app_key=TRAIN_KEY,
         )
         outer.addWidget(self._header)
+        self._zoo_button = QPushButton(tr("Model Zoo"), self)
+        self._zoo_button.setObjectName("CellposeWorkbenchModelZoo")
+        self._zoo_button.clicked.connect(self._choose_active_model)
+        self._header.add_trailing(self._zoo_button)
 
         self._tabs = QTabWidget(self)
         self._tabs.setObjectName("CellposeWorkbenchTabs")
@@ -303,6 +329,13 @@ class CellposeWorkbenchScreen(QWidget):
 
         self._current = self._tabs.currentIndex()
         self._tabs.currentChanged.connect(self._on_tab_changed)
+
+    def _choose_active_model(self):
+        """Use the existing verified picker for the active tab's checkpoint field."""
+        screen = self.active_screen()
+        key = 'base_model' if screen.app_key == TRAIN_KEY else 'custom_model'
+        field = screen._settings_model._widgets[key]
+        screen._choose_a_model_for(field, key)
 
     def _add_virtual_stain(self, outer) -> None:
         """The alpha button that learns to predict one channel from others."""

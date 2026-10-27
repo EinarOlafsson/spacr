@@ -40,6 +40,10 @@ Owner:     spacr/qt -- the icon set and whatever resolves a button to an icon.
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+Spaceout shortcut follow-up: add a native white infinity-spiral mark for its
+Navigator card through the existing icon resolver, including optional icon-font
+absence. Workstation session 2 owns this bounded icon addition.
+
 Every current module, submodule and Help tool must have an appropriate icon;
 the generic default should basically never appear. Extend the existing central
 resolver and reuse the established bundled icon assets or semantic glyphs.

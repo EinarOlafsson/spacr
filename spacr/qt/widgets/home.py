@@ -43,9 +43,16 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QRect, QRectF, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap,
-                           QTextDocumentFragment)
+from PySide6.QtCore import QEvent, QObject, QRect, QRectF, QSize, Qt, QTimer, Signal, Slot
+from PySide6.QtGui import (
+    QColor,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QPainter,
+    QPixmap,
+    QTextDocumentFragment,
+)
 from PySide6.QtGui import QSyntaxHighlighter as _SyntaxHighlighter
 from PySide6.QtWidgets import (
     QApplication,
@@ -59,8 +66,8 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
-    QStyle,
     QSizePolicy,
+    QStyle,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -68,14 +75,21 @@ from PySide6.QtWidgets import (
 
 from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..theme import (
-    QSS_FONT_FAMILY, SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
-    make_transparent, palette_for,
+    QSS_FONT_FAMILY,
+    SPACING,
+    TILE_H,
+    TILE_ICON_PX,
+    TILE_MAX_W,
+    TILE_W,
+    font_px,
+    make_transparent,
+    palette_for,
 )
 from .divider import Divider
-from .setup_card import SetupCard as _SetupCard
 from .height_grip import HeightGrip
 from .workflow_diagram import WorkflowView as _WorkflowView
-from .workflow_diagram import _Node as _WorkflowNode, _Edge as _WorkflowEdge
+from .workflow_diagram import _Edge as _WorkflowEdge
+from .workflow_diagram import _Node as _WorkflowNode
 
 #: Hero brand sizes. The mark and wordmark are the first thing on the first
 #: screen, so they are sized to read as a masthead rather than as a row of
@@ -5302,47 +5316,143 @@ class _EasyDropWatcher(QObject):
         return True
 
 
-class _EasyPathRim(_SetupCard):
-    """Reuse the existing chasing blue rim without painting another backplate."""
+class _EasyPathRim(QWidget):
+    """Keep a static outline above the native search surface."""
 
     def __init__(self, parent=None):
-        """Keep the rounded outline transparent to native editor interaction."""
-        super().__init__(parent, radius=56, mode='glow')
+        """Draw a passive rounded border without a timer or field callbacks."""
+        super().__init__(parent)
+        self._radius = 28
         self.setObjectName('EasyPathRim')
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         make_transparent(self)
 
-    def _paint(self):
-        """Draw only the existing border and its pointer-following accent."""
-        from PySide6.QtCore import QRectF
+    def paintEvent(self, event):
+        """Paint the fixed border independently of pointer and idle time."""
         from PySide6.QtGui import QPen
 
         painter = QPainter(self)
-        self._frame = {}
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            rect = QRectF(self.rect()).adjusted(1, 1, -1, -1)
-            painter.setBrush(Qt.NoBrush)
-            painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
-            painter.drawRoundedRect(rect, self._radius, self._radius)
-            self._paint_accent(painter, QColor('#4A9EFF'), rect)
-        finally:
-            self._frame = None
-            painter.end()
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
+        painter.drawRoundedRect(QRectF(self.rect()).adjusted(1, 1, -1, -1),
+                                self._radius, self._radius)
+        painter.end()
 
-    def _sync_run_state(self):
-        """Keep this reused rim still when decorative motion is disabled."""
-        from ..preferences import get_ambient_enabled, get_reduce_motion
 
-        if not self.isVisible() or not get_ambient_enabled() or get_reduce_motion():
-            self._timer.stop()
+class _NavigatorAiReply(QObject):
+    """Keep generation-tagged stream callbacks on their owning GUI thread."""
+
+    def __init__(self, page, generation):
+        """Retain the page and request token until the stream is retired."""
+        super().__init__(page)
+        self._page = page
+        self._generation = generation
+
+    @Slot(str)
+    def chunk(self, text):
+        """Deliver a worker chunk through an actual GUI-affine Qt receiver."""
+        self._page._navigator_ai_chunk(self._generation, text)
+
+    @Slot(bool, str)
+    def finished(self, ok, text):
+        """Complete only the request this receiver was created for."""
+        self._page._navigator_ai_finished(self._generation, ok, text)
+
+
+class _NavigatorAiButton(QPushButton):
+    """A quiet provider-colored toggle with bounded typing and waiting motion."""
+
+    _COLORS = {'spacr_hosted': '#40C9C6', 'claude': '#DE7356',
+               'codex': '#A8E6CF', 'gemini': '#4285F4'}
+
+    def __init__(self, parent=None):
+        """Keep the provider texture inside a native, keyboard-accessible toggle."""
+        from PySide6.QtCore import QElapsedTimer
+
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setObjectName('NavigatorAiButton')
+        self.setAccessibleName(tr('Navigator AI'))
+        self.setCheckable(True)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFixedSize(36, 36)
+        self._provider = 'spacr_hosted'
+        self._busy = False
+        self._pulse = 0.0
+        self._last_key = -1000
+        self._clock = QElapsedTimer()
+        self._clock.start()
+        self._motion = QTimer(self)
+        self._motion.setInterval(33)
+        self._motion.timeout.connect(self._tick)
+        self.toggled.connect(self._tick)
+
+    def _typing(self, _text):
+        """Give rapid native edits a larger pulse without ever submitting text."""
+        now = self._clock.elapsed()
+        speed = max(0.0, 1.0 - (now - self._last_key) / 500.0)
+        self._last_key = now
+        self._pulse = 0.35 + 0.65 * speed
+        self._tick()
+
+    def _tick(self, *_args):
+        """Run a single small timer only while this visible icon needs motion."""
+        from ..preferences import get_reduce_motion
+
+        self.update()
+        if (self.isVisible() and self.isChecked() and not get_reduce_motion()
+                and (self._busy or self._clock.elapsed() - self._last_key < 850)):
+            if not self._motion.isActive():
+                self._motion.start()
         else:
-            self._start()
+            self._motion.stop()
 
     def showEvent(self, event):
-        """Apply the current motion policy when the editor becomes visible."""
+        """Resume pending motion only when the icon becomes visible."""
         super().showEvent(event)
-        self._sync_run_state()
+        self._tick()
+
+    def hideEvent(self, event):
+        """Release animation work while another module is on screen."""
+        self._motion.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        """Keep the white perimeter still while the clipped provider texture spins."""
+        import math
+
+        from PySide6.QtGui import QPainterPath, QPen
+
+        from ..preferences import get_reduce_motion
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        center = self.rect().center()
+        painter.translate(center)
+        painter.setPen(QPen(QColor('white'), 1.5 if not self.hasFocus() else 2.5))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawEllipse(QRectF(-14, -14, 28, 28))
+        if self.isChecked():
+            elapsed = max(0, self._clock.elapsed() - self._last_key)
+            pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
+            radius = 8.0 + 5.0 * pulse
+            fill = QRectF(-radius, -radius, radius * 2, radius * 2)
+            color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(color)
+            painter.drawEllipse(fill)
+            clip = QPainterPath()
+            clip.addEllipse(fill)
+            painter.setClipPath(clip)
+            if self._busy and not get_reduce_motion():
+                painter.rotate((self._clock.elapsed() * 0.18) % 360)
+            painter.setPen(QPen(color.lighter(155), 2))
+            painter.drawArc(QRectF(-6, -6, 12, 12), 20 * 16, 110 * 16)
+            painter.setPen(QPen(color.darker(155), 2))
+            painter.drawLine(-2, 1, 7, 6)
+        painter.end()
 
 
 class _EasyPathEdit(QLineEdit):
@@ -5350,8 +5460,6 @@ class _EasyPathEdit(QLineEdit):
 
     def __init__(self, parent=None):
         """Keep the browse affordance inside the editor's reserved text margin."""
-        from PySide6.QtCore import QElapsedTimer
-
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
 
@@ -5361,12 +5469,13 @@ class _EasyPathEdit(QLineEdit):
         self.setFrame(False)
         self.setPlaceholderText(tr('Drop a file/folder, type a path or task'))
         self.setAccessibleName(tr('File or folder path'))
-        self.setFixedHeight(128)
+        self.setFixedHeight(64)
         self.setMouseTracking(True)
         self.browse = QPushButton(tr('Browse'), self)
         self.browse.setObjectName('EasyModeBrowse')
         self.browse.setCursor(Qt.PointingHandCursor)
-        self._gravity_clock = QElapsedTimer()
+        self.ai = _NavigatorAiButton(self)
+        self.textEdited.connect(self.ai._typing)
 
     def resizeEvent(self, event):
         """Reserve native editor space for Browse without covering editable text."""
@@ -5374,29 +5483,10 @@ class _EasyPathEdit(QLineEdit):
         if not hasattr(self, 'browse'):
             return
         width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 24
-        self.browse.setGeometry(self.width() - width - 12, 6, width, self.height() - 12)
-        self.setTextMargins(18, 0, width + 24, 0)
+        self.browse.setGeometry(self.width() - width - 60, 6, width, self.height() - 12)
+        self.ai.move(self.width() - 48, (self.height() - self.ai.height()) // 2)
+        self.setTextMargins(18, 0, width + 68, 0)
 
-    def _gravity_feedback(self, point):
-        """Offer a small rate-limited impulse through the existing field renderer."""
-        from ..preferences import _field_ripples_enabled, get_ambient_enabled, get_reduce_motion
-
-        if (not self.isVisible()
-                or (self._gravity_clock.isValid() and self._gravity_clock.elapsed() < 180)
-                or get_reduce_motion() or not get_ambient_enabled()
-                or not _field_ripples_enabled()):
-            return
-        self._gravity_clock.restart()
-        from .ambient import field_ripple_for_widget
-
-        field_ripple_for_widget(self, rect=QRect(point.x() - 2, point.y() - 2, 4, 4),
-                                strength=0.12)
-
-    def mousePressEvent(self, event):
-        """Keep native editing and ripple only on an actual search-field click."""
-        super().mousePressEvent(event)
-        if event.button() == Qt.LeftButton:
-            self._gravity_feedback(event.position().toPoint())
 
 
 _EASY_WORKFLOW_PORT_RADIUS = 4
@@ -5493,6 +5583,8 @@ class _EasySuggestionCard(QPushButton):
     def _stage_for(key):
         """Resolve maturity from the registered app or its actual folded metadata."""
         from .fold_strip import fold_label
+        if key == 'parascape':
+            return 'alpha'
         return fold_label(key)[2]
 
     def resizeEvent(self, event):
@@ -5674,15 +5766,19 @@ class _EasyHomeField(QWidget):
         self._animations = []
         self.feedback = None
         self.setObjectName('EasyHomeField')
+        self.setProperty('spacrAmbientPassiveOverlay', True)
         make_transparent(self)
         self.panel = _EasyPathEdit(self)
         self.rim = _EasyPathRim(self)
+        self.panel.setProperty('spacrAmbientPassiveOverlay', True)
+        self.rim.setProperty('spacrAmbientPassiveOverlay', True)
         self.setMinimumSize(340, 340)
         from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
         self.details = QTextBrowser(self)
         self.details.setObjectName('EasyWorkflowDetails')
+        self.details.setProperty('spacrAmbientPassiveOverlay', True)
         self.details.setAccessibleName(tr('Module description'))
         self.details.setOpenExternalLinks(True)
         self.details.setProperty(OPT_OUT_PROPERTY, True)
@@ -5702,14 +5798,9 @@ class _EasyHomeField(QWidget):
         return get_ambient_enabled() and not get_reduce_motion()
 
     def _publish_growth(self, *, invalidate=False):
-        """Clear transient card forces while keeping the original reveal animation."""
-        from .ambient import _field_growing_regions_for_widget
-
-        state = tuple((id(card), card._growing, card.isVisible())
-                      for card in self.cards if card.parentWidget() is self)
-        invalidate = invalidate or state != getattr(self, '_growth_state', ())
-        self._growth_state = state
-        _field_growing_regions_for_widget(self, (), invalidate=invalidate)
+        """Track card animation locally without altering the shared field."""
+        self._growth_state = tuple((id(card), card._growing, card.isVisible())
+                                   for card in self.cards if card.parentWidget() is self)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
@@ -5761,6 +5852,10 @@ class _EasyHomeField(QWidget):
             card.description.hide()
             card._explanation = '<b>' + escape(group) + '</b><br>' + escape(reason)
             card.setAccessibleDescription(group + ': ' + reason)
+        if isinstance(leading, _EasyGuidanceCard):
+            leading.hide()
+            leading.deleteLater()
+            leading = None
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
         animate = self._motion_enabled() and self.isVisible()
@@ -5830,14 +5925,15 @@ class _EasyHomeField(QWidget):
         from PySide6.QtGui import QBrush, QLinearGradient, QRegion
 
         width, height = self.width(), self.height()
-        panel_width = min(1440, max(180, width - 48))
+        panel_width = min(720, max(180, width - 48))
         panel_height = self.panel.height()
         panel_y = max(16, (height - panel_height) // 2)
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
-        details_width = min(780, max(180, width - 32))
-        details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
+        details_width = min(1560, max(180, width - 32))
+        details_height = min(176 + 2 * self.details.fontMetrics().lineSpacing(),
+                             max(1, height - panel_y - panel_height - 32))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
         available = max(64, panel_y - 40)
@@ -6334,6 +6430,7 @@ class _EasyWorkflowPage(QWidget):
         self._progress = 0.0
         super().__init__(parent)
         self.setObjectName('EasyWorkflowPage')
+        self.setProperty('spacrAmbientPassiveOverlay', True)
         make_transparent(self)
         self.setProperty("spacrAmbientTransparentOverlay", True)
         self.data = data
@@ -6638,7 +6735,6 @@ class _EasyHomePage(QWidget):
         from ..job_runner import JobRunner
 
         super().__init__(parent)
-        self._easy_backdrop_state = None
         self.setObjectName('EasyHomePage')
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -6654,6 +6750,21 @@ class _EasyHomePage(QWidget):
         self._workflow_escape.activated.connect(self._show_suggestions)
         self.path_edit = self.field.panel
         self.path_edit.browse.clicked.connect(self._browse)
+        self._ai_provider = ''
+        self._ai_thread = None
+        self._ai_worker = None
+        self._ai_relay = None
+        self._ai_retired = []
+        self._ai_generation = 0
+        self._ai_text = ''
+        self._ai_reply_timer = QTimer(self)
+        self._ai_reply_timer.setSingleShot(True)
+        self._ai_reply_timer.setInterval(50)
+        self._ai_reply_timer.timeout.connect(self._render_ai_reply)
+        self.path_edit.ai.clicked.connect(self._toggle_navigator_ai)
+        self.path_edit.ai.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.path_edit.ai.customContextMenuRequested.connect(self._choose_navigator_ai)
+        self._update_ai_tooltip()
         self.path_edit.setToolTip(tr('Local suggestions. No AI provider or network connection is required.'))
         self.status = QLabel(self.field)
         self.status.setObjectName('EasyInputFeedback')
@@ -6678,82 +6789,211 @@ class _EasyHomePage(QWidget):
         self._regex_cancel = None
         self.refresh()
 
-    def _sync_easy_backdrop(self):
-        """Use the existing dark field fill only while this Home is visible."""
-        import weakref
+    def _update_ai_tooltip(self):
+        """Describe the selected provider and the explicit change-provider gesture."""
+        from ..ai.providers import PROVIDER_CHOICES
+        from ..i18n import tr
 
-        from ..preferences import DEFAULT_AMBIENT_BACKGROUND, get_easy_mode
+        button = self.path_edit.ai
+        label = next((tr(label) for name, label, _needs in PROVIDER_CHOICES
+                      if name == self._ai_provider), '')
+        button.setToolTip(tr('AI: {provider}. Click to toggle; right-click to change provider.',
+                             provider=label) if button.isChecked() else
+                          tr('AI assistance is off. Click to choose a provider.'))
 
-        if not self.isVisible() or not get_easy_mode():
-            return
-        getter = getattr(self.window(), 'window_backdrop', None)
-        backdrop = getter() if callable(getter) else None
-        if backdrop is None:
-            return
-        owner = getattr(backdrop, '_easy_home_owner', None)
-        if self._easy_backdrop_state is not None:
-            if (self._easy_backdrop_state[0]() is backdrop
-                    and owner is not None and owner() is self):
+    def _toggle_navigator_ai(self, on):
+        """Reuse consent after first selection and cancel immediately when disabled."""
+        from ..ai.providers import PROVIDER_CHOICES
+        from ..i18n import tr
+        from ..preferences import _settings
+
+        if not on:
+            pending = self._ai_thread is not None
+            self._cancel_navigator_ai()
+            if pending:
+                self._feedback(tr('Cancelled.'))
+        elif not self._ai_provider:
+            self._ai_provider = str(_settings().value('home/navigator_ai_provider', '') or '')
+            if self._ai_provider not in {name for name, _label, _needs in PROVIDER_CHOICES if name != 'none'}:
+                self._ai_provider = ''
+                self.path_edit.ai.setChecked(False)
+                self._choose_navigator_ai()
                 return
-            self._restore_easy_backdrop()
-        state = getattr(backdrop, '_easy_home_background_state', None)
-        if state is None:
-            state = (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop())
-            backdrop._easy_home_background_state = state
-        self._easy_backdrop_state = (weakref.ref(backdrop), *state)
-        backdrop._easy_home_owner = weakref.ref(self)
-        backdrop.set_background_color(DEFAULT_AMBIENT_BACKGROUND)
-        backdrop.set_backdrop(None)
+        self.path_edit.ai._provider = self._ai_provider
+        self.path_edit.ai._tick()
+        self._update_ai_tooltip()
 
-    def _restore_easy_backdrop(self):
-        """Return the shared field to its existing module and theme policy."""
-        from shiboken6 import isValid
+    def _choose_navigator_ai(self, *_args):
+        """Explain sharing and assistance before accepting an explicit provider choice."""
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QTextBrowser
 
-        from .ambient import _preferred_background
+        from ..ai.providers import PROVIDER_CHOICES, apply_provider_choice
+        from ..i18n import tr
+        from ..preferences import _settings
 
-        state = self._easy_backdrop_state
-        self._easy_backdrop_state = None
-        if state is None:
+        dialog = QDialog(self)
+        dialog.setObjectName('NavigatorAiProviderDialog')
+        dialog.setWindowTitle(tr('Navigator AI'))
+        layout = QVBoxLayout(dialog)
+        explanation = QTextBrowser(dialog)
+        explanation.setMinimumSize(520, 230)
+        explanation.setPlainText(tr(
+            'AI explains tools, settings, workflows and errors throughout spaCR. '
+            'In Navigator, unmatched tasks go to your chosen AI and answers appear below. '
+            'It does not run an analysis from this field.') + '\n\n' + tr(
+            'spaCR AI uses the hosted service and daily allowance. Claude, Codex and Gemini '
+            'use your own CLI login. Submitted text is shared with the chosen provider. '
+            'Check AI advice before using it.'))
+        layout.addWidget(explanation)
+        combo = QComboBox(dialog)
+        combo.setObjectName('NavigatorAiProviderChoice')
+        combo.setAccessibleName(tr('Choose AI provider'))
+        for name, label, _needs in PROVIDER_CHOICES:
+            if name != 'none':
+                combo.addItem(tr(label), name)
+        selected = combo.findData(self._ai_provider)
+        if selected >= 0:
+            combo.setCurrentIndex(selected)
+        layout.addWidget(combo)
+        providers = QPushButton(tr('Providers…'), dialog)
+
+        def configure():
+            """Reuse the existing install and sign-in dialog without sending a task."""
+            from .ai_chat_panel import _ProvidersDialog
+
+            _ProvidersDialog(dialog).exec()
+
+        providers.clicked.connect(configure)
+        layout.addWidget(providers)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.button(QDialogButtonBox.Ok).setText(tr('Use AI'))
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() == QDialog.Accepted:
+            self._cancel_navigator_ai()
+            self._ai_provider = str(combo.currentData())
+            _settings().setValue('home/navigator_ai_provider', self._ai_provider)
+            apply_provider_choice(self._ai_provider)
+            self.path_edit.ai._provider = self._ai_provider
+            self.path_edit.ai.setChecked(True)
+        self.path_edit.ai._tick()
+        self._update_ai_tooltip()
+        dialog.deleteLater()
+
+    @staticmethod
+    def _navigator_ai_can_answer(value):
+        """Keep submitted paths and filenames in local inspection even with AI on."""
+        value = str(value).strip()
+        return bool(value and not (
+            value.startswith(('/', '\\', '~', '.')) or re.match(r'^[A-Za-z]:[\\/]', value)
+            or re.match(r'^\w+://', value)
+            or os.path.exists(os.path.expanduser(value))
+            or (not re.search(r'\s', value) and (
+                '/' in value or '\\' in value or re.search(r'\.[A-Za-z0-9]{1,10}$', value)))))
+
+    def _ask_navigator_ai(self, value):
+        """Stream one unmatched submission through the existing guarded transport."""
+        from ..ai import settings as ai_settings
+        from ..ai.providers import get_provider
+        from ..ai.worker import make_stream_thread
+        from ..i18n import tr
+
+        if self._ai_thread is not None:
+            self.field.details.setPlainText(tr('Turn AI off to cancel the current answer.'))
             return
-        reference, color, explicit, image = state
-        backdrop = reference()
-        getter = getattr(self.window(), 'window_backdrop', None)
-        if (backdrop is None or not isValid(backdrop)
-                or not callable(getter) or getter() is not backdrop):
+        provider = get_provider(self._ai_provider)
+        if provider is None or not provider.is_configured():
+            self._feedback(tr('No provider configured.'))
             return
-        owner = getattr(backdrop, '_easy_home_owner', None)
-        if owner is None or owner() is not self:
+        self._runner.cancel()
+        self._input_generation += 1
+        self._requested = value
+        self._last_result = None
+        self._settings_overrides = {}
+        self.field.set_cards([])
+        self._feedback(tr('Thinking…'))
+        self._ai_text = ''
+        self._ai_generation += 1
+        generation = self._ai_generation
+        alive = []
+        for thread, worker, relay in self._ai_retired:
+            try:
+                if thread.isRunning():
+                    alive.append((thread, worker, relay))
+                    continue
+            except RuntimeError:
+                pass
+            relay.deleteLater()
+        self._ai_retired = alive
+        system = ai_settings.get_system_prompt() + (
+            '\n\nNavigator is an advice interface. Answer the submitted task in text. '
+            'Do not invoke tools, run commands or analyses, or change files from this interface.')
+        thread, worker = make_stream_thread(provider, [{'role': 'user', 'content': value}],
+                                            system=system, parent=self)
+        self._ai_thread, self._ai_worker = thread, worker
+        self._ai_relay = _NavigatorAiReply(self, generation)
+        worker.chunk_ready.connect(self._ai_relay.chunk, Qt.QueuedConnection)
+        worker.finished.connect(self._ai_relay.finished, Qt.QueuedConnection)
+        self.path_edit.ai._busy = True
+        self.path_edit.ai._tick()
+        thread.start()
+
+    def _navigator_ai_chunk(self, generation, text):
+        """Ignore retired streams and coalesce partial replies into bounded repaints."""
+        if generation != self._ai_generation:
             return
-        backdrop._easy_home_owner = None
-        backdrop._easy_home_background_state = None
-        backdrop._background_explicit = explicit
-        backdrop._apply_background(color if explicit else _preferred_background(), explicit=explicit)
-        backdrop.set_backdrop(image)
+        self._ai_text += text
+        if not self._ai_reply_timer.isActive():
+            self._ai_reply_timer.start()
 
-    def _sync_easy_ripple_policy(self, active):
-        """Own the search-only policy independently of backdrop replacement."""
-        import weakref
+    def _render_ai_reply(self):
+        """Put response text in the fixed lower box without interpreting HTML."""
+        self.field.details.setPlainText(self._ai_text)
 
-        window = self.window()
-        owner = getattr(window, '_easy_search_ripple_owner', None)
-        if active:
-            window._easy_search_ripple_owner = weakref.ref(self)
-            window.setProperty('spacrEasySearchRippleOnly', True)
-        elif owner is not None and owner() is self:
-            window._easy_search_ripple_owner = None
-            window.setProperty('spacrEasySearchRippleOnly', False)
+    def _navigator_ai_finished(self, generation, ok, text):
+        """Stop the waiting texture and preserve worker ownership until thread exit."""
+        from ..i18n import tr
 
-    def showEvent(self, event):
-        """Apply the local backdrop after native Home visibility becomes real."""
-        super().showEvent(event)
-        self._sync_easy_ripple_policy(True)
-        self._sync_easy_backdrop()
+        if generation != self._ai_generation:
+            return
+        self._ai_reply_timer.stop()
+        self._ai_retired.append((self._ai_thread, self._ai_worker, self._ai_relay))
+        self._ai_thread = self._ai_worker = self._ai_relay = None
+        self.path_edit.ai._busy = False
+        self.path_edit.ai._tick()
+        self._ai_text = (text or tr('(empty response — try again or switch provider)')) if ok else tr(
+            'Failed: {detail}', detail=text)
+        self._render_ai_reply()
+
+    def _cancel_navigator_ai(self):
+        """Invalidate queued replies and retire threads without blocking navigation."""
+        from ..bridge import drain_thread
+
+        self._ai_generation += 1
+        self._ai_reply_timer.stop()
+        worker, thread, relay = self._ai_worker, self._ai_thread, self._ai_relay
+        self._ai_worker = self._ai_thread = self._ai_relay = None
+        self.path_edit.ai._busy = False
+        self.path_edit.ai._tick()
+        if worker is not None:
+            worker.cancel()
+        pairs = list(self._ai_retired)
+        self._ai_retired.clear()
+        if thread is not None:
+            pairs.append((thread, worker, relay))
+        for retired_thread, retired_worker, retired_relay in pairs:
+            try:
+                retired_thread.setParent(None)
+            except RuntimeError:
+                pass
+            drain_thread(retired_thread, retired_worker, timeout_ms=0)
+            retired_relay.deleteLater()
 
     def hideEvent(self, event):
         """Restore ordinary modules without changing their saved theme."""
+        self._cancel_navigator_ai()
         self._cancel_regex_validation()
-        self._sync_easy_ripple_policy(False)
-        self._restore_easy_backdrop()
         super().hideEvent(event)
 
     def refresh(self):
@@ -6770,15 +7010,15 @@ class _EasyHomePage(QWidget):
             resolve_effective_theme(), 'surface_alt', get_pane_opacity()))
         sheet = (
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
-            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 56px; font-size: {font_px(36)}px; padding: 0px; placeholder-text-color: {muted}; }} '
-            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(28)}px; }} '
+            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
+            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
             f'QPushButton#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; padding: 12px; min-width: 0px; min-height: 0px; text-align: left; }} '
             f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
             f'QPlainTextEdit#EasyRegexPattern {{ color: {foreground}; background: transparent; border: 1px solid {border}; border-radius: 6px; font-weight: 300; }} '
             f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
             f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
             f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
-            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
+            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; font-size: {2 * font_px("body")}px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
         from ..theme import _stage_button_rules
         sheet += _stage_button_rules('QPushButton#EasySuggestionCard')
@@ -6837,6 +7077,7 @@ class _EasyHomePage(QWidget):
 
     def _reset_for_home(self):
         """Return explicit Home navigation to a fresh input with no retained graph or job."""
+        self._cancel_navigator_ai()
         self._show_suggestions()
         self.path_edit.clear()
         self._queued_inspection = False
@@ -6844,6 +7085,7 @@ class _EasyHomePage(QWidget):
 
     def _clear_empty_input(self):
         """Return an empty editor to the live field without keeping stale work."""
+        self._cancel_navigator_ai()
         self._debounce.stop()
         self._cancel_regex_validation()
         self._input_generation += 1
@@ -6857,6 +7099,8 @@ class _EasyHomePage(QWidget):
 
     def _schedule_inspection(self, text):
         """Invalidate unfinished work while leaving submitted choices unchanged until Enter."""
+        if self._ai_thread is not None:
+            self._cancel_navigator_ai()
         self._debounce.stop()
         self._queued_inspection = False
         self._cancel_regex_validation()
@@ -6866,15 +7110,35 @@ class _EasyHomePage(QWidget):
             self._clear_empty_input()
 
     def _submit(self):
-        """Use Enter for explicit command navigation or suggestion discovery."""
-        from ..app import _easy_command_text, _easy_module_search, _easy_module_matches, _easy_task_keys
+        """Submit through explicit commands, local suggestions or opted-in AI."""
+        from ..app import (
+            _easy_command_text,
+            _easy_module_matches,
+            _easy_module_search,
+            _easy_shortcut_match,
+            _easy_task_keys,
+        )
         from ..organisms import ORGANISMS
 
         value = self.path_edit.text().strip()
         self._show_suggestions()
+        shortcut = _easy_shortcut_match(value)
+        if shortcut and shortcut not in ('spaceout', 'running'):
+            self._cancel_navigator_ai()
+            self._debounce.stop()
+            self._cancel_regex_validation()
+            self._runner.cancel()
+            self._input_generation += 1
+            self.command_requested.emit(value)
+            return
         organism = any(key in ORGANISMS for key in _easy_module_matches(value))
         if (organism or _easy_task_keys(value) or not _easy_command_text(value)
-                or value.endswith(':') or len(_easy_module_search(value)) > 1):
+                or shortcut in ('spaceout', 'running') or value.endswith(':')
+                or _easy_module_matches(value) or _easy_module_search(value)):
+            self._inspect()
+            return
+        suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
+        if self.path_edit.ai.isChecked() and not suggest(value):
             self._inspect()
             return
         self._debounce.stop()
@@ -6884,7 +7148,7 @@ class _EasyHomePage(QWidget):
         self.command_requested.emit(value)
 
     def _inspect(self):
-        """Run one bounded local inspection off the GUI thread, never an AI request."""
+        """Inspect local inputs or send an explicitly enabled unmatched task to AI."""
         from functools import partial
 
         from ..i18n import tr
@@ -6900,6 +7164,7 @@ class _EasyHomePage(QWidget):
         suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
         actions = suggest(value)
         if actions:
+            self._cancel_navigator_ai()
             self._runner.cancel()
             self._requested = value
             self._input_generation += 1
@@ -6911,6 +7176,10 @@ class _EasyHomePage(QWidget):
             self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
                                                          context=dict(action_groups=groups)))
             return
+        if self.path_edit.ai.isChecked() and self._navigator_ai_can_answer(value):
+            self._ask_navigator_ai(value)
+            return
+        self._cancel_navigator_ai()
         if self._runner.is_busy() or self._runner.active_jobs():
             self._queued_inspection = value != self._requested or not self._runner.is_busy()
             if value != self._requested:
@@ -6970,7 +7239,17 @@ class _EasyHomePage(QWidget):
     def _select_suggestion(self, key, path):
         """Center a suggested tool and reveal its real workflow before opening it."""
         if key.startswith('__easy_command__:'):
-            self.command_requested.emit(key.split(':', 1)[1])
+            from ..app import _easy_shortcut_match
+
+            command = key.split(':', 1)[1]
+            self.command_requested.emit(key if _easy_shortcut_match(command, explicit=True) else command)
+            return
+        if key == 'parascape':
+            from ..app import app_is_visible
+            from ..preferences import maturity_is_visible
+
+            if maturity_is_visible('alpha') and app_is_visible(key):
+                self.module_requested.emit(key, path)
             return
         from ..app import APPS, _HELP_MODULES, app_is_visible, folded_children
         from ..preferences import maturity_is_visible
@@ -7087,9 +7366,8 @@ class _EasyHomePage(QWidget):
     def closeEvent(self, event):
         """Stop owned timers and retire the local inspection worker before closing."""
         self._debounce.stop()
+        self._cancel_navigator_ai()
         self._cancel_regex_validation()
-        self._sync_easy_ripple_policy(False)
-        self._restore_easy_backdrop()
         self._show_suggestions()
         self.field._finish_growth()
         self._runner.shutdown(3000)

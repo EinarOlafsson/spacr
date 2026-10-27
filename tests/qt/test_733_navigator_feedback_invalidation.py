@@ -1,7 +1,7 @@
 """Enter feedback and completed cards release stale software field frames."""
 import pytest
-from PySide6.QtCore import QPoint, QRect, Qt
-from PySide6.QtGui import QColor, QImage, QRegion
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QApplication
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
@@ -35,49 +35,43 @@ def live_navigator(qtbot, private_ai_profile, monkeypatch):
         window.close()
 
 
-def _hold_obsolete_square(page, backdrop, monkeypatch):
-    from spacr.qt.widgets.ambient import _field_growing_regions_for_widget
-
-    _field_growing_regions_for_widget(page.field, (), invalidate=True)
-    live = backdrop._last_frame.copy()
-    live.fill(QColor(0, 30, 100))
-    obsolete = live.copy()
-    obsolete.fill(QColor(210, 20, 180))
-    producer = backdrop._producer_box[0]
-    assert producer is not None
-    monkeypatch.setattr(producer, 'latest', lambda: live)
-    backdrop._last_frame = live
-    center = backdrop.mapFromGlobal(page.path_edit.mapToGlobal(
-        QPoint(page.path_edit.width() // 2, -80)))
-    rectangle = QRect(center.x() - 25, center.y() - 25, 50, 50)
-    assert backdrop.rect().contains(rectangle)
+def _assert_overlay_is_live(page, backdrop):
     held = backdrop._held_rows
-    held.frame = obsolete
-    held.region = QRegion(rectangle)
-    held.fade = None
-    backdrop.repaint()
-    point = page.window().mapFromGlobal(backdrop.mapToGlobal(center))
-    before = page.window().grab().toImage().convertToFormat(QImage.Format_RGBA8888)
-    return held, point, before.pixelColor(point)
+    point = backdrop.mapFromGlobal(page.path_edit.mapToGlobal(
+        QPoint(page.path_edit.width() // 2, -80)))
+    assert not held._covered().contains(point)
+    assert not held.region.contains(point)
+    assert not backdrop._art_input._growing_regions
 
 
-def test_feedback_only_transition_clears_held_square_without_mouse_input(
+def test_feedback_only_transition_has_no_field_physics_without_mouse_input(
         qtbot, live_navigator, monkeypatch):
     window, page, backdrop = live_navigator
+    from spacr.qt.widgets import ambient
+
+    def unexpected(*args, **kwargs):
+        pytest.fail('Navigator changed the shared ambient field')
+
+    monkeypatch.setattr(ambient, '_field_growing_regions_for_widget', unexpected)
+    monkeypatch.setattr(ambient, 'field_ripple_for_widget', unexpected)
     page.field.set_cards([])
-    held, point, before = _hold_obsolete_square(page, backdrop, monkeypatch)
-    assert held.frame is not None
     page._feedback('No matching local input.', visible=False)
-    qtbot.wait(30)
-    assert held.frame is None and held.fade is None
-    after = window.grab().toImage().pixelColor(point)
-    assert abs(after.red() - before.red()) > 80
+    before = page.field.rim.grab().toImage()
+    qtbot.mouseClick(page.path_edit, Qt.LeftButton)
+    qtbot.wait(1900)
+    assert page.field.rim.grab().toImage() == before
+    assert not hasattr(page.field.rim, '_timer')
+    assert not hasattr(page.path_edit, '_gravity_clock')
     assert not page.field.cards
+    _assert_overlay_is_live(page, backdrop)
 
 
-def test_enter_card_completion_releases_obsolete_field_without_mouse_input(
+def test_enter_card_growth_preserves_selected_theme_and_live_field(
         qtbot, live_navigator, monkeypatch):
     window, page, backdrop = live_navigator
+    backdrop.set_background_color(QColor('#345678'))
+    original = (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop())
+    producer = backdrop._producer_box[0]
     monkeypatch.setattr(window, '_easy_navigation_suggestions', lambda value: [
         ('measure', 'Measure', 'Review image measurements.', '')])
     page.path_edit.setText('detect features')
@@ -85,8 +79,31 @@ def test_enter_card_completion_releases_obsolete_field_without_mouse_input(
     qtbot.waitUntil(lambda: bool(page.field.cards))
     assert page.field.cards[0]._key == 'measure'
     assert any(card._growing for card in page.field.cards)
-    held, _point, _before = _hold_obsolete_square(page, backdrop, monkeypatch)
     qtbot.waitUntil(lambda: all(not card._growing for card in page.field.cards), timeout=2000)
-    assert held.frame is None and held.fade is None
+    qtbot.wait(1900)
     assert all(card.isVisible() and card.isEnabled()
                and card._content_opacity.opacity() == 1 for card in page.field.cards)
+    _assert_overlay_is_live(page, backdrop)
+    assert (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop()) == original
+    assert backdrop._producer_box[0] is producer
+    assert not window.property('spacrEasySearchRippleOnly')
+    page.hide()
+    page.show()
+    assert (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop()) == original
+
+
+def test_real_no_answer_does_not_rearm_a_held_placeholder_square(
+        qtbot, live_navigator):
+    window, page, backdrop = live_navigator
+    page.field.set_cards([])
+    page.path_edit.setText('unrecognized input')
+    page._requested = page.path_edit.text()
+    message = 'No local module matches this input.'
+    page._show_result(page._input_generation, {
+        'path': page._requested, 'actions': [], 'message': message,
+    })
+    qtbot.wait(1900)
+    assert not page.field.cards
+    assert page.field.details.toPlainText() == message
+    assert page.path_edit.accessibleDescription() == message
+    _assert_overlay_is_live(page, backdrop)

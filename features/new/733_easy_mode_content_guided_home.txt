@@ -7,6 +7,46 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+CURRENT RUNS FOLLOW-UP — 2026-10-27: typing current runs/running runs/running jobs/show running runs (and equivalents in all supported languages) offers a click-only Running card. Clicking reveals Navigator's Widgets pane and its Running fold, listing every active user-visible job from the existing live run registry with native open/pause/stop controls. Queue remains the separate plate queue. Keep hidden housekeeping out, reconcile completed jobs, default the fold collapsed, and do not launch processing or change global preferences.
+
+PASSIVE THEME OVERLAY FOLLOW-UP — 2026-10-27: Navigator input and module cards must simply overlay the selected spaCR field theme. Remove Navigator-owned search rim idle animation, search-click gravity feedback, card growth physics, ambient holds/exclusions and background/ripple policy overrides. Leaving the pointer still must not start a search or field effect. Preserve the selected theme's normal animation, fixed dark25 controls, ordinary card fades/growth and the independently requested AI typing/busy icon animation.
+
+STARTUP AI GUIDANCE FOLLOW-UP — 2026-10-27: remove the Navigator boolean from
+Start spaCR, preserving Navigator's current default, Help toggle and CLI
+launchers. In How it runs, explain application-wide AI assistance, the hosted
+spaCR AI free daily allowance, Claude/Codex/Gemini's own CLI logins, and how
+to enable unmatched-task Navigator answers and use module-console AI.
+
+PERSISTENT FIELD-BOX FOLLOW-UP — 2026-10-27: after an unknown/no-answer Enter with the pointer held still, a rectangular patch of static field dots above the search must not remain until pointer movement. Diagnose the actual software-rendered no-result lifecycle and retire stale card/growth/feedback exclusion regions; no invisible placeholder may keep ambient particles fixed. Preserve current AI-response controls, input sizes and native task/command precedence.
+
+NAVIGATOR AI FOLLOW-UP — 2026-10-27: add a small search-field toggle with a
+white perimeter, hollow when off and provider-colored textured fill when on
+(spaCR teal, Claude orange, Codex light green, Gemini blue). First use explains
+application-wide AI assistance and asks for a provider; remember the choice,
+allow changing it, and send only explicitly submitted unmatched tasks through
+existing provider workers and limits. Display streamed replies in the fixed
+lower description box. Pulse fill with typing speed and rotate its texture
+while awaiting an answer, respecting reduced motion. Matching cards and local
+paths retain their existing routes. Root owns implementation and validation.
+
+LATEST SHORTCUT FOLLOW-UP — 2026-10-27: saliency/Grad-CAM offer Activation
+Maps; ParaScape offers its native card. Spaceout offers a white infinity-spiral
+card that enables the existing process-local Spaceout view on click. Update
+spaCR (including uppdate) triggers the update dialog. PyPI/pip/install phrases
+open spaCR PyPI; Conda install variants open spaCR conda-forge. Add spaCR stats
+(ClickPy), logs/cache folders, models folder plus Model Zoo, Docker, tutorials
+and nightly URL shortcuts. Reuse actual configured paths, existing routes and
+source-controlled localization; never interpret real paths as command text.
+
+LATEST MAINTAINER CORRECTION — 2026-10-27: halve the current Navigator search
+field and its text, and double the lower tooltip/description box and its text
+within window bounds. Enter on any module/submodule name must show its card,
+never open the module until a card is clicked. All added task words/phrases
+must also match in all supported application languages, retaining noun/verb
+variants, case-insensitive matching, path isolation and maturity filtering.
+Workstation session 2 owns integration; retained peers own disjoint layout,
+localized matching and language validation work.
+
 FORMAT-KEYWORD FOLLOW-UP — 2026-10-27: pure file-format tokens with or without a leading dot (including sql/db/sqlite, npy, tif/tiff, bmp and explicit bnp typo, png/jpeg, csv/tsv, fastq/fq with optional gzip, pdf and available ND2/CZI/LIF readers) must offer real compatible native module cards on Enter without launching or processing. Derive support from existing reader/drop capabilities, keep maturity gates and canonical deduplication, and leave actual filenames/paths/existing relative folders to evidence-based inspection. A sql keyword refers to SQLite tools; an actual .sql dump is not a supported database ingest. No universal-format claim or new UI captions is required.
 
 FEATURE-DETECTION PHRASE FOLLOW-UP — 2026-10-27: detect features and feature
@@ -511,3 +551,5 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Navigator now defaults on for fresh profiles while retaining saved opt-outs; the centered input doubles in font/size, and all 100 tasks have paired noun/verb forms. Canonical merged arrays and verified generated artifacts offer native downstream routes with prerequisite guidance and module-specific source paths. Numeric NPY Make Masks editing is delivered under 735; tutorial/Docs/API handoff receipt remains unconfirmed.
 
 2026-10-27 — Added analyzed-mask and feature-detection aliases plus dotted/undotted format queries from actual reader/handler capabilities; actual Enter controls pass. Card lifecycle/feedback invalidation fixes the reproduced stale particle square without mouse movement; five focused rendering controls pass.
+
+2026-10-27 — Delivered smaller centered search/larger lower text, localized task and shortcut cards, click-only native tools, current registry-backed Running jobs, passive selected-theme overlays, consented provider-colored Navigator AI with real-thread reply/cancel checks, and startup AI guidance without the Navigator checkbox. Focused rendering, routing, settings and transport controls pass; normal multilingual artifacts accompany publication. Tutorial and broader Docs/API handoff remains unacknowledged.

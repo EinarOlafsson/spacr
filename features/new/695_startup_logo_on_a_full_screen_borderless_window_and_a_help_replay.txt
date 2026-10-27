@@ -2,7 +2,7 @@
 STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP REPLAY
 ================================================================================
 
-Status:    COMPLETE — startup delivery and the qualified borderless-toggle repair ship with this Nightly change.
+Status:    DONE 2026-10-27 — text-free mosaic hold/departure; accepted size, timing, fallback and Help replay retained.
 Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
            and the logo blow away window are the same window not seperate the
            spacr log mosaic on a black background is the first thing loaded
@@ -24,6 +24,10 @@ Related:   694 (photomosaic blow-away startup screen,
            Preferences > Animation > Startup animation.
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Remove all text and rule lines beneath the photomosaic during its hold and
+blow-away. Keep the plain mark fallback, centered reduced logo size and
+startup/Help replay timeline unchanged.
 
 Workstation session 2 owns the requested size correction: halve the large
 startup animation logo in both dimensions, including constrained windows.
@@ -216,3 +220,7 @@ No new tutorial/native acceptance or release claim; those remain with their exis
 
 2026-10-27 — Borderless flag changes explicitly retain normal-window geometry and restore the foreground for a previously visible, non-minimized window; hidden startup and maximized/fullscreen state handling remain intact. G5 source peer accepted; actual menu toggles in both directions plus maximized and hidden-startup controls pass (3 cases, 6.03 s, Qt 6.11.3/offscreen). The reported native-platform disappearance was not reproduced locally; no native acceptance claim is made. Delivered through root Nightly publication with this change.
 2026-10-27 — Maintainer-confirmed startup-logo correction halves both dimensions, including width/height-constrained layouts; center, sharp decoding, timings and Help replay remain intact. Two existing real-cover geometry/timeline checks pass for ordinary nightly publication; classic Home and Navigator input sizes are unchanged.
+
+2026-10-27 — Reopened only the requested removal of text and rule lines beneath the mosaic; preserve the accepted size, timeline, fallback and Help replay behavior.
+
+2026-10-27 — Removed under-mosaic text and rules in normal and reduced-motion departure; three actual rendering/telemetry checks and five historical/current-document controls pass. Scoped public API text is reviewed in all nine languages.

@@ -101,8 +101,8 @@ callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
-:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask the whole folder**
-applies Cellpose to every image in the selected folder, while **Save mask** on
+:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask folder**
+applies Cellpose to every lowercase ``.tif`` image in the selected folder, while **Save mask** on
 the Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded
 modules retain their existing widgets inside :class:`FoldedModulePanel`.
 
@@ -278,7 +278,7 @@ FOLD_FALLBACK = {
         "trained model or a stock model to an image folder.",
         "beta"),
     MASK_FOLDER_KEY: (
-        "Mask the whole folder",
+        "Mask folder",
         "Apply the selected segmentation model to every image in the open "
         "folder.",
         "beta"),
@@ -15308,33 +15308,39 @@ class MakeMasksScreen(QWidget):
             session whose masks are not in ``<folder>/masks``, and a
             confirmation that is declined, all answer ``False``.
         """
+        from ..i18n import tr
+        from .train_cellpose import _cellpose_folder_error
+
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
             return False
         if self._field_folders:
-            from ..i18n import tr
-
             self._status_label.setText(tr(
-                "Mask the whole folder works on one folder, and this queue "
+                "Mask folder works on one folder, and this queue "
                 "was dropped from several, so it was not started."))
             return False
         if self._masks_dir or any(engine.is_seg_bundle(name)
                                   for name in self._image_files):
-            self._status_label.setText(
-                f"Mask the whole folder writes its masks into "
-                f"{os.path.join(self._folder, 'masks')}, and this set keeps "
-                f"its masks somewhere else, so it was not started.")
+            self._status_label.setText(tr(
+                'Mask folder writes its masks into {folder}, and this set keeps '
+                'its masks somewhere else, so it was not started.',
+                folder=os.path.join(self._folder, 'masks')))
+            return False
+        error = _cellpose_folder_error(self._folder)
+        if error:
+            self._status_label.setText(error)
             return False
         count = len(self._image_files)
         if not self._confirm(
-                "Mask the whole folder",
+                tr("Mask folder"),
                 f"Segment all {count} images in {self._folder}?\n\n"
                 f"Images that already have a mask are left alone."):
             return False
         dialog = self.open_folded(MASK_FOLDER_KEY)
         if dialog is None:
             return False
+        dialog.screen.apply_screen.apply_settings_dict({'save': True})
         self._status_label.setText(
             f"Masking {count} images in {self._folder}…")
         self._start_folded_run(dialog.screen.apply_screen)
