@@ -10597,6 +10597,7 @@ class SettingsWidgets:
         of them before anything is built.
 
         :param count: the new ``number_of_organelles``.
+
         The first channel or mask-plane switch is offered when the count is
         positive. Each numeric switch reveals that slot's settings and the
         next switch, up to the count. Imported configured slots remain
@@ -11212,7 +11213,7 @@ class SettingsWidgets:
                              "value": default}
         if kind == "entry":
             if key == NUMBER_OF_ORGANELLES:
-                return "plain", {"control": "text", "value": default}
+                return "plain", {"control": "text", "value": actual_default}
             shape = list_shape_for(key, self._defaults.get(key, default))
             if shape is not None:
                 nested_capable, allow_none, element_type, container = shape

@@ -1,7 +1,7 @@
 """Importing a settings file rebuilds the screen at most once.
 
 `AppScreen.apply_settings_dict` rebuilds the screen when the file changes a
-value that shapes the form -- the organelle count, or an object's channel or
+value that shapes the form -- historically the organelle count, or an object's channel or
 mask plane -- and then applies the file to the new screen. Until 2026-09-19
 it treated every `nucleus_*` / `pathogen_*` channel or mask-plane key in the
 FILE as one of those, whether or not the form carried it. A key the form
@@ -134,8 +134,10 @@ def test_a_switch_the_form_carries_still_lands(
 
 def test_the_organelle_count_still_rebuilds_once_and_spawns_its_slot(
         qtbot, qt_theme_applied, monkeypatch, tmp_path):
-    """The one change that adds rows still gets its rebuild, and only one."""
+    """A configured imported slot grows the existing form without a rebuild."""
     window, rebuilds = _open(qtbot, monkeypatch, "mask")
+    screen = window._screens["mask"]
+    model = screen._settings_model
     assert _collected(window, "mask").get("number_of_organelles") == 0
 
     warnings = _import(window, monkeypatch, tmp_path, "mask",
@@ -143,7 +145,12 @@ def test_the_organelle_count_still_rebuilds_once_and_spawns_its_slot(
                         ("organelleb_channel", "3")])
 
     assert warnings == [], f"the import failed: {warnings}"
-    assert rebuilds == ["mask"], rebuilds
+    assert rebuilds == [], rebuilds
+    assert window._screens["mask"] is screen
+    assert screen._settings_model is model
+    assert "organelleb_channel" in model._widgets
+    assert "organelleb_type" in model._widgets
+    assert "organelle_type" not in model._widgets
     after = _collected(window, "mask")
     assert after["number_of_organelles"] == 2
     assert after["organelleb_channel"] == 3

@@ -165,3 +165,11 @@ def test_the_detector_would_catch_the_two_that_got_through():
     assert _structural_errors(bad), "the detector no longer sees the defect"
     assert not _structural_errors(bad.replace("at once:", "at once::")), (
         "the `::` fix no longer satisfies the detector")
+
+
+def test_organelle_spawn_description_separates_the_parameter_field():
+    path = _ROOT / "qt" / "screens" / "settings_model.py"
+    node = next(node for node in ast.walk(ast.parse(path.read_text()))
+                if isinstance(node, ast.FunctionDef)
+                and node.name == "organelle_keys_to_spawn")
+    assert not _structural_errors(ast.get_docstring(node))

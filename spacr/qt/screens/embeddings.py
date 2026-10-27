@@ -282,7 +282,7 @@ class EmbeddingsScreen(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
-        outer.setSpacing(SPACING["sm"])
+        outer.setSpacing(SPACING["xs"])
 
         head = QHBoxLayout()
         head.setSpacing(SPACING["sm"])

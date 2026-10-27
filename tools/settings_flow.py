@@ -963,7 +963,8 @@ def rst_for(data: dict, keys: Optional[List[str]] = None) -> str:
         if not body:
             continue
         drawn += 1
-        lines += [f"{SECTION_MARK}{key}:", "", key, "-" * len(key), ""]
+        heading = key[:-1] + r"\_" if key.endswith("_") else key
+        lines += [f"{SECTION_MARK}{key}:", "", heading, "-" * len(heading), ""]
         # WHAT THE SETTING IS, before where it goes. Asked for on
         # 2026-09-08: "when they click the setting itself they should get
         # the tool tip text". The tree says which functions carry the
