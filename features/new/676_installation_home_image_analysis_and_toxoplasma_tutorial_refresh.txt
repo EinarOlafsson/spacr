@@ -499,3 +499,6 @@ Classify overview p31 main aborts on plain-versus-production-HTML tooltip compar
 ML data-load passes29.31fps; heatmap first/retry fail17.49/9.77fps. Reviewed first-take18–20s shows complete real heatmap at28.5fps without any bad bucket; strict reviewed-cut admission, final render and publication remain required, with raw failures preserved.
 Classify overview p32 completes genuine navigation with all five native hover tooltips; compatible first/retry accept seven of eight clips. Activation loses capture motion after a redundant pointer detour; shorten that route before a targeted retake, preserving all raw failures.
 Normal explicit overview composition binds current50 tracks, current main/ML science and only the fully published image-classification excerpt;41 focused cases pass. Current50 audio adoption, audio QA and onset checks pass; final capture/render/browser/publication remain.
+
+2026-10-27 — Classify overview targeted Activation capture passes29.19fps with genuine hover and no fallback; all eight main routes now accepted. Current50 audio QA/onsets and218.77s mixed master/decode/PTS/poster/web pass; generated12-scene pause policy adopted.
+All50-voice boundary/EOF playback, hosted-media readback and nightly publication remain; no app-freeze waiver or narration synthesis used.

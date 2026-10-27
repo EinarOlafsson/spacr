@@ -4089,6 +4089,85 @@
           "idle_tail_start": 4.0
         }
       ]
+    },
+    {
+      "lesson": "41_classify",
+      "master_sha256": "a4cc9ed8f39da78d4a5968053eac0bb8c0cf165890360d7ea706af706429d82e",
+      "visual_timing_sha256": "9d7f9dd3bbbc5cffd9dabfd9d9121634dc475b0897ac1dcc65d9dbf50f79442a",
+      "scenes": [
+        {
+          "visual": "main_00_home",
+          "source_start": 0.0,
+          "source_end": 16.233333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "main_02_family_choices",
+          "source_start": 16.233333333333334,
+          "source_end": 38.06666666666667,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "main_03_tabular_family",
+          "source_start": 38.06666666666667,
+          "source_end": 58.8,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "ml_02_data_choice_load",
+          "source_start": 58.8,
+          "source_end": 76.03333333333333,
+          "idle_tail_start": 1.5
+        },
+        {
+          "visual": "ml_25_ml_figure_02",
+          "source_start": 76.03333333333333,
+          "source_end": 98.2,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "cv_24_batch_figure",
+          "source_start": 98.2,
+          "source_end": 122.46666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_classifier_evaluation_tooltip",
+          "source_start": 122.46666666666667,
+          "source_end": 134.5,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_explain_cv_tooltip",
+          "source_start": 134.5,
+          "source_end": 152.4,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_activation_tooltip",
+          "source_start": 152.4,
+          "source_end": 169.33333333333334,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "main_05_train_compare_tooltip",
+          "source_start": 169.33333333333334,
+          "source_end": 183.9,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_06_feature_explorer_nested",
+          "source_start": 183.9,
+          "source_end": 198.53333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "ml_25_ml_figure_02",
+          "source_start": 198.53333333333333,
+          "source_end": 218.76666666666668,
+          "idle_tail_start": 2
+        }
+      ]
     }
   ]
 }
